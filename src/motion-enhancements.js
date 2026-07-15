@@ -35,6 +35,15 @@ inView(".lunch-card", element => {
   );
 }, { amount: 0.3 });
 
+inView(".stage-video-reel", element => {
+  if (!motionAllowed()) return;
+  animate(
+    element,
+    { opacity: [0, 1], scale: [0.94, 1] },
+    { duration: 0.68, ease: "easeOut" }
+  );
+}, { amount: 0.28 });
+
 hover(".button, .decision-grid button, .celebration-paths a", element => {
   if (!motionAllowed()) return;
   animate(element, { scale: 1.018 }, { duration: 0.18, ease: "easeOut" });
@@ -79,6 +88,6 @@ window.addEventListener("wirtschaft:themechange", () => {
 
 reduceMotion.addEventListener("change", event => {
   if (!event.matches) return;
-  document.querySelectorAll(".button, .decision-grid button, .celebration-paths a, .dialog-frame, .event-timeline article, .theme-status strong, .theme-status span")
+  document.querySelectorAll(".button, .decision-grid button, .celebration-paths a, .dialog-frame, .event-timeline article, .theme-status strong, .theme-status span, .stage-video-reel")
     .forEach(element => element.getAnimations().forEach(animation => animation.cancel()));
 });

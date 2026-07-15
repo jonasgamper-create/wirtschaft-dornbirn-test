@@ -227,6 +227,14 @@
           scene.style.setProperty('--orbit-turn', `${-18 + local * 36}deg`);
           scene.style.setProperty('--instrument-shift', `${(local - .5) * -92}px`);
           scene.style.setProperty('--instrument-zoom', (1.16 - local * .18).toFixed(4));
+          if (scene.classList.contains('chapter-stage')) {
+            const focusPulse = Math.max(0, 1 - Math.abs(local - .54) * 3.2);
+            scene.style.setProperty('--video-progress', local.toFixed(4));
+            scene.style.setProperty('--video-pan', `${((local - .5) * -14).toFixed(2)}%`);
+            scene.style.setProperty('--video-rise', `${((local - .5) * -58).toFixed(1)}px`);
+            scene.style.setProperty('--video-glare', `${(local * 132 - 34).toFixed(1)}%`);
+            scene.style.setProperty('--video-focus', focusPulse.toFixed(4));
+          }
           const normalized = (top + height / 2 - window.innerHeight / 2) / window.innerHeight;
           scene.querySelectorAll('.parallax-media').forEach(media => {
             media.style.setProperty('--parallax', `${normalized * -26}px`);

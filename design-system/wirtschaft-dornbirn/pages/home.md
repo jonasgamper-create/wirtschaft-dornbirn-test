@@ -69,3 +69,13 @@ always identified by text in the fixed header—not by color alone.
   Tailwind dependencies.
 - Generic countdown urgency, glassmorphism and SaaS styling are explicitly not
   part of this brand system.
+
+## Scroll-film for the stage chapter
+
+- The Dinner & Livekultur chapter uses three existing house images as a
+  scroll-scrubbed cinematic sequence: food, live performance and stage.
+- The scroll position controls the crossfade, camera pan, vertical lift and a
+  single restrained light sweep. This gives the sensation of a short film
+  without an externally hosted video, tracking pixels or added media weight.
+- A persistent `Motion an/aus` control and `prefers-reduced-motion` disable
+  the sequence cleanly and preserve readable content.
