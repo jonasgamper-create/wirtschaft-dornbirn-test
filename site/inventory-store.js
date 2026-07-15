@@ -145,6 +145,23 @@
     return { ok: true, available: available - quantity };
   }
 
+  function recordReservationInquiry(payload) {
+    const state = load();
+    state.reservations.unshift({ id: `R-${Date.now()}`, createdAt: new Date().toISOString(), status: 'Anfrage', ...payload, guests: Math.max(1, Number(payload.guests || 1)) });
+    state.reservations = state.reservations.slice(0, 40);
+    save(state);
+    return { ok: true };
+  }
+
+  function recordTicketInquiry(payload) {
+    const state = load();
+    const event = state.events.find(item => item.id === payload.eventId) || state.events[0];
+    state.ticketOrders.unshift({ id: `T-${Date.now()}`, createdAt: new Date().toISOString(), status: 'Anfrage', eventId: event.id, event: event.name, ...payload, quantity: Math.max(1, Number(payload.quantity || 1)) });
+    state.ticketOrders = state.ticketOrders.slice(0, 40);
+    save(state);
+    return { ok: true };
+  }
+
   window.WirtschaftData = {
     STORAGE_KEY,
     load,
@@ -156,6 +173,8 @@
     updateService,
     updateEvent,
     recordReservation,
-    recordTicketPurchase
+    recordTicketPurchase,
+    recordReservationInquiry,
+    recordTicketInquiry
   };
 })();

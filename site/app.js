@@ -119,6 +119,14 @@
     showToast.timer = window.setTimeout(() => toast.classList.remove('show'), 3200);
   }
 
+  function openEmailRequest(subject, lines) {
+    const bodyText = lines.filter(Boolean).join('\n');
+    const mailto = `mailto:willkommen@wirtschaft-dornbirn.at?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+    window.__LAST_MAILTO__ = mailto;
+    if (!qaMode && !studyMode) window.location.href = mailto;
+    return mailto;
+  }
+
   function closeOpenDialogs() {
     Object.values(dialogs).forEach(dialog => {
       if (dialog?.open) dialog.close();
@@ -541,14 +549,26 @@
       reservationMessage.textContent = 'Bitte Datum, Zeit, Personenzahl und Tisch auswählen.';
       return;
     }
-    const result = !qaMode && !studyMode && inventory ? inventory.recordReservation({ date: bookingDate.value, time: selectedTime, guests: Number(selectedGuests), table: selectedTable }) : { ok: true };
-    if (!result.ok) {
-      reservationMessage.textContent = 'Dieser Termin ist für die gewählte Gruppengröße gerade nicht mehr verfügbar. Bitte telefonisch anfragen.';
+    const reservationName = document.getElementById('reservationName');
+    const reservationEmail = document.getElementById('reservationEmail');
+    const reservationPhone = document.getElementById('reservationPhone');
+    if (!reservationName.value.trim() || !reservationEmail.value.trim() || !reservationEmail.validity.valid) {
+      reservationMessage.textContent = 'Bitte Name und eine gültige E-Mail-Adresse ergänzen.';
+      (!reservationName.value.trim() ? reservationName : reservationEmail).focus();
       return;
     }
-    reservationMessage.textContent = `Demo vollständig: ${selectedGuests} Personen, ${selectedTime} Uhr, Tisch ${selectedTable}. Lokal für das Gastgeber-Cockpit erfasst.`;
+    const payload = { date: bookingDate.value, time: selectedTime, guests: Number(selectedGuests), table: selectedTable, name: reservationName.value.trim(), email: reservationEmail.value.trim(), phone: reservationPhone.value.trim() };
+    if (!qaMode && !studyMode && inventory?.recordReservationInquiry) inventory.recordReservationInquiry(payload);
+    openEmailRequest(`Reservierungsanfrage · ${bookingDate.value} · ${selectedTime} Uhr`, [
+      'Guten Tag liebes Team der Wirtschaft Dornbirn,', '',
+      'ich möchte unverbindlich einen Tisch anfragen:',
+      `Datum: ${bookingDate.value}`, `Uhrzeit: ${selectedTime} Uhr`, `Personen: ${selectedGuests}`, `Tischwunsch: ${selectedTable}`,
+      `Name: ${payload.name}`, `E-Mail: ${payload.email}`, payload.phone ? `Telefon: ${payload.phone}` : '', '',
+      'Bitte bestätigen Sie mir, ob der gewünschte Termin verfügbar ist.', '', 'Vielen Dank!'
+    ]);
+    reservationMessage.textContent = 'Die Reservierungsanfrage wurde im E-Mail-Programm vorbereitet. Bitte dort noch absenden.';
     reportStudy('reservation_complete', { concept: body.dataset.concept || requestedConcept || '01', guests: selectedGuests, time: selectedTime, table: selectedTable });
-    showToast('Reservierungsweg erfolgreich getestet – keine Daten übertragen.');
+    showToast('Reservierungsanfrage ist versandbereit.');
   });
 
   const calendarEvents = [
@@ -650,14 +670,26 @@
   });
   document.getElementById('ticketForm')?.addEventListener('submit', event => {
     event.preventDefault();
-    const result = !qaMode && !studyMode && inventory ? inventory.recordTicketPurchase({ eventId: ticketEvent?.value, ticket: selectedTicket, quantity: ticketQuantity, total: selectedPrice * ticketQuantity }) : { ok: true };
-    if (!result.ok) {
-      ticketMessage.textContent = `Für diesen Termin sind nur noch ${result.available} Tickets verfügbar.`;
+    const ticketName = document.getElementById('ticketName');
+    const ticketEmail = document.getElementById('ticketEmail');
+    if (!ticketName.value.trim() || !ticketEmail.value.trim() || !ticketEmail.validity.valid) {
+      ticketMessage.textContent = 'Bitte Name und eine gültige E-Mail-Adresse ergänzen.';
+      (!ticketName.value.trim() ? ticketName : ticketEmail).focus();
       return;
     }
-    ticketMessage.textContent = `Demo vollständig: ${ticketQuantity} × ${selectedTicket}, Gesamt ${selectedPrice * ticketQuantity} €. Lokal für das Gastgeber-Cockpit erfasst.`;
+    const chosenEvent = calendarEvents.find(item => item.id === ticketEvent?.value);
+    const payload = { eventId: ticketEvent?.value, ticket: selectedTicket, quantity: ticketQuantity, total: selectedPrice * ticketQuantity, name: ticketName.value.trim(), email: ticketEmail.value.trim() };
+    if (!qaMode && !studyMode && inventory?.recordTicketInquiry) inventory.recordTicketInquiry(payload);
+    openEmailRequest(`Ticketanfrage · ${chosenEvent?.title || 'Veranstaltung'}`, [
+      'Guten Tag liebes Team der Wirtschaft Dornbirn,', '',
+      'ich möchte unverbindlich Tickets anfragen:',
+      `Veranstaltung: ${chosenEvent?.title || ticketEvent?.value}`, `Datum: ${chosenEvent?.date || ''}`, `Ticketart: ${selectedTicket}`, `Anzahl: ${ticketQuantity}`, `Voraussichtlicher Gesamtpreis: ${selectedPrice * ticketQuantity} €`,
+      `Name: ${payload.name}`, `E-Mail: ${payload.email}`, '',
+      'Bitte bestätigen Sie Verfügbarkeit und Preis.', '', 'Vielen Dank!'
+    ]);
+    ticketMessage.textContent = 'Die Ticketanfrage wurde im E-Mail-Programm vorbereitet. Bitte dort noch absenden.';
     reportStudy('ticket_complete', { concept: body.dataset.concept || requestedConcept || '01', ticket: selectedTicket, quantity: ticketQuantity, total: selectedPrice * ticketQuantity });
-    showToast('Ticketweg erfolgreich getestet – kein Kauf ausgelöst.');
+    showToast('Ticketanfrage ist versandbereit.');
   });
 
   renderTicketTotal();

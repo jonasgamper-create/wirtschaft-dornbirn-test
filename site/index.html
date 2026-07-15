@@ -13,9 +13,9 @@
   <title>Wirtschaft Dornbirn · Essen, trinken & Livekultur</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="preload" href="assets/restaurant.webp" as="image" type="image/webp" fetchpriority="high">
-  <link rel="stylesheet" href="styles.css?v=experience16">
-  <script src="inventory-store.js?v=1" defer></script>
-  <script src="app.js?v=experience15" defer></script>
+  <link rel="stylesheet" href="styles.css?v=experience17">
+  <script src="inventory-store.js?v=2" defer></script>
+  <script src="app.js?v=experience17" defer></script>
   <script src="motion-enhancements.js?v=3" defer></script>
   <script type="application/ld+json">
   {
@@ -213,7 +213,7 @@
     <div><a href="tel:+43557220540">+43 (0)5572 20 540</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a></div>
     <div><p>UID ATU 36206707 · FN 329272 z</p><p>Firmenbuchgericht: Landesgericht Feldkirch</p></div>
     <div class="footer-links"><a href="feste-catering.html">Feste &amp; Catering</a><a href="https://wirtschaft-dornbirn.at/impressum/" target="_blank" rel="noopener">Aktuelles Impressum ↗</a><button type="button" data-open="privacy">Datenschutz-Hinweis</button></div>
-    <p class="prototype-note">Interaktiver Konzeptprototyp · keine Live-Buchung oder Zahlung · ausschließlich Originalbilder des bestehenden Markenauftritts</p>
+    <p class="prototype-note">Öffentliche Testumgebung · Anfragen per E-Mail · verbindlich erst nach persönlicher Bestätigung</p>
   </footer>
 
   <aside class="scroll-artifacts" aria-label="Schnellzugriffe für Mittag und Abendveranstaltungen">
@@ -246,28 +246,30 @@
 
   <dialog class="app-dialog" id="reservationDialog" aria-labelledby="reservationTitle">
     <form method="dialog" class="dialog-frame" id="reservationForm">
-      <header><div><p class="eyebrow">Reservierungs-Demo</p><h2 id="reservationTitle">Euer Tisch in Dornbirn.</h2></div><button class="dialog-close" type="button" aria-label="Reservierung schließen">×</button></header>
+      <header><div><p class="eyebrow">Reservierungsanfrage</p><h2 id="reservationTitle">Euer Tisch in Dornbirn.</h2></div><button class="dialog-close" type="button" aria-label="Reservierung schließen">×</button></header>
       <div class="booking-grid">
         <div class="booking-fields">
           <label>Datum<input id="bookingDate" name="date" type="date" required></label>
           <fieldset><legend>Zeit</legend><div class="choice-row" id="timeChoices"><button type="button" data-value="11:30">11:30</button><button type="button" data-value="12:00">12:00</button><button type="button" data-value="12:30">12:30</button><button type="button" data-value="18:00">18:00</button><button type="button" data-value="19:30">19:30</button></div></fieldset>
           <fieldset><legend>Personen</legend><div class="choice-row" id="guestChoices"><button type="button" data-value="2">2</button><button type="button" data-value="4">4</button><button type="button" data-value="6">6</button><button type="button" data-value="10">10</button></div></fieldset>
           <fieldset><legend>Bereich / Tisch</legend><div class="table-options" id="tableChoices" aria-live="polite"><p>Bitte zuerst Personenzahl wählen.</p></div></fieldset>
+          <div class="contact-fields"><label>Name<input id="reservationName" name="name" autocomplete="name" required></label><label>E-Mail<input id="reservationEmail" name="email" type="email" autocomplete="email" required></label><label class="wide">Telefon, wenn Rückruf gewünscht<input id="reservationPhone" name="phone" type="tel" autocomplete="tel"></label></div>
         </div>
-        <aside class="guest-assurance"><p>Persönlich bestätigt</p><strong id="guestAvailabilityMessage">Datum, Zeit und Personenzahl auswählen.</strong><ul><li>Tischwunsch direkt wählen</li><li>Mittag und Abend in einem Weg</li><li>Keine internen Kontingente sichtbar</li></ul><p class="microcopy">Die Demo speichert nur lokal in diesem Browser und übermittelt keine Daten.</p></aside>
+        <aside class="guest-assurance"><p>Persönlich bestätigt</p><strong id="guestAvailabilityMessage">Datum, Zeit und Personenzahl auswählen.</strong><ul><li>Tischwunsch direkt wählen</li><li>Mittag und Abend in einem Weg</li><li>Keine internen Kontingente sichtbar</li></ul><p class="microcopy">Die Anfrage öffnet fertig ausgefüllt im E-Mail-Programm. Verbindlich wird die Reservierung erst nach persönlicher Bestätigung.</p></aside>
       </div>
       <p class="form-message" id="reservationMessage" role="status"></p>
-      <footer><button class="button button-dark" id="reservationSubmit" type="submit">Demo-Reservierung prüfen</button><span>Sicher · klar · ohne Konto</span></footer>
+      <footer><button class="button button-dark" id="reservationSubmit" type="submit">Anfrage per E-Mail senden</button><span>Persönlich bestätigt · ohne Konto</span></footer>
     </form>
   </dialog>
 
   <dialog class="app-dialog" id="ticketDialog" aria-labelledby="ticketTitle">
     <form method="dialog" class="dialog-frame ticket-frame" id="ticketForm">
-      <header><div><p class="eyebrow">Ticket-Demo</p><h2 id="ticketTitle">Bühne, Dinner oder beides.</h2></div><button class="dialog-close" type="button" aria-label="Ticket-Auswahl schließen">×</button></header>
+      <header><div><p class="eyebrow">Ticketanfrage</p><h2 id="ticketTitle">Bühne, Dinner oder beides.</h2></div><button class="dialog-close" type="button" aria-label="Ticket-Auswahl schließen">×</button></header>
       <div class="ticket-event-tools"><label class="ticket-event-picker">Termin<select id="ticketEvent"><option value="event-2026-09-03">03.09. · Genussroute 6850</option><option value="event-2026-09-22">22.09. · Helden reisen, Gäste speisen!</option><option value="event-2026-09-23">23.09. · Zusatzabend</option><option value="event-2026-10-14">14.10. · Dinner &amp; Comedy</option><option value="event-2026-10-15">15.10. · Christof Spörk</option></select></label><button class="calendar-selected" id="selectedEventCalendar" type="button">Termin merken <span aria-hidden="true">＋</span></button></div>
       <div class="ticket-list" role="radiogroup" aria-label="Tarif auswählen"><button type="button" role="radio" aria-checked="true" class="selected" data-ticket="Show only" data-price="39"><span>Show only</span><b>39 €</b><small>Einlass 20:00</small></button><button type="button" role="radio" aria-checked="false" data-ticket="Dinner + Show" data-price="89"><span>Dinner + Show</span><b>89 €</b><small>6 Gänge · Einlass 18:00</small></button><button type="button" role="radio" aria-checked="false" data-ticket="Genussloge" data-price="119"><span>Genussloge</span><b>119 €</b><small>Premiumplatz · Aperitif</small></button></div>
       <div class="ticket-summary"><label for="ticketQuantity">Anzahl</label><div class="stepper"><button type="button" id="ticketMinus" aria-label="Ein Ticket weniger">−</button><output id="ticketQuantity">2</output><button type="button" id="ticketPlus" aria-label="Ein Ticket mehr">+</button></div><p>Gesamt <strong id="ticketTotal">78 €</strong></p></div>
-      <p class="form-message" id="ticketMessage" role="status"></p><footer><button class="button button-dark" type="submit">Demo-Checkout fortsetzen</button><span>Keine Zahlung · kein echtes Ticket</span></footer>
+      <div class="contact-fields ticket-contact"><label>Name<input id="ticketName" name="ticketName" autocomplete="name" required></label><label>E-Mail<input id="ticketEmail" name="ticketEmail" type="email" autocomplete="email" required></label></div>
+      <p class="form-message" id="ticketMessage" role="status"></p><footer><button class="button button-dark" type="submit">Ticketanfrage per E-Mail</button><span>Preis und Verfügbarkeit werden bestätigt</span></footer>
     </form>
   </dialog>
 
@@ -282,21 +284,21 @@
         <article><time datetime="2026-10-14"><b>14</b><span>OKT</span></time><div><p>Dinner &amp; Comedy</p><small>Genuss trifft Humor</small></div><div class="event-actions"><button type="button" data-open="tickets" data-event="event-2026-10-14">Tickets <span>↗</span></button><button type="button" data-calendar-event="event-2026-10-14">Zum Kalender <span>＋</span></button></div></article>
         <article><time datetime="2026-10-15"><b>15</b><span>OKT</span></time><div><p>Christof Spörk</p><small>Kabarett in der Wirtschaft</small></div><div class="event-actions"><button type="button" data-open="tickets" data-event="event-2026-10-15">Tickets <span>↗</span></button><button type="button" data-calendar-event="event-2026-10-15">Zum Kalender <span>＋</span></button></div></article>
       </div>
-      <footer><button class="button button-dark" type="button" data-open="tickets">Ticket-Demo öffnen</button><button class="button calendar-all" id="allEventsCalendar" type="button">Alle Termine merken</button><span>Programmstand des Konzeptprototyps · vor Livegang im CMS bestätigen</span></footer>
+      <footer><button class="button button-dark" type="button" data-open="tickets">Ticketanfrage öffnen</button><button class="button calendar-all" id="allEventsCalendar" type="button">Alle Termine merken</button><span>Termine bitte vor der Veröffentlichung durch den Gastgeber bestätigen</span></footer>
     </form>
   </dialog>
 
   <dialog class="app-dialog" id="menuDialog" aria-labelledby="menuTitle">
-    <form method="dialog" class="dialog-frame menu-frame"><header><div><p class="eyebrow">Heute in der Wirtschaft</p><h2 id="menuTitle">Das heutige Mittagsmenü.</h2></div><button class="dialog-close" type="button" aria-label="Menü schließen">×</button></header><div class="menu-list"><article><span>01</span><div><h3>Suppe oder Salat</h3><p>Tagesfrisch als Auftakt</p></div><b>inkl.</b></article><article><span>02</span><div><h3>Vorarlberger Hauptgang</h3><p>Saisonal · vegetarische Alternative verfügbar</p></div><b>18,90 €</b></article><article><span>03</span><div><h3>Kleiner Abschluss</h3><p>Hausgemacht und überraschend</p></div><b>+ 5,50 €</b></article></div><footer><button class="button button-green" type="button" data-open="reservation">Tisch zum Mittag reservieren</button><span>Beispielinhalt – Mittagsmenüs im CMS pflegbar</span></footer></form>
+    <form method="dialog" class="dialog-frame menu-frame"><header><div><p class="eyebrow">Heute in der Wirtschaft</p><h2 id="menuTitle">Das heutige Mittagsmenü.</h2></div><button class="dialog-close" type="button" aria-label="Menü schließen">×</button></header><div class="menu-list"><article><span>01</span><div><h3>Suppe oder Salat</h3><p>Tagesfrisch als Auftakt</p></div><b>inkl.</b></article><article><span>02</span><div><h3>Vorarlberger Hauptgang</h3><p>Saisonal · vegetarische Alternative verfügbar</p></div><b>18,90 €</b></article><article><span>03</span><div><h3>Kleiner Abschluss</h3><p>Hausgemacht und überraschend</p></div><b>+ 5,50 €</b></article></div><footer><button class="button button-green" type="button" data-open="reservation">Tisch zum Mittag reservieren</button><span>Aktueller Beispielstand – im Gastgeber-Cockpit prüfbar</span></footer></form>
   </dialog>
 
   <dialog class="app-dialog" id="storyDialog" aria-labelledby="storyTitle">
     <form method="dialog" class="dialog-frame story-frame"><header><div><p class="eyebrow">Die Geschichte</p><h2 id="storyTitle">Emma, Eugen und ein Haus voller Leben.</h2></div><button class="dialog-close" type="button" aria-label="Geschichte schließen">×</button></header><div class="story-layout"><img src="assets/emma-eugen.png" width="800" height="594" alt="Emma und Eugen"><div><p>Die Großeltern des Besitzers stehen für Gastfreundschaft, Haltung und persönliche Nähe. Genau diese Glaubwürdigkeit wird zur visuellen Klammer der neuen Website.</p><ol><li><b>Damals</b><span>Emma &amp; Eugen prägen die familiäre Herkunft.</span></li><li><b>Heute</b><span>Mittag, Dinner, Konzerte, Comedy und Feiern.</span></li><li><b>Morgen</b><span>Ein durchgängiger digitaler Weg von Inspiration bis Buchung.</span></li></ol></div></div><footer><button class="button button-dark" type="button" data-open="reservation">Geschichte weiterschreiben</button><span>Authentische Markenstory statt austauschbarer Luxusbehauptung</span></footer></form>
   </dialog>
 
-  <dialog class="app-dialog" id="privacyDialog" aria-labelledby="privacyTitle"><form method="dialog" class="dialog-frame compact-frame"><header><div><p class="eyebrow">Konzept-Hinweis</p><h2 id="privacyTitle">Datenschutz im Liveprojekt.</h2></div><button class="dialog-close" type="button" aria-label="Hinweis schließen">×</button></header><p>Diese statische Demo setzt keine Analyse-, Marketing- oder Buchungscookies und überträgt keine Formulardaten. Für den Livegang müssen Datenschutzerklärung, Consent, Auftragsverarbeiter, Speicherfristen und Ticket-/Payment-Prozesse anhand der tatsächlich eingesetzten Dienste final geprüft werden.</p></form></dialog>
+  <dialog class="app-dialog" id="privacyDialog" aria-labelledby="privacyTitle"><form method="dialog" class="dialog-frame compact-frame"><header><div><p class="eyebrow">Testumgebung</p><h2 id="privacyTitle">Datenschutz im Liveprojekt.</h2></div><button class="dialog-close" type="button" aria-label="Hinweis schließen">×</button></header><p>Diese statische Testseite setzt keine Analyse-, Marketing- oder Buchungscookies. Anfragen werden im E-Mail-Programm des Gastes vorbereitet und erst von dort versendet. Vor dem endgültigen Livegang müssen Datenschutzerklärung, Speicherfristen sowie ein späteres Buchungs-, Ticket- oder Payment-System anhand der tatsächlich eingesetzten Dienste final geprüft werden.</p></form></dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <noscript><p class="noscript">Für die interaktiven Reservierungs- und Ticket-Demos ist JavaScript erforderlich. Alle Inhalte bleiben ohne JavaScript lesbar.</p></noscript>
+  <noscript><p class="noscript">Für die interaktiven Reservierungs- und Ticketanfragen ist JavaScript erforderlich. Telefon und E-Mail bleiben ohne JavaScript erreichbar.</p></noscript>
 </body>
 </html>

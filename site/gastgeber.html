@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#173e2c">
+  <title>Gastgeber-Cockpit · Wirtschaft Dornbirn</title>
+  <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
+  <link rel="stylesheet" href="gastgeber.css?v=1">
+  <script src="inventory-store.js?v=2" defer></script>
+  <script src="gastgeber.js?v=1" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"><div><small>Interne Teststeuerung</small><strong>Gastgeber-Cockpit</strong></div></div>
+    <div class="top-actions"><button type="button" id="exportData">Daten exportieren</button><label class="import">Daten importieren<input id="importData" type="file" accept="application/json"></label><a href="index.html">Gastansicht ↗</a></div>
+  </header>
+
+  <main>
+    <section class="welcome"><div><p>Kapazitäten · Mittag · Abend · Events</p><h1>Was ist noch frei?</h1><span id="lastUpdated">Daten werden geladen …</span></div><div class="status-dot"><i></i>Lokaler Testbetrieb</div></section>
+
+    <section class="metrics" aria-label="Übersicht">
+      <article><small>Heute noch frei</small><strong id="metricToday">–</strong><span>Mittag und Abend</span></article>
+      <article><small>Offene Tischanfragen</small><strong id="metricReservations">–</strong><span>aus der Gastansicht</span></article>
+      <article><small>Offene Ticketanfragen</small><strong id="metricTickets">–</strong><span>noch nicht als verkauft gezählt</span></article>
+      <article><small>Eventtickets verfügbar</small><strong id="metricEventFree">–</strong><span>über alle Termine</span></article>
+    </section>
+
+    <section class="panel settings-panel" aria-labelledby="settingsTitle">
+      <div class="panel-head"><div><p>01 · Steuerung</p><h2 id="settingsTitle">Limits &amp; Puffer</h2></div><span>Nur hier sichtbar – niemals in der Gastansicht</span></div>
+      <div class="settings-grid">
+        <label class="switch"><input id="bufferEnabled" type="checkbox"><span></span><b>Puffer verwenden</b><small>Schützt intern Plätze vor Überbuchung</small></label>
+        <label>Puffer in Prozent<input id="bufferPercent" type="number" min="0" max="50" step="1"></label>
+        <label>Standard Mittag<input id="lunchCapacity" type="number" min="1" max="500"></label>
+        <label>Standard Abend<input id="dinnerCapacity" type="number" min="1" max="500"></label>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="servicesTitle">
+      <div class="panel-head"><div><p>02 · Restaurant</p><h2 id="servicesTitle">Mittag &amp; Abend</h2></div><div class="filters"><label>Bereich<select id="kindFilter"><option value="all">Alle</option><option>Mittag</option><option>Abend</option></select></label><label>Sortierung<select id="serviceSort"><option value="date">Datum aufsteigend</option><option value="free-asc">Freie Plätze aufsteigend</option><option value="free-desc">Freie Plätze absteigend</option></select></label></div></div>
+      <form class="add-service" id="addServiceForm"><label>Datum<input id="newDate" type="date" required></label><label>Zeit<input id="newTime" type="time" required></label><label>Bereich<select id="newKind"><option>Mittag</option><option>Abend</option></select></label><label>Kapazität<input id="newCapacity" type="number" min="1" value="48" required></label><button type="submit">Zeitfenster ergänzen</button></form>
+      <div class="table-wrap"><table><thead><tr><th>Datum</th><th>Zeit</th><th>Bereich</th><th>Kapazität</th><th>Belegt</th><th>Internes Limit</th><th>Noch frei</th></tr></thead><tbody id="servicesBody"></tbody></table></div>
+    </section>
+
+    <section class="panel" aria-labelledby="eventsTitle">
+      <div class="panel-head"><div><p>03 · Livekultur</p><h2 id="eventsTitle">Tickets nach Termin</h2></div><span>Kapazität und verkaufte Tickets direkt anpassen</span></div>
+      <div class="event-admin" id="eventsAdmin"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="inquiriesTitle">
+      <div class="panel-head"><div><p>04 · Eingang</p><h2 id="inquiriesTitle">Anfragen in diesem Browser</h2></div><button class="quiet" type="button" id="clearInquiries">Anfragen leeren</button></div>
+      <div class="inquiry-columns"><div><h3>Tischanfragen</h3><div id="reservationInquiries" class="inquiry-list"></div></div><div><h3>Ticketanfragen</h3><div id="ticketInquiries" class="inquiry-list"></div></div></div>
+    </section>
+
+    <section class="notice"><strong>Wichtig für den echten Betrieb</strong><p>Dieses Cockpit verwendet aktuell den lokalen Browser-Speicher. Export und Import ermöglichen eine sichere Testübergabe. Für mehrere Geräte und Mitarbeiter braucht der endgültige Livebetrieb eine geschützte Datenbank mit Anmeldung.</p><button type="button" id="resetData">Testdaten zurücksetzen</button></section>
+  </main>
+  <div class="toast" id="hostToast" role="status" aria-live="polite"></div>
+</body>
+</html>

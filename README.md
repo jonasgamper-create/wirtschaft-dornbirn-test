@@ -1,8 +1,7 @@
 # Wirtschaft Dornbirn – öffentliche Testumgebung
 
-Dieses Repository enthält ausschließlich die öffentliche Gästeseite und die
-Seite für Feste und Catering. Gastgeber-Cockpit, Testberichte, Studienseiten und
-interne Kapazitätsdaten sind nicht Bestandteil dieses Deployment-Pakets.
+Dieses Repository enthält die öffentliche Gästeseite, die Seite für Feste und
+Catering sowie ein nicht verlinktes Gastgeber-Cockpit für die Teststeuerung.
 
 Die Veröffentlichung erfolgt automatisch über GitHub Pages, sobald auf den
 Branch `main` gepusht wird. Die Testfassung ist mit `noindex, nofollow` und einer
@@ -13,7 +12,17 @@ vollständigen `robots.txt`-Sperre versehen.
 - Hauptseite mit Mittag, Reservierung und Veranstaltungen
 - Kalenderexport für Veranstaltungstermine
 - Hochzeiten, Geburtstage und Catering
+- aktive, vorbefüllte E-Mail-Anfragen für Tisch, Tickets und Catering
+- separates Gastgeber-Cockpit mit Puffer, Kapazitäten, Filtern und Datenexport
 - ausschließlich die dafür benötigten lokalen Assets
+
+## Gastgeber-Cockpit
+
+`site/gastgeber.html` ist von der Gastansicht aus nicht verlinkt und wird durch
+`noindex` sowie die `robots.txt` von Suchmaschinen ausgeschlossen. In der
+Testumgebung liegen seine Daten ausschließlich im lokalen Browser-Speicher.
+Export und Import ermöglichen den Wechsel zwischen Browsern. Für einen echten
+Mehrbenutzerbetrieb ist später eine geschützte Datenbank mit Anmeldung nötig.
 
 ## Aktualisieren
 
