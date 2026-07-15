@@ -1,7 +1,34 @@
+import Lenis from "lenis";
 import { animate, hover, inView, press, stagger } from "motion";
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const motionAllowed = () => !reduceMotion.matches && !document.body.classList.contains("motion-off");
+
+let lenis = null;
+let lenisFrame = 0;
+const runLenis = time => {
+  if (!lenis) {
+    lenisFrame = 0;
+    return;
+  }
+  lenis.raf(time);
+  lenisFrame = requestAnimationFrame(runLenis);
+};
+const canUseLenis = () => matchMedia("(hover:hover) and (pointer:fine)").matches && !reduceMotion.matches;
+const startLenis = () => {
+  if (lenis || !canUseLenis() || document.body.classList.contains("motion-off")) return;
+  lenis = new Lenis({ lerp: 0.085, duration: 1.08, smoothWheel: true, syncTouch: false });
+  lenisFrame = requestAnimationFrame(runLenis);
+};
+const stopLenis = () => {
+  if (lenisFrame) cancelAnimationFrame(lenisFrame);
+  lenisFrame = 0;
+  lenis?.destroy();
+  lenis = null;
+};
+startLenis();
+window.addEventListener("wirtschaft:motionchange", event => event.detail.off ? stopLenis() : startLenis());
+reduceMotion.addEventListener("change", event => event.matches ? stopLenis() : startLenis());
 
 if (motionAllowed()) {
   animate(

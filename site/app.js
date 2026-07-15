@@ -25,6 +25,7 @@
   const scenes = [...document.querySelectorAll('.concept-scene')];
   const reveals = [...document.querySelectorAll('.reveal')];
   const zoomSections = [...document.querySelectorAll('[data-zoom]')];
+  const liveReel = document.querySelector('.live-reel');
   const mobileSelect = document.getElementById('mobileConceptSelect');
   const motionToggle = document.getElementById('motionToggle');
   const themeStatusLabel = document.getElementById('themeStatusLabel');
@@ -189,6 +190,15 @@
     const beforeChapters = scenes.length && visualScrollY < chapterBounds.firstTop - window.innerHeight * .58;
     const afterChapters = scenes.length && visualScrollY > chapterBounds.lastBottom - window.innerHeight * .12;
     body.classList.toggle('artifacts-hidden', Boolean(beforeChapters || afterChapters));
+
+    if (liveReel) {
+      const reelTravel = Math.max(1, liveReel.offsetHeight - window.innerHeight);
+      const reelProgress = Math.max(0, Math.min(1, (visualScrollY - liveReel.offsetTop) / reelTravel));
+      liveReel.style.setProperty('--reel-progress', reelProgress.toFixed(5));
+      const reelStep = String(Math.min(3, Math.floor(reelProgress * 3) + 1)).padStart(2, '0');
+      const reelCount = liveReel.querySelector('.live-reel-count b');
+      if (reelCount && reelCount.textContent !== reelStep) reelCount.textContent = reelStep;
+    }
 
     if (!body.classList.contains('motion-off') && !reducedPreference.matches) {
       zoomSections.forEach(section => {
@@ -467,6 +477,7 @@
     motionToggle.textContent = off ? 'Motion aus' : 'Motion an';
     if (off) syncVisualScroll();
     else requestMotionFrame();
+    window.dispatchEvent(new CustomEvent('wirtschaft:motionchange', { detail: { off } }));
   }
   setMotionOff(reducedPreference.matches);
   motionToggle.addEventListener('click', () => setMotionOff(!body.classList.contains('motion-off')));
