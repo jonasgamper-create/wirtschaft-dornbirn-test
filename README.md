@@ -14,7 +14,15 @@ vollständigen `robots.txt`-Sperre versehen.
 - Hochzeiten, Geburtstage und Catering
 - aktive, vorbefüllte E-Mail-Anfragen für Tisch, Tickets und Catering
 - separates Gastgeber-Cockpit mit Puffer, Kapazitäten, Filtern und Datenexport
+- interaktive Entwurfsgalerie mit drei eigenständigen Webseitenrichtungen
 - ausschließlich die dafür benötigten lokalen Assets
+
+## Designpräsentation
+
+`site/entwuerfe.html` zeigt drei vollständig nutzbare Richtungen: Editorial
+Heritage, Alpin Modern und Bühne bei Nacht. Jeder Entwurf kann separat geöffnet
+werden und führt für Reservierung, Events oder Catering in die aktiven Wege der
+Testseite zurück.
 
 ## Gastgeber-Cockpit
 

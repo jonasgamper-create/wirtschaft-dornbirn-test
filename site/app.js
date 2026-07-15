@@ -37,6 +37,7 @@
   const studyMode = query.get('study') === '1';
   const qaMode = query.get('qa') === '1';
   const requestedConcept = query.get('concept');
+  const requestedDialog = query.get('open');
   let animationFrame = 0;
   let targetScrollY = window.scrollY;
   let smoothedScrollY = targetScrollY;
@@ -712,5 +713,8 @@
     }
   });
   if (window.scrollY < (scenes[0]?.offsetTop || 0) * .45) applyTheme(document.getElementById('start'));
+  if (requestedDialog && Object.hasOwn(dialogs, requestedDialog)) {
+    window.setTimeout(() => openDialog(requestedDialog, null), 220);
+  }
   reportStudy('page_ready', { concept: initialScene?.dataset.concept || requestedConcept || '01', viewport: { width: window.innerWidth, height: window.innerHeight } });
 })();
