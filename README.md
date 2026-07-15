@@ -20,3 +20,24 @@ vollständigen `robots.txt`-Sperre versehen.
 Die Dateien im Ordner `site` werden aus dem lokalen Konzeptprojekt übernommen.
 Nach einer Aktualisierung genügt ein neuer Commit auf `main`; GitHub Pages
 veröffentlicht die Testseite anschließend automatisch.
+
+## Animationen bauen
+
+Die zusätzlichen Mikrointeraktionen verwenden die aktuelle Motion-Bibliothek
+(Nachfolger des Pakets Framer Motion) und werden ohne externe Laufzeit-Abhängigkeit
+direkt in die öffentliche Testseite gebündelt.
+
+```bash
+npm install
+npm run build
+```
+
+Der Build erzeugt `site/motion-enhancements.js`. Die fertige GitHub-Pages-Seite
+funktioniert danach weiterhin als statische Website.
+
+## Design- und Qualitätswerkzeuge
+
+- UI/UX Pro Max liegt projektbezogen unter `.codex/skills/`.
+- Das erzeugte Gestaltungsprofil liegt unter `design-system/wirtschaft-dornbirn/`.
+- 21st.dev CLI ist lokal als Benutzerwerkzeug installiert; die persönliche
+  Anmeldung und MCP-Freigabe bleiben bewusst außerhalb des öffentlichen Repos.
