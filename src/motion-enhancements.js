@@ -61,8 +61,17 @@ document.querySelectorAll("dialog").forEach(dialog => {
   observer.observe(dialog, { attributes: true, attributeFilter: ["open"] });
 });
 
+window.addEventListener("wirtschaft:themechange", () => {
+  if (!motionAllowed()) return;
+  animate(
+    ".theme-status strong, .theme-status span",
+    { opacity: [0.35, 1], x: [-8, 0] },
+    { duration: 0.28, delay: stagger(0.035), ease: "easeOut" }
+  );
+});
+
 reduceMotion.addEventListener("change", event => {
   if (!event.matches) return;
-  document.querySelectorAll(".button, .decision-grid button, .celebration-paths a, .dialog-frame")
+  document.querySelectorAll(".button, .decision-grid button, .celebration-paths a, .dialog-frame, .theme-status strong, .theme-status span")
     .forEach(element => element.getAnimations().forEach(animation => animation.cancel()));
 });

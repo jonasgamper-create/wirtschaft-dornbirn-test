@@ -13,10 +13,10 @@
   <title>Wirtschaft Dornbirn · Essen, trinken & Livekultur</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="preload" href="assets/restaurant.webp" as="image" type="image/webp" fetchpriority="high">
-  <link rel="stylesheet" href="styles.css?v=experience14">
+  <link rel="stylesheet" href="styles.css?v=experience15">
   <script src="inventory-store.js?v=1" defer></script>
-  <script src="app.js?v=experience14" defer></script>
-  <script src="motion-enhancements.js?v=1" defer></script>
+  <script src="app.js?v=experience15" defer></script>
+  <script src="motion-enhancements.js?v=2" defer></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -37,15 +37,21 @@
   }
   </script>
 </head>
-<body class="final-site">
+<body class="final-site" data-theme="origin">
   <a class="skip-link" href="#main">Zum Inhalt springen</a>
   <div class="scroll-progress" aria-hidden="true"><span id="scrollProgress"></span></div>
+  <div class="theme-aura" aria-hidden="true"></div>
 
   <header class="experience-bar final-bar" aria-label="Globale Navigation">
     <a class="master-brand" href="#start" aria-label="Wirtschaft Dornbirn – zum Start">
       <img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn">
     </a>
     <p><strong>Essen · Trinken · Livekultur</strong><span> · Bahnhofstraße 24, Dornbirn</span></p>
+    <div class="theme-status" aria-live="polite" aria-atomic="true">
+      <small>Aktuelle Welt</small>
+      <strong id="themeStatusLabel">Das Haus</strong>
+      <span id="themeStatusMood">Ankommen · entdecken</span>
+    </div>
     <div class="experience-actions">
       <label class="mobile-select-label" for="mobileConceptSelect">Kapitel</label>
       <select id="mobileConceptSelect" aria-label="Kapitel auswählen">
@@ -70,7 +76,7 @@
   </nav>
 
   <main id="main">
-    <section class="prologue final-prologue" id="start" data-zoom="out" aria-labelledby="prologueTitle">
+    <section class="prologue final-prologue" id="start" data-theme="origin" data-theme-label="Das Haus" data-theme-mood="Ankommen · entdecken" data-zoom="out" aria-labelledby="prologueTitle">
       <img class="prologue-media zoom-media" src="assets/restaurant.webp" width="1920" height="1280" alt="Gäste in der Wirtschaft Dornbirn" fetchpriority="high">
       <div class="prologue-shade"></div>
       <img class="hero-family-mark" src="assets/emma-eugen.png" width="800" height="594" alt="Emma und Eugen, das originale Familienzeichen der Wirtschaft">
@@ -91,7 +97,7 @@
       <a class="scroll-cue" href="#concept-01"><span>Geschichte</span><i aria-hidden="true"></i></a>
     </section>
 
-    <section class="concept-scene final-chapter chapter-story dark" id="concept-01" data-concept="01" data-zoom="in" aria-labelledby="title-01">
+    <section class="concept-scene final-chapter chapter-story dark" id="concept-01" data-concept="01" data-theme="heritage" data-theme-label="Herkunft" data-theme-mood="Emma &amp; Eugen" data-zoom="in" aria-labelledby="title-01">
       <img class="scene-media parallax-media zoom-media" src="assets/quiet.webp" width="1920" height="1280" loading="lazy" alt="Atmosphäre in der Wirtschaft Dornbirn">
       <div class="media-shade"></div><div class="spotlight" aria-hidden="true"></div><div class="scene-number" aria-hidden="true">01</div>
       <div class="scene-shell reveal">
@@ -111,7 +117,7 @@
       </div>
     </section>
 
-    <section class="concept-scene final-chapter chapter-table dark" id="concept-02" data-concept="02" data-zoom="out" aria-labelledby="title-02">
+    <section class="concept-scene final-chapter chapter-table dark" id="concept-02" data-concept="02" data-theme="table" data-theme-label="Der Tisch" data-theme-mood="Gemeinsam genießen" data-zoom="out" aria-labelledby="title-02">
       <img class="scene-media parallax-media zoom-media" src="assets/table.webp" width="900" height="600" loading="lazy" alt="Festlich gedeckter Tisch in der Wirtschaft Dornbirn">
       <div class="media-shade"></div><div class="spotlight" aria-hidden="true"></div><div class="scene-number" aria-hidden="true">02</div>
       <div class="scene-shell reveal">
@@ -127,7 +133,7 @@
       </div>
     </section>
 
-    <section class="concept-scene final-chapter chapter-lunch light" id="concept-03" data-concept="03" data-zoom="in" aria-labelledby="title-03">
+    <section class="concept-scene final-chapter chapter-lunch light" id="concept-03" data-concept="03" data-theme="lunch" data-theme-label="Mittag" data-theme-mood="Frisch · saisonal" data-zoom="in" aria-labelledby="title-03">
       <img class="scene-media parallax-media zoom-media" src="assets/food.webp" width="1920" height="1280" loading="lazy" alt="Gericht aus der Küche der Wirtschaft Dornbirn">
       <div class="media-shade"></div><div class="spotlight" aria-hidden="true"></div><div class="scene-number" aria-hidden="true">03</div>
       <div class="scene-shell reveal">
@@ -143,7 +149,7 @@
       </div>
     </section>
 
-    <section class="concept-scene final-chapter chapter-stage dark" id="concept-04" data-concept="04" data-zoom="out" aria-labelledby="title-04">
+    <section class="concept-scene final-chapter chapter-stage dark" id="concept-04" data-concept="04" data-theme="stage" data-theme-label="Die Bühne" data-theme-mood="Dinner · Livekultur" data-zoom="out" aria-labelledby="title-04">
       <img class="scene-media parallax-media zoom-media" src="assets/stage.webp" width="1920" height="803" loading="lazy" alt="Livekonzert auf der Bühne der Wirtschaft Dornbirn">
       <div class="media-shade"></div><div class="spotlight" aria-hidden="true"></div><div class="scene-number" aria-hidden="true">04</div>
       <div class="instrument-frames" aria-hidden="true"><span class="instrument-frame frame-live"></span><span class="instrument-frame frame-stage"></span><i>PIANO</i><i>GITARRE</i><i>AKKORDEON</i></div>
@@ -160,7 +166,7 @@
       </div>
     </section>
 
-    <section class="concept-scene final-chapter chapter-host dark" id="concept-05" data-concept="05" data-zoom="in" aria-labelledby="title-05">
+    <section class="concept-scene final-chapter chapter-host dark" id="concept-05" data-concept="05" data-theme="host" data-theme-label="Gastgeber" data-theme-mood="Willkommen zuhause" data-zoom="in" aria-labelledby="title-05">
       <img class="scene-media parallax-media zoom-media" src="assets/celebration.webp" width="1920" height="1280" loading="lazy" alt="Gemeinsamer Abend in der Wirtschaft Dornbirn">
       <div class="media-shade"></div><div class="spotlight" aria-hidden="true"></div><div class="scene-number" aria-hidden="true">05</div>
       <div class="scene-shell reveal">
@@ -175,7 +181,7 @@
       </div>
     </section>
 
-    <section class="celebration-section" id="feiern" aria-labelledby="celebrationTitle">
+    <section class="celebration-section" id="feiern" data-theme="feast" data-theme-label="Euer Fest" data-theme-mood="Hochzeit · Catering" aria-labelledby="celebrationTitle">
       <img class="celebration-backdrop" src="assets/celebration.webp" width="1920" height="1280" loading="lazy" alt="Festlicher Abend mit Gästen in der Wirtschaft Dornbirn">
       <div class="celebration-shade"></div>
       <div class="celebration-content reveal">
@@ -191,7 +197,7 @@
       </div>
     </section>
 
-    <section class="decision-section final-decision" aria-labelledby="decisionTitle">
+    <section class="decision-section final-decision" data-theme="visit" data-theme-label="Euer Besuch" data-theme-mood="Essen · erleben · feiern" aria-labelledby="decisionTitle">
       <div class="decision-copy reveal"><p class="eyebrow">Ein Haus · drei klare Wege</p><h2 id="decisionTitle">Heute essen. Abends erleben. Immer wiederkommen.</h2><p>Die Live-Fassung führt mit wenigen Entscheidungen zu den wichtigsten Zielen – ohne falsche Dringlichkeit und ohne austauschbare Werbeversprechen.</p></div>
       <div class="decision-grid reveal">
         <button type="button" data-open="menu"><span>01</span><strong>Menü ansehen</strong><small>Mobil lesbar</small></button>

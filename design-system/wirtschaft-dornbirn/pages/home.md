@@ -35,6 +35,23 @@ warm and heritage-led, with the original Wirtschaft imagery and marks.
   Motion toggle in the header.
 - Avoid continuous decorative animation and scroll-jacking.
 
+## Active chapter themes
+
+The public homepage uses one brand system with contextual atmospheres. Themes
+change automatically from the section closest to the viewport center and are
+always identified by text in the fixed header—not by color alone.
+
+| Chapter | Theme | Accent | Meaning |
+|---|---|---|---|
+| The house | Origin | Warm gold | Arrival and orientation |
+| Emma & Eugen | Heritage | Cream | Family and continuity |
+| The table | Table | Wine red | Hospitality and shared dining |
+| Lunch | Lunch | Forest green | Freshness and seasonality |
+| Stage | Stage | Amber | Warm live-stage light |
+| Host | Host | Paper white | Personal welcome |
+| Celebrations | Feast | Festive gold | Weddings and catering |
+| Final paths | Visit | Deep wine | Clear conversion choices |
+
 ## Quality gates
 
 - Visible keyboard focus and semantic buttons/links.

@@ -27,6 +27,8 @@
   const zoomSections = [...document.querySelectorAll('[data-zoom]')];
   const mobileSelect = document.getElementById('mobileConceptSelect');
   const motionToggle = document.getElementById('motionToggle');
+  const themeStatusLabel = document.getElementById('themeStatusLabel');
+  const themeStatusMood = document.getElementById('themeStatusMood');
   const toast = document.getElementById('toast');
   const reducedPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   const coarsePointer = window.matchMedia('(hover: none), (pointer: coarse)');
@@ -45,6 +47,7 @@
   let lastTrigger = null;
   let chapterBounds = { firstTop: 0, lastBottom: 0 };
   const visibleScenes = new Map();
+  let themeTransitionTimer = 0;
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
@@ -291,6 +294,7 @@
     }
     if (mobileSelect) mobileSelect.value = id;
     body.dataset.concept = scene.dataset.concept;
+    applyTheme(scene);
     const concept = scene.dataset.concept;
     const finalSite = body.classList.contains('final-site');
     const ticketConcepts = finalSite ? ['04', '05'] : ['04', '07', '09', '12', '14', '15', '19', '23', '25'];
@@ -302,6 +306,24 @@
       history.replaceState(null, '', `${location.pathname}${location.search}#${id}`);
     }
     if (changed) reportStudy('concept_visible', { concept: scene.dataset.concept });
+  }
+
+  function applyTheme(section) {
+    if (!section?.dataset.theme) return;
+    const nextTheme = section.dataset.theme;
+    const nextLabel = section.dataset.themeLabel || 'Wirtschaft Dornbirn';
+    const nextMood = section.dataset.themeMood || 'Essen · Trinken · Livekultur';
+    const changed = body.dataset.theme !== nextTheme;
+    body.dataset.theme = nextTheme;
+    if (themeStatusLabel) themeStatusLabel.textContent = nextLabel;
+    if (themeStatusMood) themeStatusMood.textContent = nextMood;
+    if (!changed) return;
+    body.classList.add('theme-changing');
+    window.clearTimeout(themeTransitionTimer);
+    themeTransitionTimer = window.setTimeout(() => body.classList.remove('theme-changing'), 520);
+    window.dispatchEvent(new CustomEvent('wirtschaft:themechange', {
+      detail: { theme: nextTheme, label: nextLabel, mood: nextMood }
+    }));
   }
 
   const sceneObserver = new IntersectionObserver(entries => {
@@ -330,6 +352,15 @@
   }, { threshold: [0.2, 0.4, 0.6, 0.8], rootMargin: '-12% 0px -12% 0px' });
   scenes.forEach(scene => sceneObserver.observe(scene));
   railLinks[0]?.setAttribute('aria-current', 'true');
+
+  const outerThemeSections = [...document.querySelectorAll('#start[data-theme], #feiern[data-theme], .final-decision[data-theme]')];
+  const outerThemeObserver = new IntersectionObserver(entries => {
+    const visible = entries
+      .filter(entry => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+    if (visible[0]) applyTheme(visible[0].target);
+  }, { threshold: [0.35, 0.55, 0.75], rootMargin: '-18% 0px -18% 0px' });
+  outerThemeSections.forEach(section => outerThemeObserver.observe(section));
 
   function jumpTo(target, { syncUrl = true } = {}) {
     if (!target) return;
@@ -648,5 +679,6 @@
       jumpTo(document.getElementById(location.hash.slice(1)), { syncUrl: false });
     }
   });
+  if (window.scrollY < (scenes[0]?.offsetTop || 0) * .45) applyTheme(document.getElementById('start'));
   reportStudy('page_ready', { concept: initialScene?.dataset.concept || requestedConcept || '01', viewport: { width: window.innerWidth, height: window.innerHeight } });
 })();
