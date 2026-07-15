@@ -13,10 +13,10 @@
   <title>Wirtschaft Dornbirn · Essen, trinken & Livekultur</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="preload" href="assets/restaurant.webp" as="image" type="image/webp" fetchpriority="high">
-  <link rel="stylesheet" href="styles.css?v=experience15">
+  <link rel="stylesheet" href="styles.css?v=experience16">
   <script src="inventory-store.js?v=1" defer></script>
   <script src="app.js?v=experience15" defer></script>
-  <script src="motion-enhancements.js?v=2" defer></script>
+  <script src="motion-enhancements.js?v=3" defer></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -188,10 +188,11 @@
         <p class="eyebrow">Hochzeiten · Geburtstage · Catering</p>
         <h2 id="celebrationTitle">Euer Fest.<br><em>Unsere Gastfreundschaft.</em></h2>
         <p>Ob Hochzeit, runder Geburtstag oder Catering an eurem Wunschort: Schickt zuerst die Idee. Ort, Menü, Ablauf und Möglichkeiten klären wir anschließend persönlich und unverbindlich.</p>
+        <!-- Interaction pattern adapted from 21st.dev "Reveal on hover", rebuilt for native HTML/CSS. -->
         <div class="celebration-paths" aria-label="Anlass auswählen">
-          <a href="feste-catering.html?occasion=Hochzeit#anfrage"><span>01</span><strong>Hochzeit</strong><small>Empfang, Dinner &amp; gemeinsamer Abend</small><b>Unverbindlich anfragen ↗</b></a>
-          <a href="feste-catering.html?occasion=Privates%20Fest&amp;message=Geburtstag#anfrage"><span>02</span><strong>Geburtstag</strong><small>Persönlich, festlich oder unkompliziert</small><b>Geburtstag anfragen ↗</b></a>
-          <a href="feste-catering.html?occasion=Catering#anfrage"><span>03</span><strong>Catering</strong><small>Wirtschaft, Kulturhaus oder Wunschlocation</small><b>Möglichkeiten anfragen ↗</b></a>
+          <a data-reveal="wedding" href="feste-catering.html?occasion=Hochzeit#anfrage"><span>01</span><strong>Hochzeit</strong><small>Empfang, Dinner &amp; gemeinsamer Abend</small><b>Unverbindlich anfragen ↗</b></a>
+          <a data-reveal="birthday" href="feste-catering.html?occasion=Privates%20Fest&amp;message=Geburtstag#anfrage"><span>02</span><strong>Geburtstag</strong><small>Persönlich, festlich oder unkompliziert</small><b>Geburtstag anfragen ↗</b></a>
+          <a data-reveal="catering" href="feste-catering.html?occasion=Catering#anfrage"><span>03</span><strong>Catering</strong><small>Wirtschaft, Kulturhaus oder Wunschlocation</small><b>Möglichkeiten anfragen ↗</b></a>
         </div>
         <p class="celebration-note">Keine Standardpakete und keine ungeprüften Kapazitätsversprechen – jedes Fest wird individuell bestätigt.</p>
       </div>
@@ -273,7 +274,8 @@
   <dialog class="app-dialog" id="eventsDialog" aria-labelledby="eventsTitle">
     <form method="dialog" class="dialog-frame events-frame">
       <header><div><p class="eyebrow">Wirtschaft live · Vorschau</p><h2 id="eventsTitle">Was als Nächstes auf die Bühne kommt.</h2></div><button class="dialog-close" type="button" aria-label="Eventübersicht schließen">×</button></header>
-      <div class="event-overview">
+      <!-- Structure adapted from the 21st.dev minimal timeline pattern. -->
+      <div class="event-overview event-timeline" aria-label="Veranstaltungen chronologisch">
         <article><time datetime="2026-09-03"><b>03</b><span>SEP</span></time><div><p>Genussroute 6850</p><small>Dornbirner Genussabend</small></div><div class="event-actions"><button type="button" data-open="tickets" data-event="event-2026-09-03">Tickets <span>↗</span></button><button type="button" data-calendar-event="event-2026-09-03">Zum Kalender <span>＋</span></button></div></article>
         <article><time datetime="2026-09-22"><b>22</b><span>SEP</span></time><div><p>Helden reisen, Gäste speisen!</p><small>Dinner &amp; Bühne</small></div><div class="event-actions"><button type="button" data-open="tickets" data-event="event-2026-09-22">Tickets <span>↗</span></button><button type="button" data-calendar-event="event-2026-09-22">Zum Kalender <span>＋</span></button></div></article>
         <article><time datetime="2026-09-23"><b>23</b><span>SEP</span></time><div><p>Helden reisen, Gäste speisen!</p><small>Zusatzabend</small></div><div class="event-actions"><button type="button" data-open="tickets" data-event="event-2026-09-23">Tickets <span>↗</span></button><button type="button" data-calendar-event="event-2026-09-23">Zum Kalender <span>＋</span></button></div></article>

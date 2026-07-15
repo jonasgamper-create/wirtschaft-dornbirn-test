@@ -57,6 +57,13 @@ document.querySelectorAll("dialog").forEach(dialog => {
       { opacity: [0, 1], scale: [0.975, 1], y: [14, 0] },
       { duration: 0.26, ease: "easeOut" }
     );
+    if (dialog.id === "eventsDialog") {
+      animate(
+        dialog.querySelectorAll(".event-timeline article"),
+        { opacity: [0, 1], y: [14, 0] },
+        { duration: 0.28, delay: stagger(0.045), ease: "easeOut" }
+      );
+    }
   });
   observer.observe(dialog, { attributes: true, attributeFilter: ["open"] });
 });
@@ -72,6 +79,6 @@ window.addEventListener("wirtschaft:themechange", () => {
 
 reduceMotion.addEventListener("change", event => {
   if (!event.matches) return;
-  document.querySelectorAll(".button, .decision-grid button, .celebration-paths a, .dialog-frame, .theme-status strong, .theme-status span")
+  document.querySelectorAll(".button, .decision-grid button, .celebration-paths a, .dialog-frame, .event-timeline article, .theme-status strong, .theme-status span")
     .forEach(element => element.getAnimations().forEach(animation => animation.cancel()));
 });

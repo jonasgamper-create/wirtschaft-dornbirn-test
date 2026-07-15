@@ -58,3 +58,14 @@ always identified by text in the fixed header—not by color alone.
 - Minimum 44 px touch targets for primary mobile actions.
 - No horizontal overflow at 375, 768, 1024 and 1440 px.
 - Guest-facing pages never reveal internal capacity percentages or buffers.
+
+## 21st.dev adaptations
+
+- Celebration cards use the image-reveal interaction pattern from the 21st.dev
+  `Reveal on hover` component, rebuilt in native HTML/CSS with keyboard focus and
+  touch fallbacks.
+- The event dialog uses the date-column, connecting-line and progressive-entry
+  structure from the 21st.dev minimal `Timeline`, rebuilt without React or
+  Tailwind dependencies.
+- Generic countdown urgency, glassmorphism and SaaS styling are explicitly not
+  part of this brand system.
