@@ -13,10 +13,13 @@
   <title>Wirtschaft Dornbirn · Essen, trinken & Livekultur</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="preload" href="assets/restaurant.webp" as="image" type="image/webp" fetchpriority="high">
-  <link rel="stylesheet" href="styles.css?v=experience20">
+  <link rel="stylesheet" href="styles.css?v=experience21">
   <style>.live-reel-count b{font-size:10px}.live-reel-count b::after{content:none!important;font-size:inherit}</style>
+  <style id="cinematic-experience">
+    .live-reel{--reel-progress:0;--reel-angle:-18deg;--reel-energy:0;isolation:isolate}.live-reel:before{content:"";position:absolute;z-index:8;inset:0;pointer-events:none;opacity:calc(.18 + var(--reel-energy)*.28);background:radial-gradient(circle at calc(12% + var(--reel-progress)*74%) calc(18% + var(--reel-energy)*12%),#f4d18348 0 1%,transparent 19%),linear-gradient(105deg,transparent 30%,#fff1c21c 48%,transparent 66%);mix-blend-mode:screen}.live-reel-motion{position:absolute;z-index:7;inset:0;pointer-events:none;overflow:hidden}.reel-orbit{position:absolute;right:-16vmax;bottom:-18vmax;width:54vmax;height:54vmax;border:1px solid #e4c37862;border-radius:50%;transform:rotate(var(--reel-angle)) scale(calc(.75 + var(--reel-energy)*.3));transition:transform .12s linear}.reel-orbit:before,.reel-orbit:after{content:"";position:absolute;border:1px solid #e4c37838;border-radius:50%;inset:12%}.reel-orbit:after{inset:29%;border-style:dashed;animation:reelSpin 20s linear infinite}.reel-orbit i{position:absolute;left:50%;top:-12px;width:24px;height:24px;border:1px solid #f4d183;border-radius:50%;background:#0d0b09;box-shadow:0 0 30px #e4c378}.reel-wordmark{position:absolute;left:-.065em;top:42%;margin:0;color:#fff;font-family:Georgia,serif;font-size:clamp(90px,20vw,360px);font-weight:400;letter-spacing:-.095em;line-height:.65;opacity:calc(.035 + var(--reel-energy)*.1);transform:translateX(calc(var(--reel-progress)*-12%));white-space:nowrap}.reel-sprockets{position:absolute;z-index:9;left:0;right:0;bottom:0;height:14px;background:repeating-linear-gradient(90deg,#0d0b09 0 20px,#e4c378 20px 27px);opacity:.75;transform:translateX(calc(var(--reel-progress)*-80px))}.live-reel-panel{transition:filter .35s ease}.live-reel-panel:nth-child(1)>div{transform:translateY(calc(var(--reel-progress)*-28px));opacity:calc(1 - var(--reel-progress)*1.4)}.live-reel-panel:nth-child(2)>div{transform:translateY(calc((.5 - var(--reel-progress))*54px));opacity:clamp(0,calc(1 - abs(var(--reel-progress) - .5)*3.2),1)}.live-reel-panel:nth-child(3)>div{transform:translateY(calc((1 - var(--reel-progress))*52px));opacity:clamp(0,calc(var(--reel-progress)*2.5 - 1.5),1)}.live-reel-panel>div{will-change:transform,opacity}.reel-lens{position:absolute;z-index:10;left:clamp(24px,5vw,100px);bottom:clamp(28px,5vw,80px);display:flex;align-items:center;gap:10px;color:#fff;font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.reel-lens b{width:7px;height:7px;border-radius:50%;background:#e4c378;box-shadow:0 0 14px #e4c378;animation:reelBlink 1.2s steps(2) infinite}@keyframes reelSpin{to{transform:rotate(360deg)}}@keyframes reelBlink{50%{opacity:.25}}@media (prefers-reduced-motion:reduce){.reel-orbit:after{animation:none}}.motion-off .live-reel-motion{display:none}.motion-off .live-reel:before{display:none}@media(max-width:900px),(hover:none),(pointer:coarse){.live-reel-motion,.live-reel:before{display:none}.live-reel-panel>div{transform:none!important;opacity:1!important}}
+  </style>
   <script src="inventory-store.js?v=2" defer></script>
-  <script src="app.js?v=experience20" defer></script>
+  <script src="app.js?v=experience21" defer></script>
   <script src="motion-enhancements.js?v=5" defer></script>
   <script type="application/ld+json">
   {
@@ -171,8 +174,10 @@
 
     <section class="live-reel" id="live-reel" aria-labelledby="liveReelTitle">
       <div class="live-reel-sticky">
+        <div class="live-reel-motion" aria-hidden="true"><span class="reel-orbit"><i></i></span><p class="reel-wordmark">WIRTSCHAFT</p><span class="reel-sprockets"></span></div>
         <div class="live-reel-progress" aria-hidden="true"><span></span></div>
         <p class="live-reel-count" aria-hidden="true"><b>01</b><i>/</i><span>03</span></p>
+        <p class="reel-lens" aria-hidden="true"><b></b> Echtzeit · Dornbirn</p>
         <div class="live-reel-track">
           <article class="live-reel-panel reel-lunch"><img src="assets/food.webp" width="1920" height="1280" loading="lazy" alt="Gericht aus der Küche der Wirtschaft Dornbirn"><div><p>Mittag · 11:30–13:30</p><h2 id="liveReelTitle">Frisch gekocht.<br><em>Sofort im Kopf.</em></h2><span>Scrollt weiter für den nächsten Schnitt</span></div></article>
           <article class="live-reel-panel reel-live"><img src="assets/live.webp" width="1920" height="1280" loading="lazy" alt="Livekultur in der Wirtschaft Dornbirn"><div><p>Abend · Dinner &amp; Bühne</p><h2>Ein Tisch.<br><em>Ein ganzer Abend.</em></h2><span>Scrollt weiter für den letzten Schnitt</span></div></article>

@@ -191,11 +191,13 @@
     const afterChapters = scenes.length && visualScrollY > chapterBounds.lastBottom - window.innerHeight * .12;
     body.classList.toggle('artifacts-hidden', Boolean(beforeChapters || afterChapters));
 
-    if (liveReel) {
-      const reelTravel = Math.max(1, liveReel.offsetHeight - window.innerHeight);
-      const reelProgress = Math.max(0, Math.min(1, (visualScrollY - liveReel.offsetTop) / reelTravel));
-      liveReel.style.setProperty('--reel-progress', reelProgress.toFixed(5));
-      const reelStep = String(Math.min(3, Math.floor(reelProgress * 3) + 1)).padStart(2, '0');
+      if (liveReel) {
+        const reelTravel = Math.max(1, liveReel.offsetHeight - window.innerHeight);
+        const reelProgress = Math.max(0, Math.min(1, (visualScrollY - liveReel.offsetTop) / reelTravel));
+        liveReel.style.setProperty('--reel-progress', reelProgress.toFixed(5));
+        liveReel.style.setProperty('--reel-angle', `${(-24 + reelProgress * 328).toFixed(2)}deg`);
+        liveReel.style.setProperty('--reel-energy', Math.sin(reelProgress * Math.PI).toFixed(5));
+        const reelStep = String(Math.min(3, Math.floor(reelProgress * 3) + 1)).padStart(2, '0');
       const reelCount = liveReel.querySelector('.live-reel-count b');
       if (reelCount && reelCount.textContent !== reelStep) reelCount.textContent = reelStep;
     }
