@@ -4,10 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src 'self' data:; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'none'; form-action 'self'; upgrade-insecure-requests">
   <meta name="theme-color" content="#173e2c">
   <title>Gastgeber-Cockpit · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="stylesheet" href="gastgeber.css?v=1">
+  <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=1">
   <script src="inventory-store.js?v=2" defer></script>
   <script src="gastgeber.js?v=1" defer></script>
 </head>
@@ -18,7 +21,7 @@
   </header>
 
   <main>
-    <section class="welcome"><div><p>Kapazitäten · Mittag · Abend · Events</p><h1>Was ist noch frei?</h1><span id="lastUpdated">Daten werden geladen …</span></div><div class="status-dot"><i></i>Lokaler Testbetrieb</div></section>
+    <section class="welcome"><div><p>Kapazitäten · Mittag · Abend · Events</p><h1>Was ist noch frei?</h1><span id="lastUpdated">Daten werden geladen …</span><p>Öffentliche Testansicht ohne Kontaktdaten – ein produktives Cockpit benötigt eine echte Anmeldung mit MFA.</p></div><div class="status-dot"><i></i>Lokaler Testbetrieb</div></section>
 
     <section class="metrics" aria-label="Übersicht">
       <article><small>Heute noch frei</small><strong id="metricToday">–</strong><span>Mittag und Abend</span></article>

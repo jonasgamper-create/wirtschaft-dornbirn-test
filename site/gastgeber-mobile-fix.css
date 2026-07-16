@@ -1,0 +1,21 @@
+@media (max-width: 650px) {
+  .event-admin,
+  .event-card,
+  .event-card > * {
+    min-width: 0;
+  }
+
+  .event-inputs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .event-inputs label {
+    min-width: 0;
+  }
+
+  .event-inputs input,
+  .event-inputs output {
+    width: 100%;
+    min-width: 0;
+  }
+}

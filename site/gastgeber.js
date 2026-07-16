@@ -2,6 +2,7 @@
   'use strict';
   const data = window.WirtschaftData;
   const byId = id => document.getElementById(id);
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
   const formatDate = value => new Intl.DateTimeFormat('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(`${value}T12:00:00`));
   const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   const toast = message => { const node = byId('hostToast'); node.textContent = message; node.classList.add('show'); clearTimeout(toast.timer); toast.timer = setTimeout(() => node.classList.remove('show'), 2600); };
@@ -33,13 +34,13 @@
     });
     byId('servicesBody').innerHTML = services.map(item => {
       const count = available(item, current);
-      return `<tr><td>${formatDate(item.date)}</td><td>${item.time}</td><td>${item.kind}</td><td><input data-service="${item.id}" data-field="capacity" type="number" min="0" value="${item.capacity}" aria-label="Kapazität ${item.date} ${item.time}"></td><td><input data-service="${item.id}" data-field="reserved" type="number" min="0" value="${item.reserved}" aria-label="Belegt ${item.date} ${item.time}"></td><td>${count.limit}</td><td class="free${count.available < 8 ? ' low' : ''}">${count.available}</td></tr>`;
+      return `<tr><td>${formatDate(item.date)}</td><td>${escapeHtml(item.time)}</td><td>${escapeHtml(item.kind)}</td><td><input data-service="${escapeHtml(item.id)}" data-field="capacity" type="number" min="0" value="${item.capacity}" aria-label="Kapazität ${escapeHtml(item.date)} ${escapeHtml(item.time)}"></td><td><input data-service="${escapeHtml(item.id)}" data-field="reserved" type="number" min="0" value="${item.reserved}" aria-label="Belegt ${escapeHtml(item.date)} ${escapeHtml(item.time)}"></td><td>${count.limit}</td><td class="free${count.available < 8 ? ' low' : ''}">${count.available}</td></tr>`;
     }).join('') || '<tr><td colspan="7">Keine Zeitfenster für diesen Filter.</td></tr>';
 
-    byId('eventsAdmin').innerHTML = current.events.map(item => `<article class="event-card"><time class="event-date" datetime="${item.date}">${formatDate(item.date)}</time><div><h3>${item.name}</h3><p>${item.format} · ${item.ticketTypes.map(type => `${type.name}: ${type.sold}`).join(' · ')}</p></div><div class="event-inputs"><label>Kapazität<input data-event="${item.id}" data-field="capacity" type="number" min="0" value="${item.capacity}"></label><label>Verkauft<input data-event="${item.id}" data-field="sold" type="number" min="0" value="${item.sold}"></label><label>Noch frei<output>${Math.max(0, item.capacity - item.sold)}</output></label></div></article>`).join('');
+    byId('eventsAdmin').innerHTML = current.events.map(item => `<article class="event-card"><time class="event-date" datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time><div><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.format)} · ${item.ticketTypes.map(type => `${escapeHtml(type.name)}: ${type.sold}`).join(' · ')}</p></div><div class="event-inputs"><label>Kapazität<input data-event="${escapeHtml(item.id)}" data-field="capacity" type="number" min="0" value="${item.capacity}"></label><label>Verkauft<input data-event="${escapeHtml(item.id)}" data-field="sold" type="number" min="0" value="${item.sold}"></label><label>Noch frei<output>${Math.max(0, item.capacity - item.sold)}</output></label></div></article>`).join('');
 
-    const reservationHtml = current.reservations.map(item => `<article class="inquiry-item"><strong>${item.name || 'Gast'} · ${item.guests} Personen</strong><span>${item.date} · ${item.time}</span><small>${item.email || ''}${item.phone ? ` · ${item.phone}` : ''} · ${item.table || 'kein Tischwunsch'}</small></article>`).join('');
-    const ticketHtml = current.ticketOrders.map(item => `<article class="inquiry-item"><strong>${item.name || 'Gast'} · ${item.quantity} Tickets</strong><span>${item.event || item.eventId}</span><small>${item.email || ''} · ${item.ticket || ''} · ${item.total || 0} €</small></article>`).join('');
+    const reservationHtml = current.reservations.map(item => `<article class="inquiry-item"><strong>Tischanfrage · ${item.guests} Personen</strong><span>${escapeHtml(item.date)} · ${escapeHtml(item.time)}</span><small>${escapeHtml(item.table || 'kein Tischwunsch')} · keine Kontaktdaten lokal gespeichert</small></article>`).join('');
+    const ticketHtml = current.ticketOrders.map(item => `<article class="inquiry-item"><strong>Ticketanfrage · ${item.quantity} Tickets</strong><span>${escapeHtml(item.event || item.eventId)}</span><small>${escapeHtml(item.ticket || 'Ticketart offen')} · ${item.total || 0} € · keine Kontaktdaten lokal gespeichert</small></article>`).join('');
     byId('reservationInquiries').innerHTML = reservationHtml || '<p class="empty">Noch keine Tischanfragen in diesem Browser.</p>';
     byId('ticketInquiries').innerHTML = ticketHtml || '<p class="empty">Noch keine Ticketanfragen in diesem Browser.</p>';
   }

@@ -41,10 +41,94 @@
 
   const clone = value => JSON.parse(JSON.stringify(value));
 
+  const safeText = (value, maxLength = 120) => String(value ?? '')
+    .replace(/[\u0000-\u001f\u007f]/g, ' ')
+    .trim()
+    .slice(0, maxLength);
+  const safeNumber = (value, min, max, fallback = min) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? Math.min(max, Math.max(min, parsed)) : fallback;
+  };
+  const safeDate = value => /^\d{4}-\d{2}-\d{2}$/.test(String(value)) ? String(value) : localDate(0);
+  const safeTime = value => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(value)) ? String(value) : '12:00';
+  const safeIso = value => Number.isNaN(Date.parse(value)) ? new Date().toISOString() : new Date(value).toISOString();
+
+  function sanitizeState(input) {
+    const defaults = makeDefaults();
+    const source = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
+    const settings = source.settings && typeof source.settings === 'object' ? source.settings : {};
+    const servicesSource = Array.isArray(source.services) ? source.services : defaults.services;
+    const eventsSource = Array.isArray(source.events) ? source.events : defaults.events;
+
+    return {
+      version: 1,
+      settings: {
+        bufferEnabled: typeof settings.bufferEnabled === 'boolean' ? settings.bufferEnabled : defaults.settings.bufferEnabled,
+        bufferPercent: safeNumber(settings.bufferPercent, 0, 90, defaults.settings.bufferPercent),
+        lunchDefaultCapacity: safeNumber(settings.lunchDefaultCapacity, 0, 5000, defaults.settings.lunchDefaultCapacity),
+        dinnerDefaultCapacity: safeNumber(settings.dinnerDefaultCapacity, 0, 5000, defaults.settings.dinnerDefaultCapacity)
+      },
+      services: servicesSource.slice(0, 250).map((item, index) => {
+        const date = safeDate(item && item.date);
+        const time = safeTime(item && item.time);
+        const capacity = safeNumber(item && item.capacity, 0, 5000, 0);
+        return {
+          id: safeText(item && item.id, 80) || `${date}-${time.replace(':', '')}-${index}`,
+          date,
+          time,
+          kind: safeText(item && item.kind, 24) || 'Mittag',
+          capacity,
+          reserved: safeNumber(item && item.reserved, 0, capacity, 0)
+        };
+      }),
+      events: eventsSource.slice(0, 150).map((item, index) => {
+        const capacity = safeNumber(item && item.capacity, 0, 50000, 0);
+        const ticketTypes = Array.isArray(item && item.ticketTypes) ? item.ticketTypes : [];
+        return {
+          id: safeText(item && item.id, 80) || `event-${index}`,
+          date: safeDate(item && item.date),
+          name: safeText(item && item.name, 140) || 'Event',
+          format: safeText(item && item.format, 80),
+          capacity,
+          sold: safeNumber(item && item.sold, 0, capacity, 0),
+          ticketTypes: ticketTypes.slice(0, 20).map(type => ({
+            name: safeText(type && type.name, 80) || 'Ticket',
+            sold: safeNumber(type && type.sold, 0, capacity, 0)
+          }))
+        };
+      }),
+      // Keine Namen, E-Mail-Adressen, Telefonnummern oder Nachrichten im Browser speichern.
+      reservations: (Array.isArray(source.reservations) ? source.reservations : []).slice(0, 40).map(item => ({
+        id: safeText(item && item.id, 80),
+        createdAt: safeIso(item && item.createdAt),
+        status: safeText(item && item.status, 24) || 'Anfrage',
+        date: safeDate(item && item.date),
+        time: safeTime(item && item.time),
+        guests: safeNumber(item && item.guests, 1, 500, 1),
+        table: safeText(item && item.table, 80)
+      })),
+      ticketOrders: (Array.isArray(source.ticketOrders) ? source.ticketOrders : []).slice(0, 40).map(item => ({
+        id: safeText(item && item.id, 80),
+        createdAt: safeIso(item && item.createdAt),
+        status: safeText(item && item.status, 24) || 'Anfrage',
+        eventId: safeText(item && item.eventId, 80),
+        event: safeText(item && item.event, 140),
+        ticket: safeText(item && item.ticket, 80),
+        quantity: safeNumber(item && item.quantity, 1, 500, 1),
+        total: safeNumber(item && item.total, 0, 1000000, 0)
+      })),
+      updatedAt: safeIso(source.updatedAt)
+    };
+  }
+
   function load() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const state = sanitizeState(JSON.parse(saved));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        return clone(state);
+      }
     } catch (_) {
       // The in-memory fallback keeps the prototype functional in locked-down previews.
     }
@@ -53,7 +137,7 @@
   }
 
   function save(next) {
-    const state = clone(next);
+    const state = sanitizeState(next);
     state.updatedAt = new Date().toISOString();
     memoryState = state;
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
@@ -124,7 +208,7 @@
     const availability = serviceAvailability(service, state.settings);
     if (guests > availability.available) return { ok: false, reason: 'unavailable', available: availability.available };
     service.reserved += guests;
-    state.reservations.unshift({ id: `R-${Date.now()}`, createdAt: new Date().toISOString(), ...payload, guests });
+    state.reservations.unshift({ id: `R-${Date.now()}`, createdAt: new Date().toISOString(), status: 'Bestätigt', date: payload.date, time: payload.time, guests, table: payload.table });
     state.reservations = state.reservations.slice(0, 40);
     save(state);
     return { ok: true, available: availability.available - guests };
@@ -139,7 +223,7 @@
     event.sold += quantity;
     const type = event.ticketTypes.find(item => item.name === payload.ticket);
     if (type) type.sold += quantity;
-    state.ticketOrders.unshift({ id: `T-${Date.now()}`, createdAt: new Date().toISOString(), eventId: event.id, event: event.name, ...payload, quantity });
+    state.ticketOrders.unshift({ id: `T-${Date.now()}`, createdAt: new Date().toISOString(), status: 'Bestätigt', eventId: event.id, event: event.name, ticket: payload.ticket, quantity, total: payload.total });
     state.ticketOrders = state.ticketOrders.slice(0, 40);
     save(state);
     return { ok: true, available: available - quantity };
@@ -147,7 +231,7 @@
 
   function recordReservationInquiry(payload) {
     const state = load();
-    state.reservations.unshift({ id: `R-${Date.now()}`, createdAt: new Date().toISOString(), status: 'Anfrage', ...payload, guests: Math.max(1, Number(payload.guests || 1)) });
+    state.reservations.unshift({ id: `R-${Date.now()}`, createdAt: new Date().toISOString(), status: 'Anfrage', date: payload.date, time: payload.time, guests: Math.max(1, Number(payload.guests || 1)), table: payload.table });
     state.reservations = state.reservations.slice(0, 40);
     save(state);
     return { ok: true };
@@ -156,7 +240,7 @@
   function recordTicketInquiry(payload) {
     const state = load();
     const event = state.events.find(item => item.id === payload.eventId) || state.events[0];
-    state.ticketOrders.unshift({ id: `T-${Date.now()}`, createdAt: new Date().toISOString(), status: 'Anfrage', eventId: event.id, event: event.name, ...payload, quantity: Math.max(1, Number(payload.quantity || 1)) });
+    state.ticketOrders.unshift({ id: `T-${Date.now()}`, createdAt: new Date().toISOString(), status: 'Anfrage', eventId: event.id, event: event.name, ticket: payload.ticket, quantity: Math.max(1, Number(payload.quantity || 1)), total: payload.total });
     state.ticketOrders = state.ticketOrders.slice(0, 40);
     save(state);
     return { ok: true };
