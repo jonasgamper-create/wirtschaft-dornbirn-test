@@ -1,0 +1,663 @@
+{
+  "methodik": "Fiktive Tabletop-Prüfung. Keine realen Personen, keine aktive Nutzung, keine erhobenen personenbezogenen Daten.",
+  "experten": [
+    {
+      "id": 1,
+      "gruppe": "UX & Conversion",
+      "fokus": "Klare Entscheidungspunkte, verständliche Sprache, faire CTAs",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 2,
+      "gruppe": "UX & Conversion",
+      "fokus": "Klare Entscheidungspunkte, verständliche Sprache, faire CTAs",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 3,
+      "gruppe": "UX & Conversion",
+      "fokus": "Klare Entscheidungspunkte, verständliche Sprache, faire CTAs",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 4,
+      "gruppe": "UX & Conversion",
+      "fokus": "Klare Entscheidungspunkte, verständliche Sprache, faire CTAs",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 5,
+      "gruppe": "UX & Conversion",
+      "fokus": "Klare Entscheidungspunkte, verständliche Sprache, faire CTAs",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 6,
+      "gruppe": "UX & Conversion",
+      "fokus": "Klare Entscheidungspunkte, verständliche Sprache, faire CTAs",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 7,
+      "gruppe": "UX & Conversion",
+      "fokus": "Klare Entscheidungspunkte, verständliche Sprache, faire CTAs",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 8,
+      "gruppe": "UX & Conversion",
+      "fokus": "Klare Entscheidungspunkte, verständliche Sprache, faire CTAs",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 9,
+      "gruppe": "UX & Conversion",
+      "fokus": "Klare Entscheidungspunkte, verständliche Sprache, faire CTAs",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 10,
+      "gruppe": "UX & Conversion",
+      "fokus": "Klare Entscheidungspunkte, verständliche Sprache, faire CTAs",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 11,
+      "gruppe": "Hospitality Operations",
+      "fokus": "Reservierungslogik, Öffnungszeiten, telefonischer Fallback",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 12,
+      "gruppe": "Hospitality Operations",
+      "fokus": "Reservierungslogik, Öffnungszeiten, telefonischer Fallback",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 13,
+      "gruppe": "Hospitality Operations",
+      "fokus": "Reservierungslogik, Öffnungszeiten, telefonischer Fallback",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 14,
+      "gruppe": "Hospitality Operations",
+      "fokus": "Reservierungslogik, Öffnungszeiten, telefonischer Fallback",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 15,
+      "gruppe": "Hospitality Operations",
+      "fokus": "Reservierungslogik, Öffnungszeiten, telefonischer Fallback",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 16,
+      "gruppe": "Hospitality Operations",
+      "fokus": "Reservierungslogik, Öffnungszeiten, telefonischer Fallback",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 17,
+      "gruppe": "Hospitality Operations",
+      "fokus": "Reservierungslogik, Öffnungszeiten, telefonischer Fallback",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 18,
+      "gruppe": "Hospitality Operations",
+      "fokus": "Reservierungslogik, Öffnungszeiten, telefonischer Fallback",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 19,
+      "gruppe": "Ticketing & Event",
+      "fokus": "Formatfilter, Ticketweg, Warteliste, Kalenderexport",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 20,
+      "gruppe": "Ticketing & Event",
+      "fokus": "Formatfilter, Ticketweg, Warteliste, Kalenderexport",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 21,
+      "gruppe": "Ticketing & Event",
+      "fokus": "Formatfilter, Ticketweg, Warteliste, Kalenderexport",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 22,
+      "gruppe": "Ticketing & Event",
+      "fokus": "Formatfilter, Ticketweg, Warteliste, Kalenderexport",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 23,
+      "gruppe": "Ticketing & Event",
+      "fokus": "Formatfilter, Ticketweg, Warteliste, Kalenderexport",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 24,
+      "gruppe": "Ticketing & Event",
+      "fokus": "Formatfilter, Ticketweg, Warteliste, Kalenderexport",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 25,
+      "gruppe": "Ticketing & Event",
+      "fokus": "Formatfilter, Ticketweg, Warteliste, Kalenderexport",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 26,
+      "gruppe": "Ticketing & Event",
+      "fokus": "Formatfilter, Ticketweg, Warteliste, Kalenderexport",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 27,
+      "gruppe": "Local SEO & Content",
+      "fokus": "Dornbirn/Vorarlberg, strukturierte Daten, Suchintention",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 28,
+      "gruppe": "Local SEO & Content",
+      "fokus": "Dornbirn/Vorarlberg, strukturierte Daten, Suchintention",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 29,
+      "gruppe": "Local SEO & Content",
+      "fokus": "Dornbirn/Vorarlberg, strukturierte Daten, Suchintention",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 30,
+      "gruppe": "Local SEO & Content",
+      "fokus": "Dornbirn/Vorarlberg, strukturierte Daten, Suchintention",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 31,
+      "gruppe": "Local SEO & Content",
+      "fokus": "Dornbirn/Vorarlberg, strukturierte Daten, Suchintention",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 32,
+      "gruppe": "Local SEO & Content",
+      "fokus": "Dornbirn/Vorarlberg, strukturierte Daten, Suchintention",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 33,
+      "gruppe": "Local SEO & Content",
+      "fokus": "Dornbirn/Vorarlberg, strukturierte Daten, Suchintention",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 34,
+      "gruppe": "Local SEO & Content",
+      "fokus": "Dornbirn/Vorarlberg, strukturierte Daten, Suchintention",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 35,
+      "gruppe": "Barrierefreiheit",
+      "fokus": "Tastatur, Fokus, Kontrast, reduzierte Bewegung",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 36,
+      "gruppe": "Barrierefreiheit",
+      "fokus": "Tastatur, Fokus, Kontrast, reduzierte Bewegung",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 37,
+      "gruppe": "Barrierefreiheit",
+      "fokus": "Tastatur, Fokus, Kontrast, reduzierte Bewegung",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 38,
+      "gruppe": "Barrierefreiheit",
+      "fokus": "Tastatur, Fokus, Kontrast, reduzierte Bewegung",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 39,
+      "gruppe": "Barrierefreiheit",
+      "fokus": "Tastatur, Fokus, Kontrast, reduzierte Bewegung",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 40,
+      "gruppe": "Barrierefreiheit",
+      "fokus": "Tastatur, Fokus, Kontrast, reduzierte Bewegung",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 41,
+      "gruppe": "Privacy & Security",
+      "fokus": "Datensparsamkeit, CSP, Zahlungs- und Anbietergrenzen",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 42,
+      "gruppe": "Privacy & Security",
+      "fokus": "Datensparsamkeit, CSP, Zahlungs- und Anbietergrenzen",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 43,
+      "gruppe": "Privacy & Security",
+      "fokus": "Datensparsamkeit, CSP, Zahlungs- und Anbietergrenzen",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 44,
+      "gruppe": "Privacy & Security",
+      "fokus": "Datensparsamkeit, CSP, Zahlungs- und Anbietergrenzen",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 45,
+      "gruppe": "Privacy & Security",
+      "fokus": "Datensparsamkeit, CSP, Zahlungs- und Anbietergrenzen",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 46,
+      "gruppe": "Privacy & Security",
+      "fokus": "Datensparsamkeit, CSP, Zahlungs- und Anbietergrenzen",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 47,
+      "gruppe": "Privacy & Security",
+      "fokus": "Datensparsamkeit, CSP, Zahlungs- und Anbietergrenzen",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 48,
+      "gruppe": "Privacy & Security",
+      "fokus": "Datensparsamkeit, CSP, Zahlungs- und Anbietergrenzen",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 49,
+      "gruppe": "Privacy & Security",
+      "fokus": "Datensparsamkeit, CSP, Zahlungs- und Anbietergrenzen",
+      "modus": "fiktives Expertenreview"
+    },
+    {
+      "id": 50,
+      "gruppe": "Privacy & Security",
+      "fokus": "Datensparsamkeit, CSP, Zahlungs- und Anbietergrenzen",
+      "modus": "fiktives Expertenreview"
+    }
+  ],
+  "anwendungsszenarien": [
+    {
+      "id": 1,
+      "gruppe": "Berufstätige Mittag",
+      "ziel": "Menü und Mittagstisch schnell finden",
+      "variante": 1,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 2,
+      "gruppe": "Berufstätige Mittag",
+      "ziel": "Menü und Mittagstisch schnell finden",
+      "variante": 2,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 3,
+      "gruppe": "Berufstätige Mittag",
+      "ziel": "Menü und Mittagstisch schnell finden",
+      "variante": 3,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 4,
+      "gruppe": "Berufstätige Mittag",
+      "ziel": "Menü und Mittagstisch schnell finden",
+      "variante": 4,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 5,
+      "gruppe": "Berufstätige Mittag",
+      "ziel": "Menü und Mittagstisch schnell finden",
+      "variante": 5,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 6,
+      "gruppe": "Paar zum Abendessen",
+      "ziel": "Tisch online oder persönlich reservieren",
+      "variante": 1,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 7,
+      "gruppe": "Paar zum Abendessen",
+      "ziel": "Tisch online oder persönlich reservieren",
+      "variante": 2,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 8,
+      "gruppe": "Paar zum Abendessen",
+      "ziel": "Tisch online oder persönlich reservieren",
+      "variante": 3,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 9,
+      "gruppe": "Paar zum Abendessen",
+      "ziel": "Tisch online oder persönlich reservieren",
+      "variante": 4,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 10,
+      "gruppe": "Paar zum Abendessen",
+      "ziel": "Tisch online oder persönlich reservieren",
+      "variante": 5,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 11,
+      "gruppe": "Konzertfan",
+      "ziel": "Konzert filtern und Ticketweg finden",
+      "variante": 1,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 12,
+      "gruppe": "Konzertfan",
+      "ziel": "Konzert filtern und Ticketweg finden",
+      "variante": 2,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 13,
+      "gruppe": "Konzertfan",
+      "ziel": "Konzert filtern und Ticketweg finden",
+      "variante": 3,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 14,
+      "gruppe": "Konzertfan",
+      "ziel": "Konzert filtern und Ticketweg finden",
+      "variante": 4,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 15,
+      "gruppe": "Konzertfan",
+      "ziel": "Konzert filtern und Ticketweg finden",
+      "variante": 5,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 16,
+      "gruppe": "Comedyfan",
+      "ziel": "Comedy oder Kabarett wählen",
+      "variante": 1,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 17,
+      "gruppe": "Comedyfan",
+      "ziel": "Comedy oder Kabarett wählen",
+      "variante": 2,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 18,
+      "gruppe": "Comedyfan",
+      "ziel": "Comedy oder Kabarett wählen",
+      "variante": 3,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 19,
+      "gruppe": "Comedyfan",
+      "ziel": "Comedy oder Kabarett wählen",
+      "variante": 4,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 20,
+      "gruppe": "Comedyfan",
+      "ziel": "Comedy oder Kabarett wählen",
+      "variante": 5,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 21,
+      "gruppe": "Hochzeitspaar",
+      "ziel": "Hochzeit und Catering anfragen",
+      "variante": 1,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 22,
+      "gruppe": "Hochzeitspaar",
+      "ziel": "Hochzeit und Catering anfragen",
+      "variante": 2,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 23,
+      "gruppe": "Hochzeitspaar",
+      "ziel": "Hochzeit und Catering anfragen",
+      "variante": 3,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 24,
+      "gruppe": "Hochzeitspaar",
+      "ziel": "Hochzeit und Catering anfragen",
+      "variante": 4,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 25,
+      "gruppe": "Hochzeitspaar",
+      "ziel": "Hochzeit und Catering anfragen",
+      "variante": 5,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 26,
+      "gruppe": "Firmenveranstalter",
+      "ziel": "Kulturhaus, Vor-Ort-Catering und Foodtruck vergleichen",
+      "variante": 1,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 27,
+      "gruppe": "Firmenveranstalter",
+      "ziel": "Kulturhaus, Vor-Ort-Catering und Foodtruck vergleichen",
+      "variante": 2,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 28,
+      "gruppe": "Firmenveranstalter",
+      "ziel": "Kulturhaus, Vor-Ort-Catering und Foodtruck vergleichen",
+      "variante": 3,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 29,
+      "gruppe": "Firmenveranstalter",
+      "ziel": "Kulturhaus, Vor-Ort-Catering und Foodtruck vergleichen",
+      "variante": 4,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 30,
+      "gruppe": "Firmenveranstalter",
+      "ziel": "Kulturhaus, Vor-Ort-Catering und Foodtruck vergleichen",
+      "variante": 5,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 31,
+      "gruppe": "Gast aus D/CH",
+      "ziel": "Ort, Angebot und Kontakt verstehen",
+      "variante": 1,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 32,
+      "gruppe": "Gast aus D/CH",
+      "ziel": "Ort, Angebot und Kontakt verstehen",
+      "variante": 2,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 33,
+      "gruppe": "Gast aus D/CH",
+      "ziel": "Ort, Angebot und Kontakt verstehen",
+      "variante": 3,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 34,
+      "gruppe": "Gast aus D/CH",
+      "ziel": "Ort, Angebot und Kontakt verstehen",
+      "variante": 4,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 35,
+      "gruppe": "Gast aus D/CH",
+      "ziel": "Ort, Angebot und Kontakt verstehen",
+      "variante": 5,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 36,
+      "gruppe": "Älterer Gast",
+      "ziel": "telefonisch oder per E-Mail reservieren",
+      "variante": 1,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 37,
+      "gruppe": "Älterer Gast",
+      "ziel": "telefonisch oder per E-Mail reservieren",
+      "variante": 2,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 38,
+      "gruppe": "Älterer Gast",
+      "ziel": "telefonisch oder per E-Mail reservieren",
+      "variante": 3,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 39,
+      "gruppe": "Älterer Gast",
+      "ziel": "telefonisch oder per E-Mail reservieren",
+      "variante": 4,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 40,
+      "gruppe": "Älterer Gast",
+      "ziel": "telefonisch oder per E-Mail reservieren",
+      "variante": 5,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 41,
+      "gruppe": "Ausverkauftes Dinner",
+      "ziel": "Warteliste statt Sackgasse nutzen",
+      "variante": 1,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 42,
+      "gruppe": "Ausverkauftes Dinner",
+      "ziel": "Warteliste statt Sackgasse nutzen",
+      "variante": 2,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 43,
+      "gruppe": "Ausverkauftes Dinner",
+      "ziel": "Warteliste statt Sackgasse nutzen",
+      "variante": 3,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 44,
+      "gruppe": "Ausverkauftes Dinner",
+      "ziel": "Warteliste statt Sackgasse nutzen",
+      "variante": 4,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 45,
+      "gruppe": "Ausverkauftes Dinner",
+      "ziel": "Warteliste statt Sackgasse nutzen",
+      "variante": 5,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 46,
+      "gruppe": "Assistenztechnik",
+      "ziel": "ohne Maus und mit reduzierter Bewegung orientieren",
+      "variante": 1,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 47,
+      "gruppe": "Assistenztechnik",
+      "ziel": "ohne Maus und mit reduzierter Bewegung orientieren",
+      "variante": 2,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 48,
+      "gruppe": "Assistenztechnik",
+      "ziel": "ohne Maus und mit reduzierter Bewegung orientieren",
+      "variante": 3,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 49,
+      "gruppe": "Assistenztechnik",
+      "ziel": "ohne Maus und mit reduzierter Bewegung orientieren",
+      "variante": 4,
+      "modus": "fiktiver Anwendungsszenario"
+    },
+    {
+      "id": 50,
+      "gruppe": "Assistenztechnik",
+      "ziel": "ohne Maus und mit reduzierter Bewegung orientieren",
+      "variante": 5,
+      "modus": "fiktiver Anwendungsszenario"
+    }
+  ],
+  "konsens": [
+    "Vier Hauptintentionen bleiben die tragende Navigation.",
+    "Buchung, Ticket und Anfrage brauchen jeweils einen klaren Hauptweg und einen persönlichen Fallback.",
+    "Ausverkauft darf nicht verdeckt werden; Warteliste ist freiwillig und transparent.",
+    "Produktionsreife entsteht erst mit echten Anbieterprüfungen, Zahlungsfluss, Verträgen und Rechtsfreigabe."
+  ]
+}

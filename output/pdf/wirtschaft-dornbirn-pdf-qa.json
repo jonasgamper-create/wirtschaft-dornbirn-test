@@ -1,0 +1,57 @@
+{
+  "pdf": "/private/tmp/wirtschaft-ticket-deploy/output/pdf/wirtschaft-dornbirn-webstrategie-wolfgang.pdf",
+  "passes": [
+    {
+      "pass": "01 Seitenlogik",
+      "status": "PASS",
+      "evidence": "29 Seiten; erwartete Struktur: Cover bis Quellen/Schlussseite."
+    },
+    {
+      "pass": "02 A4-Querformat",
+      "status": "PASS",
+      "evidence": "841.89 x 595.28 pt."
+    },
+    {
+      "pass": "03 Metadaten",
+      "status": "PASS",
+      "evidence": "Titel: Wirtschaft Dornbirn - Webstrategie für Wolfgang"
+    },
+    {
+      "pass": "04 Textabdeckung",
+      "status": "PASS",
+      "evidence": "Jede Seite enthält extrahierbaren Text."
+    },
+    {
+      "pass": "05 Fiktionshinweis",
+      "status": "PASS",
+      "evidence": "Fiktive 50+50-Prüfung klar als nicht reale Studie markiert."
+    },
+    {
+      "pass": "06 Nutzenvergleich",
+      "status": "PASS",
+      "evidence": "Alt-gegen-Neu-Vergleich vorhanden."
+    },
+    {
+      "pass": "07 Sicherheitsgrenze",
+      "status": "PASS",
+      "evidence": "Entwurf und echte Zahlungs-/Betriebsreife getrennt."
+    },
+    {
+      "pass": "08 Quellen & Links",
+      "status": "PASS",
+      "evidence": "13 PDF-Link-Anmerkungen gefunden."
+    },
+    {
+      "pass": "09 Entscheiderstory",
+      "status": "PASS",
+      "evidence": "Persönlicher Entscheidungs- und Umsetzungsabschnitt vorhanden."
+    },
+    {
+      "pass": "10 Satzspiegel",
+      "status": "PASS",
+      "evidence": "Außerhalb: 0; unlesbar klein: 0."
+    }
+  ],
+  "passed": 10,
+  "failed": 0
+}

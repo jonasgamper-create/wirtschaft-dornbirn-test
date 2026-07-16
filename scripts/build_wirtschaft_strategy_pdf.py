@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "site" / "assets"
 OUTPUT = ROOT / "output" / "pdf" / "wirtschaft-dornbirn-webstrategie-wolfgang.pdf"
 JOURNEYS = Path(os.environ.get("JOURNEY_REPORT", str(ROOT / "output" / "pdf" / "wirtschaft-dornbirn-journey-test.json")))
+FICTIONAL_REVIEW = ROOT / "output" / "pdf" / "wirtschaft-dornbirn-fiktive-review-matrix.json"
 W, H = landscape(A4)
 
 PAPER = HexColor("#EEE8DC")
@@ -126,7 +127,7 @@ def footer(c: canvas.Canvas, page: int, dark: bool = False) -> None:
     color = Color(1, 1, 1, .52) if dark else Color(0.09, .07, .05, .46)
     c.setFillColor(color)
     c.setFont("Helvetica", 7.5)
-    c.drawString(46, 22, "Wirtschaft Dornbirn · Expertenanalyse · 16.07.2026")
+    c.drawString(46, 22, "Wirtschaft Dornbirn · Expertenanalyse · 17.07.2026")
     c.drawRightString(W - 46, 22, f"{page:02d}")
 
 
@@ -162,9 +163,54 @@ def source_link(c: canvas.Canvas, label_text: str, url: str, x: float, y: float,
     return y2 - 5
 
 
+def fictional_review_data() -> dict:
+    """Create an explicit tabletop-review record. It is not a user study."""
+    expert_groups = [
+        ("UX & Conversion", 10, "Klare Entscheidungspunkte, verständliche Sprache, faire CTAs"),
+        ("Hospitality Operations", 8, "Reservierungslogik, Öffnungszeiten, telefonischer Fallback"),
+        ("Ticketing & Event", 8, "Formatfilter, Ticketweg, Warteliste, Kalenderexport"),
+        ("Local SEO & Content", 8, "Dornbirn/Vorarlberg, strukturierte Daten, Suchintention"),
+        ("Barrierefreiheit", 6, "Tastatur, Fokus, Kontrast, reduzierte Bewegung"),
+        ("Privacy & Security", 10, "Datensparsamkeit, CSP, Zahlungs- und Anbietergrenzen"),
+    ]
+    user_groups = [
+        ("Berufstätige Mittag", "Menü und Mittagstisch schnell finden"),
+        ("Paar zum Abendessen", "Tisch online oder persönlich reservieren"),
+        ("Konzertfan", "Konzert filtern und Ticketweg finden"),
+        ("Comedyfan", "Comedy oder Kabarett wählen"),
+        ("Hochzeitspaar", "Hochzeit und Catering anfragen"),
+        ("Firmenveranstalter", "Kulturhaus, Vor-Ort-Catering und Foodtruck vergleichen"),
+        ("Gast aus D/CH", "Ort, Angebot und Kontakt verstehen"),
+        ("Älterer Gast", "telefonisch oder per E-Mail reservieren"),
+        ("Ausverkauftes Dinner", "Warteliste statt Sackgasse nutzen"),
+        ("Assistenztechnik", "ohne Maus und mit reduzierter Bewegung orientieren"),
+    ]
+    experts = []
+    for group, amount, focus in expert_groups:
+        for index in range(1, amount + 1):
+            experts.append({"id": len(experts) + 1, "gruppe": group, "fokus": focus, "modus": "fiktives Expertenreview"})
+    users = []
+    for group, goal in user_groups:
+        for variant in range(1, 6):
+            users.append({"id": len(users) + 1, "gruppe": group, "ziel": goal, "variante": variant, "modus": "fiktiver Anwendungsszenario"})
+    return {
+        "methodik": "Fiktive Tabletop-Prüfung. Keine realen Personen, keine aktive Nutzung, keine erhobenen personenbezogenen Daten.",
+        "experten": experts,
+        "anwendungsszenarien": users,
+        "konsens": [
+            "Vier Hauptintentionen bleiben die tragende Navigation.",
+            "Buchung, Ticket und Anfrage brauchen jeweils einen klaren Hauptweg und einen persönlichen Fallback.",
+            "Ausverkauft darf nicht verdeckt werden; Warteliste ist freiwillig und transparent.",
+            "Produktionsreife entsteht erst mit echten Anbieterprüfungen, Zahlungsfluss, Verträgen und Rechtsfreigabe.",
+        ],
+    }
+
+
 def build() -> None:
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     journeys = json.loads(JOURNEYS.read_text()) if JOURNEYS.exists() else {"total": 0, "passed": 0, "failed": 0}
+    fictional = fictional_review_data()
+    FICTIONAL_REVIEW.write_text(json.dumps(fictional, ensure_ascii=False, indent=2))
     c = canvas.Canvas(str(OUTPUT), pagesize=(W, H), pageCompression=1)
     c.setTitle("Wirtschaft Dornbirn - Webstrategie für Wolfgang")
     c.setAuthor("Strategische Webanalyse")
@@ -562,8 +608,223 @@ def build() -> None:
     paragraph(c, "Freigabe als strategische Basis - danach 90 Tage kontrolliert produktionsreif machen.", 70, 104, 350, size=13, leading=17, color=white, font="Times-Roman")
     c.showPage()
 
-    # 19 Sources
-    new_page(c, 19, "Quellen & Prüfgrundlagen")
+    # 19 Fictional review method
+    new_page(c, 19, "Fiktive Prüfung")
+    title(c, "100 Perspektiven. Null falsche Versprechen.")
+    paragraph(c, "Für diese Entscheidungsvorlage wird eine fiktive Tabletop-Prüfung verwendet: 50 Expertenrollen und 50 Anwendungsszenarien. Sie ersetzt ausdrücklich keine realen Interviews, keine Live-Usability-Tests und keine rechtliche Prüfung.", 48, H - 148, 700, size=14, leading=20, color=MUTED, font="Times-Roman")
+    metric(c, 48, 302, 220, str(len(fictional["experten"])), "fiktive Expertenrollen aus sechs Fachbereichen", value_color=WINE)
+    metric(c, 280, 302, 220, str(len(fictional["anwendungsszenarien"])), "fiktive Anwendungsszenarien aus zehn Zielgruppen", value_color=GREEN)
+    metric(c, 512, 302, 236, "0", "echte Personen, Sessions oder personenbezogene Daten", value_color=GOLD)
+    rounded(c, 48, 102, 700, 150, LIGHT, 17)
+    label(c, "So ist das Ergebnis zu lesen", 68, 222, WINE)
+    y = 192
+    for text in [
+        "Fiktive Prüfung: prüft Vollständigkeit, Risiken, Verständlichkeit und priorisierte Anforderungen.",
+        "Bestehender Live-Test: 50 technische Zielgruppen-Journeys und 97 Struktur-, Datenschutz- und Laufzeitprüfungen.",
+        "Nächster echter Beleg: moderierter Pilot mit 8-12 Gästen aus Vorarlberg und danach Feldmessung.",
+    ]:
+        y = bullet(c, text, 68, y, 650, color=INK, dot=GOLD, size=10.5)
+    c.showPage()
+
+    # 20 Expert review
+    new_page(c, 20, "Fiktives Expertenreview", dark=True)
+    title(c, "Was 50 Fachrollen priorisieren würden.", color=white)
+    expert_rows = [
+        ("UX & Conversion", "10", "Vier Einstiege, CTAs am Entscheidungspunkt, keine Dark Patterns"),
+        ("Hospitality Operations", "8", "Onlineweg plus Telefon/E-Mail, klare Bestätigung statt falscher Zusage"),
+        ("Ticketing & Event", "8", "Filter, Kalenderexport, offizieller Zahlungsweg, Warteliste"),
+        ("Local SEO & Content", "8", "eigene Einstiegsseiten und Vorarlberg-Signale statt Sammelseite"),
+        ("Barrierefreiheit", "6", "Fokus, Sprache, Labels und reduzierte Bewegung"),
+        ("Privacy & Security", "10", "Datenminimierung und Produktionsfreigaben vor echtem Checkout"),
+    ]
+    for i, (area, amount, consensus) in enumerate(expert_rows):
+        y = 390 - i * 51
+        c.setStrokeColor(Color(1, 1, 1, .16))
+        c.line(48, y - 11, 748, y - 11)
+        c.setFillColor(GOLD)
+        c.setFont("Times-Roman", 22)
+        c.drawString(48, y + 5, amount)
+        c.setFillColor(white)
+        c.setFont("Helvetica-Bold", 10)
+        c.drawString(91, y + 9, area)
+        paragraph(c, consensus, 315, y + 9, 420, size=9.4, leading=12, color=Color(1, 1, 1, .7))
+    rounded(c, 48, 65, 700, 73, Color(1, 1, 1, .08), 15)
+    paragraph(c, "Fiktiver Konsens: Die Seite gewinnt nicht durch mehr Druck, sondern durch weniger Unklarheit. Jede Person soll den passenden Weg ohne Suchen finden.", 68, 105, 660, size=12.5, leading=17, color=white, font="Times-Roman")
+    c.showPage()
+
+    # 21 Application review
+    new_page(c, 21, "Fiktive Anwendungsszenarien")
+    title(c, "Was 50 Nutzungsszenarien erwarten würden.")
+    audience_rows = [
+        ("Mittag", "5", "Menü, Uhrzeit, kurzer Reservierungsweg"),
+        ("Abend", "5", "Tisch online oder persönlich anfragen"),
+        ("Livekultur", "10", "Konzert/Comedy filtern, Ticket und Kalender"),
+        ("Feiern", "10", "Hochzeit, Firmenfest, Catering und Ort vergleichen"),
+        ("Orientierung", "10", "Dornbirn, Kontakt, Mobilität, klare Sprache"),
+        ("Sonderfälle", "10", "Warteliste, Tastatur, reduzierte Bewegung, Hilfe"),
+    ]
+    for i, (area, amount, expectation) in enumerate(audience_rows):
+        x = 48 + (i % 2) * 365
+        y = 354 - (i // 2) * 102
+        rounded(c, x, y, 338, 76, LIGHT, 14)
+        c.setFillColor(WINE if i % 2 == 0 else GREEN)
+        c.setFont("Times-Roman", 25)
+        c.drawString(x + 16, y + 38, amount)
+        c.setFillColor(INK)
+        c.setFont("Helvetica-Bold", 10)
+        c.drawString(x + 58, y + 45, area)
+        paragraph(c, expectation, x + 58, y + 28, 252, size=9.3, leading=12, color=MUTED)
+    paragraph(c, "Erfüllte Entwurfsantworten: sichtbare Tischaktion, Eventfilter, offizieller Ticketweg, Kalenderdatei, Warteliste, Catering-Orte, Telefon/E-Mail-Alternativen und mobile Schnellaktionen.", 48, 72, 700, size=10.6, leading=15, color=WINE, font="Helvetica-Bold")
+    c.showPage()
+
+    # 22 Benefit scorecard
+    new_page(c, 22, "Vorteile im Vergleich")
+    title(c, "Alte Seite: Inhalte. Neue Seite: Entscheidungen.")
+    headers = ["Kriterium", "Bisherige Wirkung", "Neuer Entwurf", "Gewinn"]
+    xs = [48, 220, 410, 604]
+    widths = [155, 170, 175, 135]
+    for x, head in zip(xs, headers):
+        label(c, head, x, 415, WINE)
+    comparisons = [
+        ("Start", "Themen nebeneinander", "Vier Gast-Intentionen", "schneller Einstieg"),
+        ("Tisch", "separate Reservierungsseite", "wiederkehrender direkter Weg", "weniger Reibung"),
+        ("Events", "lange Terminliste", "Monat, Filter, Kalender, Ticket", "mehr Auffindbarkeit"),
+        ("Ausverkauft", "Endpunkt", "freiwillige Warteliste", "Interesse bleibt erhalten"),
+        ("Fest", "Thema unter vielen", "eigener Angebots- und Anfrageweg", "qualifiziertere Leads"),
+        ("Marke", "Bereiche erklärt", "Mittag, Bühne, Foodtruck als Erzählung", "mehr Erinnerung"),
+        ("Vertrauen", "Information verstreut", "Datenschutz, Fallbacks, klare Hinweise", "sicheres Gefühl"),
+    ]
+    for i, row in enumerate(comparisons):
+        y = 373 - i * 43
+        c.setStrokeColor(Color(.09, .07, .05, .16))
+        c.line(48, y - 11, 748, y - 11)
+        for x, width, value in zip(xs, widths, row):
+            paragraph(c, value, x, y + 9, width, size=8.8, leading=11, color=INK, font="Helvetica-Bold" if x == 48 else "Helvetica")
+    rounded(c, 48, 48, 700, 42, INK, 14)
+    paragraph(c, "Der Unterschied ist nicht nur optisch: Die neue Seite macht aus jeder relevanten Information einen möglichen, transparenten nächsten Schritt.", 68, 72, 660, size=10.2, leading=13.5, color=white)
+    c.showPage()
+
+    # 23 Structural visual comparison
+    new_page(c, 23, "Struktureller Vergleich", dark=True)
+    title(c, "Zwei Strukturen im direkten Bild.", color=white)
+    paragraph(c, "Schematische Vergleichskarte - keine pixelgetreuen Screenshots. Sie zeigt die Entscheidungslogik, nicht das alte Design.", 48, H - 147, 700, size=10, leading=14, color=Color(1, 1, 1, .62))
+    for x, heading, color, chips, note in [
+        (48, "Bisher", WINE, ["Neues", "Dinner & Konzert", "Comedy", "Emma & Eugen", "Heiraten", "Agentur", "Sponsoren", "Gutscheine"], "Viele gleichwertige Themen vor der ersten Entscheidung."),
+        (424, "Neuer Entwurf", GREEN, ["Mittagsmenü", "Tisch reservieren", "Events & Tickets", "Feiern & Catering"], "Vier klare Wege, danach passende Tiefe und persönlicher Fallback."),
+    ]:
+        rounded(c, x, 93, 324, 320, Color(1, 1, 1, .06), 18, stroke=Color(1, 1, 1, .16))
+        c.setFillColor(color)
+        c.setFont("Times-Roman", 27)
+        c.drawString(x + 20, 374, heading)
+        cy = 330
+        for chip in chips:
+            rounded(c, x + 20, cy, 284, 27, color if x == 424 else Color(1, 1, 1, .12), 9)
+            c.setFillColor(white)
+            c.setFont("Helvetica-Bold", 8.5)
+            c.drawString(x + 32, cy + 10, chip)
+            cy -= 34
+        paragraph(c, note, x + 20, 124, 275, size=9.4, leading=13, color=Color(1, 1, 1, .74))
+    c.showPage()
+
+    # 24 Requirement map
+    new_page(c, 24, "Anforderungen")
+    title(c, "Was der Entwurf schon erfüllt - und was Produktion braucht.")
+    requirements = [
+        ("Mittag", "sichtbarer Einstieg, Menüdialog, Kontakt", "Live-Tageskarte/CMS festlegen"),
+        ("Reservierung", "CTA, Onlineweg, Telefon, E-Mail", "echter Reservierungsanbieter + Statuslogik"),
+        ("Tickets", "Filter, Ticketweg, Kalender, Warteliste", "offizieller Checkout, Verfügbarkeit, Rückerstattung"),
+        ("Catering", "Anlass, Orte, Anfrage, Foodtruck", "CRM/Inbox-Prozess, Antwort-SLA, Angebotstemplates"),
+        ("Sicherheit", "CSP, keine Tracker, Rechtsseiten", "AVV, Rollen, Backups, Incident-Plan, Rechtsprüfung"),
+        ("Reichweite", "Meta, regionale Inhalte, klare Themen", "Schema, Profilpflege, echte Messung und Content-Takt"),
+    ]
+    for i, (area, now, production) in enumerate(requirements):
+        y = 378 - i * 51
+        c.setFillColor(WINE)
+        c.setFont("Helvetica-Bold", 9)
+        c.drawString(48, y + 8, area.upper())
+        paragraph(c, now, 155, y + 8, 270, size=9.1, leading=11.5, color=INK)
+        paragraph(c, production, 455, y + 8, 280, size=9.1, leading=11.5, color=MUTED)
+        c.setStrokeColor(Color(.09, .07, .05, .16))
+        c.line(48, y - 13, 748, y - 13)
+    label(c, "Entwurf erfüllt", 155, 417, GREEN)
+    label(c, "Vor echtem Go-live verbindlich", 455, 417, WINE)
+    c.showPage()
+
+    # 25 Security operating model
+    new_page(c, 25, "Security & Betrieb", dark=True)
+    title(c, "Sicherheit ist ein Betriebssystem, kein Footer-Link.", color=white)
+    security = [
+        ("1. Identität", "MFA, minimale Rollen, getrennte Adminzugänge"),
+        ("2. Anbieter", "Auftragsverarbeitung, Datenstandort, Zahlungs- und Ticketvertrag"),
+        ("3. Anwendung", "Updates, CSP, HTTPS, sichere Formulare, keine unnötigen Skripte"),
+        ("4. Daten", "Zweckbindung, Löschfristen, Backups, Export- und Auskunftsprozess"),
+        ("5. Vorfall", "Meldeweg, Verantwortliche, Sicherung von Logs, Kommunikationsplan"),
+        ("6. Kontrolle", "vierteljährlicher Rechte- und Updatecheck, jährlicher externer Audit"),
+    ]
+    for i, (head, copy) in enumerate(security):
+        x = 48 + (i % 3) * 240
+        y = 304 - (i // 3) * 145
+        rounded(c, x, y, 216, 118, Color(1, 1, 1, .07), 15, stroke=Color(1, 1, 1, .13))
+        label(c, head, x + 16, y + 89, GOLD)
+        paragraph(c, copy, x + 16, y + 64, 184, size=9.5, leading=13, color=white)
+    paragraph(c, "Die Testseite ist datensparsam. Eine Produktionsfreigabe für personenbezogene Daten oder Zahlungen darf erst nach Anbieter-, Vertrags- und Rechtsprüfung erfolgen.", 48, 65, 700, size=10.5, leading=15, color=GOLD, font="Helvetica-Bold")
+    c.showPage()
+
+    # 26 Presentation storyline
+    new_page(c, 26, "Präsentation für Wolfgang")
+    title(c, "Eine Präsentation, die eine Entscheidung erleichtert.")
+    story = [
+        ("01", "Ausgangslage", "Warum die Vielfalt heute digital Reibung erzeugt."),
+        ("02", "Zukunftsbild", "Wie eine Seite zur Gastgeberin für Mittag, Bühne und Feste wird."),
+        ("03", "Beweis", "Vergleich, Journeys, Sicherheitsgrenzen, Kennzahlen und reale Umsetzung."),
+        ("04", "Entscheidung", "Was Wolfgang heute freigibt und was erst später verbindlich wird."),
+    ]
+    for i, (number, head, copy) in enumerate(story):
+        x = 48 + i * 180
+        rounded(c, x, 210, 162, 181, LIGHT, 16)
+        c.setFillColor(WINE if i in (0, 3) else GREEN)
+        c.setFont("Times-Roman", 30)
+        c.drawString(x + 17, 340, number)
+        c.setFillColor(INK)
+        c.setFont("Times-Roman", 21)
+        c.drawString(x + 17, 300, head)
+        paragraph(c, copy, x + 17, 268, 128, size=9.4, leading=13, color=MUTED)
+    rounded(c, 48, 78, 700, 75, INK, 16)
+    paragraph(c, "Der Leitfaden der Präsentation: erst das geschäftliche Problem, dann die bessere Erfahrung, dann der überprüfbare Nutzen - zum Schluss ein kontrollierter Freigabeplan.", 68, 115, 660, size=12, leading=16, color=white, font="Times-Roman")
+    c.showPage()
+
+    # 27 Ten QA passes
+    new_page(c, 27, "Zehn Formatdurchläufe")
+    title(c, "Zehn Prüfungen, bevor Wolfgang die Datei bekommt.")
+    qa = [
+        "Seitenlogik und Kapitelreihenfolge",
+        "Abstände an Kopf, Titel, Inhalt und Footer",
+        "Schriftgrößen und Lesbarkeit auf A4 quer",
+        "Zeilenumbrüche, Worttrennungen und Tabellenränder",
+        "Kontrast von Weinrot, Gold, Papier und Nacht",
+        "Bildbeschnitt, Motive und Logo-Proportionen",
+        "Karten, Diagramme, Linien und Ergebnisboxen",
+        "Seitenzahl, Quellen, Links und Metadaten",
+        "PDF-Textprüfung, Seitenformat und Link-Anmerkungen",
+        "Renderprüfung aller Seiten als PNG-Kontaktbögen",
+    ]
+    for i, item in enumerate(qa):
+        x = 48 + (i % 2) * 365
+        y = 370 - (i // 2) * 58
+        rounded(c, x, y, 338, 42, LIGHT, 11)
+        c.setFillColor(GREEN)
+        c.circle(x + 18, y + 21, 8, stroke=0, fill=1)
+        c.setFillColor(white)
+        c.setFont("Helvetica-Bold", 8)
+        c.drawCentredString(x + 18, y + 18, "✓")
+        c.setFillColor(INK)
+        c.setFont("Helvetica-Bold", 9.5)
+        c.drawString(x + 36, y + 17, f"{i + 1:02d} · {item}")
+    paragraph(c, "Hinweis: Die zehn Durchläufe prüfen Gestaltung und Artefaktqualität. Sie sind kein Ersatz für eine Druckfreigabe auf dem konkreten Papier oder einen rechtlichen Produktionsaudit.", 48, 72, 700, size=10.2, leading=14.5, color=WINE, font="Helvetica-Bold")
+    c.showPage()
+
+    # 28 Sources
+    new_page(c, 28, "Quellen & Prüfgrundlagen")
     title(c, "Quellen, Benchmarks und Abrufstand.", size=31)
     sources = [
         ("Wirtschaft Dornbirn - bisherige Startseite und Angebotsstruktur", "https://wirtschaft-dornbirn.at/"),
@@ -587,10 +848,10 @@ def build() -> None:
         c.setFillColor(GOLD)
         c.circle(x + 4, y + 3, 2.5, stroke=0, fill=1)
         y = source_link(c, text, url, x + 15, y + 7, 330)
-    paragraph(c, "Abrufstand: 16.07.2026. Kennzahlen im ROI-Kapitel sind ausdrücklich Modellannahmen. Rechtliche Hinweise ersetzen keine individuelle anwaltliche Prüfung.", 48, 50, 700, size=8.5, leading=11.5, color=MUTED)
+    paragraph(c, "Abrufstand: 17.07.2026. Kennzahlen im ROI-Kapitel sind ausdrücklich Modellannahmen. Rechtliche Hinweise ersetzen keine individuelle anwaltliche Prüfung.", 48, 50, 700, size=8.5, leading=11.5, color=MUTED)
     c.showPage()
 
-    # 20 Back cover
+    # 29 Back cover
     c.setFillColor(INK)
     c.rect(0, 0, W, H, stroke=0, fill=1)
     c.setFillColor(WINE)
@@ -604,7 +865,7 @@ def build() -> None:
     c.drawString(48, H - 250, "Nur digital klarer, lebendiger, buchbarer.")
     paragraph(c, "Leitentwurf: jonasgamper-create.github.io/wirtschaft-dornbirn-test/entwurf-cinematic.html", 50, 125, 650, size=11, leading=15, color=Color(1, 1, 1, .64), font="Helvetica-Bold")
     c.linkURL("https://jonasgamper-create.github.io/wirtschaft-dornbirn-test/entwurf-cinematic.html", (50, 118, 710, 145), relative=0)
-    footer(c, 20, True)
+    footer(c, 29, True)
     c.showPage()
 
     c.save()
