@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
@@ -7,7 +7,7 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'none'; form-action 'self' mailto:; upgrade-insecure-requests">
   <meta name="theme-color" content="#15120f">
-  <title>Entwurf 04 · Ein Haus, viele Abende · Wirtschaft Dornbirn</title>
+  <title>Wirtschaft Dornbirn · Mittag, Bühne, Events &amp; Feste</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="preload" href="assets/restaurant.webp" as="image" type="image/webp">
   <link rel="preload" href="assets/eugen-truck-closed.webp" as="image" type="image/webp">
@@ -33,7 +33,7 @@
 
     .private{display:grid;grid-template-columns:1.05fr .95fr;min-height:850px;background:#cdbfa8}.private-media{position:relative;overflow:hidden}.private-media img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease)}.private:hover .private-media img{transform:scale(1.05)}.private-copy{display:flex;flex-direction:column;justify-content:center;padding:8vw}.private-copy em{color:var(--wine);font-weight:400}.private-copy>p{max-width:500px;font-size:17px;line-height:1.65}.private-options{display:grid;gap:0;margin:32px 0;border-top:1px solid #17130f}.private-options a{display:flex;justify-content:space-between;padding:18px 0;border-bottom:1px solid #17130f;color:inherit;text-decoration:none;font-weight:800}.private-options a:hover{padding-left:10px}.private .button{align-self:flex-start;color:#fff;background:var(--wine);border-color:var(--wine)}
 
-    footer{display:grid;grid-template-columns:1fr auto;gap:30px;padding:60px 4vw;color:#fff;background:#0d0b09}footer img{width:220px;filter:brightness(0) invert(1)}footer p{color:#a89e93;line-height:1.5}footer nav{display:flex;flex-wrap:wrap;justify-content:end;gap:20px}footer a{color:#fff;font-size:11px;text-decoration:none}.back-drafts{position:fixed;z-index:45;left:16px;bottom:16px;padding:12px 16px;border-radius:999px;color:#fff;background:#17130fe8;text-decoration:none;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+    footer{display:grid;grid-template-columns:1fr auto;gap:30px;padding:60px 4vw;color:#fff;background:#0d0b09}footer img{width:220px;filter:brightness(0) invert(1)}footer p{color:#a89e93;line-height:1.5}footer nav{display:flex;flex-wrap:wrap;justify-content:end;gap:20px}footer a{color:#fff;font-size:11px;text-decoration:none}
 
     dialog{width:min(620px,calc(100% - 30px));padding:0;border:0;border-radius:20px;background:var(--paper);box-shadow:0 30px 100px #0008}dialog::backdrop{background:#0d0b09c7;backdrop-filter:blur(8px)}.dialog-inner{padding:38px}.dialog-head{display:flex;justify-content:space-between;gap:20px}.dialog-head h2{margin:0;font-family:Georgia,serif;font-size:45px;font-weight:400}.close{width:40px;height:40px;border:1px solid;border-radius:50%;background:transparent}.choices{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:28px 0}.choices a{padding:20px;border:1px solid #17130f;border-radius:12px;color:inherit;text-decoration:none}.choices strong{display:block;margin-bottom:5px}.choices small{line-height:1.4}.dialog-note{font-size:12px;line-height:1.6}
 
@@ -46,15 +46,15 @@
     @media(prefers-reduced-motion:reduce){.lunch-hand{position:absolute;opacity:1;transform:translate3d(-22vw,0,0) rotate(-2deg) scale(.86);filter:drop-shadow(0 30px 32px #0008)}.counter-service{opacity:1;transform:none}.ticket-story{height:auto}.ticket-stage{position:relative;min-height:820px}.ticket-copy,.ticket-guitar,.next-ticket{opacity:1;transform:none}.ticket-guitar{right:8vw;top:8vh}.ticket-notes{display:none}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.film figure:first-child{opacity:1}.film figure,.film img,.hero-orbit,.hero-orbit:after,.steam i,.stage-rays i,.music-notes i,.guitar-glint,.hero h1>span>span{animation:none}.dn-day,.dn-night,.route:before,.private-media img,[data-reveal]{transition:none}.truck-story{height:auto}.truck-stage{position:relative;min-height:900px}.truck-night{opacity:.72}.truck-wrap{--truck-x:0vw;--truck-rotate:0deg;left:12%;}.truck-open{opacity:1}.truck-brand,.truck-proof,.truck-chapter,.rear-notes{display:none}.truck-cta{opacity:1}.guitar-wrap{opacity:1;transform:translate3d(0,0,0) rotate(8deg) scale(.9)}.stage-rays,.music-notes{opacity:.85}}
   </style>
-  <link rel="stylesheet" href="cinematic-mobile-polish.css?v=2">
+  <link rel="stylesheet" href="cinematic-mobile-polish.css?v=3">
 </head>
 <body>
   <a class="skip" href="#content">Zum Inhalt springen</a>
   <div class="progress" aria-hidden="true"></div>
-  <header class="top">
+  <header class="top" aria-label="Seitenkopf">
     <a href="#start" aria-label="Wirtschaft Dornbirn"><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"></a>
-    <nav aria-label="Hauptnavigation"><a href="#mittag-abend">Mittag &amp; Abend</a><a href="#foodtruck">Foodtruck</a><a href="#events">Events</a><a href="#feiern">Feiern</a></nav>
-    <div class="top-actions"><a class="pill" href="entwuerfe.html">Entwürfe</a><button class="book js-reserve" type="button">Tisch reservieren</button></div>
+    <nav aria-label="Hauptnavigation"><a href="#mittag-abend">Mittag &amp; Abend</a><a href="#foodtruck">Foodtruck</a><a href="#eventtermine">Events &amp; Tickets</a><a href="#feiern">Feiern</a></nav>
+    <div class="top-actions"><button class="book js-reserve" type="button">Tisch reservieren</button></div>
   </header>
 
   <main id="content">
@@ -138,7 +138,7 @@
     <section class="events" id="eventtermine" aria-labelledby="eventsTitle">
       <div class="section-head" data-reveal><div><p class="kicker">Herbstprogramm 2026</p><h2 id="eventsTitle">Alle Termine.<br>Ein Kalender.</h2></div><p>Das vollständige Programm auf einen Blick: nach Monaten sortiert, mit Beginn, Format, direktem Ticketweg und persönlichem Kalendereintrag.</p></div>
       <div class="event-calendar-toolbar" data-reveal><div><strong>17 Veranstaltungen</strong><span>September bis Dezember 2026</span></div><button class="calendar-all js-calendar-all" type="button">Alle Termine speichern <b>＋</b></button></div>
-      <div class="event-calendar-grid" id="eventCalendarGrid" aria-label="Alle Veranstaltungstermine Herbst 2026"></div>
+      <div class="event-calendar-grid" id="eventCalendarGrid"></div>
       <p class="calendar-feedback" id="calendarFeedback" role="status" aria-live="polite"></p>
     </section>
 
@@ -148,22 +148,21 @@
     </section>
   </main>
 
-  <footer id="kontakt"><div><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"><p>Bahnhofstraße 24 · 6850 Dornbirn<br>+43 (0)5572 20 540 · willkommen@wirtschaft-dornbirn.at</p></div><nav><a href="entwuerfe.html">Alle Entwürfe</a><a href="feste-catering.html">Feste &amp; Catering</a><a href="index.html">Aktueller Hauptentwurf</a><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a></nav></footer>
-  <a class="back-drafts" href="entwuerfe.html">← Alle Entwürfe</a>
+  <footer id="kontakt" aria-label="Seitenfuß"><div><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"><p>Bahnhofstraße 24 · 6850 Dornbirn<br>+43&nbsp;(0)5572&nbsp;20&nbsp;540 · willkommen@wirtschaft-dornbirn.at</p></div><nav aria-label="Navigation im Seitenfuß"><a href="#start">Startseite</a><a href="#mittag-abend">Mittag &amp; Abend</a><a href="#eventtermine">Events &amp; Tickets</a><a href="feste-catering.html">Feste &amp; Catering</a><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a></nav></footer>
 
-  <dialog id="reserveDialog"><div class="dialog-inner"><div class="dialog-head"><div><p class="kicker">Direkter Weg</p><h2>Tisch reservieren</h2></div><button class="close" type="button" aria-label="Schließen">×</button></div><div class="choices"><a href="tel:+43557220540"><strong>Anrufen</strong><small>+43 (0)5572 20 540</small></a><a href="mailto:willkommen@wirtschaft-dornbirn.at?subject=Tischreservierung"><strong>E-Mail senden</strong><small>Persönliche Bestätigung</small></a><a href="index.html#concept-02"><strong>Reservierungsformular</strong><small>Personen und Termin wählen</small></a><a href="#events"><strong>Dinner &amp; Event</strong><small>Programm zuerst ansehen</small></a></div><p class="dialog-note">Eine Reservierung wird erst nach persönlicher Bestätigung durch die Wirtschaft verbindlich.</p></div></dialog>
-  <dialog id="menuDialog"><div class="dialog-inner"><div class="dialog-head"><div><p class="kicker">Mittag · 11:30–13:30</p><h2>Typisch Wirtschaft.</h2></div><button class="close" type="button" aria-label="Schließen">×</button></div><p>Wechselnde Mittagsmenüs, frisch gekocht und saisonal. Die aktuellen Gerichte werden in der finalen Version aus der Tageskarte übernommen.</p><div class="choices"><a href="mailto:willkommen@wirtschaft-dornbirn.at?subject=Frage%20zum%20Mittagsmenü"><strong>Heutiges Menü erfragen</strong><small>Per E-Mail</small></a><a href="tel:+43557220540"><strong>Kurz anrufen</strong><small>+43 (0)5572 20 540</small></a></div></div></dialog>
+  <dialog id="reserveDialog"><div class="dialog-inner"><div class="dialog-head"><div><p class="kicker">Direkter Weg</p><h2>Tisch reservieren</h2></div><button class="close" type="button" aria-label="Schließen">×</button></div><div class="choices"><a href="tel:+43557220540"><strong>Anrufen</strong><small>+43&nbsp;(0)5572&nbsp;20&nbsp;540</small></a><a href="mailto:willkommen@wirtschaft-dornbirn.at?subject=Tischreservierung"><strong>E-Mail senden</strong><small>Persönliche Bestätigung</small></a><a href="#events"><strong>Dinner &amp; Event</strong><small>Programm zuerst ansehen</small></a></div><p class="dialog-note">Eine Reservierung wird erst nach persönlicher Bestätigung durch die Wirtschaft verbindlich.</p></div></dialog>
+  <dialog id="menuDialog"><div class="dialog-inner"><div class="dialog-head"><div><p class="kicker">Mittag · 11:30–13:30</p><h2>Typisch Wirtschaft.</h2></div><button class="close" type="button" aria-label="Schließen">×</button></div><p>Wechselnde Mittagsmenüs, frisch gekocht und saisonal. Die aktuellen Gerichte werden in der finalen Version aus der Tageskarte übernommen.</p><div class="choices"><a href="mailto:willkommen@wirtschaft-dornbirn.at?subject=Frage%20zum%20Mittagsmenü"><strong>Heutiges Menü erfragen</strong><small>Per E-Mail</small></a><a href="tel:+43557220540"><strong>Kurz&nbsp;anrufen</strong><small>+43&nbsp;(0)5572&nbsp;20&nbsp;540</small></a></div></div></dialog>
 
   <dialog id="ticketBookingDialog" class="ticket-booking-dialog" aria-labelledby="ticketBookingTitle">
     <form class="ticket-booking-form" id="cinematicTicketForm" method="dialog">
-      <header class="ticket-dialog-head"><div><p class="kicker">Tickets &amp; Warteliste</p><h2 id="ticketBookingTitle">Euren Abend auswählen.</h2></div><button class="close" type="button" aria-label="Ticketübersicht schließen">×</button></header>
+      <div class="ticket-dialog-head"><div><p class="kicker">Tickets &amp; Warteliste</p><h2 id="ticketBookingTitle">Euren Abend auswählen.</h2></div><button class="close" type="button" aria-label="Ticketübersicht schließen">×</button></div>
       <label class="ticket-event-select">Veranstaltung<select id="cinematicTicketEvent"></select></label>
-      <div class="ticket-dialog-meta"><time id="cinematicTicketDate"></time><span id="cinematicTicketFormat"></span><a id="cinematicTicketDetails" target="_blank" rel="noopener noreferrer">Details zur Veranstaltung ↗</a></div>
+      <div class="ticket-dialog-meta"><time id="cinematicTicketDate"></time><span id="cinematicTicketFormat"></span><a id="cinematicTicketDetails" href="https://wirtschaft-dornbirn.at/veranstaltungskalender/" target="_blank" rel="noopener noreferrer">Details zur Veranstaltung ↗</a></div>
       <fieldset class="ticket-category-field"><legend>Ticketkategorie</legend><div class="ticket-category-grid" id="cinematicTicketCategories"></div></fieldset>
       <div class="ticket-selection-status" id="cinematicTicketStatus" role="status" aria-live="polite"></div>
-      <div class="ticket-waitlist-fields" id="cinematicWaitlistFields" hidden><p><strong>Warteliste statt Sackgasse.</strong> Sobald Plätze frei werden, kann sich das Team direkt bei euch melden.</p><div><label>Name<input id="cinematicWaitlistName" autocomplete="name"></label><label>E-Mail<input id="cinematicWaitlistEmail" type="email" autocomplete="email"></label><label>Anzahl<input id="cinematicWaitlistQuantity" type="number" min="1" max="10" value="2"></label></div></div>
+      <div class="ticket-waitlist-fields" id="cinematicWaitlistFields" hidden><p><strong>Warteliste statt Sackgasse.</strong> Sobald Plätze frei werden, kann sich das Team direkt bei euch melden.</p><div><label>Name<input id="cinematicWaitlistName" type="text" autocomplete="name"></label><label>E-Mail<input id="cinematicWaitlistEmail" type="email" autocomplete="email"></label><label>Anzahl<input id="cinematicWaitlistQuantity" type="number" min="1" max="10" value="2"></label></div></div>
       <p class="ticket-dialog-message" id="cinematicTicketMessage" role="status" aria-live="polite"></p>
-      <footer class="ticket-dialog-actions"><a class="ticket-checkout" id="cinematicTicketCheckout" target="_blank" rel="noopener noreferrer">Jetzt offiziell buchen <span>↗</span></a><button class="ticket-waitlist-submit" id="cinematicWaitlistSubmit" type="submit" hidden>Warteliste anfragen <span>↗</span></button><small>Zahlung und Ticketversand erfolgen ausschließlich auf der offiziellen Buchungsseite.</small></footer>
+      <div class="ticket-dialog-actions"><a class="ticket-checkout" id="cinematicTicketCheckout" href="https://wirtschaft-dornbirn.at/veranstaltungskalender/" target="_blank" rel="noopener noreferrer">Jetzt offiziell buchen <span>↗</span></a><button class="ticket-waitlist-submit" id="cinematicWaitlistSubmit" type="submit" hidden>Warteliste anfragen <span>↗</span></button><small>Zahlung und Ticketversand erfolgen ausschließlich auf der offiziellen Buchungsseite.</small></div>
     </form>
   </dialog>
 
