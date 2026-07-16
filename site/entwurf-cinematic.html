@@ -46,7 +46,7 @@
     @media(prefers-reduced-motion:reduce){.lunch-hand{position:absolute;opacity:1;transform:translate3d(-22vw,0,0) rotate(-2deg) scale(.86);filter:drop-shadow(0 30px 32px #0008)}.counter-service{opacity:1;transform:none}.ticket-story{height:auto}.ticket-stage{position:relative;min-height:820px}.ticket-copy,.ticket-guitar,.next-ticket{opacity:1;transform:none}.ticket-guitar{right:8vw;top:8vh}.ticket-notes{display:none}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.film figure:first-child{opacity:1}.film figure,.film img,.hero-orbit,.hero-orbit:after,.steam i,.stage-rays i,.music-notes i,.guitar-glint,.hero h1>span>span{animation:none}.dn-day,.dn-night,.route:before,.private-media img,[data-reveal]{transition:none}.truck-story{height:auto}.truck-stage{position:relative;min-height:900px}.truck-night{opacity:.72}.truck-wrap{--truck-x:0vw;--truck-rotate:0deg;left:12%;}.truck-open{opacity:1}.truck-brand,.truck-proof,.truck-chapter,.rear-notes{display:none}.truck-cta{opacity:1}.guitar-wrap{opacity:1;transform:translate3d(0,0,0) rotate(8deg) scale(.9)}.stage-rays,.music-notes{opacity:.85}}
   </style>
-  <link rel="stylesheet" href="cinematic-mobile-polish.css?v=1">
+  <link rel="stylesheet" href="cinematic-mobile-polish.css?v=2">
 </head>
 <body>
   <a class="skip" href="#content">Zum Inhalt springen</a>
@@ -126,6 +126,7 @@
       <div class="ticket-stage">
         <div class="ticket-grid" aria-hidden="true"></div>
         <div class="ticket-beams" aria-hidden="true"><i></i><i></i></div>
+        <div class="ticket-mobile-intro" aria-hidden="true"><span>Die Bühne beginnt hier</span><strong>Scrollen.<br>Entdecken.<br>Buchen.</strong><small>17 Termine · September bis Dezember</small></div>
         <div class="ticket-copy"><p class="kicker">Live in der Wirtschaft</p><h2 id="ticketTitle">Tickets.<em>Gänsehaut.</em></h2><p>Konzerte, Comedy und besondere Abende – mit Datum, Format und direktem Weg zum Ticket. Die Bühne bekommt ihren eigenen großen Auftritt.</p></div>
         <div class="ticket-guitar" aria-hidden="true"><img class="guitar-main" src="assets/emma-eugen-guitar.webp" width="1024" height="1536" alt=""><span class="guitar-logo"><img src="assets/emma-eugen.png" width="1200" height="848" alt=""></span><i class="guitar-glint"></i></div>
         <div class="ticket-notes" aria-hidden="true"><i>♪</i><i>♫</i><i>♩</i><i>♪</i><i>♫</i></div>
@@ -135,15 +136,10 @@
     </section>
 
     <section class="events" id="eventtermine" aria-labelledby="eventsTitle">
-      <div class="section-head" data-reveal><div><p class="kicker">Das nächste Kapitel</p><h2 id="eventsTitle">Demnächst<br>auf der Bühne.</h2></div><p>Keine versteckten Termine: Datum, Format und Buchungsweg stehen direkt zusammen. So wird aus Neugier schnell ein Abend in der Wirtschaft.</p></div>
-      <div class="event-list ticket-overview" aria-label="Ticketübersicht">
-        <article class="event ticket-event" data-reveal><time datetime="2026-09-03">03.09.</time><div><strong>Genussroute 6850</strong><span>5 Gastgeber · 6 Livebands · Genussroute</span></div><small class="ticket-status available">Tickets verfügbar</small><button class="ticket-row-action js-ticket-open" type="button" data-event-id="event-2026-09-03">Tickets <b>↗</b></button></article>
-        <article class="event ticket-event" data-reveal><time datetime="2026-09-22">22.09.</time><div><strong>Helden reisen, Gäste speisen!</strong><span>Dinner &amp; Comedy · 4 Künstler</span></div><small class="ticket-status available">Tickets verfügbar</small><button class="ticket-row-action js-ticket-open" type="button" data-event-id="event-2026-09-22">Tickets <b>↗</b></button></article>
-        <article class="event ticket-event" data-reveal><time datetime="2026-09-23">23.09.</time><div><strong>Helden reisen, Gäste speisen!</strong><span>Zusatzabend · Dinner &amp; Comedy</span></div><small class="ticket-status waitlist">Teilweise ausverkauft</small><button class="ticket-row-action js-ticket-open" type="button" data-event-id="event-2026-09-23">Tickets &amp; Warteliste <b>↗</b></button></article>
-        <article class="event ticket-event" data-reveal><time datetime="2026-10-14">14.10.</time><div><strong>Dinner &amp; Comedy</strong><span>3 Comedians · ein Abend · eine Bühne</span></div><small class="ticket-status waitlist">Teilweise ausverkauft</small><button class="ticket-row-action js-ticket-open" type="button" data-event-id="event-2026-10-14">Tickets &amp; Warteliste <b>↗</b></button></article>
-        <article class="event ticket-event" data-reveal><time datetime="2026-10-15">15.10.</time><div><strong>Christof Spörk</strong><span>Maximo Lieder · Konzert &amp; Comedy</span></div><small class="ticket-status available">Tickets verfügbar</small><button class="ticket-row-action js-ticket-open" type="button" data-event-id="event-2026-10-15">Tickets <b>↗</b></button></article>
-      </div>
-      <button class="button ghost all-events js-ticket-open" type="button" data-event-id="event-2026-09-03">Ticketübersicht öffnen</button>
+      <div class="section-head" data-reveal><div><p class="kicker">Herbstprogramm 2026</p><h2 id="eventsTitle">Alle Termine.<br>Ein Kalender.</h2></div><p>Das vollständige Programm auf einen Blick: nach Monaten sortiert, mit Beginn, Format, direktem Ticketweg und persönlichem Kalendereintrag.</p></div>
+      <div class="event-calendar-toolbar" data-reveal><div><strong>17 Veranstaltungen</strong><span>September bis Dezember 2026</span></div><button class="calendar-all js-calendar-all" type="button">Alle Termine speichern <b>＋</b></button></div>
+      <div class="event-calendar-grid" id="eventCalendarGrid" aria-label="Alle Veranstaltungstermine Herbst 2026"></div>
+      <p class="calendar-feedback" id="calendarFeedback" role="status" aria-live="polite"></p>
     </section>
 
     <section class="private" id="feiern" aria-labelledby="privateTitle">
@@ -242,9 +238,9 @@
     document.querySelectorAll('dialog .close').forEach(el=>el.addEventListener('click',()=>el.closest('dialog').close()));
     document.querySelectorAll('dialog').forEach(el=>el.addEventListener('click',event=>{if(event.target===el)el.close()}));
     const ticketEvents=[
-      {id:'event-2026-09-03',date:'2026-09-03',title:'Genussroute 6850',format:'5 Gastgeber · 6 Livebands · 6 Speisegänge',detailsUrl:'https://wirtschaft-dornbirn.at/event/genussroute-2026/',bookingUrl:'https://www.ticketist.io/events/genussroute',types:[{name:'Genussroute-Ticket',price:null,time:'18:00–01:00',status:'available'}]},
-      {id:'event-2026-09-22',date:'2026-09-22',title:'Helden reisen, Gäste speisen!',format:'4 Künstler · Dinner & Comedy',detailsUrl:'https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/',types:[{name:'Dinner & Comedy · Sitzplatz',price:68,time:'Beginn 19:00',status:'available'},{name:'Comedy only · Stehplatz',price:28,time:'Beginn 21:00',status:'available'}]},
-      {id:'event-2026-09-23',date:'2026-09-23',title:'Helden reisen, Gäste speisen!',format:'Zusatzabend · Dinner & Comedy',detailsUrl:'https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/',types:[{name:'Dinner & Comedy · Sitzplatz',price:68,time:'Beginn 19:00',status:'waitlist'},{name:'Comedy only · Stehplatz',price:28,time:'Beginn 21:00',status:'available'}]},
+      {id:'event-2026-09-03',date:'2026-09-03',title:'Genussroute 6850',format:'5 Gastgeber · 6 Livebands · 6 Speisegänge',detailsUrl:'https://wirtschaft-dornbirn.at/event/genussroute-2026/',types:[{name:'Genussroute-Ticket',price:88,time:'18:00–01:00',status:'available'}]},
+      {id:'event-2026-09-22',date:'2026-09-22',title:'Helden reisen, Gäste speisen!',format:'4 Künstler · Dinner & Comedy',detailsUrl:'https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/',types:[{name:'Dinner & Comedy · Sitzplatz',price:88,time:'Beginn 18:45',status:'available'}]},
+      {id:'event-2026-09-23',date:'2026-09-23',title:'Helden reisen, Gäste speisen!',format:'Zusatzabend · Dinner & Comedy',detailsUrl:'https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/',types:[{name:'Dinner & Comedy · Sitzplatz',price:88,time:'Beginn 18:45',status:'available'}]},
       {id:'event-2026-10-14',date:'2026-10-14',title:'Dinner & Comedy',format:'3 Comedians · ein Abend · eine Bühne',detailsUrl:'https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/',types:[{name:'Dinner & Comedy · Sitzplatz',price:68,time:'Beginn 19:00',status:'waitlist'},{name:'Comedy only · Stehplatz',price:28,time:'Beginn 21:00',status:'available'}]},
       {id:'event-2026-10-15',date:'2026-10-15',title:'Christof Spörk',format:'Maximo Lieder · Konzert & Comedy',detailsUrl:'https://wirtschaft-dornbirn.at/event/spoerk-2026/',types:[{name:'Dinner & Konzert · Sitzplatz',price:68,time:'Beginn 19:00',status:'available'},{name:'Konzert only · Stehplatz',price:38,time:'Beginn 21:00',status:'available'}]}
     ];
@@ -272,5 +268,6 @@
       hero.addEventListener('pointerleave',()=>{root.style.setProperty('--hero-x','0px');root.style.setProperty('--hero-y','0px')});
     }
   </script>
+  <script src="cinematic-event-calendar.js?v=1"></script>
 </body>
 </html>
