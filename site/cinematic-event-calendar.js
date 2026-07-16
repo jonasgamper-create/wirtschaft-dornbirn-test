@@ -40,6 +40,8 @@
   function renderCard(item) {
     const start = localDate(item.start);
     const card = create('article', 'event-calendar-card');
+    card.dataset.eventCategory = item.category.toLowerCase();
+    card.dataset.eventId = item.id;
     const date = create('time', 'event-calendar-date');
     date.dateTime = item.start;
     date.append(
@@ -55,7 +57,7 @@
     const calendar = create('button', 'event-calendar-button', 'Kalender ＋');
     calendar.type = 'button';
     calendar.addEventListener('click', () => downloadCalendar([item], `${item.id}.ics`));
-    const tickets = create('a', 'event-ticket-link', 'Tickets ↗︎');
+    const tickets = create('a', 'event-ticket-link', 'Ticket sichern ↗︎');
     tickets.href = item.url;
     tickets.target = '_blank';
     tickets.rel = 'noopener noreferrer';
@@ -74,6 +76,7 @@
   grouped.forEach((items, key) => {
     const start = localDate(`${key}-01T12:00:00`);
     const section = create('section', 'event-month');
+    section.dataset.eventMonth = key;
     const heading = create('h3', 'event-month-heading', monthNames.format(start));
     heading.append(create('span', '', `${items.length} ${items.length === 1 ? 'Termin' : 'Termine'}`));
     const list = create('div', 'event-month-list');
@@ -81,6 +84,36 @@
     section.append(heading, list);
     grid.append(section);
   });
+
+  const count = document.getElementById('visibleEventCount');
+  const filterButtons = Array.from(document.querySelectorAll('[data-event-filter]'));
+  const matchesFilter = (category, filter) => {
+    if (filter === 'all') return true;
+    if (filter === 'concert') return category.includes('konzert');
+    if (filter === 'comedy') return category.includes('comedy') || category.includes('kabarett');
+    if (filter === 'genuss') return category.includes('genuss');
+    return true;
+  };
+
+  function applyFilter(filter) {
+    let visible = 0;
+    grid.querySelectorAll('.event-calendar-card').forEach(card => {
+      const show = matchesFilter(card.dataset.eventCategory || '', filter);
+      card.hidden = !show;
+      if (show) visible += 1;
+    });
+    grid.querySelectorAll('.event-month').forEach(section => {
+      const visibleCards = Array.from(section.querySelectorAll('.event-calendar-card')).filter(card => !card.hidden);
+      section.hidden = visibleCards.length === 0;
+      const label = section.querySelector('.event-month-heading span');
+      if (label) label.textContent = `${visibleCards.length} ${visibleCards.length === 1 ? 'Termin' : 'Termine'}`;
+    });
+    filterButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.eventFilter === filter)));
+    if (count) count.textContent = `${visible} ${visible === 1 ? 'Veranstaltung' : 'Veranstaltungen'}`;
+    if (feedback) feedback.textContent = filter === 'all' ? 'Alle Termine werden angezeigt.' : `${visible} passende Termine werden angezeigt.`;
+  }
+
+  filterButtons.forEach(button => button.addEventListener('click', () => applyFilter(button.dataset.eventFilter || 'all')));
 
   function escapeIcs(value) {
     return String(value).replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');

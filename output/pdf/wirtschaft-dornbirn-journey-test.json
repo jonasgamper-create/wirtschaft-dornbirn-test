@@ -1,0 +1,710 @@
+{
+  "methodology": "50 synthetische, deterministische Zielgruppen-Journeys; keine Behauptung realer Testpersonen",
+  "base": "http://127.0.0.1:8780",
+  "total": 50,
+  "passed": 50,
+  "failed": 0,
+  "runtimeErrors": [],
+  "results": [
+    {
+      "id": 1,
+      "audience": "Berufstätige Mittag · Variante 1",
+      "task": "Mittagsmenü finden",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Menüdialog öffnet",
+        "Mittagszeit sichtbar",
+        "Angebot verständlich",
+        "Telefon-Fallback",
+        "Direkte Startseitenroute"
+      ]
+    },
+    {
+      "id": 2,
+      "audience": "Berufstätige Mittag · Variante 2",
+      "task": "Mittagsmenü finden",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Menüdialog öffnet",
+        "Mittagszeit sichtbar",
+        "Angebot verständlich",
+        "Telefon-Fallback",
+        "Direkte Startseitenroute"
+      ]
+    },
+    {
+      "id": 3,
+      "audience": "Berufstätige Mittag · Variante 3",
+      "task": "Mittagsmenü finden",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Menüdialog öffnet",
+        "Mittagszeit sichtbar",
+        "Angebot verständlich",
+        "Telefon-Fallback",
+        "Direkte Startseitenroute"
+      ]
+    },
+    {
+      "id": 4,
+      "audience": "Berufstätige Mittag · Variante 4",
+      "task": "Mittagsmenü finden",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Menüdialog öffnet",
+        "Mittagszeit sichtbar",
+        "Angebot verständlich",
+        "Telefon-Fallback",
+        "Direkte Startseitenroute"
+      ]
+    },
+    {
+      "id": 5,
+      "audience": "Berufstätige Mittag · Variante 5",
+      "task": "Mittagsmenü finden",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Menüdialog öffnet",
+        "Mittagszeit sichtbar",
+        "Angebot verständlich",
+        "Telefon-Fallback",
+        "Direkte Startseitenroute"
+      ]
+    },
+    {
+      "id": 6,
+      "audience": "Paar zum Abendessen · Variante 1",
+      "task": "Tisch reservieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Reservierungsdialog öffnet",
+        "Onlinebuchung direkt",
+        "Telefon-Fallback",
+        "Verbindlichkeit transparent",
+        "Mobile Schnellaktion"
+      ]
+    },
+    {
+      "id": 7,
+      "audience": "Paar zum Abendessen · Variante 2",
+      "task": "Tisch reservieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Reservierungsdialog öffnet",
+        "Onlinebuchung direkt",
+        "Telefon-Fallback",
+        "Verbindlichkeit transparent",
+        "Mobile Schnellaktion"
+      ]
+    },
+    {
+      "id": 8,
+      "audience": "Paar zum Abendessen · Variante 3",
+      "task": "Tisch reservieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Reservierungsdialog öffnet",
+        "Onlinebuchung direkt",
+        "Telefon-Fallback",
+        "Verbindlichkeit transparent",
+        "Mobile Schnellaktion"
+      ]
+    },
+    {
+      "id": 9,
+      "audience": "Paar zum Abendessen · Variante 4",
+      "task": "Tisch reservieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Reservierungsdialog öffnet",
+        "Onlinebuchung direkt",
+        "Telefon-Fallback",
+        "Verbindlichkeit transparent",
+        "Mobile Schnellaktion"
+      ]
+    },
+    {
+      "id": 10,
+      "audience": "Paar zum Abendessen · Variante 5",
+      "task": "Tisch reservieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Reservierungsdialog öffnet",
+        "Onlinebuchung direkt",
+        "Telefon-Fallback",
+        "Verbindlichkeit transparent",
+        "Mobile Schnellaktion"
+      ]
+    },
+    {
+      "id": 11,
+      "audience": "Konzertfan Vorarlberg · Variante 1",
+      "task": "Konzert und Ticket finden",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Konzertfilter liefert Auswahl",
+        "Filter ist präzise",
+        "Ticket-CTA vorhanden",
+        "Kalenderaktion vorhanden",
+        "Trefferzahl aktualisiert"
+      ]
+    },
+    {
+      "id": 12,
+      "audience": "Konzertfan Vorarlberg · Variante 2",
+      "task": "Konzert und Ticket finden",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Konzertfilter liefert Auswahl",
+        "Filter ist präzise",
+        "Ticket-CTA vorhanden",
+        "Kalenderaktion vorhanden",
+        "Trefferzahl aktualisiert"
+      ]
+    },
+    {
+      "id": 13,
+      "audience": "Konzertfan Vorarlberg · Variante 3",
+      "task": "Konzert und Ticket finden",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Konzertfilter liefert Auswahl",
+        "Filter ist präzise",
+        "Ticket-CTA vorhanden",
+        "Kalenderaktion vorhanden",
+        "Trefferzahl aktualisiert"
+      ]
+    },
+    {
+      "id": 14,
+      "audience": "Konzertfan Vorarlberg · Variante 4",
+      "task": "Konzert und Ticket finden",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Konzertfilter liefert Auswahl",
+        "Filter ist präzise",
+        "Ticket-CTA vorhanden",
+        "Kalenderaktion vorhanden",
+        "Trefferzahl aktualisiert"
+      ]
+    },
+    {
+      "id": 15,
+      "audience": "Konzertfan Vorarlberg · Variante 5",
+      "task": "Konzert und Ticket finden",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Konzertfilter liefert Auswahl",
+        "Filter ist präzise",
+        "Ticket-CTA vorhanden",
+        "Kalenderaktion vorhanden",
+        "Trefferzahl aktualisiert"
+      ]
+    },
+    {
+      "id": 16,
+      "audience": "Comedy- und Kabarettfan · Variante 1",
+      "task": "Comedy filtern",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Comedyfilter liefert Auswahl",
+        "Comedy und Kabarett gebündelt",
+        "Filterstatus zugänglich",
+        "Offizieller Ticketweg",
+        "Filterfeedback vorhanden"
+      ]
+    },
+    {
+      "id": 17,
+      "audience": "Comedy- und Kabarettfan · Variante 2",
+      "task": "Comedy filtern",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Comedyfilter liefert Auswahl",
+        "Comedy und Kabarett gebündelt",
+        "Filterstatus zugänglich",
+        "Offizieller Ticketweg",
+        "Filterfeedback vorhanden"
+      ]
+    },
+    {
+      "id": 18,
+      "audience": "Comedy- und Kabarettfan · Variante 3",
+      "task": "Comedy filtern",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Comedyfilter liefert Auswahl",
+        "Comedy und Kabarett gebündelt",
+        "Filterstatus zugänglich",
+        "Offizieller Ticketweg",
+        "Filterfeedback vorhanden"
+      ]
+    },
+    {
+      "id": 19,
+      "audience": "Comedy- und Kabarettfan · Variante 4",
+      "task": "Comedy filtern",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Comedyfilter liefert Auswahl",
+        "Comedy und Kabarett gebündelt",
+        "Filterstatus zugänglich",
+        "Offizieller Ticketweg",
+        "Filterfeedback vorhanden"
+      ]
+    },
+    {
+      "id": 20,
+      "audience": "Comedy- und Kabarettfan · Variante 5",
+      "task": "Comedy filtern",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Comedyfilter liefert Auswahl",
+        "Comedy und Kabarett gebündelt",
+        "Filterstatus zugänglich",
+        "Offizieller Ticketweg",
+        "Filterfeedback vorhanden"
+      ]
+    },
+    {
+      "id": 21,
+      "audience": "Hochzeitspaar · Variante 1",
+      "task": "Hochzeit anfragen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Hochzeitsroute",
+        "Anfrageformular",
+        "Terminwunsch",
+        "Gästezahl",
+        "Datenschutz-Kenntnisnahme"
+      ]
+    },
+    {
+      "id": 22,
+      "audience": "Hochzeitspaar · Variante 2",
+      "task": "Hochzeit anfragen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Hochzeitsroute",
+        "Anfrageformular",
+        "Terminwunsch",
+        "Gästezahl",
+        "Datenschutz-Kenntnisnahme"
+      ]
+    },
+    {
+      "id": 23,
+      "audience": "Hochzeitspaar · Variante 3",
+      "task": "Hochzeit anfragen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Hochzeitsroute",
+        "Anfrageformular",
+        "Terminwunsch",
+        "Gästezahl",
+        "Datenschutz-Kenntnisnahme"
+      ]
+    },
+    {
+      "id": 24,
+      "audience": "Hochzeitspaar · Variante 4",
+      "task": "Hochzeit anfragen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Hochzeitsroute",
+        "Anfrageformular",
+        "Terminwunsch",
+        "Gästezahl",
+        "Datenschutz-Kenntnisnahme"
+      ]
+    },
+    {
+      "id": 25,
+      "audience": "Hochzeitspaar · Variante 5",
+      "task": "Hochzeit anfragen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Hochzeitsroute",
+        "Anfrageformular",
+        "Terminwunsch",
+        "Gästezahl",
+        "Datenschutz-Kenntnisnahme"
+      ]
+    },
+    {
+      "id": 26,
+      "audience": "Firmenveranstalter · Variante 1",
+      "task": "Catering und Location prüfen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Kulturhaus auswählbar",
+        "Vor-Ort-Catering auswählbar",
+        "Foodtruck-Angebot",
+        "Anlass auswählbar",
+        "Freitext für Anforderungen"
+      ]
+    },
+    {
+      "id": 27,
+      "audience": "Firmenveranstalter · Variante 2",
+      "task": "Catering und Location prüfen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Kulturhaus auswählbar",
+        "Vor-Ort-Catering auswählbar",
+        "Foodtruck-Angebot",
+        "Anlass auswählbar",
+        "Freitext für Anforderungen"
+      ]
+    },
+    {
+      "id": 28,
+      "audience": "Firmenveranstalter · Variante 3",
+      "task": "Catering und Location prüfen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Kulturhaus auswählbar",
+        "Vor-Ort-Catering auswählbar",
+        "Foodtruck-Angebot",
+        "Anlass auswählbar",
+        "Freitext für Anforderungen"
+      ]
+    },
+    {
+      "id": 29,
+      "audience": "Firmenveranstalter · Variante 4",
+      "task": "Catering und Location prüfen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Kulturhaus auswählbar",
+        "Vor-Ort-Catering auswählbar",
+        "Foodtruck-Angebot",
+        "Anlass auswählbar",
+        "Freitext für Anforderungen"
+      ]
+    },
+    {
+      "id": 30,
+      "audience": "Firmenveranstalter · Variante 5",
+      "task": "Catering und Location prüfen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Kulturhaus auswählbar",
+        "Vor-Ort-Catering auswählbar",
+        "Foodtruck-Angebot",
+        "Anlass auswählbar",
+        "Freitext für Anforderungen"
+      ]
+    },
+    {
+      "id": 31,
+      "audience": "Gast aus Deutschland/Schweiz · Variante 1",
+      "task": "Ort und Angebot verstehen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Ort in Beschreibung",
+        "Region in Beschreibung",
+        "Adresse sichtbar",
+        "Internationale Telefonnummer verlinkt",
+        "Vier klare Einstiege"
+      ]
+    },
+    {
+      "id": 32,
+      "audience": "Gast aus Deutschland/Schweiz · Variante 2",
+      "task": "Ort und Angebot verstehen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Ort in Beschreibung",
+        "Region in Beschreibung",
+        "Adresse sichtbar",
+        "Internationale Telefonnummer verlinkt",
+        "Vier klare Einstiege"
+      ]
+    },
+    {
+      "id": 33,
+      "audience": "Gast aus Deutschland/Schweiz · Variante 3",
+      "task": "Ort und Angebot verstehen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Ort in Beschreibung",
+        "Region in Beschreibung",
+        "Adresse sichtbar",
+        "Internationale Telefonnummer verlinkt",
+        "Vier klare Einstiege"
+      ]
+    },
+    {
+      "id": 34,
+      "audience": "Gast aus Deutschland/Schweiz · Variante 4",
+      "task": "Ort und Angebot verstehen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Ort in Beschreibung",
+        "Region in Beschreibung",
+        "Adresse sichtbar",
+        "Internationale Telefonnummer verlinkt",
+        "Vier klare Einstiege"
+      ]
+    },
+    {
+      "id": 35,
+      "audience": "Gast aus Deutschland/Schweiz · Variante 5",
+      "task": "Ort und Angebot verstehen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Ort in Beschreibung",
+        "Region in Beschreibung",
+        "Adresse sichtbar",
+        "Internationale Telefonnummer verlinkt",
+        "Vier klare Einstiege"
+      ]
+    },
+    {
+      "id": 36,
+      "audience": "Älterer Gast · Variante 1",
+      "task": "Persönlich reservieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Sprunglink",
+        "Anrufoption",
+        "E-Mail-Option",
+        "Beschriftete Iconbuttons",
+        "Tastaturfokus gestaltet"
+      ]
+    },
+    {
+      "id": 37,
+      "audience": "Älterer Gast · Variante 2",
+      "task": "Persönlich reservieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Sprunglink",
+        "Anrufoption",
+        "E-Mail-Option",
+        "Beschriftete Iconbuttons",
+        "Tastaturfokus gestaltet"
+      ]
+    },
+    {
+      "id": 38,
+      "audience": "Älterer Gast · Variante 3",
+      "task": "Persönlich reservieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Sprunglink",
+        "Anrufoption",
+        "E-Mail-Option",
+        "Beschriftete Iconbuttons",
+        "Tastaturfokus gestaltet"
+      ]
+    },
+    {
+      "id": 39,
+      "audience": "Älterer Gast · Variante 4",
+      "task": "Persönlich reservieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Sprunglink",
+        "Anrufoption",
+        "E-Mail-Option",
+        "Beschriftete Iconbuttons",
+        "Tastaturfokus gestaltet"
+      ]
+    },
+    {
+      "id": 40,
+      "audience": "Älterer Gast · Variante 5",
+      "task": "Persönlich reservieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Sprunglink",
+        "Anrufoption",
+        "E-Mail-Option",
+        "Beschriftete Iconbuttons",
+        "Tastaturfokus gestaltet"
+      ]
+    },
+    {
+      "id": 41,
+      "audience": "Gast bei ausverkauftem Dinner · Variante 1",
+      "task": "Warteliste nutzen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Ticketdialog öffnet",
+        "Ticketkategorien",
+        "Warteliste erklärt",
+        "Datenschutzcheckbox",
+        "Kontaktfeld erforderlich"
+      ]
+    },
+    {
+      "id": 42,
+      "audience": "Gast bei ausverkauftem Dinner · Variante 2",
+      "task": "Warteliste nutzen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Ticketdialog öffnet",
+        "Ticketkategorien",
+        "Warteliste erklärt",
+        "Datenschutzcheckbox",
+        "Kontaktfeld erforderlich"
+      ]
+    },
+    {
+      "id": 43,
+      "audience": "Gast bei ausverkauftem Dinner · Variante 3",
+      "task": "Warteliste nutzen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Ticketdialog öffnet",
+        "Ticketkategorien",
+        "Warteliste erklärt",
+        "Datenschutzcheckbox",
+        "Kontaktfeld erforderlich"
+      ]
+    },
+    {
+      "id": 44,
+      "audience": "Gast bei ausverkauftem Dinner · Variante 4",
+      "task": "Warteliste nutzen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Ticketdialog öffnet",
+        "Ticketkategorien",
+        "Warteliste erklärt",
+        "Datenschutzcheckbox",
+        "Kontaktfeld erforderlich"
+      ]
+    },
+    {
+      "id": 45,
+      "audience": "Gast bei ausverkauftem Dinner · Variante 5",
+      "task": "Warteliste nutzen",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Ticketdialog öffnet",
+        "Ticketkategorien",
+        "Warteliste erklärt",
+        "Datenschutzcheckbox",
+        "Kontaktfeld erforderlich"
+      ]
+    },
+    {
+      "id": 46,
+      "audience": "Nutzer mit Assistenztechnik · Variante 1",
+      "task": "Ohne Barrieren orientieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Dokumentsprache",
+        "Hauptinhalt",
+        "Live-Status",
+        "Reduzierte Bewegung",
+        "Restriktive CSP"
+      ]
+    },
+    {
+      "id": 47,
+      "audience": "Nutzer mit Assistenztechnik · Variante 2",
+      "task": "Ohne Barrieren orientieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Dokumentsprache",
+        "Hauptinhalt",
+        "Live-Status",
+        "Reduzierte Bewegung",
+        "Restriktive CSP"
+      ]
+    },
+    {
+      "id": 48,
+      "audience": "Nutzer mit Assistenztechnik · Variante 3",
+      "task": "Ohne Barrieren orientieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Dokumentsprache",
+        "Hauptinhalt",
+        "Live-Status",
+        "Reduzierte Bewegung",
+        "Restriktive CSP"
+      ]
+    },
+    {
+      "id": 49,
+      "audience": "Nutzer mit Assistenztechnik · Variante 4",
+      "task": "Ohne Barrieren orientieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Dokumentsprache",
+        "Hauptinhalt",
+        "Live-Status",
+        "Reduzierte Bewegung",
+        "Restriktive CSP"
+      ]
+    },
+    {
+      "id": 50,
+      "audience": "Nutzer mit Assistenztechnik · Variante 5",
+      "task": "Ohne Barrieren orientieren",
+      "status": "PASS",
+      "failed": [],
+      "checks": [
+        "Dokumentsprache",
+        "Hauptinhalt",
+        "Live-Status",
+        "Reduzierte Bewegung",
+        "Restriktive CSP"
+      ]
+    }
+  ]
+}
