@@ -23,7 +23,7 @@
     const todayServices = current.services.filter(item => item.date === today);
     byId('metricToday').textContent = todayServices.reduce((sum, item) => sum + available(item, current).available, 0);
     byId('metricReservations').textContent = current.reservations.filter(item => item.status === 'Anfrage').length;
-    byId('metricTickets').textContent = current.ticketOrders.filter(item => item.status === 'Anfrage').length;
+    byId('metricTickets').textContent = current.ticketOrders.filter(item => item.status === 'Anfrage' || item.status === 'Warteliste').length;
     byId('metricEventFree').textContent = current.events.reduce((sum, item) => sum + Math.max(0, item.capacity - item.sold), 0);
 
     let services = current.services.filter(item => filter === 'all' || item.kind === filter);
@@ -40,7 +40,7 @@
     byId('eventsAdmin').innerHTML = current.events.map(item => `<article class="event-card"><time class="event-date" datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time><div><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.format)} · ${item.ticketTypes.map(type => `${escapeHtml(type.name)}: ${type.sold}`).join(' · ')}</p></div><div class="event-inputs"><label>Kapazität<input data-event="${escapeHtml(item.id)}" data-field="capacity" type="number" min="0" value="${item.capacity}"></label><label>Verkauft<input data-event="${escapeHtml(item.id)}" data-field="sold" type="number" min="0" value="${item.sold}"></label><label>Noch frei<output>${Math.max(0, item.capacity - item.sold)}</output></label></div></article>`).join('');
 
     const reservationHtml = current.reservations.map(item => `<article class="inquiry-item"><strong>Tischanfrage · ${item.guests} Personen</strong><span>${escapeHtml(item.date)} · ${escapeHtml(item.time)}</span><small>${escapeHtml(item.table || 'kein Tischwunsch')} · keine Kontaktdaten lokal gespeichert</small></article>`).join('');
-    const ticketHtml = current.ticketOrders.map(item => `<article class="inquiry-item"><strong>Ticketanfrage · ${item.quantity} Tickets</strong><span>${escapeHtml(item.event || item.eventId)}</span><small>${escapeHtml(item.ticket || 'Ticketart offen')} · ${item.total || 0} € · keine Kontaktdaten lokal gespeichert</small></article>`).join('');
+    const ticketHtml = current.ticketOrders.map(item => `<article class="inquiry-item"><strong>${item.status === 'Warteliste' ? 'Warteliste' : 'Ticketanfrage'} · ${item.quantity} Tickets</strong><span>${escapeHtml(item.event || item.eventId)}</span><small>${escapeHtml(item.ticket || 'Ticketart offen')} · ${item.status === 'Warteliste' ? 'wartet auf freie Plätze' : `${item.total || 0} €`} · keine Kontaktdaten lokal gespeichert</small></article>`).join('');
     byId('reservationInquiries').innerHTML = reservationHtml || '<p class="empty">Noch keine Tischanfragen in diesem Browser.</p>';
     byId('ticketInquiries').innerHTML = ticketHtml || '<p class="empty">Noch keine Ticketanfragen in diesem Browser.</p>';
   }

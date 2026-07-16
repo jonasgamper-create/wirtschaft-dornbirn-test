@@ -246,6 +246,15 @@
     return { ok: true };
   }
 
+  function recordTicketWaitlist(payload) {
+    const state = load();
+    const event = state.events.find(item => item.id === payload.eventId) || state.events[0];
+    state.ticketOrders.unshift({ id: `W-${Date.now()}`, createdAt: new Date().toISOString(), status: 'Warteliste', eventId: event?.id || payload.eventId, event: event?.name || payload.eventId, ticket: payload.ticket, quantity: Math.max(1, Number(payload.quantity || 1)), total: 0 });
+    state.ticketOrders = state.ticketOrders.slice(0, 40);
+    save(state);
+    return { ok: true };
+  }
+
   window.WirtschaftData = {
     STORAGE_KEY,
     load,
@@ -259,6 +268,7 @@
     recordReservation,
     recordTicketPurchase,
     recordReservationInquiry,
-    recordTicketInquiry
+    recordTicketInquiry,
+    recordTicketWaitlist
   };
 })();
