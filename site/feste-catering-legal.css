@@ -1,0 +1,20 @@
+.consent a {
+  font-weight: 800;
+  text-underline-offset: 3px;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.footer-links a {
+  font-size: 10px;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .footer-links { justify-content: flex-start; }
+}

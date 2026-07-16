@@ -53,7 +53,7 @@
       return;
     }
     if (!consent.checked) {
-      status.textContent = 'Bitte den Kontakt-Hinweis bestätigen.';
+      status.textContent = 'Bitte die Datenschutzerklärung zur Kenntnis nehmen.';
       consent.focus();
       return;
     }

@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
@@ -8,16 +8,17 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'none'; form-action 'self' mailto:; upgrade-insecure-requests">
   <meta name="theme-color" content="#17130f">
-  <title>Feste & Catering · Wirtschaft Dornbirn</title>
+  <title>Feste &amp; Catering · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="preload" href="assets/celebration.webp" as="image" type="image/webp" fetchpriority="high">
   <link rel="stylesheet" href="feste-catering.css?v=2">
+  <link rel="stylesheet" href="feste-catering-legal.css?v=1">
   <script src="feste-catering.js?v=2" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#content">Zum Inhalt springen</a>
   <header class="event-header">
-    <a class="brand" href="index.html" aria-label="Zur Wirtschaft Dornbirn"><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"></a>
+    <a class="brand" href="entwurf-cinematic.html" aria-label="Zur Wirtschaft Dornbirn"><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"></a>
     <nav aria-label="Seitennavigation"><a href="#moeglichkeiten">Möglichkeiten</a><a href="#orte">Orte</a><a href="#ablauf">Ablauf</a></nav>
     <a class="header-cta" href="#anfrage">Anfrage starten</a>
   </header>
@@ -41,7 +42,7 @@
       <div class="possibility-grid">
         <article><span>01</span><h3>Hochzeiten</h3><p>Vom Empfang bis zum gemeinsamen Abend: Essen, Getränke und Ablauf als stimmiges Ganzes anfragen.</p><button type="button" data-occasion="Hochzeit">Hochzeit anfragen ↗</button></article>
         <article><span>02</span><h3>Private Feste</h3><p>Geburtstag, Taufe, Jubiläum oder Familienfest – persönlich, festlich oder ganz unkompliziert.</p><button type="button" data-occasion="Privates Fest">Privates Fest anfragen ↗</button></article>
-        <article><span>03</span><h3>Firmen & Kultur</h3><p>Firmenfeier, Empfang, Premierenabend oder Kulturveranstaltung mit passender kulinarischer Begleitung.</p><button type="button" data-occasion="Firmen- oder Kulturveranstaltung">Veranstaltung anfragen ↗</button></article>
+        <article><span>03</span><h3>Firmen &amp; Kultur</h3><p>Firmenfeier, Empfang, Premierenabend oder Kulturveranstaltung mit passender kulinarischer Begleitung.</p><button type="button" data-occasion="Firmen- oder Kulturveranstaltung">Veranstaltung anfragen ↗</button></article>
         <article><span>04</span><h3>Catering</h3><p>Aperitif, Menü, Buffet oder individuelle Lösung – für einen gewählten Veranstaltungsort anfragen.</p><button type="button" data-occasion="Catering">Catering anfragen ↗</button></article>
       </div>
     </section>
@@ -62,26 +63,26 @@
     </section>
 
     <section class="inquiry section" id="anfrage" aria-labelledby="inquiryTitle">
-      <div class="inquiry-intro"><p>Unverbindliche Anfrage</p><h2 id="inquiryTitle">Erzählt uns, was ihr vorhabt.</h2><p>Es müssen noch nicht alle Details feststehen. Pflichtfelder sind nur die Angaben, die einen sinnvollen ersten Kontakt ermöglichen.</p><div class="direct-contact"><span>Lieber direkt?</span><a href="tel:+43557220540">+43 (0)5572 20 540</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a></div></div>
+      <div class="inquiry-intro"><p>Unverbindliche Anfrage</p><h2 id="inquiryTitle">Erzählt uns, was ihr vorhabt.</h2><p>Es müssen noch nicht alle Details feststehen. Pflichtfelder sind nur die Angaben, die einen sinnvollen ersten Kontakt ermöglichen.</p><div class="direct-contact"><span>Lieber direkt?</span><a href="tel:+43557220540">+43&nbsp;(0)5572&nbsp;20&nbsp;540</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a></div></div>
       <form id="eventInquiryForm" novalidate>
         <div class="form-grid">
-          <label>Anlass<select id="occasion" name="occasion" required><option value="">Bitte wählen</option><option>Hochzeit</option><option>Privates Fest</option><option>Firmen- oder Kulturveranstaltung</option><option>Catering</option><option>Foodtruck &amp; mobile Bühne</option><option>Etwas anderes</option></select></label>
-          <label>Gewünschter Ort<select id="location" name="location" required><option value="">Bitte wählen</option><option>In der Wirtschaft Dornbirn</option><option>Im Kulturhaus Dornbirn</option><option>Bei uns vor Ort / Wunschlocation</option><option>Noch offen</option></select></label>
-          <label>Wunschtermin<input id="eventDate" name="date" type="date" required></label>
-          <label>Ungefähre Gästezahl<input id="guestCount" name="guests" type="number" min="2" max="1000" inputmode="numeric" placeholder="z. B. 80" required></label>
+          <label>Anlass *<select id="occasion" name="occasion" required><option value="">Bitte wählen</option><option>Hochzeit</option><option>Privates Fest</option><option>Firmen- oder Kulturveranstaltung</option><option>Catering</option><option>Foodtruck &amp; mobile Bühne</option><option>Etwas anderes</option></select></label>
+          <label>Gewünschter Ort *<select id="location" name="location" required><option value="">Bitte wählen</option><option>In der Wirtschaft Dornbirn</option><option>Im Kulturhaus Dornbirn</option><option>Bei uns vor Ort / Wunschlocation</option><option>Noch offen</option></select></label>
+          <label>Wunschtermin *<input id="eventDate" name="date" type="date" required></label>
+          <label>Ungefähre Gästezahl *<input id="guestCount" name="guests" type="number" min="2" max="1000" inputmode="numeric" placeholder="z. B. 80" required></label>
           <label class="wide">Gewünschte kulinarische Richtung<select id="cateringStyle" name="style"><option>Noch offen – bitte beraten</option><option>Empfang / Aperitif</option><option>Gemeinsames Menü</option><option>Buffet</option><option>Flying Food</option><option>Individuelle Kombination</option></select></label>
-          <label>Name<input id="contactName" name="name" autocomplete="name" required></label>
-          <label>E-Mail<input id="contactEmail" name="email" type="email" autocomplete="email" required></label>
+          <label>Name *<input id="contactName" name="name" type="text" autocomplete="name" required></label>
+          <label>E-Mail *<input id="contactEmail" name="email" type="email" autocomplete="email" required></label>
           <label class="wide">Telefon, wenn Rückruf gewünscht<input id="contactPhone" name="phone" type="tel" autocomplete="tel"></label>
           <label class="wide">Was sollen wir noch wissen?<textarea id="eventMessage" name="message" rows="5" placeholder="Anlass, Zeitrahmen, besondere Wünsche, Wunschort …"></textarea></label>
         </div>
-        <label class="consent"><input id="inquiryConsent" type="checkbox" required><span>Ich möchte zu dieser Anfrage kontaktiert werden. Die Anfrage wird fertig ausgefüllt im E-Mail-Programm geöffnet und erst dort versendet.</span></label>
+        <label class="consent"><input id="inquiryConsent" type="checkbox" required><span>Ich habe die <a href="datenschutz-sicherheit.html" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> zur Kenntnis genommen. Die Anfrage wird fertig ausgefüllt im E-Mail-Programm geöffnet und erst dort versendet.</span></label>
         <button class="submit-button" type="submit">Anfrage per E-Mail senden <span>↗</span></button>
         <p class="form-status" id="inquiryStatus" role="status" aria-live="polite"></p>
       </form>
     </section>
   </main>
 
-  <footer><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"><p>Bahnhofstraße 24 · 6850 Dornbirn</p><a href="index.html">Zur Hauptseite</a><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a><p>Unverbindliche Anfrage · verbindlich erst nach persönlicher Bestätigung.</p></footer>
+  <footer><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"><p>Bahnhofstraße 24 · 6850 Dornbirn</p><nav class="footer-links" aria-label="Navigation im Seitenfuß"><a href="entwurf-cinematic.html">Zur Website</a><a href="impressum.html">Impressum</a><a href="datenschutz-sicherheit.html">Datenschutz</a></nav><p>Unverbindliche Anfrage · verbindlich erst nach persönlicher Bestätigung.</p></footer>
 </body>
 </html>
