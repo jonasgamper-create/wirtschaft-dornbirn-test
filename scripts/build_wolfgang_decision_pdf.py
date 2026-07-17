@@ -154,14 +154,24 @@ def build():
     c.showPage()
 
     # 02
-    start(c, 2, "Die Entscheidung")
-    headline(c, "Die neue Seite löst ein einfaches Problem: Gäste finden schneller, was sie suchen.")
-    text(c, "Die Wirtschaft bietet viel. Digital wird daraus erst dann ein Vorteil, wenn jede Person ohne Suchen zum richtigen nächsten Schritt kommt.", 50, H - 183, 690, size=15, leading=21, color=MUTED, font="Times-Roman")
-    metric(c, 50, 252, "4", "klare Einstiege statt einer gleichgewichteten Themenmenge", WINE)
-    metric(c, 286, 252, "3", "buchbare Hauptwege: Tisch, Ticket und Festanfrage", GREEN)
-    metric(c, 522, 252, "1", "gemeinsame Geschichte: Wirtschaft am Mittag, Bühne am Abend", GOLD)
-    box(c, 50, 88, 688, 95, INK, 17)
-    text(c, "Die Seite ist nicht dazu da, Gäste zu überreden. Sie soll Orientierung geben, Vertrauen schaffen und den gewünschten Weg angenehm kurz machen.", 72, 137, 642, size=16, leading=22, color=white, font="Times-Roman")
+    start(c, 2, "Der große Hebel")
+    headline(c, "Vier Hebel. Eine klarere Entscheidung für Gast und Team.")
+    levers = [
+        ("Orientierung", "Gäste sehen schneller, welches Angebot heute zu ihnen passt."),
+        ("Buchung", "Tisch, Ticket und Festanfrage stehen am richtigen Moment bereit."),
+        ("Entlastung", "Anfragen enthalten die Informationen, mit denen das Team arbeiten kann."),
+        ("Sichtbarkeit", "Programm und Angebote lassen sich regional klarer finden und teilen."),
+    ]
+    for i, (head, copy) in enumerate(levers):
+        x = 50 + (i % 2) * 350
+        y = 296 - (i // 2) * 125
+        box(c, x, y, 320, 94, SOFT, 16)
+        c.setFillColor(WINE if i in (0, 3) else GREEN)
+        c.setFont("Times-Roman", 23)
+        c.drawString(x + 18, y + 58, head)
+        text(c, copy, x + 18, y + 34, 274, size=9.5, leading=13, color=MUTED)
+    box(c, 50, 86, 688, 56, INK, 15)
+    text(c, "Die Website soll nicht überreden. Sie reduziert Unsicherheit und macht den passenden nächsten Schritt sichtbar.", 72, 108, 640, size=12, leading=16, color=white, font="Times-Roman")
     c.showPage()
 
     # 03
@@ -302,26 +312,7 @@ def build():
     c.showPage()
 
     # 10
-    start(c, 10, "Die strategische Wirkung")
-    headline(c, "Die Seite macht aus Vielfalt einen klaren Grund zu kommen.")
-    effects = [
-        ("Orientierung", "Gäste erkennen sofort: Bin ich heute zum Mittagessen, für einen Tisch, ein Event oder ein Fest hier richtig?"),
-        ("Entscheidung", "Der relevante nächste Schritt liegt direkt beim Angebot: reservieren, Ticket sichern, Kalender speichern oder anfragen."),
-        ("Erinnerung", "Teller, Bühne und Foodtruck geben der Wirtschaft eine unverwechselbare, aber zusammenhängende Handschrift."),
-    ]
-    for i, (head, copy) in enumerate(effects):
-        x = 50 + i * 232
-        box(c, x, 178, 210, 218, SOFT, 17)
-        c.setFillColor(WINE if i != 1 else GREEN)
-        c.setFont("Times-Roman", 26)
-        c.drawString(x + 18, 345, head)
-        text(c, copy, x + 18, 305, 170, size=10.3, leading=14.5, color=MUTED, font="Helvetica")
-    box(c, 50, 86, 688, 56, INK, 15)
-    text(c, "Das Ziel ist nicht mehr Aufmerksamkeit um jeden Preis, sondern eine bessere Entscheidung für die richtige Person im richtigen Moment.", 72, 108, 640, size=12, leading=16, color=white, font="Times-Roman")
-    c.showPage()
-
-    # 11
-    start(c, 11, "Ein normaler Tag")
+    start(c, 10, "Erwartete Szenarien")
     headline(c, "Was sich im Alltag konkret verändert.")
     scenarios = [
         ("12:05 · Mittagsgast", "Sehen", "Tagesmenü, Zeitfenster und Tischweg stehen zusammen. Kein Suchen zwischen Abendprogramm und Kontaktseite."),
@@ -342,8 +333,8 @@ def build():
     text(c, "Erwarteter Unterschied: weniger unklare Kontaktaufnahmen und mehr vollständige Starts – nicht mehr Druck auf Gäste.", 50, 98, 685, size=11, leading=16, color=WINE, font="Helvetica-Bold")
     c.showPage()
 
-    # 12
-    start(c, 12, "Erwarteter Nutzen")
+    # 11
+    start(c, 11, "Erwarteter Nutzen")
     headline(c, "Woran Wolfgang den Nutzen erkennen kann.")
     benefits = [
         ("Klarere Starts", "Beobachten: Klicks auf Tisch, Ticket und Fest – je Abschnitt, nicht als Sammelwert."),
@@ -362,8 +353,8 @@ def build():
     text(c, "Erfolg wird nicht vorab versprochen. Nach dem Livegang wird zuerst ein Ausgangswert festgehalten und danach transparent verglichen.", 50, 92, 685, size=10.6, leading=15, color=WINE, font="Helvetica-Bold")
     c.showPage()
 
-    # 13
-    start(c, 13, "Vorarlberg & Reichweite")
+    # 12
+    start(c, 12, "Vorarlberg & Reichweite")
     headline(c, "Regional auffindbar. Persönlich erlebbar.")
     text(c, "Die Seite wird zur Grundlage für Suche, regionale Eventkalender und Empfehlungen. Nicht durch laute Werbung, sondern durch klare Angebote und verlässliche Informationen.", 50, H - 178, 650, size=14, leading=20, color=MUTED, font="Times-Roman")
     steps = [
@@ -379,13 +370,34 @@ def build():
     text(c, "Produktionsschritt: LocalBusiness- und Event-Strukturdaten, gepflegtes Google-Unternehmensprofil und ein klarer regionaler Content-Takt.", 50, 96, 690, size=10.6, leading=15, color=WINE, font="Helvetica-Bold")
     c.showPage()
 
+    # 13
+    start(c, 13, "Go-live-Gate")
+    headline(c, "Erst live gehen, wenn drei Dinge sauber stehen.")
+    launch_gates = [
+        ("01", "Inhalte", "Tagesmenü, Termine, Bildrechte, Kontakt und Zuständigkeiten sind verbindlich gepflegt."),
+        ("02", "Buchung", "Reservierung, Ticketing, Zahlung und persönliche Fallbacks sind mit dem echten Anbieter geprüft."),
+        ("03", "Betrieb", "Datenschutz, Impressum, Antwortweg und Verantwortliche sind für den Alltag klar geregelt."),
+    ]
+    for i, (number, head, copy) in enumerate(launch_gates):
+        x = 50 + i * 232
+        box(c, x, 175, 210, 229, INK if i == 2 else SOFT, 17)
+        c.setFillColor(GOLD if i == 2 else WINE)
+        c.setFont("Times-Roman", 31)
+        c.drawString(x + 18, 349, number)
+        c.setFillColor(white if i == 2 else INK)
+        c.setFont("Times-Roman", 25)
+        c.drawString(x + 18, 295, head)
+        text(c, copy, x + 18, 250, 170, size=10.2, leading=14, color=white if i == 2 else MUTED)
+    text(c, "Empfehlung: erst nach diesem Check in einen kontrollierten Soft Launch gehen – nicht mit unfertigen Buchungswegen öffentlich starten.", 50, 96, 690, size=10.6, leading=15, color=WINE, font="Helvetica-Bold")
+    c.showPage()
+
     # 14
-    start(c, 14, "Der Umsetzungsplan")
+    start(c, 14, "Der Rollout")
     headline(c, "Drei kontrollierte Schritte statt eines großen Sprungs.")
     stages = [
-        ("01", "Freigeben", "Inhalte, Bildrechte, Zuständigkeiten und Anbieterentscheidung abschließen."),
-        ("02", "Verbinden", "Reservierung, Ticketing, Tageskarte und Anfrageprozess produktionsreif integrieren."),
-        ("03", "Lernen", "Mit echten Gästen testen, messen und die klarsten Wege weiter verbessern."),
+        ("01", "Soft Launch", "Mit Team, Partnern und einem begrenzten Kreis alle echten Wege und Rückfragen sauber begleiten."),
+        ("02", "Nachjustieren", "Rückfragen, Abbrüche und fehlende Inhalte aus dem Betrieb dokumentieren und gezielt verbessern."),
+        ("03", "Öffentlich", "Regionale Kanäle, Eventkalender und die eigene Kommunikation erst nach der Bereinigung aktivieren."),
     ]
     for i, (number, head, copy) in enumerate(stages):
         x = 50 + i * 232
@@ -409,7 +421,7 @@ def build():
     for item in [
         "Den Entwurf als gemeinsame digitale Richtung freigeben.",
         "Tisch, Ticket und Fest als die drei wichtigsten Abschlüsse bestätigen.",
-        "Produktionsanbieter und rechtliche Freigaben als nächsten Arbeitsschritt beauftragen.",
+        "Eine verantwortliche Person und ein Go-live-Fenster nach dem Gate-Check bestimmen.",
     ]:
         y = bullet(c, item, 50, y, 440, dark=True)
     box(c, 50, 75, 392, 65, WINE, 15)

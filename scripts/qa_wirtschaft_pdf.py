@@ -36,7 +36,7 @@ def main() -> None:
     details.append(result("06 Nutzenvergleich", "Vorher: Inhalte. Jetzt: Entscheidungen." in text, "Alt-gegen-Neu-Vergleich vorhanden."))
     details.append(result("07 Buchungslogik", "Warteliste" in text and "PERSÖNLICH PLANEN" in text, "Tisch-, Ticket- und Festweg verständlich dargestellt."))
     details.append(result("08 Sicherheitsgrenze", "Produktionsfreigabe" in text and "Ticketzahlung" in text, "Entwurf und echte Zahlungs-/Betriebsreife getrennt."))
-    details.append(result("09 Strategischer Nutzen & Quellen", "Die Seite macht aus Vielfalt" in text and "Woran Wolfgang den Nutzen erkennen" in text and annotations >= 7, f"Strategische Wirkung, Nutzenmessung und {annotations} PDF-Link-Anmerkungen vorhanden."))
+    details.append(result("09 Hebel, Go-live & Quellen", "Vier Hebel" in text and "GO-LIVE-GATE" in text and "Woran Wolfgang den Nutzen erkennen" in text and annotations >= 7, f"Hebel, Go-live-Gate, Nutzenmessung und {annotations} PDF-Link-Anmerkungen vorhanden."))
 
     with pdfplumber.open(PDF) as pdf:
         out_of_bounds = 0
