@@ -4,7 +4,7 @@
     {
       "pass": "01 Seitenlogik",
       "status": "PASS",
-      "evidence": "15 Seiten; erwartete Struktur: Cover bis Quellen- und Hinweiseseite."
+      "evidence": "16 Seiten; erwartete Struktur: Cover bis Quellen- und Hinweiseseite."
     },
     {
       "pass": "02 A4-Querformat",
@@ -42,9 +42,9 @@
       "evidence": "Entwurf und echte Zahlungs-/Betriebsreife getrennt."
     },
     {
-      "pass": "09 Fiktionshinweis & Quellen",
+      "pass": "09 Erwarteter Nutzen & Quellen",
       "status": "PASS",
-      "evidence": "Fiktiver Prüfrahmen und 7 PDF-Link-Anmerkungen vorhanden."
+      "evidence": "Fiktiver Prüfrahmen, Nutzenmessung und 7 PDF-Link-Anmerkungen vorhanden."
     },
     {
       "pass": "10 Satzspiegel",

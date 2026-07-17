@@ -312,13 +312,35 @@ def build():
     c.showPage()
 
     # 11
-    start(c, 11, "Der geschäftliche Nutzen")
-    headline(c, "Was diese Website für die Wirtschaft besser macht.")
+    start(c, 11, "Ein normaler Tag")
+    headline(c, "Was sich im Alltag konkret verändert.")
+    scenarios = [
+        ("12:05 · Mittagsgast", "Sehen", "Tagesmenü, Zeitfenster und Tischweg stehen zusammen. Kein Suchen zwischen Abendprogramm und Kontaktseite."),
+        ("18:40 · Eventgast", "Planen", "Passenden Termin filtern, Ticketweg öffnen oder Termin speichern. Bei ausverkauft: Warteliste statt Ende."),
+        ("Sonntag · Gastgeberin", "Anfragen", "Anlass, Ort und Gästezahl zuerst klären. Das Team beginnt mit einer brauchbaren Grundlage."),
+    ]
+    for i, (moment, verb, copy) in enumerate(scenarios):
+        x = 50 + i * 232
+        box(c, x, 164, 210, 241, SOFT, 17)
+        eyebrow(c, moment, x + 18, 370, WINE if i != 1 else GREEN)
+        c.setFillColor(INK)
+        c.setFont("Times-Roman", 29)
+        c.drawString(x + 18, 316, verb)
+        c.setStrokeColor(GOLD)
+        c.setLineWidth(2)
+        c.line(x + 18, 290, x + 191, 290)
+        text(c, copy, x + 18, 260, 170, size=10.2, leading=14.5, color=MUTED)
+    text(c, "Erwarteter Unterschied: weniger unklare Kontaktaufnahmen und mehr vollständige Starts – nicht mehr Druck auf Gäste.", 50, 98, 685, size=11, leading=16, color=WINE, font="Helvetica-Bold")
+    c.showPage()
+
+    # 12
+    start(c, 12, "Erwarteter Nutzen")
+    headline(c, "Woran Wolfgang den Nutzen erkennen kann.")
     benefits = [
-        ("Mehr Abschlüsse", "Reservierung und Ticketweg stehen nicht nebenbei, sondern am richtigen Moment."),
-        ("Bessere Anfragen", "Festanfragen enthalten Anlass, Ort, Termin und Gästezahl als gemeinsame Grundlage."),
-        ("Weniger Aufwand", "Klare Vorinformation reduziert Rückfragen und erklärt den nächsten Schritt sofort."),
-        ("Stärkere Marke", "Mittag, Kultur und Catering bleiben eigenständig - und gehören doch sichtbar zusammen."),
+        ("Klarere Starts", "Beobachten: Klicks auf Tisch, Ticket und Fest – je Abschnitt, nicht als Sammelwert."),
+        ("Vollständigere Anfragen", "Beobachten: Anteil der Anfragen mit Anlass, Ort, Termin und Gästezahl."),
+        ("Weniger Rückfragen", "Beobachten: häufige Telefon- und E-Mail-Fragen vor und nach dem Livegang vergleichen."),
+        ("Bessere Auffindbarkeit", "Beobachten: Suchanfragen und Terminaufrufe aus Dornbirn und dem weiteren Vorarlberg."),
     ]
     for i, (head, copy) in enumerate(benefits):
         x = 50 + (i % 2) * 350
@@ -328,10 +350,11 @@ def build():
         c.setFont("Times-Roman", 23)
         c.drawString(x + 18, y + 58, head)
         text(c, copy, x + 18, y + 34, 274, size=9.5, leading=13, color=MUTED)
+    text(c, "Erfolg wird nicht vorab versprochen. Nach dem Livegang wird zuerst ein Ausgangswert festgehalten und danach transparent verglichen.", 50, 92, 685, size=10.6, leading=15, color=WINE, font="Helvetica-Bold")
     c.showPage()
 
-    # 12
-    start(c, 12, "Vorarlberg & Reichweite")
+    # 13
+    start(c, 13, "Vorarlberg & Reichweite")
     headline(c, "Regional auffindbar. Persönlich erlebbar.")
     text(c, "Die Seite wird zur Grundlage für Suche, regionale Eventkalender und Empfehlungen. Nicht durch laute Werbung, sondern durch klare Angebote und verlässliche Informationen.", 50, H - 178, 650, size=14, leading=20, color=MUTED, font="Times-Roman")
     steps = [
@@ -347,8 +370,8 @@ def build():
     text(c, "Produktionsschritt: LocalBusiness- und Event-Strukturdaten, gepflegtes Google-Unternehmensprofil und ein klarer regionaler Content-Takt.", 50, 96, 690, size=10.6, leading=15, color=WINE, font="Helvetica-Bold")
     c.showPage()
 
-    # 13
-    start(c, 13, "Der Umsetzungsplan")
+    # 14
+    start(c, 14, "Der Umsetzungsplan")
     headline(c, "Drei kontrollierte Schritte statt eines großen Sprungs.")
     stages = [
         ("01", "Freigeben", "Inhalte, Bildrechte, Zuständigkeiten und Anbieterentscheidung abschließen."),
@@ -367,8 +390,8 @@ def build():
         text(c, copy, x + 18, 250, 170, size=10.2, leading=14, color=white if i == 2 else MUTED)
     c.showPage()
 
-    # 14
-    start(c, 14, "Entscheidung für Wolfgang", dark=True)
+    # 15
+    start(c, 15, "Entscheidung für Wolfgang", dark=True)
     image_cover(c, ASSETS / "celebration.webp", W * .57, 0, W * .43, H, .86)
     c.setFillColor(Color(0, 0, 0, .46))
     c.rect(W * .57, 0, W * .43, H, stroke=0, fill=1)
@@ -384,8 +407,8 @@ def build():
     text(c, "Danach wird aus dem Entwurf ein belastbares Buchungs- und Kommunikationssystem.", 70, 108, 350, size=12, leading=16, color=white, font="Times-Roman")
     c.showPage()
 
-    # 15
-    start(c, 15, "Quellen & Hinweise")
+    # 16
+    start(c, 16, "Quellen & Hinweise")
     headline(c, "Quellen und Grenzen dieser Entscheidungsvorlage.", size=34)
     text(c, "Die Präsentation fasst einen Testentwurf und eine Strategierichtung zusammen. Sie ist keine Rechtsberatung, kein Sicherheitszertifikat und keine Prognose von Umsätzen.", 50, H - 180, 670, size=12.5, leading=18, color=MUTED, font="Times-Roman")
     sources = [

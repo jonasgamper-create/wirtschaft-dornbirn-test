@@ -205,6 +205,70 @@
   color: rgba(255, 255, 255, .68);
 }
 
+.guest-benefits {
+  display: grid;
+  grid-template-columns: minmax(230px, .74fr) minmax(0, 1.26fr);
+  gap: clamp(38px, 7vw, 108px);
+  width: min(1440px, 92vw);
+  margin: 0 auto;
+  padding: 0 0 clamp(90px, 11vw, 164px);
+}
+
+.guest-benefits-intro .kicker {
+  margin-bottom: 14px;
+  color: var(--wine);
+}
+
+.guest-benefits h2 {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: clamp(37px, 4.8vw, 70px);
+  font-weight: 400;
+  letter-spacing: -.06em;
+  line-height: .88;
+}
+
+.guest-benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid rgba(23, 19, 15, .72);
+  border-bottom: 1px solid rgba(23, 19, 15, .72);
+}
+
+.guest-benefits article {
+  min-height: 218px;
+  padding: 25px 22px 23px;
+  border-right: 1px solid rgba(23, 19, 15, .72);
+}
+
+.guest-benefits article:last-child {
+  border-right: 0;
+}
+
+.guest-benefits span {
+  color: var(--wine);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .13em;
+}
+
+.guest-benefits h3 {
+  margin: 58px 0 11px;
+  font-family: Georgia, serif;
+  font-size: clamp(22px, 2.1vw, 31px);
+  font-weight: 400;
+  letter-spacing: -.035em;
+  line-height: 1;
+}
+
+.guest-benefits p {
+  max-width: 230px;
+  margin: 0;
+  color: #60564d;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
 .mobile-conversion {
   display: none;
 }
@@ -262,6 +326,32 @@
 
   .booking-guide-card strong {
     margin-top: 34px;
+  }
+
+  .guest-benefits {
+    grid-template-columns: 1fr;
+    width: calc(100% - 36px);
+    gap: 27px;
+    padding-bottom: 84px;
+  }
+
+  .guest-benefits-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guest-benefits article {
+    min-height: 166px;
+    padding: 22px 18px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(23, 19, 15, .72);
+  }
+
+  .guest-benefits article:last-child {
+    border-bottom: 0;
+  }
+
+  .guest-benefits h3 {
+    margin-top: 32px;
   }
 
   .event-calendar-toolbar > div:first-child {
