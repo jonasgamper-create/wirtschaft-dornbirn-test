@@ -28,15 +28,15 @@ def main() -> None:
     height = float(reader.pages[0].mediabox.height)
     title = (reader.metadata.title if reader.metadata else "") or ""
     details = []
-    details.append(result("01 Seitenlogik", pages == 29, f"{pages} Seiten; erwartete Struktur: Cover bis Quellen/Schlussseite."))
+    details.append(result("01 Seitenlogik", pages == 15, f"{pages} Seiten; erwartete Struktur: Cover bis Quellen- und Hinweiseseite."))
     details.append(result("02 A4-Querformat", abs(width - 841.89) < 1 and abs(height - 595.28) < 1, f"{width:.2f} x {height:.2f} pt."))
     details.append(result("03 Metadaten", "Wirtschaft Dornbirn" in title, f"Titel: {title}"))
     details.append(result("04 Textabdeckung", all((page.extract_text() or "").strip() for page in reader.pages), "Jede Seite enthält extrahierbaren Text."))
-    details.append(result("05 Fiktionshinweis", "keine realen Interviews" in text and "50 Expertenrollen" in text and "Anwendungsszenarien" in text, "Fiktive 50+50-Prüfung klar als nicht reale Studie markiert."))
-    details.append(result("06 Nutzenvergleich", "Alte Seite: Inhalte. Neue Seite: Entscheidungen." in text, "Alt-gegen-Neu-Vergleich vorhanden."))
-    details.append(result("07 Sicherheitsgrenze", "Produktionsfreigabe" in text and "Zahlungen" in text, "Entwurf und echte Zahlungs-/Betriebsreife getrennt."))
-    details.append(result("08 Quellen & Links", annotations >= 13, f"{annotations} PDF-Link-Anmerkungen gefunden."))
-    details.append(result("09 Entscheiderstory", "Wolfgang" in text and "90 Tage" in text and "Freigabe" in text, "Persönlicher Entscheidungs- und Umsetzungsabschnitt vorhanden."))
+    details.append(result("05 Vier Gastwege", all(term in text for term in ["Mittagsmenü", "Tisch", "Tickets", "Euer Fest"]), "Vier klare Einstiege vorhanden."))
+    details.append(result("06 Nutzenvergleich", "Vorher: Inhalte. Jetzt: Entscheidungen." in text, "Alt-gegen-Neu-Vergleich vorhanden."))
+    details.append(result("07 Buchungslogik", "Warteliste" in text and "PERSÖNLICH PLANEN" in text, "Tisch-, Ticket- und Festweg verständlich dargestellt."))
+    details.append(result("08 Sicherheitsgrenze", "Produktionsfreigabe" in text and "Ticketzahlung" in text, "Entwurf und echte Zahlungs-/Betriebsreife getrennt."))
+    details.append(result("09 Fiktionshinweis & Quellen", "fiktive Fachrollen" in text and "reale Personen" in text and annotations >= 7, f"Fiktiver Prüfrahmen und {annotations} PDF-Link-Anmerkungen vorhanden."))
 
     with pdfplumber.open(PDF) as pdf:
         out_of_bounds = 0

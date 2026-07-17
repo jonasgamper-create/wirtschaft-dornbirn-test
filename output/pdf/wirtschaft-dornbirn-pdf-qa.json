@@ -4,7 +4,7 @@
     {
       "pass": "01 Seitenlogik",
       "status": "PASS",
-      "evidence": "29 Seiten; erwartete Struktur: Cover bis Quellen/Schlussseite."
+      "evidence": "15 Seiten; erwartete Struktur: Cover bis Quellen- und Hinweiseseite."
     },
     {
       "pass": "02 A4-Querformat",
@@ -14,7 +14,7 @@
     {
       "pass": "03 Metadaten",
       "status": "PASS",
-      "evidence": "Titel: Wirtschaft Dornbirn - Webstrategie für Wolfgang"
+      "evidence": "Titel: Wirtschaft Dornbirn - Entscheidungsvorlage für Wolfgang"
     },
     {
       "pass": "04 Textabdeckung",
@@ -22,9 +22,9 @@
       "evidence": "Jede Seite enthält extrahierbaren Text."
     },
     {
-      "pass": "05 Fiktionshinweis",
+      "pass": "05 Vier Gastwege",
       "status": "PASS",
-      "evidence": "Fiktive 50+50-Prüfung klar als nicht reale Studie markiert."
+      "evidence": "Vier klare Einstiege vorhanden."
     },
     {
       "pass": "06 Nutzenvergleich",
@@ -32,19 +32,19 @@
       "evidence": "Alt-gegen-Neu-Vergleich vorhanden."
     },
     {
-      "pass": "07 Sicherheitsgrenze",
+      "pass": "07 Buchungslogik",
+      "status": "PASS",
+      "evidence": "Tisch-, Ticket- und Festweg verständlich dargestellt."
+    },
+    {
+      "pass": "08 Sicherheitsgrenze",
       "status": "PASS",
       "evidence": "Entwurf und echte Zahlungs-/Betriebsreife getrennt."
     },
     {
-      "pass": "08 Quellen & Links",
+      "pass": "09 Fiktionshinweis & Quellen",
       "status": "PASS",
-      "evidence": "13 PDF-Link-Anmerkungen gefunden."
-    },
-    {
-      "pass": "09 Entscheiderstory",
-      "status": "PASS",
-      "evidence": "Persönlicher Entscheidungs- und Umsetzungsabschnitt vorhanden."
+      "evidence": "Fiktiver Prüfrahmen und 7 PDF-Link-Anmerkungen vorhanden."
     },
     {
       "pass": "10 Satzspiegel",
