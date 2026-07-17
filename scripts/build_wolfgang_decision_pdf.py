@@ -302,13 +302,22 @@ def build():
     c.showPage()
 
     # 10
-    start(c, 10, "Fiktiver Prüfrahmen")
-    headline(c, "100 Perspektiven als Denkwerkzeug - nicht als behaupteter Feldtest.")
-    metric(c, 50, 269, "50", "fiktive Fachrollen: UX, Gastro, Ticketing, SEO, A11Y, Security", WINE)
-    metric(c, 286, 269, "50", "fiktive Nutzungsszenarien: Mittag, Tisch, Tickets, Fest und Sonderfälle", GREEN)
-    metric(c, 522, 269, "0", "reale Personen, aktive Tests oder personenbezogene Daten", GOLD)
-    box(c, 50, 102, 688, 96, SOFT, 16)
-    text(c, "Die gemeinsame Erkenntnis wäre: Die Seite gewinnt durch weniger Unsicherheit. Für den echten Nachweis folgt nach Freigabe ein moderierter Pilot mit 8-12 Gästen aus Vorarlberg.", 72, 152, 640, size=14, leading=19, color=INK, font="Times-Roman")
+    start(c, 10, "Die strategische Wirkung")
+    headline(c, "Die Seite macht aus Vielfalt einen klaren Grund zu kommen.")
+    effects = [
+        ("Orientierung", "Gäste erkennen sofort: Bin ich heute zum Mittagessen, für einen Tisch, ein Event oder ein Fest hier richtig?"),
+        ("Entscheidung", "Der relevante nächste Schritt liegt direkt beim Angebot: reservieren, Ticket sichern, Kalender speichern oder anfragen."),
+        ("Erinnerung", "Teller, Bühne und Foodtruck geben der Wirtschaft eine unverwechselbare, aber zusammenhängende Handschrift."),
+    ]
+    for i, (head, copy) in enumerate(effects):
+        x = 50 + i * 232
+        box(c, x, 178, 210, 218, SOFT, 17)
+        c.setFillColor(WINE if i != 1 else GREEN)
+        c.setFont("Times-Roman", 26)
+        c.drawString(x + 18, 345, head)
+        text(c, copy, x + 18, 305, 170, size=10.3, leading=14.5, color=MUTED, font="Helvetica")
+    box(c, 50, 86, 688, 56, INK, 15)
+    text(c, "Das Ziel ist nicht mehr Aufmerksamkeit um jeden Preis, sondern eine bessere Entscheidung für die richtige Person im richtigen Moment.", 72, 108, 640, size=12, leading=16, color=white, font="Times-Roman")
     c.showPage()
 
     # 11
@@ -410,7 +419,7 @@ def build():
     # 16
     start(c, 16, "Quellen & Hinweise")
     headline(c, "Quellen und Grenzen dieser Entscheidungsvorlage.", size=34)
-    text(c, "Die Präsentation fasst einen Testentwurf und eine Strategierichtung zusammen. Sie ist keine Rechtsberatung, kein Sicherheitszertifikat und keine Prognose von Umsätzen.", 50, H - 180, 670, size=12.5, leading=18, color=MUTED, font="Times-Roman")
+    text(c, "Die Präsentation fasst einen Webentwurf und eine Strategierichtung zusammen. Sie ist keine Rechtsberatung, kein Sicherheitszertifikat und keine Prognose von Umsätzen.", 50, H - 180, 670, size=12.5, leading=18, color=MUTED, font="Times-Roman")
     sources = [
         ("Wirtschaft Dornbirn - bestehende Website und Veranstaltungskalender", "https://wirtschaft-dornbirn.at/"),
         ("Emma & Eugen - offizielle Ursprungsgeschichte", "https://eugen.family/info/"),
