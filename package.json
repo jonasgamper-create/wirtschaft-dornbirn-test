@@ -11,9 +11,9 @@
     "check:public": "node scripts/check-public-build.mjs",
     "check:privacy": "node scripts/check-privacy.mjs",
     "ci": "npm run build && npm run check:event-data && npm run build:public && npm run check:public && npm run check:privacy",
-    "report:decision": "python3 scripts/build-decision-pdf.py",
-    "report:performance": "python3 scripts/build_performance_audit_pdf.py",
-    "qa:performance-pdf": "python3 scripts/qa_performance_audit_pdf.py"
+    "report:decision": "bash scripts/run_pdf_tool.sh scripts/build-decision-pdf.py",
+    "report:performance": "bash scripts/run_pdf_tool.sh scripts/build_performance_audit_pdf.py",
+    "qa:performance-pdf": "bash scripts/run_pdf_tool.sh scripts/qa_performance_audit_pdf.py"
   },
   "dependencies": {
     "motion": "^12.42.2"
