@@ -43,7 +43,8 @@
     <section class="panel" aria-labelledby="servicesTitle">
       <div class="panel-head"><div><p>02 · Restaurant</p><h2 id="servicesTitle">Mittag &amp; Abend</h2></div><div class="filters"><label>Bereich<select id="kindFilter"><option value="all">Alle</option><option>Mittag</option><option>Abend</option></select></label><label>Sortierung<select id="serviceSort"><option value="date">Datum aufsteigend</option><option value="free-asc">Freie Plätze aufsteigend</option><option value="free-desc">Freie Plätze absteigend</option></select></label></div></div>
       <form class="add-service" id="addServiceForm"><label>Datum<input id="newDate" type="date" required></label><label>Zeit<input id="newTime" type="time" required></label><label>Bereich<select id="newKind"><option>Mittag</option><option>Abend</option></select></label><label>Kapazität<input id="newCapacity" type="number" min="1" value="48" required></label><button type="submit">Zeitfenster ergänzen</button></form>
-      <div class="table-wrap"><table><thead><tr><th>Datum</th><th>Zeit</th><th>Bereich</th><th>Kapazität</th><th>Belegt</th><th>Internes Limit</th><th>Noch frei</th></tr></thead><tbody id="servicesBody"></tbody></table></div>
+      <div class="table-wrap"><table><thead><tr><th>Datum</th><th>Zeit</th><th>Bereich</th><th>Kapazität</th><th>Belegt</th><th>Tischmix / Plätze</th><th>Internes Limit</th><th>Noch frei</th></tr></thead><tbody id="servicesBody"></tbody></table></div>
+      <p class="model-note">Testmodell: 2er-, 4er-, 6er- und 8er-Tische werden pro Zeitfenster gepflegt. Die verbindliche Live-Belegung muss später vom Reservierungsanbieter oder einer geschützten API kommen – nie aus der Gastansicht.</p>
     </section>
 
     <section class="panel" aria-labelledby="eventsTitle">

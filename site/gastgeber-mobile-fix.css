@@ -19,3 +19,41 @@
     min-width: 0;
   }
 }
+
+.model-note {
+  margin: 14px 2px 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.table-mix {
+  display: grid;
+  grid-template-columns: repeat(4, 54px);
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.table-mix label {
+  display: grid;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.table-mix input {
+  width: 54px;
+  min-height: 30px;
+}
+
+.table-seats {
+  display: block;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+@media (max-width: 650px) {
+  .table-mix { grid-template-columns: repeat(2, 54px); }
+}

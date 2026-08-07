@@ -23,12 +23,21 @@ jobs:
     steps:
       - name: Repository laden
         uses: actions/checkout@v6
+      - name: Node.js einrichten
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - name: Abhängigkeiten installieren
+        run: npm ci
+      - name: Öffentlichen Build prüfen
+        run: npm run ci
       - name: GitHub Pages konfigurieren
         uses: actions/configure-pages@v5
       - name: Öffentliche Testseite verpacken
         uses: actions/upload-pages-artifact@v4
         with:
-          path: site
+          path: dist
       - name: Testseite veröffentlichen
         id: deployment
         uses: actions/deploy-pages@v4

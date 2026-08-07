@@ -22,7 +22,12 @@
   const progress = document.getElementById('scrollProgress');
   const conceptRail = document.querySelector('.concept-rail');
   const railLinks = [...document.querySelectorAll('.concept-rail a')];
-  const scenes = [...document.querySelectorAll('.concept-scene')];
+  // The final guest flow intentionally keeps the heritage/host chapters out
+  // of the main scroll. Do not let hidden scenes participate in observers or
+  // rewrite the URL to a chapter the visitor cannot see.
+  const scenes = [...document.querySelectorAll('.concept-scene')]
+    .filter(scene => !scene.matches('#concept-01, #concept-05'))
+    .sort((a, b) => a.offsetTop - b.offsetTop);
   const reveals = [...document.querySelectorAll('.reveal')];
   const zoomSections = [...document.querySelectorAll('[data-zoom]')];
   const liveReel = document.querySelector('.live-reel');
@@ -31,9 +36,13 @@
   const themeStatusLabel = document.getElementById('themeStatusLabel');
   const themeStatusMood = document.getElementById('themeStatusMood');
   const toast = document.getElementById('toast');
+  const serviceStatus = document.querySelector('[data-service-status]');
+  const arrivalStatus = document.querySelector('[data-arrival-status]');
+  const arrivalDetail = document.querySelector('[data-arrival-detail]');
+  const arrivalEvent = document.querySelector('[data-arrival-event]');
+  const nextEventLabel = document.querySelector('.hero-event-pulse strong');
   const reducedPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   const coarsePointer = window.matchMedia('(hover: none), (pointer: coarse)');
-  const inventory = window.WirtschaftData || null;
   const query = new URLSearchParams(window.location.search);
   const studyMode = query.get('study') === '1';
   const qaMode = query.get('qa') === '1';
@@ -50,6 +59,66 @@
   let chapterBounds = { firstTop: 0, lastBottom: 0 };
   const visibleScenes = new Map();
   let themeTransitionTimer = 0;
+
+  const fallbackEventData = {
+    version: 1,
+    updatedAt: '2026-08-06T12:00:00+02:00',
+    maxAgeHours: 48,
+    sourceUrl: 'https://wirtschaft-dornbirn.at/event/',
+    pause: { label: 'Sommerpause', start: '2026-07-24', end: '2026-08-23', reopen: '2026-08-24' },
+    events: [
+      { id: 'event-2026-09-03', date: '2026-09-03', title: 'Genussroute 6850', type: 'Dornbirner Genussabend', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/genussroute-2026/' },
+      { id: 'event-2026-09-22', date: '2026-09-22', title: 'Helden reisen, Gäste speisen!', type: 'Dinner & Bühne', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/' },
+      { id: 'event-2026-09-23', date: '2026-09-23', title: 'Helden reisen, Gäste speisen! – Zusatzabend', type: 'Dinner & Bühne', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/' },
+      { id: 'event-2026-10-14', date: '2026-10-14', title: 'Dinner & Comedy', type: 'Genuss trifft Humor', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/' },
+      { id: 'event-2026-10-15', date: '2026-10-15', title: 'Christof Spörk', type: 'Kabarett in der Wirtschaft', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/spoerk-2026/' }
+    ]
+  };
+  let eventData = fallbackEventData;
+  let calendarEvents = eventData.events.map(item => ({ ...item }));
+  const statusLabel = document.querySelector('[data-status-label]');
+  const statusDetail = document.querySelector('[data-status-detail]');
+  const statusNext = document.querySelector('[data-status-next]');
+  const statusUpdated = document.querySelector('[data-status-updated]');
+
+  const formatEventDate = date => new Intl.DateTimeFormat('de-AT', { day: '2-digit', month: 'short' }).format(new Date(`${date}T12:00:00`)).replace('.', '');
+  const isFreshEventData = data => {
+    const stamp = Date.parse(data?.updatedAt || '');
+    const maxAge = Number(data?.maxAgeHours || 48);
+    return Number.isFinite(stamp) && Date.now() - stamp <= maxAge * 60 * 60 * 1000;
+  };
+  const eventStatusLabel = status => ({ scheduled: 'Tickets', sold_out: 'Ausverkauft', waitlist: 'Warteliste', cancelled: 'Abgesagt', paused: 'Pausiert' }[status] || 'Details');
+
+  function syncServiceStatus() {
+    if (!serviceStatus) return;
+    const today = new Date();
+    const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const pause = eventData.pause || fallbackEventData.pause;
+    const pauseStart = pause.start || '';
+    const pauseUntil = pause.end || '';
+    const paused = todayIso >= pauseStart && todayIso <= pauseUntil;
+    const nextLabel = paused ? pause.label || 'Sommerpause' : 'Geöffnet';
+    const reopen = pause.reopen ? formatEventDate(pause.reopen) : 'bald';
+    const nextDetail = paused ? `Ab ${reopen} wieder geöffnet` : 'Tagesmenü · Tisch · Abendprogramm';
+    const label = statusLabel || serviceStatus.querySelector('strong');
+    const detail = statusDetail || serviceStatus.querySelector('em');
+    if (label) label.textContent = nextLabel;
+    if (detail) detail.textContent = nextDetail;
+    serviceStatus.classList.toggle('is-paused', paused);
+    const nextEvent = calendarEvents.find(item => item.date >= todayIso && !['cancelled', 'paused'].includes(item.status));
+    if (statusNext) statusNext.textContent = nextEvent ? formatEventDate(nextEvent.date) : 'bald';
+    if (statusUpdated) {
+      const fresh = isFreshEventData(eventData);
+      statusUpdated.hidden = fresh;
+      statusUpdated.textContent = `Stand: ${new Intl.DateTimeFormat('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(eventData.updatedAt))}`;
+      serviceStatus.classList.toggle('is-stale', !fresh);
+    }
+    if (arrivalStatus) arrivalStatus.textContent = nextLabel;
+    if (arrivalDetail) arrivalDetail.textContent = nextDetail;
+    if (arrivalEvent && nextEventLabel) arrivalEvent.textContent = `Nächster Abend · ${nextEventLabel.textContent}`;
+  }
+
+  syncServiceStatus();
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
@@ -121,14 +190,6 @@
     showToast.timer = window.setTimeout(() => toast.classList.remove('show'), 3200);
   }
 
-  function openEmailRequest(subject, lines) {
-    const bodyText = lines.filter(Boolean).join('\n');
-    const mailto = `mailto:willkommen@wirtschaft-dornbirn.at?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
-    window.__LAST_MAILTO__ = mailto;
-    if (!qaMode && !studyMode) window.location.href = mailto;
-    return mailto;
-  }
-
   function closeOpenDialogs() {
     Object.values(dialogs).forEach(dialog => {
       if (dialog?.open) dialog.close();
@@ -153,7 +214,10 @@
       event.preventDefault();
       if (opener.dataset.event) {
         const eventSelect = document.getElementById('ticketEvent');
-        if (eventSelect) eventSelect.value = opener.dataset.event;
+        if (eventSelect) {
+          eventSelect.value = opener.dataset.event;
+          eventSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        }
       }
       openDialog(opener.dataset.open, opener);
       return;
@@ -475,14 +539,16 @@
 
   function setMotionOff(off) {
     body.classList.toggle('motion-off', off);
-    motionToggle.setAttribute('aria-pressed', String(off));
-    motionToggle.textContent = off ? 'Motion aus' : 'Motion an';
+    if (motionToggle) {
+      motionToggle.setAttribute('aria-pressed', String(off));
+      motionToggle.textContent = off ? 'Motion aus' : 'Motion an';
+    }
     if (off) syncVisualScroll();
     else requestMotionFrame();
     window.dispatchEvent(new CustomEvent('wirtschaft:motionchange', { detail: { off } }));
   }
   setMotionOff(reducedPreference.matches);
-  motionToggle.addEventListener('click', () => setMotionOff(!body.classList.contains('motion-off')));
+  motionToggle?.addEventListener('click', () => setMotionOff(!body.classList.contains('motion-off')));
   reducedPreference.addEventListener?.('change', event => setMotionOff(event.matches));
 
   const bookingDate = document.getElementById('bookingDate');
@@ -515,12 +581,7 @@
       guestAvailabilityMessage.textContent = 'Datum, Zeit und Personenzahl auswählen.';
       return;
     }
-    const state = inventory?.load();
-    const id = `${bookingDate.value}-${selectedTime.replace(':', '')}`;
-    const service = state?.services.find(item => item.id === id);
-    const lunch = Number(selectedTime.slice(0, 2)) < 15;
-    const available = service && state ? inventory.serviceAvailability(service, state.settings).available : state ? inventory.effectiveLimit(lunch ? state.settings.lunchDefaultCapacity : state.settings.dinnerDefaultCapacity, state.settings) : 20;
-    guestAvailabilityMessage.textContent = Number(selectedGuests) <= available ? 'Der gewählte Termin ist für eure Anfrage verfügbar.' : 'Für diese Gruppengröße bitte kurz persönlich anrufen.';
+    guestAvailabilityMessage.textContent = 'Die Verfügbarkeit wird persönlich bestätigt. Für eine sofortige Online-Reservierung bitte das Buchungssystem öffnen.';
   }
 
   timeChoices?.addEventListener('click', event => {
@@ -565,41 +626,37 @@
 
   bookingDate?.addEventListener('change', updateAvailability);
 
-  document.getElementById('reservationForm')?.addEventListener('submit', event => {
-    event.preventDefault();
-    if (!bookingDate.value || !selectedTime || !selectedGuests || !selectedTable) {
-      reservationMessage.textContent = 'Bitte Datum, Zeit, Personenzahl und Tisch auswählen.';
-      return;
+  const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+  function renderEventLists() {
+    const spotlight = document.getElementById('eventSpotlight');
+    const timeline = document.getElementById('eventTimeline');
+    const events = calendarEvents;
+    const renderTicketLink = item => `<a class="event-ticket-link event-status-${escapeHtml(item.status)}" href="${escapeHtml(item.officialUrl || eventData.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(eventStatusLabel(item.status))} ↗</a>`;
+    const renderCalendarLink = item => item.status === 'cancelled' ? '' : `<button type="button" data-calendar-event="${escapeHtml(item.id)}">Zum Kalender <span>＋</span></button>`;
+    const renderSpotlight = item => `<article data-event-status="${escapeHtml(item.status)}"><time datetime="${escapeHtml(item.date)}"><b>${escapeHtml(item.date.slice(8, 10))}</b><span>${escapeHtml(new Intl.DateTimeFormat('de-AT', { month: 'short' }).format(new Date(`${item.date}T12:00:00`)).replace('.', '').toUpperCase())}</span></time><div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.type)}</small></div>${renderTicketLink(item)}</article>`;
+    const renderTimeline = item => `<article data-event-status="${escapeHtml(item.status)}"><time datetime="${escapeHtml(item.date)}"><b>${escapeHtml(item.date.slice(8, 10))}</b><span>${escapeHtml(new Intl.DateTimeFormat('de-AT', { month: 'short' }).format(new Date(`${item.date}T12:00:00`)).replace('.', '').toUpperCase())}</span></time><div><p>${escapeHtml(item.title)}</p><small>${escapeHtml(item.type)}</small></div><div class="event-actions">${renderTicketLink(item)}${renderCalendarLink(item)}</div></article>`;
+    if (spotlight) spotlight.querySelectorAll('article').forEach(article => article.remove());
+    if (spotlight) {
+      const link = spotlight.querySelector(':scope > a');
+      events.slice(0, 3).forEach(item => link?.insertAdjacentHTML('beforebegin', renderSpotlight(item)));
     }
-    const reservationName = document.getElementById('reservationName');
-    const reservationEmail = document.getElementById('reservationEmail');
-    const reservationPhone = document.getElementById('reservationPhone');
-    if (!reservationName.value.trim() || !reservationEmail.value.trim() || !reservationEmail.validity.valid) {
-      reservationMessage.textContent = 'Bitte Name und eine gültige E-Mail-Adresse ergänzen.';
-      (!reservationName.value.trim() ? reservationName : reservationEmail).focus();
-      return;
+    if (timeline) timeline.innerHTML = events.map(renderTimeline).join('');
+    const select = document.getElementById('ticketEvent');
+    if (select) {
+      select.innerHTML = events.map(item => `<option value="${escapeHtml(item.id)}">${escapeHtml(formatEventDate(item.date))} · ${escapeHtml(item.title)}</option>`).join('');
     }
-    const payload = { date: bookingDate.value, time: selectedTime, guests: Number(selectedGuests), table: selectedTable, name: reservationName.value.trim(), email: reservationEmail.value.trim(), phone: reservationPhone.value.trim() };
-    if (!qaMode && !studyMode && inventory?.recordReservationInquiry) inventory.recordReservationInquiry(payload);
-    openEmailRequest(`Reservierungsanfrage · ${bookingDate.value} · ${selectedTime} Uhr`, [
-      'Guten Tag liebes Team der Wirtschaft Dornbirn,', '',
-      'ich möchte unverbindlich einen Tisch anfragen:',
-      `Datum: ${bookingDate.value}`, `Uhrzeit: ${selectedTime} Uhr`, `Personen: ${selectedGuests}`, `Tischwunsch: ${selectedTable}`,
-      `Name: ${payload.name}`, `E-Mail: ${payload.email}`, payload.phone ? `Telefon: ${payload.phone}` : '', '',
-      'Bitte bestätigen Sie mir, ob der gewünschte Termin verfügbar ist.', '', 'Vielen Dank!'
-    ]);
-    reservationMessage.textContent = 'Die Reservierungsanfrage wurde im E-Mail-Programm vorbereitet. Bitte dort noch absenden.';
-    reportStudy('reservation_complete', { concept: body.dataset.concept || requestedConcept || '01', guests: selectedGuests, time: selectedTime, table: selectedTable });
-    showToast('Reservierungsanfrage ist versandbereit.');
-  });
+    document.querySelectorAll('[data-calendar-event]').forEach(button => button.addEventListener('click', () => {
+      const event = calendarEvents.find(item => item.id === button.dataset.calendarEvent);
+      if (event) exportCalendar([event], `${event.id}.ics`);
+    }));
+  }
 
-  const calendarEvents = [
-    { id: 'event-2026-09-03', date: '2026-09-03', title: 'Genussroute 6850', type: 'Dornbirner Genussabend' },
-    { id: 'event-2026-09-22', date: '2026-09-22', title: 'Helden reisen, Gäste speisen!', type: 'Dinner & Bühne' },
-    { id: 'event-2026-09-23', date: '2026-09-23', title: 'Helden reisen, Gäste speisen! – Zusatzabend', type: 'Dinner & Bühne' },
-    { id: 'event-2026-10-14', date: '2026-10-14', title: 'Dinner & Comedy', type: 'Genuss trifft Humor' },
-    { id: 'event-2026-10-15', date: '2026-10-15', title: 'Christof Spörk', type: 'Kabarett in der Wirtschaft' }
-  ];
+  const officialTicketLink = document.getElementById('officialTicketLink');
+  function syncOfficialTicketLink() {
+    const chosenEvent = calendarEvents.find(item => item.id === ticketEvent?.value);
+    if (!officialTicketLink) return;
+    officialTicketLink.href = chosenEvent?.officialUrl || 'https://wirtschaft-dornbirn.at/event/';
+  }
 
   function escapeCalendarValue(value) {
     return String(value).replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
@@ -658,6 +715,10 @@
   const ticketTotal = document.getElementById('ticketTotal');
   const ticketMessage = document.getElementById('ticketMessage');
   const ticketEvent = document.getElementById('ticketEvent');
+  ticketEvent?.addEventListener('change', syncOfficialTicketLink);
+  syncOfficialTicketLink();
+  renderEventLists();
+  syncOfficialTicketLink();
   document.getElementById('selectedEventCalendar')?.addEventListener('click', () => {
     const event = calendarEvents.find(item => item.id === ticketEvent?.value);
     if (event) exportCalendar([event], `${event.id}.ics`);
@@ -690,30 +751,6 @@
     ticketQuantity = Math.min(10, ticketQuantity + 1);
     renderTicketTotal();
   });
-  document.getElementById('ticketForm')?.addEventListener('submit', event => {
-    event.preventDefault();
-    const ticketName = document.getElementById('ticketName');
-    const ticketEmail = document.getElementById('ticketEmail');
-    if (!ticketName.value.trim() || !ticketEmail.value.trim() || !ticketEmail.validity.valid) {
-      ticketMessage.textContent = 'Bitte Name und eine gültige E-Mail-Adresse ergänzen.';
-      (!ticketName.value.trim() ? ticketName : ticketEmail).focus();
-      return;
-    }
-    const chosenEvent = calendarEvents.find(item => item.id === ticketEvent?.value);
-    const payload = { eventId: ticketEvent?.value, ticket: selectedTicket, quantity: ticketQuantity, total: selectedPrice * ticketQuantity, name: ticketName.value.trim(), email: ticketEmail.value.trim() };
-    if (!qaMode && !studyMode && inventory?.recordTicketInquiry) inventory.recordTicketInquiry(payload);
-    openEmailRequest(`Ticketanfrage · ${chosenEvent?.title || 'Veranstaltung'}`, [
-      'Guten Tag liebes Team der Wirtschaft Dornbirn,', '',
-      'ich möchte unverbindlich Tickets anfragen:',
-      `Veranstaltung: ${chosenEvent?.title || ticketEvent?.value}`, `Datum: ${chosenEvent?.date || ''}`, `Ticketart: ${selectedTicket}`, `Anzahl: ${ticketQuantity}`, `Voraussichtlicher Gesamtpreis: ${selectedPrice * ticketQuantity} €`,
-      `Name: ${payload.name}`, `E-Mail: ${payload.email}`, '',
-      'Bitte bestätigen Sie Verfügbarkeit und Preis.', '', 'Vielen Dank!'
-    ]);
-    ticketMessage.textContent = 'Die Ticketanfrage wurde im E-Mail-Programm vorbereitet. Bitte dort noch absenden.';
-    reportStudy('ticket_complete', { concept: body.dataset.concept || requestedConcept || '01', ticket: selectedTicket, quantity: ticketQuantity, total: selectedPrice * ticketQuantity });
-    showToast('Ticketanfrage ist versandbereit.');
-  });
-
   renderTicketTotal();
   document.querySelectorAll('a[href="#impressum"]').forEach(link => {
     link.addEventListener('click', () => reportStudy('imprint_click', { concept: body.dataset.concept || requestedConcept || '01' }));
@@ -737,5 +774,27 @@
   if (requestedDialog && Object.hasOwn(dialogs, requestedDialog)) {
     window.setTimeout(() => openDialog(requestedDialog, null), 220);
   }
+  fetch('data/events.json', { cache: 'no-store' })
+    .then(response => {
+      if (!response.ok) throw new Error(`Eventdaten konnten nicht geladen werden (${response.status})`);
+      return response.json();
+    })
+    .then(data => {
+      if (!Array.isArray(data?.events) || !data?.pause || !data?.updatedAt) throw new Error('Eventdaten haben ein ungültiges Format');
+      eventData = data;
+      calendarEvents = data.events.map(item => ({ ...item }));
+      renderEventLists();
+      syncOfficialTicketLink();
+      syncServiceStatus();
+      window.dispatchEvent(new CustomEvent('wirtschaft:eventdata', { detail: { fresh: isFreshEventData(data), count: calendarEvents.length } }));
+    })
+    .catch(error => {
+      serviceStatus?.classList.add('is-stale');
+      if (statusUpdated) {
+        statusUpdated.hidden = false;
+        statusUpdated.textContent = 'Stand: Fallback-Daten';
+      }
+      window.__APP_ERRORS__.push({ type: 'event-data', message: error.message });
+    });
   reportStudy('page_ready', { concept: initialScene?.dataset.concept || requestedConcept || '01', viewport: { width: window.innerWidth, height: window.innerHeight } });
 })();

@@ -9,8 +9,8 @@ Diese GitHub-Pages-Website ist eine öffentliche, statische Design- und Funktion
 - Keine Analyse-, Marketing- oder Drittanbieter-Skripte in den zentralen Gastseiten.
 - Keine Karten-, Bank- oder Zahlungsfelder.
 - E-Mail-Anfragen werden nur lokal vorbereitet und erst im E-Mail-Programm des Gastes versendet.
-- Im lokalen Gastgeber-Demo werden nur Termin, Uhrzeit, Menge, Tischwunsch und Status gespeichert – keine Namen, E-Mail-Adressen, Telefonnummern oder Freitexte.
-- Importierte Demo-Daten werden begrenzt, typisiert und vor HTML-Ausgabe maskiert.
+- Das lokale Gastgeber-Demo ist ausschließlich Quellmaterial; es wird nicht in den öffentlichen Build kopiert. Eine produktive Version darf Kapazitätsdaten nur serverseitig und authentifiziert verarbeiten.
+- Importierte Konzeptdaten werden begrenzt, typisiert und vor HTML-Ausgabe maskiert.
 - Content-Security-Policy, restriktive Referrer-Regeln und `noindex` sind in den zentralen Testseiten gesetzt.
 - Keine Geheimnisse, API-Schlüssel oder Zugangsdaten dürfen im Repository oder Frontend-Code liegen.
 

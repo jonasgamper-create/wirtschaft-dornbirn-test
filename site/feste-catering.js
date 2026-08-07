@@ -5,8 +5,14 @@
 
   const form = document.getElementById('eventInquiryForm');
   const occasion = document.getElementById('occasion');
+  const customOccasionWrap = document.getElementById('customOccasionWrap');
+  const customOccasion = document.getElementById('customOccasion');
   const location = document.getElementById('location');
   const date = document.getElementById('eventDate');
+  const dateExactWrap = document.getElementById('eventDateExactWrap');
+  const dateFlexible = document.getElementById('eventDateFlexible');
+  const dateTextWrap = document.getElementById('eventDateTextWrap');
+  const dateText = document.getElementById('eventDateText');
   const guests = document.getElementById('guestCount');
   const name = document.getElementById('contactName');
   const email = document.getElementById('contactEmail');
@@ -26,7 +32,29 @@
   if (requestedMessage) document.getElementById('eventMessage').value = requestedMessage.slice(0, 240);
 
   const today = new Date();
-  date.min = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+  const todayValue = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+  date.min = todayValue;
+  date.value = todayValue;
+
+  function syncDateMode() {
+    const flexible = dateFlexible.checked;
+    dateExactWrap.hidden = flexible;
+    dateTextWrap.hidden = !flexible;
+    date.required = !flexible;
+    dateText.required = flexible;
+    if (!flexible) dateText.value = '';
+  }
+  dateFlexible.addEventListener('change', syncDateMode);
+  syncDateMode();
+
+  function syncOccasionMode() {
+    const custom = occasion.value === 'Etwas anderes';
+    customOccasionWrap.hidden = !custom;
+    customOccasion.required = custom;
+    if (!custom) customOccasion.value = '';
+  }
+  occasion.addEventListener('change', syncOccasionMode);
+  syncOccasionMode();
 
   function chooseAndFocus(field, value) {
     field.value = value;
@@ -40,7 +68,8 @@
   form.addEventListener('submit', event => {
     event.preventDefault();
     status.textContent = '';
-    const required = [occasion, location, date, guests, name, email];
+    const required = [occasion, location, guests, name, email, dateFlexible.checked ? dateText : date];
+    if (occasion.value === 'Etwas anderes') required.push(customOccasion);
     const missing = required.find(field => !field.value.trim());
     if (missing) {
       status.textContent = 'Bitte die markierten Pflichtangaben ergänzen.';
@@ -57,16 +86,17 @@
       consent.focus();
       return;
     }
-    const formattedDate = new Intl.DateTimeFormat('de-AT', { dateStyle: 'long' }).format(new Date(`${date.value}T12:00:00`));
+    const formattedDate = dateFlexible.checked ? dateText.value.trim() : new Intl.DateTimeFormat('de-AT', { dateStyle: 'long' }).format(new Date(`${date.value}T12:00:00`));
+    const occasionLabel = occasion.value === 'Etwas anderes' ? customOccasion.value.trim() : occasion.value;
     const body = [
       'Guten Tag liebes Team der Wirtschaft Dornbirn,', '',
       'ich möchte unverbindlich eine Veranstaltung anfragen:',
-      `Anlass: ${occasion.value}`, `Ort: ${location.value}`, `Wunschtermin: ${formattedDate}`, `Ungefähre Gästezahl: ${guests.value}`, `Kulinarische Richtung: ${style.value}`,
+      `Anlass: ${occasionLabel}`, `Ort: ${location.value}`, `Wunschtermin: ${formattedDate}`, `Ungefähre Gästezahl: ${guests.value}`, `Kulinarische Richtung: ${style.value}`,
       `Name: ${name.value.trim()}`, `E-Mail: ${email.value.trim()}`, phone.value.trim() ? `Telefon: ${phone.value.trim()}` : '',
       message.value.trim() ? `Weitere Wünsche: ${message.value.trim()}` : '', '',
       'Bitte melden Sie sich für die persönliche Abstimmung bei mir.', '', 'Vielen Dank!'
     ].filter(Boolean).join('\n');
-    const mailto = `mailto:willkommen@wirtschaft-dornbirn.at?subject=${encodeURIComponent(`Anfrage ${occasion.value} · ${formattedDate}`)}&body=${encodeURIComponent(body)}`;
+    const mailto = `mailto:willkommen@wirtschaft-dornbirn.at?subject=${encodeURIComponent(`Anfrage ${occasionLabel} · ${formattedDate}`)}&body=${encodeURIComponent(body)}`;
     window.__LAST_INQUIRY_MAILTO__ = mailto;
     status.textContent = `Die Anfrage für ${guests.value} Gäste am ${formattedDate} wurde im E-Mail-Programm vorbereitet. Bitte dort noch absenden.`;
     if (!qaMode) window.location.href = mailto;

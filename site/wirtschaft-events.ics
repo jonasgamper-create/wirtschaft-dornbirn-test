@@ -1,0 +1,63 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+PRODID:-//Wirtschaft Dornbirn//Events//DE
+X-WR-CALNAME:Wirtschaft Dornbirn · Events
+X-WR-TIMEZONE:Europe/Vienna
+BEGIN:VEVENT
+UID:event-2026-09-03@wirtschaft-dornbirn.at
+DTSTAMP:20260805T120000Z
+DTSTART;TZID=Europe/Vienna:20260903T180000
+DTEND;TZID=Europe/Vienna:20260904T010000
+SUMMARY:Genussroute 6850
+DESCRIPTION:Dornbirner Genussabend · Tickets und Details: https://wirtschaft-dornbirn.at/event/genussroute-2026/
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+URL:https://wirtschaft-dornbirn.at/event/genussroute-2026/
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2026-09-22@wirtschaft-dornbirn.at
+DTSTAMP:20260805T120000Z
+DTSTART;TZID=Europe/Vienna:20260922T190000
+DTEND;TZID=Europe/Vienna:20260922T230000
+SUMMARY:Helden reisen\, Gäste speisen!
+DESCRIPTION:Dinner und Bühne · Tickets und Details: https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+URL:https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2026-09-23@wirtschaft-dornbirn.at
+DTSTAMP:20260805T120000Z
+DTSTART;TZID=Europe/Vienna:20260923T190000
+DTEND;TZID=Europe/Vienna:20260923T230000
+SUMMARY:Helden reisen\, Gäste speisen! – Zusatzabend
+DESCRIPTION:Dinner und Bühne · Tickets und Details: https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+URL:https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2026-10-14@wirtschaft-dornbirn.at
+DTSTAMP:20260805T120000Z
+DTSTART;TZID=Europe/Vienna:20261014T190000
+DTEND;TZID=Europe/Vienna:20261014T230000
+SUMMARY:Dinner & Comedy
+DESCRIPTION:Genuss trifft Humor · Tickets und Details: https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+URL:https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2026-10-15@wirtschaft-dornbirn.at
+DTSTAMP:20260805T120000Z
+DTSTART;TZID=Europe/Vienna:20261015T190000
+DTEND;TZID=Europe/Vienna:20261015T230000
+SUMMARY:Christof Spörk
+DESCRIPTION:Kabarett in der Wirtschaft · Tickets und Details: https://wirtschaft-dornbirn.at/event/spoerk-2026/
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+URL:https://wirtschaft-dornbirn.at/event/spoerk-2026/
+STATUS:TENTATIVE
+END:VEVENT
+END:VCALENDAR

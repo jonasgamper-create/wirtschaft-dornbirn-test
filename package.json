@@ -5,10 +5,14 @@
   "description": "Interaktiver Konzeptprototyp für die Wirtschaft Dornbirn",
   "scripts": {
     "build:motion": "esbuild src/motion-enhancements.js --bundle --minify --format=iife --target=es2020 --outfile=site/motion-enhancements.js",
-    "build": "npm run build:motion"
+    "build": "npm run build:motion",
+    "build:public": "node scripts/build-public.mjs",
+    "check:public": "node scripts/check-public-build.mjs",
+    "check:privacy": "node scripts/check-privacy.mjs",
+    "ci": "npm run build && npm run build:public && npm run check:public && npm run check:privacy",
+    "report:decision": "python3 scripts/build-decision-pdf.py"
   },
   "dependencies": {
-    "lenis": "^1.3.25",
     "motion": "^12.42.2"
   },
   "devDependencies": {

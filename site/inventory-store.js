@@ -19,13 +19,13 @@
       dinnerDefaultCapacity: 72
     },
     services: [
-      { id: `${localDate(0)}-1130`, date: localDate(0), time: '11:30', kind: 'Mittag', capacity: 48, reserved: 31 },
-      { id: `${localDate(0)}-1200`, date: localDate(0), time: '12:00', kind: 'Mittag', capacity: 48, reserved: 38 },
-      { id: `${localDate(0)}-1230`, date: localDate(0), time: '12:30', kind: 'Mittag', capacity: 48, reserved: 24 },
-      { id: `${localDate(0)}-1800`, date: localDate(0), time: '18:00', kind: 'Abend', capacity: 72, reserved: 39 },
-      { id: `${localDate(0)}-1930`, date: localDate(0), time: '19:30', kind: 'Abend', capacity: 72, reserved: 52 },
-      { id: `${localDate(1)}-1200`, date: localDate(1), time: '12:00', kind: 'Mittag', capacity: 48, reserved: 18 },
-      { id: `${localDate(1)}-1930`, date: localDate(1), time: '19:30', kind: 'Abend', capacity: 72, reserved: 45 }
+      { id: `${localDate(0)}-1130`, date: localDate(0), time: '11:30', kind: 'Mittag', capacity: 48, reserved: 31, tables: { 2: 8, 4: 6, 6: 2, 8: 1 } },
+      { id: `${localDate(0)}-1200`, date: localDate(0), time: '12:00', kind: 'Mittag', capacity: 48, reserved: 38, tables: { 2: 8, 4: 6, 6: 2, 8: 1 } },
+      { id: `${localDate(0)}-1230`, date: localDate(0), time: '12:30', kind: 'Mittag', capacity: 48, reserved: 24, tables: { 2: 8, 4: 6, 6: 2, 8: 1 } },
+      { id: `${localDate(0)}-1800`, date: localDate(0), time: '18:00', kind: 'Abend', capacity: 72, reserved: 39, tables: { 2: 10, 4: 8, 6: 3, 8: 2 } },
+      { id: `${localDate(0)}-1930`, date: localDate(0), time: '19:30', kind: 'Abend', capacity: 72, reserved: 52, tables: { 2: 10, 4: 8, 6: 3, 8: 2 } },
+      { id: `${localDate(1)}-1200`, date: localDate(1), time: '12:00', kind: 'Mittag', capacity: 48, reserved: 18, tables: { 2: 8, 4: 6, 6: 2, 8: 1 } },
+      { id: `${localDate(1)}-1930`, date: localDate(1), time: '19:30', kind: 'Abend', capacity: 72, reserved: 45, tables: { 2: 10, 4: 8, 6: 3, 8: 2 } }
     ],
     events: [
       { id: 'event-2026-09-03', date: '2026-09-03', name: 'Genussroute 6850', format: 'Dinner & Genuss', capacity: 120, sold: 76, ticketTypes: [{ name: 'Show only', sold: 26 }, { name: 'Dinner + Show', sold: 38 }, { name: 'Genussloge', sold: 12 }] },
@@ -72,13 +72,20 @@
         const date = safeDate(item && item.date);
         const time = safeTime(item && item.time);
         const capacity = safeNumber(item && item.capacity, 0, 5000, 0);
+        const tables = item && item.tables && typeof item.tables === 'object' ? item.tables : {};
         return {
           id: safeText(item && item.id, 80) || `${date}-${time.replace(':', '')}-${index}`,
           date,
           time,
           kind: safeText(item && item.kind, 24) || 'Mittag',
           capacity,
-          reserved: safeNumber(item && item.reserved, 0, capacity, 0)
+          reserved: safeNumber(item && item.reserved, 0, capacity, 0),
+          tables: {
+            2: safeNumber(tables[2], 0, 500, 0),
+            4: safeNumber(tables[4], 0, 500, 0),
+            6: safeNumber(tables[6], 0, 500, 0),
+            8: safeNumber(tables[8], 0, 500, 0)
+          }
         };
       }),
       events: eventsSource.slice(0, 150).map((item, index) => {
@@ -161,6 +168,10 @@
     return { limit, available: Math.max(0, limit - Number(service.reserved || 0)) };
   }
 
+  function tableSeats(tables) {
+    return [2, 4, 6, 8].reduce((sum, size) => sum + size * Number(tables?.[size] || 0), 0);
+  }
+
   function updateSettings(patch) {
     const state = load();
     state.settings = { ...state.settings, ...patch };
@@ -200,7 +211,8 @@
         time: payload.time,
         kind: lunch ? 'Mittag' : 'Abend',
         capacity: lunch ? state.settings.lunchDefaultCapacity : state.settings.dinnerDefaultCapacity,
-        reserved: 0
+        reserved: 0,
+        tables: lunch ? { 2: 8, 4: 6, 6: 2, 8: 1 } : { 2: 10, 4: 8, 6: 3, 8: 2 }
       };
       state.services.push(service);
     }
@@ -262,6 +274,7 @@
     reset,
     effectiveLimit,
     serviceAvailability,
+    tableSeats,
     updateSettings,
     updateService,
     updateEvent,
