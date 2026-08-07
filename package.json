@@ -7,9 +7,10 @@
     "build:motion": "esbuild src/motion-enhancements.js --bundle --minify --format=iife --target=es2020 --outfile=site/motion-enhancements.js",
     "build": "npm run build:motion",
     "build:public": "node scripts/build-public.mjs",
+    "check:event-data": "node scripts/check-event-data.mjs",
     "check:public": "node scripts/check-public-build.mjs",
     "check:privacy": "node scripts/check-privacy.mjs",
-    "ci": "npm run build && npm run build:public && npm run check:public && npm run check:privacy",
+    "ci": "npm run build && npm run check:event-data && npm run build:public && npm run check:public && npm run check:privacy",
     "report:decision": "python3 scripts/build-decision-pdf.py"
   },
   "dependencies": {
