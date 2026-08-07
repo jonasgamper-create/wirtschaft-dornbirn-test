@@ -13,7 +13,7 @@ ein separates Vercel-Projekt mit freigegebenem Public-Build verwendet.
 - Hauptseite mit Mittag, Reservierung und Veranstaltungen
 - Kalenderexport für Veranstaltungstermine
 - Hochzeiten, Geburtstage und Catering
-- aktive, vorbefüllte E-Mail-Anfragen für Tisch, Tickets und Catering
+- direkte offizielle Wege für Tischreservierung und Tickets sowie separate Catering-Anfrage
 - separates Gastgeber-Cockpit als nicht veröffentlichte interne Testquelle
 - ausschließlich die dafür benötigten lokalen Assets
 
@@ -71,4 +71,15 @@ funktioniert danach weiterhin als statische Website.
 - `docs/cost-model.md` – Planungswerte für 1, 10, 20 und 30 Kunden
 - `docs/decision-record-booking-stack-2026-08.md` – aktuelle Anbieterentscheidung
 - `docs/host-cockpit-architecture.md` – sichere Zielarchitektur für Kapazitäten und Gastgeberrollen
+- `docs/collaboration.md` – Live-Link, Zwei-Rechner-Workflow und sichere KI-Zusammenarbeit
+- `docs/production-readiness-dsgvo-seo.md` – verbindliche DSGVO-, Sicherheits- und SEO-/GEO-Freigabematrix
 - `output/pdf/wirtschaft-dornbirn-buchung-ticket-entscheidung-2026-08.pdf` – Entscheidungs- und Go-live-Pitch für Wolfgang
+
+## Aktuelle Links
+
+- [Live-Testseite](https://jonasgamper-create.github.io/wirtschaft-dornbirn-test/)
+- [GitHub-Projekt](https://github.com/jonasgamper-create/wirtschaft-dornbirn-test)
+
+Der öffentliche Link ist nur zum Anschauen. Für gemeinsame Änderungen benötigt
+die zweite Person eine Einladung zum Repository mit ihrem eigenen GitHub-Konto;
+ein Link allein gibt keine Schreibrechte.
