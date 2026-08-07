@@ -1,0 +1,57 @@
+{
+  "pdf": "/Users/jonasgamper/Documents/Webseiten/wirtschaft-dornbirn-test/output/pdf/wirtschaft-dornbirn-performance-audit-geo-ads-arnold-2026-08.pdf",
+  "checks": [
+    {
+      "check": "01 Seitenzahl",
+      "status": "PASS",
+      "evidence": "14 Seiten"
+    },
+    {
+      "check": "02 A4 quer",
+      "status": "PASS",
+      "evidence": "841.89 x 595.28 pt"
+    },
+    {
+      "check": "03 Metadaten",
+      "status": "PASS",
+      "evidence": "Wirtschaft Dornbirn - Performance-, GEO- und Conversion-Audit"
+    },
+    {
+      "check": "04 Textabdeckung",
+      "status": "PASS",
+      "evidence": "Alle Seiten enthalten Text."
+    },
+    {
+      "check": "05 Zehn Scrolltests",
+      "status": "PASS",
+      "evidence": "10 UX-/Scroll-Szenarien vorhanden."
+    },
+    {
+      "check": "06 Zehn A/B-Hypothesen",
+      "status": "PASS",
+      "evidence": "10 heuristische Varianten vorhanden."
+    },
+    {
+      "check": "07 Buchungsgrenze",
+      "status": "PASS",
+      "evidence": "Zahlungs- und Datenquellen sauber getrennt."
+    },
+    {
+      "check": "08 SEO/GEO",
+      "status": "PASS",
+      "evidence": "SEO-, Event- und Consent-Plan vorhanden."
+    },
+    {
+      "check": "09 Quellenlinks",
+      "status": "PASS",
+      "evidence": "8 klickbare Quellenanmerkungen"
+    },
+    {
+      "check": "10 Satzspiegel",
+      "status": "PASS",
+      "evidence": "Außerhalb: 0; zu klein: 0"
+    }
+  ],
+  "passed": 10,
+  "failed": 0
+}
