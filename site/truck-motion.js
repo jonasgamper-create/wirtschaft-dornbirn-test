@@ -20,7 +20,8 @@
   function render() {
     frame = 0;
     const travel = Math.max(1, hero.offsetHeight * .9);
-    const progress = clamp(window.scrollY / travel);
+    const scrollTop = document.scrollingElement?.scrollTop ?? window.scrollY;
+    const progress = clamp(scrollTop / travel);
     root.style.setProperty('--truck-progress', progress.toFixed(3));
     if (reduced.matches || document.body.classList.contains('motion-off')) {
       root.style.setProperty('--truck-progress', '0');
@@ -80,9 +81,10 @@
       return;
     }
     const rect = cateringSection.getBoundingClientRect();
-    const sectionTop = rect.top + window.scrollY;
+    const scrollTop = document.scrollingElement?.scrollTop ?? window.scrollY;
+    const sectionTop = rect.top + scrollTop;
     const travel = Math.max(1, cateringSection.offsetHeight * .7);
-    const progress = clamp((window.scrollY - sectionTop) / travel);
+    const progress = clamp((scrollTop - sectionTop) / travel);
     const x = -52 + smooth(progress / .9) * 190;
     const opacity = smooth(progress / .08) * (1 - smooth((progress - .84) / .14));
     const open = 0;
