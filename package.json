@@ -15,7 +15,8 @@
     "ci": "npm run build && npm run check:event-data && npm run check:copy && npm run check:optimization && npm run build:public && npm run check:public && npm run check:privacy",
     "report:decision": "bash scripts/run_pdf_tool.sh scripts/build-decision-pdf.py",
     "report:performance": "bash scripts/run_pdf_tool.sh scripts/build_performance_audit_pdf.py",
-    "qa:performance-pdf": "bash scripts/run_pdf_tool.sh scripts/qa_performance_audit_pdf.py"
+    "qa:performance-pdf": "bash scripts/run_pdf_tool.sh scripts/qa_performance_audit_pdf.py",
+    "social:canva": "node scripts/build-social-canva-drafts.mjs"
   },
   "dependencies": {
     "motion": "^12.42.2"
