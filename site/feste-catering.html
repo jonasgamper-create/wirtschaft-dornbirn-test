@@ -14,11 +14,12 @@
   <link rel="stylesheet" href="feste-catering.css?v=2">
   <link rel="stylesheet" href="feste-catering-legal.css?v=1">
   <script src="feste-catering.js?v=2" defer></script>
+  <script src="measurement-hooks.js?v=1" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#content">Zum Inhalt springen</a>
   <header class="event-header">
-    <a class="brand" href="entwurf-cinematic.html" aria-label="Zur Wirtschaft Dornbirn"><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"></a>
+    <a class="brand" href="index.html" aria-label="Zur Wirtschaft Dornbirn"><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"></a>
     <nav aria-label="Seitennavigation"><a href="#moeglichkeiten">Möglichkeiten</a><a href="#orte">Orte</a><a href="#ablauf">Ablauf</a></nav>
     <a class="header-cta" href="#anfrage">Anfrage starten</a>
   </header>
@@ -64,7 +65,7 @@
 
     <section class="inquiry section" id="anfrage" aria-labelledby="inquiryTitle">
       <div class="inquiry-intro"><p>Unverbindliche Anfrage</p><h2 id="inquiryTitle">Erzählt uns, was ihr vorhabt.</h2><p>Es müssen noch nicht alle Details feststehen. Pflichtfelder sind nur die Angaben, die einen sinnvollen ersten Kontakt ermöglichen.</p><div class="direct-contact"><span>Lieber direkt?</span><a href="tel:+43557220540">+43&nbsp;(0)5572&nbsp;20&nbsp;540</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a></div></div>
-      <form id="eventInquiryForm" novalidate>
+      <form id="eventInquiryForm" data-measurement-submit="catering_submit" novalidate>
         <div class="form-grid">
           <label>Anlass *<select id="occasion" name="occasion" required><option value="">Bitte wählen</option><option>Hochzeit</option><option>Privates Fest</option><option>Firmen- oder Kulturveranstaltung</option><option>Catering</option><option>Foodtruck &amp; mobile Bühne</option><option>Etwas anderes</option></select></label>
           <label>Gewünschter Ort *<select id="location" name="location" required><option value="">Bitte wählen</option><option>In der Wirtschaft Dornbirn</option><option>Im Kulturhaus Dornbirn</option><option>Bei uns vor Ort / Wunschlocation</option><option>Noch offen</option></select></label>
@@ -83,6 +84,6 @@
     </section>
   </main>
 
-  <footer><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"><p>Bahnhofstraße 24 · 6850 Dornbirn</p><nav class="footer-links" aria-label="Navigation im Seitenfuß"><a href="entwurf-cinematic.html">Zur Website</a><a href="impressum.html">Impressum</a><a href="datenschutz-sicherheit.html">Datenschutz</a></nav><p>Unverbindliche Anfrage · verbindlich erst nach persönlicher Bestätigung.</p></footer>
+  <footer><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"><p>Bahnhofstraße 24 · 6850 Dornbirn</p><nav class="footer-links" aria-label="Navigation im Seitenfuß"><a href="index.html">Zur Website</a><a href="impressum.html">Impressum</a><a href="datenschutz-sicherheit.html">Datenschutz</a></nav><p>Unverbindliche Anfrage · verbindlich erst nach persönlicher Bestätigung.</p></footer>
 </body>
 </html>

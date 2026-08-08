@@ -73,6 +73,7 @@ funktioniert danach weiterhin als statische Website.
 - `docs/host-cockpit-architecture.md` – sichere Zielarchitektur für Kapazitäten und Gastgeberrollen
 - `docs/collaboration.md` – Live-Link, Zwei-Rechner-Workflow und sichere KI-Zusammenarbeit
 - `docs/production-readiness-dsgvo-seo.md` – verbindliche DSGVO-, Sicherheits- und SEO-/GEO-Freigabematrix
+- `docs/optimization-audit-2026-08.md` – 50-Szenario-Review, A/B-Testplan und Messkonzept ohne aktives Tracking im Test
 - `output/pdf/wirtschaft-dornbirn-buchung-ticket-entscheidung-2026-08.pdf` – Entscheidungs- und Go-live-Pitch für Wolfgang
 
 ## Aktuelle Links
