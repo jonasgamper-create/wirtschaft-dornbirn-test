@@ -529,6 +529,15 @@ html{scroll-padding-top:calc(var(--bar-h) + 10px)}
 .lunch-dish b{font-family:Georgia,serif;font-size:17px;font-weight:400;white-space:nowrap}
 .lunch-dish small{grid-column:1/-1;color:#6a655c;font-size:12px}
 .lunch-day.is-today .lunch-dish span{font-size:22px}
+@media(max-width:900px){
+  .final-site .event-spotlight .event-ticket-link,
+  .final-site .event-spotlight>a,
+  .lunch-card-link,
+  .lunch-trust a,
+  .site-footer a,
+  .footer-links button{display:inline-flex;align-items:center;min-height:44px}
+  .lunch-trust a,.site-footer a{min-height:40px}
+}
 .ticket-detail{display:grid;gap:6px;padding:26px 0 4px}
 .ticket-detail-date{margin:0;color:var(--wine);font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
 .ticket-detail-title{margin:0;font-family:Georgia,serif;font-size:clamp(26px,3.4vw,38px);line-height:1.1}
