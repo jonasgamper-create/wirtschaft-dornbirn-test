@@ -515,6 +515,20 @@ html{scroll-padding-top:calc(var(--bar-h) + 10px)}
 .final-site .catering-scene-copy .eyebrow{color:var(--wine)}
 .final-site .chapter-table .eyebrow{color:var(--cream)}
 .final-site .scene-copy.centered .eyebrow{margin-bottom:26px}
+.final-site .chapter-lunch .scene-shell{height:auto;min-height:100svh;padding-bottom:72px}
+.final-site .chapter-lunch .lunch-card{margin-bottom:4vh}
+.lunch-menu{display:grid;gap:1px;margin:24px 0 4px;background:#1b171122}
+.lunch-menu article{display:grid;grid-template-columns:34px 1fr auto;gap:14px;align-items:center;padding:13px 2px;background:#eee8dc}
+.lunch-menu article span{color:var(--wine);font-size:11px;font-weight:800}
+.lunch-menu article h3{margin:0;font-family:Georgia,serif;font-size:19px;font-weight:400}
+.lunch-menu article p{margin:3px 0 0;color:#6a655c;font-size:12px}
+.lunch-menu article b{font-family:Georgia,serif;font-size:17px;font-weight:400}
+.lunch-party{justify-content:flex-start;margin:20px 0 22px}
+.lunch-party button{border-color:#1b171144;background:transparent;color:#181713}
+.lunch-party button:hover{background:#181713;color:#fff}
+.lunch-party button[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.lunch-trust{margin:20px 0 0;color:#6a655c;font-size:12px;line-height:1.6}
+.lunch-trust a{color:var(--green);font-weight:700;text-underline-offset:3px}
 .final-site .catering-options{display:grid;grid-template-columns:1fr auto;gap:10px 18px;padding:18px 20px;background:#f7f0e4;color:#211b16;box-shadow:0 18px 45px #3e271b26}
 .final-site .catering-options .eyebrow{grid-column:1/-1;margin:0;color:var(--wine)}
 .final-site .catering-options h3{margin:0;font-family:Georgia,serif;font-size:26px;font-weight:400;line-height:.95}

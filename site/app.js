@@ -234,6 +234,12 @@
     }
   });
 
+  const lunchMailLink = document.querySelector('[data-lunch-mail]');
+  document.querySelectorAll('[data-lunch-guests]').forEach(button => button.addEventListener('click', () => {
+    document.querySelectorAll('[data-lunch-guests]').forEach(other => other.setAttribute('aria-pressed', String(other === button)));
+    if (lunchMailLink) lunchMailLink.href = lunchMailLink.href.replace(/Personen%3A%20\d+/, `Personen%3A%20${button.dataset.lunchGuests}`);
+  }));
+
   Object.values(dialogs).forEach(dialog => {
     dialog?.addEventListener('click', event => {
       if (event.target === dialog) dialog.close();
