@@ -520,10 +520,12 @@ html{scroll-padding-top:0}
 .lunch-dish b{font-family:Georgia,serif;font-size:17px;font-weight:400;white-space:nowrap}
 .lunch-dish small{grid-column:1/-1;color:#57524a;font-size:12px}
 .lunch-day.is-today .lunch-dish span{font-size:22px}
-/* Tap- und Klickziele: mobil 44px, auf dem Desktop mindestens 28px. */
-.lunch-card-link,.lunch-trust a,.site-footer a,.footer-links button,
+/* Tap- und Klickziele: mobil 44px, auf dem Desktop mindestens 28px.
+   Der Footer bleibt blockweise gestapelt, deshalb dort flex statt inline-flex. */
+.lunch-card-link,.lunch-trust a,
 .final-site .event-spotlight .event-ticket-link,
 .final-site .event-spotlight>a{display:inline-flex;align-items:center;min-height:28px}
+.site-footer a,.site-footer button{display:flex;align-items:center;min-height:28px}
 @media(max-width:900px){
   .final-site .event-spotlight .event-ticket-link,
   .final-site .event-spotlight>a,
@@ -628,4 +630,12 @@ html{scroll-padding-top:0}
   .final-site .chapter-stage .scene-copy{margin-bottom:2vh}
   .final-site .event-spotlight article{padding:9px 14px}
   .final-site .chapter-stage .scene-shell{padding-bottom:14px}
+}
+
+/* Auf Mobilgeraeten laeuft die Fahrspur als eigener Streifen unter dem
+   Inhalt, sonst faehrt der Wagen hinter der Anfrage-Karte. */
+@media(max-width:900px){
+  .final-site .catering-scene{align-items:start;padding-bottom:28px}
+  .final-site .catering-truck-lane{position:relative;order:3;bottom:auto;height:196px;margin-top:14px}
+  .final-site .catering-truck-vehicle{top:50%}
 }
