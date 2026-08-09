@@ -56,7 +56,7 @@ a:focus-visible {
 }
 
 .top > a:last-child {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: .11em;
   text-decoration: none;
@@ -74,7 +74,7 @@ a:focus-visible {
 .kicker {
   margin: 0 0 22px;
   color: var(--wine);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: .17em;
   text-transform: uppercase;
@@ -113,7 +113,7 @@ h1 em { color: var(--wine); font-weight: 400; }
 }
 
 .summary article:last-child { border-right: 0; }
-.summary span { color: var(--wine); font-size: 9px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
+.summary span { color: var(--wine); font-size: 12px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
 .summary strong { display: block; margin-top: 55px; font-family: Georgia, serif; font-size: 27px; font-weight: 400; }
 .summary p { margin: 9px 0 0; font-size: 13px; line-height: 1.55; }
 
@@ -132,7 +132,7 @@ h1 em { color: var(--wine); font-weight: 400; }
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--paper-light);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: .08em;
   text-decoration: none;
@@ -185,7 +185,7 @@ h1 em { color: var(--wine); font-weight: 400; }
   padding: 0 19px;
   border: 1px solid var(--ink);
   border-radius: 999px;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: .1em;
   text-decoration: none;
@@ -202,7 +202,7 @@ footer {
   padding: 40px clamp(20px, 5vw, 80px);
   color: #c8beb3;
   background: #0d0b09;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
@@ -211,7 +211,7 @@ footer a { color: #fff; }
 
 @media (max-width: 760px) {
   .top { min-height: 66px; }
-  .top > a:last-child { font-size: 9px; }
+  .top > a:last-child { font-size: 12px; }
   .hero,
   .content { width: calc(100% - 32px); }
   .summary,
@@ -227,3 +227,9 @@ footer a { color: #fff; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
+
+/* Klick- und Tap-Ziele: mindestens 28px, mobil 44px. */
+a,button{min-height:28px}
+a:not([class]),.footer-links a,footer a{display:inline-flex;align-items:center}
+@media(max-width:900px){a:not([class]),.footer-links a,footer a,button{min-height:44px}}
+.legal-tap-fix{display:none}

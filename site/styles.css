@@ -528,13 +528,17 @@ html{scroll-padding-top:calc(var(--bar-h) + 10px)}
 .lunch-dish b{font-family:Georgia,serif;font-size:17px;font-weight:400;white-space:nowrap}
 .lunch-dish small{grid-column:1/-1;color:#57524a;font-size:12px}
 .lunch-day.is-today .lunch-dish span{font-size:22px}
+/* Tap- und Klickziele: mobil 44px, auf dem Desktop mindestens 28px. */
+.lunch-card-link,.lunch-trust a,.site-footer a,.footer-links button,
+.final-site .event-spotlight .event-ticket-link,
+.final-site .event-spotlight>a{display:inline-flex;align-items:center;min-height:28px}
 @media(max-width:900px){
   .final-site .event-spotlight .event-ticket-link,
   .final-site .event-spotlight>a,
   .lunch-card-link,
   .lunch-trust a,
   .site-footer a,
-  .footer-links button{display:inline-flex;align-items:center;min-height:44px}
+  .footer-links button{min-height:44px}
   .lunch-trust a,.site-footer a{min-height:40px}
 }
 .ticket-detail{display:grid;gap:6px;padding:26px 0 4px}
