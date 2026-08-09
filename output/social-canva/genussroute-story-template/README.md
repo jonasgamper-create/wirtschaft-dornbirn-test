@@ -5,7 +5,7 @@ Eine wiederverwendbare 9:16-Story im CI der Wirtschaft Dornbirn, ausgerichtet an
 ## Neue Story in drei Schritten
 
 1. Nur `event.json` kopieren und die Felder `title`, `date`, `time`, `location`, `kicker`, `facts`, `lead`, `cta`, `officialUrl` und `background` anpassen. Für einen Zeilenumbruch im Lead das Zeichen `|` verwenden, zum Beispiel `Fünf Orte.|Ein Abend.`. Das Hintergrundbild muss in `site/assets/` liegen.
-2. `npm run social:story` ausführen. Das erzeugt eine neue `story-preview.mp4` (1080 × 1920, 6 Sekunden), `story-cover.svg` und eine editierbare `story-template.html`.
+2. `npm run social:story` ausführen. Das erzeugt eine neue `story-preview.mp4` (1080 × 1920, 6 Sekunden), `story-cover.svg` und eine editierbare `story-template.html`. Der CTA verlinkt auf `officialUrl` und zeigt darunter `Nach oben wischen`.
 3. MP4 in Instagram Edits/Instagram öffnen und den Link-Sticker selbst setzen. Es wird nichts automatisch veröffentlicht.
 
 Die drei sicheren Textbereiche bleiben frei von der iPhone-Statusleiste, dem Profilbild und den Story-Stickern. Keine künstliche Verknappung oder erfundene Verfügbarkeiten verwenden.
