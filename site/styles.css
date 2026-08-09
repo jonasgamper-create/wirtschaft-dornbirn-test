@@ -17,8 +17,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 .experience-bar{position:absolute;z-index:700;top:3px;left:0;right:0;height:var(--bar-h);display:flex;align-items:center;gap:28px;padding:0 24px;border-bottom:1px solid #ffffff1d;background:#11110fdc;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .master-brand{display:flex;align-items:center;width:148px;height:44px;padding:7px 10px;border-radius:6px;background:var(--paper)}.master-brand img{width:100%;height:auto}.experience-bar p{margin:0;font-size:12px;letter-spacing:.06em;color:#bdbdb5}.experience-bar p strong{color:#fff}.experience-actions{margin-left:auto;display:flex;gap:9px;align-items:center}.icon-button,.primary-action,.experience-actions select{min-height:38px;border-radius:999px;border:1px solid #ffffff35;background:#ffffff0d;color:#fff;padding:0 15px;font-size:11px;letter-spacing:.08em;text-transform:uppercase}.primary-action{border-color:#fff;background:#fff;color:#111;font-weight:750}.mobile-select-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.experience-actions select{display:none}
-.concept-rail{position:fixed;z-index:650;top:50%;left:14px;max-height:calc(100svh - 92px);padding:2px;overflow-y:auto;transform:translateY(-50%);display:grid;gap:4px;scroll-behavior:smooth;scrollbar-width:none}.concept-rail::-webkit-scrollbar{display:none}.concept-rail a{display:flex;align-items:center;gap:10px;width:35px;height:35px;overflow:hidden;border:1px solid #ffffff28;border-radius:999px;background:#1119;text-decoration:none;transition:width .35s var(--ease),background .2s,color .2s}.concept-rail a span{display:grid;place-items:center;flex:0 0 33px;font-size:11.5px;font-weight:800}.concept-rail a b{white-space:nowrap;font-size:11px;text-transform:uppercase;letter-spacing:.08em}.concept-rail a:hover{width:120px;background:#fff;color:#111}.concept-rail a[aria-current="true"]{width:35px;background:#fff;color:#111;box-shadow:0 8px 40px #0004}
-main{scroll-snap-type:y proximity}.prologue,.concept-scene{position:relative;min-height:100svh;overflow:hidden;isolation:isolate;scroll-snap-align:start}.prologue{display:flex;align-items:flex-end;background:#10110f}.prologue-media,.scene-media,.duo-media,.poster-photo{position:absolute;z-index:-4;inset:0;width:100%;height:100%;object-fit:cover}.prologue-media{transform:scale(1.03);animation:slowZoom 16s ease-in-out alternate infinite}.prologue-shade,.media-shade{position:absolute;z-index:-3;inset:0;background:linear-gradient(90deg,#0d0f0eec 0%,#0d0f0e9b 50%,#0d0f0e2b 100%)}.prologue-shade:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#0d0f0efa,transparent 55%)}
+.concept-rail{position:fixed;z-index:650;top:50%;left:14px;max-height:calc(100svh - 92px);padding:2px;overflow-y:auto;transform:translateY(-50%);display:grid;gap:4px;scroll-behavior:smooth;scrollbar-width:none}.concept-rail::-webkit-scrollbar{display:none}.concept-rail a{display:flex;align-items:center;gap:10px;width:35px;height:35px;overflow:hidden;border:1px solid #ffffff28;border-radius:999px;background:#1119;text-decoration:none;transition:width .35s var(--ease),background .2s,color .2s}.concept-rail a span{display:grid;place-items:center;flex:0 0 33px;font-size:11.5px;font-weight:800}.concept-rail a b{white-space:nowrap;font-size:11px;text-transform:uppercase;letter-spacing:.08em}.concept-rail a:hover{width:120px;background:#fff;color:#111}.concept-rail a[aria-current="true"]{width:35px;background:#fff;color:#111;box-shadow:0 8px 40px #0004}.prologue,.concept-scene{position:relative;min-height:100svh;overflow:hidden;isolation:isolate}.prologue{display:flex;align-items:flex-end;background:#10110f}.prologue-media,.scene-media,.duo-media,.poster-photo{position:absolute;z-index:-4;inset:0;width:100%;height:100%;object-fit:cover}.prologue-media{transform:scale(1.03);animation:slowZoom 16s ease-in-out alternate infinite}.prologue-shade,.media-shade{position:absolute;z-index:-3;inset:0;background:linear-gradient(90deg,#0d0f0eec 0%,#0d0f0e9b 50%,#0d0f0e2b 100%)}.prologue-shade:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#0d0f0efa,transparent 55%)}
 .prologue-copy{width:min(850px,calc(100% - 64px));margin:0 max(7vw,70px) 9vh}.eyebrow{margin:0 0 18px;font-size:11px;font-weight:800;line-height:1.4;letter-spacing:.18em;text-transform:uppercase}.prologue h1{max-width:850px;margin:0;font-family:Georgia,serif;font-size:clamp(58px,8vw,122px);font-weight:400;line-height:.88;letter-spacing:-.06em}.prologue-copy>p:not(.eyebrow){max-width:650px;margin:28px 0 34px;color:#e2e2de;font-size:18px;line-height:1.6}.prologue-actions,.scene-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 20px;border:1px solid currentColor;border-radius:999px;background:transparent;text-decoration:none;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;transition:transform .25s var(--ease),background .25s,color .25s}.button:hover{transform:translateY(-3px)}.button-light{background:#fff;color:#111;border-color:#fff}.button-dark{background:#111;color:#fff;border-color:#111}.button-ghost{color:#fff}.button-warm{background:var(--cream);color:#211610;border-color:var(--cream)}.button-green{background:var(--green);color:#fff;border-color:var(--green)}.button-orange{background:var(--orange);color:#111;border-color:var(--orange)}.button-gold{background:var(--gold);color:#1f1510;border-color:var(--gold)}.button-lime{background:var(--lime);color:#111;border-color:var(--lime)}
 .button-coral{background:#ff725e;color:#17110f;border-color:#ff725e}.button-champagne{background:#e7d5b5;color:#1e1913;border-color:#e7d5b5}.button-signal{background:#ffeb3d;color:#15120e;border-color:#ffeb3d}
 .scroll-cue{position:absolute;right:5vw;bottom:7vh;display:grid;justify-items:center;gap:10px;color:#d7d8d2;text-decoration:none;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase}.scroll-cue i{display:block;width:1px;height:54px;background:linear-gradient(#fff,transparent);animation:scrollCue 1.7s ease-in-out infinite}
@@ -113,11 +112,10 @@ body.artifact-ticket-focus .scroll-ticket{opacity:1}body.artifact-ticket-focus .
 @media(prefers-reduced-motion:reduce){.final-prologue:before,.luxury-reveal,.luxury-reveal{opacity:1}.final-chapter:after{opacity:.16}.final-chapter:before{transform:none}.button.final-chapter .eyebrow:before,.final-prologue .eyebrow:before{animation:none}}
 
 /* High-end hospitality pass — faster scroll response and immediate event discovery */
-html{scroll-padding-top:0;scroll-snap-type:y proximity}
-.prologue,.concept-scene,.catering-scene{scroll-snap-align:start;scroll-snap-stop:normal}
+html{scroll-padding-top:0}
+
 .hero-event-pulse{display:flex;align-items:center;justify-content:space-between;gap:28px;width:min(610px,100%);margin-top:20px;padding:13px 0;border:0;border-top:1px solid #ffffff33;border-bottom:1px solid #ffffff1f;background:transparent;color:#fff;text-align:left}.hero-event-pulse>span{display:grid;gap:4px}.hero-event-pulse small{color:#d6b772;font-size:11px;font-weight:850;letter-spacing:.17em;text-transform:uppercase}.hero-event-pulse strong{font-family:Georgia,serif;font-size:15px;font-weight:400;letter-spacing:.01em}.hero-event-pulse>b{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:11.5px;letter-spacing:.11em;text-transform:uppercase}.hero-event-pulse i{font-family:Georgia,serif;font-size:16px;font-style:normal;transition:transform .3s var(--ease)}.hero-event-pulse:hover i{transform:translate(4px,-4px)}
 .final-site .scroll-artifacts{display:none}
-@media(hover:none),(pointer:coarse){}
 @media(max-width:900px){.scroll-artifacts{display:none}}
 @media(max-width:700px){.hero-event-pulse{display:none}}
 @media(max-width:520px){.experience-actions .primary-action{display:none}.experience-actions{margin-left:auto}}
@@ -183,7 +181,6 @@ html{scroll-padding-top:0;scroll-snap-type:y proximity}
 .final-site .service-status em{color:#c9c1b6;font-size:11.5px;font-style:normal;letter-spacing:.04em}
 @media(max-width:520px){.final-site .service-status{margin-top:14px;padding:10px 11px}.final-site .service-status strong{font-size:15px}.final-site .service-status em{font-size:11.5px}}
 @media(max-width:900px){.final-site .site-nav{display:none}.final-site #ticketDialog .dialog-frame{padding:20px}.final-site #ticketDialog .ticket-list{grid-template-columns:1fr}.final-site #ticketDialog .ticket-list button{min-height:72px}.final-site #ticketDialog .ticket-list b{font-size:20px}.final-site #ticketDialog .ticket-list small{margin-top:2px}}
-@media(max-width:900px){}
 
 /* Three guest paths on the right: lunch, evening events, celebrations */
 @media(min-width:901px){
@@ -207,11 +204,6 @@ html{scroll-padding-top:0;scroll-snap-type:y proximity}
 
 /* Kleine, scroll-reaktive Event-Motive statt großer, dekorativer Bildrahmen. */
 .instrument-frames{display:none!important}
-
-
-
-.event-mini-live .event-mini-dinner .event-mini-comedy 
-.motion-off .motion-off @media(prefers-reduced-motion:reduce){}@media(max-width:900px){}@media(max-width:520px){}
 
 @media(min-width:901px){.final-site .scroll-ticket:hover,.final-site .scroll-plate:hover{border-color:var(--theme-accent);box-shadow:0 20px 62px #0008,0 0 0 1px color-mix(in srgb,var(--theme-accent) 30%,transparent)}.final-site .artifact-label small{color:color-mix(in srgb,var(--theme-accent) 86%,white)}}
 
@@ -275,7 +267,7 @@ html{scroll-padding-top:0;scroll-snap-type:y proximity}
 @media(prefers-reduced-motion:reduce){.final-site .hero-arrival{transform:none!important;opacity:1!important;will-change:auto;transition:none}.final-site .hero-arrival-vehicle{filter:drop-shadow(0 18px 24px #0007)}}
 
 /* Scroll-film: three original stills are blended and panned like a short concert cut. */
-.chapter-stage .scene-shell{position:relative;z-index:3}.chapter-stage .instrument-frames{z-index:1}.motion-off .motion-off .stage-video-frame,.motion-off @media(prefers-reduced-motion:reduce){.stage-video-frame,}@media(max-width:900px){.chapter-stage .instrument-frames{z-index:1}}@media(max-width:520px){}
+.chapter-stage .scene-shell{position:relative;z-index:3}.chapter-stage .instrument-frames{z-index:1}.motion-off .motion-off .stage-video-frame,.motion-off @media(prefers-reduced-motion:reduce){.stage-video-frame,}@media(max-width:900px){.chapter-stage .instrument-frames{z-index:1}}
 
 /* A full-width scroll reel: the page pins while the house story cuts horizontally through three scenes. */
 /* Guest-first order: events immediately after the hero, lunch and reservation next. */
@@ -613,11 +605,7 @@ html{scroll-padding-top:0;scroll-snap-type:y proximity}
   .final-site .hero-arrival-wheel{display:none!important}
 }
 
-/* Snapping nur, solange eine Sektion in den Bildschirm passt. Auf kurzen
-   Fenstern und bei Reduced Motion bleibt das Scrollen frei. */
-@media(hover:none),(pointer:coarse){html{scroll-snap-type:y proximity}}
-@media(max-height:779px){html{scroll-snap-type:none}}
-@media(prefers-reduced-motion:reduce){html{scroll-snap-type:none}}
+
 
 /* Auf Mobilgeraeten sitzt die Terminliste direkt unter dem Text, damit die
    Sektion in einen Bildschirm passt und sauber einrasten kann. */
