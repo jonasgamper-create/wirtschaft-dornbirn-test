@@ -19,7 +19,6 @@
 
   const root = document.documentElement;
   const body = document.body;
-  const progress = document.getElementById('scrollProgress');
   const conceptRail = document.querySelector('.concept-rail');
   const railLinks = [...document.querySelectorAll('.concept-rail a')];
   // The final guest flow intentionally keeps the heritage/host chapters out
@@ -62,7 +61,7 @@
 
   const fallbackEventData = {
     version: 1,
-    updatedAt: '2026-08-06T12:00:00+02:00',
+    updatedAt: '2026-08-09T19:35:00+02:00',
     maxAgeHours: 48,
     sourceUrl: 'https://wirtschaft-dornbirn.at/event/',
     pause: { label: 'Sommerpause', start: '2026-07-24', end: '2026-08-23', reopen: '2026-08-24' },
@@ -70,8 +69,13 @@
       { id: 'event-2026-09-03', date: '2026-09-03', title: 'Genussroute 6850', type: 'Dornbirner Genussabend', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/genussroute-2026/' },
       { id: 'event-2026-09-22', date: '2026-09-22', title: 'Helden reisen, Gäste speisen!', type: 'Dinner & Bühne', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/' },
       { id: 'event-2026-09-23', date: '2026-09-23', title: 'Helden reisen, Gäste speisen! – Zusatzabend', type: 'Dinner & Bühne', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/' },
-      { id: 'event-2026-10-14', date: '2026-10-14', title: 'Dinner & Comedy', type: 'Genuss trifft Humor', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/' },
-      { id: 'event-2026-10-15', date: '2026-10-15', title: 'Christof Spörk', type: 'Kabarett in der Wirtschaft', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/spoerk-2026/' }
+      { id: 'event-2026-10-14', date: '2026-10-14', title: 'Dinner & Comedy', type: 'Genuss trifft Humor', status: 'waitlist', officialUrl: 'https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/' },
+      { id: 'event-2026-10-15', date: '2026-10-15', title: 'Christof Spörk', type: 'Kabarett in der Wirtschaft', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/spoerk-2026/' },
+      { id: 'event-2026-10-21', date: '2026-10-21', title: 'Maria Neuschmid & Stefan Vögel', type: 'Kabarett in der Wirtschaft', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/neuschmid-voegel-02-2026/' },
+      { id: 'event-2026-10-22', date: '2026-10-22', title: 'Rock4 – A Cappella', type: 'The Music of Queen · A cappella', status: 'waitlist', officialUrl: 'https://wirtschaft-dornbirn.at/event/rock4-2026/' },
+      { id: 'event-2026-10-27', date: '2026-10-27', title: 'Mathias Kellner', type: 'Lieder & Kabarett', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/kellner-2026/' },
+      { id: 'event-2026-11-11', date: '2026-11-11', title: 'Dinner & Comedy', type: 'Genuss trifft Humor', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/dinner-comedy-05-2026/' },
+      { id: 'event-2026-11-18', date: '2026-11-18', title: "Philipp Lingg's Musikzimmer", type: 'Das musikalische Blind Date', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/philippsmusikzimmer-02-2026/' }
     ]
   };
   let eventData = fallbackEventData;
@@ -99,7 +103,7 @@
     const paused = todayIso >= pauseStart && todayIso <= pauseUntil;
     const nextLabel = paused ? pause.label || 'Sommerpause' : 'Geöffnet';
     const reopen = pause.reopen ? formatEventDate(pause.reopen) : 'bald';
-    const nextDetail = paused ? `Ab ${reopen} wieder geöffnet` : 'Tagesmenü · Tisch · Abendprogramm';
+    const nextDetail = paused ? `Ab ${reopen} wieder geöffnet` : 'Mittagstisch · Abendevents';
     const label = statusLabel || serviceStatus.querySelector('strong');
     const detail = statusDetail || serviceStatus.querySelector('em');
     if (label) label.textContent = nextLabel;
@@ -122,15 +126,6 @@
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
-  scenes.forEach(scene => {
-    if (scene.querySelector('.motion-ribbon')) return;
-    const ribbon = document.createElement('span');
-    ribbon.className = 'motion-ribbon';
-    ribbon.setAttribute('aria-hidden', 'true');
-    ribbon.innerHTML = '<i></i><i></i>';
-    scene.append(ribbon);
-  });
-
   function refreshChapterBounds() {
     const firstScene = scenes[0];
     const lastScene = scenes[scenes.length - 1];
@@ -142,22 +137,12 @@
   refreshChapterBounds();
 
   if (body.classList.contains('final-site')) {
-    const cinematicOverlay = document.createElement('div');
-    cinematicOverlay.className = 'cinematic-overlay';
-    cinematicOverlay.setAttribute('aria-hidden', 'true');
-    cinematicOverlay.innerHTML = '<span class="cinematic-grain"></span><span class="cinematic-vignette"></span><span class="cinematic-glow"></span>';
-    body.append(cinematicOverlay);
-
     const staggerGroups = document.querySelectorAll('.prologue-copy, .scene-copy, .decision-copy');
     staggerGroups.forEach(group => {
       [...group.children].forEach((child, index) => {
         child.classList.add('luxury-reveal');
         child.style.setProperty('--reveal-order', Math.min(index, 6));
       });
-    });
-
-    document.querySelectorAll('.lunch-card, .day-signal, .next-event, .decision-grid button').forEach(card => {
-      card.classList.add('depth-card');
     });
 
     requestAnimationFrame(() => requestAnimationFrame(() => body.classList.add('deluxe-ready')));
@@ -229,6 +214,12 @@
     }
   });
 
+  const lunchMailLink = document.querySelector('[data-lunch-mail]');
+  document.querySelectorAll('[data-lunch-guests]').forEach(button => button.addEventListener('click', () => {
+    document.querySelectorAll('[data-lunch-guests]').forEach(other => other.setAttribute('aria-pressed', String(other === button)));
+    if (lunchMailLink) lunchMailLink.href = lunchMailLink.href.replace(/Personen%3A%20\d+/, `Personen%3A%20${button.dataset.lunchGuests}`);
+  }));
+
   Object.values(dialogs).forEach(dialog => {
     dialog?.addEventListener('click', event => {
       if (event.target === dialog) dialog.close();
@@ -242,14 +233,13 @@
   function updateScrollEffects(visualScrollY = smoothedScrollY) {
     const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     const globalProgress = Math.max(0, Math.min(1, visualScrollY / max));
-    progress.style.transform = `scaleX(${globalProgress})`;
     root.style.setProperty('--global-scroll', globalProgress.toFixed(5));
-    root.style.setProperty('--ticket-lift', `${Math.sin(globalProgress * Math.PI * 5) * 14}px`);
-    root.style.setProperty('--ticket-turn', `${-5 + globalProgress * 12}deg`);
-    root.style.setProperty('--plate-lift', `${Math.cos(globalProgress * Math.PI * 4) * 11}px`);
-    root.style.setProperty('--plate-spin', `${globalProgress * 620}deg`);
-    root.style.setProperty('--celebration-lift', `${Math.sin(globalProgress * Math.PI * 6) * 8}px`);
-    root.style.setProperty('--celebration-turn', `${globalProgress * 760}deg`);
+    root.style.setProperty('--ticket-lift', '0px');
+    root.style.setProperty('--ticket-turn', '0deg');
+    root.style.setProperty('--plate-lift', '0px');
+    root.style.setProperty('--plate-spin', '0deg');
+    root.style.setProperty('--celebration-lift', '0px');
+    root.style.setProperty('--celebration-turn', '0deg');
     body.classList.toggle('page-scrolled', visualScrollY > 36);
     const beforeChapters = scenes.length && visualScrollY < chapterBounds.firstTop - window.innerHeight * .58;
     const afterChapters = scenes.length && visualScrollY > chapterBounds.lastBottom - window.innerHeight * .12;
@@ -275,11 +265,11 @@
         const travel = Math.max(1, height + window.innerHeight);
         const progressInSection = Math.max(0, Math.min(1, (window.innerHeight - top) / travel));
         const direction = section.dataset.zoom === 'out' ? -1 : 1;
-        const zoom = 1.055 + direction * (progressInSection - .5) * .07;
+        const zoom = 1.02 + direction * (progressInSection - .5) * .018;
         section.style.setProperty('--scene-progress', progressInSection.toFixed(4));
         section.style.setProperty('--scene-zoom', zoom.toFixed(4));
         section.style.setProperty('--zoom', zoom.toFixed(4));
-        section.style.setProperty('--family-shift', `${(progressInSection - .5) * -34}px`);
+        section.style.setProperty('--family-shift', `${(progressInSection - .5) * -10}px`);
       });
       scenes.forEach(scene => {
         const top = scene.offsetTop - visualScrollY;
@@ -292,17 +282,17 @@
           const sceneFocus = Math.max(0, Math.min(1, 1 - centerDistance / (window.innerHeight * .92)));
           scene.style.setProperty('--scene-local', local.toFixed(4));
           scene.style.setProperty('--scene-focus', sceneFocus.toFixed(4));
-          scene.style.setProperty('--number-shift', `${(local - .5) * -46}px`);
+          scene.style.setProperty('--number-shift', `${(local - .5) * -14}px`);
           scene.style.setProperty('--ribbon-shift', `${(local - .5) * 110}px`);
           scene.style.setProperty('--ribbon-turn', `${-9 + local * 18}deg`);
-          scene.style.setProperty('--camera-pan', `${(local - .5) * -96}px`);
-          scene.style.setProperty('--film-shift', `${(local - .5) * -34}vw`);
-          scene.style.setProperty('--lens-scale', (1.02 + local * .12).toFixed(4));
-          scene.style.setProperty('--aperture-scale', (1.1 - local * .08).toFixed(4));
-          scene.style.setProperty('--credits-shift', `${(local - .5) * -84}px`);
-          scene.style.setProperty('--orbit-turn', `${-18 + local * 36}deg`);
-          scene.style.setProperty('--instrument-shift', `${(local - .5) * -92}px`);
-          scene.style.setProperty('--instrument-zoom', (1.16 - local * .18).toFixed(4));
+          scene.style.setProperty('--camera-pan', `${(local - .5) * -26}px`);
+          scene.style.setProperty('--film-shift', `${(local - .5) * -10}vw`);
+          scene.style.setProperty('--lens-scale', (1.01 + local * .03).toFixed(4));
+          scene.style.setProperty('--aperture-scale', (1.03 - local * .02).toFixed(4));
+          scene.style.setProperty('--credits-shift', `${(local - .5) * -24}px`);
+          scene.style.setProperty('--orbit-turn', `${-5 + local * 10}deg`);
+          scene.style.setProperty('--instrument-shift', `${(local - .5) * -26}px`);
+          scene.style.setProperty('--instrument-zoom', (1.04 - local * .05).toFixed(4));
           if (scene.classList.contains('chapter-stage')) {
             const focusPulse = Math.max(0, 1 - Math.abs(local - .54) * 3.2);
             scene.style.setProperty('--video-progress', local.toFixed(4));
@@ -313,7 +303,7 @@
           }
           const normalized = (top + height / 2 - window.innerHeight / 2) / window.innerHeight;
           scene.querySelectorAll('.parallax-media').forEach(media => {
-            media.style.setProperty('--parallax', `${normalized * -26}px`);
+            media.style.setProperty('--parallax', `${normalized * -8}px`);
           });
         }
       });
@@ -488,55 +478,6 @@
     jumpTo(document.getElementById(mobileSelect.value));
   });
 
-  document.querySelectorAll('.concept-scene').forEach(scene => {
-    scene.addEventListener('pointermove', event => {
-      if (event.pointerType === 'touch') return;
-      const rect = scene.getBoundingClientRect();
-      scene.style.setProperty('--mx', `${event.clientX - rect.left}px`);
-      scene.style.setProperty('--my', `${event.clientY - rect.top}px`);
-    }, { passive: true });
-  });
-
-  if (body.classList.contains('final-site') && matchMedia('(hover:hover) and (pointer:fine)').matches) {
-    document.querySelectorAll('.button, .primary-action, .icon-button, .text-action').forEach(target => {
-      target.classList.add('magnetic-action');
-      target.addEventListener('pointermove', event => {
-        if (body.classList.contains('motion-off')) return;
-        const rect = target.getBoundingClientRect();
-        const x = (event.clientX - rect.left - rect.width / 2) * .11;
-        const y = (event.clientY - rect.top - rect.height / 2) * .16;
-        target.style.setProperty('--magnet-x', `${x.toFixed(2)}px`);
-        target.style.setProperty('--magnet-y', `${y.toFixed(2)}px`);
-      }, { passive: true });
-      target.addEventListener('pointerleave', () => {
-        target.style.setProperty('--magnet-x', '0px');
-        target.style.setProperty('--magnet-y', '0px');
-      }, { passive: true });
-    });
-
-    document.querySelectorAll('.depth-card').forEach(card => {
-      card.addEventListener('pointermove', event => {
-        if (body.classList.contains('motion-off')) return;
-        const rect = card.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / rect.width - .5;
-        const y = (event.clientY - rect.top) / rect.height - .5;
-        card.style.setProperty('--card-rx', `${(-y * 2.2).toFixed(2)}deg`);
-        card.style.setProperty('--card-ry', `${(x * 2.8).toFixed(2)}deg`);
-        card.style.setProperty('--card-light-x', `${((x + .5) * 100).toFixed(1)}%`);
-        card.style.setProperty('--card-light-y', `${((y + .5) * 100).toFixed(1)}%`);
-      }, { passive: true });
-      card.addEventListener('pointerleave', () => {
-        card.style.setProperty('--card-rx', '0deg');
-        card.style.setProperty('--card-ry', '0deg');
-      }, { passive: true });
-    });
-
-    window.addEventListener('pointermove', event => {
-      root.style.setProperty('--cursor-x', `${event.clientX}px`);
-      root.style.setProperty('--cursor-y', `${event.clientY}px`);
-    }, { passive: true });
-  }
-
   function setMotionOff(off) {
     body.classList.toggle('motion-off', off);
     if (motionToggle) {
@@ -710,10 +651,6 @@
   }));
   document.getElementById('allEventsCalendar')?.addEventListener('click', () => exportCalendar(calendarEvents, 'wirtschaft-dornbirn-events-2026.ics'));
 
-  const ticketButtons = [...document.querySelectorAll('.ticket-list button')];
-  const quantityOutput = document.getElementById('ticketQuantity');
-  const ticketTotal = document.getElementById('ticketTotal');
-  const ticketMessage = document.getElementById('ticketMessage');
   const ticketEvent = document.getElementById('ticketEvent');
   ticketEvent?.addEventListener('change', syncOfficialTicketLink);
   syncOfficialTicketLink();
@@ -723,35 +660,23 @@
     const event = calendarEvents.find(item => item.id === ticketEvent?.value);
     if (event) exportCalendar([event], `${event.id}.ics`);
   });
-  let selectedTicket = ticketButtons[0]?.dataset.ticket || 'Show only';
-  let selectedPrice = Number(ticketButtons[0]?.dataset.price || 39);
-  let ticketQuantity = 2;
-
-  function renderTicketTotal() {
-    quantityOutput.textContent = ticketQuantity;
-    ticketTotal.textContent = `${selectedPrice * ticketQuantity} €`;
+  const ticketDetail = document.querySelector('[data-ticket-detail]');
+  function renderTicketDetail() {
+    if (!ticketDetail) return;
+    const event = calendarEvents.find(item => item.id === ticketEvent?.value);
+    if (!event) { ticketDetail.innerHTML = ''; return; }
+    const statusNote = {
+      waitlist: 'Für diesen Abend führt der Veranstalter eine Warteliste.',
+      sold_out: 'Dieser Abend ist ausverkauft.',
+      cancelled: 'Dieser Termin wurde abgesagt.'
+    }[event.status] || '';
+    ticketDetail.innerHTML = `<p class="ticket-detail-date">${escapeHtml(formatEventDate(event.date))} · ${escapeHtml(event.type)}</p>
+      <p class="ticket-detail-title">${escapeHtml(event.title)}</p>
+      ${statusNote ? `<p class="ticket-detail-status">${escapeHtml(statusNote)}</p>` : ''}
+      <p class="ticket-detail-note">Tarife und Einlasszeiten stehen auf der offiziellen Eventseite.</p>`;
   }
-
-  ticketButtons.forEach(button => button.addEventListener('click', () => {
-    ticketButtons.forEach(item => {
-      const selected = item === button;
-      item.classList.toggle('selected', selected);
-      item.setAttribute('aria-checked', String(selected));
-    });
-    selectedTicket = button.dataset.ticket;
-    selectedPrice = Number(button.dataset.price);
-    renderTicketTotal();
-  }));
-
-  document.getElementById('ticketMinus')?.addEventListener('click', () => {
-    ticketQuantity = Math.max(1, ticketQuantity - 1);
-    renderTicketTotal();
-  });
-  document.getElementById('ticketPlus')?.addEventListener('click', () => {
-    ticketQuantity = Math.min(10, ticketQuantity + 1);
-    renderTicketTotal();
-  });
-  renderTicketTotal();
+  ticketEvent?.addEventListener('change', renderTicketDetail);
+  renderTicketDetail();
   document.querySelectorAll('a[href="#impressum"]').forEach(link => {
     link.addEventListener('click', () => reportStudy('imprint_click', { concept: body.dataset.concept || requestedConcept || '01' }));
   });
@@ -796,5 +721,47 @@
       }
       window.__APP_ERRORS__.push({ type: 'event-data', message: error.message });
     });
+  const lunchMenu = document.querySelector('[data-lunch-menu]');
+  const lunchCardLink = document.querySelector('[data-lunch-card]');
+  const weekdayName = date => new Intl.DateTimeFormat('de-AT', { weekday: 'long' }).format(new Date(`${date}T12:00:00`));
+
+  function renderLunchMenu(data) {
+    if (!lunchMenu) return;
+    if (lunchCardLink && data.card?.file) {
+      lunchCardLink.href = data.card.file;
+      lunchCardLink.firstChild.textContent = `${data.card.label || 'Mittagskarte (PDF)'} `;
+    }
+    lunchCardLink?.toggleAttribute('hidden', !data.card?.file);
+    const days = Array.isArray(data.days) ? [...data.days].sort((a, b) => a.date.localeCompare(b.date)) : [];
+    if (data.status === 'pause' || !days.length) {
+      lunchMenu.innerHTML = `<p class="lunch-note">${escapeHtml(data.pauseNote || 'Die aktuelle Karte findet ihr im PDF.')}</p>`;
+      return;
+    }
+    const today = new Date();
+    const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const upcoming = days.filter(day => day.date >= todayIso);
+    const shown = (upcoming.length ? upcoming : days.slice(-1)).slice(0, 5);
+    lunchMenu.innerHTML = shown.map((day, index) => {
+      const isToday = day.date === todayIso;
+      const dishes = (day.dishes || []).map(dish =>
+        `<p class="lunch-dish"><span>${escapeHtml(dish.title)}</span>${dish.price ? `<b>${escapeHtml(dish.price)}</b>` : ''}${dish.detail ? `<small>${escapeHtml(dish.detail)}</small>` : ''}</p>`
+      ).join('');
+      return `<article class="lunch-day${isToday ? ' is-today' : ''}"${index === 0 ? ' data-lunch-lead' : ''}>
+        <h3>${isToday ? 'Heute' : escapeHtml(weekdayName(day.date))}</h3>
+        ${dishes || '<p class="lunch-dish"><span>Karte folgt</span></p>'}
+      </article>`;
+    }).join('');
+  }
+
+  fetch('data/lunch-menu.json', { cache: 'no-store' })
+    .then(response => {
+      if (!response.ok) throw new Error(`Mittagskarte konnte nicht geladen werden (${response.status})`);
+      return response.json();
+    })
+    .then(renderLunchMenu)
+    .catch(error => {
+      window.__APP_ERRORS__.push({ type: 'lunch-menu', message: error.message });
+    });
+
   reportStudy('page_ready', { concept: initialScene?.dataset.concept || requestedConcept || '01', viewport: { width: window.innerWidth, height: window.innerHeight } });
 })();

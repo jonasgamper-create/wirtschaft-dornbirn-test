@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-06T12:00:00+02:00",
+  "updatedAt": "2026-08-09T19:35:00+02:00",
   "maxAgeHours": 48,
   "sourceUrl": "https://wirtschaft-dornbirn.at/event/",
   "pause": {
@@ -39,7 +39,7 @@
       "title": "Dinner & Comedy",
       "date": "2026-10-14",
       "type": "Genuss trifft Humor",
-      "status": "scheduled",
+      "status": "waitlist",
       "officialUrl": "https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/"
     },
     {
@@ -49,6 +49,46 @@
       "type": "Kabarett in der Wirtschaft",
       "status": "scheduled",
       "officialUrl": "https://wirtschaft-dornbirn.at/event/spoerk-2026/"
+    },
+    {
+      "id": "event-2026-10-21",
+      "title": "Maria Neuschmid & Stefan Vögel",
+      "date": "2026-10-21",
+      "type": "Kabarett in der Wirtschaft",
+      "status": "scheduled",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/neuschmid-voegel-02-2026/"
+    },
+    {
+      "id": "event-2026-10-22",
+      "title": "Rock4 – A Cappella",
+      "date": "2026-10-22",
+      "type": "The Music of Queen · A cappella",
+      "status": "waitlist",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/rock4-2026/"
+    },
+    {
+      "id": "event-2026-10-27",
+      "title": "Mathias Kellner",
+      "date": "2026-10-27",
+      "type": "Lieder & Kabarett",
+      "status": "scheduled",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/kellner-2026/"
+    },
+    {
+      "id": "event-2026-11-11",
+      "title": "Dinner & Comedy",
+      "date": "2026-11-11",
+      "type": "Genuss trifft Humor",
+      "status": "scheduled",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/dinner-comedy-05-2026/"
+    },
+    {
+      "id": "event-2026-11-18",
+      "title": "Philipp Lingg's Musikzimmer",
+      "date": "2026-11-18",
+      "type": "Das musikalische Blind Date",
+      "status": "scheduled",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/philippsmusikzimmer-02-2026/"
     }
   ]
 }

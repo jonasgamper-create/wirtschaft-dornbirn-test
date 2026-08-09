@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "updatedAt": "2026-08-09T20:10:00+02:00",
+  "status": "pause",
+  "serviceWindow": "Montag bis Freitag · 11:30–13:30",
+  "reservationUrl": "https://tischreservierung.wirtschaft-dornbirn.at/",
+  "sourceUrl": "https://wirtschaft-dornbirn.at/",
+  "pauseNote": "Sommerpause bis 23. August. Ab Montag, 24. August kochen wir wieder mittags.",
+  "card": {
+    "file": "downloads/mittagskarte/2026-07-24_mittagskarte-sommerpause.pdf",
+    "label": "Aktuelle Mittagskarte (PDF)",
+    "sourceUrl": "https://wirtschaft-dornbirn.at/wp-content/uploads/2026/07/mittagskarte_sommerurlaub_2026.pdf",
+    "fetchedAt": "2026-08-09"
+  },
+  "days": []
+}

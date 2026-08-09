@@ -21,7 +21,7 @@
 
   function render() {
     frame = 0;
-    const travel = Math.max(1, hero.offsetHeight * .9);
+    const travel = Math.max(1, hero.offsetHeight * 1.45);
     const scrollTop = document.scrollingElement?.scrollTop ?? window.scrollY;
     const progress = clamp(scrollTop / travel);
     root.style.setProperty('--truck-progress', progress.toFixed(3));
@@ -48,12 +48,12 @@
     // and keeps moving left-to-right throughout the hero scroll range.
     const pass = smooth(progress / .82);
     const x = -6 + pass * 136;
-    const opacity = 1 - smooth((progress - .84) / .12);
+    const opacity = 1 - smooth((progress - .66) / .1);
     const y = Math.sin(progress * Math.PI) * -3;
     const tilt = -1.8 + pass * 2.2 + Math.sin(progress * Math.PI * 3) * .35;
     const wheelRotate = progress * 1080;
     const noteFlight = smooth((progress - .08) / .45);
-    const noteOpacity = smooth((progress - .04) / .08) * (1 - smooth((progress - .72) / .16));
+    const noteOpacity = smooth((progress - .04) / .08) * (1 - smooth((progress - .56) / .14));
     const copyOpacity = 1 - smooth((progress - .08) / .18);
     const copyY = -smooth(progress / .3) * 34;
     root.style.setProperty('--truck-x', `${x.toFixed(2)}vw`);
@@ -87,12 +87,18 @@
     const rect = cateringSection.getBoundingClientRect();
     const scrollTop = document.scrollingElement?.scrollTop ?? window.scrollY;
     const sectionTop = rect.top + scrollTop;
-    // Start the lower pass early in the section and carry it fully beyond
-    // the right edge, so the movement reads on mobile as well as desktop.
-    const travel = Math.max(1, cateringSection.offsetHeight * .54);
-    const progress = clamp((scrollTop - sectionTop) / travel);
-    const x = -44 + smooth(progress / .82) * 232;
-    const opacity = smooth((progress - .015) / .045) * (1 - smooth((progress - .91) / .09));
+    // The drive begins as soon as the truck lane (bottom third of the
+    // section) scrolls into view and finishes exactly at the end of the
+    // page, where the truck parks inside the viewport instead of exiting.
+    const laneTop = sectionTop + cateringSection.offsetHeight * .12;
+    const start = laneTop - window.innerHeight;
+    const end = Math.max(start + 1, document.documentElement.scrollHeight - window.innerHeight);
+    const progress = clamp((scrollTop - start) / (end - start));
+    const truckVw = cateringTruck.offsetWidth / Math.max(1, window.innerWidth) * 100;
+    const xStart = -truckVw - 6;
+    const xEnd = Math.max(6, 100 - truckVw - 4);
+    const x = xStart + smooth(progress) * (xEnd - xStart);
+    const opacity = smooth((progress - .01) / .05);
     const open = 0;
     const tilt = Math.sin(progress * Math.PI * 5) * 1.1;
     const y = Math.sin(progress * Math.PI * 4) * -4;
