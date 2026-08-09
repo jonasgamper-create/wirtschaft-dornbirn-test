@@ -65,6 +65,9 @@ Gästeseite zurückbringen.
 
 ## Claude-Prompt für eine Änderung
 
+Für die vollständige Projektübergabe ist
+`docs/claude-master-prompt.md` die maßgebliche, kopierfertige Version.
+
 ```text
 Arbeite im Repository wirtschaft-dornbirn-test. Ändere ausschließlich die
 genannten Dateien. Halte die Wirtschaft-Dornbirn-CI aus CLAUDE.md ein. Keine

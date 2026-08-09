@@ -77,6 +77,7 @@ funktioniert danach weiterhin als statische Website.
 - `CLAUDE.md` – verbindliche CI-, Motion- und Review-Regeln für Claude
 - `docs/ci-style-guide.md` – gespeicherte Format- und Abnahmeregeln
 - `docs/claude-handoff.md` – Schritt-für-Schritt-Übergabe an Claude
+- `docs/claude-master-prompt.md` – vollständiger Projekt- und Optimierungsprompt für Claude
 - `docs/final-cloud-handoff.md` – finale Ordner-, Cloud- und Abnahmeübersicht
 - `output/social-canva/` – Canva-taugliche SVG-/PNG-Entwürfe für Event-Posts und Stories
 - `output/pdf/wirtschaft-dornbirn-buchung-ticket-entscheidung-2026-08.pdf` – Entscheidungs- und Go-live-Pitch für Wolfgang
