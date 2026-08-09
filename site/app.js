@@ -62,7 +62,7 @@
 
   const fallbackEventData = {
     version: 1,
-    updatedAt: '2026-08-06T12:00:00+02:00',
+    updatedAt: '2026-08-09T19:35:00+02:00',
     maxAgeHours: 48,
     sourceUrl: 'https://wirtschaft-dornbirn.at/event/',
     pause: { label: 'Sommerpause', start: '2026-07-24', end: '2026-08-23', reopen: '2026-08-24' },
@@ -70,8 +70,13 @@
       { id: 'event-2026-09-03', date: '2026-09-03', title: 'Genussroute 6850', type: 'Dornbirner Genussabend', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/genussroute-2026/' },
       { id: 'event-2026-09-22', date: '2026-09-22', title: 'Helden reisen, Gäste speisen!', type: 'Dinner & Bühne', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/' },
       { id: 'event-2026-09-23', date: '2026-09-23', title: 'Helden reisen, Gäste speisen! – Zusatzabend', type: 'Dinner & Bühne', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/' },
-      { id: 'event-2026-10-14', date: '2026-10-14', title: 'Dinner & Comedy', type: 'Genuss trifft Humor', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/' },
-      { id: 'event-2026-10-15', date: '2026-10-15', title: 'Christof Spörk', type: 'Kabarett in der Wirtschaft', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/spoerk-2026/' }
+      { id: 'event-2026-10-14', date: '2026-10-14', title: 'Dinner & Comedy', type: 'Genuss trifft Humor', status: 'waitlist', officialUrl: 'https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/' },
+      { id: 'event-2026-10-15', date: '2026-10-15', title: 'Christof Spörk', type: 'Kabarett in der Wirtschaft', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/spoerk-2026/' },
+      { id: 'event-2026-10-21', date: '2026-10-21', title: 'Maria Neuschmid & Stefan Vögel', type: 'Kabarett in der Wirtschaft', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/neuschmid-voegel-02-2026/' },
+      { id: 'event-2026-10-22', date: '2026-10-22', title: 'Rock4 – A Cappella', type: 'The Music of Queen · A cappella', status: 'waitlist', officialUrl: 'https://wirtschaft-dornbirn.at/event/rock4-2026/' },
+      { id: 'event-2026-10-27', date: '2026-10-27', title: 'Mathias Kellner', type: 'Lieder & Kabarett', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/kellner-2026/' },
+      { id: 'event-2026-11-11', date: '2026-11-11', title: 'Dinner & Comedy', type: 'Genuss trifft Humor', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/dinner-comedy-05-2026/' },
+      { id: 'event-2026-11-18', date: '2026-11-18', title: "Philipp Lingg's Musikzimmer", type: 'Das musikalische Blind Date', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/philippsmusikzimmer-02-2026/' }
     ]
   };
   let eventData = fallbackEventData;
