@@ -13,10 +13,12 @@
     "check:public": "node scripts/check-public-build.mjs",
     "check:privacy": "node scripts/check-privacy.mjs",
     "check:interactions": "node scripts/check-interactions.mjs",
-    "ci": "npm run build && npm run check:event-data && npm run check:copy && npm run check:optimization && npm run build:public && npm run check:public && npm run check:privacy && npm run check:interactions",
+    "check:lunch-menu": "node scripts/check-lunch-menu.mjs",
+    "ci": "npm run build && npm run check:event-data && npm run check:copy && npm run check:optimization && npm run build:public && npm run check:public && npm run check:privacy && npm run check:interactions && npm run check:lunch-menu",
     "report:decision": "bash scripts/run_pdf_tool.sh scripts/build-decision-pdf.py",
     "report:performance": "bash scripts/run_pdf_tool.sh scripts/build_performance_audit_pdf.py",
     "qa:performance-pdf": "bash scripts/run_pdf_tool.sh scripts/qa_performance_audit_pdf.py",
+    "lunch:mail": "node scripts/build-lunch-mail.mjs",
     "social:canva": "node scripts/build-social-canva-drafts.mjs",
     "social:story": "node scripts/build-genussroute-story.mjs"
   },

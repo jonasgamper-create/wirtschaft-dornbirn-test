@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "weekLabel": "Woche ab 24. August 2026",
+  "note": "Wiedereröffnung nach der Sommerpause – Tageskarte wird vor dem Livegang von Wolfgang bestätigt.",
+  "serviceWindow": "Montag bis Freitag · 11:30–13:30",
+  "reservationUrl": "https://tischreservierung.wirtschaft-dornbirn.at/",
+  "courses": [
+    {
+      "position": "01",
+      "title": "Suppe oder Salat",
+      "detail": "Tagesfrisch als Auftakt",
+      "price": "inkl."
+    },
+    {
+      "position": "02",
+      "title": "Vorarlberger Hauptgang",
+      "detail": "Saisonal · vegetarische Alternative verfügbar",
+      "price": "18,90 €"
+    },
+    {
+      "position": "03",
+      "title": "Kleiner Abschluss",
+      "detail": "Hausgemacht und überraschend",
+      "price": "+ 5,50 €"
+    }
+  ]
+}
