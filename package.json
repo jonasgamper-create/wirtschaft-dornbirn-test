@@ -4,8 +4,7 @@
   "private": true,
   "description": "Interaktiver Konzeptprototyp für die Wirtschaft Dornbirn",
   "scripts": {
-    "build:motion": "esbuild src/motion-enhancements.js --bundle --minify --format=iife --target=es2020 --outfile=site/motion-enhancements.js",
-    "build": "npm run build:motion",
+    "build": "npm run build:icons",
     "build:public": "node scripts/build-public.mjs",
     "check:event-data": "node scripts/check-event-data.mjs",
     "check:copy": "node scripts/check-copy.mjs",
@@ -23,9 +22,7 @@
     "social:story": "node scripts/build-genussroute-story.mjs",
     "build:icons": "node scripts/build-favicons.mjs"
   },
-  "dependencies": {
-    "motion": "^12.42.2"
-  },
+  "dependencies": {},
   "devDependencies": {
     "esbuild": "^0.28.1"
   }

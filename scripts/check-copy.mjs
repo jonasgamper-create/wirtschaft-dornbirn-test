@@ -15,8 +15,12 @@ const index = contents.find(([file]) => file === 'site/index.html')[1];
 if (/class="experience-actions"/.test(index)) {
   errors.push('site/index.html: Header bleibt ohne Schnellaktionen – Buchungswege liegen im Inhalt');
 }
-if (!/Mittagstisch reservieren/.test(index)) {
-  errors.push('site/index.html: Reservierung muss als Mittagstisch ausgewiesen sein (abends nur Events)');
+const lunchSection = index.match(/<section[^>]*id="concept-03"[\s\S]*?<\/section>/)?.[0] || '';
+if (!/Tisch reservieren/.test(lunchSection) || !/tischreservierung\.wirtschaft-dornbirn\.at/.test(lunchSection)) {
+  errors.push('site/index.html: Der Mittagsbereich braucht den offiziellen Reservierungsweg');
+}
+if (/Abendtisch|Tisch am Abend|abends reservieren/i.test(index)) {
+  errors.push('site/index.html: Abends gibt es nur Events, keine Tischreservierung');
 }
 const topHeader = index.match(/<header[\s\S]*?<\/header>/i)?.[0] || '';
 if (/\bTee\b/i.test(topHeader)) errors.push('site/index.html: oberer Header darf nicht "Tee" enthalten');

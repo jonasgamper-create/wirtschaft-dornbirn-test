@@ -8,7 +8,7 @@
 /* Native scrolling stays in charge.  Parallax and the truck animation listen
    to the real scroll position; a second smooth-scroll engine made wheel,
    touch and anchor navigation fight each other. */
-html{scroll-behavior:auto;background:var(--ink)}
+html{scroll-behavior:smooth;background:var(--ink)}
 html.instant-scroll{scroll-behavior:auto!important}
 body{margin:0;background:var(--ink);color:#fff;font-family:Inter,"Helvetica Neue",Arial,sans-serif;overflow-x:hidden}
 button,a,input,select{font:inherit}button,a{color:inherit}button{cursor:pointer}
@@ -639,3 +639,24 @@ html{scroll-padding-top:0}
   .final-site .catering-truck-lane{position:relative;order:3;bottom:auto;height:196px;margin-top:14px}
   .final-site .catering-truck-vehicle{top:50%}
 }
+
+/* Eintritts- und Rueckmeldungsbewegung, vorher von einer 66-KB-Bibliothek
+   erledigt. Gleiche Wirkung, ohne zusaetzliches JavaScript. */
+@keyframes wd-bar{from{opacity:0;transform:translate3d(0,-14px,0)}to{opacity:1;transform:none}}
+@keyframes wd-dialog{from{opacity:0;transform:translate3d(0,14px,0) scale(.975)}to{opacity:1;transform:none}}
+@keyframes wd-rise{from{opacity:0;transform:translate3d(0,14px,0)}to{opacity:1;transform:none}}
+.final-site .experience-bar{animation:wd-bar .38s ease-out both}
+.app-dialog[open] .dialog-frame{animation:wd-dialog .26s ease-out both}
+.app-dialog[open] .event-timeline article{animation:wd-rise .28s ease-out both}
+.app-dialog[open] .event-timeline article:nth-child(2){animation-delay:.045s}
+.app-dialog[open] .event-timeline article:nth-child(3){animation-delay:.09s}
+.app-dialog[open] .event-timeline article:nth-child(4){animation-delay:.135s}
+.app-dialog[open] .event-timeline article:nth-child(n+5){animation-delay:.18s}
+.button:active{transform:scale(.975)}
+@media(prefers-reduced-motion:reduce){
+  .final-site .experience-bar,
+  .app-dialog[open] .dialog-frame,.app-dialog[open] .event-timeline article{animation:none}
+  .button:active{transform:none}
+}
+
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

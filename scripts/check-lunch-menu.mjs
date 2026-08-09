@@ -41,8 +41,8 @@ if (data.status === 'active' && !(data.days || []).length) {
 if (data.status === 'pause' && !data.pauseNote?.trim()) fail('pauseNote fehlt für den Pausenzustand.');
 
 if (!/data-lunch-menu/.test(index)) fail('Der Menüblock [data-lunch-menu] fehlt auf der Gästeseite.');
-if (!/href="mailto:willkommen@wirtschaft-dornbirn\.at\?subject=Tischreservierung/.test(index)) {
-  fail('Der E-Mail-Reservierungsweg fehlt.');
+if (/subject=Tischreservierung/.test(index)) {
+  fail('Reservierung per E-Mail wurde entfernt und darf nicht zurueckkommen.');
 }
 if (!index.includes(data.reservationUrl)) fail('Der offizielle Reservierungslink fehlt auf der Gästeseite.');
 
