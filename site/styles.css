@@ -251,7 +251,10 @@ html{scroll-padding-top:calc(var(--bar-h) + 10px)}
 .final-site .hero-arrival{position:absolute;z-index:3;right:clamp(20px,3.2vw,58px);bottom:clamp(16px,3.8vh,46px);width:min(470px,38vw);pointer-events:none;opacity:var(--hero-arrival-opacity,1);transform:translate3d(var(--hero-arrival-x,-24vw),var(--hero-arrival-y,0px),0);will-change:transform,opacity;transition:opacity .25s ease}
 .final-site .hero-arrival-vehicle{position:relative;width:100%;filter:drop-shadow(0 24px 30px #0008)}
 .final-site .hero-arrival-vehicle>img{display:block;width:100%;height:auto}
-.final-site .hero-arrival-mark{position:absolute;left:29%;top:38%;display:block;width:28%;height:auto;opacity:.9;filter:brightness(0) invert(1) contrast(1.1)}
+.final-site .prologue-brand-corner{position:absolute;z-index:6;top:calc(var(--bar-h) + 28px);right:34px;display:block;width:142px;padding:9px 12px;border:1px solid #ffffff40;border-radius:6px;background:#f4efe6e8;box-shadow:0 14px 32px #0005;transition:transform .25s var(--ease),background .25s var(--ease)}
+.final-site .prologue-brand-corner:hover,.final-site .prologue-brand-corner:focus-visible{background:#fff;transform:translateY(-2px)}
+.final-site .prologue-brand-corner img{display:block;width:100%;height:auto}
+.final-site .hero-arrival-mark{position:absolute;left:20%;top:23%;display:block;width:34%;height:auto;opacity:1;filter:brightness(0) invert(1) contrast(1.1) drop-shadow(0 2px 2px #0009)}
 .final-site .hero-arrival-mark img{display:block;width:100%;height:auto}
 .final-site .hero-arrival-card{position:absolute;z-index:2;right:7%;bottom:75%;display:grid;gap:4px;width:min(280px,78%);padding:13px 15px;border:1px solid #ffffff36;border-radius:10px;background:#17130fe8;color:#fff;box-shadow:0 16px 42px #0007;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .final-site .hero-arrival-card small{color:#d7b776;font-size:8px;font-weight:850;letter-spacing:.15em;text-transform:uppercase}
@@ -496,7 +499,7 @@ html{scroll-padding-top:calc(var(--bar-h) + 10px)}
 .final-site .catering-truck-vehicle>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .final-site .catering-truck-closed{opacity:clamp(0,calc(1 - var(--catering-truck-open,0)),1)}
 .final-site .catering-truck-open{display:none!important}
-.final-site .catering-truck-mark{position:absolute;z-index:2;left:22%;top:27%;width:29%;height:30%;display:grid;place-items:center;opacity:.9;filter:drop-shadow(0 2px 2px #0008);pointer-events:none}
+.final-site .catering-truck-mark{position:absolute;z-index:2;left:20%;top:23%;width:34%;height:38%;display:grid;place-items:center;opacity:1;filter:drop-shadow(0 2px 2px #0009);pointer-events:none}
 .final-site .catering-truck-mark img{display:block;width:100%;height:100%;object-fit:contain}
 .final-site .catering-truck-wheel{position:absolute;z-index:2;bottom:7%;width:14%;aspect-ratio:1;border:1px dashed #8e6e43a0;border-radius:50%;opacity:.55;transform:rotate(var(--catering-wheel-rotate,0deg));will-change:transform}
 .final-site .catering-wheel-rear{left:20.5%}
@@ -552,6 +555,7 @@ html{scroll-padding-top:calc(var(--bar-h) + 10px)}
 }
 @media(max-width:560px){
   .final-site .experience-bar{padding-left:12px;padding-right:12px;gap:8px}
+  .final-site .prologue-brand-corner{display:none}
   .final-site .experience-bar .experience-actions{display:grid;grid-template-columns:1fr auto 1fr;inset:0;align-items:center}
   .final-site .experience-actions .header-events{grid-column:2;min-height:34px;padding:0 10px;font-size:8px;letter-spacing:.1em}
   .final-site .experience-actions .primary-action{display:inline-flex!important;grid-column:3;justify-self:end;align-items:center;justify-content:center;width:auto;min-width:62px;min-height:34px;margin-right:10px;padding:4px 10px 0;font-size:8px;letter-spacing:.08em}
