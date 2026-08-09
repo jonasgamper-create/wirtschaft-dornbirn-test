@@ -677,3 +677,35 @@ html{scroll-padding-top:0}
   .final-site .prologue h1,
   .final-site .catering-scene h2{line-height:1.16;font-size:clamp(38px,10.5vw,52px)}
 }
+
+/* ------------------------------------------------------------------
+   Einheitliches Seitenraster.
+   Alle Sektionen teilen sich dieselbe Innenbreite und denselben
+   Seitenabstand, damit die linken und rechten Kanten durchgehend auf
+   einer Linie liegen. Dekorative Rahmen entfallen.
+   ------------------------------------------------------------------ */
+.final-site{--gutter:clamp(20px,5vw,104px)}
+
+.final-site .prologue-copy,
+.final-site .final-prologue .prologue-copy{
+  width:min(var(--content),calc(100% - var(--gutter) * 2));
+  margin-left:auto;margin-right:auto;
+}
+.final-site .scene-shell,
+.final-site .final-chapter .scene-shell{
+  width:min(var(--content),calc(100% - var(--gutter) * 2));
+  margin-left:auto;margin-right:auto;
+}
+/* Gleiche Kante wie die Sektionen mit begrenzter Innenbreite: entweder der
+   Seitenabstand oder der Rand, der die Inhaltsbreite zentriert - je nachdem,
+   welcher groesser ist. */
+.final-site .catering-scene,
+.final-site .site-footer{
+  padding-left:max(var(--gutter),calc((100% - var(--content)) / 2));
+  padding-right:max(var(--gutter),calc((100% - var(--content)) / 2));
+}
+
+/* Rahmen und Eckmarke entfernen: sie wirkten wie ein aufgesetzter Passepartout. */
+.final-site .final-prologue:before,
+.final-site .final-prologue:after,
+.final-site .final-chapter:before{content:none;display:none}
