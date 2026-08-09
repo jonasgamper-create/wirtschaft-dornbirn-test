@@ -5,6 +5,10 @@ Für eine vollständige Übergabe den kopierfertigen
 kurzen Ablauf um Design-Review, visuelle Abnahme, Performance-Gates und die
 verbindlichen Sicherheitsgrenzen.
 
+Für Claude Code im Terminal ist
+[`claude-code-start-prompt.txt`](claude-code-start-prompt.txt) die direkte
+Copy-and-paste-Version ohne Markdown-Erklärung.
+
 ## Empfohlener Ablauf
 
 1. Repository lokal klonen oder über eine autorisierte GitHub-Verbindung öffnen.

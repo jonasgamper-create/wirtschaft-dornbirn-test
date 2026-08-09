@@ -1,0 +1,189 @@
+Du arbeitest im lokalen Repository „wirtschaft-dornbirn-test“ für die Wirtschaft Dornbirn, Bahnhofstraße 24, 6850 Dornbirn, Vorarlberg.
+
+WICHTIGER ARBEITSRAHMEN
+
+Du arbeitest ausschließlich im aktuell geöffneten Repository. Lies zuerst die Dateien, bevor du Änderungen machst. Ändere niemals direkt den Branch main. Erstelle für jede Änderung einen Branch mit dem Präfix claude/ oder codex/. Erstelle keinen Pull Request und pushe nicht selbstständig, außer ich erteile dafür ausdrücklich die Freigabe.
+
+Das Ziel ist eine hochwertige, ruhige, professionelle Website, die nach echter redaktioneller Webarbeit aussieht und nicht nach einer KI-generierten Vorlage.
+
+HAUPTZIELE DER WEBSITE
+
+Der Besucherfluss ist:
+
+1. Abend-Events und Tickets
+2. Mittagsmenü
+3. Tischreservierung für Mittag und Abend
+4. Catering, Foodtruck und Livebühne
+
+Arbeite mit echten vorhandenen Inhalten. Erfinde niemals Events, Preise, Verfügbarkeiten, Bewertungen, Besucherzahlen, A/B-Testergebnisse oder Ranking-Garantien. Emma und Eugen sind die Großeltern des Besitzers und die familiäre Herkunft der Marke, nicht die früheren Betreiber der Wirtschaft.
+
+PFLICHTLEKTÜRE VOR DER ERSTEN ÄNDERUNG
+
+Lies vollständig:
+
+- CLAUDE.md
+- SECURITY.md
+- docs/final-cloud-handoff.md
+- docs/ci-style-guide.md
+- docs/production-readiness-dsgvo-seo.md
+- docs/launch-checklist.md
+- docs/event-data.md
+- design-system/wirtschaft-dornbirn/MASTER.md
+
+Führe danach aus:
+
+- git status --short
+- npm run ci
+
+Wenn der Ausgangsstand nicht grün ist, behebe nicht ungefragt fremde Probleme. Dokumentiere sie zuerst und nenne mir die betroffenen Dateien.
+
+ORDNER UND QUELLEN
+
+- site/index.html: öffentliche Gästeseite
+- site/styles.css: Layout, CI und responsive Regeln
+- site/app.js: Dialoge, Kalender und Buchungsübergaben
+- site/truck-motion.js: Truck-Scrollanimation
+- src/motion-enhancements.js: Motion-Quelle vor dem Build
+- site/data/events.json: einzige Eventdatenquelle
+- site/assets/: freigegebene Bilder, Logos und Truck-Assets
+- site/feste-catering.html und site/feste-catering.js: Catering-Anfrage
+- site/impressum.html und site/datenschutz-sicherheit.html: Rechtstexte
+- scripts/: Build-, Story- und Prüfskripte
+- design-system/: gespeicherte Designregeln
+- docs/: Architektur, DSGVO, Security, Hosting und Übergaben
+- output/social-canva/: Social Posts und Story-Templates
+- output/pdf/: Präsentationen und Analysen
+- dist/: automatisch generierter Public-Build; niemals manuell bearbeiten
+
+Interne Dateien wie site/entwurf-*, site/entwuerfe.html, site/gastgeber* und site/inventory-store.js dürfen nicht in die öffentliche Website verlinkt oder nach dist kopiert werden.
+
+VERBINDLICHE WIRTSCHAFT-CI
+
+- Ink #11110f
+- Paper #f3efe6
+- Cream #ead9bc
+- Wine #8c292b
+- Gold #c59b5d
+- Green #244635
+- große Aussagen: ruhige Serifenschrift
+- Navigation, Labels und CTAs: klare Grotesk-Schrift
+- Wirtschaft-Logo ausschließlich aus site/assets/wirtschaft-logo.png
+- das Wirtschaft-Logo im Website-Header nur einmal anzeigen
+- Emma-&-Eugen-Logo auf dem Truck als integriertes Overlay
+
+Keine generischen Icon-Sets, externen Fonts, Wasserzeichen, Entwurfsnummern, doppelten Logos, übergroßen KI-Headlines, künstlichen Cursor-/Glow-Effekte oder unnötigen visuellen Spielereien einführen. Abstände, Hierarchie und Lesbarkeit sind wichtiger als zusätzliche Effekte.
+
+CLAUDE-DESIGN-PRÜFUNG
+
+Wenn Claude Design oder eine visuelle Vorschau verfügbar ist:
+
+1. Prüfe zuerst Header, Hero, Eventbereich, Mittag, Reservierung, Catering und Footer.
+2. Bewerte Hierarchie, Abstände, CTA-Klarheit, CI-Treue, Motion, Accessibility und Mobile.
+3. Nenne maximal drei priorisierte Probleme und eine konkrete Lösung je Problem.
+4. Ändere danach nur eine zusammenhängende Verbesserung pro Branch.
+5. Prüfe mindestens 1440×900 px und 390×844 px.
+6. Dokumentiere die sichtbare Vorher-/Nachher-Differenz.
+7. Teste lange Eventtitel, lange CTA-Texte, Sommerpause, ausverkauft, Warteliste und veraltete Eventdaten.
+
+MOTION
+
+- native Scrollposition ist die einzige Quelle für Scrollbewegung
+- keine zweite Smooth-Scroll- oder Wheel-Engine einbauen
+- der Truck fährt nachvollziehbar von links nach rechts
+- Musiknoten bewegen sich synchron mit dem Truck
+- Bewegung darf niemals Text oder CTAs überdecken
+- prefers-reduced-motion respektieren
+- Mobile muss flüssig bleiben
+- will-change nur gezielt verwenden
+
+BUCHUNG, ZAHLUNG UND DSGVO
+
+- Die Website verarbeitet keine Karten-, Zahlungs- oder Gästedaten.
+- Tischreservierung bleibt eine Weiterleitung zum offiziellen Reservierungsanbieter.
+- Tickets bleiben eventbezogene Links zur offiziellen Ticketseite.
+- Verfügbarkeiten niemals ausdenken oder aus veralteten Daten behaupten.
+- Keine eigene Payment-Logik und keine Browser-Speicherung von Reservierungen.
+- Keine Tracker oder Marketing-Skripte ohne geprüfte Einwilligung.
+- Keine echten Gäste-, Login-, API- oder Zahlungsdaten in Code oder Prompts.
+
+EVENTDATEN
+
+site/data/events.json ist die einzige Quelle für Termine, Status und Sommerpause. Prüfe updatedAt, maxAgeHours und sourceUrl. Wenn die Quelle veraltet oder nicht erreichbar ist, muss die Website diesen Zustand sichtbar machen und auf die offizielle Quelle verlinken.
+
+STORY-SYSTEM
+
+Die Story liegt unter output/social-canva/genussroute-story-template/.
+
+- Inhalte ändern: event.json
+- Bild ändern: freigegebenes Bild nach site/assets/ kopieren und background setzen
+- Story neu erzeugen: npm run social:story
+- officialUrl steuert den CTA
+- eine MP4 kann nicht selbst klickbar sein; für Instagram zusätzlich Link-Sticker setzen
+- story-template.html bleibt die feste Form
+
+OPTIMIERUNGSREIHENFOLGE
+
+P0 Funktion:
+- keine Überlappungen, abgeschnittenen Buttons oder horizontalen Overflows
+- Events, Tickets, Reservierung, Menü, Kalender und Catering funktionieren
+- Header und Logo auf Mobile lesbar
+- Truck früh genug sichtbar und vollständig animiert
+
+P1 UX:
+- Touch-Ziele mindestens 44 px
+- Tastaturbedienung und Fokuszustände
+- Reduced Motion
+- lange Inhalte und Statusvarianten
+- keine Layout Shifts
+
+P2 Performance:
+- Hero-Bild priorisieren
+- weitere Bilder lazy laden
+- feste Bilddimensionen verwenden
+- keine neue Bibliothek oder kein Plugin ohne nachgewiesenen Nutzen
+- Core Web Vitals prüfen, wenn ein geeignetes Tool verfügbar ist
+
+P3 SEO/GEO/Conversion:
+- echte Restaurant-, LocalBusiness-, Event- und Menu-Daten
+- Canonical, Sitemap, OpenGraph und lokale Dornbirn-/Vorarlberg-Bezüge prüfen
+- CTAs transparent formulieren
+- keine Fake-Knappheit, Fake-Countdowns oder Dark Patterns
+
+VERBINDLICHER ARBEITSABLAUF
+
+1. git status --short ausführen.
+2. Ziel, Nutzerproblem, betroffene Dateien und Risiken nennen.
+3. Einen kleinen Plan vorlegen.
+4. Nur notwendige Dateien ändern.
+5. npm run ci ausführen.
+6. Desktop, Mobile 390×844, Tastatur und Reduced Motion prüfen.
+7. Externe Links technisch prüfen, aber keine echten Zahlungen oder Reservierungen ausführen.
+8. Keine Scheinsicherheit behaupten: keine erfundenen Tests oder Nutzerzahlen.
+9. Ergebnis, offene Risiken und nicht ausgeführte Aktionen nennen.
+
+ABNAHME VOR EINEM MERGE
+
+- npm run ci ist grün
+- Public-Build enthält keine KI-, Entwurfs- oder Wasserzeichenmarker
+- kein doppeltes Logo
+- keine Secrets, personenbezogenen Daten oder Zahlungslogik im Diff
+- Events und Buchungswege sind korrekt erreichbar
+- Desktop und Mobile sind sauber
+- Reduced Motion und Tastatur funktionieren
+- Eventquelle und Aktualisierungszeitpunkt sind plausibel
+- Story-Template bleibt editierbar, ohne seine Form zu verlieren
+
+ANTWORTFORMAT
+
+Gib nach jeder Änderung aus:
+
+- Ziel und Begründung
+- geänderte Dateien
+- sichtbare Desktop-/Mobile-Auswirkungen
+- npm run ci-Ergebnis
+- geprüfte Links und Datenquellen
+- offene Risiken
+- Branchname und Commit
+- keine Behauptung, dass etwas live ist, wenn es nicht verifiziert wurde
+
+Beginne jetzt ausschließlich mit der Bestandsaufnahme und einem kleinen Plan. Ändere noch keine Dateien.
