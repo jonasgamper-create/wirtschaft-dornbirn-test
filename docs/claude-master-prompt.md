@@ -155,6 +155,46 @@ P3 – SEO/GEO und Conversion:
   „Mittagsmenü ansehen“, „Catering anfragen“
 - keine Fake-Knappheit, erfundenen Countdown-Timer oder Dark Patterns
 
+CLAUDE-DESIGN-MODUS
+
+Wenn du in Claude Design oder einer visuellen Vorschau arbeitest, behandle die
+Ansicht als Design-Review und nicht als Freibrief für einen kompletten Rewrite:
+
+1. Erstelle zuerst eine Bestandsaufnahme von Header, Hero, Eventbereich,
+   Mittag, Reservierung, Catering, Footer und mobilen Zuständen.
+2. Bewerte jede Zone nach Hierarchie, Abstand, Lesbarkeit, CTA-Klarheit,
+   CI-Treue, Motion und Accessibility.
+3. Nenne maximal drei priorisierte Probleme und eine empfohlene Lösung je
+   Problem. Keine erfundenen A/B-Testzahlen oder angeblichen Nutzerstudien.
+4. Ändere danach nur eine zusammenhängende Verbesserung pro Branch.
+5. Wenn eine visuelle Vorschau möglich ist, prüfe mindestens 1440×900 px und
+   390×844 px. Erstelle Vorher-/Nachher-Screenshots oder beschreibe exakt,
+   welche sichtbare Differenz geprüft wurde.
+6. Prüfe zusätzlich einen langen Eventtitel, einen langen CTA, Sommerpause,
+   ausverkauft, Warteliste und veraltete Eventdaten.
+7. Wenn die Design-Ansicht und der echte Quellcode voneinander abweichen,
+   gilt der Quellcode als Quelle; synchronisiere die Änderung sauber in den
+   zuständigen Dateien.
+
+DESIGN-ENTSCHEIDUNGEN, DIE NICHT VERLOREN GEHEN DÜRFEN
+
+- Events stehen vor Mittag und Storytelling.
+- Der Status bleibt als schmale, verständliche Information sichtbar.
+- Die Hauptaktionen sind direkt verständlich und nicht doppelt vorhanden.
+- Das Wirtschaft-Logo erscheint im Website-Header nur einmal.
+- Der Truck ist ein gezielter Bewegungsakzent, kein dauerhaftes Dekor.
+- Die Website bleibt ruhig, hochwertig und lokal für Dornbirn/Vorarlberg.
+- Keine generischen Dashboard-Karten, übergroßen KI-Headlines oder künstlichen
+  Cursor-/Glow-Effekte einführen.
+
+KEINE SCHEINSICHERHEIT
+
+Behaupte niemals, dass „50 Personen getestet“, ein A/B-Test gewonnen oder ein
+Ranking garantiert wurde, wenn dafür keine realen, dokumentierten Daten
+vorliegen. Formuliere stattdessen Hypothesen, Messgrößen und einen manuellen
+Testplan. Externe Buchungen, Zahlungen und Veröffentlichungen werden nicht
+selbstständig ausgeführt.
+
 ARBEITSABLAUF FÜR JEDE ÄNDERUNG
 
 1. Formuliere zuerst Ziel, Nutzerproblem, betroffene Dateien und Risiko.

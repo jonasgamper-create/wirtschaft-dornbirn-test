@@ -1,5 +1,10 @@
 # Übergabe an Claude
 
+Für eine vollständige Übergabe den kopierfertigen
+[`Claude-Master-Prompt`](claude-master-prompt.md) verwenden. Er ergänzt diesen
+kurzen Ablauf um Design-Review, visuelle Abnahme, Performance-Gates und die
+verbindlichen Sicherheitsgrenzen.
+
 ## Empfohlener Ablauf
 
 1. Repository lokal klonen oder über eine autorisierte GitHub-Verbindung öffnen.
