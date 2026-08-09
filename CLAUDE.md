@@ -20,6 +20,9 @@ Nach jeder Änderung ausführen:
 npm run ci
 ```
 
+`npm run ci` enthält zusätzlich `check:interactions`: Dialogziele, Kalender-IDs,
+Button-Typen sowie externe Buchungslinks werden statisch geprüft.
+
 Für die Instagram-Story:
 
 ```bash
@@ -28,6 +31,9 @@ npm run social:story
 
 Dabei wird nur aus `output/social-canva/genussroute-story-template/event.json`
 gelesen. Es erfolgt keine Veröffentlichung.
+
+Die Story-Form bleibt in `story-template.html` und im Generator fest. Für neue
+Stories werden nur die Eventfelder und das Bild in `event.json` geändert.
 
 ## Verbindliche Wirtschaft-CI
 

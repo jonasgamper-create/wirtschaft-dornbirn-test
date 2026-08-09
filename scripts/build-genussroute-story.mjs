@@ -12,6 +12,10 @@ const event = JSON.parse(await readFile(path.join(dir, 'event.json'), 'utf8'));
 const esc = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[char]));
 const upper = value => esc(String(value).toUpperCase());
 const title = esc(event.title).replace(/\s+([^\s]+)$/, '<br>$1');
+const leadLines = String(event.lead || 'Fünf Orte.|Ein Abend.')
+  .split('|')
+  .map(line => line.trim())
+  .filter(Boolean);
 const replacements = {
   '{{KICKER}}': upper(event.kicker),
   '{{TITLE}}': title,
@@ -19,7 +23,9 @@ const replacements = {
   '{{TIME}}': upper(event.time),
   '{{LOCATION}}': upper(event.location),
   '{{FACTS}}': upper(event.facts),
+  '{{LEAD}}': leadLines.map((line, index) => `<span${index ? ' class="lead-accent"' : ''}>${esc(line)}</span>`).join('<br>'),
   '{{CTA}}': upper(event.cta),
+  '{{BACKGROUND}}': `../../site/assets/${path.basename(event.background || 'food.webp')}`,
 };
 const replaceTokens = source => Object.entries(replacements).reduce((value, [token, replacement]) => value.replaceAll(token, replacement), source);
 
@@ -32,29 +38,35 @@ const imageData = async (name) => {
 };
 const background = await imageData(event.background || 'food.webp');
 const truck = await imageData('eugen-truck-closed.webp');
+const brand = await imageData('emma-eugen.png');
 const titleLines = title.split('<br>');
 const text = (value, x, y, size, fill, family = 'Helvetica Neue,Arial,sans-serif', weight = 400, letterSpacing = 0) => `<text x="${x}" y="${y}" fill="${fill}" font-family="${family}" font-size="${size}" font-weight="${weight}" letter-spacing="${letterSpacing}">${value}</text>`;
+const centerText = (value, x, y, size, fill, family = 'Helvetica Neue,Arial,sans-serif', weight = 400, letterSpacing = 0) => `<text text-anchor="middle" x="${x}" y="${y}" fill="${fill}" font-family="${family}" font-size="${size}" font-weight="${weight}" letter-spacing="${letterSpacing}">${value}</text>`;
 
 const frameSvg = progress => {
-  const x = -540 + progress * 1660;
-  const noteX = x + 38;
+  const x = -560 + progress * 1700;
+  const noteX = x + 58;
+  const svgTitleLines = titleLines.map(line => line.toUpperCase());
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
-  <rect width="1080" height="1920" fill="#11110f"/><rect x="38" y="38" width="1004" height="1844" rx="28" fill="#ead9bc"/>
-  <rect x="66" y="66" width="948" height="720" rx="18" fill="#11110f"/><image href="${background}" x="66" y="66" width="948" height="720" preserveAspectRatio="xMidYMid slice" opacity=".72"/><rect x="66" y="66" width="948" height="720" rx="18" fill="#11110f" opacity=".28"/>
-  ${text('„wirtschaft“',106,152,24,'#f3efe6','Helvetica Neue,Arial,sans-serif',700,4)}${text('CAFE · RESTAURANT · BAR',106,188,11,'#f3efe6','Helvetica Neue,Arial,sans-serif',400,2)}
-  ${text(replacements['{{KICKER}}'],106,622,18,'#d5af64','Helvetica Neue,Arial,sans-serif',700,4)}
-  ${titleLines.map((line, index) => text(line,106,704 + index * 76,78,'#f3efe6','Georgia,serif',400,-2)).join('')}
-  ${text(replacements['{{DATE}}'],106,960,28,'#11110f','Helvetica Neue,Arial,sans-serif',700,3)}${text(`${replacements['{{TIME}}']} · ${replacements['{{LOCATION}}']}`,106,1010,24,'#11110f','Helvetica Neue,Arial,sans-serif',400,1)}
-  <line x1="106" y1="1060" x2="974" y2="1060" stroke="#11110f" stroke-opacity=".25"/>
-  ${text('Fünf Orte.',106,1140,45,'#8c292b','Georgia,serif',400,-1)}${text('Ein Abend.',106,1196,45,'#8c292b','Georgia,serif',400,-1)}
-  ${text(replacements['{{FACTS}}'],106,1270,21,'#11110f','Helvetica Neue,Arial,sans-serif',700,1)}
-  <rect x="106" y="1428" width="350" height="72" rx="36" fill="#11110f"/>${text(`${replacements['{{CTA}}']} ↗`,281,1473,19,'#ead9bc','Helvetica Neue,Arial,sans-serif',700,2)}
-  ${text('wirtschaft-dornbirn.at',106,1728,18,'#11110f','Helvetica Neue,Arial,sans-serif',400,1)}${text('Bahnhofstraße 24 · 6850 Dornbirn',106,1772,14,'#11110f','Helvetica Neue,Arial,sans-serif',400,1)}
-  <image href="${truck}" x="${x.toFixed(1)}" y="1460" width="520" height="296" preserveAspectRatio="xMidYMid meet"/><text x="${noteX.toFixed(1)}" y="1508" fill="#8c292b" font-family="Georgia,serif" font-size="32">♪</text><text x="${(noteX + 48).toFixed(1)}" y="1468" fill="#8c292b" font-family="Georgia,serif" font-size="26">♫</text>
+  <rect width="1080" height="1920" fill="#29292b"/><rect x="38" y="38" width="1004" height="1844" fill="none" stroke="#ffffff" stroke-opacity=".14"/>
+  <image href="${brand}" x="350" y="84" width="380" height="250" preserveAspectRatio="xMidYMid meet"/>
+  ${text('ⓘ',778,170,30,'#f5f4f1','Arial,sans-serif',300)}<line x1="850" y1="135" x2="850" y2="186" stroke="#bca875" stroke-opacity=".65"/>${text('▧',879,170,28,'#f5f4f1','Arial,sans-serif',300)}<line x1="948" y1="135" x2="948" y2="186" stroke="#bca875" stroke-opacity=".65"/>${text('♡',973,170,30,'#f5f4f1','Arial,sans-serif',300)}
+  ${centerText(replacements['{{KICKER}}'],540,570,18,'#a3874a','Helvetica Neue,Arial,sans-serif',500,4)}
+  ${svgTitleLines.map((line, index) => centerText(line,540,682 + index * 86,68,'#f5f4f1','Helvetica Neue,Arial,sans-serif',300,1)).join('')}
+  ${centerText(replacements['{{DATE}}'],540,900,28,'#f5f4f1','Helvetica Neue,Arial,sans-serif',500,3)}${centerText(`${replacements['{{TIME}}']} · ${replacements['{{LOCATION}}']}`,540,950,20,'#c8c6c2','Helvetica Neue,Arial,sans-serif',400,1)}
+  <line x1="190" y1="1010" x2="890" y2="1010" stroke="#bca875" stroke-opacity=".42"/>
+  ${centerText(leadLines[0] ? esc(leadLines[0]) : '',540,1100,44,'#f5f4f1','Helvetica Neue,Arial,sans-serif',300)}${centerText(leadLines[1] ? esc(leadLines[1]) : '',540,1158,44,'#a3874a','Helvetica Neue,Arial,sans-serif',300)}
+  ${centerText(replacements['{{FACTS}}'],540,1260,18,'#d8d5cf','Helvetica Neue,Arial,sans-serif',400,2)}
+  <rect x="365" y="1334" width="350" height="72" fill="#a3874a"/>${centerText(`${replacements['{{CTA}}']} ↗`,540,1380,18,'#201d19','Helvetica Neue,Arial,sans-serif',500,2)}
+  <image href="${background}" x="734" y="1512" width="282" height="270" preserveAspectRatio="xMidYMid slice" opacity=".52"/><rect x="734" y="1512" width="282" height="270" fill="#29292b" opacity=".2"/>
+  <image href="${truck}" x="${x.toFixed(1)}" y="1500" width="520" height="296" preserveAspectRatio="xMidYMid meet"/><image href="${brand}" x="${(x + 92).toFixed(1)}" y="${(1580).toFixed(1)}" width="175" height="110" preserveAspectRatio="xMidYMid meet"/><text x="${noteX.toFixed(1)}" y="1550" fill="#a3874a" font-family="Georgia,serif" font-size="32">♪</text><text x="${(noteX + 52).toFixed(1)}" y="1510" fill="#a3874a" font-family="Georgia,serif" font-size="26">♫</text>
+  ${centerText('wirtschaft-dornbirn.at',540,1810,16,'#c8c6c2','Helvetica Neue,Arial,sans-serif',400,2)}
   </svg>`;
 };
 
-await writeFile(path.join(dir, 'story-cover.svg'), frameSvg(.48));
+const cover = frameSvg(.48);
+await writeFile(path.join(dir, 'story-cover.svg'), cover);
+await writeFile(path.join(dir, 'story-template.svg'), cover);
 const frames = path.join(dir, '.frames');
 await rm(frames, { recursive: true, force: true });
 await mkdir(frames, { recursive: true });

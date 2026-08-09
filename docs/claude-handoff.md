@@ -12,6 +12,11 @@
 7. Diff und Mobile-Ansicht selbst prüfen.
 8. Erst danach Pull Request mergen.
 
+Für wiederverwendbare Instagram-Stories nur
+`output/social-canva/genussroute-story-template/event.json` ändern und danach
+`npm run social:story` ausführen. Das Layout und die Safe-Zones bleiben im
+Template unverändert.
+
 ## Was Claude nicht erhalten darf
 
 - Resmio-/Ticketist-Logins
