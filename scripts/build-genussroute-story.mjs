@@ -26,6 +26,7 @@ const replacements = {
   '{{LEAD}}': leadLines.map((line, index) => `<span${index ? ' class="lead-accent"' : ''}>${esc(line)}</span>`).join('<br>'),
   '{{CTA}}': upper(event.cta),
   '{{BACKGROUND}}': `../../site/assets/${path.basename(event.background || 'food.webp')}`,
+  '{{OFFICIAL_URL}}': esc(event.officialUrl || 'https://wirtschaft-dornbirn.at/event/'),
 };
 const replaceTokens = source => Object.entries(replacements).reduce((value, [token, replacement]) => value.replaceAll(token, replacement), source);
 
@@ -50,7 +51,6 @@ const frameSvg = progress => {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
   <rect width="1080" height="1920" fill="#29292b"/><rect x="38" y="38" width="1004" height="1844" fill="none" stroke="#ffffff" stroke-opacity=".14"/>
   <image href="${brand}" x="350" y="84" width="380" height="250" preserveAspectRatio="xMidYMid meet"/>
-  ${text('ⓘ',778,170,30,'#f5f4f1','Arial,sans-serif',300)}<line x1="850" y1="135" x2="850" y2="186" stroke="#bca875" stroke-opacity=".65"/>${text('▧',879,170,28,'#f5f4f1','Arial,sans-serif',300)}<line x1="948" y1="135" x2="948" y2="186" stroke="#bca875" stroke-opacity=".65"/>${text('♡',973,170,30,'#f5f4f1','Arial,sans-serif',300)}
   ${centerText(replacements['{{KICKER}}'],540,570,18,'#a3874a','Helvetica Neue,Arial,sans-serif',500,4)}
   ${svgTitleLines.map((line, index) => centerText(line,540,682 + index * 86,68,'#f5f4f1','Helvetica Neue,Arial,sans-serif',300,1)).join('')}
   ${centerText(replacements['{{DATE}}'],540,900,28,'#f5f4f1','Helvetica Neue,Arial,sans-serif',500,3)}${centerText(`${replacements['{{TIME}}']} · ${replacements['{{LOCATION}}']}`,540,950,20,'#c8c6c2','Helvetica Neue,Arial,sans-serif',400,1)}
@@ -58,6 +58,7 @@ const frameSvg = progress => {
   ${centerText(leadLines[0] ? esc(leadLines[0]) : '',540,1100,44,'#f5f4f1','Helvetica Neue,Arial,sans-serif',300)}${centerText(leadLines[1] ? esc(leadLines[1]) : '',540,1158,44,'#a3874a','Helvetica Neue,Arial,sans-serif',300)}
   ${centerText(replacements['{{FACTS}}'],540,1260,18,'#d8d5cf','Helvetica Neue,Arial,sans-serif',400,2)}
   <rect x="365" y="1334" width="350" height="72" fill="#a3874a"/>${centerText(`${replacements['{{CTA}}']} ↗`,540,1380,18,'#201d19','Helvetica Neue,Arial,sans-serif',500,2)}
+  ${centerText('NACH OBEN WISCHEN',540,1450,14,'#c8c6c2','Helvetica Neue,Arial,sans-serif',500,3)}
   <image href="${background}" x="734" y="1512" width="282" height="270" preserveAspectRatio="xMidYMid slice" opacity=".52"/><rect x="734" y="1512" width="282" height="270" fill="#29292b" opacity=".2"/>
   <image href="${truck}" x="${x.toFixed(1)}" y="1500" width="520" height="296" preserveAspectRatio="xMidYMid meet"/><image href="${brand}" x="${(x + 92).toFixed(1)}" y="${(1580).toFixed(1)}" width="175" height="110" preserveAspectRatio="xMidYMid meet"/><text x="${noteX.toFixed(1)}" y="1550" fill="#a3874a" font-family="Georgia,serif" font-size="32">♪</text><text x="${(noteX + 52).toFixed(1)}" y="1510" fill="#a3874a" font-family="Georgia,serif" font-size="26">♫</text>
   ${centerText('wirtschaft-dornbirn.at',540,1810,16,'#c8c6c2','Helvetica Neue,Arial,sans-serif',400,2)}
