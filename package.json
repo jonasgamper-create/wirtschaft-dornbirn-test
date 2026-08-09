@@ -4,7 +4,7 @@
   "private": true,
   "description": "Interaktiver Konzeptprototyp für die Wirtschaft Dornbirn",
   "scripts": {
-    "build": "npm run build:icons",
+    "build": "node -e \"process.stdout.write('Kein Build-Schritt noetig\\n')\"",
     "build:public": "node scripts/build-public.mjs",
     "check:event-data": "node scripts/check-event-data.mjs",
     "check:copy": "node scripts/check-copy.mjs",
