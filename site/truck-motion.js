@@ -6,6 +6,8 @@
   const truck = document.querySelector('[data-hero-arrival]');
   const cateringSection = document.querySelector('#foodtruck');
   const cateringTruck = document.querySelector('[data-catering-truck]');
+  const eventSection = document.querySelector('#concept-04');
+  const eventReels = document.querySelector('.event-mini-reels');
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   let frame = 0;
 
@@ -37,6 +39,7 @@
       root.style.setProperty('--truck-opacity', '1');
       truck.dataset.truckState = 'moving';
       renderCatering(true);
+      renderEventReels(true);
       return;
     }
 
@@ -65,6 +68,7 @@
     root.style.setProperty('--truck-copy-y', `${copyY.toFixed(2)}px`);
     truck.dataset.truckState = open > .45 ? 'open' : progress > .05 ? 'moving' : 'waiting';
     renderCatering(false);
+    renderEventReels(false);
   }
 
   function renderCatering(staticView = false) {
@@ -83,10 +87,12 @@
     const rect = cateringSection.getBoundingClientRect();
     const scrollTop = document.scrollingElement?.scrollTop ?? window.scrollY;
     const sectionTop = rect.top + scrollTop;
-    const travel = Math.max(1, cateringSection.offsetHeight * .7);
+    // Start the lower pass early in the section and carry it fully beyond
+    // the right edge, so the movement reads on mobile as well as desktop.
+    const travel = Math.max(1, cateringSection.offsetHeight * .54);
     const progress = clamp((scrollTop - sectionTop) / travel);
-    const x = -52 + smooth(progress / .9) * 190;
-    const opacity = smooth(progress / .08) * (1 - smooth((progress - .84) / .14));
+    const x = -44 + smooth(progress / .82) * 232;
+    const opacity = smooth((progress - .015) / .045) * (1 - smooth((progress - .91) / .09));
     const open = 0;
     const tilt = Math.sin(progress * Math.PI * 5) * 1.1;
     const y = Math.sin(progress * Math.PI * 4) * -4;
@@ -100,6 +106,30 @@
     root.style.setProperty('--catering-wheel-rotate', `${(progress * 1080).toFixed(1)}deg`);
     root.style.setProperty('--catering-note-flight', noteFlight.toFixed(3));
     root.style.setProperty('--catering-note-opacity', noteOpacity.toFixed(3));
+  }
+
+  function renderEventReels(staticView = false) {
+    if (!eventSection || !eventReels) return;
+    if (staticView) {
+      root.style.setProperty('--event-reel-opacity', '0');
+      root.style.setProperty('--event-reel-shift', '0px');
+      root.style.setProperty('--event-reel-rise', '0px');
+      root.style.setProperty('--event-reel-tilt', '0deg');
+      return;
+    }
+    const rect = eventSection.getBoundingClientRect();
+    const scrollTop = document.scrollingElement?.scrollTop ?? window.scrollY;
+    const sectionTop = rect.top + scrollTop;
+    const travel = Math.max(1, eventSection.offsetHeight + window.innerHeight * .35);
+    const progress = clamp((scrollTop - sectionTop + window.innerHeight * .3) / travel);
+    const reveal = smooth(progress / .28) * (1 - smooth((progress - .72) / .28));
+    const shift = (progress - .25) * 42;
+    const rise = (1 - smooth(progress / .55)) * 24;
+    const tilt = Math.sin(progress * Math.PI * 2) * 1.6;
+    root.style.setProperty('--event-reel-opacity', reveal.toFixed(3));
+    root.style.setProperty('--event-reel-shift', `${shift.toFixed(2)}px`);
+    root.style.setProperty('--event-reel-rise', `${rise.toFixed(2)}px`);
+    root.style.setProperty('--event-reel-tilt', `${tilt.toFixed(2)}deg`);
   }
 
   function schedule() {

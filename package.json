@@ -16,7 +16,8 @@
     "report:decision": "bash scripts/run_pdf_tool.sh scripts/build-decision-pdf.py",
     "report:performance": "bash scripts/run_pdf_tool.sh scripts/build_performance_audit_pdf.py",
     "qa:performance-pdf": "bash scripts/run_pdf_tool.sh scripts/qa_performance_audit_pdf.py",
-    "social:canva": "node scripts/build-social-canva-drafts.mjs"
+    "social:canva": "node scripts/build-social-canva-drafts.mjs",
+    "social:story": "node scripts/build-genussroute-story.mjs"
   },
   "dependencies": {
     "motion": "^12.42.2"

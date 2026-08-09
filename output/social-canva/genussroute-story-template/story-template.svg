@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <rect width="1080" height="1920" fill="#11110f"/>
+  <rect x="38" y="38" width="1004" height="1844" rx="28" fill="#ead9bc"/>
+  <rect x="66" y="66" width="948" height="720" rx="18" fill="#11110f"/>
+  <image href="../../site/assets/food.webp" x="66" y="66" width="948" height="720" preserveAspectRatio="xMidYMid slice" opacity=".72"/>
+  <rect x="66" y="66" width="948" height="720" rx="18" fill="#11110f" opacity=".28"/>
+  <text x="106" y="152" fill="#f3efe6" font-family="Helvetica Neue,Arial,sans-serif" font-size="24" font-weight="700" letter-spacing="4">„wirtschaft“</text>
+  <text x="106" y="188" fill="#f3efe6" font-family="Helvetica Neue,Arial,sans-serif" font-size="11" letter-spacing="2">CAFE · RESTAURANT · BAR</text>
+  <text x="106" y="622" fill="#d5af64" font-family="Helvetica Neue,Arial,sans-serif" font-size="18" font-weight="700" letter-spacing="4">GENUSS &amp; LIVE-MUSIK</text>
+  <text x="106" y="704" fill="#f3efe6" font-family="Georgia,serif" font-size="78">Genussroute</text>
+  <text x="106" y="780" fill="#f3efe6" font-family="Georgia,serif" font-size="78">6850</text>
+  <text x="106" y="960" fill="#11110f" font-family="Helvetica Neue,Arial,sans-serif" font-size="28" font-weight="700" letter-spacing="3">03. SEPTEMBER 2026</text>
+  <text x="106" y="1010" fill="#11110f" font-family="Helvetica Neue,Arial,sans-serif" font-size="24" letter-spacing="1">18:00–01:00 UHR · DORNBIRN</text>
+  <line x1="106" y1="1060" x2="974" y2="1060" stroke="#11110f" stroke-opacity=".25"/>
+  <text x="106" y="1140" fill="#8c292b" font-family="Georgia,serif" font-size="45">Fünf Orte.</text>
+  <text x="106" y="1196" fill="#8c292b" font-family="Georgia,serif" font-size="45">Ein Abend.</text>
+  <text x="106" y="1270" fill="#11110f" font-family="Helvetica Neue,Arial,sans-serif" font-size="21">6 Live-Bands · 6 Speisegänge</text>
+  <rect x="106" y="1428" width="350" height="72" rx="36" fill="#11110f"/>
+  <text x="281" y="1473" text-anchor="middle" fill="#ead9bc" font-family="Helvetica Neue,Arial,sans-serif" font-size="19" font-weight="700" letter-spacing="2">TICKETS &amp; INFOS ↗</text>
+  <text x="106" y="1728" fill="#11110f" font-family="Helvetica Neue,Arial,sans-serif" font-size="18" letter-spacing="1">wirtschaft-dornbirn.at</text>
+  <text x="106" y="1772" fill="#11110f" font-family="Helvetica Neue,Arial,sans-serif" font-size="14" letter-spacing="1">Bahnhofstraße 24 · 6850 Dornbirn</text>
+</svg>

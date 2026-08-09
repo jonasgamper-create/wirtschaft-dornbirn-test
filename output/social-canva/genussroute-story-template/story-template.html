@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Genussroute 6850 · Story-Template</title>
+  <style>
+    :root{--ink:#11110f;--paper:#ead9bc;--cream:#f3efe6;--wine:#8c292b;--gold:#d5af64}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#25221d;color:var(--ink);font-family:"Helvetica Neue",Arial,sans-serif}body{display:grid;place-items:center;padding:24px}.story{position:relative;width:min(100%,540px);aspect-ratio:9/16;overflow:hidden;background:var(--paper);isolation:isolate}.story:before{content:"";position:absolute;inset:2% 3.5%;border:1px solid #11110f2b;border-radius:2.6%;pointer-events:none}.top-image{position:absolute;inset:3.5% 6% auto;height:38%;overflow:hidden;border-radius:1.6%;background:#11110f}.top-image img{width:100%;height:100%;object-fit:cover;filter:saturate(.78) contrast(1.08);opacity:.72}.top-image:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#11110f2c 25%,#11110fc7)}.logo{position:absolute;z-index:2;top:6.7%;left:10%;color:var(--cream);font-size:clamp(12px,2.6vw,20px);font-weight:700;letter-spacing:.18em}.logo small{display:block;margin-top:5px;font-size:.38em;letter-spacing:.2em;font-weight:400}.kicker{position:absolute;z-index:2;left:10%;top:30.8%;color:var(--gold);font-size:clamp(8px,1.8vw,13px);font-weight:700;letter-spacing:.24em;text-transform:uppercase}.title{position:absolute;z-index:2;left:10%;top:34%;margin:0;color:var(--cream);font-family:Georgia,serif;font-size:clamp(38px,8vw,66px);font-weight:400;line-height:.93}.details{position:absolute;left:10%;top:48%;font-size:clamp(10px,2.1vw,15px);font-weight:700;letter-spacing:.1em}.details span{display:block;margin-top:8px;font-weight:400;letter-spacing:.03em}.rule{position:absolute;left:10%;right:10%;top:55.2%;border:0;border-top:1px solid #11110f3d}.copy{position:absolute;left:10%;top:59%;color:var(--wine);font-family:Georgia,serif;font-size:clamp(22px,4.7vw,38px);line-height:1.12}.facts{position:absolute;left:10%;top:69%;font-size:clamp(10px,2vw,14px);letter-spacing:.06em}.cta{position:absolute;left:10%;top:76%;padding:.8em 1.5em;border-radius:999px;background:var(--ink);color:var(--paper);font-size:clamp(10px,2vw,14px);font-weight:700;letter-spacing:.14em}.url{position:absolute;left:10%;bottom:8%;font-size:clamp(9px,1.8vw,13px);letter-spacing:.08em}.truck{position:absolute;z-index:4;left:0;bottom:11%;width:47%;filter:drop-shadow(0 9px 11px #0005);animation:drive 6s cubic-bezier(.2,.8,.2,1) infinite}.truck img{width:100%;display:block}.note{position:absolute;z-index:5;bottom:18%;left:19%;color:var(--wine);font-family:Georgia,serif;font-size:clamp(18px,4vw,30px);opacity:0;animation:note 6s ease-out infinite}.note:nth-child(2){left:25%;bottom:23%;animation-delay:.28s}.note:nth-child(3){left:29%;bottom:16%;animation-delay:.54s}@keyframes drive{0%{transform:translateX(-100%)}12%{transform:translateX(-18%)}72%{transform:translateX(150%)}100%{transform:translateX(150%)}}@keyframes note{0%,12%{opacity:0;transform:translate(0,8px) rotate(0)}26%{opacity:1}72%,100%{opacity:0;transform:translate(-80px,-40px) rotate(-20deg)}}@media(prefers-reduced-motion:reduce){.truck{animation:none;transform:translateX(18%)}.note{display:none}}
+  </style>
+</head>
+<body>
+  <main class="story" aria-label="Story-Entwurf Genussroute 6850">
+    <div class="top-image"><img src="../../site/assets/food.webp" alt="Gericht aus der Wirtschaft Dornbirn"></div>
+    <div class="logo">„wirtschaft“<small>CAFE · RESTAURANT · BAR</small></div>
+    <div class="kicker">{{KICKER}}</div>
+    <h1 class="title">{{TITLE}}</h1>
+    <div class="details">{{DATE}}<span>{{TIME}} · {{LOCATION}}</span></div>
+    <hr class="rule">
+    <div class="copy">Fünf Orte.<br>Ein Abend.</div>
+    <div class="facts">{{FACTS}}</div>
+    <div class="cta">{{CTA}} ↗</div>
+    <div class="url">wirtschaft-dornbirn.at</div>
+    <div class="truck"><img src="../../site/assets/eugen-truck-closed.webp" alt=""></div>
+    <i class="note">♪</i><i class="note">♫</i><i class="note">·</i>
+  </main>
+</body>
+</html>
