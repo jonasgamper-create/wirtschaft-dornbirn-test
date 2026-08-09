@@ -20,7 +20,8 @@
     "qa:performance-pdf": "bash scripts/run_pdf_tool.sh scripts/qa_performance_audit_pdf.py",
     "lunch:mail": "node scripts/build-lunch-mail.mjs",
     "social:canva": "node scripts/build-social-canva-drafts.mjs",
-    "social:story": "node scripts/build-genussroute-story.mjs"
+    "social:story": "node scripts/build-genussroute-story.mjs",
+    "build:icons": "node scripts/build-favicons.mjs"
   },
   "dependencies": {
     "motion": "^12.42.2"
