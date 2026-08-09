@@ -126,15 +126,6 @@
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
-  scenes.forEach(scene => {
-    if (scene.querySelector('.motion-ribbon')) return;
-    const ribbon = document.createElement('span');
-    ribbon.className = 'motion-ribbon';
-    ribbon.setAttribute('aria-hidden', 'true');
-    ribbon.innerHTML = '<i></i><i></i>';
-    scene.append(ribbon);
-  });
-
   function refreshChapterBounds() {
     const firstScene = scenes[0];
     const lastScene = scenes[scenes.length - 1];
@@ -146,22 +137,12 @@
   refreshChapterBounds();
 
   if (body.classList.contains('final-site')) {
-    const cinematicOverlay = document.createElement('div');
-    cinematicOverlay.className = 'cinematic-overlay';
-    cinematicOverlay.setAttribute('aria-hidden', 'true');
-    cinematicOverlay.innerHTML = '<span class="cinematic-grain"></span><span class="cinematic-vignette"></span><span class="cinematic-glow"></span>';
-    body.append(cinematicOverlay);
-
     const staggerGroups = document.querySelectorAll('.prologue-copy, .scene-copy, .decision-copy');
     staggerGroups.forEach(group => {
       [...group.children].forEach((child, index) => {
         child.classList.add('luxury-reveal');
         child.style.setProperty('--reveal-order', Math.min(index, 6));
       });
-    });
-
-    document.querySelectorAll('.lunch-card, .day-signal, .next-event, .decision-grid button').forEach(card => {
-      card.classList.add('depth-card');
     });
 
     requestAnimationFrame(() => requestAnimationFrame(() => body.classList.add('deluxe-ready')));
@@ -253,12 +234,12 @@
     const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     const globalProgress = Math.max(0, Math.min(1, visualScrollY / max));
     root.style.setProperty('--global-scroll', globalProgress.toFixed(5));
-    root.style.setProperty('--ticket-lift', `${Math.sin(globalProgress * Math.PI * 5) * 14}px`);
-    root.style.setProperty('--ticket-turn', `${-5 + globalProgress * 12}deg`);
-    root.style.setProperty('--plate-lift', `${Math.cos(globalProgress * Math.PI * 4) * 11}px`);
-    root.style.setProperty('--plate-spin', `${globalProgress * 620}deg`);
-    root.style.setProperty('--celebration-lift', `${Math.sin(globalProgress * Math.PI * 6) * 8}px`);
-    root.style.setProperty('--celebration-turn', `${globalProgress * 760}deg`);
+    root.style.setProperty('--ticket-lift', '0px');
+    root.style.setProperty('--ticket-turn', '0deg');
+    root.style.setProperty('--plate-lift', '0px');
+    root.style.setProperty('--plate-spin', '0deg');
+    root.style.setProperty('--celebration-lift', '0px');
+    root.style.setProperty('--celebration-turn', '0deg');
     body.classList.toggle('page-scrolled', visualScrollY > 36);
     const beforeChapters = scenes.length && visualScrollY < chapterBounds.firstTop - window.innerHeight * .58;
     const afterChapters = scenes.length && visualScrollY > chapterBounds.lastBottom - window.innerHeight * .12;
@@ -284,11 +265,11 @@
         const travel = Math.max(1, height + window.innerHeight);
         const progressInSection = Math.max(0, Math.min(1, (window.innerHeight - top) / travel));
         const direction = section.dataset.zoom === 'out' ? -1 : 1;
-        const zoom = 1.055 + direction * (progressInSection - .5) * .07;
+        const zoom = 1.02 + direction * (progressInSection - .5) * .018;
         section.style.setProperty('--scene-progress', progressInSection.toFixed(4));
         section.style.setProperty('--scene-zoom', zoom.toFixed(4));
         section.style.setProperty('--zoom', zoom.toFixed(4));
-        section.style.setProperty('--family-shift', `${(progressInSection - .5) * -34}px`);
+        section.style.setProperty('--family-shift', `${(progressInSection - .5) * -10}px`);
       });
       scenes.forEach(scene => {
         const top = scene.offsetTop - visualScrollY;
@@ -301,17 +282,17 @@
           const sceneFocus = Math.max(0, Math.min(1, 1 - centerDistance / (window.innerHeight * .92)));
           scene.style.setProperty('--scene-local', local.toFixed(4));
           scene.style.setProperty('--scene-focus', sceneFocus.toFixed(4));
-          scene.style.setProperty('--number-shift', `${(local - .5) * -46}px`);
+          scene.style.setProperty('--number-shift', `${(local - .5) * -14}px`);
           scene.style.setProperty('--ribbon-shift', `${(local - .5) * 110}px`);
           scene.style.setProperty('--ribbon-turn', `${-9 + local * 18}deg`);
-          scene.style.setProperty('--camera-pan', `${(local - .5) * -96}px`);
-          scene.style.setProperty('--film-shift', `${(local - .5) * -34}vw`);
-          scene.style.setProperty('--lens-scale', (1.02 + local * .12).toFixed(4));
-          scene.style.setProperty('--aperture-scale', (1.1 - local * .08).toFixed(4));
-          scene.style.setProperty('--credits-shift', `${(local - .5) * -84}px`);
-          scene.style.setProperty('--orbit-turn', `${-18 + local * 36}deg`);
-          scene.style.setProperty('--instrument-shift', `${(local - .5) * -92}px`);
-          scene.style.setProperty('--instrument-zoom', (1.16 - local * .18).toFixed(4));
+          scene.style.setProperty('--camera-pan', `${(local - .5) * -26}px`);
+          scene.style.setProperty('--film-shift', `${(local - .5) * -10}vw`);
+          scene.style.setProperty('--lens-scale', (1.01 + local * .03).toFixed(4));
+          scene.style.setProperty('--aperture-scale', (1.03 - local * .02).toFixed(4));
+          scene.style.setProperty('--credits-shift', `${(local - .5) * -24}px`);
+          scene.style.setProperty('--orbit-turn', `${-5 + local * 10}deg`);
+          scene.style.setProperty('--instrument-shift', `${(local - .5) * -26}px`);
+          scene.style.setProperty('--instrument-zoom', (1.04 - local * .05).toFixed(4));
           if (scene.classList.contains('chapter-stage')) {
             const focusPulse = Math.max(0, 1 - Math.abs(local - .54) * 3.2);
             scene.style.setProperty('--video-progress', local.toFixed(4));
@@ -322,7 +303,7 @@
           }
           const normalized = (top + height / 2 - window.innerHeight / 2) / window.innerHeight;
           scene.querySelectorAll('.parallax-media').forEach(media => {
-            media.style.setProperty('--parallax', `${normalized * -26}px`);
+            media.style.setProperty('--parallax', `${normalized * -8}px`);
           });
         }
       });
@@ -496,55 +477,6 @@
   mobileSelect?.addEventListener('change', () => {
     jumpTo(document.getElementById(mobileSelect.value));
   });
-
-  document.querySelectorAll('.concept-scene').forEach(scene => {
-    scene.addEventListener('pointermove', event => {
-      if (event.pointerType === 'touch') return;
-      const rect = scene.getBoundingClientRect();
-      scene.style.setProperty('--mx', `${event.clientX - rect.left}px`);
-      scene.style.setProperty('--my', `${event.clientY - rect.top}px`);
-    }, { passive: true });
-  });
-
-  if (body.classList.contains('final-site') && matchMedia('(hover:hover) and (pointer:fine)').matches) {
-    document.querySelectorAll('.button, .primary-action, .icon-button, .text-action').forEach(target => {
-      target.classList.add('magnetic-action');
-      target.addEventListener('pointermove', event => {
-        if (body.classList.contains('motion-off')) return;
-        const rect = target.getBoundingClientRect();
-        const x = (event.clientX - rect.left - rect.width / 2) * .11;
-        const y = (event.clientY - rect.top - rect.height / 2) * .16;
-        target.style.setProperty('--magnet-x', `${x.toFixed(2)}px`);
-        target.style.setProperty('--magnet-y', `${y.toFixed(2)}px`);
-      }, { passive: true });
-      target.addEventListener('pointerleave', () => {
-        target.style.setProperty('--magnet-x', '0px');
-        target.style.setProperty('--magnet-y', '0px');
-      }, { passive: true });
-    });
-
-    document.querySelectorAll('.depth-card').forEach(card => {
-      card.addEventListener('pointermove', event => {
-        if (body.classList.contains('motion-off')) return;
-        const rect = card.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / rect.width - .5;
-        const y = (event.clientY - rect.top) / rect.height - .5;
-        card.style.setProperty('--card-rx', `${(-y * 2.2).toFixed(2)}deg`);
-        card.style.setProperty('--card-ry', `${(x * 2.8).toFixed(2)}deg`);
-        card.style.setProperty('--card-light-x', `${((x + .5) * 100).toFixed(1)}%`);
-        card.style.setProperty('--card-light-y', `${((y + .5) * 100).toFixed(1)}%`);
-      }, { passive: true });
-      card.addEventListener('pointerleave', () => {
-        card.style.setProperty('--card-rx', '0deg');
-        card.style.setProperty('--card-ry', '0deg');
-      }, { passive: true });
-    });
-
-    window.addEventListener('pointermove', event => {
-      root.style.setProperty('--cursor-x', `${event.clientX}px`);
-      root.style.setProperty('--cursor-y', `${event.clientY}px`);
-    }, { passive: true });
-  }
 
   function setMotionOff(off) {
     body.classList.toggle('motion-off', off);
