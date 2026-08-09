@@ -116,11 +116,11 @@ body.artifact-ticket-focus .scroll-ticket{opacity:1}body.artifact-ticket-focus .
 html{scroll-padding-top:calc(var(--bar-h) + 10px)}
 .prologue,.concept-scene{scroll-snap-stop:normal}
 .hero-event-pulse{display:flex;align-items:center;justify-content:space-between;gap:28px;width:min(610px,100%);margin-top:20px;padding:13px 0;border:0;border-top:1px solid #ffffff33;border-bottom:1px solid #ffffff1f;background:transparent;color:#fff;text-align:left}.hero-event-pulse>span{display:grid;gap:4px}.hero-event-pulse small{color:#d6b772;font-size:8px;font-weight:850;letter-spacing:.17em;text-transform:uppercase}.hero-event-pulse strong{font-family:Georgia,serif;font-size:15px;font-weight:400;letter-spacing:.01em}.hero-event-pulse>b{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:9px;letter-spacing:.11em;text-transform:uppercase}.hero-event-pulse i{font-family:Georgia,serif;font-size:16px;font-style:normal;transition:transform .3s var(--ease)}.hero-event-pulse:hover i{transform:translate(4px,-4px)}
-.mobile-action-dock{display:none}.final-site .scroll-artifacts{display:none}
+.final-site .scroll-artifacts{display:none}
 @media(hover:none),(pointer:coarse){.final-site main{scroll-snap-type:none}.prologue,.concept-scene{scroll-snap-align:none}}
-@media(max-width:900px){.final-site main{scroll-snap-type:none}.scroll-artifacts{display:none}.mobile-action-dock{position:fixed;z-index:690;left:10px;right:10px;bottom:calc(9px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr;gap:1px;padding:4px;border:1px solid #ffffff22;border-radius:14px;background:#15120eea;box-shadow:0 16px 55px #0008;backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2)}.mobile-action-dock button{display:grid;gap:3px;min-height:52px;padding:8px 12px;border:0;border-radius:10px;background:transparent;color:#fff;text-align:left}.mobile-action-dock button:first-child{background:#f4efe6;color:#17130f}.mobile-action-dock small{font-size:7px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;opacity:.62}.mobile-action-dock strong{font-size:10px;letter-spacing:.06em;text-transform:uppercase}.site-footer{padding-bottom:calc(118px + env(safe-area-inset-bottom))}}
+@media(max-width:900px){.final-site main{scroll-snap-type:none}.scroll-artifacts{display:none}}
 @media(max-width:700px){.hero-event-pulse{display:none}}
-@media(max-width:520px){.experience-actions .primary-action{display:none}.experience-actions{margin-left:auto}.mobile-action-dock{left:8px;right:8px}}
+@media(max-width:520px){.experience-actions .primary-action{display:none}.experience-actions{margin-left:auto}}
 @media(prefers-reduced-motion:reduce){.hero-event-pulse i{transition:none}}
 
 /* Celebrations — dancing couple quick action and dedicated inquiry section */
@@ -183,7 +183,7 @@ html{scroll-padding-top:calc(var(--bar-h) + 10px)}
 .final-site .service-status em{color:#c9c1b6;font-size:10px;font-style:normal;letter-spacing:.04em}
 @media(max-width:520px){.final-site .service-status{margin-top:14px;padding:10px 11px}.final-site .service-status strong{font-size:15px}.final-site .service-status em{font-size:9px}}
 @media(max-width:900px){.final-site .site-nav{display:none}.final-site #ticketDialog .dialog-frame{padding:20px}.final-site #ticketDialog .ticket-list{grid-template-columns:1fr}.final-site #ticketDialog .ticket-list button{min-height:72px}.final-site #ticketDialog .ticket-list b{font-size:20px}.final-site #ticketDialog .ticket-list small{margin-top:2px}}
-@media(max-width:900px){.mobile-action-dock .mobile-dock-link{display:grid;gap:3px;min-height:52px;padding:8px 12px;border-radius:10px;background:#f4efe6;color:#17130f;text-align:left;text-decoration:none}.mobile-action-dock .mobile-dock-link small{font-size:7px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;opacity:.62}.mobile-action-dock .mobile-dock-link strong{font-size:10px;letter-spacing:.06em;text-transform:uppercase}}
+@media(max-width:900px){}
 
 /* Three guest paths on the right: lunch, evening events, celebrations */
 @media(min-width:901px){
