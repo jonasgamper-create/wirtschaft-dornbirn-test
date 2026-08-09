@@ -19,7 +19,6 @@
 
   const root = document.documentElement;
   const body = document.body;
-  const progress = document.getElementById('scrollProgress');
   const conceptRail = document.querySelector('.concept-rail');
   const railLinks = [...document.querySelectorAll('.concept-rail a')];
   // The final guest flow intentionally keeps the heritage/host chapters out
@@ -253,7 +252,6 @@
   function updateScrollEffects(visualScrollY = smoothedScrollY) {
     const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     const globalProgress = Math.max(0, Math.min(1, visualScrollY / max));
-    progress.style.transform = `scaleX(${globalProgress})`;
     root.style.setProperty('--global-scroll', globalProgress.toFixed(5));
     root.style.setProperty('--ticket-lift', `${Math.sin(globalProgress * Math.PI * 5) * 14}px`);
     root.style.setProperty('--ticket-turn', `${-5 + globalProgress * 12}deg`);
@@ -262,7 +260,6 @@
     root.style.setProperty('--celebration-lift', `${Math.sin(globalProgress * Math.PI * 6) * 8}px`);
     root.style.setProperty('--celebration-turn', `${globalProgress * 760}deg`);
     body.classList.toggle('page-scrolled', visualScrollY > 36);
-    body.classList.toggle('status-dock-away', visualScrollY > window.innerHeight * .7);
     const beforeChapters = scenes.length && visualScrollY < chapterBounds.firstTop - window.innerHeight * .58;
     const afterChapters = scenes.length && visualScrollY > chapterBounds.lastBottom - window.innerHeight * .12;
     body.classList.toggle('artifacts-hidden', Boolean(beforeChapters || afterChapters));
