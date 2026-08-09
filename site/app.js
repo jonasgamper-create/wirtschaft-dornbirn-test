@@ -808,5 +808,47 @@
       }
       window.__APP_ERRORS__.push({ type: 'event-data', message: error.message });
     });
+  const lunchMenu = document.querySelector('[data-lunch-menu]');
+  const lunchCardLink = document.querySelector('[data-lunch-card]');
+  const weekdayName = date => new Intl.DateTimeFormat('de-AT', { weekday: 'long' }).format(new Date(`${date}T12:00:00`));
+
+  function renderLunchMenu(data) {
+    if (!lunchMenu) return;
+    if (lunchCardLink && data.card?.file) {
+      lunchCardLink.href = data.card.file;
+      lunchCardLink.firstChild.textContent = `${data.card.label || 'Mittagskarte (PDF)'} `;
+    }
+    lunchCardLink?.toggleAttribute('hidden', !data.card?.file);
+    const days = Array.isArray(data.days) ? [...data.days].sort((a, b) => a.date.localeCompare(b.date)) : [];
+    if (data.status === 'pause' || !days.length) {
+      lunchMenu.innerHTML = `<p class="lunch-note">${escapeHtml(data.pauseNote || 'Die aktuelle Karte findet ihr im PDF.')}</p>`;
+      return;
+    }
+    const today = new Date();
+    const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const upcoming = days.filter(day => day.date >= todayIso);
+    const shown = (upcoming.length ? upcoming : days.slice(-1)).slice(0, 5);
+    lunchMenu.innerHTML = shown.map((day, index) => {
+      const isToday = day.date === todayIso;
+      const dishes = (day.dishes || []).map(dish =>
+        `<p class="lunch-dish"><span>${escapeHtml(dish.title)}</span>${dish.price ? `<b>${escapeHtml(dish.price)}</b>` : ''}${dish.detail ? `<small>${escapeHtml(dish.detail)}</small>` : ''}</p>`
+      ).join('');
+      return `<article class="lunch-day${isToday ? ' is-today' : ''}"${index === 0 ? ' data-lunch-lead' : ''}>
+        <h3>${isToday ? 'Heute' : escapeHtml(weekdayName(day.date))}</h3>
+        ${dishes || '<p class="lunch-dish"><span>Karte folgt</span></p>'}
+      </article>`;
+    }).join('');
+  }
+
+  fetch('data/lunch-menu.json', { cache: 'no-store' })
+    .then(response => {
+      if (!response.ok) throw new Error(`Mittagskarte konnte nicht geladen werden (${response.status})`);
+      return response.json();
+    })
+    .then(renderLunchMenu)
+    .catch(error => {
+      window.__APP_ERRORS__.push({ type: 'lunch-menu', message: error.message });
+    });
+
   reportStudy('page_ready', { concept: initialScene?.dataset.concept || requestedConcept || '01', viewport: { width: window.innerWidth, height: window.innerHeight } });
 })();

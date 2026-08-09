@@ -1,27 +1,16 @@
 {
-  "version": 1,
-  "weekLabel": "Woche ab 24. August 2026",
-  "note": "Wiedereröffnung nach der Sommerpause – Tageskarte wird vor dem Livegang von Wolfgang bestätigt.",
+  "version": 2,
+  "updatedAt": "2026-08-09T20:10:00+02:00",
+  "status": "pause",
   "serviceWindow": "Montag bis Freitag · 11:30–13:30",
   "reservationUrl": "https://tischreservierung.wirtschaft-dornbirn.at/",
-  "courses": [
-    {
-      "position": "01",
-      "title": "Suppe oder Salat",
-      "detail": "Tagesfrisch als Auftakt",
-      "price": "inkl."
-    },
-    {
-      "position": "02",
-      "title": "Vorarlberger Hauptgang",
-      "detail": "Saisonal · vegetarische Alternative verfügbar",
-      "price": "18,90 €"
-    },
-    {
-      "position": "03",
-      "title": "Kleiner Abschluss",
-      "detail": "Hausgemacht und überraschend",
-      "price": "+ 5,50 €"
-    }
-  ]
+  "sourceUrl": "https://wirtschaft-dornbirn.at/",
+  "pauseNote": "Sommerpause bis 23. August. Ab Montag, 24. August kochen wir wieder mittags.",
+  "card": {
+    "file": "downloads/mittagskarte/2026-07-24_mittagskarte-sommerpause.pdf",
+    "label": "Aktuelle Mittagskarte (PDF)",
+    "sourceUrl": "https://wirtschaft-dornbirn.at/wp-content/uploads/2026/07/mittagskarte_sommerurlaub_2026.pdf",
+    "fetchedAt": "2026-08-09"
+  },
+  "days": []
 }
