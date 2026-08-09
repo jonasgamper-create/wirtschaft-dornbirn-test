@@ -251,9 +251,6 @@ html{scroll-padding-top:calc(var(--bar-h) + 10px)}
 .final-site .hero-arrival{position:absolute;z-index:3;right:clamp(20px,3.2vw,58px);bottom:clamp(16px,3.8vh,46px);width:min(470px,38vw);pointer-events:none;opacity:var(--hero-arrival-opacity,1);transform:translate3d(var(--hero-arrival-x,-24vw),var(--hero-arrival-y,0px),0);will-change:transform,opacity;transition:opacity .25s ease}
 .final-site .hero-arrival-vehicle{position:relative;width:100%;filter:drop-shadow(0 24px 30px #0008)}
 .final-site .hero-arrival-vehicle>img{display:block;width:100%;height:auto}
-.final-site .prologue-brand-corner{position:absolute;z-index:6;top:calc(var(--bar-h) + 28px);right:34px;display:block;width:142px;padding:9px 12px;border:1px solid #ffffff40;border-radius:6px;background:#f4efe6e8;box-shadow:0 14px 32px #0005;transition:transform .25s var(--ease),background .25s var(--ease)}
-.final-site .prologue-brand-corner:hover,.final-site .prologue-brand-corner:focus-visible{background:#fff;transform:translateY(-2px)}
-.final-site .prologue-brand-corner img{display:block;width:100%;height:auto}
 .final-site .hero-arrival-mark{position:absolute;left:20%;top:23%;display:block;width:34%;height:auto;opacity:1;filter:brightness(0) invert(1) contrast(1.1) drop-shadow(0 2px 2px #0009)}
 .final-site .hero-arrival-mark img{display:block;width:100%;height:auto}
 .final-site .hero-arrival-card{position:absolute;z-index:2;right:7%;bottom:75%;display:grid;gap:4px;width:min(280px,78%);padding:13px 15px;border:1px solid #ffffff36;border-radius:10px;background:#17130fe8;color:#fff;box-shadow:0 16px 42px #0007;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
@@ -555,7 +552,6 @@ html{scroll-padding-top:calc(var(--bar-h) + 10px)}
 }
 @media(max-width:560px){
   .final-site .experience-bar{padding-left:12px;padding-right:12px;gap:8px}
-  .final-site .prologue-brand-corner{top:calc(var(--bar-h) + 132px + env(safe-area-inset-top));right:14px;width:96px;padding:6px 8px}
   .final-site .experience-bar .experience-actions{display:grid;grid-template-columns:1fr auto 1fr;inset:0;align-items:center}
   .final-site .experience-actions .header-events{grid-column:2;min-height:34px;padding:0 10px;font-size:8px;letter-spacing:.1em}
   .final-site .experience-actions .primary-action{display:inline-flex!important;grid-column:3;justify-self:end;align-items:center;justify-content:center;width:auto;min-width:62px;min-height:34px;margin-right:10px;padding:4px 10px 0;font-size:8px;letter-spacing:.08em}
