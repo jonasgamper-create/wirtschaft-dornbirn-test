@@ -87,12 +87,18 @@
     const rect = cateringSection.getBoundingClientRect();
     const scrollTop = document.scrollingElement?.scrollTop ?? window.scrollY;
     const sectionTop = rect.top + scrollTop;
-    // Start the lower pass early in the section and carry it fully beyond
-    // the right edge, so the movement reads on mobile as well as desktop.
-    const travel = Math.max(1, cateringSection.offsetHeight * .54);
-    const progress = clamp((scrollTop - sectionTop) / travel);
-    const x = -44 + smooth(progress / .82) * 232;
-    const opacity = smooth((progress - .015) / .045) * (1 - smooth((progress - .91) / .09));
+    // The drive begins as soon as the truck lane (bottom third of the
+    // section) scrolls into view and finishes exactly at the end of the
+    // page, where the truck parks inside the viewport instead of exiting.
+    const laneTop = sectionTop + cateringSection.offsetHeight * .62;
+    const start = laneTop - window.innerHeight;
+    const end = Math.max(start + 1, document.documentElement.scrollHeight - window.innerHeight);
+    const progress = clamp((scrollTop - start) / (end - start));
+    const truckVw = cateringTruck.offsetWidth / Math.max(1, window.innerWidth) * 100;
+    const xStart = -truckVw - 6;
+    const xEnd = Math.max(6, 100 - truckVw - 4);
+    const x = xStart + smooth(progress) * (xEnd - xStart);
+    const opacity = smooth((progress - .01) / .05);
     const open = 0;
     const tilt = Math.sin(progress * Math.PI * 5) * 1.1;
     const y = Math.sin(progress * Math.PI * 4) * -4;
