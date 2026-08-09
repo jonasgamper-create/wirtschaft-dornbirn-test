@@ -1,30 +1,187 @@
+import { execFile } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const assets = path.join(root, 'site', 'assets');
 const out = path.join(root, 'output', 'social-canva');
-const uri = async (name) => {
-  const ext = path.extname(name).slice(1);
-  const mime = ext === 'png' ? 'image/png' : ext === 'jpg' ? 'image/jpeg' : 'image/webp';
-  return `data:${mime};base64,${(await readFile(path.join(assets, name))).toString('base64')}`;
+const monoOut = path.join(out, 'source-monochrome');
+const runFile = promisify(execFile);
+
+const monoUri = async (name) => {
+  const destination = path.join(monoOut, `${path.basename(name, path.extname(name))}.png`);
+  await runFile('sips', [
+    '-s', 'format', 'png',
+    '-m', '/System/Library/ColorSync/Profiles/Generic Gray Profile.icc',
+    path.join(assets, name),
+    '--out', destination,
+  ]);
+  return `data:image/png;base64,${(await readFile(destination)).toString('base64')}`;
 };
-const [logo, live, truck] = await Promise.all([uri('wirtschaft-logo.png'), uri('live.webp'), uri('eugen-truck-closed.webp')]);
-const sans = 'font-family="Inter, Helvetica Neue, Arial, sans-serif"';
-const serif = 'font-family="Georgia, Times New Roman, serif"';
-const post = `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350"><defs><linearGradient id="s" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#11110f" stop-opacity=".9"/><stop offset=".65" stop-color="#11110f" stop-opacity=".44"/><stop offset="1" stop-color="#8c292b" stop-opacity=".78"/></linearGradient></defs><rect width="1080" height="1350" fill="#11110f"/><image href="${live}" x="0" y="0" width="1080" height="1350" preserveAspectRatio="xMidYMid slice" opacity=".72"/><rect width="1080" height="1350" fill="url(#s)"/><rect x="54" y="52" width="260" height="72" rx="7" fill="#f3efe6"/><image href="${logo}" x="70" y="72" width="228" height="52" preserveAspectRatio="xMidYMid meet"/><text x="54" y="238" fill="#d5b56c" ${sans} font-size="17" font-weight="800" letter-spacing="4">WIRTSCHAFT · DORNBIRN</text><text x="54" y="390" fill="#f3efe6" ${serif} font-size="112" letter-spacing="-5">GENUSSROUTE</text><text x="54" y="500" fill="#dfc58c" ${serif} font-size="130" font-style="italic" letter-spacing="-6">6850</text><rect x="54" y="558" width="972" height="1" fill="#f3efe6" opacity=".6"/><text x="54" y="626" fill="#f3efe6" ${sans} font-size="26" font-weight="800" letter-spacing="6">03 SEP 2026</text><text x="54" y="674" fill="#f3efe6" ${sans} font-size="23" letter-spacing="1">DINNER · LIVEKULTUR · DORNBIRN</text><rect x="54" y="1086" width="386" height="78" rx="39" fill="#d5b56c"/><text x="247" y="1135" text-anchor="middle" fill="#15110e" ${sans} font-size="20" font-weight="850" letter-spacing="2">TICKETS SICHERN ↗</text><text x="54" y="1260" fill="#f3efe6" ${sans} font-size="16" letter-spacing="2">BAHNHOFSTRASSE 24 · 6850 DORNBIRN</text><text x="1026" y="1260" text-anchor="end" fill="#d5b56c" ${sans} font-size="16" font-weight="800" letter-spacing="2">WIRTSCHAFT-DORNBIRN.AT</text></svg>`;
-const story = `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920"><defs><linearGradient id="ss" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#11110f" stop-opacity=".12"/><stop offset="1" stop-color="#11110f" stop-opacity=".82"/></linearGradient></defs><rect width="1080" height="1920" fill="#f3efe6"/><rect width="1080" height="860" fill="#11110f"/><image href="${live}" x="0" y="0" width="1080" height="860" preserveAspectRatio="xMidYMid slice"/><rect width="1080" height="860" fill="url(#ss)"/><rect x="54" y="58" width="260" height="72" rx="7" fill="#f3efe6"/><image href="${logo}" x="70" y="78" width="228" height="52" preserveAspectRatio="xMidYMid meet"/><circle cx="920" cy="96" r="58" fill="#d5b56c"/><text x="920" y="91" text-anchor="middle" fill="#15110e" ${sans} font-size="18" font-weight="850" letter-spacing="2">03</text><text x="920" y="118" text-anchor="middle" fill="#15110e" ${sans} font-size="13" font-weight="800" letter-spacing="2">SEP</text><text x="54" y="680" fill="#f3efe6" ${sans} font-size="18" font-weight="800" letter-spacing="4">NÄCHSTER ABEND</text><text x="54" y="780" fill="#f3efe6" ${serif} font-size="92" letter-spacing="-4">Genussroute</text><text x="54" y="850" fill="#dfc58c" ${serif} font-size="86" font-style="italic" letter-spacing="-3">6850</text><text x="54" y="1010" fill="#8c292b" ${sans} font-size="19" font-weight="850" letter-spacing="4">DINNER · BÜHNE · DORNBIRN</text><text x="54" y="1132" fill="#11110f" ${serif} font-size="80" letter-spacing="-3">Ein Abend,</text><text x="54" y="1216" fill="#8c292b" ${serif} font-size="80" font-style="italic" letter-spacing="-3">der bleibt.</text><rect x="54" y="1320" width="470" height="82" rx="41" fill="#8c292b"/><text x="289" y="1371" text-anchor="middle" fill="#f3efe6" ${sans} font-size="20" font-weight="850" letter-spacing="2">TICKETS SICHERN ↗</text><rect x="54" y="1532" width="972" height="1" fill="#11110f" opacity=".2"/><text x="54" y="1600" fill="#11110f" ${sans} font-size="16" font-weight="800" letter-spacing="3">WIRTSCHAFT · BAHNHOFSTRASSE 24 · DORNBIRN</text><text x="54" y="1740" fill="#11110f" ${serif} font-size="35">Speichern. Weiterleiten. Dabeisein.</text><text x="54" y="1810" fill="#5f584e" ${sans} font-size="17" letter-spacing="1">Alle Termine und Tickets auf wirtschaft-dornbirn.at</text></svg>`;
-const truckPost = `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350"><rect width="1080" height="1350" fill="#ead9bc"/><path d="M0 1000 C240 938 390 1046 588 1000 C778 956 913 1008 1080 958 L1080 1350 L0 1350 Z" fill="#d7b76d" opacity=".28"/><text x="62" y="92" fill="#8c292b" ${sans} font-size="18" font-weight="850" letter-spacing="4">WIRTSCHAFT · VORARLBERG</text><text x="62" y="254" fill="#11110f" ${serif} font-size="100" letter-spacing="-5">Eugen kommt.</text><text x="62" y="350" fill="#8c292b" ${serif} font-size="92" font-style="italic" letter-spacing="-4">Emma dreht auf.</text><text x="62" y="440" fill="#11110f" ${sans} font-size="23" letter-spacing="1">FOODTRUCK · LIVEBÜHNE · EUER ANLASS</text><line x1="62" y1="495" x2="1018" y2="495" stroke="#11110f" stroke-width="2" opacity=".35"/><text x="62" y="560" fill="#11110f" ${serif} font-size="50">Genussroute 6850</text><text x="62" y="614" fill="#5f584e" ${sans} font-size="21" letter-spacing="1">03 SEP · DINNER &amp; LIVEKULTUR IN DORNBIRN</text><rect x="62" y="650" width="320" height="70" rx="35" fill="#11110f"/><text x="222" y="694" text-anchor="middle" fill="#f3efe6" ${sans} font-size="18" font-weight="850" letter-spacing="2">TICKETS SICHERN ↗</text><image href="${truck}" x="-30" y="700" width="1140" height="650" preserveAspectRatio="xMidYMid meet"/><circle cx="862" cy="722" r="46" fill="#8c292b"/><text x="862" y="731" text-anchor="middle" fill="#f3efe6" ${sans} font-size="37">♪</text><text x="62" y="1284" fill="#11110f" ${sans} font-size="15" font-weight="800" letter-spacing="2">BAHNHOFSTRASSE 24 · 6850 DORNBIRN</text></svg>`;
+
+await mkdir(monoOut, { recursive: true });
+
+const [food, comedy, stage] = await Promise.all([
+  monoUri('food.webp'),
+  monoUri('comedy.webp'),
+  monoUri('stage.webp'),
+]);
+
+const colors = {
+  black: '#111111',
+  gold: '#B48727',
+  white: '#F4F2ED',
+};
+
+const fonts = 'font-family="Helvetica Neue, Helvetica, Arial, sans-serif"';
+const defs = (id) => `<defs>
+  <linearGradient id="shade-${id}" x1="0" y1="0" x2="0" y2="1">
+    <stop stop-color="#111" stop-opacity=".20"/>
+    <stop offset=".58" stop-color="#111" stop-opacity=".36"/>
+    <stop offset="1" stop-color="#111" stop-opacity=".80"/>
+  </linearGradient>
+</defs>`;
+
+const logoMark = (x, y) => `<text x="${x}" y="${y}" fill="${colors.white}" ${fonts} font-size="43" font-weight="400" letter-spacing="-2">„wirtschaft“</text><text x="${x + 72}" y="${y + 27}" fill="${colors.white}" ${fonts} font-size="11" letter-spacing=".3">cafe restaurant bar</text>`;
+
+const multiline = ({ x, y, lines, size, fill = colors.gold, weight = 700, lineHeight = 0.88, letterSpacing = -3 }) =>
+  lines.map((line, index) => `<text x="${x}" y="${y + index * size * lineHeight}" fill="${fill}" ${fonts} font-size="${size}" font-weight="${weight}" letter-spacing="${letterSpacing}">${line}</text>`).join('');
+
+const events = [
+  {
+    slug: 'genussroute-6850',
+    image: food,
+    category: 'genuss &amp; live-musik',
+    title: ['genussroute', '6850'],
+    feedSize: 112,
+    storySize: 118,
+    date: ['donnerstag,', '03.09.2026', '18:00–01:00 uhr'],
+    storyDate: ['03. september 2026', '18:00–01:00 uhr'],
+    facts: ['5 gastronomen', '6 live-bands', '6 speisegänge'],
+  },
+  {
+    slug: 'helden-reisen-gaeste-speisen',
+    image: comedy,
+    category: 'dinner &amp; comedy',
+    title: ['helden reisen,', 'gäste speisen!'],
+    feedSize: 94,
+    storySize: 98,
+    date: ['dienstag &amp; mittwoch,', '22. &amp; 23.09.2026', '18:45 uhr'],
+    storyDate: ['22. &amp; 23. september 2026', '18:45 uhr'],
+    facts: ['4 comedians', '4 haltestellen', '4-gänge-menü'],
+  },
+  {
+    slug: 'dinner-comedy-oktober',
+    image: stage,
+    category: 'dinner &amp; comedy',
+    title: ['dinner &amp;', 'comedy'],
+    feedSize: 126,
+    storySize: 132,
+    date: ['mittwoch,', '14.10.2026', '19:00 uhr'],
+    storyDate: ['14. oktober 2026', '19:00 uhr'],
+    facts: ['3 comedians', '1 bühne', 'comedy only verfügbar'],
+  },
+];
+
+const feedSvg = (event) => {
+  const id = `feed-${event.slug}`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+${defs(id)}
+<rect width="1080" height="1350" fill="${colors.black}"/>
+<image href="${event.image}" width="1080" height="1350" preserveAspectRatio="xMidYMid slice"/>
+<rect width="1080" height="1350" fill="url(#shade-${id})"/>
+${logoMark(64, 102)}
+<text x="1018" y="105" text-anchor="end" fill="${colors.gold}" ${fonts} font-size="31" font-weight="750">${event.category}</text>
+${multiline({ x: 74, y: 432, lines: event.title, size: event.feedSize })}
+<rect x="74" y="875" width="932" height="180" fill="#111" fill-opacity=".16" stroke="${colors.white}" stroke-width="2"/>
+<line x1="475" y1="875" x2="475" y2="1055" stroke="${colors.white}" stroke-width="2"/>
+${event.date.map((line, index) => `<text x="104" y="${928 + index * 42}" fill="${colors.white}" ${fonts} font-size="31" font-weight="400">${line}</text>`).join('')}
+${['“wirtschaft”', 'bahnhofstraße 24', '6850 dornbirn'].map((line, index) => `<text x="510" y="${928 + index * 42}" fill="${colors.white}" ${fonts} font-size="31" font-weight="400">${line}</text>`).join('')}
+<text x="540" y="1190" text-anchor="middle" fill="${colors.white}" ${fonts} font-size="28" font-weight="400" letter-spacing="1.2">www.wirtschaft-dornbirn.at</text>
+<text x="540" y="1262" text-anchor="middle" fill="${colors.gold}" ${fonts} font-size="19" font-weight="700" letter-spacing="2.2">${event.facts.join('  ·  ')}</text>
+</svg>`;
+};
+
+const storySvg = (event) => {
+  const id = `story-${event.slug}`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+${defs(id)}
+<rect width="1080" height="1920" fill="${colors.black}"/>
+<image href="${event.image}" width="1080" height="1920" preserveAspectRatio="xMidYMid slice"/>
+<rect width="1080" height="1920" fill="url(#shade-${id})"/>
+${logoMark(66, 158)}
+<text x="1014" y="155" text-anchor="end" fill="${colors.gold}" ${fonts} font-size="31" font-weight="750">${event.category}</text>
+${multiline({ x: 66, y: 615, lines: event.title, size: event.storySize })}
+<rect x="66" y="1110" width="948" height="218" fill="#111" fill-opacity=".18" stroke="${colors.white}" stroke-width="2"/>
+${event.storyDate.map((line, index) => `<text x="102" y="${1188 + index * 54}" fill="${colors.white}" ${fonts} font-size="36" font-weight="400">${line}</text>`).join('')}
+<line x1="620" y1="1110" x2="620" y2="1328" stroke="${colors.white}" stroke-width="2"/>
+${['“wirtschaft”', 'dornbirn'].map((line, index) => `<text x="654" y="${1188 + index * 48}" fill="${colors.white}" ${fonts} font-size="30" font-weight="400">${line}</text>`).join('')}
+<rect x="66" y="1465" width="430" height="88" rx="44" fill="${colors.gold}"/>
+<text x="281" y="1521" text-anchor="middle" fill="${colors.black}" ${fonts} font-size="25" font-weight="750" letter-spacing="1">tickets &amp; infos  ↗</text>
+<text x="66" y="1670" fill="${colors.white}" ${fonts} font-size="23" font-weight="450">${event.facts.join('  ·  ')}</text>
+<text x="66" y="1775" fill="${colors.white}" ${fonts} font-size="22" letter-spacing="1.2">wirtschaft-dornbirn.at</text>
+</svg>`;
+};
+
 await mkdir(out, { recursive: true });
-await writeFile(path.join(out, 'instagram-post-event.svg'), post);
-await writeFile(path.join(out, 'instagram-story-event.svg'), story);
-await writeFile(path.join(out, 'instagram-post-foodtruck.svg'), truckPost);
-await writeFile(path.join(out, 'README.md'), `# Canva-Entwürfe · Wirtschaft Dornbirn
 
-- instagram-post-event.svg – 1080 × 1350 px, Feed-Beitrag 4:5
-- instagram-story-event.svg – 1080 × 1920 px, Story 9:16
-- instagram-post-foodtruck.svg – 1080 × 1350 px, Feed-Beitrag 4:5
+const files = [];
+for (const event of events) {
+  const feedName = `instagram-post-${event.slug}.svg`;
+  const storyName = `instagram-story-${event.slug}.svg`;
+  await writeFile(path.join(out, feedName), feedSvg(event));
+  await writeFile(path.join(out, storyName), storySvg(event));
+  files.push(feedName, storyName);
+}
 
-SVG in Canva hochladen, Text/Datum/Ticketziel bei Bedarf ersetzen und als PNG exportieren. Vor Veröffentlichung Eventdaten, offizielles Ticketziel und Bildrechte prüfen. Keine automatische Veröffentlichung und kein Tracking.
+await writeFile(path.join(out, 'CAPTIONS.md'), `# Instagram-Texte · Wirtschaft Dornbirn
+
+## Genussroute 6850 · 03. September 2026
+
+5 heimische Gastronomen, 6 Live-Bands und 6 Speisegänge im Kleinformat: Bei der Genussroute 6850 wird Dornbirn für einen Abend zur kulinarischen Bühne. Von 18:00 bis 01:00 Uhr geht es mit Shuttle-Bussen von Genussort zu Genussort; ab 22:00 Uhr wartet die Afterparty im Kulturhaus Dornbirn.
+
+Tickets: 88 Euro. Infos und Tickets über wirtschaft-dornbirn.at.
+
+#genussroute #6850dornbirn #wirtschaftdornbirn #eventsvorarlberg
+
+Story-Sticker: **Tickets & Infos** · Linkziel: https://wirtschaft-dornbirn.at/event/genussroute-2026/
+
+## Helden reisen, Gäste speisen! · 22. & 23. September 2026
+
+Vier Comedians, vier Haltestellen und ein genussvoller Abend: Während ihr in eurer gewählten Location ein feines Menü genießt, reisen die Künstler von Restaurant zu Restaurant und bringen jeweils 20 Minuten aus ihren Programmen mit.
+
+Beginn: 18:45 Uhr. Tickets: 88 Euro. Infos und Tickets über wirtschaft-dornbirn.at.
+
+#heldenreisengaestespeisen #dinnerundcomedy #wirtschaftdornbirn #6850dornbirn
+
+Story-Sticker: **Tickets & Infos** · Linkziele: https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/ und https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/
+
+## Dinner & Comedy · 14. Oktober 2026
+
+Drei Comedians, ein Abend, eine Bühne: schnelle 20-Minuten-Highlights aus Stand-up, Kabarett, Magie und Musikcomedy – moderiert von Niko Formanek.
+
+Dinner & Comedy ist aktuell ausverkauft; die Warteliste ist geöffnet. Comedy only beginnt um 21:00 Uhr und kostet 28 Euro. Infos und Tickets über wirtschaft-dornbirn.at.
+
+#dinnerundcomedy #mixedshow #wirtschaftdornbirn #6850dornbirn
+
+Story-Sticker: **Tickets & Infos** · Linkziel: https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/
 `);
-console.log(`Social-Entwürfe erstellt: ${out}`);
+
+await writeFile(path.join(out, 'README.md'), `# Instagram-Entwürfe · Wirtschaft Dornbirn
+
+Sechs präsentierbare Entwürfe im verifizierten Instagram-CI von @wirtschaft_dornbirn:
+
+- Schwarz-Weiß-Fotografie
+- Senf-/Gold-Akzent
+- Helvetica-/Grotesk-Typografie in Kleinschreibung
+- weißes „wirtschaft“-Logo
+- dünn umrandeter Datums- und Ortsblock
+
+Je Event gibt es einen Feed-Beitrag (1080 × 1350 px, 4:5) und eine Story (1080 × 1920 px, 9:16). Die SVG-Dateien bleiben in Canva editierbar. Die zugehörigen fertigen Texte und Linkziele stehen in CAPTIONS.md.
+
+Grundlage: tatsächlicher Instagram-Auftritt @wirtschaft_dornbirn, live geprüft am 08.08.2026; Eventdaten live mit wirtschaft-dornbirn.at abgeglichen. Keine Veröffentlichung durchgeführt.
+`);
+
+console.log(`Social-Entwürfe erstellt: ${files.length} SVG-Dateien in ${out}`);

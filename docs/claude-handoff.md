@@ -1,0 +1,43 @@
+# Übergabe an Claude
+
+## Empfohlener Ablauf
+
+1. Repository lokal klonen oder über eine autorisierte GitHub-Verbindung öffnen.
+2. `CLAUDE.md` vollständig lesen lassen.
+3. Pro Anfrage nur ein konkretes Ziel definieren, zum Beispiel „Eventkarten im
+   Abschnitt `#concept-04` 8 px weiter nach rechts“.
+4. Claude zuerst den Plan und die betroffenen Dateien nennen lassen.
+5. Änderung in einem Feature-Branch durchführen lassen.
+6. `npm run ci` ausführen lassen.
+7. Diff und Mobile-Ansicht selbst prüfen.
+8. Erst danach Pull Request mergen.
+
+## Was Claude nicht erhalten darf
+
+- Resmio-/Ticketist-Logins
+- Karten- oder Zahlungsdaten
+- Gästelisten, Reservierungsdaten oder E-Mail-Exporte
+- Vercel-/GitHub-Tokens
+- nicht anonymisierte Kundendokumente
+
+Der Live-Link ist nur eine Ansicht. Schreibrechte entstehen ausschließlich
+über das persönliche GitHub-Konto mit Repository-Einladung.
+
+## Gute Aufgabenformulierung
+
+```text
+Ziel: [eine sichtbare Änderung]
+Betroffene Datei: [konkreter Pfad]
+Unverändert lassen: [z. B. Eventdaten, Buchungslinks, CI-Tokens]
+Akzeptanz: [z. B. Mobile 390 px, keine Überschneidung, npm run ci grün]
+```
+
+## Übergabe nach jeder Claude-Session
+
+Claude soll immer ausgeben:
+
+- Commit-/Branchname
+- geänderte Dateien
+- `npm run ci`-Ergebnis
+- sichtbare Designänderung
+- offene Risiken oder nicht geprüfte externe Links

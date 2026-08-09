@@ -74,6 +74,9 @@ funktioniert danach weiterhin als statische Website.
 - `docs/collaboration.md` – Live-Link, Zwei-Rechner-Workflow und sichere KI-Zusammenarbeit
 - `docs/production-readiness-dsgvo-seo.md` – verbindliche DSGVO-, Sicherheits- und SEO-/GEO-Freigabematrix
 - `docs/optimization-audit-2026-08.md` – 50-Szenario-Review, A/B-Testplan und Messkonzept ohne aktives Tracking im Test
+- `CLAUDE.md` – verbindliche CI-, Motion- und Review-Regeln für Claude
+- `docs/ci-style-guide.md` – gespeicherte Format- und Abnahmeregeln
+- `docs/claude-handoff.md` – Schritt-für-Schritt-Übergabe an Claude
 - `output/social-canva/` – Canva-taugliche SVG-/PNG-Entwürfe für Event-Posts und Stories
 - `output/pdf/wirtschaft-dornbirn-buchung-ticket-entscheidung-2026-08.pdf` – Entscheidungs- und Go-live-Pitch für Wolfgang
 
