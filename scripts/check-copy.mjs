@@ -12,8 +12,11 @@ for (const [file, html] of contents) {
 }
 
 const index = contents.find(([file]) => file === 'site/index.html')[1];
-if (!/aria-label="Mittag und Tagesmenü"/.test(index) || !/>Mittag<\/a>/.test(index)) {
-  errors.push('site/index.html: oberer Mittag-Link muss exakt "Mittag" heißen');
+if (/class="experience-actions"/.test(index)) {
+  errors.push('site/index.html: Header bleibt ohne Schnellaktionen – Buchungswege liegen im Inhalt');
+}
+if (!/Mittagstisch reservieren/.test(index)) {
+  errors.push('site/index.html: Reservierung muss als Mittagstisch ausgewiesen sein (abends nur Events)');
 }
 const topHeader = index.match(/<header[\s\S]*?<\/header>/i)?.[0] || '';
 if (/\bTee\b/i.test(topHeader)) errors.push('site/index.html: oberer Header darf nicht "Tee" enthalten');

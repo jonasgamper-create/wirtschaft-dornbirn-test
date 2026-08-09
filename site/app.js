@@ -104,7 +104,7 @@
     const paused = todayIso >= pauseStart && todayIso <= pauseUntil;
     const nextLabel = paused ? pause.label || 'Sommerpause' : 'Geöffnet';
     const reopen = pause.reopen ? formatEventDate(pause.reopen) : 'bald';
-    const nextDetail = paused ? `Ab ${reopen} wieder geöffnet` : 'Tagesmenü · Tisch · Abendprogramm';
+    const nextDetail = paused ? `Ab ${reopen} wieder geöffnet` : 'Mittagstisch · Abendevents';
     const label = statusLabel || serviceStatus.querySelector('strong');
     const detail = statusDetail || serviceStatus.querySelector('em');
     if (label) label.textContent = nextLabel;
