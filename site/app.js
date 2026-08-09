@@ -256,6 +256,7 @@
     root.style.setProperty('--celebration-lift', `${Math.sin(globalProgress * Math.PI * 6) * 8}px`);
     root.style.setProperty('--celebration-turn', `${globalProgress * 760}deg`);
     body.classList.toggle('page-scrolled', visualScrollY > 36);
+    body.classList.toggle('status-dock-away', visualScrollY > window.innerHeight * .7);
     const beforeChapters = scenes.length && visualScrollY < chapterBounds.firstTop - window.innerHeight * .58;
     const afterChapters = scenes.length && visualScrollY > chapterBounds.lastBottom - window.innerHeight * .12;
     body.classList.toggle('artifacts-hidden', Boolean(beforeChapters || afterChapters));
