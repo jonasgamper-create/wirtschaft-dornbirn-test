@@ -36,7 +36,11 @@
   date.min = todayValue;
   date.value = todayValue;
 
+  // Der flexible Wunschtermin ist optionales Markup; ohne die Felder
+  // bleibt das exakte Datum einfach Pflicht.
+  const flexibleDate = () => Boolean(dateFlexible && dateFlexible.checked);
   function syncDateMode() {
+    if (!dateFlexible || !dateExactWrap || !dateTextWrap || !dateText) return;
     const flexible = dateFlexible.checked;
     dateExactWrap.hidden = flexible;
     dateTextWrap.hidden = !flexible;
@@ -44,10 +48,11 @@
     dateText.required = flexible;
     if (!flexible) dateText.value = '';
   }
-  dateFlexible.addEventListener('change', syncDateMode);
+  dateFlexible?.addEventListener('change', syncDateMode);
   syncDateMode();
 
   function syncOccasionMode() {
+    if (!customOccasionWrap || !customOccasion) return;
     const custom = occasion.value === 'Etwas anderes';
     customOccasionWrap.hidden = !custom;
     customOccasion.required = custom;
@@ -68,8 +73,8 @@
   form.addEventListener('submit', event => {
     event.preventDefault();
     status.textContent = '';
-    const required = [occasion, location, guests, name, email, dateFlexible.checked ? dateText : date];
-    if (occasion.value === 'Etwas anderes') required.push(customOccasion);
+    const required = [occasion, location, guests, name, email, flexibleDate() ? dateText : date];
+    if (occasion.value === 'Etwas anderes' && customOccasion) required.push(customOccasion);
     const missing = required.find(field => !field.value.trim());
     if (missing) {
       status.textContent = 'Bitte die markierten Pflichtangaben ergänzen.';
@@ -86,8 +91,8 @@
       consent.focus();
       return;
     }
-    const formattedDate = dateFlexible.checked ? dateText.value.trim() : new Intl.DateTimeFormat('de-AT', { dateStyle: 'long' }).format(new Date(`${date.value}T12:00:00`));
-    const occasionLabel = occasion.value === 'Etwas anderes' ? customOccasion.value.trim() : occasion.value;
+    const formattedDate = flexibleDate() ? dateText.value.trim() : new Intl.DateTimeFormat('de-AT', { dateStyle: 'long' }).format(new Date(`${date.value}T12:00:00`));
+    const occasionLabel = occasion.value === 'Etwas anderes' && customOccasion ? customOccasion.value.trim() : occasion.value;
     const body = [
       'Guten Tag liebes Team der Wirtschaft Dornbirn,', '',
       'ich möchte unverbindlich eine Veranstaltung anfragen:',
