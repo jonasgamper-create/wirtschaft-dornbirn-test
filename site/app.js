@@ -722,10 +722,6 @@
   }));
   document.getElementById('allEventsCalendar')?.addEventListener('click', () => exportCalendar(calendarEvents, 'wirtschaft-dornbirn-events-2026.ics'));
 
-  const ticketButtons = [...document.querySelectorAll('.ticket-list button')];
-  const quantityOutput = document.getElementById('ticketQuantity');
-  const ticketTotal = document.getElementById('ticketTotal');
-  const ticketMessage = document.getElementById('ticketMessage');
   const ticketEvent = document.getElementById('ticketEvent');
   ticketEvent?.addEventListener('change', syncOfficialTicketLink);
   syncOfficialTicketLink();
@@ -735,35 +731,23 @@
     const event = calendarEvents.find(item => item.id === ticketEvent?.value);
     if (event) exportCalendar([event], `${event.id}.ics`);
   });
-  let selectedTicket = ticketButtons[0]?.dataset.ticket || 'Show only';
-  let selectedPrice = Number(ticketButtons[0]?.dataset.price || 39);
-  let ticketQuantity = 2;
-
-  function renderTicketTotal() {
-    quantityOutput.textContent = ticketQuantity;
-    ticketTotal.textContent = `${selectedPrice * ticketQuantity} €`;
+  const ticketDetail = document.querySelector('[data-ticket-detail]');
+  function renderTicketDetail() {
+    if (!ticketDetail) return;
+    const event = calendarEvents.find(item => item.id === ticketEvent?.value);
+    if (!event) { ticketDetail.innerHTML = ''; return; }
+    const statusNote = {
+      waitlist: 'Für diesen Abend führt der Veranstalter eine Warteliste.',
+      sold_out: 'Dieser Abend ist ausverkauft.',
+      cancelled: 'Dieser Termin wurde abgesagt.'
+    }[event.status] || '';
+    ticketDetail.innerHTML = `<p class="ticket-detail-date">${escapeHtml(formatEventDate(event.date))} · ${escapeHtml(event.type)}</p>
+      <p class="ticket-detail-title">${escapeHtml(event.title)}</p>
+      ${statusNote ? `<p class="ticket-detail-status">${escapeHtml(statusNote)}</p>` : ''}
+      <p class="ticket-detail-note">Tarife und Einlasszeiten stehen auf der offiziellen Eventseite.</p>`;
   }
-
-  ticketButtons.forEach(button => button.addEventListener('click', () => {
-    ticketButtons.forEach(item => {
-      const selected = item === button;
-      item.classList.toggle('selected', selected);
-      item.setAttribute('aria-checked', String(selected));
-    });
-    selectedTicket = button.dataset.ticket;
-    selectedPrice = Number(button.dataset.price);
-    renderTicketTotal();
-  }));
-
-  document.getElementById('ticketMinus')?.addEventListener('click', () => {
-    ticketQuantity = Math.max(1, ticketQuantity - 1);
-    renderTicketTotal();
-  });
-  document.getElementById('ticketPlus')?.addEventListener('click', () => {
-    ticketQuantity = Math.min(10, ticketQuantity + 1);
-    renderTicketTotal();
-  });
-  renderTicketTotal();
+  ticketEvent?.addEventListener('change', renderTicketDetail);
+  renderTicketDetail();
   document.querySelectorAll('a[href="#impressum"]').forEach(link => {
     link.addEventListener('click', () => reportStudy('imprint_click', { concept: body.dataset.concept || requestedConcept || '01' }));
   });

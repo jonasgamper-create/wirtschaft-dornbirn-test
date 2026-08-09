@@ -529,6 +529,11 @@ html{scroll-padding-top:calc(var(--bar-h) + 10px)}
 .lunch-dish b{font-family:Georgia,serif;font-size:17px;font-weight:400;white-space:nowrap}
 .lunch-dish small{grid-column:1/-1;color:#6a655c;font-size:12px}
 .lunch-day.is-today .lunch-dish span{font-size:22px}
+.ticket-detail{display:grid;gap:6px;padding:26px 0 4px}
+.ticket-detail-date{margin:0;color:var(--wine);font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.ticket-detail-title{margin:0;font-family:Georgia,serif;font-size:clamp(26px,3.4vw,38px);line-height:1.1}
+.ticket-detail-status{margin:6px 0 0;padding:11px 14px;border-left:2px solid var(--gold);background:#e7e0d480;font-size:13px}
+.ticket-detail-note{margin:4px 0 0;color:#6a655c;font-size:12px}
 .lunch-card-link{display:inline-block;color:#181713;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;text-underline-offset:5px}
 .lunch-card-link span{display:inline-block;margin-left:4px;transition:transform .2s}
 .lunch-card-link:hover span{transform:translate(3px,-3px)}

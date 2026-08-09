@@ -49,6 +49,12 @@ for (const required of [
   if (!main.includes(`href="${required}"`) && !html['site/feste-catering.html'].includes(`href="${required}"`)) fail(`Pfad fehlt: ${required}`);
 }
 
+
+const inventedTicketCopy = ['data-price=', 'Genussloge', 'Show only', 'Dinner + Show'];
+for (const marker of inventedTicketCopy) {
+  if (main.includes(marker)) fail(`Unbestätigter Ticket-Tarif "${marker}" steht wieder im HTML`);
+}
+
 const storyTemplate = await readFile(path.join(root, 'output/social-canva/genussroute-story-template/story-template.html'), 'utf8');
 if (/story-icons|ⓘ|▧|♡/.test(storyTemplate)) fail('Story-Vorlage enthält noch die entfernten Symbole');
 if (!storyTemplate.includes('href="{{OFFICIAL_URL}}"') || !storyTemplate.includes('Nach oben wischen')) fail('Story-CTA oder Swipe-Hinweis fehlt');

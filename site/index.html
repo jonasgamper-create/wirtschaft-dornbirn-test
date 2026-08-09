@@ -23,8 +23,8 @@
   <title>Wirtschaft Dornbirn · Essen, trinken & Livekultur</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="preload" href="assets/restaurant.webp" as="image" type="image/webp" fetchpriority="high">
-  <link rel="stylesheet" href="styles.css?v=experience33">
-  <script src="app.js?v=experience26" defer></script>
+  <link rel="stylesheet" href="styles.css?v=experience34">
+  <script src="app.js?v=experience28" defer></script>
   <script src="motion-enhancements.js?v=6" defer></script>
   <script src="truck-motion.js?v=7" defer></script>
   <script src="measurement-hooks.js?v=1" defer></script>
@@ -193,11 +193,10 @@
 
   <dialog class="app-dialog" id="ticketDialog" aria-labelledby="ticketTitle">
     <div class="dialog-frame ticket-frame">
-      <header><div><p class="eyebrow">Tickets · offizieller Checkout</p><h2 id="ticketTitle">Bühne, Dinner oder beides.</h2></div><button class="dialog-close" type="button" aria-label="Ticket-Auswahl schließen">×</button></header>
+      <header><div><p class="eyebrow">Tickets</p><h2 id="ticketTitle">Welcher Abend<br>wird es?</h2></div><button class="dialog-close" type="button" aria-label="Ticket-Auswahl schließen">×</button></header>
       <div class="ticket-event-tools"><label class="ticket-event-picker">Termin<select id="ticketEvent"><option value="event-2026-09-03">03.09. · Genussroute 6850</option><option value="event-2026-09-22">22.09. · Helden reisen, Gäste speisen!</option><option value="event-2026-09-23">23.09. · Zusatzabend</option><option value="event-2026-10-14">14.10. · Dinner &amp; Comedy</option><option value="event-2026-10-15">15.10. · Christof Spörk</option><option value="event-2026-10-21">21.10. · Maria Neuschmid &amp; Stefan Vögel</option><option value="event-2026-10-22">22.10. · Rock4 – A Cappella</option><option value="event-2026-10-27">27.10. · Mathias Kellner</option><option value="event-2026-11-11">11.11. · Dinner &amp; Comedy</option><option value="event-2026-11-18">18.11. · Philipp Lingg's Musikzimmer</option></select></label><button class="calendar-selected" id="selectedEventCalendar" type="button">Termin merken <span aria-hidden="true">＋</span></button></div>
-      <div class="ticket-list" role="radiogroup" aria-label="Tarif auswählen"><button type="button" role="radio" aria-checked="true" class="selected" data-ticket="Show only" data-price="39"><span>Show only</span><b>39 €</b><small>Einlass 20:00</small></button><button type="button" role="radio" aria-checked="false" data-ticket="Dinner + Show" data-price="89"><span>Dinner + Show</span><b>89 €</b><small>6 Gänge · Einlass 18:00</small></button><button type="button" role="radio" aria-checked="false" data-ticket="Genussloge" data-price="119"><span>Genussloge</span><b>119 €</b><small>Premiumplatz · Aperitif</small></button></div>
-      <div class="ticket-summary"><label for="ticketQuantity">Anzahl</label><div class="stepper"><button type="button" id="ticketMinus" aria-label="Ein Ticket weniger">−</button><output id="ticketQuantity">2</output><button type="button" id="ticketPlus" aria-label="Ein Ticket mehr">+</button></div><p>Gesamt <strong id="ticketTotal">78 €</strong></p></div>
-      <p class="form-message" id="ticketMessage" role="status"></p><footer><a class="button button-dark" id="officialTicketLink" href="https://wirtschaft-dornbirn.at/event/" target="_blank" rel="noopener noreferrer">Offiziellen Checkout öffnen ↗</a><button class="button button-ghost" type="button" data-open="events">Andere Termine</button><span>Status, Warteliste und Zahlung werden auf der offiziellen Buchungsseite bestätigt.</span></footer>
+      <div class="ticket-detail" data-ticket-detail aria-live="polite"></div>
+      <footer><a class="button button-dark" id="officialTicketLink" href="https://wirtschaft-dornbirn.at/event/" target="_blank" rel="noopener noreferrer">Tickets beim Veranstalter ↗</a><button class="button button-ghost" type="button" data-open="events">Andere Termine</button><span>Preise, Verfügbarkeit und Zahlung bestätigt die offizielle Buchungsseite.</span></footer>
     </div>
   </dialog>
 
