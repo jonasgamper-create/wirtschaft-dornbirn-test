@@ -660,3 +660,20 @@ html{scroll-padding-top:0}
 }
 
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+
+/* Georgias Unterlaengen brauchen Raum: bei .88 stiess das 'g' an die
+   Folgezeile. 1.06 haelt die Zeilen eng, ohne dass Glyphen kollidieren. */
+.final-site .final-copy h2,
+.final-site .scene-copy h2,
+.final-site .prologue h1,
+.final-site .catering-scene h2{line-height:1.06}
+
+/* Georgia hat tiefe Unterlaengen. Bei den kompakten Mobilgroessen kollidiert
+   das 'g' sonst mit der naechsten Zeile, deshalb hier mehr Zeilenabstand. */
+@media(max-width:900px){
+  .final-site .final-copy h2,
+  .final-site .scene-copy h2,
+  .final-site .prologue h1,
+  .final-site .catering-scene h2{line-height:1.16;font-size:clamp(38px,10.5vw,52px)}
+}

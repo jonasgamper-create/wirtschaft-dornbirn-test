@@ -28,6 +28,12 @@ for (const marker of ['og:image', 'twitter:card', 'application/ld+json', 'canoni
   if (!index.includes(marker)) errors.push(`site/index.html: SEO-Marker ${marker} fehlt`);
 }
 
+
+// Die alte Catering-Zeile klang zweideutig und darf nicht zurueckkehren.
+if (/dreht auf/i.test(index)) {
+  errors.push('site/index.html: Die alte, zweideutige Catering-Zeile ist wieder da');
+}
+
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);
