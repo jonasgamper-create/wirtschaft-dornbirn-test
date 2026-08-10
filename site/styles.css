@@ -685,7 +685,10 @@ html{scroll-padding-top:0}
   .final-site .final-copy h2,
   .final-site .scene-copy h2,
   .final-site .prologue h1,
-  .final-site .catering-scene h2{line-height:1.16;font-size:clamp(38px,10.5vw,52px)}
+  .final-site .catering-scene h2{line-height:1.16}
+  /* Nur die Catering-Zeile ist laenger und braucht eine kleinere Stufe,
+     damit sie in zwei Zeilen bricht. */
+  .final-site .catering-scene h2{font-size:clamp(38px,10.5vw,52px)}
 }
 
 /* ------------------------------------------------------------------
@@ -814,4 +817,22 @@ html{scroll-padding-top:0}
 
 @media(min-width:901px){
   .final-site{--t-body:18px;--t-meta:15px;--t-listitem:19px}
+}
+
+/* ------------------------------------------------------------------
+   Editoriale Proportionen (Struktur aus dem Claude-Design-Entwurf).
+   Schmalere Textspalte, dadurch groessere Seitenraender und ein
+   ruhigeres Satzbild. Die gemeinsame Rasterkante bleibt erhalten:
+   alle Sektionen rechnen mit denselben zwei Werten.
+   ------------------------------------------------------------------ */
+.final-site{
+  --content:1060px;                    /* vorher 1180px */
+  --gutter:clamp(20px,6vw,132px);      /* mobil unveraendert 20px */
+}
+@media(min-width:1100px){
+  .final-site .prologue h1{font-size:clamp(64px,7.4vw,116px)}
+  .final-site .final-copy h2,
+  .final-site .scene-copy h2{font-size:clamp(56px,5.6vw,92px)}
+  .final-site .catering-scene h2{font-size:clamp(56px,5.6vw,92px)}
+  .final-site{--t-body:18.5px}
 }
