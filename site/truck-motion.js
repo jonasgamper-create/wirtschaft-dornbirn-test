@@ -13,6 +13,24 @@
 
   if (!hero || !truck) return;
 
+  // Geometrie einmal messen. Vorher las jede Bildberechnung
+  // getBoundingClientRect, offsetHeight und scrollHeight - jeweils nachdem
+  // im selben Frame schon Styles geschrieben waren.
+  let geo = { heroTravel: 1, laneStart: 0, laneEnd: 1, truckVw: 26, vh: 0 };
+  function measure() {
+    geo.vh = window.innerHeight;
+    geo.heroTravel = Math.max(1, hero.offsetHeight * 1.45);
+    if (cateringSection && cateringTruck) {
+      const rect = cateringSection.getBoundingClientRect();
+      const scrollTop = document.scrollingElement?.scrollTop ?? window.scrollY;
+      const sectionTop = rect.top + scrollTop;
+      const laneTop = sectionTop + cateringSection.offsetHeight * .12;
+      geo.laneStart = laneTop - geo.vh;
+      geo.laneEnd = Math.max(geo.laneStart + 1, document.documentElement.scrollHeight - geo.vh);
+      geo.truckVw = cateringTruck.offsetWidth / Math.max(1, window.innerWidth) * 100;
+    }
+  }
+
   const clamp = value => Math.max(0, Math.min(1, value));
   const smooth = value => {
     const n = clamp(value);
@@ -21,7 +39,7 @@
 
   function render() {
     frame = 0;
-    const travel = Math.max(1, hero.offsetHeight * 1.45);
+    const travel = geo.heroTravel;
     const scrollTop = document.scrollingElement?.scrollTop ?? window.scrollY;
     const progress = clamp(scrollTop / travel);
     root.style.setProperty('--truck-progress', progress.toFixed(3));
@@ -84,17 +102,14 @@
       root.style.setProperty('--catering-note-opacity', '0');
       return;
     }
-    const rect = cateringSection.getBoundingClientRect();
+    // Alle Masse stammen aus measure(); pro Bild wird nur die Scrollposition
+    // gelesen. Die Fahrt beginnt, sobald die Spur ins Bild kommt, und endet
+    // am Seitenende, wo der Wagen sichtbar stehen bleibt.
     const scrollTop = document.scrollingElement?.scrollTop ?? window.scrollY;
-    const sectionTop = rect.top + scrollTop;
-    // The drive begins as soon as the truck lane (bottom third of the
-    // section) scrolls into view and finishes exactly at the end of the
-    // page, where the truck parks inside the viewport instead of exiting.
-    const laneTop = sectionTop + cateringSection.offsetHeight * .12;
-    const start = laneTop - window.innerHeight;
-    const end = Math.max(start + 1, document.documentElement.scrollHeight - window.innerHeight);
+    const start = geo.laneStart;
+    const end = geo.laneEnd;
     const progress = clamp((scrollTop - start) / (end - start));
-    const truckVw = cateringTruck.offsetWidth / Math.max(1, window.innerWidth) * 100;
+    const truckVw = geo.truckVw;
     const xStart = -truckVw - 6;
     const xEnd = Math.max(6, 100 - truckVw - 4);
     const x = xStart + smooth(progress) * (xEnd - xStart);
@@ -142,9 +157,15 @@
     if (!frame) frame = requestAnimationFrame(render);
   }
 
+  const remeasure = () => { measure(); schedule(); };
   window.addEventListener('scroll', schedule, { passive: true });
-  window.addEventListener('resize', schedule, { passive: true });
+  window.addEventListener('resize', remeasure, { passive: true });
+  window.addEventListener('load', remeasure);
+  document.querySelectorAll('img').forEach(img => {
+    if (!img.complete) img.addEventListener('load', remeasure, { once: true });
+  });
   reduced.addEventListener?.('change', schedule);
   window.addEventListener('wirtschaft:motionchange', schedule);
+  measure();
   render();
 })();

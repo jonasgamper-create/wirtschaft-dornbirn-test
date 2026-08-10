@@ -126,6 +126,23 @@
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
+  // Geometrie einmal messen statt in jedem Bild. Vorher wurden offsetTop und
+  // offsetHeight gelesen, nachdem im selben Frame bereits Styles geschrieben
+  // waren - der Browser musste das Layout mitten im Frame neu berechnen.
+  let layout = { vh: 0, zoom: [], scenes: [] };
+  function refreshLayout() {
+    layout.vh = window.innerHeight;
+    layout.zoom = zoomSections.map(el => ({
+      el, top: el.offsetTop, height: el.offsetHeight,
+      dir: el.dataset.zoom === 'out' ? -1 : 1
+    }));
+    layout.scenes = scenes.map(el => ({
+      el, top: el.offsetTop, height: el.offsetHeight,
+      stage: el.classList.contains('chapter-stage'),
+      media: [...el.querySelectorAll('.parallax-media')]
+    }));
+  }
+
   function refreshChapterBounds() {
     const firstScene = scenes[0];
     const lastScene = scenes[scenes.length - 1];
@@ -135,6 +152,7 @@
     };
   }
   refreshChapterBounds();
+  refreshLayout();
 
   if (body.classList.contains('final-site')) {
     const staggerGroups = document.querySelectorAll('.prologue-copy, .scene-copy, .decision-copy');
@@ -255,29 +273,27 @@
     }
 
     if (!body.classList.contains('motion-off') && !reducedPreference.matches) {
-      zoomSections.forEach(section => {
-        const top = section.offsetTop - visualScrollY;
-        const height = section.offsetHeight;
+      const vh = layout.vh || window.innerHeight;
+      layout.zoom.forEach(({ el: section, top: offset, height, dir: direction }) => {
+        const top = offset - visualScrollY;
         const bottom = top + height;
-        if (bottom <= 0 || top >= window.innerHeight) return;
-        const travel = Math.max(1, height + window.innerHeight);
-        const progressInSection = Math.max(0, Math.min(1, (window.innerHeight - top) / travel));
-        const direction = section.dataset.zoom === 'out' ? -1 : 1;
+        if (bottom <= 0 || top >= vh) return;
+        const travel = Math.max(1, height + vh);
+        const progressInSection = Math.max(0, Math.min(1, (vh - top) / travel));
         const zoom = 1.02 + direction * (progressInSection - .5) * .018;
         section.style.setProperty('--scene-progress', progressInSection.toFixed(4));
         section.style.setProperty('--scene-zoom', zoom.toFixed(4));
         section.style.setProperty('--zoom', zoom.toFixed(4));
         section.style.setProperty('--family-shift', `${(progressInSection - .5) * -10}px`);
       });
-      scenes.forEach(scene => {
-        const top = scene.offsetTop - visualScrollY;
-        const height = scene.offsetHeight;
+      layout.scenes.forEach(({ el: scene, top: offset, height, stage, media: parallax }) => {
+        const top = offset - visualScrollY;
         const bottom = top + height;
-        if (bottom > 0 && top < window.innerHeight) {
-          const travel = Math.max(1, height + window.innerHeight);
-          const local = Math.max(0, Math.min(1, (window.innerHeight - top) / travel));
-          const centerDistance = Math.abs(top + height / 2 - window.innerHeight / 2);
-          const sceneFocus = Math.max(0, Math.min(1, 1 - centerDistance / (window.innerHeight * .92)));
+        if (bottom > 0 && top < vh) {
+          const travel = Math.max(1, height + vh);
+          const local = Math.max(0, Math.min(1, (vh - top) / travel));
+          const centerDistance = Math.abs(top + height / 2 - vh / 2);
+          const sceneFocus = Math.max(0, Math.min(1, 1 - centerDistance / (vh * .92)));
           scene.style.setProperty('--scene-local', local.toFixed(4));
           scene.style.setProperty('--scene-focus', sceneFocus.toFixed(4));
           scene.style.setProperty('--number-shift', `${(local - .5) * -14}px`);
@@ -291,7 +307,7 @@
           scene.style.setProperty('--orbit-turn', `${-5 + local * 10}deg`);
           scene.style.setProperty('--instrument-shift', `${(local - .5) * -26}px`);
           scene.style.setProperty('--instrument-zoom', (1.04 - local * .05).toFixed(4));
-          if (scene.classList.contains('chapter-stage')) {
+          if (stage) {
             const focusPulse = Math.max(0, 1 - Math.abs(local - .54) * 3.2);
             scene.style.setProperty('--video-progress', local.toFixed(4));
             scene.style.setProperty('--video-pan', `${((local - .5) * -14).toFixed(2)}%`);
@@ -299,8 +315,8 @@
             scene.style.setProperty('--video-glare', `${(local * 132 - 34).toFixed(1)}%`);
             scene.style.setProperty('--video-focus', focusPulse.toFixed(4));
           }
-          const normalized = (top + height / 2 - window.innerHeight / 2) / window.innerHeight;
-          scene.querySelectorAll('.parallax-media').forEach(media => {
+          const normalized = (top + height / 2 - vh / 2) / vh;
+          parallax.forEach(media => {
             media.style.setProperty('--parallax', `${normalized * -8}px`);
           });
         }
@@ -341,6 +357,7 @@
   window.addEventListener('scroll', requestMotionFrame, { passive: true });
   window.addEventListener('resize', () => {
     refreshChapterBounds();
+    refreshLayout();
     requestMotionFrame();
   }, { passive: true });
   window.addEventListener('load', requestMotionFrame, { once: true });
