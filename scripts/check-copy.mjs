@@ -16,8 +16,17 @@ if (/class="experience-actions"/.test(index)) {
   errors.push('site/index.html: Header bleibt ohne Schnellaktionen – Buchungswege liegen im Inhalt');
 }
 const lunchSection = index.match(/<section[^>]*id="concept-03"[\s\S]*?<\/section>/)?.[0] || '';
-if (!/Tisch reservieren/.test(lunchSection) || !/tischreservierung\.wirtschaft-dornbirn\.at/.test(lunchSection)) {
-  errors.push('site/index.html: Der Mittagsbereich braucht den offiziellen Reservierungsweg');
+// Der Weg zur Reservierung darf ueber die eigene Seite laufen, muss dort aber
+// beim offiziellen Anbieter enden.
+const reservierung = await readFile('site/tischreservierung.html', 'utf8');
+if (!/tischreservierung\.html|tischreservierung\.wirtschaft-dornbirn\.at/.test(lunchSection)) {
+  errors.push('site/index.html: Im Mittagsbereich fehlt der Weg zur Reservierung');
+}
+if (!/https:\/\/tischreservierung\.wirtschaft-dornbirn\.at\//.test(reservierung)) {
+  errors.push('site/tischreservierung.html: Der offizielle Reservierungsanbieter fehlt');
+}
+if (/name="(name|email|phone|telefon)"|type="email"|type="tel"/i.test(reservierung)) {
+  errors.push('site/tischreservierung.html: Diese Seite darf keine Kontaktdaten abfragen');
 }
 if (/Abendtisch|Tisch am Abend|abends reservieren/i.test(index)) {
   errors.push('site/index.html: Abends gibt es nur Events, keine Tischreservierung');

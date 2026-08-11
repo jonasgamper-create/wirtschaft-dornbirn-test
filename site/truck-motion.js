@@ -169,3 +169,99 @@
   measure();
   render();
 })();
+
+  
+  (() => {
+    const form = document.getElementById('ticketNews');
+    if (!form) return;
+    const note = document.getElementById('ticketNewsNote');
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const mail = form.email.value.trim();
+      note.textContent = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)
+        ? 'danke — wir melden uns, sobald neue termine feststehen.'
+        : 'bitte eine gültige E-Mail-Adresse eingeben.';
+    });
+  })();
+
+  (() => {
+    // Sprungmarken: EIN Zustaendiger. Der Lauf faengt den Klick in der
+    // Capture-Phase ab, damit keine aeltere Nav-Logik dagegenarbeitet, und
+    // misst das Ziel bis zum Stillstand nach — Reveals aendern sonst die Hoehen.
+    const root = document.documentElement;
+    const bar = document.querySelector('.experience-bar');
+    const GAP = 24;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const scroller = () => document.scrollingElement || root;
+    const maxY = () => Math.max(0, scroller().scrollHeight - window.innerHeight);
+    const barH = () => (bar ? Math.round(bar.getBoundingClientRect().height) : 0);
+
+    // Jeder Abschnitt ist eine eigene Buehne: das Ziel ist seine Oberkante,
+    // damit weder der vorige noch der naechste Abschnitt hereinragt. Ist ein
+    // Abschnitt hoeher als das Fenster, wird er dennoch oben angelegt.
+    const sectionOf = el => el.closest('section') || el;
+
+    const targetY = el => {
+      if (el.id === 'start' || el.id === 'main') return 0;
+      const sec = sectionOf(el);
+      const top = sec.getBoundingClientRect().top + scroller().scrollTop;
+      const height = sec.getBoundingClientRect().height;
+      // Kuerzere Abschnitte mittig setzen, damit nichts angeschnitten wirkt.
+      const slack = window.innerHeight - height;
+      const y = slack > 0 ? top - slack / 2 : top;
+      return Math.max(0, Math.min(maxY(), Math.round(y)));
+    };
+
+    const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    let run = 0;
+
+    function settle(el, tries) {
+      const want = targetY(el);
+      if (Math.abs(want - scroller().scrollTop) > 1) window.scrollTo(0, want);
+      if (tries > 0) requestAnimationFrame(() => settle(el, tries - 1));
+      else root.classList.remove('instant-scroll');
+    }
+
+    function goTo(el) {
+      // Reveals sofort abschliessen: danach verschieben sich keine Hoehen mehr.
+      document.querySelectorAll('.reveal:not(.is-in), .luxury-reveal:not(.is-in)')
+        .forEach(n => n.classList.add('is-in', 'is-visible'));
+      root.classList.add('instant-scroll');
+      const id = ++run;
+      const from = scroller().scrollTop;
+      if (reduce.matches) return settle(el, 6);
+      const dur = Math.min(820, Math.max(340, Math.abs(targetY(el) - from) * 0.48));
+      const t0 = performance.now();
+      const step = now => {
+        if (id !== run) { root.classList.remove('instant-scroll'); return; }
+        const p = Math.min(1, (now - t0) / dur);
+        window.scrollTo(0, Math.round(from + (targetY(el) - from) * ease(p)));
+        if (p < 1) requestAnimationFrame(step);
+        else settle(el, 24);
+      };
+      requestAnimationFrame(step);
+    }
+
+    ['wheel', 'touchstart', 'keydown'].forEach(t =>
+      window.addEventListener(t, () => { run++; }, { passive: true }));
+
+    document.addEventListener('click', e => {
+      const link = e.target.closest('a[href^="#"]');
+      if (!link) return;
+      const id = link.getAttribute('href').slice(1);
+      const el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      goTo(el);
+      history.replaceState(null, '', '#' + id);
+    }, true);
+
+    if (location.hash.length > 1) {
+      const el = document.getElementById(location.hash.slice(1));
+      if (el) requestAnimationFrame(() => setTimeout(() => {
+        root.classList.add('instant-scroll');
+        goTo(el);
+      }, 90));
+    }
+  })();

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="description" content="Tischreservierung der Wirtschaft Dornbirn – nur für den Mittag, 11:30–13:30. Abgeschickt wird beim offiziellen Reservierungssystem.">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
+  <meta name="theme-color" content="#11110f">
+  <title>Tischreservierung · Wirtschaft Dornbirn</title>
+  <link rel="preconnect" href="https://tischreservierung.wirtschaft-dornbirn.at" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
+  <link rel="stylesheet" href="tischreservierung.css?v=1">
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Restaurant","name":"Wirtschaft Dornbirn","legalName":"„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.","url":"https://wirtschaft-dornbirn.at/","telephone":"+43557220540","email":"willkommen@wirtschaft-dornbirn.at","address":{"@type":"PostalAddress","streetAddress":"Bahnhofstraße 24","postalCode":"6850","addressLocality":"Dornbirn","addressRegion":"Vorarlberg","addressCountry":"AT"},"vatID":"ATU36206707","acceptsReservations":"https://tischreservierung.wirtschaft-dornbirn.at/"}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <header class="wrap site-head">
+    <a href="index.html" aria-label="Wirtschaft Dornbirn – zur Startseite"><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"></a>
+    <a class="back-link" href="index.html">← Zur Startseite</a>
+  </header>
+
+  <main id="main">
+    <section class="wrap hero" id="hero">
+      <div>
+        <p class="eyebrow">Mittag · 11:30–13:30</p>
+        <h1>Reservier’ dir<br>deinen Platz</h1>
+        <p class="lead">Der Tisch gilt für den Mittag. Abends öffnen wir ausschließlich für Events – dort gilt das Eventticket.</p>
+        <aside class="status">
+          <i aria-hidden="true"></i>
+          <span><strong data-status-name>Sommerpause</strong><em data-status-detail>Ab 24. August wieder geöffnet</em></span>
+        </aside>
+      </div>
+      <aside class="menu-card" id="menuCard" aria-label="Aktuelle Mittagskarte">
+        <p class="menu-card-kicker">Heute auf dem Teller</p>
+        <div class="menu-card-body" data-lunch-web aria-live="polite">
+          <p class="menu-card-note">Sommerpause bis 23. August.<br>Ab Montag, 24. August kochen wir wieder mittags.</p>
+        </div>
+        <a class="menu-card-link" data-lunch-pdf href="downloads/mittagskarte/2026-07-24_mittagskarte-sommerpause.pdf" target="_blank" rel="noopener noreferrer">Als PDF öffnen ↗</a>
+      </aside>
+    </section>
+
+    <section class="form-section" id="reservierung">
+      <div class="wrap section" style="border-top:0">
+        <p class="eyebrow">Reservierung</p>
+        <h2>Für welchen Tag möchtest du reservieren?</h2>
+        <p class="sub">Wähl’ Tag, Uhrzeit und Personenzahl. Den letzten Schritt macht das offizielle Reservierungssystem – dort gibst du deine Kontaktdaten ein. Diese Seite fragt keine persönlichen Daten ab und speichert nichts.</p>
+        <form class="grid" id="bookingForm" novalidate>
+          <label class="wide">Tag*
+            <input type="date" name="day" id="day" required>
+          </label>
+          <label class="wide">Uhrzeit*
+            <span class="slots" role="radiogroup" aria-label="Uhrzeit wählen" id="timeSlots">
+              <button type="button" role="radio" aria-checked="false" data-time="11:30">11:30</button>
+              <button type="button" role="radio" aria-checked="false" data-time="11:45">11:45</button>
+              <button type="button" role="radio" aria-checked="false" data-time="12:00">12:00</button>
+              <button type="button" role="radio" aria-checked="false" data-time="12:15">12:15</button>
+              <button type="button" role="radio" aria-checked="false" data-time="12:30">12:30</button>
+              <button type="button" role="radio" aria-checked="false" data-time="12:45">12:45</button>
+              <button type="button" role="radio" aria-checked="false" data-time="13:00">13:00</button>
+              <button type="button" role="radio" aria-checked="false" data-time="13:15">13:15</button>
+              <button type="button" role="radio" aria-checked="false" data-time="13:30">13:30</button>
+              <input type="hidden" name="time" id="time" required>
+            </span>
+          </label>
+          <label class="wide stepper-field">Anzahl Erwachsene*
+            <span class="stepper" data-stepper="adults" data-min="1" data-max="10" data-value="2">
+              <button type="button" data-step="-1" aria-label="Ein Erwachsener weniger">−</button>
+              <output aria-live="polite">2 Erwachsene</output>
+              <button type="button" data-step="1" aria-label="Ein Erwachsener mehr">+</button>
+              <input type="hidden" name="adults" value="2">
+            </span>
+          </label>
+          <label class="wide stepper-field">Anzahl Kinder
+            <span class="stepper" data-stepper="children" data-min="0" data-max="10" data-value="0">
+              <button type="button" data-step="-1" aria-label="Ein Kind weniger">−</button>
+              <output aria-live="polite">keine</output>
+              <button type="button" data-step="1" aria-label="Ein Kind mehr">+</button>
+              <input type="hidden" name="children" value="0">
+            </span>
+          </label>
+        </form>
+        <p class="group-hint">Mehr als 10 Personen? Ruf’ uns an: <a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
+        <p class="required">* Pflichtfelder</p>
+        <div class="submit-row">
+          <a class="button button-green" id="submitBooking" href="https://tischreservierung.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Weiter zur Reservierung ↗</a>
+          <p id="submitHint">Freie Tische und die Bestätigung kommen vom offiziellen Reservierungssystem. Deine Kontaktdaten gibst du dort ein – einmal, nicht zweimal.</p>
+        </div>
+        <p class="form-alert" id="formAlert" role="alert" hidden></p>
+      </div>
+    </section>
+
+    <section class="wrap section">
+      <p class="eyebrow">Gut zu wissen</p>
+      <h2>Mittags Tisch, abends Ticket</h2>
+      <p class="note">Tischreservierungen gibt es ausschließlich für den Mittag von 11:30 bis 13:30. Für die Abende gilt: Platz gibt es über das Ticket der jeweiligen Veranstaltung – Termine stehen auf der Startseite.</p>
+    </section>
+  </main>
+
+  <footer class="wrap site-footer">
+    <div><img src="assets/wirtschaft-logo.png" width="300" height="69" loading="lazy" decoding="async" alt="Wirtschaft Dornbirn"><p>Wolfgang Preuß · Bahnhofstraße 24 · 6850 Dornbirn</p></div>
+    <div><a href="tel:+43557220540">+43 (0)5572 20 540</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a></div>
+    <div><p>UID ATU 36206707 · FN 329272 z</p><p>Firmenbuchgericht: Landesgericht Feldkirch</p></div>
+    <div><a href="index.html">Startseite</a><a href="feste-catering.html">Feste &amp; Catering</a><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a><a href="impressum.html">Impressum</a></div>
+    <p class="prototype-note">Öffentliche Testumgebung · Reservierung über den offiziellen Anbieter</p>
+  </footer>
+
+  <script src="tischreservierung.js?v=1" defer></script>
+</body>
+</html>

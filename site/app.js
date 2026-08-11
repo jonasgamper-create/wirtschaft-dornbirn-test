@@ -84,6 +84,7 @@
   const statusDetail = document.querySelector('[data-status-detail]');
   const statusNext = document.querySelector('[data-status-next]');
   const statusUpdated = document.querySelector('[data-status-updated]');
+  const reserveCta = document.querySelector('[data-reserve-cta]');
 
   const formatEventDate = date => new Intl.DateTimeFormat('de-AT', { day: '2-digit', month: 'short' }).format(new Date(`${date}T12:00:00`)).replace('.', '');
   const isFreshEventData = data => {
@@ -94,7 +95,6 @@
   const eventStatusLabel = status => ({ scheduled: 'Tickets', sold_out: 'Ausverkauft', waitlist: 'Warteliste', cancelled: 'Abgesagt', paused: 'Pausiert' }[status] || 'Details');
 
   function syncServiceStatus() {
-    if (!serviceStatus) return;
     const today = new Date();
     const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     const pause = eventData.pause || fallbackEventData.pause;
@@ -104,18 +104,29 @@
     const nextLabel = paused ? pause.label || 'Sommerpause' : 'Geöffnet';
     const reopen = pause.reopen ? formatEventDate(pause.reopen) : 'bald';
     const nextDetail = paused ? `Ab ${reopen} wieder geöffnet` : 'Mittagstisch · Abendevents';
-    const label = statusLabel || serviceStatus.querySelector('strong');
-    const detail = statusDetail || serviceStatus.querySelector('em');
+    const label = statusLabel || serviceStatus?.querySelector('strong');
+    const detail = statusDetail || serviceStatus?.querySelector('em');
     if (label) label.textContent = nextLabel;
     if (detail) detail.textContent = nextDetail;
-    serviceStatus.classList.toggle('is-paused', paused);
+    serviceStatus?.classList.toggle('is-paused', paused);
+    // Die Pause steht nicht mehr als eigener Balken, sondern als Zustand
+    // an genau der Aktion, die sie betrifft.
+    if (reserveCta) {
+      const reopenLong = pause.reopen
+        ? new Intl.DateTimeFormat('de-AT', { day: 'numeric', month: 'long' }).format(new Date(`${pause.reopen}T12:00:00`))
+        : '';
+      reserveCta.textContent = paused && reopenLong
+        ? `ab ${reopenLong.toLowerCase()} reservieren`
+        : 'tisch reservieren';
+      reserveCta.dataset.paused = String(paused);
+    }
     const nextEvent = calendarEvents.find(item => item.date >= todayIso && !['cancelled', 'paused'].includes(item.status));
     if (statusNext) statusNext.textContent = nextEvent ? formatEventDate(nextEvent.date) : 'bald';
     if (statusUpdated) {
       const fresh = isFreshEventData(eventData);
       statusUpdated.hidden = fresh;
       statusUpdated.textContent = `Stand: ${new Intl.DateTimeFormat('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(eventData.updatedAt))}`;
-      serviceStatus.classList.toggle('is-stale', !fresh);
+      serviceStatus?.classList.toggle('is-stale', !fresh);
     }
     if (arrivalStatus) arrivalStatus.textContent = nextLabel;
     if (arrivalDetail) arrivalDetail.textContent = nextDetail;
@@ -249,13 +260,6 @@
   function updateScrollEffects(visualScrollY = smoothedScrollY) {
     const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     const globalProgress = Math.max(0, Math.min(1, visualScrollY / max));
-    root.style.setProperty('--global-scroll', globalProgress.toFixed(5));
-    root.style.setProperty('--ticket-lift', '0px');
-    root.style.setProperty('--ticket-turn', '0deg');
-    root.style.setProperty('--plate-lift', '0px');
-    root.style.setProperty('--plate-spin', '0deg');
-    root.style.setProperty('--celebration-lift', '0px');
-    root.style.setProperty('--celebration-turn', '0deg');
     body.classList.toggle('page-scrolled', visualScrollY > 36);
     const beforeChapters = scenes.length && visualScrollY < chapterBounds.firstTop - window.innerHeight * .58;
     const afterChapters = scenes.length && visualScrollY > chapterBounds.lastBottom - window.innerHeight * .12;
@@ -284,7 +288,6 @@
         section.style.setProperty('--scene-progress', progressInSection.toFixed(4));
         section.style.setProperty('--scene-zoom', zoom.toFixed(4));
         section.style.setProperty('--zoom', zoom.toFixed(4));
-        section.style.setProperty('--family-shift', `${(progressInSection - .5) * -10}px`);
       });
       layout.scenes.forEach(({ el: scene, top: offset, height, stage, media: parallax }) => {
         const top = offset - visualScrollY;
@@ -294,19 +297,8 @@
           const local = Math.max(0, Math.min(1, (vh - top) / travel));
           const centerDistance = Math.abs(top + height / 2 - vh / 2);
           const sceneFocus = Math.max(0, Math.min(1, 1 - centerDistance / (vh * .92)));
-          scene.style.setProperty('--scene-local', local.toFixed(4));
           scene.style.setProperty('--scene-focus', sceneFocus.toFixed(4));
           scene.style.setProperty('--number-shift', `${(local - .5) * -14}px`);
-          scene.style.setProperty('--ribbon-shift', `${(local - .5) * 110}px`);
-          scene.style.setProperty('--ribbon-turn', `${-9 + local * 18}deg`);
-          scene.style.setProperty('--camera-pan', `${(local - .5) * -26}px`);
-          scene.style.setProperty('--film-shift', `${(local - .5) * -10}vw`);
-          scene.style.setProperty('--lens-scale', (1.01 + local * .03).toFixed(4));
-          scene.style.setProperty('--aperture-scale', (1.03 - local * .02).toFixed(4));
-          scene.style.setProperty('--credits-shift', `${(local - .5) * -24}px`);
-          scene.style.setProperty('--orbit-turn', `${-5 + local * 10}deg`);
-          scene.style.setProperty('--instrument-shift', `${(local - .5) * -26}px`);
-          scene.style.setProperty('--instrument-zoom', (1.04 - local * .05).toFixed(4));
           if (stage) {
             const focusPulse = Math.max(0, 1 - Math.abs(local - .54) * 3.2);
             scene.style.setProperty('--video-progress', local.toFixed(4));
@@ -729,13 +721,48 @@
       window.dispatchEvent(new CustomEvent('wirtschaft:eventdata', { detail: { fresh: isFreshEventData(data), count: calendarEvents.length } }));
     })
     .catch(error => {
-      serviceStatus?.classList.add('is-stale');
-      if (statusUpdated) {
-        statusUpdated.hidden = false;
-        statusUpdated.textContent = 'Stand: Fallback-Daten';
-      }
+      // Kein Entwickler-Vermerk in der Oberflaeche: die hinterlegten Termine
+      // stimmen, nur die Aktualisierung ist ausgeblieben.
       window.__APP_ERRORS__.push({ type: 'event-data', message: error.message });
     });
+  const voucherLabels = {
+    dinner: 'Dinner & Konzert/Comedy (68 Euro)',
+    konzert: 'Konzert/Comedy only (28 Euro)',
+    wert: 'Wertgutschein'
+  };
+  const voucherBoxes = [...document.querySelectorAll('[data-voucher]')];
+  const voucherRequest = document.getElementById('voucherRequest');
+  function syncVoucherMail() {
+    const picked = voucherBoxes
+      .filter(box => Number(box.dataset.value) > 0)
+      .map(box => `${box.dataset.value} × ${voucherLabels[box.dataset.voucher]}`);
+    const body = ['Guten Tag,', '', picked.length
+      ? 'ich möchte folgende Gutscheine bestellen:'
+      : 'ich möchte einen Gutschein bestellen.', ...picked, '',
+      'Name:', 'Adresse:', '', 'Danke und freundliche Grüße'].join('\n');
+    voucherRequest.href = 'mailto:willkommen@wirtschaft-dornbirn.at?subject='
+      + encodeURIComponent('Gutschein bestellen') + '&body=' + encodeURIComponent(body);
+  }
+  voucherBoxes.forEach(box => {
+    const min = Number(box.dataset.min), max = Number(box.dataset.max);
+    const out = box.querySelector('output');
+    const paint = () => {
+      out.textContent = box.dataset.value;
+      box.querySelector('[data-step="-1"]').disabled = Number(box.dataset.value) <= min;
+      box.querySelector('[data-step="1"]').disabled = Number(box.dataset.value) >= max;
+      syncVoucherMail();
+    };
+    box.addEventListener('click', e => {
+      const step = e.target.closest('[data-step]');
+      if (!step) return;
+      box.dataset.value = String(Math.min(max, Math.max(min, Number(box.dataset.value) + Number(step.dataset.step))));
+      paint();
+      box.classList.add('bumped');
+      window.setTimeout(() => box.classList.remove('bumped'), 180);
+    });
+    paint();
+  });
+
   const lunchMenu = document.querySelector('[data-lunch-menu]');
   const lunchCardLink = document.querySelector('[data-lunch-card]');
   const weekdayName = date => new Intl.DateTimeFormat('de-AT', { weekday: 'long' }).format(new Date(`${date}T12:00:00`));
@@ -749,7 +776,11 @@
     lunchCardLink?.toggleAttribute('hidden', !data.card?.file);
     const days = Array.isArray(data.days) ? [...data.days].sort((a, b) => a.date.localeCompare(b.date)) : [];
     if (data.status === 'pause' || !days.length) {
-      lunchMenu.innerHTML = `<p class="lunch-note">${escapeHtml(data.pauseNote || 'Die aktuelle Karte findet ihr im PDF.')}</p>`;
+      // Pause und "geoeffnet, aber Karte noch nicht eingetragen" sind zwei Lagen.
+      const text = data.status === 'pause'
+        ? (data.pauseNote || 'zurzeit kochen wir nicht mittags.')
+        : 'die karte für diese woche liegt im pdf.';
+      lunchMenu.innerHTML = `<p class="lunch-note">${escapeHtml(text)}</p>`;
       return;
     }
     const today = new Date();

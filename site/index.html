@@ -7,8 +7,9 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <link rel="canonical" href="https://wirtschaft-dornbirn.at/">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; form-action 'self'; upgrade-insecure-requests">
-  <meta name="theme-color" content="#17130f">
+  <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/wirtschaft-logo.png">
+  <meta name="theme-color" content="#11110f">
   <meta property="og:title" content="Wirtschaft Dornbirn · Essen, trinken & Livekultur">
   <meta property="og:description" content="Mittags leicht. Abends unvergesslich. Ein Haus für Geschmack, Musik und Begegnung in Dornbirn.">
   <meta property="og:type" content="website">
@@ -21,103 +22,58 @@
   <meta name="twitter:description" content="Mittag, Dinner, Events und Feste in Dornbirn.">
   <meta name="twitter:image" content="https://wirtschaft-dornbirn.at/assets/restaurant.webp">
   <title>Wirtschaft Dornbirn · Essen, trinken & Livekultur</title>
-  <link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
-  <link rel="icon" href="assets/icons/favicon-512.png" sizes="512x512" type="image/png">
-  <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
-  <link rel="preload" href="assets/restaurant.webp" as="image" type="image/webp" fetchpriority="high">
-  <link rel="preload" href="assets/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=experience67">
-  <script src="app.js?v=experience32" defer></script>
-  <script src="truck-motion.js?v=9" defer></script>
-  <script src="measurement-hooks.js?v=1" defer></script>
+  <link rel="preconnect" href="https://tischreservierung.wirtschaft-dornbirn.at" crossorigin>
+  <link rel="dns-prefetch" href="https://tischreservierung.wirtschaft-dornbirn.at">
+  <link rel="preload" as="image" href="assets/restaurant.webp" fetchpriority="high">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=design1">
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Restaurant",
-    "@id": "https://wirtschaft-dornbirn.at/#restaurant",
-    "name": "Wirtschaft Dornbirn",
-    "url": "https://wirtschaft-dornbirn.at/",
-    "description": "Mittag, Dinner, Events und Feste in Dornbirn.",
-    "image": "https://wirtschaft-dornbirn.at/assets/restaurant.webp",
-    "priceRange": "€€",
-    "telephone": "+43 5572 20540",
-    "email": "willkommen@wirtschaft-dornbirn.at",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "Bahnhofstraße 24",
-      "postalCode": "6850",
-      "addressLocality": "Dornbirn",
-      "addressCountry": "AT"
-    },
-    "servesCuisine": ["Österreichisch", "Saisonal"],
-    "areaServed": {
-      "@type": "City",
-      "name": "Dornbirn"
-    }
-  }
+{"@context":"https://schema.org","@type":"Restaurant","name":"Wirtschaft Dornbirn","legalName":"\u201ewirtschaft\u201c cafe restaurant bar \u00b7 Wolfgang Preu\u00df e.U.","url":"https://wirtschaft-dornbirn.at/","telephone":"+43557220540","email":"willkommen@wirtschaft-dornbirn.at","image":"https://wirtschaft-dornbirn.at/assets/restaurant.webp","address":{"@type":"PostalAddress","streetAddress":"Bahnhofstra\u00dfe 24","postalCode":"6850","addressLocality":"Dornbirn","addressRegion":"Vorarlberg","addressCountry":"AT"},"vatID":"ATU36206707","acceptsReservations":"https://tischreservierung.wirtschaft-dornbirn.at/","opens":"11:30","closes":"13:30","name":"Mittagstisch"}],"specialOpeningHoursSpecification":[{"@type":"OpeningHoursSpecification","validFrom":"2026-07-24","validThrough":"2026-08-23","opens":"00:00","closes":"00:00","name":"Sommerpause"}]}
   </script>
 </head>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#17130f"/><text x="50" y="60" text-anchor="middle" font-family="Georgia,serif" font-size="30" fill="#f3efe6">wd</text></svg></template>
 <body class="final-site" data-theme="origin">
   <a class="skip-link" href="#main">Zum Inhalt springen</a>
-  <div class="theme-aura" aria-hidden="true"></div>
-
   <header class="experience-bar final-bar" aria-label="Globale Navigation">
     <a class="master-brand" href="#start" aria-label="Wirtschaft Dornbirn – zum Start">
-      <img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn">
+      <img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn" style="view-transition-name:brandmark">
     </a>
-    <p><strong>Mittagstisch · Events · Catering</strong><span> · Bahnhofstraße 24, Dornbirn</span></p>
+    <nav class="bar-nav" aria-label="Direkte Wege">
+      <a href="#go-concept-04">Tickets &amp; Events</a>
+      <a href="#go-concept-03" data-comment-anchor="50a6574b06-a">Mittagstisch</a>
+      <a class="nav-vouchers" href="#go-gutscheine" data-comment-anchor="bf265492b6-a">Gutscheine</a>
+    </nav>
   </header>
 
-  <aside class="status-dock" data-service-status-dock data-service-status aria-live="polite" aria-label="Aktueller Status der Wirtschaft Dornbirn">
-    <span class="status-dock-dot" aria-hidden="true"></span>
-    <span class="status-dock-copy"><strong data-status-label>Sommerpause</strong><em data-status-detail>Ab 24. August wieder geöffnet</em><small class="status-dock-updated" data-status-updated hidden></small></span>
-    <button type="button" class="status-dock-link" data-open="events">Nächster Abend · <span data-status-next>03. September</span> <span aria-hidden="true">↗</span></button>
-  </aside>
 
   <main id="main">
-    <section class="prologue final-prologue" id="start" data-theme="origin" data-theme-label="Das Haus" data-theme-mood="Ankommen · entdecken" data-zoom="out" aria-labelledby="prologueTitle">
-      <img class="prologue-media zoom-media" src="assets/restaurant.webp" width="1920" height="1280" alt="Gäste in der Wirtschaft Dornbirn" fetchpriority="high" decoding="async">
+    <section class="prologue final-prologue" id="start" data-variant="a" data-theme="origin" data-theme-label="Das Haus" data-theme-mood="Ankommen · entdecken" data-zoom="out" aria-labelledby="prologueTitle">
+      <img class="prologue-media zoom-media" src="assets/restaurant.webp" width="1400" height="933" alt="Gäste in der Wirtschaft Dornbirn" fetchpriority="high" decoding="async">
       <div class="prologue-shade"></div>
       <div class="hero-arrival" data-hero-arrival aria-label="Emma und Eugen Wagen mit aktuellem Stand">
-        <div class="hero-arrival-card" aria-live="polite">
-          <small>Emma &amp; Eugen Wagen</small>
-          <strong data-arrival-status>Sommerpause</strong>
-          <span data-arrival-detail>Ab 24. August wieder offen</span>
-          <b data-arrival-event>Nächster Abend · 03. September · Genussroute 6850</b>
-          <span class="hero-arrival-ticket">Tickets sichern <span aria-hidden="true">↗</span></span>
-        </div>
-        <div class="hero-arrival-vehicle">
-          <img class="hero-arrival-closed" src="assets/eugen-truck-closed.webp" width="1663" height="946" alt="Emma &amp; Eugen Foodtruck der Wirtschaft Dornbirn" decoding="async">
-          <span class="hero-arrival-mark" aria-hidden="true"><img src="assets/emma-eugen.png" width="1200" height="848" alt="" decoding="async"></span>
-          <span class="hero-arrival-wheel hero-wheel-rear" aria-hidden="true"></span>
-          <span class="hero-arrival-wheel hero-wheel-front" aria-hidden="true"></span>
-          <span class="hero-arrival-notes" aria-hidden="true"><i>♪</i><i>♫</i><i>·</i></span>
-        </div>
+                <div class="hero-arrival-vehicle">
+          <img class="hero-arrival-closed" src="assets/eugen-truck-closed.webp" width="1200" height="683" alt="Emma &amp; Eugen Foodtruck der Wirtschaft Dornbirn" decoding="async">
+          <span class="hero-arrival-mark" aria-hidden="true"><img src="assets/emma-eugen.png" width="900" height="636" alt="" decoding="async"></span>
+          </div>
       </div>
       <div class="prologue-copy reveal">
         <p class="eyebrow">Dornbirn · Vorarlberg</p>
         <h1 id="prologueTitle">Wo Dornbirn<br>zämmahockt.</h1>
         <p>Abends Bühne. Mittagsmenü. Bahnhofstraße 24, Dornbirn.</p>
         <div class="prologue-actions">
-          <a class="button button-light" href="#concept-03">Mittagstisch</a>
-          <a class="button button-ghost" href="#concept-04">Abendprogramm</a>
-          <a class="button button-ghost" href="feste-catering.html">Anfrage senden</a>
+          <a class="button button-light" href="#go-concept-04">Termine &amp; Tickets</a>
         </div>
-        <p class="trust-line"><span>Dornbirn · Vorarlberg</span><span>Dinner &amp; Bühne</span><span>Ohne Umweg buchen</span></p>
-        <button class="hero-event-pulse" type="button" data-open="events" aria-label="Nächsten Abend und alle Termine ansehen">
-          <span><small>Nächster Abend</small><strong>03. September · Genussroute 6850</strong></span>
-          <b>Programm ansehen <i aria-hidden="true">↗</i></b>
-        </button>
+        <p class="hero-second"><a href="#go-concept-03">Mittagstisch</a></p>
       </div>
-      <a class="scroll-cue" href="#concept-04"><span>Events</span><i aria-hidden="true"></i></a>
-    </section>
+      </section>
 
-    <section class="concept-scene final-chapter chapter-stage dark" id="concept-04" data-concept="04" data-theme="stage" data-theme-label="Die Bühne" data-theme-mood="Dinner · Livekultur" data-zoom="out" aria-labelledby="title-04">
-      <img class="scene-media parallax-media zoom-media" src="assets/stage.webp" width="1920" height="803" loading="lazy" decoding="async" alt="Livekonzert auf der Bühne der Wirtschaft Dornbirn">
-      <div class="media-shade"></div><div class="spotlight" aria-hidden="true"></div><div class="scene-number" aria-hidden="true">01</div>
+    <section class="concept-scene final-chapter chapter-stage dark" data-events-layout="c" id="concept-04" data-concept="04" data-theme="stage" data-theme-label="Die Bühne" data-theme-mood="Dinner · Livekultur" data-zoom="out" aria-labelledby="title-04">
+      <img class="scene-media parallax-media zoom-media" src="assets/stage.webp" width="1400" height="586" loading="lazy" decoding="async" alt="Livekonzert auf der Bühne der Wirtschaft Dornbirn">
+      <div class="media-shade"></div>
       <div class="scene-shell reveal">
         <div class="scene-copy final-copy stage-copy">
-          <p class="eyebrow">Abends in Dornbirn · Programm</p>
+          <span class="jump-anchor" id="go-concept-04" aria-hidden="true"></span><p class="eyebrow">Abends in Dornbirn · Programm</p>
           <h2 id="title-04">Euer Abend<br>steht schon.</h2>
           <p>Abends öffnen wir für Events: Dinner, Konzert oder Comedy. Datum wählen, Platz sichern, zämmahocka.</p>
           <div class="scene-actions"><button class="button button-warm" type="button" data-open="tickets">Termine &amp; Tickets</button></div>
@@ -127,17 +83,26 @@
           <article><time datetime="2026-09-22"><b>22</b><span>SEP</span></time><div><strong>Helden reisen, Gäste speisen!</strong><small>Dienstag · Dinner &amp; Bühne</small></div><a class="event-ticket-link" href="https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/" target="_blank" rel="noopener noreferrer">Tickets ↗</a></article>
           <article><time datetime="2026-09-23"><b>23</b><span>SEP</span></time><div><strong>Helden reisen, Gäste speisen!</strong><small>Mittwoch · Zusatzabend</small></div><a class="event-ticket-link" href="https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/" target="_blank" rel="noopener noreferrer">Tickets ↗</a></article>
           <a href="https://wirtschaft-dornbirn.at/event/" target="_blank" rel="noopener noreferrer">Gesamtes offizielles Programm ↗</a>
+          <div class="stage-subscribe">
+            <p><strong>Keinen Abend verpassen</strong><span>Wir schicken neue Termine, sobald sie feststehen. Abmeldung jederzeit mit einem Klick.</span></p>
+            <form class="stage-subscribe-form" id="ticketNews" novalidate>
+              <label class="visually-hidden" for="ticketNewsMail">E-Mail-Adresse</label>
+              <input id="ticketNewsMail" type="email" name="email" inputmode="email" autocomplete="email" placeholder="E-Mail-Adresse" required>
+              <button type="submit">Eintragen</button>
+            </form>
+            <p class="stage-subscribe-note" id="ticketNewsNote" role="status"></p>
+          </div>
         </div>
         <a class="scene-imprint" href="#impressum">Impressum</a>
       </div>
     </section>
 
-    <section class="concept-scene final-chapter chapter-lunch light" id="concept-03" data-concept="03" data-theme="lunch" data-theme-label="Mittag" data-theme-mood="Frisch · saisonal" data-zoom="in" aria-labelledby="title-03">
-      <img class="scene-media parallax-media zoom-media" src="assets/food.webp" width="1920" height="1280" loading="lazy" decoding="async" alt="Gericht aus der Küche der Wirtschaft Dornbirn">
-      <div class="media-shade"></div><div class="spotlight" aria-hidden="true"></div><div class="scene-number" aria-hidden="true">02</div>
+    <section class="concept-scene final-chapter chapter-lunch light" id="concept-03" data-variant="c" data-concept="03" data-theme="lunch" data-theme-label="Mittag" data-theme-mood="Frisch · saisonal" data-zoom="in" aria-labelledby="title-03">
+      <img class="scene-media parallax-media zoom-media" src="assets/food.webp" width="900" height="600" loading="lazy" decoding="async" alt="Gericht aus der Küche der Wirtschaft Dornbirn">
+      <div class="media-shade"></div>
       <div class="scene-shell reveal">
         <div class="scene-copy final-copy lunch-card">
-          <p class="eyebrow">Mittag · 11:30–13:30</p>
+          <span class="jump-anchor" id="go-concept-03" aria-hidden="true"></span><p class="eyebrow">Mittag · 11:30–13:30</p>
           <h2 id="title-03">Frisch gekocht.<br>Jeden Mittag.</h2>
           <p>Wechselnde Menüs, saisonal und ohne Schnörkel.</p>
           <div class="lunch-menu" data-lunch-menu aria-label="Mittagskarte" aria-live="polite">
@@ -146,36 +111,83 @@
           <a class="lunch-card-link" data-lunch-card href="downloads/mittagskarte/2026-07-24_mittagskarte-sommerpause.pdf" target="_blank" rel="noopener noreferrer">Aktuelle Mittagskarte (PDF) <span aria-hidden="true">↗</span></a>
           <div class="lunch-book">
             <div class="party-sizes lunch-party" role="group" aria-label="Personenzahl wählen"><button type="button" data-lunch-guests="2" aria-pressed="true">2</button><button type="button" data-lunch-guests="4" aria-pressed="false">4</button><button type="button" data-lunch-guests="6" aria-pressed="false">6</button><button type="button" data-lunch-guests="10" aria-pressed="false">10</button></div>
-            <a class="button button-green" href="https://tischreservierung.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Tisch reservieren</a>
+            <a class="button button-green" data-reserve-cta href="tischreservierung.html">Ab 24. August reservieren</a>
           </div>
-          <div class="lunch-subscribe"><p><strong>Wochenkarte abonnieren</strong><span>Jeden Montag um 7:15 Uhr im Postfach. Abmeldung jederzeit mit einem Klick.</span></p><a class="button button-ghost-dark" href="mailto:willkommen@wirtschaft-dornbirn.at?subject=Wochenkarte%20abonnieren&amp;body=Guten%20Tag%2C%0Abitte%20nehmt%20mich%20in%20den%20Verteiler%20f%C3%BCr%20die%20w%C3%B6chentliche%20Mittagskarte%20auf.%0A%0AName%3A%20%0A%0AIch%20erhalte%20anschlie%C3%9Fend%20eine%20Best%C3%A4tigungsmail.">Abonnieren</a></div>
+          <div class="lunch-subscribe"><p><strong>Wochenkarte abonnieren</strong><span>Jeden Montag um 7:15 Uhr im Postfach. Wir schicken zuerst eine Bestätigungsmail, Abmeldung jederzeit mit einem Klick.</span></p><a class="button button-ghost-dark" href="mailto:willkommen@wirtschaft-dornbirn.at?subject=Wochenkarte%20abonnieren&amp;body=Guten%20Tag%2C%0Abitte%20nehmt%20mich%20in%20den%20Verteiler%20f%C3%BCr%20die%20w%C3%B6chentliche%20Mittagskarte%20auf.%0A%0AName%3A%20%0A%0AIch%20erhalte%20anschlie%C3%9Fend%20eine%20Best%C3%A4tigungsmail.">Abonnieren</a></div>
         </div>
         <a class="scene-imprint" href="#impressum">Impressum</a>
       </div>
     </section>
 
-    <section class="catering-scene" id="foodtruck" aria-labelledby="truckTitle">
-      <div class="catering-truck-lane" aria-hidden="true"><div class="catering-truck-vehicle" data-catering-truck><img class="catering-truck-closed" src="assets/eugen-truck-closed.webp" width="1663" height="946" loading="lazy" decoding="async" alt=""><span class="catering-truck-mark"><img src="assets/emma-eugen.png" width="1200" height="848" loading="lazy" decoding="async" alt=""></span><span class="catering-truck-wheel catering-wheel-rear"></span><span class="catering-truck-wheel catering-wheel-front"></span><span class="catering-truck-notes"><i>♪</i><i>♫</i><i>✦</i></span></div></div>
-      <div class="catering-scene-copy"><p class="eyebrow">Catering &amp; Livebühne auf Achse</p><h2 id="truckTitle">Emma &amp; Eugen<br><em>kommen zu euch.</em></h2><p>Foodtruck-Catering für Firmenfest, Hochzeit oder Wunschort – direkt aus der Wirtschaft.</p></div>
+    <section class="catering-scene" id="foodtruck" data-variant="a" aria-labelledby="truckTitle">
+      <div class="catering-truck-lane" aria-hidden="true"><div class="catering-truck-vehicle" data-catering-truck><img class="catering-truck-closed" src="assets/eugen-truck-closed.webp" width="1200" height="683" loading="lazy" decoding="async" alt=""><span class="catering-truck-mark"><img src="assets/emma-eugen.png" width="900" height="636" loading="lazy" decoding="async" alt=""></span></div></div>
+      <div class="catering-scene-copy"><span class="jump-anchor" id="go-foodtruck" aria-hidden="true"></span><p class="eyebrow">Catering &amp; Livebühne auf Achse</p><h2 id="truckTitle">Emma &amp; Eugen<br><em>kommen zu euch.</em></h2><p>Foodtruck-Catering für Firmenfest, Hochzeit oder Wunschort – direkt aus der Wirtschaft.</p></div>
       <div class="catering-scene-right">
-        <aside class="catering-options" aria-labelledby="cateringOptionsTitle"><p class="eyebrow">Was möglich ist</p><h3 id="cateringOptionsTitle">Euer Anlass.<br>Unser Wagen.</h3><ul><li>Firmenfest &amp; Kulturhaus</li><li>Hochzeit &amp; Geburtstag</li><li>Foodtruck allein oder mit Live-Bühne</li><li>Vor Ort in Vorarlberg</li></ul><a class="button button-dark" href="feste-catering.html?occasion=Foodtruck%20%26%20mobile%20Bühne">Anfrage stellen ↗</a></aside>
+        <aside class="catering-options" aria-labelledby="cateringOptionsTitle"><p class="eyebrow">Was möglich ist</p><h3 id="cateringOptionsTitle">Euer Anlass.<br>Unser Wagen.</h3><ul><li>Firmenfest &amp; Kulturhaus</li><li>Hochzeit &amp; Geburtstag</li><li>Foodtruck allein oder mit Live-Bühne</li><li>Vor Ort in Vorarlberg</li></ul><a class="button button-dark" href="feste-catering.html?occasion=Foodtruck%20%26%20mobile%20B%C3%BChne">Anfrage stellen ↗</a></aside>
       </div>
     </section>
 
+
+
+    <section class="voucher-scene" id="gutscheine" data-variant="a" aria-labelledby="voucherTitle">
+      <span class="jump-anchor" id="go-gutscheine" aria-hidden="true"></span><p class="eyebrow">Gutscheine</p>
+      <h2 id="voucherTitle">Freude verschenken.</h2>
+      <p>Ein Abend in der Wirtschaft, verpackt in einen Gutschein. Einlösbar für Konzert, Comedy oder ein Essen bei uns in Dornbirn.</p>
+      <ol class="voucher-steps">
+        <li><b>01</b>Gutschein wählen</li>
+        <li><b>02</b>Daten angeben</li>
+        <li><b>03</b>Bezahlen</li>
+        <li><b>04</b>Drucken oder verschicken</li>
+        <li><b>05</b>Freude verschenken</li>
+      </ol>
+      <div class="voucher-list">
+        <article class="voucher-card">
+            <div><h3>„Dinner &amp; Konzert/Comedy“<span class="worth">Veranstaltung nach Wahl · Wert: 68 Euro</span></h3></div>
+            <p>Einlösbar für jede Veranstaltung im Wert von 68 Euro, inklusive einem erlesenen 6-Gänge-„Flying-Dinner“-Menü. Die beschenkte Person wählt Termin und Künstler selbst. Bei einzelnen Terminen kann ein kleiner Aufpreis anfallen.</p>
+          <span class="voucher-count" data-voucher="dinner" data-min="0" data-max="20" data-value="0">
+            <button type="button" data-step="-1" aria-label="Einen Gutschein weniger">−</button>
+            <output aria-live="polite">0</output>
+            <button type="button" data-step="1" aria-label="Einen Gutschein mehr">+</button>
+          </span>
+        </article>
+        <article class="voucher-card">
+            <div><h3>„Konzert/Comedy only“<span class="worth">Veranstaltung nach Wahl · Wert: 28 Euro</span></h3></div>
+            <p>Einlösbar für jede Veranstaltung im Wert von 28 Euro. Die beschenkte Person wählt Termin und Künstler selbst. Bei einzelnen Terminen kann ein kleiner Aufpreis anfallen.</p>
+          <span class="voucher-count" data-voucher="konzert" data-min="0" data-max="20" data-value="0">
+            <button type="button" data-step="-1" aria-label="Einen Gutschein weniger">−</button>
+            <output aria-live="polite">0</output>
+            <button type="button" data-step="1" aria-label="Einen Gutschein mehr">+</button>
+          </span>
+        </article>
+        <article class="voucher-card">
+            <div><h3>Wertgutschein<span class="worth">Betrag frei wählbar</span></h3></div>
+            <p>Wird mit einem frei gewählten Wert ausgestellt. Ob ein feines Abendessen in der „wirtschaft“ oder ein Konzert- und Comedybesuch: einlösbar für alles, was man bei uns bekommen kann.</p>
+          <span class="voucher-count" data-voucher="wert" data-min="0" data-max="20" data-value="0">
+            <button type="button" data-step="-1" aria-label="Einen Gutschein weniger">−</button>
+            <output aria-live="polite">0</output>
+            <button type="button" data-step="1" aria-label="Einen Gutschein mehr">+</button>
+          </span>
+        </article>
+      </div>
+      <div class="voucher-foot">
+        <a class="button button-dark" id="voucherRequest" href="https://gutscheine.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Zum Gutschein-Shop ↗</a>
+        <p>Die Bestellung läuft persönlich über uns. Wir melden uns mit den Zahlungsdaten und schicken den Gutschein zum Drucken oder per Post.</p>
+      </div>
+    </section>
   </main>
 
-  <footer class="site-footer" id="impressum">
+  <footer class="site-footer" id="impressum" data-variant="d">
     <div><img src="assets/wirtschaft-logo.png" width="300" height="69" loading="lazy" decoding="async" alt="Wirtschaft Dornbirn"><p>Wolfgang Preuß · Bahnhofstraße 24 · 6850 Dornbirn</p></div>
-    <div><a href="tel:+43557220540">+43 (0)5572 20 540</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a></div>
+    <div><a href="tel:+43557220540">+43 (0)5572 20 540</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a><a data-route href="https://www.google.com/maps/dir/?api=1&destination=Bahnhofstra%C3%9Fe+24%2C+6850+Dornbirn%2C+%C3%96sterreich" target="_blank" rel="noopener noreferrer">Route öffnen ↗</a></div>
     <div><p>UID ATU 36206707 · FN 329272 z</p><p>Firmenbuchgericht: Landesgericht Feldkirch</p></div>
-    <div class="footer-links"><a href="feste-catering.html">Feste &amp; Catering</a><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a><a href="impressum.html">Impressum</a><button type="button" data-open="privacy">Datenschutz-Hinweis</button></div>
+    <div class="footer-links"><a href="feste-catering.html">Feste &amp; Catering</a><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a><a href="impressum.html">Impressum</a><a href="tischreservierung.html">Tischreservierung</a></div>
     <p class="prototype-note">Öffentliche Testumgebung · Reservierung und Tickets über offizielle Anbieter</p>
   </footer>
 
   <dialog class="app-dialog" id="reservationDialog" aria-labelledby="reservationTitle">
     <div class="dialog-frame booking-direct-frame">
       <header><div><p class="eyebrow">Mittagstisch · 11:30–13:30</p><h2 id="reservationTitle">Euer Tisch in Dornbirn.</h2></div><button class="dialog-close" type="button" aria-label="Reservierung schließen">×</button></header>
-      <div class="booking-direct-layout"><div><p class="booking-direct-lead">Wählt Datum, Uhrzeit und Personenzahl direkt im Reservierungssystem der Wirtschaft.</p><ul class="booking-direct-list"><li>aktuelle Tischverfügbarkeit</li><li>Tisch nur zum Mittag – abends gilt das Eventticket</li><li>Änderung und Storno direkt beim Anbieter</li></ul></div><aside class="guest-assurance"><p>Direkt reservieren</p><strong>Ohne Umweg zum Tisch.</strong><p class="microcopy">Die Reservierung wird vollständig beim offiziellen Anbieter verarbeitet. Die Website speichert keine Gästedaten und keine Zahlungsinformationen.</p></aside></div>
+      <div class="booking-direct-layout"><div><p class="booking-direct-lead">Wählt Datum, Uhrzeit und Personenzahl direkt im Reservierungssystem der Wirtschaft.</p><ul class="booking-direct-list"><li>Aktuelle Tischverfügbarkeit</li><li>Tisch nur zum Mittag – abends gilt das Eventticket</li><li>Änderung und Storno direkt beim Anbieter</li></ul></div><aside class="guest-assurance"><p>Direkt reservieren</p><strong>Ohne Umweg zum Tisch.</strong><p class="microcopy">Die Reservierung wird vollständig beim offiziellen Anbieter verarbeitet. Die Website speichert keine Gästedaten und keine Zahlungsinformationen.</p></aside></div>
       <footer><a class="button button-dark" href="https://tischreservierung.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Reservierung öffnen ↗</a><button class="button button-ghost dialog-close" type="button">Zurück</button></footer>
     </div>
   </dialog>
@@ -210,12 +222,16 @@
   </dialog>
 
   <dialog class="app-dialog" id="storyDialog" aria-labelledby="storyTitle">
-    <form method="dialog" class="dialog-frame story-frame"><header><div><p class="eyebrow">Die Geschichte</p><h2 id="storyTitle">Emma, Eugen und ein Haus voller Leben.</h2></div><button class="dialog-close" type="button" aria-label="Geschichte schließen">×</button></header><div class="story-layout"><img src="assets/emma-eugen.png" width="800" height="594" loading="lazy" decoding="async" alt="Emma und Eugen"><div><p>Die Großeltern des Besitzers stehen für Gastfreundschaft, Haltung und persönliche Nähe. Genau diese Glaubwürdigkeit wird zur visuellen Klammer der neuen Website.</p><ol><li><b>Damals</b><span>Emma &amp; Eugen prägen die familiäre Herkunft.</span></li><li><b>Heute</b><span>Mittag, Dinner, Konzerte, Comedy und Feiern.</span></li><li><b>Morgen</b><span>Ein durchgängiger digitaler Weg von Inspiration bis Buchung.</span></li></ol></div></div><footer><button class="button button-dark" type="button" data-open="reservation">Geschichte weiterschreiben</button><span>Authentische Markenstory statt austauschbarer Luxusbehauptung</span></footer></form>
+    <form method="dialog" class="dialog-frame story-frame"><header><div><p class="eyebrow">Die Geschichte</p><h2 id="storyTitle">Emma, Eugen und ein Haus voller Leben.</h2></div><button class="dialog-close" type="button" aria-label="Geschichte schließen">×</button></header><div class="story-layout"><img src="assets/emma-eugen.png" width="900" height="636" loading="lazy" decoding="async" alt="Emma und Eugen"><div><p>Die Großeltern des Besitzers stehen für Gastfreundschaft, Haltung und persönliche Nähe. Genau diese Glaubwürdigkeit wird zur visuellen Klammer der neuen Website.</p><ol><li><b>Damals</b><span>Emma &amp; Eugen prägen die familiäre Herkunft.</span></li><li><b>Heute</b><span>Mittag, Dinner, Konzerte, Comedy und Feiern.</span></li><li><b>Morgen</b><span>Ein durchgängiger digitaler Weg von Inspiration bis Buchung.</span></li></ol></div></div><footer><button class="button button-dark" type="button" data-open="reservation">Geschichte weiterschreiben</button><span>Authentische Markenstory statt austauschbarer Luxusbehauptung</span></footer></form>
   </dialog>
 
-  <dialog class="app-dialog" id="privacyDialog" aria-labelledby="privacyTitle"><form method="dialog" class="dialog-frame compact-frame"><header><div><p class="eyebrow">Testumgebung</p><h2 id="privacyTitle">Datenschutz im Liveprojekt.</h2></div><button class="dialog-close" type="button" aria-label="Hinweis schließen">×</button></header><p>Diese statische Testseite setzt keine Analyse-, Marketing- oder Buchungscookies. Reservierung und Ticketkauf werden auf den offiziellen Anbieter-Seiten verarbeitet. Vor dem endgültigen Livegang müssen Datenschutzerklärung, Speicherfristen sowie die tatsächlich eingesetzten Buchungs- und Payment-Dienste final geprüft werden.</p></form></dialog>
-
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+
   <noscript><p class="noscript">Für die Eventübersicht ist JavaScript erforderlich. Die offiziellen Reservierungs- und Ticketlinks bleiben ohne JavaScript erreichbar.</p></noscript>
+  <script src="app.js?v=design1" defer></script>
+  <script src="truck-motion.js?v=design1" defer></script>
+  <script src="prefetch.js?v=design1" defer></script>
+  <script src="measurement-hooks.js?v=1" defer></script>
 </body>
 </html>
