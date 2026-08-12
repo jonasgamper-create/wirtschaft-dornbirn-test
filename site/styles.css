@@ -1347,3 +1347,21 @@ a{text-decoration-thickness:from-font;text-underline-offset:.18em}
    Zeile. Gilt fuer Fliesstext, nicht fuer Ueberschriften. */
 .final-site main p:not(.eyebrow):not([class*="label"]){max-width:68ch}
 .final-site .lunch-note,.final-site .ticket-detail-note{max-width:60ch}
+
+/* Öffnungszeiten im Kopfbereich: rechts neben den Wegen, ruhig gesetzt.
+   Auf schmalen Geräten rückt die Zeile unter das Logo. */
+.final-site .experience-bar>p.bar-hours{display:grid;gap:1px;margin:0 0 0 auto;text-align:right;line-height:1.25}
+.final-site .bar-hours span{color:var(--gold,#c59b5d);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.final-site .bar-hours time{color:#e6e2da;font-size:13.5px;font-variant-numeric:tabular-nums}
+@media(max-width:900px){
+  .final-site .experience-bar{flex-wrap:wrap;height:auto;padding-top:10px;padding-bottom:10px;row-gap:6px}
+  .final-site .experience-bar>p.bar-hours{margin-left:auto;text-align:right}
+  .final-site .bar-hours span{font-size:10px}
+  .final-site .bar-hours time{font-size:12.5px}
+}
+@media(max-width:560px){
+  .final-site .bar-nav{order:3;flex-basis:100%}
+  .final-site .experience-bar>p.bar-hours{order:2}
+}
+
+.final-site .experience-bar>p.bar-hours span{display:block}

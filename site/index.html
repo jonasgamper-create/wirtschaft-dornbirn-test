@@ -27,9 +27,9 @@
   <link rel="preload" as="image" href="assets/restaurant.webp" imagesrcset="assets/restaurant-800.webp 900w, assets/restaurant.webp 1920w" imagesizes="100vw" fetchpriority="high">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=design1">
+  <link rel="stylesheet" href="styles.css?v=design4">
   <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "Restaurant", "@id": "https://wirtschaft-dornbirn.at/#restaurant", "name": "Wirtschaft Dornbirn", "legalName": "„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.", "url": "https://wirtschaft-dornbirn.at/", "description": "Mittagstisch, Konzerte, Comedy und Catering in Dornbirn, Vorarlberg.", "telephone": "+43557220540", "email": "willkommen@wirtschaft-dornbirn.at", "image": "https://wirtschaft-dornbirn.at/assets/restaurant.webp", "priceRange": "€€", "servesCuisine": ["Österreichisch", "Saisonal"], "address": {"@type": "PostalAddress", "streetAddress": "Bahnhofstraße 24", "postalCode": "6850", "addressLocality": "Dornbirn", "addressRegion": "Vorarlberg", "addressCountry": "AT"}, "vatID": "ATU36206707", "areaServed": {"@type": "City", "name": "Dornbirn"}, "acceptsReservations": "https://tischreservierung.wirtschaft-dornbirn.at/", "specialOpeningHoursSpecification": [{"@type": "OpeningHoursSpecification", "validFrom": "2026-07-24", "validThrough": "2026-08-23", "opens": "00:00", "closes": "00:00", "name": "Sommerpause"}]}
+{"@context": "https://schema.org", "@type": "Restaurant", "@id": "https://wirtschaft-dornbirn.at/#restaurant", "name": "Wirtschaft Dornbirn", "legalName": "„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.", "url": "https://wirtschaft-dornbirn.at/", "description": "Mittagstisch, Konzerte, Comedy und Catering in Dornbirn, Vorarlberg.", "telephone": "+43557220540", "email": "willkommen@wirtschaft-dornbirn.at", "image": "https://wirtschaft-dornbirn.at/assets/restaurant.webp", "priceRange": "€€", "servesCuisine": ["Österreichisch", "Saisonal"], "address": {"@type": "PostalAddress", "streetAddress": "Bahnhofstraße 24", "postalCode": "6850", "addressLocality": "Dornbirn", "addressRegion": "Vorarlberg", "addressCountry": "AT"}, "vatID": "ATU36206707", "areaServed": {"@type": "City", "name": "Dornbirn"}, "acceptsReservations": "https://tischreservierung.wirtschaft-dornbirn.at/", "specialOpeningHoursSpecification": [{"@type": "OpeningHoursSpecification", "validFrom": "2026-07-24", "validThrough": "2026-08-23", "opens": "00:00", "closes": "00:00", "name": "Sommerpause"}], "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "11:30", "closes": "13:30", "name": "Mittagstisch"}]}
   </script>
 </head>
 <template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#17130f"/><text x="50" y="60" text-anchor="middle" font-family="Georgia,serif" font-size="30" fill="#f3efe6">wd</text></svg></template>
@@ -44,6 +44,10 @@
       <a href="#go-concept-03" data-comment-anchor="50a6574b06-a">Mittagstisch</a>
       <a class="nav-vouchers" href="#go-gutscheine" data-comment-anchor="bf265492b6-a">Gutscheine</a>
     </nav>
+    <p class="bar-hours" data-opening-hours>
+      <span>Mittagstisch</span>
+      <time datetime="Mo-Fr 11:30-13:30">Mo–Fr 11:30–13:30</time>
+    </p>
   </header>
 
 
@@ -60,7 +64,7 @@
       <div class="prologue-copy reveal">
         <p class="eyebrow">Dornbirn · Vorarlberg</p>
         <h1 id="prologueTitle">Wo Dornbirn<br>zämmahockt.</h1>
-        <p>Abends Bühne. Mittagsmenü. Bahnhofstraße 24, Dornbirn.</p>
+        <p>Restaurant und Livebühne in Dornbirn: mittags frisch gekocht, abends Konzert und Comedy. Bahnhofstraße 24.</p>
         <div class="prologue-actions">
           <a class="button button-light" href="#go-concept-04">Termine &amp; Tickets</a>
         </div>
@@ -104,7 +108,7 @@
         <div class="scene-copy final-copy lunch-card">
           <span class="jump-anchor" id="go-concept-03" aria-hidden="true"></span><p class="eyebrow">Mittag · 11:30–13:30</p>
           <h2 id="title-03">Frisch gekocht.<br>Jeden Mittag.</h2>
-          <p>Wechselnde Menüs, saisonal und ohne Schnörkel.</p>
+          <p>Wechselnde Mittagsmenüs im Restaurant an der Bahnhofstraße – saisonal und ohne Schnörkel.</p>
           <div class="lunch-menu" data-lunch-menu aria-label="Mittagskarte" aria-live="polite">
             <p class="lunch-note">Sommerpause bis 23. August. Ab Montag, 24. August kochen wir wieder mittags.</p>
           </div>
@@ -121,7 +125,7 @@
 
     <section class="catering-scene" id="foodtruck" data-variant="a" aria-labelledby="truckTitle">
       <div class="catering-truck-lane" aria-hidden="true"><div class="catering-truck-vehicle" data-catering-truck><img class="catering-truck-closed" src="assets/eugen-truck-closed.webp" width="1200" height="683" loading="lazy" decoding="async" alt=""><span class="catering-truck-mark"><img src="assets/emma-eugen.webp" width="900" height="636" loading="lazy" decoding="async" alt=""></span></div></div>
-      <div class="catering-scene-copy"><span class="jump-anchor" id="go-foodtruck" aria-hidden="true"></span><p class="eyebrow">Catering &amp; Livebühne auf Achse</p><h2 id="truckTitle">Emma &amp; Eugen<br><em>kommen zu euch.</em></h2><p>Foodtruck-Catering für Firmenfest, Hochzeit oder Wunschort – direkt aus der Wirtschaft.</p></div>
+      <div class="catering-scene-copy"><span class="jump-anchor" id="go-foodtruck" aria-hidden="true"></span><p class="eyebrow">Catering &amp; Livebühne auf Achse</p><h2 id="truckTitle">Emma &amp; Eugen<br><em>kommen zu euch.</em></h2><p>Catering für Firmenfest, Hochzeit oder Wunschort – mit dem Foodtruck direkt aus der Wirtschaft, in ganz Vorarlberg.</p></div>
       <div class="catering-scene-right">
         <aside class="catering-options" aria-labelledby="cateringOptionsTitle"><p class="eyebrow">Was möglich ist</p><h3 id="cateringOptionsTitle">Euer Anlass.<br>Unser Wagen.</h3><ul><li>Firmenfest &amp; Kulturhaus</li><li>Hochzeit &amp; Geburtstag</li><li>Foodtruck allein oder mit Live-Bühne</li><li>Vor Ort in Vorarlberg</li></ul><a class="button button-dark" href="feste-catering.html?occasion=Foodtruck%20%26%20mobile%20B%C3%BChne">Anfrage stellen ↗</a></aside>
       </div>
