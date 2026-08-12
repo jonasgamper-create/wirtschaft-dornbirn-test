@@ -1342,3 +1342,8 @@ a{text-decoration-thickness:from-font;text-underline-offset:.18em}
   .menu-card,.section,.site-footer{break-inside:avoid}
   a[href^="http"]:after{content:" (" attr(href) ")";font-size:10pt;color:#444}
 }
+
+/* Lesbare Zeilenlaenge: ueber ~75 Zeichen ermuedet der Sprung zur naechsten
+   Zeile. Gilt fuer Fliesstext, nicht fuer Ueberschriften. */
+.final-site main p:not(.eyebrow):not([class*="label"]){max-width:68ch}
+.final-site .lunch-note,.final-site .ticket-detail-note{max-width:60ch}

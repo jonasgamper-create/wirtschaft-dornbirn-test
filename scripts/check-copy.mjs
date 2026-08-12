@@ -43,6 +43,16 @@ if (/dreht auf/i.test(index)) {
   errors.push('site/index.html: Die alte, zweideutige Catering-Zeile ist wieder da');
 }
 
+
+// Strukturierte Daten muessen gueltiges JSON sein - sonst ignoriert Google sie
+// vollstaendig, ohne dass man es der Seite ansieht.
+for (const [file, html] of contents) {
+  for (const block of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+    try { JSON.parse(block[1].trim()); }
+    catch { errors.push(`${file}: JSON-LD ist kein gueltiges JSON`); }
+  }
+}
+
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);
