@@ -36,6 +36,9 @@
     ],
     reservations: [],
     ticketOrders: [],
+    // Wird beim ersten Laden aus site/data/floorplan.json uebernommen.
+    floorplan: null,
+    blockedTables: [],
     updatedAt: new Date().toISOString()
   });
 
@@ -52,6 +55,48 @@
   const safeDate = value => /^\d{4}-\d{2}-\d{2}$/.test(String(value)) ? String(value) : localDate(0);
   const safeTime = value => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(value)) ? String(value) : '12:00';
   const safeIso = value => Number.isNaN(Date.parse(value)) ? new Date().toISOString() : new Date(value).toISOString();
+
+  const safeId = (value, fallback) => (/^[a-z][a-z0-9-]{1,23}$/.test(String(value)) ? String(value) : fallback);
+
+  // Der Tischplan enthaelt ausschliesslich Stammdaten. Alles, was nach Belegung
+  // oder Person aussieht, faellt beim Einlesen weg statt gespeichert zu werden.
+  function sanitizeFloorplan(input) {
+    if (!input || typeof input !== 'object') return null;
+    const levels = (Array.isArray(input.levels) ? input.levels : []).slice(0, 4).map((level, index) => ({
+      id: safeId(level?.id, `etage-${index + 1}`),
+      name: safeText(level?.name, 40) || `Etage ${index + 1}`,
+      order: safeNumber(level?.order, 1, 4, index + 1),
+      counts: {
+        2: safeNumber(level?.counts?.[2] ?? level?.counts?.['2'], 0, 99, 0),
+        4: safeNumber(level?.counts?.[4] ?? level?.counts?.['4'], 0, 99, 0)
+      }
+    }));
+    if (!levels.length) return null;
+    const known = new Set(levels.map(level => level.id));
+    const policy = input.policy && typeof input.policy === 'object' ? input.policy : {};
+    return {
+      version: 1,
+      status: ['beispiel', 'bestaetigt'].includes(input.status) ? input.status : 'beispiel',
+      numbering: { start: safeNumber(input.numbering?.start, 1, 999, 1) },
+      levels,
+      combos: (Array.isArray(input.combos) ? input.combos : []).slice(0, 40).map((combo, index) => ({
+        id: safeText(combo?.id, 40) || `combo-${index + 1}`,
+        tables: (Array.isArray(combo?.tables) ? combo.tables : []).slice(0, 4).map(id => safeText(id, 24)).filter(Boolean),
+        minGuests: safeNumber(combo?.minGuests, 1, 20, 1)
+      })).filter(combo => combo.tables.length >= 2),
+      policy: {
+        durations: (Array.isArray(policy.durations) ? policy.durations : []).slice(0, 8).map(step => ({
+          upTo: safeNumber(step?.upTo, 1, 20, 2),
+          minutes: safeNumber(step?.minutes, 30, 300, 90)
+        })),
+        bufferMinutes: safeNumber(policy.bufferMinutes, 0, 60, 15),
+        slotMinutes: safeNumber(policy.slotMinutes, 5, 60, 15),
+        maxCoversPerSlot: safeNumber(policy.maxCoversPerSlot, 1, 500, 10),
+        levelOrder: (Array.isArray(policy.levelOrder) ? policy.levelOrder : [])
+          .map(id => safeText(id, 24)).filter(id => known.has(id))
+      }
+    };
+  }
 
   function sanitizeState(input) {
     const defaults = makeDefaults();
@@ -124,6 +169,9 @@
         quantity: safeNumber(item && item.quantity, 1, 500, 1),
         total: safeNumber(item && item.total, 0, 1000000, 0)
       })),
+      floorplan: sanitizeFloorplan(source.floorplan),
+      blockedTables: (Array.isArray(source.blockedTables) ? source.blockedTables : [])
+        .slice(0, 200).map(id => safeText(id, 24)).filter(Boolean),
       updatedAt: safeIso(source.updatedAt)
     };
   }
@@ -176,6 +224,19 @@
     const state = load();
     state.settings = { ...state.settings, ...patch };
     return save(state);
+  }
+
+  function updateFloorplan(patch) {
+    const current = load();
+    const next = { ...(current.floorplan || {}), ...patch };
+    current.floorplan = next;
+    return save(current);
+  }
+
+  function setBlockedTables(ids) {
+    const current = load();
+    current.blockedTables = Array.isArray(ids) ? ids : [];
+    return save(current);
   }
 
   function updateService(id, patch) {
@@ -276,6 +337,8 @@
     serviceAvailability,
     tableSeats,
     updateSettings,
+    updateFloorplan,
+    setBlockedTables,
     updateService,
     updateEvent,
     recordReservation,

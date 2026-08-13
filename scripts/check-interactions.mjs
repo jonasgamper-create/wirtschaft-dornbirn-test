@@ -55,6 +55,28 @@ for (const marker of inventedTicketCopy) {
   if (main.includes(marker)) fail(`Unbestätigter Ticket-Tarif "${marker}" steht wieder im HTML`);
 }
 
+// Tischplan: das SVG ist rein visuell, bedienbar ist die Liste daneben. Die
+// Markup-Regeln stehen im Renderer - hier wird geprueft, dass die Seiten den
+// Renderer ueberhaupt einbinden und die Gaesteseite ihn nur als Orientierung
+// nutzt, nie als Buchungsschritt.
+const reservation = await readFile(path.join(root, 'site/tischreservierung.html'), 'utf8');
+if (!/<div data-floorplan[^>]*data-src="data\/floorplan\.json"/.test(reservation)) {
+  fail('Der Tischplan-Container fehlt auf der Reservierungsseite');
+}
+if (!/data-mode="orientation"/.test(reservation)) {
+  fail('Der Tischplan der Gästeseite muss data-mode="orientation" tragen - dort wird nicht gebucht');
+}
+if (!reservation.includes('floorplan.css') || !reservation.includes('floorplan.js')) {
+  fail('Tischplan-Stil oder -Renderer ist auf der Reservierungsseite nicht eingebunden');
+}
+
+const renderer = await readFile(path.join(root, 'site/floorplan.js'), 'utf8');
+if (!renderer.includes("'aria-hidden': 'true'")) fail('Das Tischplan-SVG muss aria-hidden tragen');
+if (!renderer.includes("setAttribute('role', 'radiogroup')")) fail('Die Tischliste braucht role="radiogroup"');
+if (!renderer.includes("config.status !== 'bestaetigt'")) {
+  fail('Der Renderer muss einen unbestätigten Tischplan auf der Gästeseite zurückhalten');
+}
+
 const storyTemplate = await readFile(path.join(root, 'output/social-canva/genussroute-story-template/story-template.html'), 'utf8');
 if (/story-icons|ⓘ|▧|♡/.test(storyTemplate)) fail('Story-Vorlage enthält noch die entfernten Symbole');
 if (!storyTemplate.includes('href="{{OFFICIAL_URL}}"') || !storyTemplate.includes('Nach oben wischen')) fail('Story-CTA oder Swipe-Hinweis fehlt');

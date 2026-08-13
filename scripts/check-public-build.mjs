@@ -4,8 +4,10 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const output = path.join(root, 'dist');
-const required = ['index.html', 'app.js', 'styles.css', 'truck-motion.js', 'data/events.json', 'wirtschaft-events.ics', 'sitemap.xml', 'datenschutz-sicherheit.html', 'impressum.html'];
-const forbidden = ['gastgeber.html', 'gastgeber.js', 'gastgeber.css', 'gastgeber-mobile-fix.css', 'inventory-store.js', 'entwuerfe.html', 'drafts.css', 'entwuerfe.css', 'ticketing-cinematic.css', 'truck-experience.css'];
+const required = ['index.html', 'app.js', 'styles.css', 'truck-motion.js', 'data/events.json', 'wirtschaft-events.ics', 'sitemap.xml', 'datenschutz-sicherheit.html', 'impressum.html', 'data/floorplan.json', 'floorplan-layout.mjs', 'floorplan.js'];
+// table-assignment.mjs ist Betriebswissen: die Zuweisungsregeln des Hauses
+// gehoeren nicht in ein oeffentlich ausgeliefertes Bundle.
+const forbidden = ['gastgeber.html', 'gastgeber.js', 'gastgeber.css', 'gastgeber-mobile-fix.css', 'inventory-store.js', 'table-assignment.mjs', 'entwuerfe.html', 'drafts.css', 'entwuerfe.css', 'ticketing-cinematic.css', 'truck-experience.css'];
 
 for (const file of required) await access(path.join(output, file));
 const files = await readdir(output);

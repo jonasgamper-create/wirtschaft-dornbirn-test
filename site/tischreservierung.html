@@ -14,6 +14,7 @@
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
   <link rel="stylesheet" href="tischreservierung.css?v=1">
+  <link rel="stylesheet" href="floorplan.css?v=1">
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Restaurant","name":"Wirtschaft Dornbirn","legalName":"„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.","url":"https://wirtschaft-dornbirn.at/","telephone":"+43557220540","email":"willkommen@wirtschaft-dornbirn.at","address":{"@type":"PostalAddress","streetAddress":"Bahnhofstraße 24","postalCode":"6850","addressLocality":"Dornbirn","addressRegion":"Vorarlberg","addressCountry":"AT"},"vatID":"ATU36206707","acceptsReservations":"https://tischreservierung.wirtschaft-dornbirn.at/"}
   </script>
@@ -96,6 +97,15 @@
       </div>
     </section>
 
+    <section class="wrap section" id="tischplan">
+      <p class="eyebrow">Tischplan</p>
+      <h2>So sitzt ihr bei uns</h2>
+      <p class="sub">Zur Orientierung, nicht zur Buchung: Zweier- und Vierertische, durchnummeriert über alle Ebenen. Welche Tische an eurem Wunschtag noch frei sind, sagt euch das offizielle Reservierungssystem.</p>
+      <div data-floorplan data-src="data/floorplan.json" data-mode="orientation">
+        <p class="fp-empty">Der Tischplan wird geladen.</p>
+      </div>
+    </section>
+
     <section class="wrap section">
       <p class="eyebrow">Gut zu wissen</p>
       <h2>Mittags Tisch, abends Ticket</h2>
@@ -112,5 +122,6 @@
   </footer>
 
   <script src="tischreservierung.js?v=1" defer></script>
+  <script type="module" src="floorplan.js?v=1"></script>
 </body>
 </html>

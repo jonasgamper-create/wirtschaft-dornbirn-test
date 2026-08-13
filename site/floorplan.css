@@ -1,0 +1,57 @@
+/* Tischplan. Nutzt ausschliesslich die bestehenden CI-Tokens; die Fallbacks
+   machen die Datei auch im Gastgeber-Cockpit einsetzbar, das eigene Variablen
+   mitbringt. Keine Verlaeufe, keine Schatten, keine Icon-Sets. */
+
+.fp{display:grid;gap:20px}
+.fp-levels{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0}
+.fp-levels button{min-height:48px;padding:0 16px;border:1px solid #11110f3d;border-radius:999px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:var(--t-body,17.5px);cursor:pointer}
+.fp-levels button[aria-checked="true"]{border-color:var(--green,#244635);background:var(--green,#244635);color:#fff}
+
+.fp-stage{display:grid;gap:20px}
+@media(min-width:901px){.fp-stage{grid-template-columns:minmax(0,560px) minmax(240px,1fr);align-items:start}}
+
+.fp-svg{display:block;width:100%;max-width:480px;height:auto}
+.fp-svg .fp-shape{fill:#fff;stroke:#11110f40;stroke-width:1;vector-effect:non-scaling-stroke}
+/* Schriftgroesse in Rastereinheiten: bei 480 px Deckel rund 20 px, auf 390 px
+   Breite rund 14 px. In beiden Faellen lesbar, ohne den Plan zu dominieren. */
+.fp-svg .fp-num{fill:var(--ink,#11110f);font-family:var(--sans,Inter,system-ui,sans-serif);font-size:1px;font-weight:700;font-variant-numeric:tabular-nums;text-anchor:middle;dominant-baseline:central}
+.fp-svg [data-state="busy"] .fp-shape{fill:var(--cream,#ead9bc)}
+.fp-svg [data-state="busy"] .fp-num{fill:#57524a}
+.fp-svg [data-state="blocked"] .fp-shape{stroke:var(--wine,#8c292b)}
+.fp-svg [data-state="blocked"] .fp-num{fill:var(--wine,#8c292b)}
+.fp-svg [data-state="picked"] .fp-shape{fill:var(--green,#244635);stroke:var(--green,#244635)}
+.fp-svg [data-state="picked"] .fp-num{fill:#fff}
+.fp-svg .fp-mark{fill:#57524a;font-family:var(--sans,Inter,system-ui,sans-serif);font-size:.85px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+
+.fp-list{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.fp-list li{display:flex;align-items:center;min-height:32px;color:#57524a;font-size:var(--t-meta,14.5px);line-height:1.45}
+.fp-list b{margin-right:8px;color:var(--ink,#11110f);font-variant-numeric:tabular-nums}
+.fp-list button{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:6px 12px;border:1px solid #11110f26;border-radius:8px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:var(--t-meta,14.5px);text-align:left;cursor:pointer}
+.fp-list button[aria-checked="true"]{border-color:var(--green,#244635);background:var(--green,#244635);color:#fff}
+.fp-list button[disabled]{background:var(--cream,#ead9bc);color:#57524a;cursor:not-allowed}
+.fp-list button:focus-visible,.fp-levels button:focus-visible{outline:3px solid var(--gold,#c59b5d);outline-offset:3px}
+
+.fp-legend{display:flex;flex-wrap:wrap;gap:14px;margin:0;color:#57524a;font-size:var(--t-label,12.5px);letter-spacing:.06em;text-transform:uppercase}
+.fp-legend span{display:inline-flex;align-items:center;gap:6px}
+.fp-legend i{width:12px;height:12px;border:1px solid #11110f40;background:#fff}
+.fp-legend i.busy{background:var(--cream,#ead9bc)}
+.fp-legend i.blocked{border-color:var(--wine,#8c292b)}
+
+.fp-status{margin:0;color:#57524a;font-size:var(--t-meta,14.5px);line-height:1.5}
+.fp-empty{margin:0;color:#57524a;font-size:var(--t-meta,14.5px);line-height:1.5}
+
+/* Nur im Gastgeber-Cockpit sichtbar. */
+.fp-levels-editor{display:grid;gap:10px;margin-bottom:16px}
+.fp-level-row{display:flex;flex-wrap:wrap;align-items:end;gap:12px}
+.fp-level-row label{display:grid;gap:6px;font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.fp-level-row input{min-height:44px;padding:8px 12px;border:1px solid #11110f3d;border-radius:8px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:var(--t-body,17.5px);letter-spacing:0;text-transform:none}
+.fp-level-row input[type="number"]{width:110px}
+.fp-warn{margin:0 0 16px;padding:12px 16px;border-left:2px solid var(--wine,#8c292b);background:#8c292b14;color:#6b2224;font-size:var(--t-meta,14.5px);line-height:1.5;max-width:64ch}
+.fp-tools{display:grid;gap:12px;margin-top:20px}
+.fp-result{margin:0;padding:12px 16px;border-left:2px solid var(--green,#244635);background:#11110f0a;color:#3c3833;font-size:var(--t-meta,14.5px);line-height:1.55;max-width:64ch}
+
+@media(max-width:900px){
+  .fp-svg{max-width:100%}
+  .fp-levels button{flex:1 1 calc(50% - 4px);min-height:52px}
+}
+@media(prefers-reduced-motion:reduce){.fp *{transition:none!important;animation:none!important}}

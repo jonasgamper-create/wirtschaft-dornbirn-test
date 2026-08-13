@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "updatedAt": "2026-08-13T10:00:00+02:00",
+  "status": "beispiel",
+  "note": "Beispielkonfiguration. Die echten Tischzahlen und Etagen traegt der Gastgeber im Cockpit ein; erst danach status auf \"bestaetigt\" setzen.",
+  "numbering": { "start": 1 },
+  "levels": [
+    { "id": "eg", "name": "Gaststube", "order": 1, "counts": { "2": 8, "4": 6 } },
+    { "id": "og", "name": "Saal", "order": 2, "counts": { "2": 4, "4": 5 } }
+  ],
+  "combos": [
+    { "id": "eg-combo-01", "tables": ["eg-2-01", "eg-2-02"], "minGuests": 3 },
+    { "id": "og-combo-01", "tables": ["og-4-01", "og-2-01"], "minGuests": 5 }
+  ],
+  "policy": {
+    "durations": [
+      { "upTo": 2, "minutes": 90 },
+      { "upTo": 4, "minutes": 105 },
+      { "upTo": 6, "minutes": 150 },
+      { "upTo": 20, "minutes": 180 }
+    ],
+    "bufferMinutes": 15,
+    "slotMinutes": 15,
+    "maxCoversPerSlot": 10,
+    "levelOrder": ["eg", "og"]
+  }
+}

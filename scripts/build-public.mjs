@@ -12,6 +12,10 @@ const excluded = new Set([
   'gastgeber.css',
   'gastgeber-mobile-fix.css',
   'inventory-store.js',
+  // Die Zuweisungslogik ist Betriebswissen und gehoert nicht in den oeffentlichen
+  // Build. floorplan-layout.mjs bleibt dagegen drin: reine Geometrie ohne
+  // Personenbezug, die Gaesteseite zeichnet den Plan daraus.
+  'table-assignment.mjs',
   'entwuerfe.html',
   'drafts.css',
   'entwuerfe.css',
