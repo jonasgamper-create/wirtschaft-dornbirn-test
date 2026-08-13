@@ -28,24 +28,28 @@
 }
 
 .table-mix {
-  display: grid;
-  grid-template-columns: repeat(4, 54px);
+  display: flex;
+  flex-wrap: wrap;
   gap: 5px;
   margin-bottom: 5px;
 }
 
-.table-mix label {
-  display: grid;
-  gap: 3px;
-  color: var(--muted);
-  font-size: 8px;
-  font-weight: 800;
-  text-transform: uppercase;
+/* Der Tischmix kommt aus dem Tischplan und ist hier nur noch Anzeige. */
+.mix-chip {
+  padding: 3px 7px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 3px;
+  color: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
-.table-mix input {
-  width: 54px;
-  min-height: 30px;
+.mix-chip.empty {
+  border-style: dashed;
+  color: var(--muted);
+  font-weight: 400;
 }
 
 .table-seats {
@@ -54,6 +58,3 @@
   font-size: 9px;
 }
 
-@media (max-width: 650px) {
-  .table-mix { grid-template-columns: repeat(2, 54px); }
-}

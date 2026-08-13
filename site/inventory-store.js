@@ -133,12 +133,10 @@
           kind: safeText(item && item.kind, 24) || 'Mittag',
           capacity,
           reserved: safeNumber(item && item.reserved, 0, capacity, 0),
-          tables: {
-            2: safeNumber(tables[2], 0, 500, 0),
-            4: safeNumber(tables[4], 0, 500, 0),
-            6: safeNumber(tables[6], 0, 500, 0),
-            8: safeNumber(tables[8], 0, 500, 0)
-          }
+          // Tischgroessen 2 bis 10 Personen, auch ungerade.
+          tables: Object.fromEntries(Array.from({ length: 9 }, (_, index) => index + 2)
+            .map(seats => [seats, safeNumber(tables[seats], 0, 500, 0)])
+            .filter(([, count]) => count > 0))
         };
       }),
       events: eventsSource.slice(0, 150).map((item, index) => {
@@ -225,7 +223,7 @@
   }
 
   function tableSeats(tables) {
-    return [2, 4, 6, 8].reduce((sum, size) => sum + size * Number(tables?.[size] || 0), 0);
+    return Object.entries(tables || {}).reduce((sum, [size, count]) => sum + Number(size) * Number(count || 0), 0);
   }
 
   function updateSettings(patch) {

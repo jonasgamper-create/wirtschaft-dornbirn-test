@@ -36,8 +36,13 @@
     byId('servicesBody').innerHTML = services.map(item => {
       const count = available(item, current);
       const tables = item.tables || {};
-      const tableMix = [2, 4, 6, 8].map(size => `<label>${size}er<input data-service="${escapeHtml(item.id)}" data-field="tables" data-table-size="${size}" type="number" min="0" max="500" value="${Number(tables[size] || 0)}" aria-label="Anzahl ${size}er-Tische ${escapeHtml(item.date)} ${escapeHtml(item.time)}"></label>`).join('');
-      return `<tr><td>${formatDate(item.date)}</td><td>${escapeHtml(item.time)}</td><td>${escapeHtml(item.kind)}</td><td><input data-service="${escapeHtml(item.id)}" data-field="capacity" type="number" min="0" value="${item.capacity}" aria-label="Kapazität ${escapeHtml(item.date)} ${escapeHtml(item.time)}"></td><td><input data-service="${escapeHtml(item.id)}" data-field="reserved" type="number" min="0" value="${item.reserved}" aria-label="Belegt ${escapeHtml(item.date)} ${escapeHtml(item.time)}"></td><td><div class="table-mix">${tableMix}</div><small class="table-seats">${tableSeats(tables)} Sitzplätze im Tischmix</small></td><td>${count.limit}</td><td class="free${count.available < 8 ? ' low' : ''}">${count.available}</td></tr>`;
+      // Der Tischmix wird aus dem Tischplan berechnet und ist hier nur Anzeige -
+      // sonst gaebe es zwei Quellen fuer dieselbe Zahl.
+      const sizes = Object.keys(tables).map(Number).filter(size => tables[size] > 0).sort((a, b) => a - b);
+      const tableMix = sizes.length
+        ? sizes.map(size => `<span class="mix-chip">${Number(tables[size])}&times;${size}P</span>`).join('')
+        : '<span class="mix-chip empty">kein Tischplan hinterlegt</span>';
+      return `<tr><td>${formatDate(item.date)}</td><td>${escapeHtml(item.time)}</td><td>${escapeHtml(item.kind)}</td><td><input data-service="${escapeHtml(item.id)}" data-field="capacity" type="number" min="0" value="${item.capacity}" aria-label="Kapazität ${escapeHtml(item.date)} ${escapeHtml(item.time)}"></td><td><input data-service="${escapeHtml(item.id)}" data-field="reserved" type="number" min="0" value="${item.reserved}" aria-label="Belegt ${escapeHtml(item.date)} ${escapeHtml(item.time)}"></td><td><div class="table-mix">${tableMix}</div><small class="table-seats">${tableSeats(tables)} Sitzplätze · aus dem Tischplan berechnet</small></td><td>${count.limit}</td><td class="free${count.available < 8 ? ' low' : ''}">${count.available}</td></tr>`;
     }).join('') || '<tr><td colspan="8">Keine Zeitfenster für diesen Filter.</td></tr>';
 
     byId('eventsAdmin').innerHTML = current.events.map(item => `<article class="event-card"><time class="event-date" datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time><div><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.format)} · ${item.ticketTypes.map(type => `${escapeHtml(type.name)}: ${type.sold}`).join(' · ')}</p></div><div class="event-inputs"><label>Kapazität<input data-event="${escapeHtml(item.id)}" data-field="capacity" type="number" min="0" value="${item.capacity}"></label><label>Verkauft<input data-event="${escapeHtml(item.id)}" data-field="sold" type="number" min="0" value="${item.sold}"></label><label>Noch frei<output>${Math.max(0, item.capacity - item.sold)}</output></label></div></article>`).join('');
@@ -58,13 +63,7 @@
     if (!input) return;
     const key = input.dataset.service;
     clearTimeout(pendingServiceUpdates.get(key));
-    if (input.dataset.tableSize) {
-      const current = state();
-      const service = current.services.find(item => item.id === key);
-      data.updateService(key, { tables: { ...(service?.tables || {}), [input.dataset.tableSize]: Number(input.value) } });
-    } else {
-      data.updateService(key, { [input.dataset.field]: Number(input.value) });
-    }
+    data.updateService(key, { [input.dataset.field]: Number(input.value) });
     render(); toast('Zeitfenster aktualisiert.');
   };
   byId('servicesBody').addEventListener('input', event => {
@@ -97,7 +96,8 @@
     event.preventDefault(); const current = state(); const date = byId('newDate').value; const time = byId('newTime').value; const id = `${date}-${time.replace(':', '')}`;
     if (current.services.some(item => item.id === id)) return toast('Dieses Zeitfenster existiert bereits.');
     const kind = byId('newKind').value;
-    current.services.push({ id, date, time, kind, capacity: Number(byId('newCapacity').value), reserved: 0, tables: kind === 'Mittag' ? { 2: 8, 4: 6, 6: 2, 8: 1 } : { 2: 10, 4: 8, 6: 3, 8: 2 } }); data.save(current); render(); toast('Zeitfenster ergänzt.');
+    // Der Tischmix kommt aus dem Tischplan, nicht aus einer Vorgabe hier.
+    current.services.push({ id, date, time, kind, capacity: Number(byId('newCapacity').value), reserved: 0, tables: {} }); data.save(current); render(); toast('Zeitfenster ergänzt.');
   });
   byId('newDate').min = today; byId('newDate').value = today; byId('newTime').value = '12:00';
   byId('exportData').addEventListener('click', () => { const blob = new Blob([JSON.stringify(state(), null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `wirtschaft-gastgeber-${today}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); toast('Datenexport erstellt.'); });

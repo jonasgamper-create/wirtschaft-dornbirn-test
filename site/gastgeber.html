@@ -10,11 +10,9 @@
   <title>Gastgeber-Cockpit · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="stylesheet" href="gastgeber.css?v=1">
-  <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=1">
-  <link rel="stylesheet" href="floorplan.css?v=1">
-  <script src="inventory-store.js?v=2" defer></script>
-  <script src="gastgeber.js?v=1" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=1"></script>
+  <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=2">
+  <script src="inventory-store.js?v=3" defer></script>
+  <script src="gastgeber.js?v=2" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -60,28 +58,9 @@
     </section>
 
     <section class="panel" aria-labelledby="floorplanTitle">
-      <div class="panel-head"><div><p>05 · Tischplan</p><h2 id="floorplanTitle">Etagen und Tischanzahl</h2></div><span>Anzahl ändern, Plan zeichnet sich neu</span></div>
-
-      <div class="fp-levels-editor" id="fpLevels"></div>
-      <form class="add-service" id="fpAddLevel">
-        <label>Name der Etage<input id="fpNewName" type="text" maxlength="40" placeholder="z. B. Stüberl" required></label>
-        <button type="submit">Etage ergänzen</button>
-      </form>
-      <p class="fp-warn" id="fpWarn" role="status" aria-live="polite" hidden></p>
-
-      <div data-floorplan id="fpPreview" data-mode="select"></div>
-
-      <div class="fp-tools">
-        <form class="add-service" id="fpTryForm">
-          <label>Personen<input id="fpTryGuests" type="number" min="1" max="20" value="4" required></label>
-          <label>Uhrzeit<input id="fpTryTime" type="time" value="12:00" required></label>
-          <button type="submit">Zuweisung testen</button>
-        </form>
-        <p class="fp-result" id="fpResult" role="status" aria-live="polite">Personenzahl und Uhrzeit eingeben – das Cockpit zeigt, welchen Tisch die Zuweisung vergeben würde.</p>
-      </div>
-
-      <p class="model-note">Tischgrößen von 2 bis 10 Personen, auch ungerade. Tische lassen sich im Plan mit der Maus verschieben oder mit Umschalt und Pfeiltasten – die Position bleibt gespeichert, auch wenn später Anzahlen geändert werden. Die Tischnummern folgen der Leserichtung im Raum, laufen also nach dem Verschieben neu. Der Tischmix in Panel 02 wird aus diesem Plan berechnet. Zum Übernehmen in die Website den Export in <code>site/data/floorplan.json</code> einsetzen und <code>status</code> auf <code>bestaetigt</code> stellen; vorher zeigt die Gästeseite bewusst keinen Plan.</p>
-      <button class="quiet" type="button" id="fpExport">Tischplan als JSON exportieren</button>
+      <div class="panel-head"><div><p>05 · Tischplan</p><h2 id="floorplanTitle">Etagen und Tischanzahl</h2></div><span>Eigene Übersicht, nur intern</span></div>
+      <p class="model-note">Die Tischeinteilung hat eine eigene Seite: Etagen anlegen, Tischgrößen festlegen, Tische auf der Karte anordnen und die Zuweisung testen. Der Tischmix in Panel 02 wird daraus berechnet. Gäste sehen diese Ansicht nicht und können keinen Tisch auswählen.</p>
+      <a class="quiet" href="gastgeber-tischplan.html">Tischplan öffnen ↗</a>
     </section>
 
     <section class="notice"><strong>Wichtig für den echten Betrieb</strong><p>Dieses Cockpit verwendet aktuell den lokalen Browser-Speicher. Export und Import ermöglichen eine sichere Testübergabe. Für mehrere Geräte und Mitarbeiter braucht der endgültige Livebetrieb eine geschützte Datenbank mit Anmeldung.</p><button type="button" id="resetData">Testdaten zurücksetzen</button></section>

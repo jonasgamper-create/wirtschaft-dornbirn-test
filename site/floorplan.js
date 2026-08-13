@@ -263,26 +263,8 @@ function roving(event, container, selector, activate) {
   activate?.(items[next]);
 }
 
-// Automatischer Start auf der Gaesteseite. Das Cockpit ruft renderFloorplan()
-// selbst auf, weil es Zustaende, Auswahl und Verschieben mitgibt.
-const auto = document.querySelector('[data-floorplan][data-src]');
-if (auto) {
-  fetch(auto.dataset.src, { cache: 'no-store' })
-    .then(response => { if (!response.ok) throw new Error(String(response.status)); return response.json(); })
-    .then(config => {
-      // Eine Beispielkonfiguration ist keine Aussage ueber echte Tische. Solange
-      // der Wirt die Zahlen nicht bestaetigt hat, zeigt die Gaesteseite den
-      // Herkunftshinweis statt eines erfundenen Grundrisses.
-      if (config.status !== 'bestaetigt') {
-        auto.textContent = '';
-        auto.className = 'fp';
-        auto.append(Object.assign(document.createElement('p'), {
-          className: 'fp-empty',
-          textContent: 'Der Tischplan wird gerade mit dem Haus abgestimmt und erscheint hier, sobald die Aufteilung bestätigt ist.'
-        }));
-        return;
-      }
-      renderFloorplan(auto, config, { mode: auto.dataset.mode || 'orientation' });
-    })
-    .catch(() => {});
-}
+// Kein automatischer Start: Der Tischplan ist eine rein interne Ansicht fuer
+// die Einteilung durch das Haus. Gaeste sehen ihn nicht und waehlen keinen
+// Tisch - sie geben Tag, Uhrzeit und Personenzahl an. Deshalb liegt der
+// Renderer nicht im oeffentlichen Build und wird nur von
+// gastgeber-floorplan.js aufgerufen.

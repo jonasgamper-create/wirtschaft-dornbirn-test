@@ -55,26 +55,28 @@ for (const marker of inventedTicketCopy) {
   if (main.includes(marker)) fail(`Unbestätigter Ticket-Tarif "${marker}" steht wieder im HTML`);
 }
 
-// Tischplan: das SVG ist rein visuell, bedienbar ist die Liste daneben. Die
-// Markup-Regeln stehen im Renderer - hier wird geprueft, dass die Seiten den
-// Renderer ueberhaupt einbinden und die Gaesteseite ihn nur als Orientierung
-// nutzt, nie als Buchungsschritt.
+// Tischplan: interne Einteilungsansicht. Gäste sehen ihn nicht und wählen
+// keinen Tisch - sie geben nur Tag, Uhrzeit und Personenzahl an.
+for (const [name, page] of Object.entries(html)) {
+  if (/data-floorplan|floorplan\.(js|css)/.test(page)) {
+    fail(`${name} bindet den Tischplan ein - er ist eine interne Ansicht`);
+  }
+}
 const reservation = await readFile(path.join(root, 'site/tischreservierung.html'), 'utf8');
-if (!/<div data-floorplan[^>]*data-src="data\/floorplan\.json"/.test(reservation)) {
-  fail('Der Tischplan-Container fehlt auf der Reservierungsseite');
+if (/data-floorplan|floorplan\.(js|css)/.test(reservation)) {
+  fail('Die Reservierungsseite darf den Tischplan nicht einbinden - Gäste wählen keinen Tisch');
 }
-if (!/data-mode="orientation"/.test(reservation)) {
-  fail('Der Tischplan der Gästeseite muss data-mode="orientation" tragen - dort wird nicht gebucht');
-}
-if (!reservation.includes('floorplan.css') || !reservation.includes('floorplan.js')) {
-  fail('Tischplan-Stil oder -Renderer ist auf der Reservierungsseite nicht eingebunden');
-}
+
+// Die interne Seite trägt ihn, und das Markup muss bedienbar bleiben.
+const internal = await readFile(path.join(root, 'site/gastgeber-tischplan.html'), 'utf8');
+if (!/<div data-floorplan[^>]*id="fpPreview"/.test(internal)) fail('Der Tischplan-Container fehlt auf der internen Seite');
+if (!/name="robots" content="noindex/.test(internal)) fail('Die interne Tischplanseite muss noindex tragen');
 
 const renderer = await readFile(path.join(root, 'site/floorplan.js'), 'utf8');
 if (!renderer.includes("'aria-hidden': 'true'")) fail('Das Tischplan-SVG muss aria-hidden tragen');
 if (!renderer.includes("setAttribute('role', 'radiogroup')")) fail('Die Tischliste braucht role="radiogroup"');
-if (!renderer.includes("config.status !== 'bestaetigt'")) {
-  fail('Der Renderer muss einen unbestätigten Tischplan auf der Gästeseite zurückhalten');
+if (/document\.querySelector\('\[data-floorplan\]\[data-src\]'\)/.test(renderer)) {
+  fail('Der Renderer darf sich nicht mehr selbst starten - er ist nur intern eingebunden');
 }
 
 const storyTemplate = await readFile(path.join(root, 'output/social-canva/genussroute-story-template/story-template.html'), 'utf8');

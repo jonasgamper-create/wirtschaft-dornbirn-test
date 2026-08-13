@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src 'self' data:; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; form-action 'self'; upgrade-insecure-requests">
+  <meta name="theme-color" content="#173e2c">
+  <title>Tischplan · Interne Einteilung</title>
+  <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
+  <link rel="stylesheet" href="gastgeber.css?v=1">
+  <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=2">
+  <link rel="stylesheet" href="floorplan.css?v=3">
+  <script src="inventory-store.js?v=3" defer></script>
+  <script type="module" src="gastgeber-floorplan.js?v=2"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"><div><small>Interne Einteilung</small><strong>Tischplan</strong></div></div>
+    <div class="top-actions"><button class="quiet" type="button" id="fpExport">Tischplan exportieren</button><a href="gastgeber.html">Zum Cockpit ↗</a></div>
+  </header>
+
+  <main>
+    <section class="welcome">
+      <div>
+        <p>Etagen · Tischgrößen · Anordnung</p>
+        <h1>Wer sitzt wo?</h1>
+        <p class="fp-intro">Nur für die interne Einteilung. Gäste sehen diese Ansicht nicht und können keinen Tisch auswählen – sie geben Tag, Uhrzeit und Personenzahl an, die Einteilung macht das Haus.</p>
+      </div>
+      <div class="status-dot"><i></i>Lokaler Testbetrieb</div>
+    </section>
+
+    <section class="panel" aria-labelledby="levelsTitle">
+      <div class="panel-head"><div><p>01 · Räume</p><h2 id="levelsTitle">Etagen und Tischgrößen</h2></div><span>2 bis 10 Personen je Tisch, auch ungerade</span></div>
+      <div class="fp-levels-editor" id="fpLevels"></div>
+      <form class="add-service" id="fpAddLevel">
+        <label>Name der Etage<input id="fpNewName" type="text" maxlength="40" placeholder="z. B. Stüberl" required></label>
+        <button type="submit">Etage ergänzen</button>
+      </form>
+      <p class="fp-warn" id="fpWarn" role="status" aria-live="polite" hidden></p>
+    </section>
+
+    <section class="panel" aria-labelledby="mapTitle">
+      <div class="panel-head"><div><p>02 · Karte</p><h2 id="mapTitle">Tische anordnen</h2></div><span>Ziehen oder Umschalt und Pfeiltasten</span></div>
+      <div data-floorplan id="fpPreview" data-mode="select"></div>
+      <p class="model-note">Ein Klick sperrt einen Tisch oder gibt ihn wieder frei. Verschieben geht mit der Maus oder – wenn ein Tisch in der Liste im Fokus ist – mit Umschalt und Pfeiltaste. Positionen bleiben gespeichert, auch wenn später Anzahlen geändert werden. Die Tischnummern folgen der Leserichtung im Raum: erst die Karte fertig anordnen, dann Tischkarten drucken.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="tryTitle">
+      <div class="panel-head"><div><p>03 · Probe</p><h2 id="tryTitle">Zuweisung testen</h2></div><span>Welcher Tisch käme für wie viele Gäste?</span></div>
+      <div class="fp-tools">
+        <form class="add-service" id="fpTryForm">
+          <label>Personen<input id="fpTryGuests" type="number" min="1" max="20" value="4" required></label>
+          <label>Uhrzeit<input id="fpTryTime" type="time" value="12:00" required></label>
+          <button type="submit">Zuweisung testen</button>
+        </form>
+        <p class="fp-result" id="fpResult" role="status" aria-live="polite">Personenzahl und Uhrzeit eingeben – die Probe zeigt, welchen Tisch die Regeln vergeben würden.</p>
+      </div>
+    </section>
+
+    <section class="notice">
+      <strong>Wofür diese Seite gut ist</strong>
+      <p>Sie plant die Einteilung und berechnet den Tischmix für das Cockpit. Sie zählt nichts herunter, wenn ein Gast online reserviert – das braucht einen Server mit gemeinsamem Zustand. Verbindlich bleibt bis dahin das offizielle Reservierungssystem.</p>
+    </section>
+  </main>
+</body>
+</html>

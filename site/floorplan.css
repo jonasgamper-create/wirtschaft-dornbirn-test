@@ -48,7 +48,9 @@
 .fp-status{margin:0;color:#57524a;font-size:var(--t-meta,14.5px);line-height:1.5}
 .fp-empty{margin:0;color:#57524a;font-size:var(--t-meta,14.5px);line-height:1.5}
 
-/* Nur im Gastgeber-Cockpit sichtbar. */
+/* Nur in der internen Tischplanansicht sichtbar. Der Fliesstext darf nicht in
+   die Versalien-Regel fuer .welcome p fallen - so ist er nicht lesbar. */
+.welcome p.fp-intro{max-width:64ch;margin-top:14px;color:var(--muted,#6d675f);font-size:13px;font-weight:400;letter-spacing:0;line-height:1.6;text-transform:none}
 .fp-levels-editor{display:grid;gap:10px;margin-bottom:16px}
 .fp-level-row{display:flex;flex-wrap:wrap;align-items:end;gap:12px}
 .fp-level-row label{display:grid;gap:6px;font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.09em;text-transform:uppercase}

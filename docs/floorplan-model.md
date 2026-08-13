@@ -3,23 +3,30 @@
 ## Was der Tischplan ist und was nicht
 
 Der Tischplan beschreibt **Etagen und Tischanzahlen**, nicht einen gezeichneten
-Grundriss. Wer die Anzahl der Zweier- oder Vierertische ändert oder eine Etage
-ergänzt, ändert eine Zahl — die Zeichnung entsteht daraus automatisch. Es muss
-nie jemand eine Grafik anfassen.
+Grundriss. Wer eine Tischanzahl ändert oder eine Etage ergänzt, ändert eine
+Zahl — die Zeichnung entsteht daraus automatisch. Es muss nie jemand eine
+Grafik anfassen.
 
-Er ist ein **Planungswerkzeug für das Haus** und auf der Gästeseite reine
-Orientierung. Er sagt nicht, welcher Tisch gerade frei ist. Verbindlich bleibt
-das offizielle Reservierungssystem.
+**Er ist ausschließlich intern.** Gäste sehen ihn nicht und wählen keinen Tisch;
+sie geben Tag, Uhrzeit und Personenzahl an, die Einteilung macht das Haus.
+Deshalb liegt nichts davon im öffentlichen Build — weder der Renderer noch die
+Zuweisungsregeln noch die Stammdaten.
+
+Er sagt auch nicht, welcher Tisch gerade frei ist. Verbindlich bleibt das
+offizielle Reservierungssystem.
 
 ## Dateien
 
+Alle intern, alle vom öffentlichen Build ausgeschlossen.
+
 | Datei | Rolle |
 | --- | --- |
+| `site/gastgeber-tischplan.html` | Die eigene Seite für die Einteilung |
 | `site/data/floorplan.json` | Die Konfiguration: Etagen, Anzahlen, Kombinationen, Regeln |
 | `site/floorplan-layout.mjs` | Rechnet Anzahlen in Positionen und Tischnummern um |
-| `site/table-assignment.mjs` | Best-Fit-Zuweisung. Nur intern, nie im öffentlichen Build |
+| `site/table-assignment.mjs` | Best-Fit-Zuweisung |
 | `site/floorplan.js` / `.css` | Zeichnet den Plan |
-| `site/gastgeber-floorplan.js` | Panel 05 im Cockpit |
+| `site/gastgeber-floorplan.js` | Verbindet Seite, Speicher und Renderer |
 
 ## Konfiguration
 
@@ -74,10 +81,10 @@ verschoben wird, werden alle Tische dieser Etage festgehalten** — sonst würde
 die Karte bei jedem Zug unter der Hand nachrutschen. Nur später neu
 dazugekommene Tische suchen sich noch selbst einen Platz.
 
-`status` steht auf `beispiel`, solange die Zahlen nicht vom Haus bestätigt sind.
-**Die Gästeseite zeigt dann bewusst keinen Plan**, sondern den Hinweis, dass die
-Aufteilung noch abgestimmt wird. Erfundene Grundrisse sind keine Option. Erst
-mit `status: "bestaetigt"` erscheint der Plan öffentlich.
+`status` steht auf `beispiel`, solange die Zahlen nicht vom Haus bestätigt sind,
+und auf `bestaetigt`, sobald die echten Tische eingetragen wurden. Das ist ein
+Qualitätsmerkmal für die Daten, keine Sichtbarkeitsschaltung — sichtbar ist der
+Plan ohnehin nur intern.
 
 ## Tischnummern
 
@@ -97,7 +104,7 @@ Vierertisch. Die Nummer ist die Identität, die Größe die Zusatzinfo.
 
 ## Bedienung im Cockpit
 
-`site/gastgeber.html`, Panel „05 · Tischplan":
+`site/gastgeber-tischplan.html`, erreichbar über Panel 05 im Cockpit:
 
 1. **Anzahl ändern** — je Etage steht ein Feld pro Tischgröße von 2P bis 10P.
    Zahl eintippen, der Plan zeichnet sich sofort neu. Der Tischmix in Panel 02
@@ -110,7 +117,7 @@ Vierertisch. Die Nummer ist die Identität, die Größe die Zusatzinfo.
    einen besetzten Platz springt zurück und nennt den blockierenden Tisch.
 4. **Tisch sperren** — Tisch im Plan oder in der Liste anklicken. Gesperrte
    Tische werden bei der Zuweisung übersprungen.
-5. **Zuweisung testen** — Personenzahl und Uhrzeit eingeben. Das Cockpit zeigt,
+5. **Zuweisung testen** — Personenzahl und Uhrzeit eingeben. Die Probe zeigt,
    welchen Tisch die Regeln vergeben würden und woher der Sitzplatzdeckel kommt.
 6. **Exportieren** — die JSON-Datei herunterladen und nach
    `site/data/floorplan.json` übernehmen.
@@ -153,5 +160,7 @@ der Maus; ohne sie wäre das Anordnen nur mit Maus möglich.
 Der Plan zählt **nichts herunter**, wenn ein Gast online bucht. Dafür braucht es
 einen Server mit gemeinsamem Zustand; auf GitHub Pages hätte jeder Browser
 seinen eigenen Zähler und zwei Gäste bekämen denselben letzten Tisch. Das
-Cockpit liegt im lokalen Browserspeicher und ist nicht Teil der öffentlichen
-Seite. Siehe `SECURITY.md` und `docs/host-cockpit-architecture.md`.
+Cockpit und Tischplan liegen im lokalen Browserspeicher und sind nicht Teil der
+öffentlichen Seite. Für mehrere Geräte und Mitarbeitende braucht es eine
+geschützte Datenbank mit Anmeldung — siehe `SECURITY.md` und
+`docs/host-cockpit-architecture.md`.

@@ -8,15 +8,14 @@ const publicFiles = [
   path.join(root, 'dist/app.js'),
   path.join(root, 'dist/feste-catering.js'),
   path.join(root, 'dist/tischreservierung.html'),
-  path.join(root, 'dist/tischreservierung.js'),
-  path.join(root, 'dist/floorplan.js'),
-  path.join(root, 'dist/floorplan-layout.mjs'),
-  path.join(root, 'dist/data/floorplan.json')
+  path.join(root, 'dist/tischreservierung.js')
 ];
 const forbidden = [
   /inventory-store/i,
   /assignTables/i,
   /table-assignment/i,
+  /floorplan/i,
+  /data-floorplan/i,
   /holdUntil/i,
   /"(reserved|sold|available|occupancy)"\s*:/i,
   /recordReservationInquiry/i,
