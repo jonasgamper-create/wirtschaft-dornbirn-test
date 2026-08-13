@@ -7,7 +7,7 @@
 // die Seite selbst schon neu geladen wurde.
 import { GRID, buildFloorplan, canPlace, deriveTableMix, totalSeats } from './floorplan-layout.mjs?v=4';
 import { assignTables } from './table-assignment.mjs?v=4';
-import { renderFloorplan } from './floorplan.js?v=8';
+import { renderFloorplan } from './floorplan.js?v=9';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 const store = window.WirtschaftData;
@@ -54,11 +54,41 @@ async function start() {
     if (plan.orphans.length) {
       notes.push(`${plan.orphans.length} Kombination(en) verweisen jetzt auf Tische, die es nicht mehr gibt.`);
     }
+    notes.push(...reconcile(plan));
     warn(notes.join(' '));
 
     syncServiceMix(plan);
     paint();
     return plan;
+  }
+
+  /**
+   * Nach jeder Aenderung am Tischplan: Verweise auf Tische, die es nicht mehr
+   * gibt, aufloesen. Ohne das haengt eine Gruppe an einem geloeschten Tisch,
+   * taucht in der Tischliste nicht mehr auf und ist damit praktisch verloren -
+   * am Abend faellt das erst auf, wenn die Gaeste vor einem stehen.
+   */
+  function reconcile(plan) {
+    const alive = new Set(plan.tables.map(table => table.id));
+    const notes = [];
+
+    const was = parties();
+    const list = was.map(party => ({ ...party, tableIds: party.tableIds.filter(id => alive.has(id)) }));
+    const freed = list.filter((party, index) => party.tableIds.length !== was[index].tableIds.length);
+    if (freed.length) {
+      store.setParties(list);
+      const open = freed.filter(party => !party.tableIds.length).map(party => party.name);
+      notes.push(open.length
+        ? `${open.join(', ')} ${open.length === 1 ? 'hat' : 'haben'} keinen Tisch mehr und ${open.length === 1 ? 'steht' : 'stehen'} wieder offen.`
+        : 'Eine Gruppe wurde auf die verbliebenen Tische gekürzt.');
+    }
+
+    const keptBlocks = blocked().filter(id => alive.has(id));
+    if (keptBlocks.length !== blocked().length) store.setBlockedTables(keptBlocks);
+
+    if (marked && !list.some(party => party.id === marked)) marked = null;
+    if (picked && !alive.has(picked)) picked = null;
+    return notes;
   }
 
   // Der Tischmix in Panel 02 wird aus dem Plan berechnet, damit es nur eine
@@ -383,6 +413,14 @@ async function start() {
     seatResult(`${party.name} sitzt an Tisch ${table.number} (${party.guests} von ${table.seats} Plätzen).`);
     paintPlan();
     paintSeating();
+
+    // Weiter zur naechsten offenen Gruppe, sonst in die Zeile des belegten
+    // Tisches. Ohne das faellt der Fokus auf den Body und die Tastaturbedienung
+    // reisst nach jeder Zuweisung ab.
+    const nextOpen = parties().find(entry => !entry.tableIds.length);
+    const button = nextOpen && byId('fpParties').querySelector(`[data-mark-party="${nextOpen.id}"]`);
+    if (button) button.focus();
+    else byId('fpTableList').querySelector(`[data-table-id="${tableId}"][data-field="name"]`)?.focus();
   }
 
   /** Name auf einen Tisch schreiben. Leerer Name macht den Tisch frei. */
@@ -547,9 +585,19 @@ async function start() {
     store.setParties(list);
     paintPlan();
     paintSeating();
+    // Bei einer Absage hilft die Zahl mehr als das blosse Nein: der Wirt sieht
+    // sofort, ob er Tische zusammenstellen muss oder ob es hoffnungslos ist.
+    let hint = '';
+    if (failed.length) {
+      const taken = new Set([...seatOccupancy(), ...seated].flatMap(entry => entry.tableIds));
+      const largest = Math.max(0, ...plan.tables
+        .filter(table => !taken.has(table.id) && !blocked().includes(table.id))
+        .map(table => table.seats));
+      hint = ` Kein Platz für: ${failed.map(party => `${party.name} (${party.guests}P)`).join(', ')}.`
+        + (largest ? ` Größter freier Tisch: ${largest} Plätze – zwei Tische zusammenstellen oder Gruppe teilen.` : ' Es ist kein Tisch mehr frei.');
+    }
     seatResult(
-      `${seated.length} Gruppe(n) verteilt: ${seated.map(entry => `${entry.name} an Tisch ${entry.numbers.join(' + ')}`).join(', ') || '–'}.`
-      + (failed.length ? ` Kein Platz für: ${failed.map(party => `${party.name} (${party.guests}P)`).join(', ')}.` : '')
+      `${seated.length} Gruppe(n) verteilt: ${seated.map(entry => `${entry.name} an Tisch ${entry.numbers.join(' + ')}`).join(', ') || '–'}.${hint}`
     );
   });
 

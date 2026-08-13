@@ -7,10 +7,12 @@
 .fp-levels button{min-height:48px;padding:0 16px;border:1px solid #11110f3d;border-radius:999px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:var(--t-body,17.5px);cursor:pointer}
 .fp-levels button[aria-checked="true"]{border-color:var(--green,#244635);background:var(--green,#244635);color:#fff}
 
-.fp-stage{position:relative;display:grid;gap:20px}
-/* Direkteingabe auf dem Tisch. Liegt als echtes Eingabefeld ueber dem SVG. */
-.fp-inline{position:absolute;z-index:5;padding:0 6px;border:2px solid var(--green,#244635);border-radius:5px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:13px;font-weight:700;text-align:center}
-.fp-inline:focus{outline:3px solid var(--gold,#c59b5d);outline-offset:2px}
+.fp-stage{display:grid;gap:20px}
+/* Direkteingabe auf dem Tisch. Liegt als foreignObject im SVG, damit sie ohne
+   Inline-Stile auskommt - die Content-Security-Policy verbietet die.
+   Die Masse sind Rastereinheiten, nicht Pixel. */
+.fp-inline{box-sizing:border-box;width:100%;height:100%;padding:0 .12px;border:.08px solid var(--green,#244635);border-radius:.12px;background:#fff;color:var(--ink,#11110f);font-family:var(--sans,Inter,system-ui,sans-serif);font-size:.7px;font-weight:700;text-align:center}
+.fp-inline:focus{outline:.12px solid var(--gold,#c59b5d);outline-offset:.06px}
 @media(min-width:901px){.fp-stage{grid-template-columns:minmax(0,560px) minmax(240px,1fr);align-items:start}}
 
 .fp-svg{display:block;width:100%;max-width:480px;height:auto}
@@ -22,6 +24,7 @@
    die Nummer ist die Identitaet, die Groesse die Zusatzinfo. */
 .fp-svg .fp-seats{fill:#57524a;font-family:var(--sans,Inter,system-ui,sans-serif);font-size:.72px;font-weight:700;letter-spacing:.04em;text-anchor:middle;dominant-baseline:central}
 .fp-svg .fp-name{fill:var(--ink,#11110f);font-family:var(--sans,Inter,system-ui,sans-serif);font-size:.62px;font-weight:700;text-anchor:middle;dominant-baseline:central}
+.fp-svg .fp-name.is-narrow{font-size:.5px}
 .fp-svg [data-state="picked"] .fp-name{fill:#fff}
 .fp-svg [data-state="picked"] .fp-seats{fill:#ffffffcc}
 .fp-svg [data-state="blocked"] .fp-seats{fill:var(--wine,#8c292b)}
@@ -79,7 +82,9 @@
 .fp-party-list .seat{color:var(--muted,#6d675f);font-variant-numeric:tabular-nums}
 .fp-party-list .at{margin-left:auto;padding:2px 8px;border-radius:99px;background:#e8f0ea;color:var(--green,#244635);font-weight:700;font-variant-numeric:tabular-nums}
 .fp-party-list .open{margin-left:auto;color:var(--wine,#8c292b);font-weight:700}
-.fp-party-list button{min-height:34px;padding:0 12px;border:1px solid var(--line,#11110f26);border-radius:7px;background:transparent;color:inherit;font:inherit;font-size:11px;cursor:pointer}
+/* 44 px Tapziel - dieselbe Untergrenze wie auf den Gaesteseiten. */
+.fp-party-list button{min-height:44px;padding:0 12px;border:1px solid var(--line,#11110f26);border-radius:7px;background:transparent;color:inherit;font:inherit;font-size:11px;cursor:pointer}
+.fp-party-list .pick{min-height:44px}
 .fp-empty-list{margin:16px 0 0;color:var(--muted,#6d675f);font-size:12px}
 /* Tischliste: eine Zeile je Tisch, Name und Personen direkt editierbar. */
 .fp-tables{display:grid;gap:6px;margin-top:16px}
@@ -100,8 +105,10 @@
 .fp-table-row .span{grid-column:1/-1;margin:0;color:var(--muted,#6d675f);font-size:11px}
 @media(max-width:760px){
   .fp-table-row{grid-template-columns:56px 1fr;row-gap:8px}
-  .fp-row-actions{grid-column:2}
-  .fp-row-actions button{flex:1 1 auto}
+  .fp-row-actions{grid-column:2;flex-wrap:wrap}
+  .fp-row-actions button{flex:1 1 auto;min-height:44px}
+  .fp-row-actions input,.fp-row-actions select{min-height:44px}
+  .fp-table-row input{min-height:44px}
 }
 
 .fp-subhead{margin:26px 0 12px;font-family:Georgia,serif;font-size:21px;font-weight:400}

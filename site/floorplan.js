@@ -142,8 +142,11 @@ export function renderFloorplan(root, config, options = {}) {
       if (party) {
         // Belegt: Name und Belegung stehen im Tisch. Auf schmalen Tischen
         // wird die Schrift kleiner, sonst laeuft sie ueber den Rand.
-        const size = table.w <= 3 ? 0.5 : 0.62;
-        const name = el('text', { class: 'fp-name', x: middle, y: table.row + 1.7, style: `font-size:${size}px` });
+        // Klasse statt Inline-Stil: die Content-Security-Policy erlaubt kein
+        // style-Attribut, und ein blockierter Stil faellt sonst still aus.
+        const narrow = table.w <= 3;
+        const size = narrow ? 0.5 : 0.62;
+        const name = el('text', { class: `fp-name${narrow ? ' is-narrow' : ''}`, x: middle, y: table.row + 1.7 });
         name.dataset.full = party.name;
         name.dataset.maxw = String(table.w - 0.5);
         name.textContent = party.name;
@@ -178,28 +181,30 @@ export function renderFloorplan(root, config, options = {}) {
     return svg;
   }
 
-  // Ein echtes Eingabefeld ueber dem Tisch. Kein contenteditable im SVG - das
-  // ist mit Tastatur und Vorlesesoftware unzuverlaessig.
+  // Ein echtes Eingabefeld auf dem Tisch. Kein contenteditable im SVG - das ist
+  // mit Tastatur und Vorlesesoftware unzuverlaessig. Und kein absolut
+  // positioniertes Overlay: dessen Inline-Stile blockiert die
+  // Content-Security-Policy, das Feld saesse an der falschen Stelle. Ein
+  // foreignObject wird ueber Attribute positioniert und ist damit erlaubt.
   function editOnTable(svg, table) {
-    const stage = root.querySelector('.fp-stage');
-    const shape = svg.querySelector(`[data-table-id="${table.id}"] .fp-shape`);
-    if (!stage || !shape) return;
-    stage.querySelector('.fp-inline')?.remove();
+    svg.querySelector('.fp-inline-host')?.remove();
 
-    const box = shape.getBoundingClientRect();
-    const base = stage.getBoundingClientRect();
-    const input = document.createElement('input');
-    input.className = 'fp-inline';
-    input.type = 'text';
-    input.maxLength = 40;
+    const host = el('foreignObject', {
+      class: 'fp-inline-host',
+      x: table.col + 0.15,
+      y: table.row + 1.25,
+      width: table.w - 0.3,
+      height: 1.5
+    });
+    const input = document.createElementNS('http://www.w3.org/1999/xhtml', 'input');
+    input.setAttribute('class', 'fp-inline');
+    input.setAttribute('type', 'text');
+    input.setAttribute('maxlength', '40');
     input.value = seating[table.id]?.name || '';
-    input.placeholder = `Tisch ${table.number}`;
+    input.setAttribute('placeholder', `Tisch ${table.number}`);
     input.setAttribute('aria-label', `Name für Tisch ${table.number}, ${table.seats} Plätze`);
-    input.style.left = `${box.left - base.left}px`;
-    input.style.top = `${box.top - base.top + box.height * 0.42}px`;
-    input.style.width = `${box.width}px`;
-    input.style.height = `${Math.max(22, box.height * 0.44)}px`;
-    stage.append(input);
+    host.append(input);
+    svg.append(host);
     input.focus();
     input.select();
 
@@ -208,7 +213,7 @@ export function renderFloorplan(root, config, options = {}) {
       if (closed) return;
       closed = true;
       const value = input.value.trim();
-      input.remove();
+      host.remove();
       if (keep) onEdit(table.id, value);
     };
     input.addEventListener('keydown', event => {
