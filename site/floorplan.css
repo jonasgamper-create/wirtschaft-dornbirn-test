@@ -15,6 +15,14 @@
 /* Schriftgroesse in Rastereinheiten: bei 480 px Deckel rund 20 px, auf 390 px
    Breite rund 14 px. In beiden Faellen lesbar, ohne den Plan zu dominieren. */
 .fp-svg .fp-num{fill:var(--ink,#11110f);font-family:var(--sans,Inter,system-ui,sans-serif);font-size:1px;font-weight:700;font-variant-numeric:tabular-nums;text-anchor:middle;dominant-baseline:central}
+/* Personenzahl abgekuerzt, z. B. 3P. Bewusst kleiner als die Tischnummer:
+   die Nummer ist die Identitaet, die Groesse die Zusatzinfo. */
+.fp-svg .fp-seats{fill:#57524a;font-family:var(--sans,Inter,system-ui,sans-serif);font-size:.72px;font-weight:700;letter-spacing:.04em;text-anchor:middle;dominant-baseline:central}
+.fp-svg [data-state="picked"] .fp-seats{fill:#ffffffcc}
+.fp-svg [data-state="blocked"] .fp-seats{fill:var(--wine,#8c292b)}
+.fp-movable [data-table-id]{cursor:grab}
+.fp-movable [data-table-id].is-dragging{cursor:grabbing}
+.fp-movable [data-table-id].is-dragging .fp-shape{stroke:var(--green,#244635);stroke-dasharray:.35 .25}
 .fp-svg [data-state="busy"] .fp-shape{fill:var(--cream,#ead9bc)}
 .fp-svg [data-state="busy"] .fp-num{fill:#57524a}
 .fp-svg [data-state="blocked"] .fp-shape{stroke:var(--wine,#8c292b)}
@@ -45,7 +53,10 @@
 .fp-level-row{display:flex;flex-wrap:wrap;align-items:end;gap:12px}
 .fp-level-row label{display:grid;gap:6px;font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.09em;text-transform:uppercase}
 .fp-level-row input{min-height:44px;padding:8px 12px;border:1px solid #11110f3d;border-radius:8px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:var(--t-body,17.5px);letter-spacing:0;text-transform:none}
-.fp-level-row input[type="number"]{width:110px}
+.fp-level-name input{min-width:200px}
+.fp-sizes{display:flex;flex-wrap:wrap;gap:8px}
+.fp-sizes label{display:grid;gap:4px;justify-items:center;font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.06em}
+.fp-sizes input{width:62px;text-align:center;font-variant-numeric:tabular-nums}
 .fp-warn{margin:0 0 16px;padding:12px 16px;border-left:2px solid var(--wine,#8c292b);background:#8c292b14;color:#6b2224;font-size:var(--t-meta,14.5px);line-height:1.5;max-width:64ch}
 .fp-tools{display:grid;gap:12px;margin-top:20px}
 .fp-result{margin:0;padding:12px 16px;border-left:2px solid var(--green,#244635);background:#11110f0a;color:#3c3833;font-size:var(--t-meta,14.5px);line-height:1.55;max-width:64ch}

@@ -62,15 +62,23 @@
   // oder Person aussieht, faellt beim Einlesen weg statt gespeichert zu werden.
   function sanitizeFloorplan(input) {
     if (!input || typeof input !== 'object') return null;
-    const levels = (Array.isArray(input.levels) ? input.levels : []).slice(0, 4).map((level, index) => ({
-      id: safeId(level?.id, `etage-${index + 1}`),
-      name: safeText(level?.name, 40) || `Etage ${index + 1}`,
-      order: safeNumber(level?.order, 1, 4, index + 1),
-      counts: {
-        2: safeNumber(level?.counts?.[2] ?? level?.counts?.['2'], 0, 99, 0),
-        4: safeNumber(level?.counts?.[4] ?? level?.counts?.['4'], 0, 99, 0)
+    const levels = (Array.isArray(input.levels) ? input.levels : []).slice(0, 4).map((level, index) => {
+      const id = safeId(level?.id, `etage-${index + 1}`);
+      const counts = {};
+      for (let seats = 2; seats <= 10; seats += 1) {
+        const value = safeNumber(level?.counts?.[seats] ?? level?.counts?.[String(seats)], 0, 99, 0);
+        if (value > 0) counts[seats] = value;
       }
-    }));
+      // Gemerkte Positionen sind reine Rasterkoordinaten, keine Belegung.
+      const positions = {};
+      for (const [key, value] of Object.entries(level?.positions || {})) {
+        const tableId = safeText(key, 24);
+        const col = safeNumber(value?.col, 0, 200, -1);
+        const row = safeNumber(value?.row, 0, 400, -1);
+        if (tableId && col >= 0 && row >= 0) positions[tableId] = { col, row };
+      }
+      return { id, name: safeText(level?.name, 40) || `Etage ${index + 1}`, order: safeNumber(level?.order, 1, 4, index + 1), counts, positions };
+    });
     if (!levels.length) return null;
     const known = new Set(levels.map(level => level.id));
     const policy = input.policy && typeof input.policy === 'object' ? input.policy : {};

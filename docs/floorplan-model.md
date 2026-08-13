@@ -28,7 +28,13 @@ das offizielle Reservierungssystem.
   "status": "beispiel",
   "numbering": { "start": 1 },
   "levels": [
-    { "id": "eg", "name": "Gaststube", "order": 1, "counts": { "2": 8, "4": 6 } }
+    {
+      "id": "eg",
+      "name": "Gaststube",
+      "order": 1,
+      "counts": { "2": 6, "3": 2, "4": 5, "6": 2, "8": 1 },
+      "positions": { "eg-8-01": { "col": 0, "row": 4 } }
+    }
   ],
   "combos": [
     { "id": "eg-combo-01", "tables": ["eg-2-01", "eg-2-02"], "minGuests": 3 }
@@ -43,10 +49,30 @@ das offizielle Reservierungssystem.
 }
 ```
 
-`counts` kennt nur die Schlüssel `2` und `4`. **Sechser- und Achtertische gibt
-es nicht als eigene Anzahl** — sie entstehen aus `combos`, also aus Tischen, die
-im Haus tatsächlich zusammengeschoben werden können. Nur so ist eindeutig, dass
-eine belegte Sechsergruppe beide beteiligten Tische sperrt.
+### Tischgrößen
+
+`counts` ist nach Personenzahl geschlüsselt und erlaubt **2 bis 10, auch
+ungerade**: ein Dreiertisch ist genauso möglich wie ein Siebener. Sieben Gäste
+können also an einem einzelnen Tisch sitzen, wenn es einen passenden gibt.
+
+Der Fußabdruck wächst mit, aber nicht linear — ein Zehnertisch ist länger als
+ein Zweiertisch, nicht fünfmal so lang:
+
+| Personen | 2 / 3 | 4 / 5 | 6 / 7 | 8 / 9 | 10 |
+| --- | --- | --- | --- | --- | --- |
+| Breite in Rastereinheiten | 3 | 4 | 5 | 6 | 7 |
+
+`combos` bleibt daneben nützlich für Tische, die im Haus tatsächlich
+zusammengeschoben werden. Eine belegte Kombination sperrt automatisch alle
+beteiligten Tische, weil die Belegung auf den Kennungen liegt.
+
+### Positionen
+
+`positions` merkt sich, wo ein Tisch steht. Tische ohne Eintrag ordnen sich
+automatisch in der ersten freien Lücke an. **Sobald im Cockpit ein Tisch
+verschoben wird, werden alle Tische dieser Etage festgehalten** — sonst würde
+die Karte bei jedem Zug unter der Hand nachrutschen. Nur später neu
+dazugekommene Tische suchen sich noch selbst einen Platz.
 
 `status` steht auf `beispiel`, solange die Zahlen nicht vom Haus bestätigt sind.
 **Die Gästeseite zeigt dann bewusst keinen Plan**, sondern den Hinweis, dass die
@@ -56,26 +82,37 @@ mit `status: "bestaetigt"` erscheint der Plan öffentlich.
 ## Tischnummern
 
 Fortlaufend über alle Etagen in der Reihenfolge aus `order`, innerhalb einer
-Etage erst die Vierer-, dann die Zweiertische. Der Gast hört „Tisch 12", nicht
-„Tisch 12 im Obergeschoss".
+Etage **in Leserichtung**: oben links nach unten rechts. Das macht die Karte
+selbsterklärend — Tisch 1 ist der erste, den man beim Reinkommen sieht. Der Gast
+hört „Tisch 12", nicht „Tisch 12 im Obergeschoss".
 
-**Wichtig:** Ändert sich die Anzahl in einer Etage, verschieben sich die Nummern
-der nachfolgenden Etagen. Das Cockpit warnt davor. Die internen Kennungen
-(`eg-4-01`, `og-2-03`) bleiben dabei stabil — deshalb verweisen `combos` auf
-Kennungen und nicht auf Nummern.
+**Wichtig:** Weil die Nummern der Anordnung folgen, ändern sie sich beim
+Verschieben und beim Ändern von Anzahlen. Deshalb gilt: **erst die Karte fertig
+anordnen, dann Tischkarten drucken.** Das Cockpit warnt, wenn sich Nummern
+verschieben. Die internen Kennungen (`eg-4-01`, `og-2-03`) bleiben stabil —
+deshalb verweisen `combos` und `positions` auf Kennungen, nicht auf Nummern.
+
+Im Plan steht neben der Nummer die Personenzahl abgekürzt, also `4P` für einen
+Vierertisch. Die Nummer ist die Identität, die Größe die Zusatzinfo.
 
 ## Bedienung im Cockpit
 
 `site/gastgeber.html`, Panel „05 · Tischplan":
 
-1. **Anzahl ändern** — Zahl eintippen, der Plan zeichnet sich sofort neu. Der
-   Tischmix in Panel 02 wird daraus berechnet und ist dort nur noch Anzeige.
-2. **Etage ergänzen** — Name und Anzahlen eingeben. Maximal vier Etagen.
-3. **Tisch sperren** — Tisch im Plan oder in der Liste anklicken. Gesperrte
+1. **Anzahl ändern** — je Etage steht ein Feld pro Tischgröße von 2P bis 10P.
+   Zahl eintippen, der Plan zeichnet sich sofort neu. Der Tischmix in Panel 02
+   wird daraus berechnet und ist dort nur noch Anzeige.
+2. **Etage ergänzen** — Name eingeben, dann die Größen setzen. Maximal vier
+   Etagen.
+3. **Tische anordnen** — im Plan mit der Maus ziehen; die Position rastet auf
+   das Raster ein. Mit der Tastatur: Tisch in der Liste fokussieren, dann
+   **Umschalt und Pfeiltaste**. Ein Zug ins Freie wird übernommen, ein Zug auf
+   einen besetzten Platz springt zurück und nennt den blockierenden Tisch.
+4. **Tisch sperren** — Tisch im Plan oder in der Liste anklicken. Gesperrte
    Tische werden bei der Zuweisung übersprungen.
-4. **Zuweisung testen** — Personenzahl und Uhrzeit eingeben. Das Cockpit zeigt,
+5. **Zuweisung testen** — Personenzahl und Uhrzeit eingeben. Das Cockpit zeigt,
    welchen Tisch die Regeln vergeben würden und woher der Sitzplatzdeckel kommt.
-5. **Exportieren** — die JSON-Datei herunterladen und nach
+6. **Exportieren** — die JSON-Datei herunterladen und nach
    `site/data/floorplan.json` übernehmen.
 
 ## Zuweisungsregeln, in dieser Reihenfolge
@@ -87,8 +124,9 @@ Kennungen und nicht auf Nummern.
    auf beiden Seiten zum Abräumen und Eindecken.
 3. **Kandidaten**: Einzeltische und vorab definierte Kombinationen. Es wird nie
    zur Laufzeit kombiniert — nur das Haus weiß, welche Tische zusammenpassen.
-4. **Größenfilter**: mindestens `Plätze − 2` Gäste, damit keine Einzelperson
-   einen Vierertisch blockiert.
+4. **Größenfilter**: mindestens die Hälfte der Plätze. Eine Einzelperson
+   blockiert damit keinen Vierertisch, aber sieben Gäste dürfen notfalls an den
+   Zehner. Welcher Tisch am Ende gewinnt, entscheidet ohnehin Regel 7.
 5. **Überlappung** inklusive Puffer. Eine belegte Kombination sperrt beide
    Mitglieder automatisch.
 6. **Gesperrte Tische** fallen raus.
@@ -106,7 +144,9 @@ Geprüft wird das von `scripts/check-table-assignment.mjs` in `npm run ci`.
 Das SVG ist `aria-hidden` und rein visuell. Bedienbar und vorlesbar ist die
 Liste daneben: echte Buttons in einer `radiogroup`, Pfeiltasten bewegen den
 Fokus, Enter oder Leertaste löst aus. Das Trennen von Bewegen und Auslösen ist
-Absicht — beim Sperren eines Tisches wäre ein Versehen teuer.
+Absicht — beim Sperren eines Tisches wäre ein Versehen teuer. Umschalt und
+Pfeiltaste verschiebt den Tisch und ist die Tastaturalternative zum Ziehen mit
+der Maus; ohne sie wäre das Anordnen nur mit Maus möglich.
 
 ## Grenzen
 

@@ -2,15 +2,26 @@
   "version": 1,
   "updatedAt": "2026-08-13T10:00:00+02:00",
   "status": "beispiel",
-  "note": "Beispielkonfiguration. Die echten Tischzahlen und Etagen traegt der Gastgeber im Cockpit ein; erst danach status auf \"bestaetigt\" setzen.",
+  "note": "Beispielkonfiguration. Die echten Tischzahlen, Groessen und Positionen traegt der Gastgeber im Cockpit ein; erst danach status auf \"bestaetigt\" setzen.",
   "numbering": { "start": 1 },
   "levels": [
-    { "id": "eg", "name": "Gaststube", "order": 1, "counts": { "2": 8, "4": 6 } },
-    { "id": "og", "name": "Saal", "order": 2, "counts": { "2": 4, "4": 5 } }
+    {
+      "id": "eg",
+      "name": "Gaststube",
+      "order": 1,
+      "counts": { "2": 6, "3": 2, "4": 5, "6": 2, "8": 1 },
+      "positions": {}
+    },
+    {
+      "id": "og",
+      "name": "Saal",
+      "order": 2,
+      "counts": { "2": 3, "4": 4, "6": 1, "10": 1 },
+      "positions": {}
+    }
   ],
   "combos": [
-    { "id": "eg-combo-01", "tables": ["eg-2-01", "eg-2-02"], "minGuests": 3 },
-    { "id": "og-combo-01", "tables": ["og-4-01", "og-2-01"], "minGuests": 5 }
+    { "id": "eg-combo-01", "tables": ["eg-2-01", "eg-2-02"], "minGuests": 3 }
   ],
   "policy": {
     "durations": [

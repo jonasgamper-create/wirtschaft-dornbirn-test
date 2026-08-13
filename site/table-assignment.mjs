@@ -2,6 +2,8 @@
 // localStorage, keine Systemzeit. Damit ist sie in Node testbar, im Browser
 // als Modul ladbar und spaeter unveraendert serverseitig einsetzbar.
 
+import { defaultMinGuests } from './floorplan-layout.mjs';
+
 export const DEFAULT_POLICY = {
   durations: [
     { upTo: 2, minutes: 90 },
@@ -45,7 +47,7 @@ function candidates(floorplan) {
     levelId: table.levelId,
     levelName: table.levelName,
     seats: table.seats,
-    minGuests: Math.max(1, table.seats - 2)
+    minGuests: defaultMinGuests(table.seats)
   }));
   const combos = floorplan.combos.map(combo => {
     const members = combo.tableIds.map(id => floorplan.tables.find(table => table.id === id));

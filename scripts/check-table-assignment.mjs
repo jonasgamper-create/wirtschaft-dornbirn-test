@@ -1,7 +1,7 @@
 // Goldene Testfaelle fuer die Tischzuweisung. Laeuft ohne Testframework,
 // damit npm run ci keine zusaetzliche Abhaengigkeit braucht.
 
-import { buildFloorplan } from '../site/floorplan-layout.mjs';
+import { GRID, buildFloorplan, canPlace, defaultMinGuests, footprint } from '../site/floorplan-layout.mjs';
 import { assignTables, durationFor, shift, stamp } from '../site/table-assignment.mjs';
 
 const errors = [];
@@ -117,8 +117,105 @@ check('Dauer nach Gruppengroesse', durationFor(1, policy) === 90 && durationFor(
 check('Zeitverschiebung ueber Stundengrenze', shift(at('11:50'), 25) === at('12:15'), shift(at('11:50'), 25));
 check('Zeitstempel ohne Zeitzoneneinfluss', stamp(at('11:30')) - stamp(at('11:00')) === 30);
 
+// ---------------------------------------------------------------------------
+// Gemischte Tischgroessen: ungerade Zahlen, grosse Tische, gemerkte Positionen
+// ---------------------------------------------------------------------------
+
+const mixedConfig = {
+  numbering: { start: 1 },
+  levels: [{ id: 'eg', name: 'Gaststube', order: 1, counts: { 2: 2, 3: 1, 4: 1, 8: 1, 10: 1 }, positions: {} }],
+  combos: [],
+  policy: { ...policy, levelOrder: ['eg'] }
+};
+const mixed = buildFloorplan(mixedConfig);
+const pickFor = guests => {
+  const result = assignTables({ floorplan: mixed, guests, startsAt: at('11:30'), policy: mixedConfig.policy });
+  return result.ok ? result.seats : `abgelehnt:${result.reason}`;
+};
+
+check('Fussabdruck waechst mit der Personenzahl',
+  [2, 3, 4, 6, 8, 10].map(seats => footprint(seats).w).join(',') === '3,3,4,5,6,7',
+  [2, 3, 4, 6, 8, 10].map(seats => footprint(seats).w).join(','));
+
+check('Untergrenze ist die halbe Tischgroesse',
+  [2, 3, 4, 8, 10].map(defaultMinGuests).join(',') === '1,2,2,4,5',
+  [2, 3, 4, 8, 10].map(defaultMinGuests).join(','));
+
+// Ein Dreiertisch existiert - drei Gaeste bekommen ihn, nicht den Vierer.
+check('3 Gaeste bekommen den Dreiertisch', pickFor(3) === 3, String(pickFor(3)));
+check('2 Gaeste bekommen den Zweiertisch', pickFor(2) === 2, String(pickFor(2)));
+check('4 Gaeste bekommen den Vierertisch', pickFor(4) === 4, String(pickFor(4)));
+// Sieben Personen passen an einen einzelnen Tisch - hier den Achter.
+check('7 Gaeste bekommen einen einzelnen Achtertisch', pickFor(7) === 8, String(pickFor(7)));
+check('5 Gaeste bekommen den Achter, nicht den Zehner', pickFor(5) === 8, String(pickFor(5)));
+check('9 Gaeste bekommen den Zehner', pickFor(9) === 10, String(pickFor(9)));
+check('1 Gast blockiert keinen grossen Tisch', pickFor(1) === 2, String(pickFor(1)));
+check('11 Gaeste passen an keinen Tisch', pickFor(11) === 'abgelehnt:no_fit', String(pickFor(11)));
+
+// Kein Tisch ueberlappt einen anderen, auch nicht bei gemischten Groessen.
+const clash = mixed.tables.some((a, i) => mixed.tables.slice(i + 1).some(b =>
+  a.col < b.col + b.w && b.col < a.col + a.w && a.row < b.row + b.h && b.row < a.row + a.h));
+check('Automatische Anordnung ueberlappt nicht', !clash);
+
+// Verschieben: gemerkte Position gewinnt, Nummerierung folgt der Leserichtung.
+const moved = buildFloorplan({
+  ...mixedConfig,
+  levels: [{ ...mixedConfig.levels[0], positions: { 'eg-2-01': { col: 0, row: 8 } } }]
+});
+const movedTable = moved.tables.find(table => table.id === 'eg-2-01');
+check('Gemerkte Position wird uebernommen',
+  movedTable.col === 0 && movedTable.row === 8, JSON.stringify(movedTable));
+check('Nummerierung folgt der Leserichtung',
+  movedTable.number === moved.tables.length,
+  `${movedTable.number} von ${moved.tables.length}`);
+check('Verschobener Tisch verdraengt keinen anderen',
+  !moved.tables.some(other => other.id !== 'eg-2-01'
+    && other.col < movedTable.col + movedTable.w && movedTable.col < other.col + other.w
+    && other.row < movedTable.row + movedTable.h && movedTable.row < other.row + other.h));
+
+// Eine von Hand angeordnete Etage bleibt stehen: wird ein Tisch versetzt,
+// duerfen die uebrigen nicht nachrutschen.
+const pinnedPositions = Object.fromEntries(mixed.tables.map(table => [table.id, { col: table.col, row: table.row }]));
+const pinnedLevel = { ...mixedConfig.levels[0], positions: { ...pinnedPositions, 'eg-2-01': { col: 0, row: 30 } } };
+const pinned = buildFloorplan({ ...mixedConfig, levels: [pinnedLevel] });
+const drifted = pinned.tables.filter(table => {
+  const was = pinnedPositions[table.id];
+  return table.id !== 'eg-2-01' && (table.col !== was.col || table.row !== was.row);
+});
+check('Angeordnete Etage bleibt beim Versetzen stehen', !drifted.length,
+  drifted.map(table => table.id).join(','));
+check('Der versetzte Tisch sitzt an der neuen Stelle',
+  pinned.tables.find(table => table.id === 'eg-2-01')?.row === 30);
+
+// Ein neu dazugekommener Tisch sucht sich selbst eine Luecke, ohne die
+// festgehaltenen Tische zu stoeren.
+const grown = buildFloorplan({
+  ...mixedConfig,
+  levels: [{ ...mixedConfig.levels[0], counts: { ...mixedConfig.levels[0].counts, 4: 2 }, positions: pinnedPositions }]
+});
+check('Neuer Tisch findet eine eigene Luecke',
+  grown.tables.length === mixed.tables.length + 1
+  && !grown.tables.some((a, i) => grown.tables.slice(i + 1).some(b =>
+    a.col < b.col + b.w && b.col < a.col + a.w && a.row < b.row + b.h && b.row < a.row + a.h)),
+  String(grown.tables.length));
+
+// canPlace begruendet, warum ein Zug nicht geht.
+const first = mixed.tables[0];
+const second = mixed.tables[1];
+check('Zug ins Leere ist erlaubt', canPlace(mixed, first.id, 0, 20).ok);
+check('Zug aus dem Raster wird abgelehnt',
+  canPlace(mixed, first.id, GRID.cols - 1, 0).reason === 'outside');
+check('Negative Position wird abgelehnt', canPlace(mixed, first.id, -1, 0).reason === 'outside');
+check('Zug auf einen besetzten Platz nennt den Tisch',
+  canPlace(mixed, first.id, second.col, second.row).blockedBy === second.number,
+  JSON.stringify(canPlace(mixed, first.id, second.col, second.row)));
+check('Tisch darf auf seinen eigenen Platz', canPlace(mixed, first.id, first.col, first.row).ok);
+
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);
 }
-console.log(`Tischzuweisung OK: ${floorplan.tables.length} Tische, ${floorplan.combos.length} Kombination(en), alle Regeln geprueft.`);
+console.log(
+  `Tischzuweisung OK: ${floorplan.tables.length} + ${mixed.tables.length} Tische, `
+  + `Groessen ${[...new Set(mixed.tables.map(table => `${table.seats}P`))].join('/')}, alle Regeln geprueft.`
+);

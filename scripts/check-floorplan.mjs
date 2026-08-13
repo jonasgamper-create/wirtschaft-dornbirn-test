@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { GRID, buildFloorplan, deriveTableMix, totalSeats } from '../site/floorplan-layout.mjs';
+import { GRID, buildFloorplan, deriveTableMix, footprint, totalSeats } from '../site/floorplan-layout.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const errors = [];
@@ -53,15 +53,22 @@ for (const [index, level] of levels.entries()) {
 
   const counts = level?.counts || {};
   const keys = Object.keys(counts);
-  if (!keys.length || keys.some(key => !['2', '4'].includes(key))) {
-    fail(`levels[${index}].counts erlaubt nur die Schlüssel "2" und "4". Sechser und Achter entstehen über Kombinationen.`);
-  }
   for (const key of keys) {
+    const seats = Number(key);
+    if (!Number.isInteger(seats) || seats < GRID.minSeats || seats > GRID.maxSeats) {
+      fail(`levels[${index}].counts["${key}"]: erlaubt sind Tischgrößen von ${GRID.minSeats} bis ${GRID.maxSeats} Personen.`);
+    }
     const value = counts[key];
     if (!Number.isInteger(value) || value < 0 || value > 99) fail(`levels[${index}].counts["${key}"] muss 0 bis 99 sein.`);
   }
   if (keys.reduce((sum, key) => sum + (Number(counts[key]) || 0), 0) === 0) {
     fail(`levels[${index}] hat keine Tische.`);
+  }
+
+  for (const [tableId, spot] of Object.entries(level?.positions || {})) {
+    if (!Number.isInteger(spot?.col) || !Number.isInteger(spot?.row) || spot.col < 0 || spot.row < 0) {
+      fail(`levels[${index}].positions["${tableId}"] braucht ganzzahlige, nicht negative col und row.`);
+    }
   }
 }
 
@@ -137,7 +144,8 @@ if (errors.length) {
 }
 
 const mix = deriveTableMix(floorplan);
+const mixText = Object.keys(mix).map(Number).sort((a, b) => a - b).map(seats => `${mix[seats]}×${seats}P`).join(' · ');
 console.log(
   `Tischplan-Prüfung OK (${config.status}): ${floorplan.levels.length} Etagen, ${floorplan.tables.length} Tische, `
-  + `${totalSeats(floorplan)} Plätze, Mix 2er ${mix[2]} / 4er ${mix[4]} / 6er ${mix[6]} / 8er ${mix[8]}.`
+  + `${totalSeats(floorplan)} Plätze, Mix ${mixText}.`
 );

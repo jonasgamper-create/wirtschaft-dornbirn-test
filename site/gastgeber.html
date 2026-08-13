@@ -65,8 +65,6 @@
       <div class="fp-levels-editor" id="fpLevels"></div>
       <form class="add-service" id="fpAddLevel">
         <label>Name der Etage<input id="fpNewName" type="text" maxlength="40" placeholder="z. B. Stüberl" required></label>
-        <label>2er-Tische<input id="fpNewTwo" type="number" min="0" max="99" value="4" required></label>
-        <label>4er-Tische<input id="fpNewFour" type="number" min="0" max="99" value="4" required></label>
         <button type="submit">Etage ergänzen</button>
       </form>
       <p class="fp-warn" id="fpWarn" role="status" aria-live="polite" hidden></p>
@@ -82,7 +80,7 @@
         <p class="fp-result" id="fpResult" role="status" aria-live="polite">Personenzahl und Uhrzeit eingeben – das Cockpit zeigt, welchen Tisch die Zuweisung vergeben würde.</p>
       </div>
 
-      <p class="model-note">Sechser- und Achtertische entstehen aus Kombinationen benachbarter Tische, nicht als eigene Anzahl – so bleibt die Sperrlogik eindeutig. Der Tischmix in Panel 02 wird aus diesem Plan berechnet. Zum Übernehmen in die Website den Export in <code>site/data/floorplan.json</code> einsetzen und <code>status</code> auf <code>bestaetigt</code> stellen; vorher zeigt die Gästeseite bewusst keinen Plan.</p>
+      <p class="model-note">Tischgrößen von 2 bis 10 Personen, auch ungerade. Tische lassen sich im Plan mit der Maus verschieben oder mit Umschalt und Pfeiltasten – die Position bleibt gespeichert, auch wenn später Anzahlen geändert werden. Die Tischnummern folgen der Leserichtung im Raum, laufen also nach dem Verschieben neu. Der Tischmix in Panel 02 wird aus diesem Plan berechnet. Zum Übernehmen in die Website den Export in <code>site/data/floorplan.json</code> einsetzen und <code>status</code> auf <code>bestaetigt</code> stellen; vorher zeigt die Gästeseite bewusst keinen Plan.</p>
       <button class="quiet" type="button" id="fpExport">Tischplan als JSON exportieren</button>
     </section>
 
