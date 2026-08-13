@@ -122,6 +122,47 @@ Vierertisch. Die Nummer ist die Identität, die Größe die Zusatzinfo.
 6. **Exportieren** — die JSON-Datei herunterladen und nach
    `site/data/floorplan.json` übernehmen.
 
+## Belegung: wer sitzt an welchem Tisch
+
+Panel 03 hat zwei Wege zum selben Ziel.
+
+**Oben, automatisch.** Gruppen mit Name und Personenzahl aufnehmen, dann „Alle
+offenen Gruppen verteilen". Die Verteilung geht von der größten Gruppe abwärts —
+sie hat die wenigsten Möglichkeiten — und sucht jeweils den kleinsten passenden
+freien Tisch. Was nicht unterkommt, wird namentlich gemeldet statt still
+übergangen.
+
+Das ist bewusst kein Zufall: zufällige Verteilung verschenkt große Tische an
+kleine Gruppen und lässt später niemanden mehr Platz finden.
+
+**Unten, einzeln.** Tisch in der Karte oder der Liste anklicken, dann Name und
+Personenzahl eintragen. Der Klick auf einen Tisch löst nichts aus, er wählt nur
+aus — belegen, frei machen und sperren sind eigene Schritte. Abgewiesen wird,
+wer nicht passt: mehr Personen als Plätze, oder ein gesperrter Tisch.
+
+Im Plan steht auf einem belegten Tisch der Name und darunter die Belegung als
+`7/8` — sieben Gäste auf einem Achtertisch. Bei schmalen Tischen wird der Name
+gekürzt; die Liste daneben zeigt ihn immer vollständig.
+
+Die Belegung ist eine Momentaufnahme ohne Zeitverlauf. Deshalb löst sie kein
+Pacing aus: sie blockiert ihre Tische, zählt aber nicht als Zustrom im
+Viertelstundenfenster. Die Probe in Panel 04 rechnet mit der tatsächlichen
+Belegung und schlägt keine besetzten Tische mehr vor.
+
+### Namen und Datenschutz
+
+Der Name ist das **einzige personenbezogene Feld** im Speicher — mehr braucht
+ein Sitzplan nicht, und mehr darf hier auch nicht liegen: kein Kontakt, keine
+Notiz, keine Historie. Die Belegung ist tagesaktuell gedacht und wird über
+„Belegung leeren" wieder entfernt.
+
+Das ist eine bewusste Ausnahme von der sonstigen Regel in
+`site/inventory-store.js`, keine Nachlässigkeit. Sie gilt nur, solange das
+Werkzeug lokal im Browser des Hauses läuft. **Für den echten Betrieb mit
+mehreren Geräten braucht es eine geschützte Datenbank mit Anmeldung, eine
+festgelegte Löschfrist und einen Eintrag im Verarbeitungsverzeichnis** — siehe
+`SECURITY.md` und `docs/privacy/data-flow-matrix.md`.
+
 ## Zuweisungsregeln, in dieser Reihenfolge
 
 1. **Sitzplatzdeckel vor Geometrie.** Ist das Zeitfenster laut Panel 02 voll,

@@ -2,7 +2,9 @@
 // aria-hidden; bedienbar und vorlesbar ist immer die Liste daneben. So gibt es
 // genau einen Zustandspfad statt zweier, die auseinanderlaufen koennen.
 
-import { buildFloorplan } from './floorplan-layout.mjs';
+// Version muss zu den anderen Importen passen, sonst laedt der Browser zwei
+// Kopien desselben Moduls.
+import { buildFloorplan } from './floorplan-layout.mjs?v=4';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const el = (tag, attrs = {}) => {
@@ -13,8 +15,27 @@ const el = (tag, attrs = {}) => {
 
 const STATE_LABEL = { free: 'frei', busy: 'belegt', blocked: 'gesperrt', picked: 'gewählt' };
 
+// Ein Name muss in den Tisch passen. SVG-Text bricht nicht um, und eine
+// Schaetzung ueber die mittlere Zeichenbreite lag bei Namen wie "Bereuter"
+// daneben. Deshalb wird die tatsaechlich gerenderte Breite gemessen und so
+// lange gekuerzt, bis sie passt. Das geht erst, wenn das SVG im Dokument
+// haengt - darum als Nachlauf nach dem Einhaengen.
+function fitLabels(scope) {
+  for (const node of scope.querySelectorAll('.fp-name')) {
+    const max = Number(node.dataset.maxw);
+    let text = node.dataset.full || '';
+    node.textContent = text;
+    if (typeof node.getComputedTextLength !== 'function' || !max) continue;
+    let guard = 0;
+    while (text.length > 1 && node.getComputedTextLength() > max && guard++ < 60) {
+      text = text.slice(0, -1);
+      node.textContent = `${text}…`;
+    }
+  }
+}
+
 export function renderFloorplan(root, config, options = {}) {
-  const { mode = 'orientation', states = {}, selected = null, onSelect = null, onMove = null } = options;
+  const { mode = 'orientation', states = {}, seating = {}, selected = null, onSelect = null, onMove = null } = options;
   const plan = buildFloorplan(config);
   if (!plan.tables.length) {
     root.textContent = '';
@@ -30,7 +51,11 @@ export function renderFloorplan(root, config, options = {}) {
   let levelId = plan.levels.some(level => level.id === stored) ? stored : plan.levels[0].id;
   let pick = selected;
 
-  const stateOf = table => (table.id === pick ? 'picked' : states[table.id] || 'free');
+  const stateOf = table => {
+    if (table.id === pick) return 'picked';
+    if (states[table.id]) return states[table.id];
+    return seating[table.id] ? 'busy' : 'free';
+  };
   const say = text => { const status = root.querySelector('[data-status]'); if (status) status.textContent = text; };
 
   function paint() {
@@ -84,6 +109,7 @@ export function renderFloorplan(root, config, options = {}) {
     status.textContent = `${level.name}: ${level.tables.length} Tische, ${level.tables.reduce((sum, table) => sum + table.seats, 0)} Plätze.`
       + (onMove ? ' Tische lassen sich ziehen; mit der Tastatur Umschalt und Pfeiltasten.' : '');
     root.append(status);
+    fitLabels(root);
   }
 
   function drawLevel(level) {
@@ -104,11 +130,28 @@ export function renderFloorplan(root, config, options = {}) {
         height: table.h - 0.3,
         rx: 0.12
       }));
-      const number = el('text', { class: 'fp-num', x: table.col + table.w / 2, y: table.row + 1.15 });
+      const party = seating[table.id];
+      const middle = table.col + table.w / 2;
+      const number = el('text', { class: 'fp-num', x: middle, y: table.row + (party ? 0.95 : 1.15) });
       number.textContent = String(table.number);
-      const seats = el('text', { class: 'fp-seats', x: table.col + table.w / 2, y: table.row + 2.1 });
-      seats.textContent = `${table.seats}P`;
-      group.append(number, seats);
+      group.append(number);
+
+      if (party) {
+        // Belegt: Name und Belegung stehen im Tisch. Auf schmalen Tischen
+        // wird die Schrift kleiner, sonst laeuft sie ueber den Rand.
+        const size = table.w <= 3 ? 0.5 : 0.62;
+        const name = el('text', { class: 'fp-name', x: middle, y: table.row + 1.7, style: `font-size:${size}px` });
+        name.dataset.full = party.name;
+        name.dataset.maxw = String(table.w - 0.5);
+        name.textContent = party.name;
+        const count = el('text', { class: 'fp-seats', x: middle, y: table.row + 2.3 });
+        count.textContent = `${party.guests}/${table.seats}`;
+        group.append(name, count);
+      } else {
+        const seats = el('text', { class: 'fp-seats', x: middle, y: table.row + 2.1 });
+        seats.textContent = `${table.seats}P`;
+        group.append(seats);
+      }
       svg.append(group);
     }
     if (mode === 'select') {
@@ -194,8 +237,9 @@ export function renderFloorplan(root, config, options = {}) {
       button.setAttribute('aria-checked', String(state === 'picked'));
       button.tabIndex = state === 'picked' ? 0 : -1;
       button.dataset.tableId = table.id;
-      button.disabled = state === 'busy';
-      button.textContent = `Tisch ${table.number} · ${table.seats} Plätze · ${level.name} · ${STATE_LABEL[state]}`;
+      const party = seating[table.id];
+      button.textContent = `Tisch ${table.number} · ${table.seats} Plätze · ${level.name} · `
+        + (party ? `${party.name}, ${party.guests} Personen` : STATE_LABEL[state]);
       list.append(button);
     }
 

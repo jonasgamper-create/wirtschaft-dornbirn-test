@@ -2,7 +2,7 @@
 // localStorage, keine Systemzeit. Damit ist sie in Node testbar, im Browser
 // als Modul ladbar und spaeter unveraendert serverseitig einsetzbar.
 
-import { defaultMinGuests } from './floorplan-layout.mjs';
+import { defaultMinGuests } from './floorplan-layout.mjs?v=4';
 
 export const DEFAULT_POLICY = {
   durations: [
@@ -77,8 +77,12 @@ function overlaps(candidate, occupancy, from, to) {
   });
 }
 
+// Pacing begrenzt den Zustrom, nicht die Anwesenheit. Ein Eintrag mit
+// countsForPacing:false blockiert seinen Tisch, zaehlt aber nicht als
+// Ankunft - so kann eine bestehende Sitzordnung keine Ablehnung ausloesen.
 function coversInSlot(occupancy, slotStart, slotMinutes) {
   return occupancy.reduce((sum, entry) => {
+    if (entry.countsForPacing === false) return sum;
     const start = stamp(entry.startsAt);
     if (start === null) return sum;
     if (start < slotStart || start >= slotStart + slotMinutes) return sum;

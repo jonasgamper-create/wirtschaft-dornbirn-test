@@ -39,6 +39,7 @@
     // Wird beim ersten Laden aus site/data/floorplan.json uebernommen.
     floorplan: null,
     blockedTables: [],
+    parties: [],
     updatedAt: new Date().toISOString()
   });
 
@@ -155,7 +156,9 @@
           }))
         };
       }),
-      // Keine Namen, E-Mail-Adressen, Telefonnummern oder Nachrichten im Browser speichern.
+      // Keine E-Mail-Adressen, Telefonnummern oder Nachrichten im Browser
+      // speichern. Ausnahme ist der Name in `parties` - eine Tischbelegung
+      // ohne Namen waere unbrauchbar. Siehe Kommentar dort.
       reservations: (Array.isArray(source.reservations) ? source.reservations : []).slice(0, 40).map(item => ({
         id: safeText(item && item.id, 80),
         createdAt: safeIso(item && item.createdAt),
@@ -178,6 +181,17 @@
       floorplan: sanitizeFloorplan(source.floorplan),
       blockedTables: (Array.isArray(source.blockedTables) ? source.blockedTables : [])
         .slice(0, 200).map(id => safeText(id, 24)).filter(Boolean),
+      // Tischbelegung fuer die interne Einteilung. Der Name ist bewusst das
+      // einzige personenbezogene Feld im Speicher - mehr braucht ein
+      // Sitzplan nicht, und mehr darf hier auch nicht liegen. Kein Kontakt,
+      // keine Notiz, keine Historie. Die Belegung ist tagesaktuell gedacht
+      // und wird ueber "Belegung leeren" wieder entfernt.
+      parties: (Array.isArray(source.parties) ? source.parties : []).slice(0, 200).map((item, index) => ({
+        id: safeText(item?.id, 24) || `p-${index + 1}`,
+        name: safeText(item?.name, 40),
+        guests: safeNumber(item?.guests, 1, 20, 1),
+        tableIds: (Array.isArray(item?.tableIds) ? item.tableIds : []).slice(0, 4).map(id => safeText(id, 24)).filter(Boolean)
+      })).filter(item => item.name),
       updatedAt: safeIso(source.updatedAt)
     };
   }
@@ -242,6 +256,12 @@
   function setBlockedTables(ids) {
     const current = load();
     current.blockedTables = Array.isArray(ids) ? ids : [];
+    return save(current);
+  }
+
+  function setParties(list) {
+    const current = load();
+    current.parties = Array.isArray(list) ? list : [];
     return save(current);
   }
 
@@ -345,6 +365,7 @@
     updateSettings,
     updateFloorplan,
     setBlockedTables,
+    setParties,
     updateService,
     updateEvent,
     recordReservation,

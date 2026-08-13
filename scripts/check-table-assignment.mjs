@@ -93,6 +93,18 @@ check('Pacing liefert Alternativen', (pacing.alternatives || []).length > 0, JSO
 check('Erste Alternative ist der naechste Slot',
   pacing.alternatives?.[0]?.startsAt === at('12:15'), JSON.stringify(pacing.alternatives?.[0]));
 
+// 7b. Eine bestehende Sitzordnung blockiert Tische, zaehlt aber nicht als
+//     Ankunft - sonst wuerde sie faelschlich Pacing ausloesen.
+const seated = assignTables({
+  floorplan,
+  occupancy: [{ tableIds: ['eg-4-01'], startsAt: at('12:00'), minutes: 105, guests: 4, countsForPacing: false }],
+  guests: 2,
+  startsAt: at('12:00'),
+  policy: pacingPolicy
+});
+check('Sitzordnung loest kein Pacing aus', seated.ok, JSON.stringify(seated));
+check('Sitzordnung sperrt ihren Tisch trotzdem', numbers(seated) !== '1', numbers(seated));
+
 // 8. Der Sitzplatzdeckel schlaegt die Geometrie.
 const capped = assignTables({ floorplan, guests: 2, startsAt: at('11:30'), policy, available: 1 });
 check('Sitzplatzdeckel gewinnt gegen freien Tisch', !capped.ok && capped.reason === 'capacity', JSON.stringify(capped));
