@@ -135,10 +135,21 @@ freien Tisch. Was nicht unterkommt, wird namentlich gemeldet statt still
 Das ist bewusst kein Zufall: zufällige Verteilung verschenkt große Tische an
 kleine Gruppen und lässt später niemanden mehr Platz finden.
 
-**Unten, einzeln.** Tisch in der Karte oder der Liste anklicken, dann Name und
-Personenzahl eintragen. Der Klick auf einen Tisch löst nichts aus, er wählt nur
-aus — belegen, frei machen und sperren sind eigene Schritte. Abgewiesen wird,
-wer nicht passt: mehr Personen als Plätze, oder ein gesperrter Tisch.
+**Unten, die Tischliste.** Eine Zeile je Tisch mit Nummer, Größe, Etage, Name
+und Personenzahl. Den Namen direkt in die Zeile schreiben belegt den Tisch, das
+Feld leeren macht ihn wieder frei. Die Personenzahl wird still auf die
+Tischgröße begrenzt und sagt das auch. Für den Rest gibt es zwei Knöpfe je
+Zeile: „Frei machen" und „Sperren".
+
+**Direkt auf der Karte.** Ein Doppelklick auf einen Tisch öffnet ein
+Eingabefeld genau über ihm — Name tippen, Enter. Escape verwirft. Ein einfacher
+Klick springt stattdessen in die passende Zeile der Tischliste, sodass Karte und
+Liste derselbe Arbeitsweg sind und nicht zwei getrennte.
+
+Mit der Tastatur: in der Tischliste neben der Karte mit den Pfeiltasten zum
+Tisch, Enter — der Fokus landet direkt im Namensfeld der Zeile. Das
+Eingabefeld auf der Karte ist ein echtes `input`, kein `contenteditable` im
+SVG; letzteres ist mit Tastatur und Vorlesesoftware unzuverlässig.
 
 Im Plan steht auf einem belegten Tisch der Name und darunter die Belegung als
 `7/8` — sieben Gäste auf einem Achtertisch. Bei schmalen Tischen wird der Name

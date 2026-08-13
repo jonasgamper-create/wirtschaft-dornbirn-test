@@ -7,7 +7,7 @@
 // die Seite selbst schon neu geladen wurde.
 import { GRID, buildFloorplan, canPlace, deriveTableMix, totalSeats } from './floorplan-layout.mjs?v=4';
 import { assignTables } from './table-assignment.mjs?v=4';
-import { renderFloorplan } from './floorplan.js?v=6';
+import { renderFloorplan } from './floorplan.js?v=8';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 const store = window.WirtschaftData;
@@ -116,13 +116,19 @@ async function start() {
       states: Object.fromEntries(blocked().map(id => [id, 'blocked'])),
       seating: seatingMap(),
       selected: picked,
-      // Ein Klick waehlt den Tisch aus. Was damit passiert, entscheidet die
-      // Einzelzuweisung in Panel 03 - so loest ein Fehlklick nichts aus.
+      // Ein Klick waehlt den Tisch aus und springt in seine Zeile in der
+      // Tischliste - so loest ein Fehlklick nichts aus, der Weg zum Bearbeiten
+      // ist aber genau ein Schritt.
       onSelect: id => {
         picked = id;
         paintPlan();
         paintSeating();
+        if (!id) return;
+        const field = byId('fpTableList').querySelector(`[data-table-id="${id}"][data-field="name"]`);
+        if (field && !field.disabled) { field.focus(); field.select(); }
       },
+      // Doppelklick schreibt den Namen direkt auf den Tisch.
+      onEdit: (id, value) => setTableName(id, value),
       // Verschieben. Die Position wird gemerkt und ueberlebt spaetere
       // Anzahl-Aenderungen, weil sie an der Tisch-Kennung haengt.
       onMove: (id, col, row) => {
@@ -220,28 +226,138 @@ async function start() {
       }
     }
 
-    const table = picked ? plan.tables.find(item => item.id === picked) : null;
-    const label = byId('fpSelected');
-    const form = byId('fpSeatForm');
-    const actions = byId('fpSeatActions');
-    if (!table) {
-      label.innerHTML = 'Kein Tisch gewählt<small>Tisch in der Karte oder in der Liste darüber anklicken.</small>';
-      form.hidden = true;
-      actions.hidden = true;
-      return;
+    paintTableList(plan);
+  }
+
+  // Eine Zeile je Tisch. Name eintragen belegt, Feld leeren macht frei -
+  // das ist der schnellste Weg, wenn am Abend noch etwas umgestellt wird.
+  function paintTableList(plan) {
+    const box = byId('fpTableList');
+    const active = document.activeElement;
+    const keepFocus = active?.dataset?.tableId && box.contains(active)
+      ? { id: active.dataset.tableId, field: active.dataset.field, start: active.selectionStart }
+      : null;
+    box.textContent = '';
+
+    for (const table of plan.tables) {
+      const party = parties().find(entry => entry.tableIds.includes(table.id));
+      const isBlocked = blocked().includes(table.id);
+
+      const row = document.createElement('div');
+      row.className = 'fp-table-row'
+        + (party ? ' is-busy' : '')
+        + (isBlocked ? ' is-blocked' : '')
+        + (table.id === picked ? ' is-picked' : '');
+
+      const no = document.createElement('span');
+      no.className = 'no';
+      no.textContent = String(table.number);
+      const meta = document.createElement('small');
+      meta.textContent = `${table.seats}P · ${table.levelName}`;
+      no.append(meta);
+      row.append(no);
+
+      const name = document.createElement('input');
+      name.type = 'text';
+      name.maxLength = 40;
+      name.value = party?.name || '';
+      name.placeholder = isBlocked ? 'gesperrt' : 'frei';
+      name.disabled = isBlocked;
+      name.dataset.tableId = table.id;
+      name.dataset.field = 'name';
+      name.setAttribute('aria-label', `Name für Tisch ${table.number}`);
+      row.append(name);
+
+      // Personen und Aktionen bleiben zusammen, damit die Zeile auf schmalen
+      // Schirmen sauber unter den Namen rutscht statt sich zu zerlegen.
+      const actions = document.createElement('div');
+      actions.className = 'fp-row-actions';
+
+      const guests = document.createElement('input');
+      guests.type = 'number';
+      guests.min = '1';
+      guests.max = String(table.seats);
+      guests.value = party ? String(party.guests) : '';
+      guests.placeholder = `${table.seats}`;
+      guests.disabled = !party;
+      guests.dataset.tableId = table.id;
+      guests.dataset.field = 'guests';
+      guests.setAttribute('aria-label', `Personen an Tisch ${table.number}, höchstens ${table.seats}`);
+      actions.append(guests);
+
+      const free = document.createElement('button');
+      free.type = 'button';
+      free.dataset.tableId = table.id;
+      free.dataset.action = 'free';
+      free.textContent = 'Frei machen';
+      free.disabled = !party;
+      actions.append(free);
+
+      const block = document.createElement('button');
+      block.type = 'button';
+      block.dataset.tableId = table.id;
+      block.dataset.action = 'block';
+      block.textContent = isBlocked ? 'Entsperren' : 'Sperren';
+      block.disabled = Boolean(party);
+      actions.append(block);
+      row.append(actions);
+
+      if (party && party.tableIds.length > 1) {
+        const span = document.createElement('p');
+        span.className = 'span';
+        span.textContent = `Zusammengestellt mit Tisch ${party.tableIds
+          .filter(id => id !== table.id)
+          .map(id => plan.tables.find(item => item.id === id)?.number ?? '?')
+          .join(', ')}.`;
+        row.append(span);
+      }
+      box.append(row);
     }
-    const seated = parties().find(party => party.tableIds.includes(table.id));
-    const isBlocked = blocked().includes(table.id);
-    label.textContent = `Tisch ${table.number}`;
-    const note = document.createElement('small');
-    note.textContent = `${table.seats} Plätze · ${table.levelName} · `
-      + (seated ? `belegt von ${seated.name}, ${seated.guests} Personen` : isBlocked ? 'gesperrt' : 'frei');
-    label.append(note);
-    form.hidden = Boolean(seated);
-    actions.hidden = false;
-    byId('fpFreeTable').hidden = !seated;
-    byId('fpBlockTable').textContent = isBlocked ? 'Sperre aufheben' : 'Tisch sperren';
-    byId('fpSeatGuests').max = String(table.seats);
+
+    if (keepFocus) {
+      const back = box.querySelector(`[data-table-id="${keepFocus.id}"][data-field="${keepFocus.field}"]`);
+      if (back && !back.disabled) {
+        back.focus();
+        if (back.type === 'text' && keepFocus.start != null) back.setSelectionRange(keepFocus.start, keepFocus.start);
+      }
+    }
+  }
+
+  /** Name auf einen Tisch schreiben. Leerer Name macht den Tisch frei. */
+  function setTableName(tableId, rawName) {
+    const plan = buildFloorplan(current());
+    const table = plan.tables.find(item => item.id === tableId);
+    if (!table) return;
+    const name = rawName.trim();
+    const list = parties().map(party => ({ ...party, tableIds: [...party.tableIds] }));
+    const existing = list.find(party => party.tableIds.includes(tableId));
+
+    if (!name) {
+      if (!existing) return;
+      store.setParties(list.filter(party => party !== existing));
+      seatResult(`Tisch ${table.number} ist wieder frei (${existing.name} entfernt).`);
+    } else if (existing) {
+      existing.name = name;
+      store.setParties(list);
+      seatResult(`Tisch ${table.number}: ${name}.`);
+    } else {
+      if (blocked().includes(tableId)) return seatResult(`Tisch ${table.number} ist gesperrt. Erst entsperren.`);
+      // Eine schon aufgenommene, noch offene Gruppe wird gesetzt statt doppelt
+      // angelegt - sonst stuende derselbe Name zweimal in der Liste.
+      const open = list.find(party => !party.tableIds.length && party.name === name);
+      if (open) {
+        open.tableIds = [tableId];
+        if (open.guests > table.seats) open.guests = table.seats;
+        store.setParties(list);
+        seatResult(`${name} sitzt an Tisch ${table.number} (${open.guests} von ${table.seats} Plätzen).`);
+      } else {
+        list.push({ id: `p-${Date.now().toString(36)}`, name, guests: Math.min(2, table.seats), tableIds: [tableId] });
+        store.setParties(list);
+        seatResult(`${name} sitzt an Tisch ${table.number}. Personenzahl in der Zeile anpassen.`);
+      }
+    }
+    paintPlan();
+    paintSeating();
   }
 
   byId('fpLevels').addEventListener('change', event => {
@@ -371,59 +487,47 @@ async function start() {
     seatResult('Belegung geleert. Es sind keine Namen mehr gespeichert.');
   });
 
-  byId('fpSeatForm').addEventListener('submit', event => {
-    event.preventDefault();
-    if (!picked) return;
+  // Die Tischliste: Name schreiben belegt, Feld leeren macht frei.
+  byId('fpTableList').addEventListener('change', event => {
+    const field = event.target.closest('[data-field]');
+    if (!field) return;
+    if (field.dataset.field === 'name') return setTableName(field.dataset.tableId, field.value);
+
     const plan = buildFloorplan(current());
-    const table = plan.tables.find(item => item.id === picked);
-    const name = byId('fpSeatName').value.trim();
-    const guests = Math.max(1, Math.min(20, Number(byId('fpSeatGuests').value) || 1));
-    if (!table || !name) return;
-    if (guests > table.seats) {
-      return seatResult(`Tisch ${table.number} hat nur ${table.seats} Plätze – ${guests} Personen passen nicht.`);
-    }
-    if (blocked().includes(table.id)) {
-      return seatResult(`Tisch ${table.number} ist gesperrt. Erst die Sperre aufheben.`);
-    }
-    // Eine bereits aufgenommene, noch offene Gruppe mit gleichem Namen und
-    // gleicher Groesse wird gesetzt statt doppelt angelegt.
-    const list = parties().map(party => ({ ...party }));
-    const existing = list.find(party => !party.tableIds.length && party.name === name && party.guests === guests);
-    if (existing) existing.tableIds = [table.id];
-    else list.push({ id: `p-${list.length + 1}-${name.length}${guests}`, name, guests, tableIds: [table.id] });
+    const table = plan.tables.find(item => item.id === field.dataset.tableId);
+    const list = parties().map(party => ({ ...party, tableIds: [...party.tableIds] }));
+    const party = list.find(entry => entry.tableIds.includes(field.dataset.tableId));
+    if (!table || !party) return;
+    const wanted = Math.max(1, Math.round(Number(field.value) || 1));
+    const seats = party.tableIds.reduce((sum, id) => sum + (plan.tables.find(item => item.id === id)?.seats || 0), 0);
+    party.guests = Math.min(wanted, seats);
     store.setParties(list);
-    byId('fpSeatName').value = '';
+    seatResult(wanted > seats
+      ? `Tisch ${table.number} hat nur ${seats} Plätze – auf ${seats} begrenzt.`
+      : `Tisch ${table.number}: ${party.name}, ${party.guests} Personen.`);
     paintPlan();
     paintSeating();
-    seatResult(`${name} sitzt an Tisch ${table.number} (${guests} von ${table.seats} Plätzen).`);
   });
 
-  byId('fpFreeTable').addEventListener('click', () => {
-    if (!picked) return;
+  byId('fpTableList').addEventListener('click', event => {
+    const button = event.target.closest('[data-action]');
+    if (!button) return;
+    const id = button.dataset.tableId;
     const plan = buildFloorplan(current());
-    const table = plan.tables.find(item => item.id === picked);
-    const list = parties().filter(party => !party.tableIds.includes(picked));
-    const gone = parties().find(party => party.tableIds.includes(picked));
-    store.setParties(list);
-    paintPlan();
-    paintSeating();
-    seatResult(gone ? `Tisch ${table?.number} ist wieder frei (${gone.name} entfernt).` : 'Tisch war nicht belegt.');
-  });
+    const table = plan.tables.find(item => item.id === id);
 
-  byId('fpBlockTable').addEventListener('click', () => {
-    if (!picked) return;
-    const plan = buildFloorplan(current());
-    const table = plan.tables.find(item => item.id === picked);
-    if (parties().some(party => party.tableIds.includes(picked))) {
+    if (button.dataset.action === 'free') return setTableName(id, '');
+
+    if (parties().some(party => party.tableIds.includes(id))) {
       return seatResult(`Tisch ${table?.number} ist belegt. Erst frei machen, dann sperren.`);
     }
-    const list = new Set(blocked());
-    const wasBlocked = list.has(picked);
-    if (wasBlocked) list.delete(picked); else list.add(picked);
-    store.setBlockedTables([...list]);
+    const set = new Set(blocked());
+    const wasBlocked = set.has(id);
+    if (wasBlocked) set.delete(id); else set.add(id);
+    store.setBlockedTables([...set]);
+    seatResult(`Tisch ${table?.number} ist jetzt ${wasBlocked ? 'wieder frei' : 'gesperrt'}.`);
     paintPlan();
     paintSeating();
-    seatResult(`Tisch ${table?.number} ist jetzt ${wasBlocked ? 'wieder frei' : 'gesperrt'}.`);
   });
 
   byId('fpTryForm').addEventListener('submit', event => {

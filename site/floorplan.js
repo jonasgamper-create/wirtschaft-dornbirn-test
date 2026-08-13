@@ -35,7 +35,10 @@ function fitLabels(scope) {
 }
 
 export function renderFloorplan(root, config, options = {}) {
-  const { mode = 'orientation', states = {}, seating = {}, selected = null, onSelect = null, onMove = null } = options;
+  const {
+    mode = 'orientation', states = {}, seating = {}, selected = null,
+    onSelect = null, onMove = null, onEdit = null
+  } = options;
   const plan = buildFloorplan(config);
   if (!plan.tables.length) {
     root.textContent = '';
@@ -161,9 +164,58 @@ export function renderFloorplan(root, config, options = {}) {
         if (!group) return;
         root.querySelector(`.fp-list [data-table-id="${group.dataset.tableId}"]`)?.click();
       });
+      // Doppelklick schreibt den Namen direkt auf den Tisch. Der Weg ueber die
+      // Tischliste bleibt daneben bestehen - er ist der mit der Tastatur.
+      if (onEdit) {
+        svg.addEventListener('dblclick', event => {
+          const group = event.target.closest('[data-table-id]');
+          const table = group && level.tables.find(item => item.id === group.dataset.tableId);
+          if (table) editOnTable(svg, table);
+        });
+      }
       if (onMove) enableDrag(svg, level);
     }
     return svg;
+  }
+
+  // Ein echtes Eingabefeld ueber dem Tisch. Kein contenteditable im SVG - das
+  // ist mit Tastatur und Vorlesesoftware unzuverlaessig.
+  function editOnTable(svg, table) {
+    const stage = root.querySelector('.fp-stage');
+    const shape = svg.querySelector(`[data-table-id="${table.id}"] .fp-shape`);
+    if (!stage || !shape) return;
+    stage.querySelector('.fp-inline')?.remove();
+
+    const box = shape.getBoundingClientRect();
+    const base = stage.getBoundingClientRect();
+    const input = document.createElement('input');
+    input.className = 'fp-inline';
+    input.type = 'text';
+    input.maxLength = 40;
+    input.value = seating[table.id]?.name || '';
+    input.placeholder = `Tisch ${table.number}`;
+    input.setAttribute('aria-label', `Name für Tisch ${table.number}, ${table.seats} Plätze`);
+    input.style.left = `${box.left - base.left}px`;
+    input.style.top = `${box.top - base.top + box.height * 0.42}px`;
+    input.style.width = `${box.width}px`;
+    input.style.height = `${Math.max(22, box.height * 0.44)}px`;
+    stage.append(input);
+    input.focus();
+    input.select();
+
+    let closed = false;
+    const done = keep => {
+      if (closed) return;
+      closed = true;
+      const value = input.value.trim();
+      input.remove();
+      if (keep) onEdit(table.id, value);
+    };
+    input.addEventListener('keydown', event => {
+      if (event.key === 'Enter') { event.preventDefault(); done(true); }
+      if (event.key === 'Escape') { event.preventDefault(); done(false); }
+    });
+    input.addEventListener('blur', () => done(true));
   }
 
   // Ziehen im Cockpit. Die Position rastet auf ganze Rastereinheiten ein;
@@ -255,14 +307,17 @@ export function renderFloorplan(root, config, options = {}) {
         pick = pick === id ? null : id;
         const table = plan.tables.find(item => item.id === pick);
 
-        // Der Aufrufer darf selbst neu zeichnen (das Cockpit tut das). Danach
-        // holen wir den Fokus zurueck an denselben Tisch - sonst landet er
-        // beim Body und die Tastaturbedienung reisst ab.
-        if (onSelect) onSelect(pick, table || null); else paint();
-        root.querySelector(`.fp-list [data-table-id="${id}"]`)?.focus();
-        if (!onSelect) {
-          say(table ? `Tisch ${table.number} gewählt, ${table.seats} Plätze, ${table.levelName}.` : 'Kein Tisch gewählt.');
+        // Der Aufrufer darf selbst neu zeichnen und den Fokus setzen (das
+        // Cockpit springt ins Namensfeld der Tischliste). Nur ohne Aufrufer
+        // holen wir den Fokus selbst zurueck - sonst landet er beim Body und
+        // die Tastaturbedienung reisst ab.
+        if (onSelect) {
+          onSelect(pick, table || null);
+          return;
         }
+        paint();
+        root.querySelector(`.fp-list [data-table-id="${id}"]`)?.focus();
+        say(table ? `Tisch ${table.number} gewählt, ${table.seats} Plätze, ${table.levelName}.` : 'Kein Tisch gewählt.');
       });
       list.addEventListener('keydown', event => {
         // Umschalt und Pfeiltaste verschiebt den Tisch - die Alternative zum
