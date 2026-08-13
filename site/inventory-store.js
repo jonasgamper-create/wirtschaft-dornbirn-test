@@ -61,41 +61,73 @@
 
   // Der Tischplan enthaelt ausschliesslich Stammdaten. Alles, was nach Belegung
   // oder Person aussieht, faellt beim Einlesen weg statt gespeichert zu werden.
+  function sanitizeLevel(level, index) {
+    const id = safeId(level?.id, `etage-${index + 1}`);
+    const seen = new Set();
+    const tables = (Array.isArray(level?.tables) ? level.tables : []).slice(0, 300).map((table, spot) => {
+      let tableId = safeText(table?.id, 24) || `${id}-t${String(spot + 1).padStart(2, '0')}`;
+      while (seen.has(tableId)) tableId = `${tableId}x`.slice(0, 24);
+      seen.add(tableId);
+      // Achtung: Number(null) ist 0. Ohne die ausdrueckliche Pruefung auf
+      // null gilt jeder Tisch als fest auf Position 0,0 gesetzt und alle
+      // stapeln sich uebereinander.
+      const coord = (value, max) => {
+        if (value === null || value === undefined || value === '') return null;
+        const number = Number(value);
+        return Number.isInteger(number) && number >= 0 && number <= max ? number : null;
+      };
+      return {
+        id: tableId,
+        seats: safeNumber(table?.seats, 1, 12, 2),
+        col: coord(table?.col, 200),
+        row: coord(table?.row, 400)
+      };
+    });
+    return {
+      id,
+      name: safeText(level?.name, 40) || `Etage ${index + 1}`,
+      order: safeNumber(level?.order, 1, 4, index + 1),
+      tables
+    };
+  }
+
+  function sanitizeLayout(layout, index) {
+    const id = safeId(layout?.id, `ordnung-${index + 1}`);
+    const levels = (Array.isArray(layout?.levels) ? layout.levels : []).slice(0, 4).map(sanitizeLevel);
+    const known = new Set(levels.flatMap(level => level.tables.map(table => table.id)));
+    return {
+      id,
+      name: safeText(layout?.name, 40) || `Ordnung ${index + 1}`,
+      levels,
+      combos: (Array.isArray(layout?.combos) ? layout.combos : []).slice(0, 40).map((combo, spot) => ({
+        id: safeText(combo?.id, 40) || `combo-${spot + 1}`,
+        tables: (Array.isArray(combo?.tables) ? combo.tables : []).slice(0, 4)
+          .map(entry => safeText(entry, 24)).filter(entry => known.has(entry)),
+        minGuests: safeNumber(combo?.minGuests, 1, 24, 1)
+      })).filter(combo => combo.tables.length >= 2)
+    };
+  }
+
   function sanitizeFloorplan(input) {
     if (!input || typeof input !== 'object') return null;
-    const levels = (Array.isArray(input.levels) ? input.levels : []).slice(0, 4).map((level, index) => {
-      const id = safeId(level?.id, `etage-${index + 1}`);
-      const counts = {};
-      for (let seats = 2; seats <= 10; seats += 1) {
-        const value = safeNumber(level?.counts?.[seats] ?? level?.counts?.[String(seats)], 0, 99, 0);
-        if (value > 0) counts[seats] = value;
-      }
-      // Gemerkte Positionen sind reine Rasterkoordinaten, keine Belegung.
-      const positions = {};
-      for (const [key, value] of Object.entries(level?.positions || {})) {
-        const tableId = safeText(key, 24);
-        const col = safeNumber(value?.col, 0, 200, -1);
-        const row = safeNumber(value?.row, 0, 400, -1);
-        if (tableId && col >= 0 && row >= 0) positions[tableId] = { col, row };
-      }
-      return { id, name: safeText(level?.name, 40) || `Etage ${index + 1}`, order: safeNumber(level?.order, 1, 4, index + 1), counts, positions };
-    });
-    if (!levels.length) return null;
-    const known = new Set(levels.map(level => level.id));
+    const layouts = (Array.isArray(input.layouts) ? input.layouts : []).slice(0, 12).map(sanitizeLayout);
+    if (!layouts.length) return null;
+    const ids = new Set(layouts.map(layout => layout.id));
+    const known = new Set(layouts.flatMap(layout => layout.levels.map(level => level.id)));
     const policy = input.policy && typeof input.policy === 'object' ? input.policy : {};
     return {
-      version: 1,
+      version: 2,
       status: ['beispiel', 'bestaetigt'].includes(input.status) ? input.status : 'beispiel',
       numbering: { start: safeNumber(input.numbering?.start, 1, 999, 1) },
-      levels,
-      combos: (Array.isArray(input.combos) ? input.combos : []).slice(0, 40).map((combo, index) => ({
-        id: safeText(combo?.id, 40) || `combo-${index + 1}`,
-        tables: (Array.isArray(combo?.tables) ? combo.tables : []).slice(0, 4).map(id => safeText(id, 24)).filter(Boolean),
-        minGuests: safeNumber(combo?.minGuests, 1, 20, 1)
-      })).filter(combo => combo.tables.length >= 2),
+      activeLayout: ids.has(input.activeLayout) ? input.activeLayout : layouts[0].id,
+      layouts,
+      menu: (Array.isArray(input.menu) ? input.menu : []).slice(0, 12).map((dish, index) => ({
+        id: safeId(dish?.id, `gericht-${index + 1}`),
+        name: safeText(dish?.name, 40) || `Gericht ${index + 1}`
+      })),
       policy: {
         durations: (Array.isArray(policy.durations) ? policy.durations : []).slice(0, 8).map(step => ({
-          upTo: safeNumber(step?.upTo, 1, 20, 2),
+          upTo: safeNumber(step?.upTo, 1, 24, 2),
           minutes: safeNumber(step?.minutes, 30, 300, 90)
         })),
         bufferMinutes: safeNumber(policy.bufferMinutes, 0, 60, 15),
@@ -186,12 +218,27 @@
       // Sitzplan nicht, und mehr darf hier auch nicht liegen. Kein Kontakt,
       // keine Notiz, keine Historie. Die Belegung ist tagesaktuell gedacht
       // und wird ueber "Belegung leeren" wieder entfernt.
-      parties: (Array.isArray(source.parties) ? source.parties : []).slice(0, 200).map((item, index) => ({
-        id: safeText(item?.id, 24) || `p-${index + 1}`,
-        name: safeText(item?.name, 40),
-        guests: safeNumber(item?.guests, 1, 20, 1),
-        tableIds: (Array.isArray(item?.tableIds) ? item.tableIds : []).slice(0, 4).map(id => safeText(id, 24)).filter(Boolean)
-      })).filter(item => item.name),
+      parties: (Array.isArray(source.parties) ? source.parties : []).slice(0, 300).map((item, index) => {
+        const guests = safeNumber(item?.guests, 1, 24, 1);
+        // Essenswuensche sind freiwillig und rein zur Kalkulation. Es duerfen
+        // nie mehr Portionen als Gaeste sein.
+        const dishes = {};
+        for (const [key, value] of Object.entries(item?.dishes || {})) {
+          const id = safeText(key, 24);
+          const count = safeNumber(value, 0, guests, 0);
+          if (id && count > 0) dishes[id] = count;
+        }
+        return {
+          id: safeText(item?.id, 24) || `p-${index + 1}`,
+          name: safeText(item?.name, 40),
+          guests,
+          date: safeDate(item?.date),
+          time: safeTime(item?.time),
+          tableIds: (Array.isArray(item?.tableIds) ? item.tableIds : []).slice(0, 4).map(id => safeText(id, 24)).filter(Boolean),
+          dishes,
+          source: ['manuell', 'mail'].includes(item?.source) ? item.source : 'manuell'
+        };
+      }).filter(item => item.name),
       updatedAt: safeIso(source.updatedAt)
     };
   }

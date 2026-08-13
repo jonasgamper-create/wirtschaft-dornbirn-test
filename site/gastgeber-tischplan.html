@@ -11,9 +11,9 @@
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="stylesheet" href="gastgeber.css?v=1">
   <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=2">
-  <link rel="stylesheet" href="floorplan.css?v=10">
-  <script src="inventory-store.js?v=4" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=16"></script>
+  <link rel="stylesheet" href="floorplan.css?v=13">
+  <script src="inventory-store.js?v=7" defer></script>
+  <script type="module" src="gastgeber-floorplan.js?v=19"></script>
 </head>
 <body>
   <header class="topbar">
@@ -24,65 +24,90 @@
   <main>
     <section class="welcome">
       <div>
-        <p>Etagen · Tischgrößen · Anordnung</p>
+        <p>Ordnungen · Tische · Reservierungen</p>
         <h1>Wer sitzt wo?</h1>
-        <p class="fp-intro">Nur für die interne Einteilung. Gäste sehen diese Ansicht nicht und können keinen Tisch auswählen – sie geben Tag, Uhrzeit und Personenzahl an, die Einteilung macht das Haus.</p>
+        <p class="fp-intro">Nur für die interne Einteilung. Gäste sehen diese Ansicht nicht und wählen keinen Tisch – sie geben Tag, Uhrzeit und Personenzahl an, die Einteilung macht das Haus.</p>
       </div>
       <div class="status-dot"><i></i>Lokaler Testbetrieb</div>
     </section>
 
-    <section class="panel" aria-labelledby="levelsTitle">
-      <div class="panel-head"><div><p>01 · Räume</p><h2 id="levelsTitle">Etagen und Tischgrößen</h2></div><span>2 bis 10 Personen je Tisch, auch ungerade</span></div>
-      <div class="fp-levels-editor" id="fpLevels"></div>
-      <form class="add-service" id="fpAddLevel">
-        <label>Name der Etage<input id="fpNewName" type="text" maxlength="40" placeholder="z. B. Stüberl" required></label>
-        <button type="submit">Etage ergänzen</button>
+    <section class="panel" aria-labelledby="momentTitle">
+      <div class="panel-head"><div><p>01 · Zeitpunkt</p><h2 id="momentTitle">Welcher Tag, welche Uhrzeit?</h2></div><span>Karte und Listen zeigen immer diesen Moment</span></div>
+      <form class="add-service" id="fpMomentForm">
+        <label>Tag<input id="fpDate" type="date" required></label>
+        <label>Uhrzeit<input id="fpTime" type="time" step="900" required></label>
+        <label>Tischordnung<select id="fpLayout"></select></label>
+        <button type="submit">Anzeigen</button>
       </form>
-      <p class="fp-warn" id="fpWarn" role="status" aria-live="polite" hidden></p>
+      <p class="fp-result" id="fpMomentInfo" role="status" aria-live="polite">Tag und Uhrzeit wählen.</p>
     </section>
 
     <section class="panel" aria-labelledby="mapTitle">
       <div class="panel-head"><div><p>02 · Karte</p><h2 id="mapTitle">Tische anordnen</h2></div><span>Ziehen oder Umschalt und Pfeiltasten</span></div>
       <div data-floorplan id="fpPreview" data-mode="select"></div>
-      <p class="model-note">Ein Klick wählt einen Tisch aus und springt in seine Zeile in der Tischliste darunter. Ein Doppelklick schreibt den Namen direkt auf den Tisch. Verschieben geht mit der Maus oder – wenn ein Tisch in der Liste im Fokus ist – mit Umschalt und Pfeiltaste. Positionen bleiben gespeichert, auch wenn später Anzahlen geändert werden. Die Tischnummern folgen der Leserichtung im Raum: erst die Karte fertig anordnen, dann Tischkarten drucken.</p>
+      <p class="model-note">Ein Klick wählt einen Tisch und springt in seine Zeile in der Tischliste. Ein Doppelklick schreibt den Namen direkt auf den Tisch. Verschieben mit der Maus oder – wenn ein Tisch in der Liste im Fokus ist – mit Umschalt und Pfeiltaste. Die Tischnummern folgen der Leserichtung im Raum: erst anordnen, dann Tischkarten drucken.</p>
+      <p class="fp-warn" id="fpWarn" role="status" aria-live="polite" hidden></p>
     </section>
 
-    <section class="panel" aria-labelledby="seatTitle">
-      <div class="panel-head"><div><p>03 · Belegung</p><h2 id="seatTitle">Wer sitzt an welchem Tisch?</h2></div><span>Oben automatisch verteilen, unten in der Tischliste anpassen</span></div>
+    <section class="panel" aria-labelledby="resTitle">
+      <div class="panel-head"><div><p>03 · Reservierungen</p><h2 id="resTitle">Wer kommt wann?</h2></div><span>Passt die Kapazität, wird der Tisch sofort vergeben</span></div>
 
-      <h3 class="fp-subhead">Automatisch verteilen</h3>
-      <form class="add-service" id="fpPartyForm">
-        <label>Name<input id="fpPartyName" type="text" maxlength="40" placeholder="z. B. Huber" required></label>
-        <label>Personen<input id="fpPartyGuests" type="number" min="1" max="20" value="2" required></label>
-        <button type="submit">Gruppe aufnehmen</button>
+      <form class="add-service fp-res-form" id="fpResForm">
+        <label>Name<input id="fpResName" type="text" maxlength="40" placeholder="z. B. Huber" required></label>
+        <label>Tag<input id="fpResDate" type="date" required></label>
+        <label>Uhrzeit<input id="fpResTime" type="time" step="900" required></label>
+        <label>Personen<input id="fpResGuests" type="number" min="1" max="24" value="2" required></label>
+        <button type="submit">Reservieren</button>
       </form>
-      <div class="fp-tools">
-        <button class="quiet" type="button" id="fpAutoSeat">Alle offenen Gruppen verteilen</button>
-        <button class="quiet" type="button" id="fpClearSeating">Belegung leeren</button>
-      </div>
-      <p class="fp-result" id="fpSeatResult" role="status" aria-live="polite">Gruppe anklicken, dann einen Tisch auf der Karte anklicken – fertig. Oder alle auf einmal automatisch verteilen.</p>
-      <ul class="fp-party-list" id="fpParties"></ul>
+      <fieldset class="fp-dishes" id="fpDishes">
+        <legend>Essen vorbestellen – freiwillig, hilft der Küche beim Einkaufen</legend>
+      </fieldset>
+      <p class="fp-result" id="fpResResult" role="status" aria-live="polite">Name, Tag, Uhrzeit und Personenzahl eingeben. Die Zuweisung sucht den kleinsten passenden freien Tisch.</p>
 
-      <h3 class="fp-subhead">Tischliste</h3>
-      <p class="model-note">Drei Wege, je nachdem was gerade schneller geht: Gruppe oben anklicken und dann den Tisch auf der Karte. Oder hier in der Zeile eine offene Gruppe auswählen. Oder den Namen einfach in die Zeile tippen – Feld leeren macht den Tisch wieder frei. Auf der Karte geht es auch per Doppelklick direkt auf den Tisch.</p>
+      <details class="fp-mail">
+        <summary>Reservierung aus einer E-Mail übernehmen</summary>
+        <p class="model-note">Text der Mail hier einfügen. Erkannt werden Name, Datum, Uhrzeit und Personenzahl. Ein Postfach automatisch auszulesen kann eine statische Seite nicht – dafür bräuchte es einen Server.</p>
+        <label class="fp-mail-label">Mailtext
+          <textarea id="fpMailText" rows="5" placeholder="Guten Tag, ich möchte für den 24.08.2026 um 12:00 einen Tisch für 4 Personen auf den Namen Huber reservieren."></textarea>
+        </label>
+        <button class="quiet" type="button" id="fpMailImport">Aus Text übernehmen</button>
+      </details>
+
+      <h3 class="fp-subhead">Reservierungen an diesem Tag</h3>
+      <ul class="fp-party-list" id="fpParties"></ul>
+      <div class="fp-tools">
+        <button class="quiet" type="button" id="fpAutoSeat">Alle offenen verteilen</button>
+        <button class="quiet" type="button" id="fpClearSeating">Reservierungen dieses Tages löschen</button>
+      </div>
+      <p class="fp-result" id="fpSeatResult" role="status" aria-live="polite">Reservierung anklicken, dann einen Tisch auf der Karte – fertig.</p>
+      <p class="fp-kitchen" id="fpKitchen"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="tablesTitle">
+      <div class="panel-head"><div><p>04 · Tische</p><h2 id="tablesTitle">Tischliste</h2></div><span>Name schreiben belegt, Feld leeren macht frei</span></div>
       <div class="fp-tables" id="fpTableList"></div>
     </section>
 
-    <section class="panel" aria-labelledby="tryTitle">
-      <div class="panel-head"><div><p>04 · Probe</p><h2 id="tryTitle">Zuweisung testen</h2></div><span>Welcher Tisch käme für wie viele Gäste?</span></div>
+    <section class="panel" aria-labelledby="roomsTitle">
+      <div class="panel-head"><div><p>05 · Räume</p><h2 id="roomsTitle">Etagen, Tische, Stühle</h2></div><span>Gilt nur für die gewählte Ordnung</span></div>
+      <div class="fp-levels-editor" id="fpLevels"></div>
+      <form class="add-service" id="fpAddLevel">
+        <label>Name der Etage<input id="fpNewName" type="text" maxlength="40" placeholder="z. B. Stüberl" required></label>
+        <button type="submit">Etage ergänzen</button>
+      </form>
+      <form class="add-service" id="fpLayoutForm">
+        <label>Neue Tischordnung<input id="fpLayoutName" type="text" maxlength="40" placeholder="z. B. Hochzeit" required></label>
+        <button type="submit">Ordnung anlegen</button>
+      </form>
       <div class="fp-tools">
-        <form class="add-service" id="fpTryForm">
-          <label>Personen<input id="fpTryGuests" type="number" min="1" max="20" value="4" required></label>
-          <label>Uhrzeit<input id="fpTryTime" type="time" value="12:00" required></label>
-          <button type="submit">Zuweisung testen</button>
-        </form>
-        <p class="fp-result" id="fpResult" role="status" aria-live="polite">Personenzahl und Uhrzeit eingeben – die Probe zeigt, welchen Tisch die Regeln vergeben würden.</p>
+        <button class="quiet" type="button" id="fpLayoutCopy">Aktuelle Ordnung kopieren</button>
+        <button class="quiet" type="button" id="fpLayoutDelete">Aktuelle Ordnung löschen</button>
       </div>
     </section>
 
     <section class="notice">
       <strong>Wofür diese Seite gut ist</strong>
-      <p>Sie plant die Einteilung und berechnet den Tischmix für das Cockpit. Sie zählt nichts herunter, wenn ein Gast online reserviert – das braucht einen Server mit gemeinsamem Zustand. Verbindlich bleibt bis dahin das offizielle Reservierungssystem.</p>
+      <p>Sie plant Ordnungen, Tische und die Einteilung und berechnet den Tischmix für das Cockpit. Sie nimmt keine Reservierungen von Gästen entgegen und liest kein Postfach – beides braucht einen Server mit gemeinsamem Zustand. Verbindlich bleibt bis dahin das offizielle Reservierungssystem.</p>
     </section>
   </main>
 </body>

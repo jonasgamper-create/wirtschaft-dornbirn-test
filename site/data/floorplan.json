@@ -1,38 +1,252 @@
 {
-  "version": 1,
+  "version": 2,
   "updatedAt": "2026-08-13T10:00:00+02:00",
   "status": "beispiel",
-  "note": "Beispielkonfiguration. Die echten Tischzahlen, Groessen und Positionen traegt der Gastgeber im Cockpit ein; erst danach status auf \"bestaetigt\" setzen.",
-  "numbering": { "start": 1 },
-  "levels": [
+  "numbering": {
+    "start": 1
+  },
+  "activeLayout": "standard",
+  "layouts": [
     {
-      "id": "eg",
-      "name": "Gaststube",
-      "order": 1,
-      "counts": { "2": 6, "3": 2, "4": 5, "6": 2, "8": 1 },
-      "positions": {}
+      "id": "standard",
+      "name": "Standard",
+      "levels": [
+        {
+          "id": "eg",
+          "name": "Gaststube",
+          "order": 1,
+          "tables": [
+            {
+              "id": "eg-t01",
+              "seats": 8,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t02",
+              "seats": 6,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t03",
+              "seats": 6,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t04",
+              "seats": 4,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t05",
+              "seats": 4,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t06",
+              "seats": 4,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t07",
+              "seats": 4,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t08",
+              "seats": 4,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t09",
+              "seats": 3,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t10",
+              "seats": 3,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t11",
+              "seats": 2,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t12",
+              "seats": 2,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t13",
+              "seats": 2,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t14",
+              "seats": 2,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t15",
+              "seats": 2,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "eg-t16",
+              "seats": 2,
+              "col": null,
+              "row": null
+            }
+          ]
+        },
+        {
+          "id": "og",
+          "name": "Saal",
+          "order": 2,
+          "tables": [
+            {
+              "id": "og-t01",
+              "seats": 10,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "og-t02",
+              "seats": 6,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "og-t03",
+              "seats": 4,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "og-t04",
+              "seats": 4,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "og-t05",
+              "seats": 4,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "og-t06",
+              "seats": 4,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "og-t07",
+              "seats": 2,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "og-t08",
+              "seats": 2,
+              "col": null,
+              "row": null
+            },
+            {
+              "id": "og-t09",
+              "seats": 2,
+              "col": null,
+              "row": null
+            }
+          ]
+        }
+      ],
+      "combos": [
+        {
+          "id": "eg-combo-01",
+          "tables": [
+            "eg-t11",
+            "eg-t12"
+          ],
+          "minGuests": 3
+        }
+      ]
     },
     {
-      "id": "og",
-      "name": "Saal",
-      "order": 2,
-      "counts": { "2": 3, "4": 4, "6": 1, "10": 1 },
-      "positions": {}
+      "id": "konzert",
+      "name": "Konzert",
+      "levels": [
+        {
+          "id": "eg",
+          "name": "Gaststube",
+          "order": 1,
+          "tables": []
+        },
+        {
+          "id": "og",
+          "name": "Saal",
+          "order": 2,
+          "tables": []
+        }
+      ],
+      "combos": []
     }
-  ],
-  "combos": [
-    { "id": "eg-combo-01", "tables": ["eg-2-01", "eg-2-02"], "minGuests": 3 }
   ],
   "policy": {
     "durations": [
-      { "upTo": 2, "minutes": 90 },
-      { "upTo": 4, "minutes": 105 },
-      { "upTo": 6, "minutes": 150 },
-      { "upTo": 20, "minutes": 180 }
+      {
+        "upTo": 2,
+        "minutes": 90
+      },
+      {
+        "upTo": 4,
+        "minutes": 105
+      },
+      {
+        "upTo": 6,
+        "minutes": 150
+      },
+      {
+        "upTo": 20,
+        "minutes": 180
+      }
     ],
     "bufferMinutes": 15,
     "slotMinutes": 15,
     "maxCoversPerSlot": 10,
-    "levelOrder": ["eg", "og"]
-  }
+    "levelOrder": [
+      "eg",
+      "og"
+    ]
+  },
+  "menu": [
+    {
+      "id": "burger",
+      "name": "Burger"
+    },
+    {
+      "id": "schnitzel",
+      "name": "Schnitzel"
+    },
+    {
+      "id": "kaesknoepfle",
+      "name": "Käsknöpfle"
+    }
+  ],
+  "note": "Beispielkonfiguration. Echte Tische, Etagen und Ordnungen traegt der Gastgeber im Tischplan ein; erst danach status auf \"bestaetigt\" setzen."
 }

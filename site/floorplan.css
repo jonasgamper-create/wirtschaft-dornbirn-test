@@ -17,6 +17,12 @@
 
 .fp-svg{display:block;width:100%;max-width:480px;height:auto}
 .fp-svg .fp-shape{fill:#fff;stroke:#11110f40;stroke-width:1;vector-effect:non-scaling-stroke}
+/* Stuehle: so viele wie Plaetze. Sie machen die Tischgroesse auf einen Blick
+   lesbar, ohne dass man die Zahl lesen muss. */
+.fp-svg .fp-chair{fill:#11110f1f;stroke:none}
+.fp-svg [data-state="picked"] .fp-chair{fill:var(--green,#244635);opacity:.55}
+.fp-svg [data-state="busy"] .fp-chair{fill:#11110f38}
+.fp-svg [data-state="blocked"] .fp-chair{fill:#8c292b40}
 /* Schriftgroesse in Rastereinheiten: bei 480 px Deckel rund 20 px, auf 390 px
    Breite rund 14 px. In beiden Faellen lesbar, ohne den Plan zu dominieren. */
 .fp-svg .fp-num{fill:var(--ink,#11110f);font-family:var(--sans,Inter,system-ui,sans-serif);font-size:1px;font-weight:700;font-variant-numeric:tabular-nums;text-anchor:middle;dominant-baseline:central}
@@ -103,13 +109,30 @@
 .fp-table-row button{min-height:38px;padding:0 10px;border:1px solid var(--line,#11110f26);border-radius:6px;background:transparent;color:inherit;font:inherit;font-size:11px;cursor:pointer}
 .fp-table-row button:disabled{border-style:dashed;color:var(--muted,#6d675f);opacity:.5;cursor:not-allowed}
 .fp-table-row .span{grid-column:1/-1;margin:0;color:var(--muted,#6d675f);font-size:11px}
-@media(max-width:760px){
-  .fp-table-row{grid-template-columns:56px 1fr;row-gap:8px}
-  .fp-row-actions{grid-column:2;flex-wrap:wrap}
-  .fp-row-actions button{flex:1 1 auto;min-height:44px}
-  .fp-row-actions input,.fp-row-actions select{min-height:44px}
-  .fp-table-row input{min-height:44px}
-}
+
+/* Reservierungen: Uhrzeit, Name, Personen, Essenswunsch, Tisch. */
+.fp-party-list .when{min-width:44px;color:var(--muted,#6d675f);font-weight:700;font-variant-numeric:tabular-nums}
+.fp-party-list .dishes{color:var(--green,#244635);font-size:11px}
+.fp-res-form{grid-template-columns:1.4fr .9fr .8fr .7fr auto}
+.fp-dishes{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:0 0 12px;padding:12px 16px;border:1px dashed var(--line,#11110f26);border-radius:10px;background:#fff}
+.fp-dishes legend{padding:0 6px;color:var(--muted,#6d675f);font-size:11px}
+.fp-dishes label{display:grid;gap:6px;font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.06em}
+.fp-dishes input{width:74px;min-height:38px;padding:0 8px;border:1px solid var(--line,#11110f26);border-radius:6px;background:#fff;color:inherit;font:inherit;text-align:center;font-variant-numeric:tabular-nums}
+.fp-kitchen{margin:12px 0 0;padding:12px 16px;border-left:2px solid var(--gold,#c59b5d);background:#c59b5d14;color:#3c3833;font-size:12px;line-height:1.55}
+.fp-mail{margin:0 0 16px;padding:12px 16px;border:1px solid var(--line,#11110f26);border-radius:10px;background:#fff}
+.fp-mail summary{cursor:pointer;font-size:12px;font-weight:700}
+.fp-mail-label{display:grid;gap:6px;margin:10px 0;font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.06em}
+.fp-mail textarea{width:100%;padding:10px 12px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#fff;color:inherit;font:inherit;font-size:13px;font-weight:400;letter-spacing:0;resize:vertical}
+
+/* Tische und Stuehle je Etage. */
+.fp-level-block{padding:14px;border:1px solid var(--line,#11110f26);border-radius:10px;background:#fff}
+.fp-sizes button{min-height:38px;padding:0 10px;border:1px solid var(--line,#11110f26);border-radius:7px;background:transparent;color:inherit;font:inherit;font-size:11px;font-weight:700;cursor:pointer}
+.fp-chairs-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.fp-chair-chip{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line,#11110f26);border-radius:99px;font-size:11px}
+.fp-chair-chip b{font-variant-numeric:tabular-nums}
+.fp-chair-chip span{color:var(--muted,#6d675f)}
+.fp-chair-chip button{min-width:34px;min-height:34px;border:1px solid var(--line,#11110f26);border-radius:99px;background:transparent;color:inherit;font:inherit;font-size:12px;cursor:pointer}
+.fp-chair-chip button:disabled{opacity:.35;cursor:not-allowed}
 
 .fp-subhead{margin:26px 0 12px;font-family:Georgia,serif;font-size:21px;font-weight:400}
 .fp-subhead:first-of-type{margin-top:0}
@@ -120,5 +143,16 @@
 @media(max-width:900px){
   .fp-svg{max-width:100%}
   .fp-levels button{flex:1 1 calc(50% - 4px);min-height:52px}
+}
+@media(max-width:760px){
+  .fp-table-row{grid-template-columns:56px 1fr;row-gap:8px}
+  .fp-row-actions{grid-column:2;flex-wrap:wrap}
+  .fp-row-actions button{flex:1 1 auto;min-height:44px}
+  .fp-row-actions input,.fp-row-actions select{min-height:44px}
+  .fp-table-row input{min-height:44px}
+  .fp-res-form{grid-template-columns:1fr}
+  .fp-chair-chip button{min-width:44px;min-height:44px}
+  .fp-sizes button{min-height:44px}
+  .fp-dishes input{min-height:44px}
 }
 @media(prefers-reduced-motion:reduce){.fp *{transition:none!important;animation:none!important}}

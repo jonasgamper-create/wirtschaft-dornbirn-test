@@ -32,20 +32,31 @@ Alle intern, alle vom öffentlichen Build ausgeschlossen.
 
 ```json
 {
+  "version": 2,
   "status": "beispiel",
   "numbering": { "start": 1 },
-  "levels": [
+  "activeLayout": "standard",
+  "layouts": [
     {
-      "id": "eg",
-      "name": "Gaststube",
-      "order": 1,
-      "counts": { "2": 6, "3": 2, "4": 5, "6": 2, "8": 1 },
-      "positions": { "eg-8-01": { "col": 0, "row": 4 } }
+      "id": "standard",
+      "name": "Standard",
+      "levels": [
+        {
+          "id": "eg",
+          "name": "Gaststube",
+          "order": 1,
+          "tables": [
+            { "id": "eg-t01", "seats": 8, "col": 0, "row": 0 },
+            { "id": "eg-t02", "seats": 4, "col": null, "row": null }
+          ]
+        }
+      ],
+      "combos": [
+        { "id": "eg-combo-01", "tables": ["eg-t01", "eg-t02"], "minGuests": 7 }
+      ]
     }
   ],
-  "combos": [
-    { "id": "eg-combo-01", "tables": ["eg-2-01", "eg-2-02"], "minGuests": 3 }
-  ],
+  "menu": [{ "id": "burger", "name": "Burger" }],
   "policy": {
     "durations": [{ "upTo": 2, "minutes": 90 }],
     "bufferMinutes": 15,
@@ -56,11 +67,15 @@ Alle intern, alle vom öffentlichen Build ausgeschlossen.
 }
 ```
 
+Version 1 kannte nur eine Ordnung und beschrieb Tische über Anzahlen. Beim Laden
+hebt `migrate()` alte Dateien automatisch auf dieses Modell — die alten Anzahlen
+werden zu einzelnen Tischen in einer Ordnung namens „Standard".
+
 ### Tischgrößen
 
-`counts` ist nach Personenzahl geschlüsselt und erlaubt **2 bis 10, auch
-ungerade**: ein Dreiertisch ist genauso möglich wie ein Siebener. Sieben Gäste
-können also an einem einzelnen Tisch sitzen, wenn es einen passenden gibt.
+`seats` erlaubt **1 bis 12 Plätze, auch ungerade**: ein Dreiertisch ist genauso
+möglich wie ein Siebener. Sieben Gäste können also an einem einzelnen Tisch
+sitzen, wenn es einen passenden gibt.
 
 Der Fußabdruck wächst mit, aber nicht linear — ein Zehnertisch ist länger als
 ein Zweiertisch, nicht fünfmal so lang:
@@ -73,13 +88,40 @@ ein Zweiertisch, nicht fünfmal so lang:
 zusammengeschoben werden. Eine belegte Kombination sperrt automatisch alle
 beteiligten Tische, weil die Belegung auf den Kennungen liegt.
 
+### Tischordnungen
+
+Mehrere benannte Ordnungen sind möglich — Standard, Konzert, Hochzeit. Jede hat
+ihre eigenen Etagen und Tische; umgeschaltet wird in Panel 01. Eine neue Ordnung
+übernimmt die Räume, aber keine Tische: sie wird von Grund auf gestellt. Wer
+lieber von einer bestehenden ausgeht, nimmt „Aktuelle Ordnung kopieren".
+
+Reservierungen hängen an Tisch-Kennungen, nicht an Ordnungen. Wechselt man die
+Ordnung, stehen Reservierungen, deren Tische es dort nicht gibt, wieder offen —
+und die Seite sagt namentlich, welche.
+
+### Einzelne Tische und Stühle
+
+Panel 05 zeigt je Etage Knöpfe „+ 2P" bis „+ 10P" zum Ergänzen und darunter
+jeden Tisch einzeln mit seiner Stuhlzahl, zwei Knöpfen zum Ändern und
+„Tisch weg". Stühle sind gleich Plätze: ein Stuhl mehr macht aus dem Vierer
+einen Fünfer. Sitzt jemand am Tisch, lässt er sich nicht unter die Personenzahl
+verkleinern.
+
+Im Plan werden die Stühle gezeichnet — oben die größere Hälfte, unten der Rest,
+ab acht Plätzen je einer an den Schmalseiten. Das macht die Tischgröße lesbar,
+ohne die Zahl zu lesen.
+
 ### Positionen
 
-`positions` merkt sich, wo ein Tisch steht. Tische ohne Eintrag ordnen sich
-automatisch in der ersten freien Lücke an. **Sobald im Cockpit ein Tisch
-verschoben wird, werden alle Tische dieser Etage festgehalten** — sonst würde
-die Karte bei jedem Zug unter der Hand nachrutschen. Nur später neu
-dazugekommene Tische suchen sich noch selbst einen Platz.
+`col` und `row` merken sich, wo ein Tisch steht. Tische mit `null` ordnen sich
+automatisch in der ersten freien Lücke an. **Sobald ein Tisch verschoben wird,
+werden alle Tische dieser Etage festgehalten** — sonst würde die Karte bei jedem
+Zug unter der Hand nachrutschen. Nur später neu dazugekommene Tische suchen sich
+noch selbst einen Platz.
+
+Achtung beim Einlesen: `Number(null)` ist `0`. Ohne ausdrückliche Prüfung auf
+`null` gilt jeder Tisch als fest auf Position 0,0 gesetzt und alle stapeln sich
+übereinander — genau das ist beim Bauen einmal passiert.
 
 `status` steht auf `beispiel`, solange die Zahlen nicht vom Haus bestätigt sind,
 und auf `bestaetigt`, sobald die echten Tische eingetragen wurden. Das ist ein
@@ -102,25 +144,64 @@ deshalb verweisen `combos` und `positions` auf Kennungen, nicht auf Nummern.
 Im Plan steht neben der Nummer die Personenzahl abgekürzt, also `4P` für einen
 Vierertisch. Die Nummer ist die Identität, die Größe die Zusatzinfo.
 
-## Bedienung im Cockpit
+## Bedienung
 
-`site/gastgeber-tischplan.html`, erreichbar über Panel 05 im Cockpit:
+`site/gastgeber-tischplan.html`, erreichbar über Panel 05 im Cockpit. Die Seite
+ist von oben nach unten der Arbeitsweg:
 
-1. **Anzahl ändern** — je Etage steht ein Feld pro Tischgröße von 2P bis 10P.
-   Zahl eintippen, der Plan zeichnet sich sofort neu. Der Tischmix in Panel 02
-   wird daraus berechnet und ist dort nur noch Anzeige.
-2. **Etage ergänzen** — Name eingeben, dann die Größen setzen. Maximal vier
-   Etagen.
-3. **Tische anordnen** — im Plan mit der Maus ziehen; die Position rastet auf
-   das Raster ein. Mit der Tastatur: Tisch in der Liste fokussieren, dann
-   **Umschalt und Pfeiltaste**. Ein Zug ins Freie wird übernommen, ein Zug auf
-   einen besetzten Platz springt zurück und nennt den blockierenden Tisch.
-4. **Tisch sperren** — Tisch im Plan oder in der Liste anklicken. Gesperrte
-   Tische werden bei der Zuweisung übersprungen.
-5. **Zuweisung testen** — Personenzahl und Uhrzeit eingeben. Die Probe zeigt,
-   welchen Tisch die Regeln vergeben würden und woher der Sitzplatzdeckel kommt.
-6. **Exportieren** — die JSON-Datei herunterladen und nach
-   `site/data/floorplan.json` übernehmen.
+1. **Zeitpunkt** — Tag, Uhrzeit und Tischordnung wählen.
+2. **Karte** — Tische ziehen oder, wenn ein Tisch in der Liste im Fokus ist, mit
+   **Umschalt und Pfeiltaste** verschieben. Ein Zug auf einen besetzten Platz
+   springt zurück und nennt den blockierenden Tisch. Doppelklick schreibt einen
+   Namen direkt auf den Tisch.
+3. **Reservierungen** — Name, Tag, Uhrzeit, Personen, optional das Essen. Passt
+   die Kapazität, ist der Tisch sofort vergeben. „Alle offenen verteilen"
+   arbeitet die Restlichen ab, größte Gruppe zuerst.
+4. **Tischliste** — Name in die Zeile schreiben belegt, Feld leeren macht frei.
+   Je Zeile eine Auswahl für offene Reservierungen, „Frei machen" und „Sperren".
+5. **Räume** — Etagen anlegen, Tische mit „+ 2P" bis „+ 10P" ergänzen, je Tisch
+   Stühle ändern oder ihn entfernen. Darunter Ordnungen anlegen, kopieren und
+   löschen.
+
+Zum Übernehmen in die Datei: „Tischplan exportieren" und das Ergebnis nach
+`site/data/floorplan.json` legen. `status` auf `bestaetigt` stellen, sobald die
+Zahlen vom Haus kommen.
+
+## Zeitpunkt: Tag und Uhrzeit steuern alles
+
+Panel 01 legt Tag, Uhrzeit und Tischordnung fest. Karte, Tischliste und
+Reservierungsliste zeigen immer genau diesen Moment. Wer um 12:00 für 105
+Minuten sitzt, erscheint auch um 12:30 noch auf der Karte und verschwindet um
+13:45 von selbst — die Dauer kommt aus `policy.durations` und richtet sich nach
+der Gruppengröße.
+
+## Reservierungen
+
+Name, Tag, Uhrzeit, Personenzahl. **Passt die Kapazität, wird der Tisch sofort
+vergeben** — kleinster passender freier Tisch, geprüft gegen alle anderen
+Reservierungen des Tages inklusive Pufferzeit. Passt es nicht, bleibt die
+Reservierung aufgenommen, aber ohne Tisch, mit Begründung und Vorschlägen für
+mögliche Zeiten.
+
+### Essen vorbestellen
+
+Freiwillig und pro Reservierung: Burger, Schnitzel, Käsknöpfle (die Liste steht
+in `menu` und ist erweiterbar). Es dürfen nie mehr Portionen als Gäste sein.
+Auch eine einzelne Portion bei vier Personen ist erlaubt — der Rest entscheidet
+vor Ort. Unter der Liste steht die Küchenübersicht des Tages: wie viel von was,
+von wie vielen Reservierungen, bei wie vielen Gästen insgesamt.
+
+### Aus einer E-Mail übernehmen
+
+Mailtext einfügen, „Aus Text übernehmen". Erkannt werden Name, Datum, Uhrzeit
+und Personenzahl aus den üblichen Formulierungen („auf den Namen Huber",
+„Familie Schwarzmann", „für Herrn Ritter", „24.08.2026", „12:30", „12 Uhr",
+„für 5 Personen"). Wird etwas nicht sicher gelesen, sagt die Seite das und
+verlangt die Eingabe von Hand statt zu raten.
+
+**Was das nicht ist:** ein Postfach, das sich selbst ausliest. Dafür bräuchte es
+einen Server, der Mails abruft und verarbeitet — eine statische Seite kann das
+nicht, und der Text auf der Seite sagt das auch so.
 
 ## Belegung: wer sitzt an welchem Tisch
 

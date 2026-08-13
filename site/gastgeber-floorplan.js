@@ -1,24 +1,25 @@
-// Panel 05: Etagen und Tischanzahlen pflegen, Tische auf der Karte verschieben,
-// Zuweisung testen. Laeuft nur im internen Cockpit - der oeffentliche Build
-// schliesst jede Datei mit dem Praefix "gastgeber" aus.
+// Interne Tischplanung: Ordnungen, Etagen, Tische, Stuehle, Reservierungen mit
+// Uhrzeit und Essenswunsch. Laeuft nur im internen Bereich - der oeffentliche
+// Build schliesst jede Datei mit dem Praefix "gastgeber" aus.
 
 // Die Versionsangaben muessen mit denen in den HTML-Dateien mitwandern: ein
-// Modulimport ohne Version bleibt sonst im Browser-Cache haengen, auch wenn
-// die Seite selbst schon neu geladen wurde.
-import { GRID, buildFloorplan, canPlace, deriveTableMix, totalSeats } from './floorplan-layout.mjs?v=4';
-import { assignTables } from './table-assignment.mjs?v=4';
-import { renderFloorplan } from './floorplan.js?v=9';
+// Modulimport ohne Version bleibt sonst im Browser-Cache haengen.
+import { GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, migrate, nextTableId, totalSeats } from './floorplan-layout.mjs?v=5';
+import { assignTables, durationFor, stamp } from './table-assignment.mjs?v=5';
+import { renderFloorplan } from './floorplan.js?v=11';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 const store = window.WirtschaftData;
 const byId = id => document.getElementById(id);
 const preview = byId('fpPreview');
+const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 if (store && preview) start();
 
 async function start() {
   if (!store.load().floorplan) {
     try {
-      store.updateFloorplan(await (await fetch('data/floorplan.json', { cache: 'no-store' })).json());
+      const loaded = await (await fetch('data/floorplan.json', { cache: 'no-store' })).json();
+      store.updateFloorplan(migrate(loaded));
     } catch {
       warn('Der Tischplan konnte nicht geladen werden. Bitte die Seite über einen lokalen Server öffnen, nicht als Datei.');
       return;
@@ -26,21 +27,64 @@ async function start() {
   }
 
   const slug = name => (name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 20) || 'etage');
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 20) || 'ordnung');
 
   const current = () => store.load().floorplan;
+  const layout = () => activeLayout(current());
+  const parties = () => store.load().parties || [];
   const blocked = () => store.load().blockedTables || [];
-  let picked = null;
-  // Markierte Gruppe: der erste Klick markiert, der zweite setzt sie an einen
-  // Tisch. Das spart das doppelte Tippen desselben Namens.
-  let marked = null;
-  const numbering = config => buildFloorplan(config).tables.map(table => `${table.id}:${table.number}`).join(',');
+  const menu = () => current().menu || [];
+  const policy = () => current().policy || {};
 
+  // Der gewaehlte Zeitpunkt steuert alles: Karte, Tischliste, Reservierungen.
+  const moment = { date: today(), time: '12:00' };
+  let picked = null;
+  let marked = null;
+
+  const say = (id, text) => { byId(id).textContent = text; };
+  const seatResult = text => say('fpSeatResult', text);
   function warn(text) {
     const box = byId('fpWarn');
     box.hidden = !text;
     box.textContent = text || '';
   }
+
+  const minutesFor = guests => durationFor(guests, policy());
+  const startsAt = party => `${party.date}T${party.time}`;
+  const dayParties = () => parties().filter(party => party.date === moment.date);
+
+  /** Reservierungen, die zum gewaehlten Zeitpunkt tatsaechlich sitzen. */
+  function seatedNow() {
+    const now = stamp(`${moment.date}T${moment.time}`);
+    if (now === null) return [];
+    return dayParties().filter(party => {
+      if (!party.tableIds.length) return false;
+      const from = stamp(startsAt(party));
+      return from !== null && from <= now && now < from + minutesFor(party.guests);
+    });
+  }
+
+  function seatingMap() {
+    const map = {};
+    for (const party of seatedNow()) {
+      for (const id of party.tableIds) map[id] = { name: party.name, guests: party.guests };
+    }
+    return map;
+  }
+
+  /** Belegung fuer die Zuweisung: alle Reservierungen des Tages mit Tisch. */
+  const occupancyOf = list => list
+    .filter(party => party.tableIds.length)
+    .map(party => ({
+      tableIds: party.tableIds,
+      startsAt: startsAt(party),
+      minutes: minutesFor(party.guests),
+      guests: party.guests
+    }));
+
+  // ---- Speichern und Aufraeumen --------------------------------------------
+
+  const numbering = config => buildFloorplan(config).tables.map(table => `${table.id}:${table.number}`).join(',');
 
   function save(next, { quiet = false } = {}) {
     const before = numbering(current());
@@ -52,26 +96,24 @@ async function start() {
       notes.push('Achtung: Tischnummern haben sich verschoben. Aushänge und Notizen im Haus prüfen.');
     }
     if (plan.orphans.length) {
-      notes.push(`${plan.orphans.length} Kombination(en) verweisen jetzt auf Tische, die es nicht mehr gibt.`);
+      notes.push(`${plan.orphans.length} Kombination(en) verweisen auf Tische, die es nicht mehr gibt.`);
     }
     notes.push(...reconcile(plan));
     warn(notes.join(' '));
-
     syncServiceMix(plan);
     paint();
     return plan;
   }
 
   /**
-   * Nach jeder Aenderung am Tischplan: Verweise auf Tische, die es nicht mehr
-   * gibt, aufloesen. Ohne das haengt eine Gruppe an einem geloeschten Tisch,
-   * taucht in der Tischliste nicht mehr auf und ist damit praktisch verloren -
-   * am Abend faellt das erst auf, wenn die Gaeste vor einem stehen.
+   * Nach jeder Aenderung: Verweise auf Tische aufloesen, die es nicht mehr
+   * gibt. Ohne das haengt eine Reservierung an einem geloeschten Tisch, taucht
+   * in keiner Liste mehr auf und ist praktisch verloren - das faellt erst auf,
+   * wenn die Gaeste vor einem stehen.
    */
   function reconcile(plan) {
     const alive = new Set(plan.tables.map(table => table.id));
     const notes = [];
-
     const was = parties();
     const list = was.map(party => ({ ...party, tableIds: party.tableIds.filter(id => alive.has(id)) }));
     const freed = list.filter((party, index) => party.tableIds.length !== was[index].tableIds.length);
@@ -80,19 +122,15 @@ async function start() {
       const open = freed.filter(party => !party.tableIds.length).map(party => party.name);
       notes.push(open.length
         ? `${open.join(', ')} ${open.length === 1 ? 'hat' : 'haben'} keinen Tisch mehr und ${open.length === 1 ? 'steht' : 'stehen'} wieder offen.`
-        : 'Eine Gruppe wurde auf die verbliebenen Tische gekürzt.');
+        : 'Eine Reservierung wurde auf die verbliebenen Tische gekürzt.');
     }
-
-    const keptBlocks = blocked().filter(id => alive.has(id));
-    if (keptBlocks.length !== blocked().length) store.setBlockedTables(keptBlocks);
-
+    const kept = blocked().filter(id => alive.has(id));
+    if (kept.length !== blocked().length) store.setBlockedTables(kept);
     if (marked && !list.some(party => party.id === marked)) marked = null;
     if (picked && !alive.has(picked)) picked = null;
     return notes;
   }
 
-  // Der Tischmix in Panel 02 wird aus dem Plan berechnet, damit es nur eine
-  // Quelle fuer die Tischzahlen gibt.
   function syncServiceMix(plan) {
     const mix = deriveTableMix(plan);
     const state = store.load();
@@ -100,48 +138,48 @@ async function start() {
     store.save(state);
   }
 
-  function paintLevels() {
-    const config = current();
-    const box = byId('fpLevels');
-    box.textContent = '';
-    for (const level of [...config.levels].sort((a, b) => a.order - b.order)) {
-      const row = document.createElement('div');
-      row.className = 'fp-level-row';
+  // ---- Zeitpunkt und Ordnung -----------------------------------------------
 
-      const name = document.createElement('label');
-      name.className = 'fp-level-name';
-      name.append('Name');
-      const nameInput = document.createElement('input');
-      Object.assign(nameInput, { type: 'text', maxLength: 40, value: level.name });
-      nameInput.dataset.level = level.id;
-      nameInput.dataset.field = 'name';
-      name.append(nameInput);
-      row.append(name);
-
-      const sizes = document.createElement('div');
-      sizes.className = 'fp-sizes';
-      for (const seats of SIZES) {
-        const label = document.createElement('label');
-        label.append(`${seats}P`);
-        const input = document.createElement('input');
-        Object.assign(input, { type: 'number', min: 0, max: 99, value: String(level.counts[seats] || 0) });
-        input.dataset.level = level.id;
-        input.dataset.seats = String(seats);
-        input.setAttribute('aria-label', `Anzahl Tische für ${seats} Personen, ${level.name}`);
-        label.append(input);
-        sizes.append(label);
-      }
-      row.append(sizes);
-
-      const remove = document.createElement('button');
-      remove.type = 'button';
-      remove.className = 'quiet';
-      remove.dataset.remove = level.id;
-      remove.textContent = 'Etage entfernen';
-      row.append(remove);
-      box.append(row);
+  function paintMoment() {
+    byId('fpDate').value = moment.date;
+    byId('fpTime').value = moment.time;
+    const select = byId('fpLayout');
+    select.textContent = '';
+    for (const entry of current().layouts) {
+      const option = document.createElement('option');
+      option.value = entry.id;
+      option.textContent = entry.name;
+      option.selected = entry.id === current().activeLayout;
+      select.append(option);
     }
+    const plan = buildFloorplan(current());
+    const sitting = seatedNow();
+    const gaeste = sitting.reduce((sum, party) => sum + party.guests, 0);
+    const offen = dayParties().filter(party => !party.tableIds.length).length;
+    say('fpMomentInfo', `${plan.layoutName}: ${plan.tables.length} Tische, ${totalSeats(plan)} Plätze. `
+      + `Um ${moment.time} sitzen ${gaeste} Gäste an ${sitting.reduce((sum, party) => sum + party.tableIds.length, 0)} Tischen. `
+      + `${offen} Reservierung(en) ohne Tisch.`);
   }
+
+  byId('fpMomentForm').addEventListener('submit', event => {
+    event.preventDefault();
+    moment.date = byId('fpDate').value || today();
+    moment.time = byId('fpTime').value || '12:00';
+    const wanted = byId('fpLayout').value;
+    if (wanted !== current().activeLayout) {
+      const config = current();
+      config.activeLayout = wanted;
+      picked = null;
+      save(config, { quiet: true });
+      return;
+    }
+    paint();
+  });
+
+  // ---- Karte ---------------------------------------------------------------
+
+  const layoutLevelOf = (config, tableId) =>
+    activeLayout(config)?.levels.find(level => level.tables.some(table => table.id === tableId));
 
   function paintPlan() {
     renderFloorplan(preview, current(), {
@@ -149,11 +187,7 @@ async function start() {
       states: Object.fromEntries(blocked().map(id => [id, 'blocked'])),
       seating: seatingMap(),
       selected: picked,
-      // Ein Klick waehlt den Tisch aus und springt in seine Zeile in der
-      // Tischliste - so loest ein Fehlklick nichts aus, der Weg zum Bearbeiten
-      // ist aber genau ein Schritt.
       onSelect: id => {
-        // Ist oben eine Gruppe markiert, setzt dieser Klick sie an den Tisch.
         if (id && marked) return seatMarked(id);
         picked = id;
         paintPlan();
@@ -162,10 +196,7 @@ async function start() {
         const field = byId('fpTableList').querySelector(`[data-table-id="${id}"][data-field="name"]`);
         if (field && !field.disabled) { field.focus(); field.select(); }
       },
-      // Doppelklick schreibt den Namen direkt auf den Tisch.
       onEdit: (id, value) => setTableName(id, value),
-      // Verschieben. Die Position wird gemerkt und ueberlebt spaetere
-      // Anzahl-Aenderungen, weil sie an der Tisch-Kennung haengt.
       onMove: (id, col, row) => {
         const plan = buildFloorplan(current());
         const verdict = canPlace(plan, id, col, row, GRID);
@@ -181,119 +212,369 @@ async function start() {
           return;
         }
         const config = current();
-        const level = config.levels.find(item => id.startsWith(`${item.id}-`));
+        const level = layoutLevelOf(config, id);
         if (!level) return;
-        // Sobald von Hand angeordnet wird, werden alle Tische der Etage
-        // festgehalten. Sonst rutschen die automatisch platzierten Tische bei
-        // jedem Zug nach - eine Karte, die sich unter der Hand bewegt, ist
-        // unbrauchbar. Nur spaeter neu dazugekommene Tische suchen sich noch
-        // selbst eine Luecke.
+        // Sobald von Hand angeordnet wird, halten wir alle Tische der Etage
+        // fest. Sonst rutschen automatisch platzierte Tische bei jedem Zug
+        // nach - eine Karte, die sich unter der Hand bewegt, ist unbrauchbar.
         const here = plan.levels.find(item => item.id === level.id);
-        level.positions = Object.fromEntries(here.tables.map(table => [table.id, { col: table.col, row: table.row }]));
-        level.positions[id] = { col, row };
+        for (const table of level.tables) {
+          const spot = here.tables.find(entry => entry.id === table.id);
+          if (spot) { table.col = spot.col; table.row = spot.row; }
+        }
+        const moved = level.tables.find(table => table.id === id);
+        if (moved) { moved.col = col; moved.row = row; }
         const updated = save(config, { quiet: true });
-        const moved = updated.tables.find(table => table.id === id);
         const status = preview.querySelector('[data-status]');
-        if (status) status.textContent = `Tisch ${moved?.number ?? ''} verschoben. Die Nummern folgen der Leserichtung im Raum.`;
+        const number = updated.tables.find(table => table.id === id)?.number;
+        if (status) status.textContent = `Tisch ${number ?? ''} verschoben. Die Nummern folgen der Leserichtung im Raum.`;
       }
     });
   }
 
-  function paint() {
-    paintLevels();
-    paintPlan();
-    paintSeating();
-  }
+  // ---- Reservierungen ------------------------------------------------------
 
-  // ---- Belegung ------------------------------------------------------------
-
-  const parties = () => store.load().parties || [];
-
-  /** tableId -> { name, guests } fuer den Renderer. */
-  function seatingMap() {
-    const map = {};
-    for (const party of parties()) {
-      for (const id of party.tableIds) map[id] = { name: party.name, guests: party.guests };
+  function paintDishes() {
+    const box = byId('fpDishes');
+    [...box.querySelectorAll('label')].forEach(node => node.remove());
+    for (const dish of menu()) {
+      const label = document.createElement('label');
+      label.append(dish.name);
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.min = '0';
+      input.max = '24';
+      input.value = '0';
+      input.dataset.dish = dish.id;
+      input.setAttribute('aria-label', `Anzahl ${dish.name}`);
+      label.append(input);
+      box.append(label);
     }
-    return map;
   }
 
-  function seatResult(text) { byId('fpSeatResult').textContent = text; }
+  function dishesFromForm() {
+    const dishes = {};
+    let total = 0;
+    for (const input of byId('fpDishes').querySelectorAll('[data-dish]')) {
+      const count = Math.max(0, Math.trunc(Number(input.value) || 0));
+      if (count > 0) { dishes[input.dataset.dish] = count; total += count; }
+    }
+    return { dishes, total };
+  }
+
+  const resetDishes = () => byId('fpDishes').querySelectorAll('[data-dish]').forEach(input => { input.value = '0'; });
+
+  const dishLabel = dishes => Object.entries(dishes || {})
+    .map(([id, count]) => `${count}× ${menu().find(dish => dish.id === id)?.name || id}`).join(', ');
+
+  /** Legt eine Reservierung an und setzt sie sofort, wenn ein Tisch frei ist. */
+  function addReservation({ name, date, time, guests, dishes, source = 'manuell' }, { silent = false } = {}) {
+    const plan = buildFloorplan(current());
+    const party = {
+      id: `r-${Date.now().toString(36)}-${parties().length}`,
+      name, date, time, guests, dishes, source, tableIds: []
+    };
+    const result = assignTables({
+      floorplan: plan,
+      occupancy: occupancyOf(parties().filter(entry => entry.date === date)),
+      blocked: blocked(),
+      guests,
+      startsAt: `${date}T${time}`,
+      policy: policy()
+    });
+    if (result.ok) party.tableIds = result.tableIds;
+    store.setParties([...parties(), party]);
+
+    moment.date = date;
+    moment.time = time;
+    paint();
+    if (silent) return party;
+
+    const wunsch = dishLabel(dishes);
+    if (result.ok) {
+      say('fpResResult', `${name}, ${guests} Personen am ${date} um ${time}: Tisch ${result.numbers.join(' + ')}`
+        + (result.seatGap ? ` (${result.seatGap} Platz übrig).` : ' – passgenau.')
+        + (wunsch ? ` Essen vorbestellt: ${wunsch}.` : ''));
+      return party;
+    }
+    const gruende = {
+      pacing: 'zu viele Gäste im selben Viertelstundenfenster',
+      no_fit: 'kein passender Tisch frei',
+      capacity: 'Sitzplatzdeckel erreicht',
+      invalid: 'Eingabe unvollständig'
+    };
+    const alternativen = (result.alternatives || [])
+      .map(entry => `${entry.startsAt.slice(11)} (Tisch ${entry.numbers.join(' + ')})`).join(', ');
+    say('fpResResult', `${name} ist aufgenommen, aber noch ohne Tisch – ${gruende[result.reason]}.`
+      + (alternativen ? ` Möglich wäre: ${alternativen}.` : ''));
+    return party;
+  }
+
+  byId('fpResForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const name = byId('fpResName').value.trim();
+    if (!name) return;
+    const guests = Math.max(1, Math.min(24, Number(byId('fpResGuests').value) || 1));
+    const { dishes, total } = dishesFromForm();
+    if (total > guests) {
+      return say('fpResResult', `${total} Portionen für ${guests} Personen – bitte korrigieren.`);
+    }
+    addReservation({
+      name,
+      date: byId('fpResDate').value || today(),
+      time: byId('fpResTime').value || '12:00',
+      guests,
+      dishes
+    });
+    byId('fpResName').value = '';
+    resetDishes();
+    byId('fpResName').focus();
+  });
+
+  // Aus einem Mailtext lesen. Kein Postfachzugriff - das braucht einen Server.
+  function parseMail(text) {
+    const clean = text.replace(/\s+/g, ' ');
+    const guests = Number((/(\d{1,2})\s*(?:personen|pers\.?|gäste|gaeste|leute)/i.exec(clean) || [])[1]) || null;
+    const dmy = /(\d{1,2})\.(\d{1,2})\.(\d{2,4})/.exec(clean);
+    const iso = /(\d{4})-(\d{2})-(\d{2})/.exec(clean);
+
+    // Das Datum zuerst herausnehmen, sonst liest der Zeit-Ausdruck "24.08"
+    // als 24:08. Erst danach nach der Uhrzeit suchen.
+    const ohneDatum = clean.replace(dmy?.[0] || ' ', ' ').replace(iso?.[0] || ' ', ' ');
+    const clock = /\b([0-2]?\d)[:.]([0-5]\d)\b/.exec(ohneDatum);
+    const uhrOnly = (/\b([0-2]?\d)\s*uhr\b/i.exec(ohneDatum) || [])[1];
+    // Das Schluesselwort darf gross oder klein stehen; der Name selbst muss
+    // gross anfangen, sonst faengt der Ausdruck das naechstbeste Verb ein.
+    const name = (/[Nn]ame[ns]?:?\s+([A-ZÄÖÜ][\wÄÖÜäöüß-]+(?:\s[A-ZÄÖÜ][\wÄÖÜäöüß-]+)?)/.exec(text) || [])[1]
+      || (/[Ff]amilie\s+([A-ZÄÖÜ][\wÄÖÜäöüß-]+)/.exec(text) || [])[1]
+      || (/\b(?:[Hh]err?n?|[Ff]rau)\s+([A-ZÄÖÜ][\wÄÖÜäöüß-]+)/.exec(text) || [])[1]
+      || null;
+
+    let date = today();
+    if (iso) date = `${iso[1]}-${iso[2]}-${iso[3]}`;
+    else if (dmy) {
+      const year = dmy[3].length === 2 ? `20${dmy[3]}` : dmy[3];
+      date = `${year}-${String(dmy[2]).padStart(2, '0')}-${String(dmy[1]).padStart(2, '0')}`;
+    }
+    const hour = clock ? clock[1] : uhrOnly;
+    const minute = clock ? clock[2] : '00';
+    return {
+      name: name ? name.trim() : null,
+      date,
+      time: hour ? `${String(hour).padStart(2, '0')}:${minute}` : '12:00',
+      guests
+    };
+  }
+
+  byId('fpMailImport').addEventListener('click', () => {
+    const text = byId('fpMailText').value;
+    if (!text.trim()) return say('fpResResult', 'Bitte zuerst den Mailtext einfügen.');
+    const parsed = parseMail(text);
+    if (!parsed.name || !parsed.guests) {
+      return say('fpResResult', 'Aus dem Text ließen sich Name und Personenzahl nicht sicher lesen. Bitte oben von Hand eintragen.');
+    }
+    addReservation({ ...parsed, dishes: {}, source: 'mail' });
+    byId('fpMailText').value = '';
+  });
 
   function paintSeating() {
     const plan = buildFloorplan(current());
-    const byId_ = new Map(plan.tables.map(table => [table.id, table]));
+    const numberOf = new Map(plan.tables.map(table => [table.id, table.number]));
     const list = byId('fpParties');
     list.textContent = '';
 
-    const all = parties();
-    if (!all.length) {
+    const day = dayParties().sort((a, b) => a.time.localeCompare(b.time) || a.name.localeCompare(b.name));
+    if (!day.length) {
       const note = document.createElement('li');
       note.className = 'fp-empty-list';
-      note.textContent = 'Noch keine Gruppen aufgenommen.';
+      note.textContent = 'Für diesen Tag ist noch nichts reserviert.';
       list.append(note);
-    } else {
-      for (const party of all) {
-        const item = document.createElement('li');
-        if (party.id === marked) item.className = 'is-marked';
-
-        // Die Gruppe selbst ist der Knopf: markieren, dann Tisch anklicken.
-        // Zwei Klicks statt Namen zweimal tippen.
-        const pickButton = document.createElement('button');
-        pickButton.type = 'button';
-        pickButton.className = 'pick';
-        pickButton.dataset.markParty = party.id;
-        pickButton.setAttribute('aria-pressed', String(party.id === marked));
-
-        const name = document.createElement('b');
-        name.textContent = party.name;
-        const size = document.createElement('span');
-        size.className = 'seat';
-        size.textContent = `${party.guests}P`;
-        pickButton.append(name, size);
-
-        const where = document.createElement('span');
-        if (party.tableIds.length) {
-          where.className = 'at';
-          where.textContent = `Tisch ${party.tableIds.map(id => byId_.get(id)?.number ?? '?').join(' + ')}`;
-        } else {
-          where.className = 'open';
-          where.textContent = party.id === marked ? 'Tisch anklicken' : 'noch offen';
-        }
-        pickButton.append(where);
-        item.append(pickButton);
-
-        const remove = document.createElement('button');
-        remove.type = 'button';
-        remove.dataset.removeParty = party.id;
-        remove.textContent = 'Entfernen';
-        item.append(remove);
-        list.append(item);
-      }
     }
+    for (const party of day) {
+      const item = document.createElement('li');
+      if (party.id === marked) item.className = 'is-marked';
+
+      const pick = document.createElement('button');
+      pick.type = 'button';
+      pick.className = 'pick';
+      pick.dataset.markParty = party.id;
+      pick.setAttribute('aria-pressed', String(party.id === marked));
+
+      const when = document.createElement('span');
+      when.className = 'when';
+      when.textContent = party.time;
+      const name = document.createElement('b');
+      name.textContent = party.name;
+      const size = document.createElement('span');
+      size.className = 'seat';
+      size.textContent = `${party.guests}P`;
+      pick.append(when, name, size);
+
+      if (Object.keys(party.dishes || {}).length) {
+        const dishes = document.createElement('span');
+        dishes.className = 'dishes';
+        dishes.textContent = dishLabel(party.dishes);
+        pick.append(dishes);
+      }
+
+      const where = document.createElement('span');
+      if (party.tableIds.length) {
+        where.className = 'at';
+        where.textContent = `Tisch ${party.tableIds.map(id => numberOf.get(id) ?? '?').join(' + ')}`;
+      } else {
+        where.className = 'open';
+        where.textContent = party.id === marked ? 'Tisch anklicken' : 'noch offen';
+      }
+      pick.append(where);
+      item.append(pick);
+
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.dataset.removeParty = party.id;
+      remove.textContent = 'Entfernen';
+      item.append(remove);
+      list.append(item);
+    }
+
+    // Kuechenuebersicht: was ist fuer diesen Tag vorbestellt?
+    const sums = {};
+    let mitWunsch = 0;
+    for (const party of day) {
+      const own = Object.entries(party.dishes || {});
+      if (own.length) mitWunsch += 1;
+      for (const [id, count] of own) sums[id] = (sums[id] || 0) + count;
+    }
+    const gaeste = day.reduce((sum, party) => sum + party.guests, 0);
+    say('fpKitchen', Object.keys(sums).length
+      ? `Küche für ${moment.date}: ${dishLabel(sums)} – vorbestellt von ${mitWunsch} von ${day.length} Reservierungen, insgesamt ${gaeste} Gäste.`
+      : `Küche für ${moment.date}: noch nichts vorbestellt, ${gaeste} Gäste erwartet.`);
 
     paintTableList(plan);
   }
 
-  // Eine Zeile je Tisch. Name eintragen belegt, Feld leeren macht frei -
-  // das ist der schnellste Weg, wenn am Abend noch etwas umgestellt wird.
+  byId('fpParties').addEventListener('click', event => {
+    const mark = event.target.closest('[data-mark-party]');
+    if (mark) {
+      const party = parties().find(entry => entry.id === mark.dataset.markParty);
+      marked = marked === mark.dataset.markParty ? null : mark.dataset.markParty;
+      // Zur Reservierungszeit springen, sonst zeigt die Karte einen anderen
+      // Moment als den, fuer den gerade eingeteilt wird.
+      if (marked && party) moment.time = party.time;
+      paint();
+      seatResult(!marked ? 'Markierung aufgehoben.'
+        : party?.tableIds.length
+          ? `${party.name} sitzt bereits – jetzt den neuen Tisch anklicken.`
+          : `${party?.name} (${party?.guests}P, ${party?.time}) ist markiert – jetzt einen freien Tisch anklicken.`);
+      return;
+    }
+    const button = event.target.closest('[data-remove-party]');
+    if (!button) return;
+    const gone = parties().find(party => party.id === button.dataset.removeParty);
+    if (marked === button.dataset.removeParty) marked = null;
+    store.setParties(parties().filter(party => party.id !== button.dataset.removeParty));
+    seatResult(gone ? `${gone.name} entfernt.` : 'Reservierung entfernt.');
+    paint();
+  });
+
+  /** Zeitliche Kollision auf denselben Tischen, inklusive Pufferzeit. */
+  function collidesAt(party, tableIds, list) {
+    const buffer = Number(policy().bufferMinutes) || 0;
+    const from = stamp(startsAt(party)) - buffer;
+    const to = stamp(startsAt(party)) + minutesFor(party.guests) + buffer;
+    return list.find(other => {
+      if (other.id === party.id || other.date !== party.date) return false;
+      if (!other.tableIds.some(id => tableIds.includes(id))) return false;
+      const start = stamp(startsAt(other));
+      return start < to && from < start + minutesFor(other.guests);
+    });
+  }
+
+  function seatMarked(tableId) {
+    const plan = buildFloorplan(current());
+    const table = plan.tables.find(item => item.id === tableId);
+    const list = parties().map(party => ({ ...party, tableIds: [...party.tableIds] }));
+    const party = list.find(entry => entry.id === marked);
+    if (!table || !party) { marked = null; return; }
+
+    if (blocked().includes(tableId)) return seatResult(`Tisch ${table.number} ist gesperrt. Erst entsperren.`);
+    if (party.guests > table.seats) {
+      return seatResult(`${party.name} sind ${party.guests} Personen – Tisch ${table.number} hat nur ${table.seats} Plätze.`);
+    }
+    const clash = collidesAt(party, [tableId], list);
+    if (clash) return seatResult(`Tisch ${table.number} ist um ${party.time} schon von ${clash.name} belegt.`);
+
+    party.tableIds = [tableId];
+    marked = null;
+    store.setParties(list);
+    seatResult(`${party.name} sitzt an Tisch ${table.number} (${party.guests} von ${table.seats} Plätzen, ${party.time}).`);
+    paint();
+
+    const nextOpen = dayParties().find(entry => !entry.tableIds.length);
+    const button = nextOpen && byId('fpParties').querySelector(`[data-mark-party="${nextOpen.id}"]`);
+    if (button) button.focus();
+    else byId('fpTableList').querySelector(`[data-table-id="${tableId}"][data-field="name"]`)?.focus();
+  }
+
+  byId('fpAutoSeat').addEventListener('click', () => {
+    const plan = buildFloorplan(current());
+    const list = parties().map(party => ({ ...party, tableIds: [...party.tableIds] }));
+    const open = list.filter(party => party.date === moment.date && !party.tableIds.length)
+      .sort((a, b) => b.guests - a.guests);
+    if (!open.length) return seatResult('Für diesen Tag ist keine Reservierung offen.');
+
+    const seated = [];
+    const failed = [];
+    for (const party of open) {
+      const result = assignTables({
+        floorplan: plan,
+        occupancy: occupancyOf(list.filter(entry => entry.date === party.date)),
+        blocked: blocked(),
+        guests: party.guests,
+        startsAt: startsAt(party),
+        policy: policy(),
+        withAlternatives: false
+      });
+      if (!result.ok) { failed.push({ party, reason: result.reason }); continue; }
+      party.tableIds = result.tableIds;
+      seated.push({ name: party.name, numbers: result.numbers, time: party.time });
+    }
+    store.setParties(list);
+    paint();
+
+    const gruende = { pacing: 'Zeitfenster voll', no_fit: 'kein passender Tisch', capacity: 'Deckel erreicht', invalid: 'Eingabe' };
+    seatResult(`${seated.length} verteilt: ${seated.map(entry => `${entry.name} ${entry.time} an Tisch ${entry.numbers.join(' + ')}`).join(', ') || '–'}.`
+      + (failed.length ? ` Ohne Tisch: ${failed.map(entry => `${entry.party.name} (${entry.party.guests}P, ${gruende[entry.reason]})`).join(', ')}.` : ''));
+  });
+
+  byId('fpClearSeating').addEventListener('click', () => {
+    if (!dayParties().length) return seatResult('Für diesen Tag ist nichts eingetragen.');
+    if (!confirm(`Alle Reservierungen vom ${moment.date} mit Namen entfernen?`)) return;
+    store.setParties(parties().filter(party => party.date !== moment.date));
+    marked = null;
+    paint();
+    seatResult(`Reservierungen vom ${moment.date} gelöscht. Für diesen Tag sind keine Namen mehr gespeichert.`);
+  });
+
+  // ---- Tischliste ----------------------------------------------------------
+
   function paintTableList(plan) {
     const box = byId('fpTableList');
     const active = document.activeElement;
-    const keepFocus = active?.dataset?.tableId && box.contains(active)
+    const keep = active?.dataset?.tableId && box.contains(active)
       ? { id: active.dataset.tableId, field: active.dataset.field, start: active.selectionStart }
       : null;
     box.textContent = '';
 
+    const sitting = seatedNow();
+    const open = dayParties().filter(party => !party.tableIds.length);
+
     for (const table of plan.tables) {
-      const party = parties().find(entry => entry.tableIds.includes(table.id));
+      const party = sitting.find(entry => entry.tableIds.includes(table.id));
       const isBlocked = blocked().includes(table.id);
 
       const row = document.createElement('div');
       row.className = 'fp-table-row'
-        + (party ? ' is-busy' : '')
-        + (isBlocked ? ' is-blocked' : '')
-        + (table.id === picked ? ' is-picked' : '');
+        + (party ? ' is-busy' : '') + (isBlocked ? ' is-blocked' : '') + (table.id === picked ? ' is-picked' : '');
 
       const no = document.createElement('span');
       no.className = 'no';
@@ -311,11 +592,9 @@ async function start() {
       name.disabled = isBlocked;
       name.dataset.tableId = table.id;
       name.dataset.field = 'name';
-      name.setAttribute('aria-label', `Name für Tisch ${table.number}`);
+      name.setAttribute('aria-label', `Name für Tisch ${table.number} um ${moment.time}`);
       row.append(name);
 
-      // Personen und Aktionen bleiben zusammen, damit die Zeile auf schmalen
-      // Schirmen sauber unter den Namen rutscht statt sich zu zerlegen.
       const actions = document.createElement('div');
       actions.className = 'fp-row-actions';
 
@@ -331,22 +610,19 @@ async function start() {
       guests.setAttribute('aria-label', `Personen an Tisch ${table.number}, höchstens ${table.seats}`);
       actions.append(guests);
 
-      // Der umgekehrte Weg: am Tisch eine offene Gruppe auswaehlen, statt
-      // oben zu markieren. Erscheint nur, wenn es beides gibt.
-      const open = parties().filter(entry => !entry.tableIds.length);
       if (!party && !isBlocked && open.length) {
         const choose = document.createElement('select');
         choose.dataset.tableId = table.id;
         choose.dataset.field = 'assign';
-        choose.setAttribute('aria-label', `Offene Gruppe an Tisch ${table.number} setzen`);
+        choose.setAttribute('aria-label', `Offene Reservierung an Tisch ${table.number} setzen`);
         const empty = document.createElement('option');
         empty.value = '';
-        empty.textContent = 'Gruppe wählen …';
+        empty.textContent = 'Reservierung wählen …';
         choose.append(empty);
         for (const entry of open) {
           const option = document.createElement('option');
           option.value = entry.id;
-          option.textContent = `${entry.name} (${entry.guests}P)`;
+          option.textContent = `${entry.time} ${entry.name} (${entry.guests}P)`;
           option.disabled = entry.guests > table.seats;
           choose.append(option);
         }
@@ -369,248 +645,66 @@ async function start() {
       block.disabled = Boolean(party);
       actions.append(block);
       row.append(actions);
-
-      if (party && party.tableIds.length > 1) {
-        const span = document.createElement('p');
-        span.className = 'span';
-        span.textContent = `Zusammengestellt mit Tisch ${party.tableIds
-          .filter(id => id !== table.id)
-          .map(id => plan.tables.find(item => item.id === id)?.number ?? '?')
-          .join(', ')}.`;
-        row.append(span);
-      }
       box.append(row);
     }
 
-    if (keepFocus) {
-      const back = box.querySelector(`[data-table-id="${keepFocus.id}"][data-field="${keepFocus.field}"]`);
+    if (keep) {
+      const back = box.querySelector(`[data-table-id="${keep.id}"][data-field="${keep.field}"]`);
       if (back && !back.disabled) {
         back.focus();
-        if (back.type === 'text' && keepFocus.start != null) back.setSelectionRange(keepFocus.start, keepFocus.start);
+        if (back.type === 'text' && keep.start != null) back.setSelectionRange(keep.start, keep.start);
       }
     }
   }
 
-  /** Setzt die oben markierte Gruppe an einen Tisch. */
-  function seatMarked(tableId) {
-    const plan = buildFloorplan(current());
-    const table = plan.tables.find(item => item.id === tableId);
-    const list = parties().map(party => ({ ...party, tableIds: [...party.tableIds] }));
-    const party = list.find(entry => entry.id === marked);
-    if (!table || !party) { marked = null; return; }
-
-    if (list.some(entry => entry !== party && entry.tableIds.includes(tableId))) {
-      return seatResult(`Tisch ${table.number} ist schon belegt. Erst frei machen.`);
-    }
-    if (blocked().includes(tableId)) return seatResult(`Tisch ${table.number} ist gesperrt. Erst entsperren.`);
-    if (party.guests > table.seats) {
-      return seatResult(`${party.name} sind ${party.guests} Personen – Tisch ${table.number} hat nur ${table.seats} Plätze.`);
-    }
-
-    party.tableIds = [tableId];
-    marked = null;
-    store.setParties(list);
-    seatResult(`${party.name} sitzt an Tisch ${table.number} (${party.guests} von ${table.seats} Plätzen).`);
-    paintPlan();
-    paintSeating();
-
-    // Weiter zur naechsten offenen Gruppe, sonst in die Zeile des belegten
-    // Tisches. Ohne das faellt der Fokus auf den Body und die Tastaturbedienung
-    // reisst nach jeder Zuweisung ab.
-    const nextOpen = parties().find(entry => !entry.tableIds.length);
-    const button = nextOpen && byId('fpParties').querySelector(`[data-mark-party="${nextOpen.id}"]`);
-    if (button) button.focus();
-    else byId('fpTableList').querySelector(`[data-table-id="${tableId}"][data-field="name"]`)?.focus();
-  }
-
-  /** Name auf einen Tisch schreiben. Leerer Name macht den Tisch frei. */
+  /** Name auf einen Tisch schreiben. Leerer Name macht ihn frei. */
   function setTableName(tableId, rawName) {
     const plan = buildFloorplan(current());
     const table = plan.tables.find(item => item.id === tableId);
     if (!table) return;
     const name = rawName.trim();
     const list = parties().map(party => ({ ...party, tableIds: [...party.tableIds] }));
-    const existing = list.find(party => party.tableIds.includes(tableId));
+    const sitting = seatedNow().find(entry => entry.tableIds.includes(tableId));
+    const existing = sitting && list.find(party => party.id === sitting.id);
 
     if (!name) {
       if (!existing) return;
-      store.setParties(list.filter(party => party !== existing));
-      seatResult(`Tisch ${table.number} ist wieder frei (${existing.name} entfernt).`);
-    } else if (existing) {
+      existing.tableIds = existing.tableIds.filter(id => id !== tableId);
+      store.setParties(list);
+      seatResult(`Tisch ${table.number} ist wieder frei – ${existing.name} steht offen.`);
+      paint();
+      return;
+    }
+    if (existing) {
       existing.name = name;
       store.setParties(list);
       seatResult(`Tisch ${table.number}: ${name}.`);
-    } else {
-      if (blocked().includes(tableId)) return seatResult(`Tisch ${table.number} ist gesperrt. Erst entsperren.`);
-      // Eine schon aufgenommene, noch offene Gruppe wird gesetzt statt doppelt
-      // angelegt - sonst stuende derselbe Name zweimal in der Liste.
-      const open = list.find(party => !party.tableIds.length && party.name === name);
-      if (open) {
-        open.tableIds = [tableId];
-        if (open.guests > table.seats) open.guests = table.seats;
-        store.setParties(list);
-        seatResult(`${name} sitzt an Tisch ${table.number} (${open.guests} von ${table.seats} Plätzen).`);
-      } else {
-        list.push({ id: `p-${Date.now().toString(36)}`, name, guests: Math.min(2, table.seats), tableIds: [tableId] });
-        store.setParties(list);
-        seatResult(`${name} sitzt an Tisch ${table.number}. Personenzahl in der Zeile anpassen.`);
-      }
+      paint();
+      return;
     }
-    paintPlan();
-    paintSeating();
+    if (blocked().includes(tableId)) return seatResult(`Tisch ${table.number} ist gesperrt. Erst entsperren.`);
+
+    const offen = list.find(party => party.date === moment.date && !party.tableIds.length && party.name === name);
+    if (offen) {
+      const clash = collidesAt(offen, [tableId], list);
+      if (clash) return seatResult(`Tisch ${table.number} ist um ${offen.time} schon von ${clash.name} belegt.`);
+      offen.tableIds = [tableId];
+      store.setParties(list);
+      seatResult(`${name} sitzt an Tisch ${table.number} (${offen.guests} von ${table.seats} Plätzen).`);
+      paint();
+      return;
+    }
+
+    // Neu angelegt und direkt an diesen Tisch gesetzt.
+    const fresh = addReservation(
+      { name, date: moment.date, time: moment.time, guests: Math.min(2, table.seats), dishes: {} },
+      { silent: true }
+    );
+    store.setParties(parties().map(party => (party.id === fresh.id ? { ...party, tableIds: [tableId] } : party)));
+    seatResult(`${name} sitzt an Tisch ${table.number} um ${moment.time}. Personenzahl in der Zeile anpassen.`);
+    paint();
   }
 
-  byId('fpLevels').addEventListener('change', event => {
-    const input = event.target.closest('[data-level]');
-    if (!input) return;
-    const config = current();
-    const level = config.levels.find(item => item.id === input.dataset.level);
-    if (!level) return;
-    if (input.dataset.field === 'name') {
-      level.name = input.value.trim() || level.name;
-      save(config, { quiet: true });
-      return;
-    }
-    const seats = Number(input.dataset.seats);
-    const count = Math.max(0, Math.min(99, Number(input.value) || 0));
-    if (count > 0) level.counts[seats] = count; else delete level.counts[seats];
-    if (!Object.keys(level.counts).length) {
-      warn('Eine Etage ohne Tische ist nicht möglich – mindestens ein Tisch muss bleiben.');
-      level.counts[seats] = 1;
-    }
-    save(config);
-  });
-
-  byId('fpLevels').addEventListener('click', event => {
-    const button = event.target.closest('[data-remove]');
-    if (!button) return;
-    const config = current();
-    if (config.levels.length <= 1) return warn('Es muss mindestens eine Etage bleiben.');
-    if (!confirm('Diese Etage mit allen Tischen entfernen?')) return;
-    const id = button.dataset.remove;
-    config.levels = config.levels.filter(level => level.id !== id);
-    config.combos = config.combos.filter(combo => !combo.tables.some(table => table.startsWith(`${id}-`)));
-    config.policy.levelOrder = config.policy.levelOrder.filter(entry => entry !== id);
-    save(config);
-  });
-
-  byId('fpAddLevel').addEventListener('submit', event => {
-    event.preventDefault();
-    const config = current();
-    if (config.levels.length >= 4) return warn('Mehr als vier Etagen sind nicht vorgesehen.');
-    const name = byId('fpNewName').value.trim();
-    if (!name) return;
-    let id = slug(name);
-    while (config.levels.some(level => level.id === id)) id = `${id}-2`.slice(0, 20);
-    config.levels.push({
-      id,
-      name,
-      order: Math.max(0, ...config.levels.map(level => level.order)) + 1,
-      counts: { 4: 4 },
-      positions: {}
-    });
-    config.policy.levelOrder = [...config.policy.levelOrder, id];
-    byId('fpNewName').value = '';
-    save(config);
-  });
-
-  // Der Sitzplan ist eine Momentaufnahme, kein Zeitverlauf. Deshalb bekommen
-  // alle Gruppen dieselbe Referenzzeit, und das Pacing - das den Zustrom ueber
-  // die Zeit begrenzt - wird hier ausgesetzt.
-  const SEAT_TIME = '2000-01-01T12:00';
-  const seatPolicy = () => ({ ...current().policy, maxCoversPerSlot: Number.MAX_SAFE_INTEGER });
-  const seatOccupancy = () => parties()
-    .filter(party => party.tableIds.length)
-    .map(party => ({ tableIds: party.tableIds, startsAt: SEAT_TIME, minutes: 60, guests: party.guests }));
-
-  byId('fpPartyForm').addEventListener('submit', event => {
-    event.preventDefault();
-    const name = byId('fpPartyName').value.trim();
-    if (!name) return;
-    const guests = Math.max(1, Math.min(20, Number(byId('fpPartyGuests').value) || 1));
-    store.setParties([...parties(), { id: `p-${parties().length + 1}-${name.length}${guests}`, name, guests, tableIds: [] }]);
-    byId('fpPartyName').value = '';
-    seatResult(`${name} mit ${guests} Personen aufgenommen. Noch nicht am Tisch.`);
-    paintSeating();
-    byId('fpPartyName').focus();
-  });
-
-  byId('fpParties').addEventListener('click', event => {
-    const mark = event.target.closest('[data-mark-party]');
-    if (mark) {
-      const party = parties().find(entry => entry.id === mark.dataset.markParty);
-      marked = marked === mark.dataset.markParty ? null : mark.dataset.markParty;
-      paintSeating();
-      seatResult(!marked ? 'Markierung aufgehoben.'
-        : party?.tableIds.length
-          // Eine schon sitzende Gruppe zu markieren heisst umsetzen.
-          ? `${party.name} sitzt bereits – jetzt den neuen Tisch anklicken.`
-          : `${party?.name} ist markiert – jetzt einen freien Tisch anklicken.`);
-      return;
-    }
-    const button = event.target.closest('[data-remove-party]');
-    if (!button) return;
-    const list = parties();
-    const gone = list.find(party => party.id === button.dataset.removeParty);
-    if (marked === button.dataset.removeParty) marked = null;
-    store.setParties(list.filter(party => party.id !== button.dataset.removeParty));
-    seatResult(gone ? `${gone.name} entfernt.` : 'Gruppe entfernt.');
-    paintPlan();
-    paintSeating();
-  });
-
-  byId('fpAutoSeat').addEventListener('click', () => {
-    const plan = buildFloorplan(current());
-    const list = parties().map(party => ({ ...party }));
-    // Grosse Gruppen zuerst - sie haben die wenigsten Moeglichkeiten.
-    const open = list.filter(party => !party.tableIds.length).sort((a, b) => b.guests - a.guests);
-    if (!open.length) return seatResult('Es sind keine offenen Gruppen da.');
-
-    const seated = [];
-    const failed = [];
-    for (const party of open) {
-      const result = assignTables({
-        floorplan: plan,
-        occupancy: [...seatOccupancy(), ...seated.map(entry => ({ tableIds: entry.tableIds, startsAt: SEAT_TIME, minutes: 60, guests: entry.guests }))],
-        blocked: blocked(),
-        guests: party.guests,
-        startsAt: SEAT_TIME,
-        policy: seatPolicy(),
-        withAlternatives: false
-      });
-      if (!result.ok) { failed.push(party); continue; }
-      party.tableIds = result.tableIds;
-      seated.push({ tableIds: result.tableIds, guests: party.guests, numbers: result.numbers, name: party.name });
-    }
-    store.setParties(list);
-    paintPlan();
-    paintSeating();
-    // Bei einer Absage hilft die Zahl mehr als das blosse Nein: der Wirt sieht
-    // sofort, ob er Tische zusammenstellen muss oder ob es hoffnungslos ist.
-    let hint = '';
-    if (failed.length) {
-      const taken = new Set([...seatOccupancy(), ...seated].flatMap(entry => entry.tableIds));
-      const largest = Math.max(0, ...plan.tables
-        .filter(table => !taken.has(table.id) && !blocked().includes(table.id))
-        .map(table => table.seats));
-      hint = ` Kein Platz für: ${failed.map(party => `${party.name} (${party.guests}P)`).join(', ')}.`
-        + (largest ? ` Größter freier Tisch: ${largest} Plätze – zwei Tische zusammenstellen oder Gruppe teilen.` : ' Es ist kein Tisch mehr frei.');
-    }
-    seatResult(
-      `${seated.length} Gruppe(n) verteilt: ${seated.map(entry => `${entry.name} an Tisch ${entry.numbers.join(' + ')}`).join(', ') || '–'}.${hint}`
-    );
-  });
-
-  byId('fpClearSeating').addEventListener('click', () => {
-    if (!parties().length) return seatResult('Es ist nichts zu leeren.');
-    if (!confirm('Alle Gruppen und ihre Namen wirklich entfernen?')) return;
-    store.setParties([]);
-    paintPlan();
-    paintSeating();
-    seatResult('Belegung geleert. Es sind keine Namen mehr gespeichert.');
-  });
-
-  // Die Tischliste: Name schreiben belegt, Feld leeren macht frei.
   byId('fpTableList').addEventListener('change', event => {
     const field = event.target.closest('[data-field]');
     if (!field) return;
@@ -620,11 +714,11 @@ async function start() {
       marked = field.value;
       return seatMarked(field.dataset.tableId);
     }
-
     const plan = buildFloorplan(current());
     const table = plan.tables.find(item => item.id === field.dataset.tableId);
     const list = parties().map(party => ({ ...party, tableIds: [...party.tableIds] }));
-    const party = list.find(entry => entry.tableIds.includes(field.dataset.tableId));
+    const sitting = seatedNow().find(entry => entry.tableIds.includes(field.dataset.tableId));
+    const party = sitting && list.find(entry => entry.id === sitting.id);
     if (!table || !party) return;
     const wanted = Math.max(1, Math.round(Number(field.value) || 1));
     const seats = party.tableIds.reduce((sum, id) => sum + (plan.tables.find(item => item.id === id)?.seats || 0), 0);
@@ -633,8 +727,7 @@ async function start() {
     seatResult(wanted > seats
       ? `Tisch ${table.number} hat nur ${seats} Plätze – auf ${seats} begrenzt.`
       : `Tisch ${table.number}: ${party.name}, ${party.guests} Personen.`);
-    paintPlan();
-    paintSeating();
+    paint();
   });
 
   byId('fpTableList').addEventListener('click', event => {
@@ -643,10 +736,8 @@ async function start() {
     const id = button.dataset.tableId;
     const plan = buildFloorplan(current());
     const table = plan.tables.find(item => item.id === id);
-
     if (button.dataset.action === 'free') return setTableName(id, '');
-
-    if (parties().some(party => party.tableIds.includes(id))) {
+    if (seatedNow().some(party => party.tableIds.includes(id))) {
       return seatResult(`Tisch ${table?.number} ist belegt. Erst frei machen, dann sperren.`);
     }
     const set = new Set(blocked());
@@ -654,53 +745,217 @@ async function start() {
     if (wasBlocked) set.delete(id); else set.add(id);
     store.setBlockedTables([...set]);
     seatResult(`Tisch ${table?.number} ist jetzt ${wasBlocked ? 'wieder frei' : 'gesperrt'}.`);
-    paintPlan();
-    paintSeating();
+    paint();
   });
 
-  byId('fpTryForm').addEventListener('submit', event => {
-    event.preventDefault();
+  // ---- Raeume, Tische, Stuehle ---------------------------------------------
+
+  function paintLevels() {
+    const box = byId('fpLevels');
+    box.textContent = '';
+    const plan = buildFloorplan(current());
+    for (const level of [...layout().levels].sort((a, b) => a.order - b.order)) {
+      const wrap = document.createElement('div');
+      wrap.className = 'fp-level-block';
+
+      const head = document.createElement('div');
+      head.className = 'fp-level-row';
+      const nameLabel = document.createElement('label');
+      nameLabel.className = 'fp-level-name';
+      nameLabel.append('Etage');
+      const nameInput = document.createElement('input');
+      Object.assign(nameInput, { type: 'text', maxLength: 40, value: level.name });
+      nameInput.dataset.level = level.id;
+      nameInput.dataset.field = 'name';
+      nameLabel.append(nameInput);
+      head.append(nameLabel);
+
+      const add = document.createElement('div');
+      add.className = 'fp-sizes';
+      for (const seats of SIZES) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.addTable = level.id;
+        button.dataset.seats = String(seats);
+        button.textContent = `+ ${seats}P`;
+        button.setAttribute('aria-label', `Tisch mit ${seats} Plätzen in ${level.name} ergänzen`);
+        add.append(button);
+      }
+      head.append(add);
+
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'quiet';
+      remove.dataset.removeLevel = level.id;
+      remove.textContent = 'Etage entfernen';
+      head.append(remove);
+      wrap.append(head);
+
+      const tables = document.createElement('div');
+      tables.className = 'fp-chairs-list';
+      for (const table of plan.tables.filter(entry => entry.levelId === level.id)) {
+        const chip = document.createElement('div');
+        chip.className = 'fp-chair-chip';
+        const label = document.createElement('b');
+        label.textContent = `Tisch ${table.number}`;
+        const seats = document.createElement('span');
+        seats.textContent = `${table.seats} Stühle`;
+        const minus = document.createElement('button');
+        minus.type = 'button';
+        minus.dataset.chair = table.id;
+        minus.dataset.step = '-1';
+        minus.textContent = '−';
+        minus.setAttribute('aria-label', `Stuhl an Tisch ${table.number} entfernen`);
+        minus.disabled = table.seats <= 1;
+        const plus = document.createElement('button');
+        plus.type = 'button';
+        plus.dataset.chair = table.id;
+        plus.dataset.step = '1';
+        plus.textContent = '+';
+        plus.setAttribute('aria-label', `Stuhl an Tisch ${table.number} ergänzen`);
+        plus.disabled = table.seats >= GRID.maxSeats;
+        const drop = document.createElement('button');
+        drop.type = 'button';
+        drop.dataset.removeTable = table.id;
+        drop.textContent = 'Tisch weg';
+        chip.append(label, seats, minus, plus, drop);
+        tables.append(chip);
+      }
+      wrap.append(tables);
+      box.append(wrap);
+    }
+  }
+
+  byId('fpLevels').addEventListener('change', event => {
+    const input = event.target.closest('[data-level][data-field="name"]');
+    if (!input) return;
     const config = current();
-    const plan = buildFloorplan(config);
-    const state = store.load();
-    const guests = Number(byId('fpTryGuests').value) || 1;
-    const time = byId('fpTryTime').value || '12:00';
-    const date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-    const service = state.services.find(item => item.date === date && item.time === time);
-    const free = service ? store.serviceAvailability(service, state.settings).available : Infinity;
+    const level = activeLayout(config).levels.find(item => item.id === input.dataset.level);
+    if (!level) return;
+    level.name = input.value.trim() || level.name;
+    save(config, { quiet: true });
+  });
 
-    // Die Probe rechnet mit der tatsaechlichen Belegung, sonst schlaegt sie
-    // Tische vor, an denen schon jemand sitzt.
-    const result = assignTables({
-      floorplan: plan,
-      occupancy: parties().filter(party => party.tableIds.length)
-        .map(party => ({ tableIds: party.tableIds, startsAt: `${date}T${time}`, minutes: 60, guests: party.guests, countsForPacing: false })),
-      blocked: blocked(),
-      guests,
-      startsAt: `${date}T${time}`,
-      policy: config.policy,
-      available: free
-    });
+  byId('fpLevels').addEventListener('click', event => {
+    const config = current();
+    const active = activeLayout(config);
 
-    const out = byId('fpResult');
-    const source = service
-      ? `Zeitfenster ${time} aus Panel 02: ${free} von ${service.capacity} Plätzen frei.`
-      : `Für ${time} gibt es in Panel 02 kein Zeitfenster – der Sitzplatzdeckel bleibt hier außen vor.`;
-    if (result.ok) {
-      out.textContent = `Tisch ${result.numbers.join(' + ')} · ${result.seats}P · ${result.levelName} · ${result.minutes} Minuten`
-        + (result.seatGap ? ` · ${result.seatGap} Platz übrig. ` : ' · passgenau. ') + source;
+    const add = event.target.closest('[data-add-table]');
+    if (add) {
+      const level = active.levels.find(item => item.id === add.dataset.addTable);
+      if (!level) return;
+      level.tables.push({ id: nextTableId(level), seats: clampSeats(add.dataset.seats), col: null, row: null });
+      save(config);
       return;
     }
-    const reasons = {
-      capacity: `Sitzplatzdeckel erreicht – ${source}`,
-      pacing: 'Zu viele Gäste im selben Viertelstundenfenster.',
-      no_fit: 'Kein passender Tisch frei.',
-      invalid: 'Eingabe unvollständig.'
-    };
-    const alternatives = (result.alternatives || [])
-      .map(entry => `${entry.startsAt.slice(11)} (Tisch ${entry.numbers.join(' + ')})`).join(', ');
-    out.textContent = `${reasons[result.reason]}${alternatives ? ` Alternativen: ${alternatives}.` : ''}`
-      + (result.reason === 'capacity' ? '' : ` ${source}`);
+
+    const chair = event.target.closest('[data-chair]');
+    if (chair) {
+      for (const level of active.levels) {
+        const table = level.tables.find(item => item.id === chair.dataset.chair);
+        if (!table) continue;
+        const next = clampSeats(table.seats + Number(chair.dataset.step));
+        const sitting = seatedNow().find(entry => entry.tableIds.includes(table.id));
+        if (sitting && sitting.guests > next) {
+          return warn(`An diesem Tisch sitzen ${sitting.guests} Personen (${sitting.name}) – so weit lässt er sich nicht verkleinern.`);
+        }
+        table.seats = next;
+        save(config, { quiet: true });
+        return;
+      }
+      return;
+    }
+
+    const drop = event.target.closest('[data-remove-table]');
+    if (drop) {
+      if (!confirm('Diesen Tisch aus der Ordnung entfernen?')) return;
+      for (const level of active.levels) {
+        level.tables = level.tables.filter(table => table.id !== drop.dataset.removeTable);
+      }
+      active.combos = active.combos.filter(combo => !combo.tables.includes(drop.dataset.removeTable));
+      save(config);
+      return;
+    }
+
+    const removeLevel = event.target.closest('[data-remove-level]');
+    if (removeLevel) {
+      if (active.levels.length <= 1) return warn('Es muss mindestens eine Etage bleiben.');
+      if (!confirm('Diese Etage mit allen Tischen entfernen?')) return;
+      const id = removeLevel.dataset.removeLevel;
+      active.levels = active.levels.filter(level => level.id !== id);
+      active.combos = active.combos.filter(combo => !combo.tables.some(entry => entry.startsWith(`${id}-`)));
+      config.policy.levelOrder = config.policy.levelOrder.filter(entry => entry !== id);
+      save(config);
+    }
+  });
+
+  byId('fpAddLevel').addEventListener('submit', event => {
+    event.preventDefault();
+    const config = current();
+    const active = activeLayout(config);
+    if (active.levels.length >= 4) return warn('Mehr als vier Etagen sind nicht vorgesehen.');
+    const name = byId('fpNewName').value.trim();
+    if (!name) return;
+    let id = slug(name);
+    while (active.levels.some(level => level.id === id)) id = `${id}-2`.slice(0, 20);
+    active.levels.push({
+      id,
+      name,
+      order: Math.max(0, ...active.levels.map(level => level.order)) + 1,
+      tables: [{ id: `${id}-t01`, seats: 4, col: null, row: null }]
+    });
+    if (!config.policy.levelOrder.includes(id)) config.policy.levelOrder.push(id);
+    byId('fpNewName').value = '';
+    save(config);
+  });
+
+  // ---- Tischordnungen ------------------------------------------------------
+
+  byId('fpLayoutForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const config = current();
+    const name = byId('fpLayoutName').value.trim();
+    if (!name) return;
+    if (config.layouts.length >= 12) return warn('Mehr als zwölf Ordnungen sind nicht vorgesehen.');
+    let id = slug(name);
+    while (config.layouts.some(entry => entry.id === id)) id = `${id}-2`.slice(0, 20);
+    // Neue Ordnung uebernimmt die Raeume, aber keine Tische - sie wird von
+    // Grund auf gestellt. Zum Uebernehmen gibt es den Kopieren-Knopf.
+    config.layouts.push({
+      id,
+      name,
+      levels: activeLayout(config).levels.map(level => ({ id: level.id, name: level.name, order: level.order, tables: [] })),
+      combos: []
+    });
+    config.activeLayout = id;
+    byId('fpLayoutName').value = '';
+    picked = null;
+    save(config, { quiet: true });
+    warn(`Ordnung "${name}" angelegt – die Räume sind da, die Tische stellst du neu.`);
+  });
+
+  byId('fpLayoutCopy').addEventListener('click', () => {
+    const config = current();
+    const source = activeLayout(config);
+    if (config.layouts.length >= 12) return warn('Mehr als zwölf Ordnungen sind nicht vorgesehen.');
+    let id = `${source.id}-kopie`.slice(0, 20);
+    while (config.layouts.some(entry => entry.id === id)) id = `${id}2`.slice(0, 20);
+    config.layouts.push(JSON.parse(JSON.stringify({ ...source, id, name: `${source.name} (Kopie)` })));
+    config.activeLayout = id;
+    save(config, { quiet: true });
+    warn(`"${source.name}" kopiert.`);
+  });
+
+  byId('fpLayoutDelete').addEventListener('click', () => {
+    const config = current();
+    if (config.layouts.length <= 1) return warn('Es muss mindestens eine Ordnung bleiben.');
+    const gone = activeLayout(config);
+    if (!confirm(`Ordnung "${gone.name}" mit allen Tischen löschen?`)) return;
+    config.layouts = config.layouts.filter(entry => entry.id !== gone.id);
+    config.activeLayout = config.layouts[0].id;
+    picked = null;
+    save(config, { quiet: true });
+    warn(`"${gone.name}" gelöscht.`);
   });
 
   byId('fpExport').addEventListener('click', () => {
@@ -714,11 +969,18 @@ async function start() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
 
-  const plan = buildFloorplan(current());
-  syncServiceMix(plan);
+  // ---- Start ---------------------------------------------------------------
+
+  function paint() {
+    paintMoment();
+    paintPlan();
+    paintSeating();
+    paintLevels();
+  }
+
+  byId('fpResDate').value = moment.date;
+  byId('fpResTime').value = moment.time;
+  paintDishes();
+  syncServiceMix(buildFloorplan(current()));
   paint();
-  const mix = deriveTableMix(plan);
-  const mixText = Object.keys(mix).map(Number).sort((a, b) => a - b).map(seats => `${mix[seats]}×${seats}P`).join(' · ');
-  byId('fpResult').textContent = `${plan.levels.length} Etagen, ${plan.tables.length} Tische, ${totalSeats(plan)} Plätze (${mixText}). `
-    + 'Personenzahl und Uhrzeit eingeben, um die Zuweisung zu testen.';
 }

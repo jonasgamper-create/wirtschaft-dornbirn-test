@@ -4,7 +4,7 @@
 
 // Version muss zu den anderen Importen passen, sonst laedt der Browser zwei
 // Kopien desselben Moduls.
-import { buildFloorplan } from './floorplan-layout.mjs?v=4';
+import { buildFloorplan, chairSlots, tableBody } from './floorplan-layout.mjs?v=5';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const el = (tag, attrs = {}) => {
@@ -125,36 +125,35 @@ export function renderFloorplan(root, config, options = {}) {
     });
     for (const table of level.tables) {
       const group = el('g', { 'data-table-id': table.id, 'data-state': stateOf(table) });
-      group.append(el('rect', {
-        class: 'fp-shape',
-        x: table.col + 0.15,
-        y: table.row + 0.15,
-        width: table.w - 0.3,
-        height: table.h - 0.3,
-        rx: 0.12
-      }));
+
+      // Stuehle zuerst, damit die Tischplatte darueber liegt.
+      for (const chair of chairSlots(table)) {
+        group.append(el('rect', { class: 'fp-chair', x: chair.x, y: chair.y, width: chair.w, height: chair.h, rx: 0.1 }));
+      }
+      const body = tableBody(table);
+      group.append(el('rect', { class: 'fp-shape', x: body.x, y: body.y, width: body.w, height: body.h, rx: 0.12 }));
+
       const party = seating[table.id];
       const middle = table.col + table.w / 2;
-      const number = el('text', { class: 'fp-num', x: middle, y: table.row + (party ? 0.95 : 1.15) });
+      const number = el('text', { class: 'fp-num', x: middle, y: body.y + (party ? 0.6 : 0.95) });
       number.textContent = String(table.number);
       group.append(number);
 
       if (party) {
-        // Belegt: Name und Belegung stehen im Tisch. Auf schmalen Tischen
-        // wird die Schrift kleiner, sonst laeuft sie ueber den Rand.
-        // Klasse statt Inline-Stil: die Content-Security-Policy erlaubt kein
-        // style-Attribut, und ein blockierter Stil faellt sonst still aus.
+        // Belegt: Name und Belegung stehen auf der Tischplatte. Auf schmalen
+        // Tischen wird die Schrift kleiner. Klasse statt Inline-Stil - die
+        // Content-Security-Policy erlaubt kein style-Attribut, ein blockierter
+        // Stil faellt sonst still aus.
         const narrow = table.w <= 3;
-        const size = narrow ? 0.5 : 0.62;
-        const name = el('text', { class: `fp-name${narrow ? ' is-narrow' : ''}`, x: middle, y: table.row + 1.7 });
+        const name = el('text', { class: `fp-name${narrow ? ' is-narrow' : ''}`, x: middle, y: body.y + 1.3 });
         name.dataset.full = party.name;
-        name.dataset.maxw = String(table.w - 0.5);
+        name.dataset.maxw = String(body.w - 0.2);
         name.textContent = party.name;
-        const count = el('text', { class: 'fp-seats', x: middle, y: table.row + 2.3 });
+        const count = el('text', { class: 'fp-seats', x: middle, y: body.y + 1.95 });
         count.textContent = `${party.guests}/${table.seats}`;
         group.append(name, count);
       } else {
-        const seats = el('text', { class: 'fp-seats', x: middle, y: table.row + 2.1 });
+        const seats = el('text', { class: 'fp-seats', x: middle, y: body.y + 1.8 });
         seats.textContent = `${table.seats}P`;
         group.append(seats);
       }
@@ -189,12 +188,13 @@ export function renderFloorplan(root, config, options = {}) {
   function editOnTable(svg, table) {
     svg.querySelector('.fp-inline-host')?.remove();
 
+    const body = tableBody(table);
     const host = el('foreignObject', {
       class: 'fp-inline-host',
-      x: table.col + 0.15,
-      y: table.row + 1.25,
-      width: table.w - 0.3,
-      height: 1.5
+      x: body.x,
+      y: body.y + body.h / 2 - 0.55,
+      width: body.w,
+      height: 1.1
     });
     const input = document.createElementNS('http://www.w3.org/1999/xhtml', 'input');
     input.setAttribute('class', 'fp-inline');

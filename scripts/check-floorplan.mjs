@@ -36,38 +36,51 @@ if (!Number.isFinite(Date.parse(config.updatedAt || ''))) fail('updatedAt ist ke
 if (!['beispiel', 'bestaetigt'].includes(config.status)) {
   fail('status muss "beispiel" oder "bestaetigt" sein - erfundene Tischzahlen dürfen nie als bestätigt gelten.');
 }
+if (Number(config.version) !== 2) fail('version muss 2 sein.');
 
-const levels = Array.isArray(config.levels) ? config.levels : [];
-if (!levels.length || levels.length > 4) fail('Es braucht 1 bis 4 Etagen.');
+const layouts = Array.isArray(config.layouts) ? config.layouts : [];
+if (!layouts.length || layouts.length > 12) fail('Es braucht 1 bis 12 Tischordnungen.');
+if (!layouts.some(layout => layout?.id === config.activeLayout)) {
+  fail('activeLayout verweist auf keine vorhandene Ordnung.');
+}
 
+const seenLayout = new Set();
 const seenLevel = new Set();
-const seenOrder = new Set();
-for (const [index, level] of levels.entries()) {
-  if (!/^[a-z][a-z0-9-]{1,15}$/.test(level?.id || '')) fail(`levels[${index}].id ist keine saubere Kennung.`);
-  if (seenLevel.has(level?.id)) fail(`Etagen-ID "${level.id}" kommt doppelt vor.`);
-  seenLevel.add(level?.id);
-  if (!level?.name?.trim()) fail(`levels[${index}].name fehlt.`);
-  if (!Number.isInteger(level?.order)) fail(`levels[${index}].order muss eine ganze Zahl sein.`);
-  if (seenOrder.has(level?.order)) fail(`order ${level.order} kommt doppelt vor - die Reihenfolge wäre unbestimmt.`);
-  seenOrder.add(level?.order);
+for (const [li, layout] of layouts.entries()) {
+  if (!/^[a-z][a-z0-9-]{1,23}$/.test(layout?.id || '')) fail(`layouts[${li}].id ist keine saubere Kennung.`);
+  if (seenLayout.has(layout?.id)) fail(`Ordnungs-ID "${layout.id}" kommt doppelt vor.`);
+  seenLayout.add(layout?.id);
+  if (!layout?.name?.trim()) fail(`layouts[${li}].name fehlt.`);
 
-  const counts = level?.counts || {};
-  const keys = Object.keys(counts);
-  for (const key of keys) {
-    const seats = Number(key);
-    if (!Number.isInteger(seats) || seats < GRID.minSeats || seats > GRID.maxSeats) {
-      fail(`levels[${index}].counts["${key}"]: erlaubt sind Tischgrößen von ${GRID.minSeats} bis ${GRID.maxSeats} Personen.`);
-    }
-    const value = counts[key];
-    if (!Number.isInteger(value) || value < 0 || value > 99) fail(`levels[${index}].counts["${key}"] muss 0 bis 99 sein.`);
-  }
-  if (keys.reduce((sum, key) => sum + (Number(counts[key]) || 0), 0) === 0) {
-    fail(`levels[${index}] hat keine Tische.`);
-  }
+  const levels = Array.isArray(layout?.levels) ? layout.levels : [];
+  if (!levels.length || levels.length > 4) fail(`layouts[${li}] braucht 1 bis 4 Etagen.`);
 
-  for (const [tableId, spot] of Object.entries(level?.positions || {})) {
-    if (!Number.isInteger(spot?.col) || !Number.isInteger(spot?.row) || spot.col < 0 || spot.row < 0) {
-      fail(`levels[${index}].positions["${tableId}"] braucht ganzzahlige, nicht negative col und row.`);
+  const inLayout = new Set();
+  const orders = new Set();
+  for (const [index, level] of levels.entries()) {
+    if (!/^[a-z][a-z0-9-]{1,15}$/.test(level?.id || '')) fail(`layouts[${li}].levels[${index}].id ist keine saubere Kennung.`);
+    if (inLayout.has(level?.id)) fail(`Etagen-ID "${level.id}" kommt in "${layout.id}" doppelt vor.`);
+    inLayout.add(level?.id);
+    seenLevel.add(level?.id);
+    if (!level?.name?.trim()) fail(`layouts[${li}].levels[${index}].name fehlt.`);
+    if (!Number.isInteger(level?.order)) fail(`layouts[${li}].levels[${index}].order muss eine ganze Zahl sein.`);
+    if (orders.has(level?.order)) fail(`order ${level.order} kommt in "${layout.id}" doppelt vor.`);
+    orders.add(level?.order);
+
+    const tables = Array.isArray(level?.tables) ? level.tables : [];
+    if (tables.length > 300) fail(`layouts[${li}].levels[${index}] hat mehr als 300 Tische.`);
+    for (const [ti, table] of tables.entries()) {
+      if (!/^[a-z][a-z0-9-]{1,23}$/.test(table?.id || '')) fail(`Tisch-Kennung ungültig: ${JSON.stringify(table?.id)}`);
+      if (!Number.isInteger(table?.seats) || table.seats < GRID.minSeats || table.seats > GRID.maxSeats) {
+        fail(`Tisch ${table?.id}: Plätze müssen ${GRID.minSeats} bis ${GRID.maxSeats} sein.`);
+      }
+      for (const key of ['col', 'row']) {
+        const value = table?.[key];
+        if (value !== null && value !== undefined && (!Number.isInteger(value) || value < 0)) {
+          fail(`Tisch ${table?.id}: ${key} muss null oder eine nicht negative ganze Zahl sein.`);
+        }
+      }
+      if (tables.findIndex(other => other?.id === table?.id) !== ti) fail(`Tisch-Kennung "${table?.id}" kommt doppelt vor.`);
     }
   }
 }
@@ -96,8 +109,9 @@ for (const combo of floorplan.combos) {
 for (const level of floorplan.levels) {
   if (level.cols > GRID.cols) fail(`Etage "${level.id}" nutzt mehr als ${GRID.cols} Rasterspalten.`);
   for (const table of level.tables) {
-    if (table.w < GRID.minSpan || table.h < GRID.minSpan) {
-      fail(`Tisch ${table.id} ist kleiner als ${GRID.minSpan} Rastereinheiten und fällt unter 44 px auf 390 px Breite.`);
+    const soll = footprint(table.seats);
+    if (table.w !== soll.w || table.h !== soll.h) {
+      fail(`Tisch ${table.id}: Fußabdruck passt nicht zur Platzzahl.`);
     }
     if (table.col < 0 || table.row < 0 || table.col + table.w > level.cols) {
       fail(`Tisch ${table.id} liegt außerhalb des Rasters.`);
@@ -134,8 +148,11 @@ if (!Number.isInteger(policy.maxCoversPerSlot) || policy.maxCoversPerSlot < 1) {
   fail('policy.maxCoversPerSlot muss mindestens 1 sein.');
 }
 const levelOrder = policy.levelOrder || [];
-if (levelOrder.length !== levels.length || levelOrder.some(id => !seenLevel.has(id))) {
-  fail('policy.levelOrder muss genau die vorhandenen Etagen enthalten.');
+if (!levelOrder.length || levelOrder.some(id => !seenLevel.has(id))) {
+  fail('policy.levelOrder darf nur vorhandene Etagen nennen und nicht leer sein.');
+}
+for (const id of seenLevel) {
+  if (!levelOrder.includes(id)) fail(`Etage "${id}" fehlt in policy.levelOrder.`);
 }
 
 if (errors.length) {

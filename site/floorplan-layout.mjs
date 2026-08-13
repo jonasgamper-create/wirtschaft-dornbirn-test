@@ -1,42 +1,68 @@
-// Erzeugt aus Etagen, Tischanzahlen und gemerkten Positionen eine Geometrie.
-// Reine Rechnung: kein DOM, kein Speicher, keine Uhrzeit. Gleiche Eingabe,
-// gleiche Ausgabe - das ist Bedingung fuer die Testfixtures und dafuer, dass
-// dieselbe Funktion spaeter serverseitig laufen kann.
+// Geometrie des Tischplans. Reine Rechnung: kein DOM, kein Speicher, keine
+// Uhrzeit. Gleiche Eingabe, gleiche Ausgabe - Bedingung fuer die Testfixtures
+// und dafuer, dass dieselbe Funktion spaeter serverseitig laufen kann.
 
-export const GRID = { cols: 24, gap: 1, minSpan: 3, minSeats: 2, maxSeats: 10 };
+export const GRID = { cols: 24, gap: 1, minSeats: 1, maxSeats: 12 };
 
-/**
- * Fussabdruck in Rastereinheiten. Waechst mit der Personenzahl, aber nicht
- * linear - ein Zehnertisch ist laenger als ein Zweiertisch, nicht fuenfmal so
- * lang. Die Hoehe bleibt gleich, damit Reihen sauber ausrichten.
- * 2P/3P: 3 · 4P/5P: 4 · 6P/7P: 5 · 8P/9P: 6 · 10P: 7
- */
+// Ein Tisch ist so hoch, dass oben und unten Stuehle Platz haben. Die Breite
+// waechst mit der Personenzahl, aber nicht linear: ein Zehnertisch ist laenger
+// als ein Zweiertisch, nicht fuenfmal so lang.
 export function footprint(seats) {
-  const size = Math.max(GRID.minSeats, Math.min(GRID.maxSeats, Math.trunc(Number(seats) || 0)));
-  return { w: 3 + Math.floor((size - 2) / 2), h: 3 };
+  const size = clampSeats(seats);
+  return { w: 3 + Math.floor(Math.max(0, size - 2) / 2), h: 4 };
 }
 
+export const clampSeats = value =>
+  Math.max(GRID.minSeats, Math.min(GRID.maxSeats, Math.trunc(Number(value) || 0)));
+
 /**
- * Ab wie vielen Gaesten ein Tisch ueberhaupt in Frage kommt. Die Haelfte der
- * Plaetze ist die Untergrenze: eine Einzelperson blockiert keinen Vierer, aber
- * sieben Gaeste duerfen notfalls an den Zehner. Welcher Tisch am Ende gewinnt,
- * entscheidet ohnehin die kleinste Sitzplatzverschwendung.
+ * Ab wie vielen Gaesten ein Tisch in Frage kommt. Die Haelfte der Plaetze ist
+ * die Untergrenze: eine Einzelperson blockiert keinen Vierer, aber sieben
+ * Gaeste duerfen notfalls an den Zehner. Welcher Tisch gewinnt, entscheidet
+ * ohnehin die kleinste Sitzplatzverschwendung.
  */
 export const defaultMinGuests = seats => Math.max(1, Math.ceil(Number(seats) / 2));
 
-export const seatSizes = counts => Object.keys(counts || {})
-  .map(Number)
-  .filter(size => Number.isInteger(size) && size >= GRID.minSeats && size <= GRID.maxSeats)
-  .sort((a, b) => a - b);
+/**
+ * Stuehle rund um den Tisch. Oben die groessere Haelfte, unten der Rest -
+ * bei sehr grossen Tischen kommt je einer an die Schmalseiten.
+ * Rein geometrisch, damit der Renderer nur noch zeichnen muss.
+ */
+export function chairSlots(table) {
+  const seats = clampSeats(table.seats);
+  const body = tableBody(table);
+  const slots = [];
+  const side = seats >= 8 ? 1 : 0;
+  const rest = seats - side * 2;
+  const top = Math.ceil(rest / 2);
+  const bottom = rest - top;
+
+  const row = (count, y) => {
+    for (let i = 0; i < count; i += 1) {
+      slots.push({ x: body.x + (body.w * (i + 0.5)) / count - 0.25, y, w: 0.5, h: 0.4 });
+    }
+  };
+  row(top, table.row + 0.18);
+  row(bottom, table.row + table.h - 0.58);
+  for (let i = 0; i < side; i += 1) {
+    const y = body.y + body.h / 2 - 0.25;
+    slots.push({ x: table.col + 0.18, y, w: 0.4, h: 0.5 });
+    slots.push({ x: table.col + table.w - 0.58, y, w: 0.4, h: 0.5 });
+  }
+  return slots;
+}
+
+/** Die Tischplatte selbst - der Fussabdruck enthaelt zusaetzlich die Stuehle. */
+export function tableBody(table) {
+  return { x: table.col + 0.15, y: table.row + 0.75, w: table.w - 0.3, h: table.h - 1.5 };
+}
 
 const pad = value => String(value).padStart(2, '0');
 
-/** Echte Ueberschneidung - beim Verschieben duerfen Tische aneinander stossen. */
 export function overlapsRect(a, b) {
   return a.col < b.col + b.w && b.col < a.col + a.w && a.row < b.row + b.h && b.row < a.row + a.h;
 }
 
-/** Beim automatischen Platzieren halten wir zusaetzlich einen Gang frei. */
 function tooClose(a, b, gap) {
   return a.col < b.col + b.w + gap && b.col < a.col + a.w + gap
     && a.row < b.row + b.h + gap && b.row < a.row + a.h + gap;
@@ -54,53 +80,47 @@ function findSpot(placed, spec, grid) {
 
 /**
  * Legt die Tische einer Etage. Gemerkte Positionen gewinnen; alles ohne
- * Position rutscht in die erste freie Luecke. So bleibt eine von Hand
- * gebaute Anordnung erhalten, wenn nur die Anzahl geaendert wird.
+ * Position rutscht in die erste freie Luecke. So bleibt eine von Hand gebaute
+ * Anordnung erhalten, wenn nur ein Tisch dazukommt.
  */
 export function buildLevelGeometry(level, grid = GRID) {
-  const counts = level?.counts || {};
-  const positions = level?.positions || {};
-  const specs = [];
-
-  // Groesste zuerst: sie brauchen den Platz, kleine fuellen die Luecken.
-  for (const seats of seatSizes(counts).reverse()) {
-    const count = Math.max(0, Math.trunc(Number(counts[seats] ?? counts[String(seats)] ?? 0)));
-    const size = footprint(seats);
-    for (let index = 0; index < count; index += 1) {
-      specs.push({ id: `${level.id}-${seats}-${pad(index + 1)}`, levelId: level.id, seats, ...size });
-    }
-  }
+  const specs = (Array.isArray(level?.tables) ? level.tables : []).map(table => ({
+    id: table.id,
+    levelId: level.id,
+    seats: clampSeats(table.seats),
+    ...footprint(table.seats),
+    col: Number.isInteger(table.col) ? table.col : null,
+    row: Number.isInteger(table.row) ? table.row : null
+  }));
 
   const placed = [];
-  const pending = [];
-  for (const spec of specs) {
-    const pinned = positions[spec.id];
-    const col = Number(pinned?.col);
-    const row = Number(pinned?.row);
-    if (Number.isInteger(col) && Number.isInteger(row) && col >= 0 && row >= 0 && col + spec.w <= grid.cols) {
-      placed.push({ ...spec, col, row, pinned: true });
-    } else {
-      pending.push(spec);
-    }
+  for (const spec of specs.filter(item => item.col !== null && item.row !== null && item.col + item.w <= grid.cols)) {
+    placed.push({ ...spec, pinned: true });
   }
-  for (const spec of pending) {
+  for (const spec of specs.filter(item => !placed.some(done => done.id === item.id))) {
     placed.push({ ...spec, ...findSpot(placed, spec, grid), pinned: false });
   }
 
   // Leserichtung: oben links nach unten rechts. Das macht die Karte
   // selbsterklaerend - Tisch 1 ist der erste, den man beim Reinkommen sieht.
-  placed.sort((a, b) => a.row - b.row || a.col - b.col || a.id.localeCompare(b.id));
-
+  placed.sort((a, b) => a.row - b.row || a.col - b.col || String(a.id).localeCompare(String(b.id)));
   const rows = placed.reduce((max, table) => Math.max(max, table.row + table.h), 0);
   return { cols: grid.cols, rows, tables: placed };
 }
 
+/** Die gerade aktive Tischordnung, mit Rueckfall auf die erste. */
+export function activeLayout(config) {
+  const layouts = Array.isArray(config?.layouts) ? config.layouts : [];
+  return layouts.find(layout => layout.id === config?.activeLayout) || layouts[0] || null;
+}
+
 /**
- * Baut aus der Konfiguration den vollstaendigen Plan: Geometrie je Etage,
- * fortlaufende Tischnummern ueber alle Etagen und aufgeloeste Kombinationen.
+ * Baut aus der Konfiguration den vollstaendigen Plan der aktiven Ordnung:
+ * Geometrie je Etage, fortlaufende Tischnummern und aufgeloeste Kombinationen.
  */
 export function buildFloorplan(config, grid = GRID) {
-  const levels = [...(config?.levels || [])]
+  const layout = activeLayout(config);
+  const levels = [...(layout?.levels || [])]
     .filter(level => level && typeof level.id === 'string')
     .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0) || a.id.localeCompare(b.id));
 
@@ -119,7 +139,7 @@ export function buildFloorplan(config, grid = GRID) {
   const combos = [];
   const orphans = [];
 
-  for (const combo of config?.combos || []) {
+  for (const combo of layout?.combos || []) {
     const ids = Array.isArray(combo?.tables) ? combo.tables : [];
     const members = ids.map(id => byId.get(id)).filter(Boolean);
     if (members.length !== ids.length || members.length < 2) {
@@ -137,7 +157,16 @@ export function buildFloorplan(config, grid = GRID) {
     });
   }
 
-  return { grid, levels: built, tables: all, combos, orphans, policy: config?.policy || {} };
+  return {
+    grid,
+    layoutId: layout?.id || null,
+    layoutName: layout?.name || '',
+    levels: built,
+    tables: all,
+    combos,
+    orphans,
+    policy: config?.policy || {}
+  };
 }
 
 /** Zaehlt die Tische je Personenzahl. Kombinationen zaehlen als eigene Groesse. */
@@ -179,4 +208,66 @@ export function canPlace(floorplan, tableId, col, row, grid = GRID) {
   const clash = floorplan.tables.find(other =>
     other.id !== tableId && other.levelId === table.levelId && overlapsRect(moved, other));
   return clash ? { ok: false, reason: 'occupied', blockedBy: clash.number } : { ok: true };
+}
+
+/** Naechste freie Tisch-Kennung einer Etage. */
+export function nextTableId(level) {
+  const used = new Set((level.tables || []).map(table => table.id));
+  for (let index = 1; index < 1000; index += 1) {
+    const id = `${level.id}-t${pad(index)}`;
+    if (!used.has(id)) return id;
+  }
+  return `${level.id}-t999`;
+}
+
+/**
+ * Hebt eine Konfiguration auf Version 2. Version 1 kannte nur eine Ordnung und
+ * beschrieb Tische ueber Anzahlen; jetzt sind es benannte Ordnungen mit
+ * einzeln adressierbaren Tischen.
+ */
+export function migrate(config) {
+  if (!config || typeof config !== 'object') return config;
+  if (Number(config.version) >= 2 && Array.isArray(config.layouts)) return config;
+
+  const levels = (config.levels || []).map(level => {
+    const tables = [];
+    let index = 1;
+    for (const seats of Object.keys(level.counts || {}).map(Number).sort((a, b) => b - a)) {
+      const count = Math.max(0, Math.trunc(Number(level.counts[seats]) || 0));
+      for (let i = 0; i < count; i += 1) {
+        const oldId = `${level.id}-${seats}-${pad(i + 1)}`;
+        const spot = (level.positions || {})[oldId];
+        tables.push({
+          id: `${level.id}-t${pad(index++)}`,
+          legacyId: oldId,
+          seats,
+          col: Number.isInteger(spot?.col) ? spot.col : null,
+          row: Number.isInteger(spot?.row) ? spot.row : null
+        });
+      }
+    }
+    return { id: level.id, name: level.name, order: level.order, tables };
+  });
+
+  const map = new Map(levels.flatMap(level => level.tables.map(table => [table.legacyId, table.id])));
+  levels.forEach(level => level.tables.forEach(table => { delete table.legacyId; }));
+
+  return {
+    version: 2,
+    updatedAt: config.updatedAt,
+    status: config.status,
+    numbering: config.numbering || { start: 1 },
+    activeLayout: 'standard',
+    layouts: [{
+      id: 'standard',
+      name: 'Standard',
+      levels,
+      combos: (config.combos || []).map(combo => ({
+        ...combo,
+        tables: (combo.tables || []).map(id => map.get(id) || id)
+      }))
+    }],
+    policy: config.policy || {},
+    menu: config.menu
+  };
 }

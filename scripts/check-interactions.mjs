@@ -71,6 +71,13 @@ if (/data-floorplan|floorplan\.(js|css)/.test(reservation)) {
 const internal = await readFile(path.join(root, 'site/gastgeber-tischplan.html'), 'utf8');
 if (!/<div data-floorplan[^>]*id="fpPreview"/.test(internal)) fail('Der Tischplan-Container fehlt auf der internen Seite');
 if (!/name="robots" content="noindex/.test(internal)) fail('Die interne Tischplanseite muss noindex tragen');
+for (const id of ['fpDate', 'fpTime', 'fpLayout', 'fpResForm', 'fpDishes', 'fpParties', 'fpTableList', 'fpLevels', 'fpKitchen']) {
+  if (!internal.includes(`id="${id}"`)) fail(`Der interne Tischplan hat kein Element mit id="${id}"`);
+}
+// Die Seite darf nicht versprechen, ein Postfach auszulesen - das kann sie nicht.
+if (!/kann eine statische Seite nicht/.test(internal)) {
+  fail('Der Hinweis fehlt, dass ein Postfach nicht automatisch ausgelesen werden kann');
+}
 
 const renderer = await readFile(path.join(root, 'site/floorplan.js'), 'utf8');
 if (!renderer.includes("'aria-hidden': 'true'")) fail('Das Tischplan-SVG muss aria-hidden tragen');
