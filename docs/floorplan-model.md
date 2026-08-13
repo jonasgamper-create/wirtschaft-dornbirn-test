@@ -135,6 +135,16 @@ freien Tisch. Was nicht unterkommt, wird namentlich gemeldet statt still
 Das ist bewusst kein Zufall: zufällige Verteilung verschenkt große Tische an
 kleine Gruppen und lässt später niemanden mehr Platz finden.
 
+**Zwei Klicks, der kürzeste Weg.** Gruppe oben anklicken — sie ist markiert —
+dann den Tisch auf der Karte anklicken. Fertig. Eine schon sitzende Gruppe zu
+markieren heißt umsetzen: der nächste Tischklick verschiebt sie. Nochmal auf die
+Gruppe klicken hebt die Markierung auf.
+
+**Umgekehrt, vom Tisch aus.** Jede freie Zeile in der Tischliste hat eine
+Auswahl „Gruppe wählen …" mit allen offenen Gruppen. Gruppen, die nicht an den
+Tisch passen, stehen dort ausgegraut statt zu fehlen — so sieht man, dass es sie
+gibt und warum sie nicht gehen.
+
 **Unten, die Tischliste.** Eine Zeile je Tisch mit Nummer, Größe, Etage, Name
 und Personenzahl. Den Namen direkt in die Zeile schreiben belegt den Tisch, das
 Feld leeren macht ihn wieder frei. Die Personenzahl wird still auf die

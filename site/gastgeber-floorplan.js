@@ -31,6 +31,9 @@ async function start() {
   const current = () => store.load().floorplan;
   const blocked = () => store.load().blockedTables || [];
   let picked = null;
+  // Markierte Gruppe: der erste Klick markiert, der zweite setzt sie an einen
+  // Tisch. Das spart das doppelte Tippen desselben Namens.
+  let marked = null;
   const numbering = config => buildFloorplan(config).tables.map(table => `${table.id}:${table.number}`).join(',');
 
   function warn(text) {
@@ -120,6 +123,8 @@ async function start() {
       // Tischliste - so loest ein Fehlklick nichts aus, der Weg zum Bearbeiten
       // ist aber genau ein Schritt.
       onSelect: id => {
+        // Ist oben eine Gruppe markiert, setzt dieser Klick sie an den Tisch.
+        if (id && marked) return seatMarked(id);
         picked = id;
         paintPlan();
         paintSeating();
@@ -200,12 +205,22 @@ async function start() {
     } else {
       for (const party of all) {
         const item = document.createElement('li');
+        if (party.id === marked) item.className = 'is-marked';
+
+        // Die Gruppe selbst ist der Knopf: markieren, dann Tisch anklicken.
+        // Zwei Klicks statt Namen zweimal tippen.
+        const pickButton = document.createElement('button');
+        pickButton.type = 'button';
+        pickButton.className = 'pick';
+        pickButton.dataset.markParty = party.id;
+        pickButton.setAttribute('aria-pressed', String(party.id === marked));
+
         const name = document.createElement('b');
         name.textContent = party.name;
         const size = document.createElement('span');
         size.className = 'seat';
         size.textContent = `${party.guests}P`;
-        item.append(name, size);
+        pickButton.append(name, size);
 
         const where = document.createElement('span');
         if (party.tableIds.length) {
@@ -213,9 +228,10 @@ async function start() {
           where.textContent = `Tisch ${party.tableIds.map(id => byId_.get(id)?.number ?? '?').join(' + ')}`;
         } else {
           where.className = 'open';
-          where.textContent = 'noch offen';
+          where.textContent = party.id === marked ? 'Tisch anklicken' : 'noch offen';
         }
-        item.append(where);
+        pickButton.append(where);
+        item.append(pickButton);
 
         const remove = document.createElement('button');
         remove.type = 'button';
@@ -285,6 +301,28 @@ async function start() {
       guests.setAttribute('aria-label', `Personen an Tisch ${table.number}, höchstens ${table.seats}`);
       actions.append(guests);
 
+      // Der umgekehrte Weg: am Tisch eine offene Gruppe auswaehlen, statt
+      // oben zu markieren. Erscheint nur, wenn es beides gibt.
+      const open = parties().filter(entry => !entry.tableIds.length);
+      if (!party && !isBlocked && open.length) {
+        const choose = document.createElement('select');
+        choose.dataset.tableId = table.id;
+        choose.dataset.field = 'assign';
+        choose.setAttribute('aria-label', `Offene Gruppe an Tisch ${table.number} setzen`);
+        const empty = document.createElement('option');
+        empty.value = '';
+        empty.textContent = 'Gruppe wählen …';
+        choose.append(empty);
+        for (const entry of open) {
+          const option = document.createElement('option');
+          option.value = entry.id;
+          option.textContent = `${entry.name} (${entry.guests}P)`;
+          option.disabled = entry.guests > table.seats;
+          choose.append(option);
+        }
+        actions.append(choose);
+      }
+
       const free = document.createElement('button');
       free.type = 'button';
       free.dataset.tableId = table.id;
@@ -321,6 +359,30 @@ async function start() {
         if (back.type === 'text' && keepFocus.start != null) back.setSelectionRange(keepFocus.start, keepFocus.start);
       }
     }
+  }
+
+  /** Setzt die oben markierte Gruppe an einen Tisch. */
+  function seatMarked(tableId) {
+    const plan = buildFloorplan(current());
+    const table = plan.tables.find(item => item.id === tableId);
+    const list = parties().map(party => ({ ...party, tableIds: [...party.tableIds] }));
+    const party = list.find(entry => entry.id === marked);
+    if (!table || !party) { marked = null; return; }
+
+    if (list.some(entry => entry !== party && entry.tableIds.includes(tableId))) {
+      return seatResult(`Tisch ${table.number} ist schon belegt. Erst frei machen.`);
+    }
+    if (blocked().includes(tableId)) return seatResult(`Tisch ${table.number} ist gesperrt. Erst entsperren.`);
+    if (party.guests > table.seats) {
+      return seatResult(`${party.name} sind ${party.guests} Personen – Tisch ${table.number} hat nur ${table.seats} Plätze.`);
+    }
+
+    party.tableIds = [tableId];
+    marked = null;
+    store.setParties(list);
+    seatResult(`${party.name} sitzt an Tisch ${table.number} (${party.guests} von ${table.seats} Plätzen).`);
+    paintPlan();
+    paintSeating();
   }
 
   /** Name auf einen Tisch schreiben. Leerer Name macht den Tisch frei. */
@@ -436,10 +498,23 @@ async function start() {
   });
 
   byId('fpParties').addEventListener('click', event => {
+    const mark = event.target.closest('[data-mark-party]');
+    if (mark) {
+      const party = parties().find(entry => entry.id === mark.dataset.markParty);
+      marked = marked === mark.dataset.markParty ? null : mark.dataset.markParty;
+      paintSeating();
+      seatResult(!marked ? 'Markierung aufgehoben.'
+        : party?.tableIds.length
+          // Eine schon sitzende Gruppe zu markieren heisst umsetzen.
+          ? `${party.name} sitzt bereits – jetzt den neuen Tisch anklicken.`
+          : `${party?.name} ist markiert – jetzt einen freien Tisch anklicken.`);
+      return;
+    }
     const button = event.target.closest('[data-remove-party]');
     if (!button) return;
     const list = parties();
     const gone = list.find(party => party.id === button.dataset.removeParty);
+    if (marked === button.dataset.removeParty) marked = null;
     store.setParties(list.filter(party => party.id !== button.dataset.removeParty));
     seatResult(gone ? `${gone.name} entfernt.` : 'Gruppe entfernt.');
     paintPlan();
@@ -492,6 +567,11 @@ async function start() {
     const field = event.target.closest('[data-field]');
     if (!field) return;
     if (field.dataset.field === 'name') return setTableName(field.dataset.tableId, field.value);
+    if (field.dataset.field === 'assign') {
+      if (!field.value) return;
+      marked = field.value;
+      return seatMarked(field.dataset.tableId);
+    }
 
     const plan = buildFloorplan(current());
     const table = plan.tables.find(item => item.id === field.dataset.tableId);

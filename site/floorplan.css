@@ -70,7 +70,11 @@
 
 /* Belegung: offene Gruppen oben, Einzelzuweisung unten. */
 .fp-party-list{display:grid;gap:6px;margin:16px 0 0;padding:0;list-style:none}
-.fp-party-list li{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#fff;font-size:12px}
+.fp-party-list li{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:6px 12px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#fff;font-size:12px}
+.fp-party-list li.is-marked{border-color:var(--green,#244635);border-width:2px;background:#e8f0ea}
+/* Die Gruppe selbst ist der Knopf: markieren, dann Tisch anklicken. */
+.fp-party-list .pick{display:flex;flex:1 1 auto;align-items:center;gap:10px;min-height:40px;padding:0;border:0;background:none;color:inherit;font:inherit;font-size:12px;text-align:left;cursor:pointer}
+.fp-party-list .pick[aria-pressed="true"] .open{color:var(--green,#244635)}
 .fp-party-list b{font-size:13px}
 .fp-party-list .seat{color:var(--muted,#6d675f);font-variant-numeric:tabular-nums}
 .fp-party-list .at{margin-left:auto;padding:2px 8px;border-radius:99px;background:#e8f0ea;color:var(--green,#244635);font-weight:700;font-variant-numeric:tabular-nums}
@@ -82,6 +86,7 @@
 .fp-table-row{display:grid;grid-template-columns:64px minmax(140px,1fr) auto;gap:10px;align-items:center;padding:8px 12px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#fff}
 .fp-row-actions{display:flex;align-items:center;gap:8px}
 .fp-row-actions input{width:74px}
+.fp-row-actions select{min-height:38px;max-width:180px;padding:0 8px;border:1px solid var(--line,#11110f26);border-radius:6px;background:#fff;color:inherit;font:inherit;font-size:12px;cursor:pointer}
 .fp-table-row.is-busy{background:#f6f1e6}
 .fp-table-row.is-blocked{border-color:var(--wine,#8c292b)}
 .fp-table-row.is-picked{border-color:var(--green,#244635);border-width:2px}
