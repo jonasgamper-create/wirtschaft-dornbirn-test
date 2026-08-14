@@ -4,7 +4,7 @@
 
 // Version muss zu den anderen Importen passen, sonst laedt der Browser zwei
 // Kopien desselben Moduls.
-import { buildFloorplan, chairSlots, tableBody } from './floorplan-layout.mjs?v=5';
+import { ELEMENTS, buildFloorplan, chairSlots, seatNamesFor, tableBody } from './floorplan-layout.mjs?v=6';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const el = (tag, attrs = {}) => {
@@ -21,7 +21,7 @@ const STATE_LABEL = { free: 'frei', busy: 'belegt', blocked: 'gesperrt', picked:
 // lange gekuerzt, bis sie passt. Das geht erst, wenn das SVG im Dokument
 // haengt - darum als Nachlauf nach dem Einhaengen.
 function fitLabels(scope) {
-  for (const node of scope.querySelectorAll('.fp-name')) {
+  for (const node of scope.querySelectorAll('.fp-name, .fp-seat-name')) {
     const max = Number(node.dataset.maxw);
     let text = node.dataset.full || '';
     node.textContent = text;
@@ -37,7 +37,9 @@ function fitLabels(scope) {
 export function renderFloorplan(root, config, options = {}) {
   const {
     mode = 'orientation', states = {}, seating = {}, selected = null,
-    onSelect = null, onMove = null, onEdit = null
+    onSelect = null, onMove = null, onEdit = null,
+    // Sitzplan: Namen an den Stuehlen statt Belegung am Tisch.
+    seatMode = false, onSeatName = null, onMoveElement = null
   } = options;
   const plan = buildFloorplan(config);
   if (!plan.tables.length) {
@@ -117,19 +119,55 @@ export function renderFloorplan(root, config, options = {}) {
 
   function drawLevel(level) {
     const svg = el('svg', {
-      class: `fp-svg${onMove ? ' fp-movable' : ''}`,
+      class: `fp-svg${onMove || onMoveElement ? ' fp-movable' : ''}`,
       viewBox: `0 0 ${level.cols} ${level.rows}`,
       preserveAspectRatio: 'xMinYMin meet',
       'aria-hidden': 'true',
       focusable: 'false'
     });
+    // Raum zuerst: Waende, Buehne, Bar und Eingaenge liegen unter den Tischen.
+    for (const item of level.elements || []) {
+      const group = el('g', { class: 'fp-element', 'data-element-id': item.id, 'data-kind': item.kind });
+      group.append(el('rect', {
+        class: 'fp-element-shape',
+        x: item.col, y: item.row, width: item.w, height: item.h, rx: item.kind === 'wand' ? 0 : 0.2
+      }));
+      const text = (item.label || ELEMENTS[item.kind]?.label || '').trim();
+      if (text) {
+        const label = el('text', { class: 'fp-element-label', x: item.col + item.w / 2, y: item.row + item.h / 2 });
+        label.textContent = text;
+        group.append(label);
+      }
+      svg.append(group);
+    }
+
     for (const table of level.tables) {
       const group = el('g', { 'data-table-id': table.id, 'data-state': stateOf(table) });
 
       // Stuehle zuerst, damit die Tischplatte darueber liegt.
-      for (const chair of chairSlots(table)) {
-        group.append(el('rect', { class: 'fp-chair', x: chair.x, y: chair.y, width: chair.w, height: chair.h, rx: 0.1 }));
-      }
+      const names = seatNamesFor(table);
+      chairSlots(table).forEach((chair, index) => {
+        const seat = el('g', { class: 'fp-seat', 'data-table-id': table.id, 'data-seat': index });
+        seat.append(el('rect', {
+          class: `fp-chair${names[index] ? ' is-named' : ''}`,
+          x: chair.x, y: chair.y, width: chair.w, height: chair.h, rx: 0.1
+        }));
+        if (seatMode && names[index]) {
+          // Der Name steht neben dem Stuhl, nicht darin - ein Stuhl ist zu
+          // klein fuer Text, der noch lesbar sein soll.
+          const oben = chair.y < table.row + table.h / 2;
+          const label = el('text', {
+            class: 'fp-seat-name',
+            x: chair.x + chair.w / 2,
+            y: oben ? chair.y - 0.18 : chair.y + chair.h + 0.42
+          });
+          label.dataset.full = names[index];
+          label.dataset.maxw = String(chair.w + 1.6);
+          label.textContent = names[index];
+          seat.append(label);
+        }
+        group.append(seat);
+      });
       const body = tableBody(table);
       group.append(el('rect', { class: 'fp-shape', x: body.x, y: body.y, width: body.w, height: body.h, rx: 0.12 }));
 
@@ -162,6 +200,13 @@ export function renderFloorplan(root, config, options = {}) {
     if (mode === 'select') {
       svg.addEventListener('click', event => {
         if (svg.dataset.dragged === '1') { svg.dataset.dragged = '0'; return; }
+        // Im Sitzplan gilt der Klick dem Stuhl, nicht dem Tisch.
+        const seat = seatMode && event.target.closest('[data-seat]');
+        if (seat) {
+          const table = level.tables.find(item => item.id === seat.dataset.tableId);
+          if (table) editSeat(svg, table, Number(seat.dataset.seat));
+          return;
+        }
         const group = event.target.closest('[data-table-id]');
         if (!group) return;
         root.querySelector(`.fp-list [data-table-id="${group.dataset.tableId}"]`)?.click();
@@ -175,9 +220,22 @@ export function renderFloorplan(root, config, options = {}) {
           if (table) editOnTable(svg, table);
         });
       }
-      if (onMove) enableDrag(svg, level);
+      if (onMove || onMoveElement) enableDrag(svg, level);
     }
     return svg;
+  }
+
+  /** Name fuer einen einzelnen Stuhl. Feld liegt ueber der Tischplatte. */
+  function editSeat(svg, table, index) {
+    const body = tableBody(table);
+    const names = seatNamesFor(table);
+    openField(svg, {
+      x: body.x, y: body.y + body.h / 2 - 0.55, width: body.w, height: 1.1,
+      value: names[index] || '',
+      placeholder: `Platz ${index + 1}`,
+      label: `Name für Platz ${index + 1} an Tisch ${table.number}`,
+      commit: value => onSeatName(table.id, index, value)
+    });
   }
 
   // Ein echtes Eingabefeld auf dem Tisch. Kein contenteditable im SVG - das ist
@@ -186,23 +244,36 @@ export function renderFloorplan(root, config, options = {}) {
   // Content-Security-Policy, das Feld saesse an der falschen Stelle. Ein
   // foreignObject wird ueber Attribute positioniert und ist damit erlaubt.
   function editOnTable(svg, table) {
+    openField(svg, {
+      x: tableBody(table).x,
+      y: tableBody(table).y + tableBody(table).h / 2 - 0.55,
+      width: tableBody(table).w,
+      height: 1.1,
+      value: seating[table.id]?.name || '',
+      placeholder: `Tisch ${table.number}`,
+      label: `Name für Tisch ${table.number}, ${table.seats} Plätze`,
+      commit: value => onEdit(table.id, value)
+    });
+  }
+
+  /**
+   * Ein echtes Eingabefeld im Plan. Kein contenteditable im SVG - das ist mit
+   * Tastatur und Vorlesesoftware unzuverlaessig. Und kein absolut
+   * positioniertes Overlay: dessen Inline-Stile blockiert die
+   * Content-Security-Policy. Ein foreignObject wird ueber Attribute
+   * positioniert und ist damit erlaubt.
+   */
+  function openField(svg, { x, y, width, height, value, placeholder, label, commit }) {
     svg.querySelector('.fp-inline-host')?.remove();
 
-    const body = tableBody(table);
-    const host = el('foreignObject', {
-      class: 'fp-inline-host',
-      x: body.x,
-      y: body.y + body.h / 2 - 0.55,
-      width: body.w,
-      height: 1.1
-    });
+    const host = el('foreignObject', { class: 'fp-inline-host', x, y, width, height });
     const input = document.createElementNS('http://www.w3.org/1999/xhtml', 'input');
     input.setAttribute('class', 'fp-inline');
     input.setAttribute('type', 'text');
     input.setAttribute('maxlength', '40');
-    input.value = seating[table.id]?.name || '';
-    input.setAttribute('placeholder', `Tisch ${table.number}`);
-    input.setAttribute('aria-label', `Name für Tisch ${table.number}, ${table.seats} Plätze`);
+    input.value = value;
+    input.setAttribute('placeholder', placeholder);
+    input.setAttribute('aria-label', label);
     host.append(input);
     svg.append(host);
     input.focus();
@@ -212,9 +283,9 @@ export function renderFloorplan(root, config, options = {}) {
     const done = keep => {
       if (closed) return;
       closed = true;
-      const value = input.value.trim();
+      const next = input.value.trim();
       host.remove();
-      if (keep) onEdit(table.id, value);
+      if (keep) commit(next);
     };
     input.addEventListener('keydown', event => {
       if (event.key === 'Enter') { event.preventDefault(); done(true); }
@@ -235,12 +306,17 @@ export function renderFloorplan(root, config, options = {}) {
     };
 
     svg.addEventListener('pointerdown', event => {
-      const group = event.target.closest('[data-table-id]');
+      // Raumobjekte werden genauso gezogen wie Tische - nur meldet der Zug
+      // am Ende an einen anderen Empfaenger.
+      const room = onMoveElement && event.target.closest('[data-element-id]');
+      const group = room || event.target.closest('[data-table-id]');
       if (!group || event.button !== 0) return;
       const start = toGrid(event);
-      const table = level.tables.find(item => item.id === group.dataset.tableId);
+      const table = room
+        ? (level.elements || []).find(item => item.id === room.dataset.elementId)
+        : level.tables.find(item => item.id === group.dataset.tableId);
       if (!start || !table) return;
-      drag = { group, table, startX: start.x, startY: start.y, dx: 0, dy: 0 };
+      drag = { group, table, room: Boolean(room), startX: start.x, startY: start.y, dx: 0, dy: 0 };
       group.classList.add('is-dragging');
       try { svg.setPointerCapture(event.pointerId); } catch { /* Stift/Touch ohne Capture */ }
       event.preventDefault();
@@ -257,6 +333,7 @@ export function renderFloorplan(root, config, options = {}) {
 
     const finish = event => {
       if (!drag) return;
+      const drag2 = drag;
       const { group, table, dx, dy } = drag;
       drag = null;
       group.classList.remove('is-dragging');
@@ -264,7 +341,8 @@ export function renderFloorplan(root, config, options = {}) {
       try { svg.releasePointerCapture(event.pointerId); } catch { /* Zeiger war nie gefangen */ }
       if (!dx && !dy) return;
       svg.dataset.dragged = '1';
-      onMove(table.id, table.col + dx, table.row + dy);
+      if (drag2.room) onMoveElement(table.id, table.col + dx, table.row + dy);
+      else onMove(table.id, table.col + dx, table.row + dy);
     };
     svg.addEventListener('pointerup', finish);
     svg.addEventListener('pointercancel', finish);

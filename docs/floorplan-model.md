@@ -340,3 +340,60 @@ Anmeldung**. Gästedaten würden dabei zwar nicht mitgeliefert — sie entstehen
 erst im Browser —, aber die interne Ansicht wäre für jeden erreichbar, der die
 Adresse kennt. Deshalb bleibt der Tischplan aus dem öffentlichen Build heraus;
 die Einzeldatei ist der Weg, ihn trotzdem überall dabeizuhaben.
+
+## Raum aufzeichnen
+
+Bühne, Bar, Eingang, Ausgang, Terrasse und Wände liegen als `elements` in der
+Etage. Sie werden wie Tische gezogen, lassen sich verlängern und drehen, und
+**sperren nichts** — sie zeigen dem Kunden, wo er ist. Nur die automatische
+Platzierung neuer Tische weicht ihnen aus, damit der erste Tisch nicht mitten
+auf der Bühne landet.
+
+Eine Wand ist ein flaches Rechteck. Das ist absichtlich derselbe Baustein wie
+alles andere: ziehen, verlängern, drehen — kein zweiter Bedienweg für Striche.
+
+## Rückgängig und wieder vor
+
+Oben auf der Seite, in beiden Ansichten. Jede Änderung ist ein eigener Schritt:
+ein verschobener Tisch, ein Name, eine Anzahl. Auch über die Tastatur mit
+Cmd/Strg + Z und Cmd/Strg + Umschalt + Z — außer während in ein Feld getippt
+wird, dort gilt das Rückgängig des Browsers.
+
+Der Verlauf hält 60 Schritte und liegt in `site/plan-history.mjs`. Er legt nach
+jeder Änderung den ganzen Zustand als Text ab. Das ist gröber als eine
+Befehlsliste, aber bei dieser Größenordnung billiger — und es kann nichts
+auseinanderlaufen, weil es keinen zweiten Weg zurück gibt.
+
+## Tagesübersicht und Excel
+
+Panel 06 zeigt je Tag: Reservierungen, Gäste, Plätze gesamt, belegt, frei,
+Auslastung und vorbestellte Portionen. **Der gewählte Tag steht immer oben** und
+ist hervorgehoben, auch wenn für ihn noch nichts eingetragen ist.
+
+„Als Tabelle für Excel speichern" schreibt eine CSV mit Semikolon, deutschem
+Zahlenformat und BOM — Excel öffnet sie per Doppelklick richtig, inklusive
+Umlaute. Eine echte `.xlsx` bräuchte eine zusätzliche Programmbibliothek; die
+CSV kommt ohne aus und lässt sich in Excel jederzeit als xlsx speichern.
+
+## Kundenplan für geschlossene Veranstaltungen
+
+Der Weg, wie ihn auch andere ohne eigenen Server gehen:
+
+1. **Wolfgang bereitet vor.** Tische und Stühle so anlegen, wie sie wirklich da
+   sind, und den Raum aufzeichnen — Bühne, Bar, Ein- und Ausgang, Terrasse,
+   Wände. Ohne Raum findet sich der Kunde schwer zurecht; der Knopf „Kundenplan"
+   sagt es, wenn noch keiner da ist.
+2. **Datei erzeugen.** „Kundenplan" legt die Raumdatei ab. Diese nach
+   `site/data/floorplan.json` kopieren und `npm run build:tischplan` ausführen.
+   Daraus entsteht `output/tischplan/wirtschaft-kundenplan.html`.
+3. **Verschicken.** Eine Datei, rund 77 KB, ohne Internet lauffähig.
+4. **Der Kunde plant.** Tische ziehen, auf einen Stuhl klicken und den Namen
+   eintragen — oder alles in der Namensliste tippen. Rückgängig oben, alles
+   zurücksetzen unten.
+5. **Zurück.** „Als PDF" für den Ausdruck mit Anlass und Saalname im Kopf,
+   „Speichern & zurückschicken" legt eine Datei ab, die der Kunde per Mail
+   zurücksendet.
+
+**Was das nicht ist:** ein Link, unter dem der Kunde plant und Wolfgang live
+zusieht. Dafür bräuchte es einen Server, der speichert. Die Eingaben des Kunden
+bleiben auf seinem Gerät, bis er sie schickt — das steht auch so auf der Seite.

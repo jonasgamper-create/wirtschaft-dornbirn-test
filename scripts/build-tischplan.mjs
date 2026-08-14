@@ -30,17 +30,18 @@ const stripVersionQuery = {
   }
 };
 
-const bundle = await esbuild.build({
-  entryPoints: [path.join(site, 'gastgeber-floorplan.js')],
+const buendel = async name => (await esbuild.build({
+  entryPoints: [path.join(site, name)],
   bundle: true,
   format: 'iife',
   target: 'es2022',
   charset: 'utf8',
   write: false,
   plugins: [stripVersionQuery]
-});
+})).outputFiles[0].text;
 
 const store = await readFile(path.join(site, 'inventory-store.js'), 'utf8');
+const target2 = path.join(root, 'output/tischplan/wirtschaft-kundenplan.html');
 const config = JSON.parse(await readFile(path.join(site, 'data/floorplan.json'), 'utf8'));
 const logo = await readFile(path.join(site, 'assets/wirtschaft-logo.png'));
 
@@ -56,48 +57,55 @@ const embed = value => JSON.stringify(value)
   .replace(/\u2028/g, '\\u2028')
   .replace(/\u2029/g, '\\u2029');
 
-const script = `window.WIRTSCHAFT_FLOORPLAN=${embed(config)};\n${store}\n${bundle.outputFiles[0].text}`;
+async function baue({ quelle, ziel, code, kopfErsatz }) {
+  const script = `window.WIRTSCHAFT_FLOORPLAN=${embed(config)};\n${code}`;
+  const styleBody = `\n${styles}\n  `;
+  const scriptBody = `\n${script}\n  `;
+  const sha = value => `'sha256-${createHash('sha256').update(value, 'utf8').digest('base64')}'`;
 
-// Der Browser bildet den Hash ueber den exakten Inhalt zwischen den Tags -
-// die Zeilenumbrueche beim Einsetzen zaehlen mit. Deshalb erst den Rumpf
-// festlegen, dann genau den hashen und genau den einsetzen.
-const styleBody = `\n${styles}\n  `;
-const scriptBody = `\n${script}\n  `;
-const sha = value => `'sha256-${createHash('sha256').update(value, 'utf8').digest('base64')}'`;
+  let html = await readFile(path.join(site, quelle), 'utf8');
+  html = html
+    .replace(/\n\s*<link rel="stylesheet"[^>]*>/g, '')
+    .replace(/\n\s*<script[^>]*><\/script>/g, '')
+    .replace(/<link rel="icon"[^>]*>/, `<link rel="icon" href="data:image/png;base64,${logo.toString('base64')}" type="image/png">`)
+    .replace(/src="assets\/wirtschaft-logo\.png"/g, `src="data:image/png;base64,${logo.toString('base64')}"`)
+    .replace('</head>', `  <style>${styleBody}</style>\n</head>`)
+    // Das Skript ans Ende des Body: ein Inline-Skript kennt kein defer, im Kopf
+    // liefe es vor dem Inhalt und faende die Bedienelemente nicht.
+    .replace('</body>', `  <script>${scriptBody}</script>\n</body>`);
 
-let html = await readFile(path.join(site, 'gastgeber-tischplan.html'), 'utf8');
+  if (kopfErsatz) html = html.replace(kopfErsatz[0], kopfErsatz[1]);
 
-html = html
-  .replace(/\n\s*<link rel="stylesheet"[^>]*>/g, '')
-  .replace(/\n\s*<script[^>]*><\/script>/g, '')
-  .replace(/<link rel="icon"[^>]*>/, `<link rel="icon" href="data:image/png;base64,${logo.toString('base64')}" type="image/png">`)
-  .replace(/src="assets\/wirtschaft-logo\.png"/g, `src="data:image/png;base64,${logo.toString('base64')}"`)
-  // Aus der Einzeldatei fuehrt kein Weg zurueck ins Cockpit - der Link zeigte
-  // auf eine Datei, die daneben nicht liegt.
-  .replace(/<a href="gastgeber\.html">[^<]*<\/a>/, '<span class="fp-single">Einzeldatei · offline</span>')
-  .replace('</head>', `  <style>${styleBody}</style>\n</head>`)
-  // Das Skript ans Ende des Body: ein Inline-Skript kennt kein defer, im Kopf
-  // liefe es vor dem Inhalt und faende die Bedienelemente nicht.
-  .replace('</body>', `  <script>${scriptBody}</script>\n</body>`);
+  // Kein Netzzugriff noetig und keiner erlaubt. Inline-Skript und -Stil sind
+  // ueber ihren Hash freigegeben, nicht ueber 'unsafe-inline'.
+  html = html.replace(
+    /<meta http-equiv="Content-Security-Policy"[^>]*>/,
+    '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; '
+    + `base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; `
+    + `style-src ${sha(styleBody)}; script-src ${sha(scriptBody)}; connect-src 'none'; form-action 'none'">`
+  );
 
-// Kein Netzzugriff noetig und keiner erlaubt. Inline-Skript und -Stil sind
-// ueber ihren Hash freigegeben, nicht ueber 'unsafe-inline'.
-html = html.replace(
-  /<meta http-equiv="Content-Security-Policy"[^>]*>/,
-  '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; '
-  + `base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; `
-  + `style-src ${sha(styleBody)}; script-src ${sha(scriptBody)}; connect-src 'none'; form-action 'none'">`
-);
+  await mkdir(path.dirname(ziel), { recursive: true });
+  await writeFile(ziel, html);
+  return Math.round(Buffer.byteLength(html) / 1024);
+}
 
-html = html.replace(
-  '<p class="fp-intro">',
-  '<p class="fp-intro"><strong>Einzeldatei zum Doppelklicken.</strong> Alles steckt in dieser Datei, '
-  + 'sie braucht kein Internet. Die Einteilung bleibt in dem Browser, in dem du sie eingibst – '
-  + 'auf einem anderen Rechner ist sie nicht da. '
-);
+const kbIntern = await baue({
+  quelle: 'gastgeber-tischplan.html',
+  ziel: target,
+  code: `${store}\n${await buendel('gastgeber-floorplan.js')}`,
+  kopfErsatz: [
+    /<a href="gastgeber\.html">[^<]*<\/a>/,
+    '<span class="fp-single">Einzeldatei · offline</span>'
+  ]
+});
 
-await mkdir(path.dirname(target), { recursive: true });
-await writeFile(target, html);
+const kbKunde = await baue({
+  quelle: 'kundenplan.html',
+  ziel: target2,
+  code: await buendel('kundenplan.js')
+});
 
-const kb = Math.round(Buffer.byteLength(html) / 1024);
-console.log(`Tischplan-Einzeldatei geschrieben: ${path.relative(root, target)} (${kb} KB, offline lauffähig)`);
+console.log(`Einzeldateien geschrieben:`);
+console.log(`  ${path.relative(root, target)} (${kbIntern} KB) - interne Planung`);
+console.log(`  ${path.relative(root, target2)} (${kbKunde} KB) - zum Verschicken an den Kunden`);

@@ -76,18 +76,38 @@
         const number = Number(value);
         return Number.isInteger(number) && number >= 0 && number <= max ? number : null;
       };
+      const seats = safeNumber(table?.seats, 1, 12, 2);
       return {
         id: tableId,
-        seats: safeNumber(table?.seats, 1, 12, 2),
+        seats,
         col: coord(table?.col, 200),
-        row: coord(table?.row, 400)
+        row: coord(table?.row, 400),
+        // Stuhlnamen fuer den Sitzplan. Genau wie beim Reservierungsnamen ist
+        // das ein personenbezogenes Feld - mehr steht hier nicht.
+        seatNames: Array.from({ length: seats }, (_, seat) =>
+          safeText(Array.isArray(table?.seatNames) ? table.seatNames[seat] : '', 28))
       };
     });
+
+    const kinds = new Set(['eingang', 'ausgang', 'bar', 'buehne', 'terrasse', 'wand']);
+    const elements = (Array.isArray(level?.elements) ? level.elements : []).slice(0, 60)
+      .filter(item => kinds.has(item?.kind))
+      .map((item, spot) => ({
+        id: safeText(item?.id, 24) || `${id}-e${String(spot + 1).padStart(2, '0')}`,
+        kind: item.kind,
+        label: safeText(item?.label, 24),
+        col: safeNumber(item?.col, 0, 200, 0),
+        row: safeNumber(item?.row, 0, 400, 0),
+        w: safeNumber(item?.w, 1, 24, 4),
+        h: safeNumber(item?.h, 1, 24, 1)
+      }));
+
     return {
       id,
       name: safeText(level?.name, 40) || `Etage ${index + 1}`,
       order: safeNumber(level?.order, 1, 4, index + 1),
-      tables
+      tables,
+      elements
     };
   }
 
@@ -119,6 +139,8 @@
       version: 2,
       status: ['beispiel', 'bestaetigt'].includes(input.status) ? input.status : 'beispiel',
       numbering: { start: safeNumber(input.numbering?.start, 1, 999, 1) },
+      // Steht im PDF-Kopf, damit ein ausgedruckter Plan zuordenbar ist.
+      eventName: safeText(input.eventName, 60),
       activeLayout: ids.has(input.activeLayout) ? input.activeLayout : layouts[0].id,
       layouts,
       menu: (Array.isArray(input.menu) ? input.menu : []).slice(0, 12).map((dish, index) => ({
@@ -312,6 +334,23 @@
     return save(current);
   }
 
+  /** Setzt Tischplan, Belegung und Sperren in einem Zug - fuer Rueckgaengig. */
+  function restorePlan(snapshot) {
+    const current = load();
+    return save({
+      ...current,
+      floorplan: snapshot?.floorplan ?? current.floorplan,
+      parties: Array.isArray(snapshot?.parties) ? snapshot.parties : current.parties,
+      blockedTables: Array.isArray(snapshot?.blockedTables) ? snapshot.blockedTables : current.blockedTables
+    });
+  }
+
+  /** Der Teil des Zustands, den Rueckgaengig umfasst. */
+  function planSnapshot() {
+    const current = load();
+    return { floorplan: current.floorplan, parties: current.parties, blockedTables: current.blockedTables };
+  }
+
   function updateService(id, patch) {
     const state = load();
     const service = state.services.find(item => item.id === id);
@@ -413,6 +452,8 @@
     updateFloorplan,
     setBlockedTables,
     setParties,
+    restorePlan,
+    planSnapshot,
     updateService,
     updateEvent,
     recordReservation,

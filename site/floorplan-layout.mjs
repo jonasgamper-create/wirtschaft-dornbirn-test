@@ -57,6 +57,20 @@ export function tableBody(table) {
   return { x: table.col + 0.15, y: table.row + 0.75, w: table.w - 0.3, h: table.h - 1.5 };
 }
 
+// Raumobjekte zur Orientierung. Sie blockieren keine Tische - der Wirt ordnet
+// von Hand an, und eine Sperre waere hier eher im Weg als eine Hilfe. Nur die
+// automatische Platzierung neuer Tische weicht ihnen aus.
+export const ELEMENTS = {
+  eingang: { label: 'Eingang', w: 4, h: 1 },
+  ausgang: { label: 'Ausgang', w: 4, h: 1 },
+  bar: { label: 'Bar', w: 7, h: 2 },
+  buehne: { label: 'Bühne', w: 9, h: 3 },
+  terrasse: { label: 'Terrasse', w: 7, h: 4 },
+  wand: { label: '', w: 8, h: 1 }
+};
+
+export const elementKinds = () => Object.keys(ELEMENTS);
+
 const pad = value => String(value).padStart(2, '0');
 
 export function overlapsRect(a, b) {
@@ -88,24 +102,40 @@ export function buildLevelGeometry(level, grid = GRID) {
     id: table.id,
     levelId: level.id,
     seats: clampSeats(table.seats),
+    seatNames: Array.isArray(table.seatNames) ? table.seatNames : [],
     ...footprint(table.seats),
     col: Number.isInteger(table.col) ? table.col : null,
     row: Number.isInteger(table.row) ? table.row : null
   }));
 
+  const elements = (Array.isArray(level?.elements) ? level.elements : [])
+    .filter(item => item && ELEMENTS[item.kind])
+    .map((item, index) => ({
+      id: item.id || `${level.id}-e${pad(index + 1)}`,
+      levelId: level.id,
+      kind: item.kind,
+      label: typeof item.label === 'string' ? item.label : ELEMENTS[item.kind].label,
+      col: Number.isInteger(item.col) ? item.col : 0,
+      row: Number.isInteger(item.row) ? item.row : 0,
+      w: Number.isInteger(item.w) ? item.w : ELEMENTS[item.kind].w,
+      h: Number.isInteger(item.h) ? item.h : ELEMENTS[item.kind].h
+    }));
+
   const placed = [];
   for (const spec of specs.filter(item => item.col !== null && item.row !== null && item.col + item.w <= grid.cols)) {
     placed.push({ ...spec, pinned: true });
   }
+  // Neue Tische weichen auch Raumobjekten aus - sonst landet der erste Tisch
+  // mitten auf der Buehne.
   for (const spec of specs.filter(item => !placed.some(done => done.id === item.id))) {
-    placed.push({ ...spec, ...findSpot(placed, spec, grid), pinned: false });
+    placed.push({ ...spec, ...findSpot([...placed, ...elements], spec, grid), pinned: false });
   }
 
   // Leserichtung: oben links nach unten rechts. Das macht die Karte
   // selbsterklaerend - Tisch 1 ist der erste, den man beim Reinkommen sieht.
   placed.sort((a, b) => a.row - b.row || a.col - b.col || String(a.id).localeCompare(String(b.id)));
-  const rows = placed.reduce((max, table) => Math.max(max, table.row + table.h), 0);
-  return { cols: grid.cols, rows, tables: placed };
+  const rows = [...placed, ...elements].reduce((max, item) => Math.max(max, item.row + item.h), 0);
+  return { cols: grid.cols, rows, tables: placed, elements };
 }
 
 /** Die gerade aktive Tischordnung, mit Rueckfall auf die erste. */
@@ -131,7 +161,15 @@ export function buildFloorplan(config, grid = GRID) {
   for (const level of levels) {
     const geometry = buildLevelGeometry(level, grid);
     const tables = geometry.tables.map(table => ({ ...table, number: number++, levelName: level.name }));
-    built.push({ id: level.id, name: level.name, order: Number(level.order) || 0, cols: geometry.cols, rows: geometry.rows, tables });
+    built.push({
+      id: level.id,
+      name: level.name,
+      order: Number(level.order) || 0,
+      cols: geometry.cols,
+      rows: geometry.rows,
+      tables,
+      elements: geometry.elements
+    });
     all.push(...tables);
   }
 
@@ -218,6 +256,26 @@ export function nextTableId(level) {
     if (!used.has(id)) return id;
   }
   return `${level.id}-t999`;
+}
+
+/** Naechste freie Kennung fuer ein Raumobjekt. */
+export function nextElementId(level) {
+  const used = new Set((level.elements || []).map(item => item.id));
+  for (let index = 1; index < 1000; index += 1) {
+    const id = `${level.id}-e${pad(index)}`;
+    if (!used.has(id)) return id;
+  }
+  return `${level.id}-e999`;
+}
+
+/**
+ * Stuhlnamen auf die Platzzahl bringen. Wird ein Stuhl entfernt, faellt sein
+ * Name weg; kommt einer dazu, bleibt er leer.
+ */
+export function seatNamesFor(table) {
+  const seats = clampSeats(table.seats);
+  const names = Array.isArray(table.seatNames) ? table.seatNames : [];
+  return Array.from({ length: seats }, (_, index) => String(names[index] || ''));
 }
 
 /**

@@ -11,14 +11,14 @@
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="stylesheet" href="gastgeber.css?v=1">
   <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=2">
-  <link rel="stylesheet" href="floorplan.css?v=13">
-  <script src="inventory-store.js?v=7" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=19"></script>
+  <link rel="stylesheet" href="floorplan.css?v=15">
+  <script src="inventory-store.js?v=8" defer></script>
+  <script type="module" src="gastgeber-floorplan.js?v=21"></script>
 </head>
 <body>
   <header class="topbar">
     <div class="brand"><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"><div><small>Interne Einteilung</small><strong>Tischplan</strong></div></div>
-    <div class="top-actions"><button class="quiet" type="button" id="fpExport">Tischplan exportieren</button><a href="gastgeber.html">Zum Cockpit ↗</a></div>
+    <div class="top-actions"><button class="quiet" type="button" id="fpUndo" title="Ein Schritt zurück (Cmd/Strg + Z)">↶ Zurück</button><button class="quiet" type="button" id="fpRedo" title="Wieder vor (Cmd/Strg + Umschalt + Z)">↷ Vor</button><button class="quiet" type="button" id="fpPrint">Als PDF</button><button class="quiet" type="button" id="fpKunde">Kundenplan</button><button class="quiet" type="button" id="fpExport">Export</button><a href="gastgeber.html">Cockpit ↗</a></div>
   </header>
 
   <main>
@@ -37,6 +37,7 @@
         <label>Tag<input id="fpDate" type="date" required></label>
         <label>Uhrzeit<input id="fpTime" type="time" step="900" required></label>
         <label>Tischordnung<select id="fpLayout"></select></label>
+        <label>Anlass<input id="fpEventName" type="text" maxlength="60" placeholder="z. B. Hochzeit Huber"></label>
         <button type="submit">Anzeigen</button>
       </form>
       <p class="fp-result" id="fpMomentInfo" role="status" aria-live="polite">Tag und Uhrzeit wählen.</p>
@@ -95,6 +96,11 @@
         <label>Name der Etage<input id="fpNewName" type="text" maxlength="40" placeholder="z. B. Stüberl" required></label>
         <button type="submit">Etage ergänzen</button>
       </form>
+      <h3 class="fp-subhead">Raum aufzeichnen</h3>
+      <p class="model-note">Bühne, Bar, Eingang, Ausgang, Terrasse und Wände lassen sich genauso verschieben wie Tische. Sie sperren nichts – sie zeigen dem Kunden, wo er ist.</p>
+      <div class="fp-sizes" id="fpAddElement"></div>
+      <div class="fp-chairs-list" id="fpElements"></div>
+
       <form class="add-service" id="fpLayoutForm">
         <label>Neue Tischordnung<input id="fpLayoutName" type="text" maxlength="40" placeholder="z. B. Hochzeit" required></label>
         <button type="submit">Ordnung anlegen</button>
@@ -103,6 +109,15 @@
         <button class="quiet" type="button" id="fpLayoutCopy">Aktuelle Ordnung kopieren</button>
         <button class="quiet" type="button" id="fpLayoutDelete">Aktuelle Ordnung löschen</button>
       </div>
+    </section>
+
+    <section class="panel" aria-labelledby="statsTitle">
+      <div class="panel-head"><div><p>06 · Tagesübersicht</p><h2 id="statsTitle">Wie voll war es wann?</h2></div><span>Heute steht immer oben</span></div>
+      <div class="table-wrap"><table id="fpStats"><thead><tr><th>Tag</th><th>Reservierungen</th><th>Gäste</th><th>Plätze gesamt</th><th>Belegt</th><th>Frei</th><th>Auslastung</th><th>Vorbestellt</th></tr></thead><tbody></tbody></table></div>
+      <div class="fp-tools">
+        <button class="quiet" type="button" id="fpCsv">Als Tabelle für Excel speichern</button>
+      </div>
+      <p class="model-note">Die Datei ist eine CSV mit Semikolon und deutschem Zahlenformat – Excel öffnet sie per Doppelklick. Eine echte xlsx-Datei bräuchte eine zusätzliche Programmbibliothek; die CSV kommt ohne aus und lässt sich in Excel jederzeit als xlsx speichern.</p>
     </section>
 
     <section class="notice">

@@ -4,9 +4,10 @@
 
 // Die Versionsangaben muessen mit denen in den HTML-Dateien mitwandern: ein
 // Modulimport ohne Version bleibt sonst im Browser-Cache haengen.
-import { GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, migrate, nextTableId, totalSeats } from './floorplan-layout.mjs?v=5';
-import { assignTables, durationFor, stamp } from './table-assignment.mjs?v=5';
-import { renderFloorplan } from './floorplan.js?v=11';
+import { ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, migrate, nextElementId, nextTableId, seatNamesFor, totalSeats } from './floorplan-layout.mjs?v=6';
+import { assignTables, durationFor, stamp } from './table-assignment.mjs?v=6';
+import { renderFloorplan } from './floorplan.js?v=12';
+import { createHistory } from './plan-history.mjs?v=1';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 const store = window.WirtschaftData;
@@ -45,6 +46,16 @@ async function start() {
   const moment = { date: today(), time: '12:00' };
   let picked = null;
   let marked = null;
+
+  // Jede Aenderung merkt sich, damit Rueckgaengig und Wiederholen jeden
+  // einzelnen Schritt treffen - nicht nur den letzten Speichervorgang.
+  const history = createHistory(
+    () => JSON.stringify(store.planSnapshot()),
+    text => { store.restorePlan(JSON.parse(text)); }
+  );
+  const putParties = list => { const out = store.setParties(list); history.remember(); return out; };
+  const putBlocked = list => { const out = store.setBlockedTables(list); history.remember(); return out; };
+  const putFloorplan = patch => { const out = store.updateFloorplan(patch); history.remember(); return out; };
 
   const say = (id, text) => { byId(id).textContent = text; };
   const seatResult = text => say('fpSeatResult', text);
@@ -93,7 +104,7 @@ async function start() {
 
   function save(next, { quiet = false } = {}) {
     const before = numbering(current());
-    store.updateFloorplan(next);
+    putFloorplan(next);
     const plan = buildFloorplan(current());
 
     const notes = [];
@@ -123,14 +134,14 @@ async function start() {
     const list = was.map(party => ({ ...party, tableIds: party.tableIds.filter(id => alive.has(id)) }));
     const freed = list.filter((party, index) => party.tableIds.length !== was[index].tableIds.length);
     if (freed.length) {
-      store.setParties(list);
+      putParties(list);
       const open = freed.filter(party => !party.tableIds.length).map(party => party.name);
       notes.push(open.length
         ? `${open.join(', ')} ${open.length === 1 ? 'hat' : 'haben'} keinen Tisch mehr und ${open.length === 1 ? 'steht' : 'stehen'} wieder offen.`
         : 'Eine Reservierung wurde auf die verbliebenen Tische gekürzt.');
     }
     const kept = blocked().filter(id => alive.has(id));
-    if (kept.length !== blocked().length) store.setBlockedTables(kept);
+    if (kept.length !== blocked().length) putBlocked(kept);
     if (marked && !list.some(party => party.id === marked)) marked = null;
     if (picked && !alive.has(picked)) picked = null;
     return notes;
@@ -202,6 +213,19 @@ async function start() {
         if (field && !field.disabled) { field.focus(); field.select(); }
       },
       onEdit: (id, value) => setTableName(id, value),
+      // Raumobjekte werden wie Tische gezogen, nur ohne Kollisionspruefung -
+      // eine Wand darf an einem Tisch stehen.
+      onMoveElement: (id, col, row) => {
+        const config = current();
+        const level = elementLevel(config, id);
+        const item = level?.elements.find(entry => entry.id === id);
+        if (!item) return;
+        item.col = Math.max(0, Math.min(GRID.cols - item.w, col));
+        item.row = Math.max(0, row);
+        save(config, { quiet: true });
+        const status = preview.querySelector('[data-status]');
+        if (status) status.textContent = `${item.label || ELEMENTS[item.kind]?.label || 'Wand'} verschoben.`;
+      },
       onMove: (id, col, row) => {
         const plan = buildFloorplan(current());
         const verdict = canPlace(plan, id, col, row, GRID);
@@ -288,7 +312,7 @@ async function start() {
       policy: policy()
     });
     if (result.ok) party.tableIds = result.tableIds;
-    store.setParties([...parties(), party]);
+    putParties([...parties(), party]);
 
     moment.date = date;
     moment.time = time;
@@ -476,7 +500,7 @@ async function start() {
     if (!button) return;
     const gone = parties().find(party => party.id === button.dataset.removeParty);
     if (marked === button.dataset.removeParty) marked = null;
-    store.setParties(parties().filter(party => party.id !== button.dataset.removeParty));
+    putParties(parties().filter(party => party.id !== button.dataset.removeParty));
     seatResult(gone ? `${gone.name} entfernt.` : 'Reservierung entfernt.');
     paint();
   });
@@ -510,7 +534,7 @@ async function start() {
 
     party.tableIds = [tableId];
     marked = null;
-    store.setParties(list);
+    putParties(list);
     seatResult(`${party.name} sitzt an Tisch ${table.number} (${party.guests} von ${table.seats} Plätzen, ${party.time}).`);
     paint();
 
@@ -543,7 +567,7 @@ async function start() {
       party.tableIds = result.tableIds;
       seated.push({ name: party.name, numbers: result.numbers, time: party.time });
     }
-    store.setParties(list);
+    putParties(list);
     paint();
 
     const gruende = { pacing: 'Zeitfenster voll', no_fit: 'kein passender Tisch', capacity: 'Deckel erreicht', invalid: 'Eingabe' };
@@ -554,7 +578,7 @@ async function start() {
   byId('fpClearSeating').addEventListener('click', () => {
     if (!dayParties().length) return seatResult('Für diesen Tag ist nichts eingetragen.');
     if (!confirm(`Alle Reservierungen vom ${moment.date} mit Namen entfernen?`)) return;
-    store.setParties(parties().filter(party => party.date !== moment.date));
+    putParties(parties().filter(party => party.date !== moment.date));
     marked = null;
     paint();
     seatResult(`Reservierungen vom ${moment.date} gelöscht. Für diesen Tag sind keine Namen mehr gespeichert.`);
@@ -675,14 +699,14 @@ async function start() {
     if (!name) {
       if (!existing) return;
       existing.tableIds = existing.tableIds.filter(id => id !== tableId);
-      store.setParties(list);
+      putParties(list);
       seatResult(`Tisch ${table.number} ist wieder frei – ${existing.name} steht offen.`);
       paint();
       return;
     }
     if (existing) {
       existing.name = name;
-      store.setParties(list);
+      putParties(list);
       seatResult(`Tisch ${table.number}: ${name}.`);
       paint();
       return;
@@ -694,7 +718,7 @@ async function start() {
       const clash = collidesAt(offen, [tableId], list);
       if (clash) return seatResult(`Tisch ${table.number} ist um ${offen.time} schon von ${clash.name} belegt.`);
       offen.tableIds = [tableId];
-      store.setParties(list);
+      putParties(list);
       seatResult(`${name} sitzt an Tisch ${table.number} (${offen.guests} von ${table.seats} Plätzen).`);
       paint();
       return;
@@ -705,7 +729,7 @@ async function start() {
       { name, date: moment.date, time: moment.time, guests: Math.min(2, table.seats), dishes: {} },
       { silent: true }
     );
-    store.setParties(parties().map(party => (party.id === fresh.id ? { ...party, tableIds: [tableId] } : party)));
+    putParties(parties().map(party => (party.id === fresh.id ? { ...party, tableIds: [tableId] } : party)));
     seatResult(`${name} sitzt an Tisch ${table.number} um ${moment.time}. Personenzahl in der Zeile anpassen.`);
     paint();
   }
@@ -728,7 +752,7 @@ async function start() {
     const wanted = Math.max(1, Math.round(Number(field.value) || 1));
     const seats = party.tableIds.reduce((sum, id) => sum + (plan.tables.find(item => item.id === id)?.seats || 0), 0);
     party.guests = Math.min(wanted, seats);
-    store.setParties(list);
+    putParties(list);
     seatResult(wanted > seats
       ? `Tisch ${table.number} hat nur ${seats} Plätze – auf ${seats} begrenzt.`
       : `Tisch ${table.number}: ${party.name}, ${party.guests} Personen.`);
@@ -748,7 +772,7 @@ async function start() {
     const set = new Set(blocked());
     const wasBlocked = set.has(id);
     if (wasBlocked) set.delete(id); else set.add(id);
-    store.setBlockedTables([...set]);
+    putBlocked([...set]);
     seatResult(`Tisch ${table?.number} ist jetzt ${wasBlocked ? 'wieder frei' : 'gesperrt'}.`);
     paint();
   });
@@ -974,6 +998,237 @@ async function start() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
 
+
+  // ---- Rueckgaengig und wieder vor ----------------------------------------
+
+  function paintHistory() {
+    const { step, total } = history.position();
+    byId('fpUndo').disabled = !history.canUndo();
+    byId('fpRedo').disabled = !history.canRedo();
+    byId('fpUndo').title = `Ein Schritt zurück (Schritt ${step} von ${total})`;
+  }
+
+  byId('fpUndo').addEventListener('click', () => {
+    if (!history.undo()) return warn('Weiter zurück geht es nicht.');
+    warn('');
+    paint();
+    seatResult('Ein Schritt zurück.');
+  });
+
+  byId('fpRedo').addEventListener('click', () => {
+    if (!history.redo()) return warn('Es gibt nichts zum Wiederholen.');
+    warn('');
+    paint();
+    seatResult('Ein Schritt vor.');
+  });
+
+  // Cmd/Strg + Z und Cmd/Strg + Umschalt + Z - aber nicht waehrend getippt wird.
+  document.addEventListener('keydown', event => {
+    if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'z') return;
+    const tag = document.activeElement?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    event.preventDefault();
+    byId(event.shiftKey ? 'fpRedo' : 'fpUndo').click();
+  });
+
+  // ---- Raumobjekte ---------------------------------------------------------
+
+  function paintElements() {
+    const add = byId('fpAddElement');
+    add.textContent = '';
+    for (const kind of elementKinds()) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.dataset.addElement = kind;
+      button.textContent = `+ ${ELEMENTS[kind].label || 'Wand'}`;
+      add.append(button);
+    }
+
+    const box = byId('fpElements');
+    box.textContent = '';
+    const plan = buildFloorplan(current());
+    for (const level of plan.levels) {
+      for (const item of level.elements || []) {
+        const chip = document.createElement('div');
+        chip.className = 'fp-chair-chip';
+        const label = document.createElement('b');
+        label.textContent = item.label || ELEMENTS[item.kind]?.label || 'Wand';
+        const where = document.createElement('span');
+        where.textContent = `${level.name} · ${item.w}×${item.h}`;
+        chip.append(label, where);
+        for (const [step, zeichen, titel] of [['-1', '−', 'kürzer'], ['1', '+', 'länger']]) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.dataset.sizeElement = item.id;
+          button.dataset.step = step;
+          button.textContent = zeichen;
+          button.setAttribute('aria-label', `${label.textContent} ${titel}`);
+          chip.append(button);
+        }
+        const turn = document.createElement('button');
+        turn.type = 'button';
+        turn.dataset.turnElement = item.id;
+        turn.textContent = '⟲';
+        turn.setAttribute('aria-label', `${label.textContent} drehen`);
+        const drop = document.createElement('button');
+        drop.type = 'button';
+        drop.dataset.removeElement = item.id;
+        drop.textContent = 'weg';
+        chip.append(turn, drop);
+        box.append(chip);
+      }
+    }
+  }
+
+  const elementLevel = (config, id) =>
+    activeLayout(config).levels.find(level => (level.elements || []).some(item => item.id === id));
+
+  byId('fpAddElement').addEventListener('click', event => {
+    const button = event.target.closest('[data-add-element]');
+    if (!button) return;
+    const config = current();
+    const level = activeLayout(config).levels.find(item => item.id === (picked ? picked.split('-')[0] : null))
+      || activeLayout(config).levels[0];
+    const kind = button.dataset.addElement;
+    level.elements = level.elements || [];
+    // Unterhalb des bisherigen Plans absetzen, sonst liegen alle neuen Objekte
+    // auf 0,0 uebereinander und man sieht nur das oberste.
+    const unten = buildFloorplan(current()).levels.find(item => item.id === level.id)?.rows || 0;
+    level.elements.push({
+      id: nextElementId(level), kind, label: ELEMENTS[kind].label,
+      col: 0, row: unten + 1, w: ELEMENTS[kind].w, h: ELEMENTS[kind].h
+    });
+    save(config, { quiet: true });
+    warn(`${ELEMENTS[kind].label || 'Wand'} in ${level.name} ergänzt – auf der Karte an die richtige Stelle ziehen.`);
+  });
+
+  byId('fpElements').addEventListener('click', event => {
+    const config = current();
+
+    const size = event.target.closest('[data-size-element]');
+    if (size) {
+      const id = size.dataset.sizeElement;
+      const level = elementLevel(config, id);
+      const item = level?.elements.find(entry => entry.id === id);
+      if (!item) return;
+      const step = Number(size.dataset.step);
+      if (item.w >= item.h) item.w = Math.max(1, Math.min(GRID.cols, item.w + step));
+      else item.h = Math.max(1, Math.min(24, item.h + step));
+      save(config, { quiet: true });
+      return;
+    }
+
+    const turn = event.target.closest('[data-turn-element]');
+    if (turn) {
+      const level = elementLevel(config, turn.dataset.turnElement);
+      const item = level?.elements.find(entry => entry.id === turn.dataset.turnElement);
+      if (!item) return;
+      [item.w, item.h] = [item.h, item.w];
+      save(config, { quiet: true });
+      return;
+    }
+
+    const drop = event.target.closest('[data-remove-element]');
+    if (drop) {
+      const level = elementLevel(config, drop.dataset.removeElement);
+      if (!level) return;
+      level.elements = level.elements.filter(item => item.id !== drop.dataset.removeElement);
+      save(config, { quiet: true });
+    }
+  });
+
+  // ---- Tagesuebersicht -----------------------------------------------------
+
+  /** Je Tag: wie viele Gaeste, wie viele Plaetze, wie viel davon belegt. */
+  function statistics() {
+    const plan = buildFloorplan(current());
+    const seats = totalSeats(plan);
+    const byDay = new Map();
+    for (const party of parties()) {
+      const day = byDay.get(party.date) || { date: party.date, reservierungen: 0, gaeste: 0, portionen: 0 };
+      day.reservierungen += 1;
+      day.gaeste += party.guests;
+      day.portionen += Object.values(party.dishes || {}).reduce((sum, count) => sum + count, 0);
+      byDay.set(party.date, day);
+    }
+    if (!byDay.has(moment.date)) {
+      byDay.set(moment.date, { date: moment.date, reservierungen: 0, gaeste: 0, portionen: 0 });
+    }
+    return [...byDay.values()]
+      .map(day => ({ ...day, plaetze: seats, frei: Math.max(0, seats - day.gaeste), auslastung: seats ? day.gaeste / seats : 0 }))
+      // Heute zuerst, danach absteigend - der laufende Tag ist der wichtigste.
+      .sort((a, b) => (a.date === moment.date ? -1 : b.date === moment.date ? 1 : b.date.localeCompare(a.date)));
+  }
+
+  function paintStats() {
+    const body = byId('fpStats').querySelector('tbody');
+    body.textContent = '';
+    for (const day of statistics()) {
+      const row = document.createElement('tr');
+      if (day.date === moment.date) row.className = 'is-today';
+      const zellen = [
+        day.date === moment.date ? `${day.date} · heute gewählt` : day.date,
+        day.reservierungen, day.gaeste, day.plaetze, day.gaeste, day.frei,
+        `${Math.round(day.auslastung * 100)} %`,
+        day.portionen
+      ];
+      for (const wert of zellen) {
+        const cell = document.createElement('td');
+        cell.textContent = String(wert);
+        row.append(cell);
+      }
+      body.append(row);
+    }
+  }
+
+  byId('fpCsv').addEventListener('click', () => {
+    const kopf = ['Tag', 'Reservierungen', 'Gäste', 'Plätze gesamt', 'Belegt', 'Frei', 'Auslastung', 'Vorbestellte Portionen'];
+    const zeilen = statistics().map(day => [
+      day.date, day.reservierungen, day.gaeste, day.plaetze, day.gaeste, day.frei,
+      // Deutsches Zahlenformat, sonst liest Excel 0.42 als Datum.
+      String(Math.round(day.auslastung * 1000) / 10).replace('.', ',') + ' %',
+      day.portionen
+    ]);
+    const csv = [kopf, ...zeilen]
+      .map(zeile => zeile.map(feld => `"${String(feld).replace(/"/g, '""')}"`).join(';'))
+      .join('\r\n');
+    // BOM, damit Excel die Umlaute richtig liest.
+    lade(`\uFEFF${csv}`, 'text/csv;charset=utf-8', `wirtschaft-tagesuebersicht-${moment.date}.csv`);
+    seatResult('Tabelle gespeichert. In Excel per Doppelklick zu öffnen.');
+  });
+
+  function lade(inhalt, typ, name) {
+    const blob = new Blob([inhalt], { type: typ });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = name;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  byId('fpPrint').addEventListener('click', () => {
+    document.title = [current().eventName, buildFloorplan(current()).levels.find(level => level.id === preview.dataset.level)?.name,
+      'Wirtschaft Dornbirn', moment.date].filter(Boolean).join(' · ');
+    window.print();
+  });
+
+  byId('fpKunde').addEventListener('click', () => {
+    const plan = buildFloorplan(current());
+    const leer = plan.levels.every(level => !(level.elements || []).length);
+    lade(`${JSON.stringify(current(), null, 2)}\n`, 'application/json', 'floorplan.json');
+    warn(`Raum gespeichert: ${plan.tables.length} Tische, ${totalSeats(plan)} Plätze`
+      + (leer ? ' – aber noch ohne Bühne, Bar oder Eingang. Der Kunde findet sich damit schwer zurecht.' : '.')
+      + ' Die Datei nach site/data/floorplan.json legen und "npm run build:tischplan" ausführen –'
+      + ' daraus entsteht wirtschaft-kundenplan.html zum Verschicken.');
+  });
+
+  byId('fpEventName').addEventListener('change', () => {
+    const config = current();
+    config.eventName = byId('fpEventName').value.trim();
+    save(config, { quiet: true });
+  });
+
   // ---- Start ---------------------------------------------------------------
 
   function paint() {
@@ -981,6 +1236,10 @@ async function start() {
     paintPlan();
     paintSeating();
     paintLevels();
+    paintElements();
+    paintStats();
+    paintHistory();
+    byId('fpEventName').value = current().eventName || '';
   }
 
   byId('fpResDate').value = moment.date;

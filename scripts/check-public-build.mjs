@@ -8,7 +8,7 @@ const required = ['index.html', 'app.js', 'styles.css', 'truck-motion.js', 'data
 // Der Tischplan ist eine interne Einteilungsansicht: Gäste sehen ihn nicht und
 // wählen keinen Tisch. Weder Renderer noch Zuweisungsregeln noch Stammdaten
 // gehören in ein öffentlich ausgeliefertes Bundle.
-const forbidden = ['gastgeber.html', 'gastgeber.js', 'gastgeber.css', 'gastgeber-mobile-fix.css', 'inventory-store.js', 'table-assignment.mjs', 'floorplan-layout.mjs', 'floorplan.js', 'floorplan.css', 'entwuerfe.html', 'drafts.css', 'entwuerfe.css', 'ticketing-cinematic.css', 'truck-experience.css'];
+const forbidden = ['gastgeber.html', 'gastgeber.js', 'gastgeber.css', 'gastgeber-mobile-fix.css', 'inventory-store.js', 'table-assignment.mjs', 'floorplan-layout.mjs', 'floorplan.js', 'floorplan.css', 'kundenplan.html', 'kundenplan.js', 'plan-history.mjs', 'entwuerfe.html', 'drafts.css', 'entwuerfe.css', 'ticketing-cinematic.css', 'truck-experience.css'];
 // Verschachtelte Pfade fängt die Verzeichnisprüfung unten nicht ab.
 const forbiddenPaths = ['data/floorplan.json'];
 
