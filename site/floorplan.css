@@ -223,3 +223,9 @@
   .top-actions button,.top-actions a{min-height:44px}
   .top-actions{gap:6px}
 }
+
+/* Sicherung: der Knopf sieht aus wie die anderen, das Dateifeld liegt darunter. */
+.fp-restore{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;
+  border:1px solid var(--line,#11110f26);border-radius:8px;font-size:11px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.fp-restore input{position:absolute;width:1px;height:1px;opacity:0}

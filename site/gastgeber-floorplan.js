@@ -4,10 +4,10 @@
 
 // Die Versionsangaben muessen mit denen in den HTML-Dateien mitwandern: ein
 // Modulimport ohne Version bleibt sonst im Browser-Cache haengen.
-import { ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=8';
-import { assignTables, durationFor, stamp } from './table-assignment.mjs?v=8';
-import { renderFloorplan } from './floorplan.js?v=14';
-import { createHistory } from './plan-history.mjs?v=1';
+import { ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=505679b2';
+import { assignTables, durationFor, stamp } from './table-assignment.mjs?v=124ff675';
+import { renderFloorplan } from './floorplan.js?v=3a814588';
+import { createHistory } from './plan-history.mjs?v=b86ccb46';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 const store = window.WirtschaftData;
@@ -181,6 +181,99 @@ async function start() {
     store.save(state);
   }
 
+  /**
+   * Schreibt Tischmix und Belegung der Zeitfenster aus dem Tischplan und den
+   * echten Reservierungen. Ohne das behauptet Panel 02 im Cockpit "aus dem
+   * Tischplan berechnet" und zeigt in Wahrheit alte Vorgabewerte.
+   */
+  function syncServiceMix(plan) {
+    const mix = deriveTableMix(plan);
+    const state = store.load();
+    for (const service of state.services) {
+      service.tables = { ...mix };
+      service.capacity = totalSeats(plan);
+      // Belegt heisst: wer zu dieser Uhrzeit an einem Tisch sitzt.
+      const marke = stamp(`${service.date}T${service.time}`);
+      service.reserved = (state.parties || [])
+        .filter(party => party.date === service.date && party.tableIds.length)
+        .filter(party => {
+          const von = stamp(`${party.date}T${party.time}`);
+          return von !== null && marke !== null && von <= marke && marke < von + minutesFor(party.guests, party.time);
+        })
+        .reduce((sum, party) => sum + party.guests, 0);
+    }
+    store.save(state);
+  }
+
+  /**
+   * Freie Plaetze zu einem Zeitpunkt: alle Sitzplaetze abzueglich der bereits
+   * sitzenden Gaeste, vermindert um den internen Puffer. Der Puffer ist die
+   * bewusste Entscheidung, das Haus nicht bis auf den letzten Platz zu
+   * verkaufen - ohne ihn steht der Service bei jedem Sonderfall an.
+   */
+  function freiePlaetze(date, time, plan = buildFloorplan(current())) {
+    const state = store.load();
+    const settings = state.settings || {};
+    const gesamt = totalSeats(plan);
+    const limit = settings.bufferEnabled
+      ? Math.max(0, Math.floor(gesamt * (1 - (Number(settings.bufferPercent) || 0) / 100)))
+      : gesamt;
+    const marke = stamp(`${date}T${time}`);
+    const sitzen = (state.parties || [])
+      .filter(party => party.date === date && party.tableIds.length)
+      .filter(party => {
+        const von = stamp(`${party.date}T${party.time}`);
+        return von !== null && marke !== null && von <= marke && marke < von + minutesFor(party.guests, party.time);
+      })
+      .reduce((sum, party) => sum + party.guests, 0);
+    return { gesamt, limit, frei: Math.max(0, limit - sitzen), sitzen };
+  }
+
+  /**
+   * Schreibt Tischmix, Kapazitaet und Belegung der Zeitfenster aus dem
+   * Tischplan und den echten Reservierungen. Ohne das behauptet Panel 02 im
+   * Cockpit "aus dem Tischplan berechnet" und zeigt in Wahrheit Vorgabewerte.
+   */
+  function syncServiceMix(plan) {
+    const mix = deriveTableMix(plan);
+    const state = store.load();
+    for (const service of state.services) {
+      service.tables = { ...mix };
+      service.capacity = totalSeats(plan);
+      service.reserved = sitzendeGaeste(service.date, service.time, state);
+    }
+    store.save(state);
+  }
+
+  /** Wie viele Gaeste zu diesem Zeitpunkt tatsaechlich an Tischen sitzen. */
+  function sitzendeGaeste(date, time, state = store.load()) {
+    const marke = stamp(`${date}T${time}`);
+    if (marke === null) return 0;
+    return (state.parties || [])
+      .filter(party => party.date === date && party.tableIds.length)
+      .filter(party => {
+        const von = stamp(`${party.date}T${party.time}`);
+        return von !== null && von <= marke && marke < von + minutesFor(party.guests, party.time);
+      })
+      .reduce((sum, party) => sum + party.guests, 0);
+  }
+
+  /**
+   * Freie Plaetze zu einem Zeitpunkt. Der Puffer ist die bewusste Entscheidung,
+   * das Haus nicht bis auf den letzten Platz zu verkaufen - ohne ihn steht der
+   * Service beim ersten Sonderfall an.
+   */
+  function freiePlaetze(date, time, plan = buildFloorplan(current())) {
+    const state = store.load();
+    const settings = state.settings || {};
+    const gesamt = totalSeats(plan);
+    const limit = settings.bufferEnabled
+      ? Math.max(0, Math.floor(gesamt * (1 - (Number(settings.bufferPercent) || 0) / 100)))
+      : gesamt;
+    const sitzen = sitzendeGaeste(date, time, state);
+    return { gesamt, limit, sitzen, frei: Math.max(0, limit - sitzen) };
+  }
+
   // ---- Zeitpunkt und Ordnung -----------------------------------------------
 
   function paintMoment() {
@@ -199,9 +292,11 @@ async function start() {
     const sitting = seatedNow();
     const gaeste = sitting.reduce((sum, party) => sum + party.guests, 0);
     const offen = dayParties().filter(party => !party.tableIds.length).length;
-    say('fpMomentInfo', `${plan.layoutName}: ${plan.tables.length} Tische, ${totalSeats(plan)} Plätze. `
+    const platz = freiePlaetze(moment.date, moment.time, plan);
+    say('fpMomentInfo', `${plan.layoutName}: ${plan.tables.length} Tische, ${totalSeats(plan)} Plätze`
+      + (platz.limit < platz.gesamt ? ` (${platz.limit} freigegeben, Rest als Puffer)` : '') + '. '
       + `Um ${moment.time} sitzen ${gaeste} Gäste an ${sitting.reduce((sum, party) => sum + party.tableIds.length, 0)} Tischen. `
-      + `${offen} Reservierung(en) ohne Tisch.`);
+      + `${offen} Reservierung(en) ohne Tisch, noch ${platz.frei} Plätze frei.`);
   }
 
   byId('fpMomentForm').addEventListener('submit', event => {
@@ -331,11 +426,13 @@ async function start() {
       name, date, time, guests, dishes, source, tableIds: []
     };
     const feste = minutesFor(guests, time);
+    const platz = freiePlaetze(date, time, plan);
     const result = assignTables({
       floorplan: plan,
       occupancy: occupancyOf(parties().filter(entry => entry.date === date)),
       blocked: blocked(),
       guests,
+      available: platz.frei,
       startsAt: `${date}T${time}`,
       // Im Schichtbetrieb kommen alle gleichzeitig - Pacing waere sinnlos und
       // wuerde jede zweite Reservierung grundlos ablehnen.
@@ -367,7 +464,7 @@ async function start() {
     const gruende = {
       pacing: 'zu viele Gäste im selben Viertelstundenfenster',
       no_fit: 'kein passender Tisch frei',
-      capacity: 'Sitzplatzdeckel erreicht',
+      capacity: `Sitzplatzdeckel erreicht – von ${platz.limit} freigegebenen Plätzen sitzen um ${time} schon ${platz.sitzen}`,
       invalid: 'Eingabe unvollständig'
     };
     const alternativen = (result.alternatives || [])
@@ -407,7 +504,7 @@ async function start() {
 
     // Das Datum zuerst herausnehmen, sonst liest der Zeit-Ausdruck "24.08"
     // als 24:08. Erst danach nach der Uhrzeit suchen.
-    const ohneDatum = clean.replace(dmy?.[0] || ' ', ' ').replace(iso?.[0] || ' ', ' ');
+    const ohneDatum = clean.replace(dmy?.[0] || ' ', ' ').replace(iso?.[0] || ' ', ' ');
     const clock = /\b([0-2]?\d)[:.]([0-5]\d)\b/.exec(ohneDatum);
     const uhrOnly = (/\b([0-2]?\d)\s*uhr\b/i.exec(ohneDatum) || [])[1];
     // Das Schluesselwort darf gross oder klein stehen; der Name selbst muss
@@ -1462,6 +1559,67 @@ async function start() {
     alt.replaceWith(neu);
   }
 
+  // ---- Sicherung -----------------------------------------------------------
+
+  const SICHERUNG = 'wirtschaft-letzte-sicherung';
+
+  /**
+   * Alles liegt im Browser-Speicher. Ein Klick auf "Websitedaten loeschen", ein
+   * neuer Rechner oder ein privates Fenster - und die Einteilung ist weg. Der
+   * Export allein hilft nicht, weil ihn im Betrieb niemand taeglich drueckt.
+   * Deshalb erinnert die Seite, sobald es sieben Tage her ist.
+   */
+  function pruefeSicherung() {
+    let letzte = null;
+    try { letzte = localStorage.getItem(SICHERUNG); } catch { /* privater Modus */ }
+    const box = byId('fpBackup');
+    if (!box) return;
+    const tage = letzte ? Math.floor((Date.now() - Number(letzte)) / 86400000) : null;
+    const daten = parties().length || buildFloorplan(current()).tables.length;
+    box.hidden = !daten || (tage !== null && tage < 7);
+    box.textContent = letzte
+      ? `Letzte Sicherung vor ${tage} Tagen. Die Einteilung liegt nur in diesem Browser – bitte sichern.`
+      : 'Noch nie gesichert. Die Einteilung liegt nur in diesem Browser und ist weg, wenn er geleert wird.';
+  }
+
+  function sichern() {
+    const state = store.load();
+    const paket = {
+      gesichertAm: new Date().toISOString(),
+      floorplan: state.floorplan,
+      parties: state.parties,
+      blockedTables: state.blockedTables
+    };
+    lade(`${JSON.stringify(paket, null, 2)}\n`, 'application/json',
+      `wirtschaft-sicherung-${today()}.json`);
+    try { localStorage.setItem(SICHERUNG, String(Date.now())); } catch { /* privater Modus */ }
+    pruefeSicherung();
+    seatResult('Sicherung gespeichert. Die Datei an einem zweiten Ort ablegen, nicht nur auf diesem Rechner.');
+  }
+
+  byId('fpBackupNow').addEventListener('click', sichern);
+
+  byId('fpRestore').addEventListener('change', async event => {
+    const datei = event.target.files?.[0];
+    if (!datei) return;
+    try {
+      const paket = JSON.parse(await datei.text());
+      if (!paket.floorplan) throw new Error('kein Tischplan in der Datei');
+      if (!confirm('Die aktuelle Einteilung wird durch die Sicherung ersetzt. Fortfahren?')) return;
+      store.restorePlan({
+        floorplan: paket.floorplan,
+        parties: Array.isArray(paket.parties) ? paket.parties : [],
+        blockedTables: Array.isArray(paket.blockedTables) ? paket.blockedTables : []
+      });
+      history.remember();
+      paint();
+      seatResult(`Sicherung vom ${String(paket.gesichertAm || '').slice(0, 10)} eingespielt.`);
+    } catch (fehler) {
+      seatResult(`Die Datei ließ sich nicht lesen: ${fehler.message}`);
+    }
+    event.target.value = '';
+  });
+
   // ---- Start ---------------------------------------------------------------
 
   function paint() {
@@ -1475,6 +1633,10 @@ async function start() {
     paintFloorMove();
     paintStats();
     paintHistory();
+    pruefeSicherung();
+    // Auch nach einer Reservierung, nicht nur nach Planaenderungen - sonst
+    // steht im Cockpit weiter die alte Belegung.
+    syncServiceMix(buildFloorplan(current()));
     byId('fpEventName').value = current().eventName || '';
     byId('fpNumbering').value = buildFloorplan(current()).numberingMode;
   }
