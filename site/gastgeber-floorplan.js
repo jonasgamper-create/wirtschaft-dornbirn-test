@@ -43,7 +43,15 @@ async function start() {
   const policy = () => current().policy || {};
 
   // Der gewaehlte Zeitpunkt steuert alles: Karte, Tischliste, Reservierungen.
-  const moment = { date: today(), time: '12:00' };
+  // `live` heisst: die Uhrzeit laeuft mit. Ohne das steht eine morgens von Hand
+  // eingestellte Uhrzeit den ganzen Mittag still - nichts wird je ueberfaellig,
+  // und jedes Einchecken bekommt den falschen Zeitstempel.
+  const uhrzeitJetzt = () => {
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    return `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  };
+  const moment = { date: today(), time: uhrzeitJetzt(), live: true };
   let picked = null;
   let marked = null;
   // Filter und Suche der Tischliste. Bewusst nur im Arbeitsspeicher: ein
@@ -272,6 +280,55 @@ async function start() {
 
   // ---- Zeitpunkt und Ordnung -----------------------------------------------
 
+  /**
+   * Die Servicezeile oben. Sie beantwortet die vier Fragen, die im Mittag
+   * wirklich gestellt werden: welcher Moment gilt, wie viele Plaetze sind noch
+   * frei, wartet jemand ueberfaellig, und wer kommt als naechstes.
+   */
+  function paintBar() {
+    const live = byId('fpLive');
+    live.setAttribute('aria-pressed', String(moment.live));
+    byId('fpLiveText').textContent = moment.live ? `Jetzt ${moment.time}` : 'Angehalten';
+    live.title = moment.live
+      ? 'Die Uhr läuft mit. Klicken hält den Plan an.'
+      : 'Der Plan steht auf einer festen Uhrzeit. Klicken lässt ihn wieder mitlaufen.';
+
+    const plan = buildFloorplan(current());
+    const platz = freiePlaetze(moment.date, moment.time, plan);
+    const spaet = seatedNow().filter(party => statusVon(party) === 'ueberfaellig');
+    const offen = dayParties().filter(party => !party.tableIds.length);
+    const naechste = dayParties()
+      .filter(party => stamp(startsAt(party)) > stamp(jetztMarke()))
+      .sort((a, b) => a.time.localeCompare(b.time))[0];
+
+    const box = byId('fpBarStats');
+    box.textContent = '';
+    const zahl = (wert, wofuer, klasse = '') => {
+      const span = document.createElement('span');
+      span.className = `fp-stat${klasse}`;
+      const b = document.createElement('b');
+      b.textContent = String(wert);
+      span.append(b, document.createTextNode(wofuer));
+      box.append(span);
+    };
+    zahl(platz.frei, 'Plätze frei');
+    zahl(platz.sitzen, 'Gäste sitzen');
+    if (spaet.length) zahl(spaet.length, spaet.length === 1 ? 'überfällig' : 'überfällig', ' is-late');
+    if (offen.length) zahl(offen.length, 'ohne Tisch', ' is-open');
+    if (naechste) {
+      const span = document.createElement('span');
+      span.className = 'fp-stat is-next';
+      span.textContent = `nächste ${naechste.time} ${naechste.name}`;
+      box.append(span);
+    }
+
+    // Das Abzeichen am Reiter zeigt Aerger auch dann, wenn man woanders steht.
+    const badge = byId('fpBadgeService');
+    badge.hidden = !spaet.length;
+    badge.textContent = String(spaet.length);
+    badge.setAttribute('aria-label', `${spaet.length} überfällig`);
+  }
+
   function paintMoment() {
     byId('fpDate').value = moment.date;
     byId('fpTime').value = moment.time;
@@ -298,17 +355,67 @@ async function start() {
   byId('fpMomentForm').addEventListener('submit', event => {
     event.preventDefault();
     moment.date = byId('fpDate').value || today();
-    moment.time = byId('fpTime').value || '12:00';
-    const wanted = byId('fpLayout').value;
-    if (wanted !== current().activeLayout) {
-      const config = current();
-      config.activeLayout = wanted;
-      picked = null;
-      save(config, { quiet: true });
-      return;
-    }
+    moment.time = byId('fpTime').value || uhrzeitJetzt();
+    // Von Hand gewaehlt heisst: die Uhr steht. Sonst wuerde der naechste Takt
+    // die Eingabe sofort wieder ueberschreiben.
+    moment.live = moment.date === today() && moment.time === uhrzeitJetzt();
     paint();
   });
+
+  // Tischordnung wirkt sofort - ein zusaetzliches "Anzeigen" waere ein Schritt,
+  // den niemand erwartet.
+  byId('fpLayout').addEventListener('change', () => {
+    const config = current();
+    config.activeLayout = byId('fpLayout').value;
+    picked = null;
+    save(config, { quiet: true });
+  });
+
+  /** Zurueck in den mitlaufenden Betrieb. */
+  function liveAn(an) {
+    moment.live = an;
+    if (an) { moment.date = today(); moment.time = uhrzeitJetzt(); }
+    paint();
+  }
+  byId('fpLive').addEventListener('click', () => liveAn(!moment.live));
+
+  /**
+   * Darf der Takt jetzt neu zeichnen? Nur die Felder aussetzen, die `paint()`
+   * tatsaechlich ueberschreibt oder neu aufbaut. Pauschal jede Eingabe zu
+   * schonen waere falsch: nach jeder Reservierung steht der Fokus im
+   * Namensfeld - die Uhr bliebe dann fuer immer stehen, ohne dass es auffaellt.
+   */
+  const SCHREIBT_PAINT = ['fpDate', 'fpTime', 'fpEventName', 'fpNumbering', 'fpLayout',
+    'fpMode', 'fpSeatings', 'fpEndsAt', 'fpBuffer', 'fpResTime', 'fpResDate'];
+  function taktErlaubt() {
+    const aktiv = document.activeElement;
+    if (!aktiv || aktiv === document.body) return true;
+    if (SCHREIBT_PAINT.includes(aktiv.id)) return false;
+    // Diese Listen baut paint() neu auf; mitten im Tippen waere das ein Verlust.
+    return !aktiv.closest('#fpParties, #fpTableList, #fpLevels, #fpElements');
+  }
+
+  /** Auf die aktuelle Uhrzeit nachziehen, wenn noetig. */
+  function taktJetzt() {
+    if (!moment.live || !taktErlaubt()) return;
+    const jetzt = uhrzeitJetzt();
+    if (jetzt === moment.time && moment.date === today()) return;
+    moment.date = today();
+    moment.time = jetzt;
+    paint();
+  }
+
+  // Der Takt. Eine halbe Minute ist fein genug fuer die Karenz von 15 Minuten
+  // und grob genug, um niemanden bei der Arbeit zu stoeren.
+  setInterval(taktJetzt, 30000);
+
+  // Browser drosseln oder frieren Zeitgeber in verdeckten Tabs ein. Liegt der
+  // Tischplan hinter dem Eingangsbildschirm, waere er beim Zurueckwechseln
+  // veraltet - deshalb beim Sichtbarwerden sofort nachziehen.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') taktJetzt();
+  });
+  window.addEventListener('focus', taktJetzt);
 
   // ---- Karte ---------------------------------------------------------------
 
@@ -1161,6 +1268,62 @@ async function start() {
     paint();
   });
 
+  // ---- Reiter ---------------------------------------------------------------
+
+  const TAB_KEY = 'wirtschaft-tischplan-reiter';
+  const tabs = () => [...byId('fpTabs').querySelectorAll('[role="tab"]')];
+
+  function zeigeReiter(name, { fokus = false } = {}) {
+    for (const tab of tabs()) {
+      const aktiv = tab.dataset.tab === name;
+      tab.setAttribute('aria-selected', String(aktiv));
+      tab.tabIndex = aktiv ? 0 : -1;
+      byId(tab.getAttribute('aria-controls')).hidden = !aktiv;
+      if (aktiv && fokus) tab.focus();
+    }
+    try { localStorage.setItem(TAB_KEY, name); } catch { /* privater Modus */ }
+  }
+
+  byId('fpTabs').addEventListener('click', event => {
+    const tab = event.target.closest('[role="tab"]');
+    if (tab) zeigeReiter(tab.dataset.tab);
+  });
+
+  // Pfeiltasten wandern durch die Reiter - das erwartete Verhalten einer
+  // Reiterleiste und der einzige Weg ohne Maus.
+  byId('fpTabs').addEventListener('keydown', event => {
+    const schritt = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
+    const liste = tabs();
+    const hier = liste.findIndex(tab => tab.getAttribute('aria-selected') === 'true');
+    let ziel = null;
+    if (schritt) ziel = (hier + schritt + liste.length) % liste.length;
+    else if (event.key === 'Home') ziel = 0;
+    else if (event.key === 'End') ziel = liste.length - 1;
+    if (ziel === null) return;
+    event.preventDefault();
+    zeigeReiter(liste[ziel].dataset.tab, { fokus: true });
+  });
+
+  // ---- Schnellwahl der Personenzahl ----------------------------------------
+
+  for (const anzahl of [2, 3, 4, 6, 8]) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.quick = String(anzahl);
+    button.textContent = `${anzahl}P`;
+    button.setAttribute('aria-label', `${anzahl} Personen`);
+    byId('fpQuick').append(button);
+  }
+  byId('fpQuick').addEventListener('click', event => {
+    const button = event.target.closest('[data-quick]');
+    if (!button) return;
+    byId('fpResGuests').value = button.dataset.quick;
+    for (const other of byId('fpQuick').querySelectorAll('[data-quick]')) {
+      other.setAttribute('aria-pressed', String(other === button));
+    }
+    byId('fpResName').focus();
+  });
+
   byId('fpFilter').addEventListener('click', event => {
     const button = event.target.closest('[data-filter]');
     if (!button) return;
@@ -1822,6 +1985,7 @@ async function start() {
   // ---- Start ---------------------------------------------------------------
 
   function paint() {
+    paintBar();
     paintMoment();
     paintPlan();
     paintSeating();
@@ -1842,6 +2006,14 @@ async function start() {
 
   byId('fpResDate').value = moment.date;
   byId('fpResTime').value = moment.time;
+  // Immer im Service starten. Ein gemerkter Reiter ist bequem, aber der Mittag
+  // faengt nie in der Einrichtung an.
+  let starte = 'service';
+  try {
+    const gemerkt = localStorage.getItem(TAB_KEY);
+    if (gemerkt && tabs().some(tab => tab.dataset.tab === gemerkt)) starte = gemerkt;
+  } catch { /* privater Modus */ }
+  zeigeReiter(starte);
   paintDishes();
   syncServiceMix(buildFloorplan(current()));
   paint();

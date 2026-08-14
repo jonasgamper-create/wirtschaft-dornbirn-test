@@ -205,7 +205,11 @@
   @page{size:landscape;margin:12mm}
   .topbar,.fp-tools,.fp-levels-editor,.fp-party-list button,.fp-party-list select,
   .add-service,.fp-filter,.fp-dishes,.fp-mail,.fp-table-row .fp-row-actions,
-  .notice,.model-note,#fpStats,.fp-warn,.fp-chairs-list,.fp-sizes{display:none!important}
+  .notice,.model-note,#fpStats,.fp-warn,.fp-chairs-list,.fp-sizes,
+  .fp-tabs,.fp-quick,.fp-bar-when{display:none!important}
+  /* Der Moment gehoert aufs Blatt, die Bedienung nicht. */
+  .fp-bar{position:static;border:0;padding:0}
+  .fp-stat{border:0;padding:0 10px 0 0}
   /* Zugeklappte Bereiche gehoeren auch im Druck nicht aufs Blatt. */
   details:not([open]) > *:not(summary){display:none!important}
   summary{display:none!important}
@@ -229,6 +233,72 @@
   .kp-print-head{display:block;margin:0 0 14px;font-family:Georgia,serif;font-size:22px;font-weight:400}
   .kp-names,.welcome,.fp-result{display:none!important}
 }
+
+/* ---- Servicezeile ---------------------------------------------------------
+   Klebt oben, weil sie im Betrieb die einzige Zeile ist, die man staendig
+   braucht. Formen und Farben aus den vorhandenen Komponenten. */
+/* Servicezeile und Reiter kleben gemeinsam. Zwei getrennte klebende Ebenen
+   braeuchten eine geratene Hoehe fuer die zweite - die bricht, sobald die
+   erste Zeile umbricht. */
+.fp-sticky{position:sticky;top:0;z-index:30;background:var(--paper,#f3efe6)}
+.fp-bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin:0;padding:10px 0;border-bottom:1px solid var(--line,#11110f26)}
+.fp-bar-when{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin:0}
+.fp-bar-field{display:grid;gap:4px;font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted,#6d675f)}
+.fp-bar-field input{min-height:44px;padding:0 10px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:14px;letter-spacing:0;font-variant-numeric:tabular-nums}
+.fp-bar-go{min-height:44px;padding:0 16px;border:1px solid var(--ink,#11110f);border-radius:8px;background:var(--ink,#11110f);color:#fff;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+
+/* Der Jetzt-Schalter. Gruen und mit Punkt, wenn die Uhr mitlaeuft - angehalten
+   ist ein Zustand, den man sofort sehen muss. */
+.fp-live{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid #11110f3d;border-radius:999px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer}
+.fp-live i{width:9px;height:9px;border-radius:50%;background:#b3ada2}
+.fp-live[aria-pressed="true"]{border-color:var(--green,#244635);background:var(--green,#244635);color:#fff}
+.fp-live[aria-pressed="true"] i{background:#8fd6a8}
+.fp-live:focus-visible,.fp-bar-go:focus-visible,.fp-bar-field input:focus-visible{outline:3px solid var(--gold,#c59b5d);outline-offset:2px}
+
+.fp-bar-stats{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-left:auto}
+.fp-stat{display:inline-flex;align-items:baseline;gap:5px;padding:5px 11px;border:1px solid var(--line,#11110f26);border-radius:999px;background:#fff;color:#57524a;font-size:12px;white-space:nowrap}
+.fp-stat b{color:var(--ink,#11110f);font-size:15px;font-variant-numeric:tabular-nums}
+.fp-stat.is-late{border-color:#a67f45;background:var(--gold,#c59b5d);color:var(--ink,#11110f)}
+.fp-stat.is-late b{color:var(--ink,#11110f)}
+.fp-stat.is-open{border-color:var(--wine,#8c292b);color:#6b2224}
+.fp-stat.is-next{background:#e8f0ea;border-color:#24463540;color:var(--green,#244635);font-weight:700}
+
+/* ---- Reiter --------------------------------------------------------------- */
+.fp-tabs{margin:0 0 22px;padding:10px 0;border-bottom:1px solid var(--line,#11110f26)}
+.fp-tabs [role="tablist"]{display:flex;flex-wrap:wrap;gap:6px}
+.fp-tabs [role="tab"]{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 18px;border:1px solid #11110f3d;border-radius:999px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.fp-tabs [role="tab"][aria-selected="true"]{border-color:var(--ink,#11110f);background:var(--ink,#11110f);color:#fff}
+.fp-tabs [role="tab"]:focus-visible{outline:3px solid var(--gold,#c59b5d);outline-offset:3px}
+.fp-tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--gold,#c59b5d);color:var(--ink,#11110f);font-size:11px;font-variant-numeric:tabular-nums}
+.fp-tabpanel:focus{outline:none}
+
+/* ---- Ablauf: die Sequenz -------------------------------------------------- */
+.fp-flow{display:grid;gap:10px;margin:0 0 26px;padding:0;list-style:none;counter-reset:schritt}
+.fp-flow li{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;gap:14px;padding:14px 16px;border:1px solid var(--line,#11110f26);border-radius:10px;background:#fff}
+.fp-flow li::before{counter-increment:schritt;content:counter(schritt);display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--ink,#11110f);color:#fff;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.fp-flow b{grid-column:2;font-size:15px}
+.fp-flow span{grid-column:2;color:#57524a;font-size:13.5px;line-height:1.55}
+.fp-flow em{font-style:normal;font-weight:700;color:var(--green,#244635)}
+.fp-flow i{grid-row:1;grid-column:3;padding:3px 10px;border-radius:999px;background:#11110f0a;color:var(--muted,#6d675f);font-style:normal;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+
+.fp-colorkey{display:grid;gap:8px;margin:0 0 26px;padding:0;list-style:none}
+.fp-colorkey li{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:12px;font-size:13.5px}
+.fp-colorkey i{width:26px;height:26px;border:1px solid #11110f40;border-radius:3px;background:#fff}
+.fp-colorkey i.k-busy{background:var(--cream,#ead9bc)}
+.fp-colorkey i.k-late{border-color:#a67f45;background:var(--gold,#c59b5d)}
+.fp-colorkey i.k-blocked{border-color:var(--wine,#8c292b);border-width:2px}
+.fp-colorkey span{color:#57524a}
+.fp-facts{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.fp-facts li{padding-left:16px;border-left:2px solid var(--green,#244635);color:#57524a;font-size:13.5px;line-height:1.6}
+.fp-facts b{color:var(--ink,#11110f)}
+.fp-facts em{font-style:normal;font-weight:700;color:var(--green,#244635)}
+
+/* Schnellwahl der Personenzahl: Tippen kostet an der Tuer mehr Zeit als es
+   aussieht. */
+.fp-quick{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+.fp-quick button{min-width:52px;min-height:44px;padding:0 12px;border:1px solid #11110f3d;border-radius:999px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer}
+.fp-quick button[aria-pressed="true"]{border-color:var(--green,#244635);background:var(--green,#244635);color:#fff}
+.fp-quick button:focus-visible{outline:3px solid var(--gold,#c59b5d);outline-offset:2px}
 
 /* Der Arbeitsbereich im Betrieb: Karte und Reservierungen. Untereinander lagen
    sie rund 3300 Pixel auseinander, obwohl man im Service staendig zwischen
@@ -263,6 +333,24 @@
   .kp-seats input{width:100%;min-width:0}
   .kp-seats label{flex:1 1 100%}
   .fp-party-list li{font-size:11.5px}
+  /* Die Reservierungszeile konnte am Handy nicht schmaler werden als ihr
+     Inhalt: .pick ist selbst ein Flex-Element, dessen Kinder nicht umbrachen.
+     Ergebnis waren 15 Pixel waagrechter Ueberlauf. */
+  .fp-party-list .pick{flex-wrap:wrap;min-width:0}
+  .fp-party-list .at{margin-left:0}
+  .fp-party-list b{min-width:0;overflow-wrap:anywhere}
+  /* Das Auswahlfeld zum Umsetzen erbte am Handy nur 18 Pixel Hoehe - mit dem
+     Finger nicht zu treffen. Es bekommt eine eigene Zeile in voller Breite. */
+  .fp-party-list select{flex:1 1 100%;min-width:0;min-height:44px;padding:0 10px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#fff;font:inherit;font-size:12.5px}
+  /* Am Handy wuerde die ganze Kopfleiste die halbe Anzeige fressen. Sie
+     scrollt deshalb mit; nur die Reiter bleiben oben stehen. */
+  .fp-sticky{position:static}
+  .fp-tabs{position:sticky;top:0;z-index:29;background:var(--paper,#f3efe6);margin-bottom:16px}
+  .fp-bar{gap:10px}
+  .fp-bar-stats{margin-left:0}
+  .fp-tabs [role="tab"]{padding:0 14px;font-size:13px}
+  .fp-flow li{grid-template-columns:auto minmax(0,1fr);gap:10px 12px}
+  .fp-flow i{grid-row:auto;grid-column:2;justify-self:start}
   .fp-party-list .dishes{flex:1 1 100%;margin-left:52px}
   .fp-chair-chip{flex:1 1 100%;justify-content:space-between}
   .table-wrap{font-size:11px}

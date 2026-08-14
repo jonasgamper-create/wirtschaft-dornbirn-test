@@ -379,6 +379,49 @@ und man sucht den Fehler an der falschen Stelle.
 
 Geprüft wird das von `scripts/check-table-assignment.mjs` in `npm run ci`.
 
+## Der Moment läuft mit: Jetzt-Betrieb
+
+Die Uhrzeit war ein Handfeld. Wer morgens 11:00 einstellte und dann bediente,
+dessen Tafel stand den ganzen Mittag auf 11:00: nichts wurde je überfällig, und
+jedes Einchecken bekam 11:00 als Ankunftszeit. Das war der schwerste Fehler in
+der Handhabung — er fällt nicht auf, weil die Seite plausibel aussieht.
+
+Oben in der Servicezeile steht deshalb der Schalter **Jetzt**. Ist er grün,
+läuft die Uhr mit und der Plan zeigt immer den aktuellen Moment; der Takt
+kommt alle 30 Sekunden. Eine Uhrzeit von Hand einzustellen hält den Plan an —
+der Schalter wird grau und liest „Angehalten" — ein Klick lässt ihn wieder
+mitlaufen.
+
+Der Takt zeichnet nicht neu, wenn er dabei eine Eingabe zerstören würde. Er
+setzt aber **nicht** pauschal bei jedem Fokus aus: nach jeder Reservierung
+steht der Cursor im Namensfeld, und eine Uhr, die deshalb für immer stehen
+bleibt, wäre genau der stille Fehler, den dieser Abschnitt beseitigen soll.
+Ausgesetzt wird nur bei Feldern, die `paint()` selbst überschreibt
+(`SCHREIBT_PAINT`), und in den Listen, die es neu aufbaut.
+
+## Servicezeile
+
+Sie klebt oben und beantwortet die vier Fragen des Mittags: welcher Moment
+gilt, wie viele Plätze sind frei, wartet jemand überfällig, wer kommt als
+nächstes. Überfällige werden zusätzlich als Abzeichen am Reiter *Service*
+gezeigt — so sieht man den Ärger auch, wenn man gerade in der Tischliste steht.
+
+## Reiter statt einer langen Seite
+
+Fünf Reiter statt sechs nummerierter Abschnitte untereinander:
+
+| Reiter | Wofür | Wie oft |
+| --- | --- | --- |
+| Service | Karte und Reservierungen, nebeneinander | ständig |
+| Tische | Liste mit Filter und Suche | wenn es voll ist |
+| Einrichten | Ordnung, Betriebsart, Etagen, Raumbild, Sicherung | einmal |
+| Auswertung | Tagesübersicht und CSV | abends |
+| Ablauf | Die Sequenz, die Farben, die drei Grenzen | zum Nachlesen |
+
+Der zuletzt benutzte Reiter wird gemerkt. Pfeiltasten wandern durch die
+Reiterleiste, `Home` und `End` springen an die Enden — das erwartete Verhalten
+und der einzige Weg ohne Maus.
+
 ## Aufbau der Seite
 
 Die Seite war 22.243 Pixel lang — rund 25 Bildschirme. Karte und
@@ -395,9 +438,15 @@ Drei Änderungen, gemessen statt geschätzt:
   schmal.
 - Der Zeitpunkt oben bleibt immer sichtbar — er steuert alles.
 
-Ergebnis: 5.161 Pixel bei 1440×900, also 5,7 statt 25 Bildschirme. Am Handy
-(390 px) 8.374 Pixel, kein waagrechter Überlauf, alle 64 Bedienelemente
-mindestens 44 Pixel hoch.
+Mit den Reitern kommt der zweite Sprung: **2.197 Pixel bei 1440×900**, also 2,4
+statt ursprünglich 25 Bildschirme. Am Handy (390 px) 3.990 Pixel; dort scrollt
+die Servicezeile mit und nur die Reiterleiste bleibt oben stehen — zwei klebende
+Leisten übereinander wären die halbe Anzeige.
+
+Kein waagrechter Überlauf, alle Bedienelemente mindestens 44 Pixel hoch. Dabei
+fiel ein alter Mangel auf: das Auswahlfeld „Tisch wechseln …" war am Handy nur
+18 Pixel hoch und mit dem Finger nicht zu treffen; es bekommt jetzt eine eigene
+Zeile in voller Breite.
 
 Für den Ausdruck werden zugeklappte Bereiche und Auswahlfelder ausgeblendet.
 Vorher standen „Tisch wechseln …"-Dropdowns auf dem Serviceblatt.
