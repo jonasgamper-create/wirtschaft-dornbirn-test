@@ -42,13 +42,16 @@ const buendel = async name => (await esbuild.build({
 
 const store = await readFile(path.join(site, 'inventory-store.js'), 'utf8');
 const target2 = path.join(root, 'output/tischplan/wirtschaft-kundenplan.html');
+const target3 = path.join(root, 'output/tischplan/wirtschaft-screen.html');
 const config = JSON.parse(await readFile(path.join(site, 'data/floorplan.json'), 'utf8'));
 const logo = await readFile(path.join(site, 'assets/wirtschaft-logo.png'));
 
-const styles = (await Promise.all(
-  ['gastgeber.css', 'gastgeber-mobile-fix.css', 'floorplan.css']
-    .map(name => readFile(path.join(site, name), 'utf8'))
+const stilFuer = async namen => (await Promise.all(
+  namen.map(name => readFile(path.join(site, name), 'utf8'))
 )).join('\n');
+const styles = await stilFuer(['gastgeber.css', 'gastgeber-mobile-fix.css', 'floorplan.css']);
+// Der Bildschirm traegt das Gaeste-CI, nicht die Werkzeugoberflaeche.
+const screenStyles = await stilFuer(['screen.css', 'floorplan.css']);
 
 // JSON sicher in ein Script einbetten: </script> im Text wuerde es sonst
 // vorzeitig schliessen, und U+2028/2029 sind in JS-Quelltext Zeilenumbrueche.
@@ -57,9 +60,9 @@ const embed = value => JSON.stringify(value)
   .replace(/\u2028/g, '\\u2028')
   .replace(/\u2029/g, '\\u2029');
 
-async function baue({ quelle, ziel, code, kopfErsatz }) {
+async function baue({ quelle, ziel, code, kopfErsatz, stil = styles }) {
   const script = `window.WIRTSCHAFT_FLOORPLAN=${embed(config)};\n${code}`;
-  const styleBody = `\n${styles}\n  `;
+  const styleBody = `\n${stil}\n  `;
   const scriptBody = `\n${script}\n  `;
   const sha = value => `'sha256-${createHash('sha256').update(value, 'utf8').digest('base64')}'`;
 
@@ -106,6 +109,14 @@ const kbKunde = await baue({
   code: await buendel('kundenplan.js')
 });
 
+const kbScreen = await baue({
+  quelle: 'screen.html',
+  ziel: target3,
+  code: await buendel('screen.js'),
+  stil: screenStyles
+});
+
 console.log(`Einzeldateien geschrieben:`);
 console.log(`  ${path.relative(root, target)} (${kbIntern} KB) - interne Planung`);
 console.log(`  ${path.relative(root, target2)} (${kbKunde} KB) - zum Verschicken an den Kunden`);
+console.log(`  ${path.relative(root, target3)} (${kbScreen} KB) - Bildschirm am Eingang`);

@@ -1,0 +1,142 @@
+// Gaestebildschirm am Eingang: wer sitzt gerade wo.
+//
+// Liest denselben Browser-Speicher wie die interne Planung. Das heisst: der
+// Bildschirm muss auf demselben Geraet laufen wie das Werkzeug - dann ist er
+// wirklich live, ueber das storage-Ereignis ohne jede Verzoegerung. Ein Geraet
+// im anderen Netz braeuchte einen Server.
+
+import { activeLayout, buildFloorplan, seatingPlan, serviceOf } from './floorplan-layout.mjs?v=7';
+import { durationFor, stamp } from './table-assignment.mjs?v=7';
+import { renderFloorplan } from './floorplan.js?v=13';
+
+const KEY = 'wirtschaft-dornbirn-host-control-v1';
+const SICHT = 'wirtschaft-screen-namen';
+const byId = id => document.getElementById(id);
+if (byId('scList')) start();
+
+function start() {
+  const lies = () => {
+    try {
+      return JSON.parse(localStorage.getItem(KEY) || '{}');
+    } catch {
+      return {};
+    }
+  };
+
+  const jetzt = () => {
+    const date = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    return {
+      tag: `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
+      zeit: `${pad(date.getHours())}:${pad(date.getMinutes())}`
+    };
+  };
+
+  // Namen am Eingang sind fuer jeden sichtbar. Drei Stufen, damit das Haus
+  // entscheiden kann, wie viel es preisgibt.
+  const stufen = ['voll', 'kurz', 'ohne'];
+  let sicht = stufen.includes(localStorage.getItem(SICHT)) ? localStorage.getItem(SICHT) : 'voll';
+
+  const zeige = name => {
+    if (sicht === 'ohne') return 'Reserviert';
+    if (sicht === 'kurz') {
+      const teile = name.trim().split(/\s+/);
+      return teile.length > 1
+        ? `${teile[0]} ${teile[teile.length - 1][0]}.`
+        : `${name.slice(0, 1)}.`;
+    }
+    return name;
+  };
+
+  function zeichne() {
+    const state = lies();
+    const plan = state.floorplan;
+    const { tag, zeit } = jetzt();
+    byId('scClock').textContent = zeit;
+
+    if (!plan) {
+      byId('scList').innerHTML = '<p class="sc-empty">Der Tischplan ist auf diesem Gerät noch nicht eingerichtet.</p>';
+      return;
+    }
+
+    const built = buildFloorplan(plan);
+    const service = serviceOf(activeLayout(plan));
+    const schichten = service.mode === 'schichten' ? seatingPlan(service) : [];
+    const dauer = party => {
+      const schicht = schichten.find(entry => entry.time === party.time);
+      if (schicht) return schicht.minutes;
+      return durationFor(party.guests, plan.policy || {});
+    };
+
+    const marke = stamp(`${tag}T${zeit}`);
+    const sitzend = (state.parties || [])
+      .filter(party => party.date === tag && party.tableIds.length)
+      .filter(party => {
+        const von = stamp(`${party.date}T${party.time}`);
+        return von !== null && von <= marke && marke < von + dauer(party);
+      })
+      .sort((a, b) => a.name.localeCompare(b.name, 'de'));
+
+    const nummer = new Map(built.tables.map(table => [table.id, table]));
+
+    const liste = byId('scList');
+    liste.textContent = '';
+    if (!sitzend.length) {
+      const leer = document.createElement('p');
+      leer.className = 'sc-empty';
+      const naechste = (state.parties || [])
+        .filter(party => party.date === tag && party.tableIds.length && stamp(`${party.date}T${party.time}`) > marke)
+        .sort((a, b) => a.time.localeCompare(b.time))[0];
+      leer.textContent = naechste
+        ? `Die ersten Gäste erwarten wir um ${naechste.time}.`
+        : 'Herzlich willkommen. Bitte melden Sie sich beim Service.';
+      liste.append(leer);
+    }
+    for (const party of sitzend) {
+      const zeile = document.createElement('div');
+      zeile.className = 'sc-row';
+      const name = document.createElement('b');
+      name.textContent = zeige(party.name);
+      const tische = document.createElement('span');
+      tische.className = 'sc-table';
+      tische.textContent = party.tableIds.map(id => nummer.get(id)?.number ?? '?').join(' + ');
+      const etage = document.createElement('em');
+      etage.textContent = nummer.get(party.tableIds[0])?.levelName || '';
+      zeile.append(name, etage, tische);
+      liste.append(zeile);
+    }
+
+    byId('scCount').textContent = sitzend.length
+      ? `${sitzend.reduce((sum, party) => sum + party.guests, 0)} Gäste an ${sitzend.length} Tischen`
+      : 'Noch niemand am Platz';
+
+    // Die Karte zeigt dasselbe: belegte Tische in Creme, freie in Weiss.
+    const belegung = {};
+    for (const party of sitzend) {
+      for (const id of party.tableIds) belegung[id] = { name: zeige(party.name), guests: party.guests };
+    }
+    renderFloorplan(byId('scPlan'), plan, { mode: 'orientation', seating: belegung });
+  }
+
+  byId('scNames').addEventListener('click', () => {
+    sicht = stufen[(stufen.indexOf(sicht) + 1) % stufen.length];
+    try { localStorage.setItem(SICHT, sicht); } catch { /* privater Modus */ }
+    byId('scNames').textContent = { voll: 'Namen: vollständig', kurz: 'Namen: abgekürzt', ohne: 'Namen: aus' }[sicht];
+    zeichne();
+  });
+
+  byId('scFull').addEventListener('click', () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen?.();
+  });
+
+  // Live: das storage-Ereignis feuert, sobald das Werkzeug im anderen Fenster
+  // schreibt. Der Takt daneben ist fuer die Uhr und den Schichtwechsel.
+  window.addEventListener('storage', event => {
+    if (!event.key || event.key === KEY) zeichne();
+  });
+  setInterval(zeichne, 15000);
+
+  byId('scNames').textContent = { voll: 'Namen: vollständig', kurz: 'Namen: abgekürzt', ohne: 'Namen: aus' }[sicht];
+  zeichne();
+}

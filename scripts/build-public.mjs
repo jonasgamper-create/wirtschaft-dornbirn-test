@@ -22,6 +22,9 @@ const excluded = new Set([
   'floorplan.json',
   'kundenplan.html',
   'kundenplan.js',
+  'screen.html',
+  'screen.js',
+  'screen.css',
   'plan-history.mjs',
   'entwuerfe.html',
   'drafts.css',
@@ -60,7 +63,8 @@ if (process.env.PUBLIC_ENV === 'production' || process.env.VERCEL_ENV === 'produ
 // dessen, der die Seite oeffnet. Die Quelldateien bleiben trotzdem draussen.
 const einzel = [
   ['output/tischplan/wirtschaft-tischplan.html', 'tischplan/index.html'],
-  ['output/tischplan/wirtschaft-kundenplan.html', 'tischplan/kunde.html']
+  ['output/tischplan/wirtschaft-kundenplan.html', 'tischplan/kunde.html'],
+  ['output/tischplan/wirtschaft-screen.html', 'tischplan/screen.html']
 ];
 let veroeffentlicht = 0;
 for (const [quelle, ziel] of einzel) {

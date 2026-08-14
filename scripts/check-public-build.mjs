@@ -8,13 +8,13 @@ const required = ['index.html', 'app.js', 'styles.css', 'truck-motion.js', 'data
 // Der Tischplan ist eine interne Einteilungsansicht: Gäste sehen ihn nicht und
 // wählen keinen Tisch. Weder Renderer noch Zuweisungsregeln noch Stammdaten
 // gehören in ein öffentlich ausgeliefertes Bundle.
-const forbidden = ['gastgeber.html', 'gastgeber.js', 'gastgeber.css', 'gastgeber-mobile-fix.css', 'inventory-store.js', 'table-assignment.mjs', 'floorplan-layout.mjs', 'floorplan.js', 'floorplan.css', 'kundenplan.html', 'kundenplan.js', 'plan-history.mjs', 'entwuerfe.html', 'drafts.css', 'entwuerfe.css', 'ticketing-cinematic.css', 'truck-experience.css'];
+const forbidden = ['gastgeber.html', 'gastgeber.js', 'gastgeber.css', 'gastgeber-mobile-fix.css', 'inventory-store.js', 'table-assignment.mjs', 'floorplan-layout.mjs', 'floorplan.js', 'floorplan.css', 'kundenplan.html', 'kundenplan.js', 'screen.html', 'screen.js', 'screen.css', 'plan-history.mjs', 'entwuerfe.html', 'drafts.css', 'entwuerfe.css', 'ticketing-cinematic.css', 'truck-experience.css'];
 // Verschachtelte Pfade fängt die Verzeichnisprüfung unten nicht ab.
 const forbiddenPaths = ['data/floorplan.json'];
 // Bewusst veröffentlicht: die beiden gebauten Einzeldateien unter eigenem,
 // nicht verlinktem Pfad. Sie tragen keine Daten - Belegung und Namen entstehen
 // erst im Browser dessen, der sie öffnet.
-const expectedPaths = ['tischplan/index.html', 'tischplan/kunde.html'];
+const expectedPaths = ['tischplan/index.html', 'tischplan/kunde.html', 'tischplan/screen.html'];
 
 for (const file of required) await access(path.join(output, file));
 const files = await readdir(output);

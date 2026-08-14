@@ -478,3 +478,40 @@ Unter 45 Minuten je Schicht warnt das Setup. Drei Schichten in zweieinhalb
 Stunden ergeben rechnerisch 50/35/45 Minuten — das ist für einen Mittagstisch zu
 knapp, und die Warnung sagt es. Zwei Schichten zu 60 Minuten sind das
 realistische Maximum für 11:30 bis 13:45.
+
+## Gästebildschirm am Eingang
+
+`site/screen.html` zeigt groß und ruhig, wer gerade wo sitzt: Name, Etage,
+Tischnummer, daneben der Saalplan mit den belegten Tischen. Im Wirtschaft-CI —
+Paper, Ink, Green, Georgia für Namen, Inter für den Rest — und aus drei Metern
+lesbar.
+
+### Wie „live" funktioniert
+
+Der Bildschirm liest **denselben Browser-Speicher** wie die interne Planung. Das
+heißt konkret:
+
+**Auf demselben Gerät ist er sofort live.** Ein Rechner treibt den Bildschirm,
+darauf zwei Fenster: die Planung und der Schirm. Trägt Wolfgang etwas ein, feuert
+das `storage`-Ereignis und der Schirm zeichnet neu — ohne Verzögerung, ohne
+Netz. Daneben läuft ein Takt von 15 Sekunden für die Uhr und den
+Schichtwechsel.
+
+**Auf einem anderen Gerät ist er es nicht.** Ein Fernseher im anderen Netz sieht
+Wolfgangs Eingaben nicht — dazwischen liegt kein Server, der sie überträgt. Das
+ist dieselbe Grenze wie überall in diesem Werkzeug.
+
+### Namen am Eingang
+
+Ein Bildschirm im Eingang zeigt Gästenamen jedem, der hereinkommt. Deshalb gibt
+es unten rechts einen Schalter mit drei Stufen:
+
+| Stufe | Anzeige |
+| --- | --- |
+| vollständig | `Familie Huber` |
+| abgekürzt | `Familie H.` |
+| aus | `Reserviert` |
+
+Die Einstellung bleibt auf dem Gerät gespeichert. Voreingestellt ist
+„vollständig", weil der Gast seinen Tisch finden soll — aber die Entscheidung
+gehört dem Haus, nicht der Software.
