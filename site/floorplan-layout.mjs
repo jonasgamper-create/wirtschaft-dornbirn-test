@@ -194,11 +194,17 @@ export function buildFloorplan(config, grid = GRID) {
     .filter(level => level && typeof level.id === 'string')
     .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0) || a.id.localeCompare(b.id));
 
-  let number = Math.max(1, Math.trunc(Number(config?.numbering?.start) || 1));
+  // Zwei Zaehlweisen: fortlaufend ueber alle Etagen, oder in jeder Etage neu
+  // bei 1. Bei "pro-etage" gibt es Tisch 1 mehrfach - dann muss ueberall die
+  // Etage dazu, sonst schickt man Gaeste in den falschen Raum.
+  const start = Math.max(1, Math.trunc(Number(config?.numbering?.start) || 1));
+  const proEtage = config?.numbering?.mode === 'pro-etage';
+  let number = start;
   const built = [];
   const all = [];
 
   for (const level of levels) {
+    if (proEtage) number = start;
     const geometry = buildLevelGeometry(level, grid);
     const tables = geometry.tables.map(table => ({ ...table, number: number++, levelName: level.name }));
     built.push({
@@ -239,6 +245,7 @@ export function buildFloorplan(config, grid = GRID) {
     grid,
     layoutId: layout?.id || null,
     layoutName: layout?.name || '',
+    numberingMode: proEtage ? 'pro-etage' : 'fortlaufend',
     service: serviceOf(layout),
     levels: built,
     tables: all,
@@ -288,6 +295,15 @@ export function canPlace(floorplan, tableId, col, row, grid = GRID) {
     other.id !== tableId && other.levelId === table.levelId && overlapsRect(moved, other));
   return clash ? { ok: false, reason: 'occupied', blockedBy: clash.number } : { ok: true };
 }
+
+/**
+ * Beschriftung eines Tisches. Zaehlt jede Etage neu, gehoert die Etage dazu -
+ * "Tisch 1" allein waere sonst mehrdeutig.
+ */
+export const tableLabel = (table, plan) =>
+  (plan?.numberingMode === 'pro-etage' && plan.levels?.length > 1)
+    ? `${table.number} · ${table.levelName}`
+    : String(table.number);
 
 /** Naechste freie Tisch-Kennung einer Etage. */
 export function nextTableId(level) {

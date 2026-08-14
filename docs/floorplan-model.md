@@ -130,8 +130,21 @@ Plan ohnehin nur intern.
 
 ## Tischnummern
 
-Fortlaufend über alle Etagen in der Reihenfolge aus `order`, innerhalb einer
-Etage **in Leserichtung**: oben links nach unten rechts. Das macht die Karte
+Zwei Zählweisen, einstellbar im Setup und mit dem Plan gespeichert:
+
+| `numbering.mode` | Beispiel |
+| --- | --- |
+| `fortlaufend` | Gaststube 1–16, Saal 17–25 |
+| `pro-etage` | Gaststube 1–16, **Saal wieder 1–9** |
+
+**Bei `pro-etage` gibt es Tisch 1 mehrfach.** Deshalb steht dann überall die
+Etage dabei — in Meldungen, in der Reservierungsliste, in den Auswahlfeldern:
+„Tisch 4 · Gaststube". Bei einer einzigen Etage bleibt die Beschriftung kurz,
+dort gibt es keine Verwechslung. Der Bildschirm am Eingang zeigt die Etage
+ohnehin in einer eigenen Spalte.
+
+Innerhalb einer Etage wird **in Leserichtung** gezählt: oben links nach unten
+rechts. Das macht die Karte
 selbsterklärend — Tisch 1 ist der erste, den man beim Reinkommen sieht. Der Gast
 hört „Tisch 12", nicht „Tisch 12 im Obergeschoss".
 

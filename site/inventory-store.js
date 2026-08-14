@@ -147,7 +147,10 @@
     return {
       version: 2,
       status: ['beispiel', 'bestaetigt'].includes(input.status) ? input.status : 'beispiel',
-      numbering: { start: safeNumber(input.numbering?.start, 1, 999, 1) },
+      numbering: {
+        start: safeNumber(input.numbering?.start, 1, 999, 1),
+        mode: input.numbering?.mode === 'pro-etage' ? 'pro-etage' : 'fortlaufend'
+      },
       // Steht im PDF-Kopf, damit ein ausgedruckter Plan zuordenbar ist.
       eventName: safeText(input.eventName, 60),
       activeLayout: ids.has(input.activeLayout) ? input.activeLayout : layouts[0].id,

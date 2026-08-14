@@ -4,9 +4,9 @@
 
 // Die Versionsangaben muessen mit denen in den HTML-Dateien mitwandern: ein
 // Modulimport ohne Version bleibt sonst im Browser-Cache haengen.
-import { ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, totalSeats } from './floorplan-layout.mjs?v=7';
-import { assignTables, durationFor, stamp } from './table-assignment.mjs?v=7';
-import { renderFloorplan } from './floorplan.js?v=13';
+import { ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=8';
+import { assignTables, durationFor, stamp } from './table-assignment.mjs?v=8';
+import { renderFloorplan } from './floorplan.js?v=14';
 import { createHistory } from './plan-history.mjs?v=1';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -56,6 +56,19 @@ async function start() {
   const putParties = list => { const out = store.setParties(list); history.remember(); return out; };
   const putBlocked = list => { const out = store.setBlockedTables(list); history.remember(); return out; };
   const putFloorplan = patch => { const out = store.updateFloorplan(patch); history.remember(); return out; };
+
+  /**
+   * Beschriftung eines Tisches fuer Meldungen und Listen. Zaehlt jede Etage
+   * neu, gehoert die Etage dazu - "Tisch 1" allein waere mehrdeutig.
+   */
+  const tisch = (idOrTable, plan = buildFloorplan(current())) => {
+    const table = typeof idOrTable === 'string'
+      ? plan.tables.find(entry => entry.id === idOrTable)
+      : idOrTable;
+    return table ? tableLabel(table, plan) : '?';
+  };
+  const tischListe = (ids, plan = buildFloorplan(current())) =>
+    ids.map(id => tisch(id, plan)).join(' + ');
 
   const say = (id, text) => { byId(id).textContent = text; };
   const seatResult = text => say('fpSeatResult', text);
@@ -342,7 +355,7 @@ async function start() {
     const wunsch = dishLabel(dishes);
     if (result.ok) {
       const schicht = schichtFor(time);
-      say('fpResResult', `${name}, ${guests} Personen am ${date} um ${time}: Tisch ${result.numbers.join(' + ')}`
+      say('fpResResult', `${name}, ${guests} Personen am ${date} um ${time}: Tisch ${tischListe(result.tableIds)}`
         + (result.seatGap ? ` (${result.seatGap} Platz übrig).` : ' – passgenau.')
         + (schicht?.naechste
           // Der Gast muss wissen, dass der Tisch wieder gebraucht wird.
@@ -358,7 +371,7 @@ async function start() {
       invalid: 'Eingabe unvollständig'
     };
     const alternativen = (result.alternatives || [])
-      .map(entry => `${entry.startsAt.slice(11)} (Tisch ${entry.numbers.join(' + ')})`).join(', ');
+      .map(entry => `${entry.startsAt.slice(11)} (Tisch ${tischListe(entry.tableIds)})`).join(', ');
     say('fpResResult', `${name} ist aufgenommen, aber noch ohne Tisch – ${gruende[result.reason]}.`
       + (alternativen ? ` Möglich wäre: ${alternativen}.` : ''));
     return party;
@@ -474,7 +487,7 @@ async function start() {
       const where = document.createElement('span');
       if (party.tableIds.length) {
         where.className = 'at';
-        where.textContent = `Tisch ${party.tableIds.map(id => numberOf.get(id) ?? '?').join(' + ')}`;
+        where.textContent = `Tisch ${tischListe(party.tableIds, plan)}`;
       } else {
         where.className = 'open';
         where.textContent = party.id === marked ? 'Tisch anklicken' : 'noch offen';
@@ -500,7 +513,7 @@ async function start() {
             const option = document.createElement('option');
             option.value = table.id;
             const belegt = collidesAt(party, [table.id], parties());
-            option.textContent = `Tisch ${table.number} · ${table.seats}P`
+            option.textContent = `Tisch ${tisch(table)} · ${table.seats}P`
               + (belegt ? ` · belegt (${belegt.name})` : '');
             option.disabled = Boolean(belegt) || party.guests > table.seats || blocked().includes(table.id);
             group.append(option);
@@ -585,17 +598,17 @@ async function start() {
     const party = list.find(entry => entry.id === marked);
     if (!table || !party) { marked = null; return; }
 
-    if (blocked().includes(tableId)) return seatResult(`Tisch ${table.number} ist gesperrt. Erst entsperren.`);
+    if (blocked().includes(tableId)) return seatResult(`Tisch ${tisch(table)} ist gesperrt. Erst entsperren.`);
     if (party.guests > table.seats) {
-      return seatResult(`${party.name} sind ${party.guests} Personen – Tisch ${table.number} hat nur ${table.seats} Plätze.`);
+      return seatResult(`${party.name} sind ${party.guests} Personen – Tisch ${tisch(table)} hat nur ${table.seats} Plätze.`);
     }
     const clash = collidesAt(party, [tableId], list);
-    if (clash) return seatResult(`Tisch ${table.number} ist um ${party.time} schon von ${clash.name} belegt.`);
+    if (clash) return seatResult(`Tisch ${tisch(table)} ist um ${party.time} schon von ${clash.name} belegt.`);
 
     party.tableIds = [tableId];
     marked = null;
     putParties(list);
-    seatResult(`${party.name} sitzt an Tisch ${table.number} (${party.guests} von ${table.seats} Plätzen, ${party.time}).`);
+    seatResult(`${party.name} sitzt an Tisch ${tisch(table)} (${party.guests} von ${table.seats} Plätzen, ${party.time}).`);
     paint();
 
     const nextOpen = dayParties().find(entry => !entry.tableIds.length);
@@ -650,7 +663,7 @@ async function start() {
         .sort((a, b) => (a.seats - party.guests) - (b.seats - party.guests) || a.number - b.number);
       if (!frei.length) { offen.push(party); continue; }
       party.tableIds = [frei[0].id];
-      umgesetzt.push(`${party.name} an Tisch ${frei[0].number}`);
+      umgesetzt.push(`${party.name} an Tisch ${tableLabel(frei[0], plan)}`);
     }
     putParties(list);
     paint();
@@ -679,13 +692,13 @@ async function start() {
       });
       if (!result.ok) { failed.push({ party, reason: result.reason }); continue; }
       party.tableIds = result.tableIds;
-      seated.push({ name: party.name, numbers: result.numbers, time: party.time });
+      seated.push({ name: party.name, tableIds: result.tableIds, time: party.time });
     }
     putParties(list);
     paint();
 
     const gruende = { pacing: 'Zeitfenster voll', no_fit: 'kein passender Tisch', capacity: 'Deckel erreicht', invalid: 'Eingabe' };
-    seatResult(`${seated.length} verteilt: ${seated.map(entry => `${entry.name} ${entry.time} an Tisch ${entry.numbers.join(' + ')}`).join(', ') || '–'}.`
+    seatResult(`${seated.length} verteilt: ${seated.map(entry => `${entry.name} ${entry.time} an Tisch ${tischListe(entry.tableIds)}`).join(', ') || '–'}.`
       + (failed.length ? ` Ohne Tisch: ${failed.map(entry => `${entry.party.name} (${entry.party.guests}P, ${gruende[entry.reason]})`).join(', ')}.` : ''));
   });
 
@@ -735,7 +748,7 @@ async function start() {
       name.disabled = isBlocked;
       name.dataset.tableId = table.id;
       name.dataset.field = 'name';
-      name.setAttribute('aria-label', `Name für Tisch ${table.number} um ${moment.time}`);
+      name.setAttribute('aria-label', `Name für Tisch ${tisch(table)} um ${moment.time}`);
       row.append(name);
 
       const actions = document.createElement('div');
@@ -750,14 +763,14 @@ async function start() {
       guests.disabled = !party;
       guests.dataset.tableId = table.id;
       guests.dataset.field = 'guests';
-      guests.setAttribute('aria-label', `Personen an Tisch ${table.number}, höchstens ${table.seats}`);
+      guests.setAttribute('aria-label', `Personen an Tisch ${tisch(table)}, höchstens ${table.seats}`);
       actions.append(guests);
 
       if (!party && !isBlocked && open.length) {
         const choose = document.createElement('select');
         choose.dataset.tableId = table.id;
         choose.dataset.field = 'assign';
-        choose.setAttribute('aria-label', `Offene Reservierung an Tisch ${table.number} setzen`);
+        choose.setAttribute('aria-label', `Offene Reservierung an Tisch ${tisch(table)} setzen`);
         const empty = document.createElement('option');
         empty.value = '';
         empty.textContent = 'Reservierung wählen …';
@@ -814,26 +827,26 @@ async function start() {
       if (!existing) return;
       existing.tableIds = existing.tableIds.filter(id => id !== tableId);
       putParties(list);
-      seatResult(`Tisch ${table.number} ist wieder frei – ${existing.name} steht offen.`);
+      seatResult(`Tisch ${tisch(table)} ist wieder frei – ${existing.name} steht offen.`);
       paint();
       return;
     }
     if (existing) {
       existing.name = name;
       putParties(list);
-      seatResult(`Tisch ${table.number}: ${name}.`);
+      seatResult(`Tisch ${tisch(table)}: ${name}.`);
       paint();
       return;
     }
-    if (blocked().includes(tableId)) return seatResult(`Tisch ${table.number} ist gesperrt. Erst entsperren.`);
+    if (blocked().includes(tableId)) return seatResult(`Tisch ${tisch(table)} ist gesperrt. Erst entsperren.`);
 
     const offen = list.find(party => party.date === moment.date && !party.tableIds.length && party.name === name);
     if (offen) {
       const clash = collidesAt(offen, [tableId], list);
-      if (clash) return seatResult(`Tisch ${table.number} ist um ${offen.time} schon von ${clash.name} belegt.`);
+      if (clash) return seatResult(`Tisch ${tisch(table)} ist um ${offen.time} schon von ${clash.name} belegt.`);
       offen.tableIds = [tableId];
       putParties(list);
-      seatResult(`${name} sitzt an Tisch ${table.number} (${offen.guests} von ${table.seats} Plätzen).`);
+      seatResult(`${name} sitzt an Tisch ${tisch(table)} (${offen.guests} von ${table.seats} Plätzen).`);
       paint();
       return;
     }
@@ -844,7 +857,7 @@ async function start() {
       { silent: true }
     );
     putParties(parties().map(party => (party.id === fresh.id ? { ...party, tableIds: [tableId] } : party)));
-    seatResult(`${name} sitzt an Tisch ${table.number} um ${moment.time}. Personenzahl in der Zeile anpassen.`);
+    seatResult(`${name} sitzt an Tisch ${tisch(table)} um ${moment.time}. Personenzahl in der Zeile anpassen.`);
     paint();
   }
 
@@ -868,8 +881,8 @@ async function start() {
     party.guests = Math.min(wanted, seats);
     putParties(list);
     seatResult(wanted > seats
-      ? `Tisch ${table.number} hat nur ${seats} Plätze – auf ${seats} begrenzt.`
-      : `Tisch ${table.number}: ${party.name}, ${party.guests} Personen.`);
+      ? `Tisch ${tisch(table)} hat nur ${seats} Plätze – auf ${seats} begrenzt.`
+      : `Tisch ${tisch(table)}: ${party.name}, ${party.guests} Personen.`);
     paint();
   });
 
@@ -881,13 +894,13 @@ async function start() {
     const table = plan.tables.find(item => item.id === id);
     if (button.dataset.action === 'free') return setTableName(id, '');
     if (seatedNow().some(party => party.tableIds.includes(id))) {
-      return seatResult(`Tisch ${table?.number} ist belegt. Erst frei machen, dann sperren.`);
+      return seatResult(`Tisch ${tisch(table)} ist belegt. Erst frei machen, dann sperren.`);
     }
     const set = new Set(blocked());
     const wasBlocked = set.has(id);
     if (wasBlocked) set.delete(id); else set.add(id);
     putBlocked([...set]);
-    seatResult(`Tisch ${table?.number} ist jetzt ${wasBlocked ? 'wieder frei' : 'gesperrt'}.`);
+    seatResult(`Tisch ${tisch(table)} ist jetzt ${wasBlocked ? 'wieder frei' : 'gesperrt'}.`);
     paint();
   });
 
@@ -940,7 +953,7 @@ async function start() {
         const chip = document.createElement('div');
         chip.className = 'fp-chair-chip';
         const label = document.createElement('b');
-        label.textContent = `Tisch ${table.number}`;
+        label.textContent = `Tisch ${tisch(table)}`;
         const seats = document.createElement('span');
         seats.textContent = `${table.seats} Stühle`;
         const minus = document.createElement('button');
@@ -948,14 +961,14 @@ async function start() {
         minus.dataset.chair = table.id;
         minus.dataset.step = '-1';
         minus.textContent = '−';
-        minus.setAttribute('aria-label', `Stuhl an Tisch ${table.number} entfernen`);
+        minus.setAttribute('aria-label', `Stuhl an Tisch ${tisch(table)} entfernen`);
         minus.disabled = table.seats <= 1;
         const plus = document.createElement('button');
         plus.type = 'button';
         plus.dataset.chair = table.id;
         plus.dataset.step = '1';
         plus.textContent = '+';
-        plus.setAttribute('aria-label', `Stuhl an Tisch ${table.number} ergänzen`);
+        plus.setAttribute('aria-label', `Stuhl an Tisch ${tisch(table)} ergänzen`);
         plus.disabled = table.seats >= GRID.maxSeats;
         const drop = document.createElement('button');
         drop.type = 'button';
@@ -1337,6 +1350,16 @@ async function start() {
       + ' daraus entsteht wirtschaft-kundenplan.html zum Verschicken.');
   });
 
+  byId('fpNumbering').addEventListener('change', () => {
+    const config = current();
+    config.numbering = { ...(config.numbering || {}), mode: byId('fpNumbering').value };
+    save(config, { quiet: true });
+    const plan = buildFloorplan(current());
+    warn(plan.numberingMode === 'pro-etage'
+      ? 'Jede Etage zählt jetzt neu bei 1. Weil es Tisch 1 dadurch mehrfach gibt, steht überall die Etage dabei.'
+      : 'Die Tischnummern laufen jetzt durch alle Etagen durch.');
+  });
+
   byId('fpEventName').addEventListener('change', () => {
     const config = current();
     config.eventName = byId('fpEventName').value.trim();
@@ -1453,6 +1476,7 @@ async function start() {
     paintStats();
     paintHistory();
     byId('fpEventName').value = current().eventName || '';
+    byId('fpNumbering').value = buildFloorplan(current()).numberingMode;
   }
 
   byId('fpResDate').value = moment.date;
