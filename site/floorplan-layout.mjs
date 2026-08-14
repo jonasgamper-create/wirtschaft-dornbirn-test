@@ -138,6 +138,46 @@ export function buildLevelGeometry(level, grid = GRID) {
   return { cols: grid.cols, rows, tables: placed, elements };
 }
 
+// Betriebsart je Tischordnung. "frei" ist der rollende Betrieb: die Dauer
+// haengt an der Gruppengroesse. "schichten" ist der Doppelbetrieb: feste
+// Anfangszeiten, alle gleich lang, Tisch danach wieder frei.
+//
+// Beides zusammen geht nicht: bei festen Schichten bestimmt der Abstand zur
+// naechsten Schicht die Dauer, nicht die Gruppengroesse. Sonst blockiert ein
+// Vierertisch mit 105 Minuten die zweite Schicht.
+export const DEFAULT_SERVICE = {
+  mode: 'frei',
+  seatings: ['11:30', '12:45'],
+  endsAt: '13:45',
+  bufferMinutes: 15
+};
+
+export const serviceOf = layout => ({ ...DEFAULT_SERVICE, ...(layout?.service || {}) });
+
+const minutesOf = value => {
+  const match = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(String(value || ''));
+  return match ? Number(match[1]) * 60 + Number(match[2]) : null;
+};
+
+/**
+ * Rechnet die Schichten aus: wann sie beginnen und wie lange die Gaeste
+ * tatsaechlich sitzen. Die letzte Schicht laeuft bis endsAt, alle anderen bis
+ * zur naechsten minus Pufferzeit.
+ */
+export function seatingPlan(service) {
+  const rules = { ...DEFAULT_SERVICE, ...service };
+  const buffer = Math.max(0, Number(rules.bufferMinutes) || 0);
+  const times = [...new Set((rules.seatings || []).filter(minutesOf))]
+    .sort((a, b) => minutesOf(a) - minutesOf(b));
+  const ende = minutesOf(rules.endsAt) ?? (times.length ? minutesOf(times[times.length - 1]) + 90 : 0);
+
+  return times.map((time, index) => {
+    const start = minutesOf(time);
+    const bis = index + 1 < times.length ? minutesOf(times[index + 1]) - buffer : ende;
+    return { time, minutes: Math.max(0, bis - start), naechste: times[index + 1] || null };
+  });
+}
+
 /** Die gerade aktive Tischordnung, mit Rueckfall auf die erste. */
 export function activeLayout(config) {
   const layouts = Array.isArray(config?.layouts) ? config.layouts : [];
@@ -199,6 +239,7 @@ export function buildFloorplan(config, grid = GRID) {
     grid,
     layoutId: layout?.id || null,
     layoutName: layout?.name || '',
+    service: serviceOf(layout),
     levels: built,
     tables: all,
     combos,

@@ -12,8 +12,8 @@
   <link rel="stylesheet" href="gastgeber.css?v=1">
   <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=2">
   <link rel="stylesheet" href="floorplan.css?v=15">
-  <script src="inventory-store.js?v=8" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=22"></script>
+  <script src="inventory-store.js?v=9" defer></script>
+  <script type="module" src="gastgeber-floorplan.js?v=23"></script>
 </head>
 <body>
   <header class="topbar">
@@ -32,7 +32,7 @@
     </section>
 
     <section class="panel" aria-labelledby="momentTitle">
-      <div class="panel-head"><div><p>01 · Zeitpunkt</p><h2 id="momentTitle">Welcher Tag, welche Uhrzeit?</h2></div><span>Karte und Listen zeigen immer diesen Moment</span></div>
+      <div class="panel-head"><div><p>01 · Setup</p><h2 id="momentTitle">Betrieb, Tag und Uhrzeit</h2></div><span>Karte und Listen zeigen immer diesen Moment</span></div>
       <form class="add-service" id="fpMomentForm">
         <label>Tag<input id="fpDate" type="date" required></label>
         <label>Uhrzeit<input id="fpTime" type="time" step="900" required></label>
@@ -41,6 +41,19 @@
         <button type="submit">Anzeigen</button>
       </form>
       <p class="fp-result" id="fpMomentInfo" role="status" aria-live="polite">Tag und Uhrzeit wählen.</p>
+
+      <h3 class="fp-subhead">Betriebsart dieser Tischordnung</h3>
+      <form class="add-service" id="fpServiceForm">
+        <label>Ablauf<select id="fpMode">
+          <option value="frei">Durchgehend – Dauer nach Gruppengröße</option>
+          <option value="schichten">Schichten – feste Anfangszeiten, Tisch wird nochmal vergeben</option>
+        </select></label>
+        <label>Schichten<input id="fpSeatings" type="text" maxlength="60" placeholder="11:30, 12:45"></label>
+        <label>Ende<input id="fpEndsAt" type="time" step="900"></label>
+        <label>Abräumen<input id="fpBuffer" type="number" min="0" max="60" step="5"></label>
+        <button type="submit">Übernehmen</button>
+      </form>
+      <p class="fp-result" id="fpServiceInfo" role="status" aria-live="polite"></p>
     </section>
 
     <section class="panel" aria-labelledby="mapTitle">

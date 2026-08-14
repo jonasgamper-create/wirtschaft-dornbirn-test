@@ -4,9 +4,9 @@
 
 // Die Versionsangaben muessen mit denen in den HTML-Dateien mitwandern: ein
 // Modulimport ohne Version bleibt sonst im Browser-Cache haengen.
-import { ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, migrate, nextElementId, nextTableId, seatNamesFor, totalSeats } from './floorplan-layout.mjs?v=6';
-import { assignTables, durationFor, stamp } from './table-assignment.mjs?v=6';
-import { renderFloorplan } from './floorplan.js?v=12';
+import { ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, totalSeats } from './floorplan-layout.mjs?v=7';
+import { assignTables, durationFor, stamp } from './table-assignment.mjs?v=7';
+import { renderFloorplan } from './floorplan.js?v=13';
 import { createHistory } from './plan-history.mjs?v=1';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -65,7 +65,21 @@ async function start() {
     box.textContent = text || '';
   }
 
-  const minutesFor = guests => durationFor(guests, policy());
+  const service = () => serviceOf(layout());
+  const schichten = () => (service().mode === 'schichten' ? seatingPlan(service()) : []);
+  /** Die Schicht, in der eine Uhrzeit liegt - oder nichts. */
+  const schichtFor = time => schichten().find(entry => entry.time === time) || null;
+
+  /**
+   * Im Schichtbetrieb bestimmt der Abstand zur naechsten Schicht die Dauer.
+   * Nur im freien Betrieb haengt sie an der Gruppengroesse.
+   */
+  const minutesFor = (guests, time) => {
+    const schicht = time ? schichtFor(time) : null;
+    if (schicht) return schicht.minutes;
+    if (service().mode === 'schichten' && schichten().length) return schichten()[0].minutes;
+    return durationFor(guests, policy());
+  };
   const startsAt = party => `${party.date}T${party.time}`;
   const dayParties = () => parties().filter(party => party.date === moment.date);
 
@@ -76,7 +90,7 @@ async function start() {
     return dayParties().filter(party => {
       if (!party.tableIds.length) return false;
       const from = stamp(startsAt(party));
-      return from !== null && from <= now && now < from + minutesFor(party.guests);
+      return from !== null && from <= now && now < from + minutesFor(party.guests, party.time);
     });
   }
 
@@ -94,7 +108,7 @@ async function start() {
     .map(party => ({
       tableIds: party.tableIds,
       startsAt: startsAt(party),
-      minutes: minutesFor(party.guests),
+      minutes: minutesFor(party.guests, party.time),
       guests: party.guests
     }));
 
@@ -303,13 +317,19 @@ async function start() {
       id: `r-${Date.now().toString(36)}-${parties().length}`,
       name, date, time, guests, dishes, source, tableIds: []
     };
+    const feste = minutesFor(guests, time);
     const result = assignTables({
       floorplan: plan,
       occupancy: occupancyOf(parties().filter(entry => entry.date === date)),
       blocked: blocked(),
       guests,
       startsAt: `${date}T${time}`,
-      policy: policy()
+      // Im Schichtbetrieb kommen alle gleichzeitig - Pacing waere sinnlos und
+      // wuerde jede zweite Reservierung grundlos ablehnen.
+      policy: service().mode === 'schichten'
+        ? { ...policy(), maxCoversPerSlot: Number.MAX_SAFE_INTEGER }
+        : policy(),
+      minutes: feste
     });
     if (result.ok) party.tableIds = result.tableIds;
     putParties([...parties(), party]);
@@ -321,8 +341,13 @@ async function start() {
 
     const wunsch = dishLabel(dishes);
     if (result.ok) {
+      const schicht = schichtFor(time);
       say('fpResResult', `${name}, ${guests} Personen am ${date} um ${time}: Tisch ${result.numbers.join(' + ')}`
         + (result.seatGap ? ` (${result.seatGap} Platz übrig).` : ' – passgenau.')
+        + (schicht?.naechste
+          // Der Gast muss wissen, dass der Tisch wieder gebraucht wird.
+          ? ` Tisch wird um ${schicht.naechste} erneut vergeben – dem Gast sagen, dass ${schicht.minutes} Minuten zur Verfügung stehen.`
+          : '')
         + (wunsch ? ` Essen vorbestellt: ${wunsch}.` : ''));
       return party;
     }
@@ -544,12 +569,12 @@ async function start() {
   function collidesAt(party, tableIds, list) {
     const buffer = Number(policy().bufferMinutes) || 0;
     const from = stamp(startsAt(party)) - buffer;
-    const to = stamp(startsAt(party)) + minutesFor(party.guests) + buffer;
+    const to = stamp(startsAt(party)) + minutesFor(party.guests, party.time) + buffer;
     return list.find(other => {
       if (other.id === party.id || other.date !== party.date) return false;
       if (!other.tableIds.some(id => tableIds.includes(id))) return false;
       const start = stamp(startsAt(other));
-      return start < to && from < start + minutesFor(other.guests);
+      return start < to && from < start + minutesFor(other.guests, other.time);
     });
   }
 
@@ -1318,6 +1343,102 @@ async function start() {
     save(config, { quiet: true });
   });
 
+
+  // ---- Betriebsart ---------------------------------------------------------
+
+  function paintService() {
+    const rules = service();
+    const plan = buildFloorplan(current());
+    byId('fpMode').value = rules.mode;
+    byId('fpSeatings').value = rules.seatings.join(', ');
+    byId('fpEndsAt').value = rules.endsAt;
+    byId('fpBuffer').value = String(rules.bufferMinutes);
+    const schicht = rules.mode === 'schichten';
+    for (const id of ['fpSeatings', 'fpEndsAt']) byId(id).disabled = !schicht;
+
+    if (!schicht) {
+      say('fpServiceInfo', 'Durchgehender Betrieb: die Dauer richtet sich nach der Gruppengröße '
+        + `(${(policy().durations || []).map(step => `bis ${step.upTo}P ${step.minutes} Min`).join(', ')}). `
+        + `Höchstens ${policy().maxCoversPerSlot} Gäste je Viertelstunde.`);
+      return;
+    }
+
+    const liste = seatingPlan(rules);
+    const plaetze = totalSeats(plan);
+    const knapp = liste.filter(entry => entry.minutes < 45);
+    say('fpServiceInfo',
+      `${liste.length} Schichten: ${liste.map(entry => `${entry.time} → ${entry.minutes} Min`).join(', ')}, `
+      + `danach ${rules.bufferMinutes} Min zum Abräumen. `
+      + `${plaetze} Plätze × ${liste.length} Schichten = bis zu ${plaetze * liste.length} Gäste am Tag. `
+      + 'Pacing ist ausgesetzt – im Schichtbetrieb kommen alle gleichzeitig.'
+      + (knapp.length
+        ? ` Achtung: ${knapp.map(entry => entry.time).join(', ')} lässt den Gästen unter 45 Minuten.`
+        : ''));
+  }
+
+  byId('fpMode').addEventListener('change', () => {
+    const config = current();
+    activeLayout(config).service = { ...serviceOf(activeLayout(config)), mode: byId('fpMode').value };
+    save(config, { quiet: true });
+  });
+
+  byId('fpServiceForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const config = current();
+    const alt = serviceOf(activeLayout(config));
+    const zeiten = byId('fpSeatings').value.split(/[,;\s]+/).map(entry => entry.trim())
+      .filter(entry => /^([01]?\d|2[0-3]):[0-5]\d$/.test(entry));
+    if (byId('fpMode').value === 'schichten' && !zeiten.length) {
+      return say('fpServiceInfo', 'Bitte mindestens eine Schichtzeit angeben, z. B. 11:30, 12:45.');
+    }
+    activeLayout(config).service = {
+      mode: byId('fpMode').value,
+      seatings: zeiten.length ? zeiten : alt.seatings,
+      endsAt: byId('fpEndsAt').value || alt.endsAt,
+      bufferMinutes: Math.max(0, Math.min(60, Number(byId('fpBuffer').value) || 0))
+    };
+    save(config, { quiet: true });
+    seatResult('Betriebsart übernommen. Bestehende Reservierungen behalten ihre Uhrzeit.');
+  });
+
+  /** Im Schichtbetrieb gibt es nur die Schichtzeiten zur Auswahl. */
+  function paintReservationTime() {
+    const liste = schichten();
+    const alt = byId('fpResTime');
+    const brauchtSelect = liste.length > 0;
+    if (brauchtSelect === (alt.tagName === 'SELECT')) {
+      if (brauchtSelect) {
+        const gewaehlt = alt.value;
+        alt.textContent = '';
+        for (const entry of liste) {
+          const option = document.createElement('option');
+          option.value = entry.time;
+          option.textContent = `${entry.time} (${entry.minutes} Min)`;
+          option.selected = entry.time === gewaehlt;
+          alt.append(option);
+        }
+      }
+      return;
+    }
+    const neu = document.createElement(brauchtSelect ? 'select' : 'input');
+    neu.id = 'fpResTime';
+    if (brauchtSelect) {
+      for (const entry of liste) {
+        const option = document.createElement('option');
+        option.value = entry.time;
+        option.textContent = `${entry.time} (${entry.minutes} Min)`;
+        neu.append(option);
+      }
+    } else {
+      neu.type = 'time';
+      neu.step = '900';
+      neu.value = moment.time;
+      neu.required = true;
+    }
+    neu.setAttribute('aria-label', 'Uhrzeit der Reservierung');
+    alt.replaceWith(neu);
+  }
+
   // ---- Start ---------------------------------------------------------------
 
   function paint() {
@@ -1326,6 +1447,8 @@ async function start() {
     paintSeating();
     paintLevels();
     paintElements();
+    paintService();
+    paintReservationTime();
     paintFloorMove();
     paintStats();
     paintHistory();

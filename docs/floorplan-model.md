@@ -439,3 +439,42 @@ Zwei Wege, beide in Panel 03:
   namentlich genannt.
 
 Beides ist ein Schritt im Verlauf und lässt sich rückgängig machen.
+
+## Betriebsart: durchgehend oder Schichten
+
+Je Tischordnung, einstellbar im Setup. Damit ist das Pulldown eines statt zweier:
+die Ordnung trägt den Raum **und** die Regeln.
+
+**Durchgehend** ist der rollende Betrieb wie bisher: Die Dauer richtet sich nach
+der Gruppengröße (90/105/150/180 Minuten), Pacing begrenzt den Zustrom.
+
+**Schichten** ist der Doppelbetrieb: feste Anfangszeiten, alle gleich lang,
+danach ist der Tisch wieder frei. Bei `11:30, 12:45`, Ende `13:45` und 15
+Minuten Abräumen ergibt das zwei Schichten zu je 60 Minuten.
+
+### Warum beides zusammen nicht geht
+
+Bei festen Schichten bestimmt **der Abstand zur nächsten Schicht** die Dauer,
+nicht die Gruppengröße. Ein Vierertisch mit den üblichen 105 Minuten würde ab
+11:30 bis 13:00 blockieren — die zweite Schicht um 12:45 wäre unmöglich. Deshalb
+ist es eine eigene Betriebsart und kein Schalter obendrauf.
+
+### Was der Schichtbetrieb sonst noch ändert
+
+- **Pacing wird ausgesetzt.** Es begrenzt den Zustrom je Viertelstunde — im
+  Schichtbetrieb kommen aber alle gleichzeitig, das ist der Sinn. Ohne diese
+  Ausnahme würde jede zweite Reservierung grundlos abgelehnt.
+- **Die Uhrzeit wird zur Auswahl.** Kein freies Zeitfeld mehr, sondern die
+  Schichtzeiten mit ihrer Dauer. Eine Reservierung um 12:10 gibt es nicht.
+- **Die Kapazität verdoppelt sich.** Das Setup rechnet es vor:
+  „96 Plätze × 2 Schichten = bis zu 192 Gäste am Tag."
+- **Der Gast muss es wissen.** Die Bestätigung sagt es dem Haus mit:
+  „Tisch wird um 12:45 erneut vergeben – dem Gast sagen, dass 60 Minuten zur
+  Verfügung stehen."
+
+### Wo die Grenze liegt
+
+Unter 45 Minuten je Schicht warnt das Setup. Drei Schichten in zweieinhalb
+Stunden ergeben rechnerisch 50/35/45 Minuten — das ist für einen Mittagstisch zu
+knapp, und die Warnung sagt es. Zwei Schichten zu 60 Minuten sind das
+realistische Maximum für 11:30 bis 13:45.

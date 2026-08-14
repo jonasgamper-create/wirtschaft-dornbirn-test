@@ -111,7 +111,10 @@ export function assignTables(input) {
     startsAt,
     policy = DEFAULT_POLICY,
     available = Infinity,
-    withAlternatives = true
+    withAlternatives = true,
+    // Im Schichtbetrieb bestimmt der Abstand zur naechsten Schicht die Dauer,
+    // nicht die Gruppengroesse.
+    minutes: fixedMinutes = null
   } = input || {};
 
   const party = Math.trunc(Number(guests));
@@ -126,7 +129,11 @@ export function assignTables(input) {
   if (party > available) return { ok: false, reason: 'capacity', available };
 
   const rules = { ...DEFAULT_POLICY, ...policy };
-  const minutes = durationFor(party, rules);
+  // Achtung: Number(null) ist 0 und Number.isFinite(0) ist true. Ohne die
+  // ausdrueckliche Pruefung auf null bekaeme jede Reservierung 0 Minuten.
+  const minutes = fixedMinutes === null || fixedMinutes === undefined
+    ? durationFor(party, rules)
+    : Math.max(1, Number(fixedMinutes) || durationFor(party, rules));
   const buffer = Number(rules.bufferMinutes) || 0;
   const slotMinutes = Number(rules.slotMinutes) || 15;
   const from = start - buffer;

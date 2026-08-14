@@ -115,9 +115,18 @@
     const id = safeId(layout?.id, `ordnung-${index + 1}`);
     const levels = (Array.isArray(layout?.levels) ? layout.levels : []).slice(0, 4).map(sanitizeLevel);
     const known = new Set(levels.flatMap(level => level.tables.map(table => table.id)));
+    const service = layout?.service && typeof layout.service === 'object' ? layout.service : {};
     return {
       id,
       name: safeText(layout?.name, 40) || `Ordnung ${index + 1}`,
+      // Betriebsart: freier Betrieb oder feste Schichten.
+      service: {
+        mode: service.mode === 'schichten' ? 'schichten' : 'frei',
+        seatings: (Array.isArray(service.seatings) ? service.seatings : ['11:30', '12:45'])
+          .slice(0, 8).map(safeTime),
+        endsAt: safeTime(service.endsAt || '13:45'),
+        bufferMinutes: safeNumber(service.bufferMinutes, 0, 60, 15)
+      },
       levels,
       combos: (Array.isArray(layout?.combos) ? layout.combos : []).slice(0, 40).map((combo, spot) => ({
         id: safeText(combo?.id, 40) || `combo-${spot + 1}`,

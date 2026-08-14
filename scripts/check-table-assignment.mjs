@@ -1,7 +1,7 @@
 // Goldene Testfaelle fuer Geometrie und Tischzuweisung. Laeuft ohne
 // Testframework, damit npm run ci keine zusaetzliche Abhaengigkeit braucht.
 
-import { GRID, buildFloorplan, canPlace, chairSlots, defaultMinGuests, footprint, migrate, nextTableId, tableBody } from '../site/floorplan-layout.mjs';
+import { GRID, buildFloorplan, canPlace, chairSlots, defaultMinGuests, footprint, migrate, nextTableId, seatingPlan, tableBody } from '../site/floorplan-layout.mjs';
 import { assignTables, durationFor, shift, stamp } from '../site/table-assignment.mjs';
 
 const errors = [];
@@ -136,6 +136,22 @@ check('Dauer nach Gruppengroesse', durationFor(1, policy) === 90 && durationFor(
 check('Zeitverschiebung ueber Stundengrenze', shift(at('11:50'), 25) === at('12:15'), shift(at('11:50'), 25));
 check('Zeitstempel ohne Zeitzoneneinfluss', stamp(at('11:30')) - stamp(at('11:00')) === 30);
 
+// 13. Feste Dauer aus dem Schichtbetrieb schlaegt die Gruppengroesse - aber
+//     nur wenn sie wirklich angegeben ist. Number(null) ist 0, ein fehlender
+//     Wert darf also nicht als "null Minuten" durchgehen.
+const schicht = assignTables({ floorplan, guests: 5, startsAt: at('11:30'), policy, minutes: 60 });
+check('Feste Dauer wird uebernommen', schicht.ok && schicht.minutes === 60, String(schicht.minutes));
+check('Ohne feste Dauer gilt die Gruppengroesse',
+  assignTables({ floorplan, guests: 5, startsAt: at('11:30'), policy, minutes: null }).minutes === 150,
+  String(assignTables({ floorplan, guests: 5, startsAt: at('11:30'), policy, minutes: null }).minutes));
+
+// Zwei Schichten am selben Tisch: 11:30 bis 12:30, ab 12:45 wieder frei.
+const ersteSchicht = [{ tableIds: ['eg-t01'], startsAt: at('11:30'), minutes: 60, guests: 4, countsForPacing: false }];
+const zweite = assignTables({ floorplan, occupancy: ersteSchicht, guests: 4, startsAt: at('12:45'), policy, minutes: 60 });
+check('Zweite Schicht bekommt denselben Tisch', zweite.ok && numbers(zweite) === '1', numbers(zweite));
+const zufrueh = assignTables({ floorplan, occupancy: ersteSchicht, guests: 4, startsAt: at('12:15'), policy, minutes: 60 });
+check('Waehrend der ersten Schicht ist der Tisch belegt', numbers(zufrueh) !== '1', numbers(zufrueh));
+
 // ---------------------------------------------------------------------------
 // Gemischte Tischgroessen, Stuehle, Positionen
 // ---------------------------------------------------------------------------
@@ -248,6 +264,18 @@ check('Standard-Ordnung bleibt unberuehrt',
   buildFloorplan({ ...zweiOrdnungen, activeLayout: 'standard' }).tables.length === mixed.tables.length);
 check('Unbekannte Ordnung faellt auf die erste zurueck',
   buildFloorplan({ ...zweiOrdnungen, activeLayout: 'gibtsnicht' }).layoutId === 'standard');
+
+// Schichtplan: Dauer ergibt sich aus dem Abstand minus Pufferzeit.
+const zwei = seatingPlan({ seatings: ['11:30', '12:45'], endsAt: '13:45', bufferMinutes: 15 });
+check('Zwei Schichten ergeben je 60 Minuten',
+  zwei.map(entry => entry.minutes).join(',') === '60,60', zwei.map(entry => entry.minutes).join(','));
+check('Die erste Schicht kennt ihre Nachfolgerin', zwei[0].naechste === '12:45', String(zwei[0].naechste));
+check('Die letzte Schicht laeuft bis zum Ende', zwei[1].naechste === null);
+const unsortiert = seatingPlan({ seatings: ['12:45', '11:30', '11:30'], endsAt: '13:45', bufferMinutes: 15 });
+check('Schichten werden sortiert und entdoppelt',
+  unsortiert.map(entry => entry.time).join(',') === '11:30,12:45', unsortiert.map(entry => entry.time).join(','));
+check('Unbrauchbare Zeiten fallen raus',
+  seatingPlan({ seatings: ['25:00', 'abends', '12:00'], endsAt: '13:00', bufferMinutes: 0 }).length === 1);
 
 if (errors.length) {
   console.error(errors.join('\n'));
