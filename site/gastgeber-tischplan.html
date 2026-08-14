@@ -9,11 +9,11 @@
   <meta name="theme-color" content="#173e2c">
   <title>Tischplan · Interne Einteilung</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
-  <link rel="stylesheet" href="gastgeber.css?v=1">
-  <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=2">
-  <link rel="stylesheet" href="floorplan.css?v=15">
-  <script src="inventory-store.js?v=10" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=24"></script>
+  <link rel="stylesheet" href="gastgeber.css?v=68a0ecf6">
+  <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=c75294f5">
+  <link rel="stylesheet" href="floorplan.css?v=50628f5e">
+  <script src="inventory-store.js?v=39694807" defer></script>
+  <script type="module" src="gastgeber-floorplan.js?v=3cea6c6c"></script>
 </head>
 <body>
   <header class="topbar">
@@ -45,6 +45,11 @@
         <button type="submit">Anzeigen</button>
       </form>
       <p class="fp-result" id="fpMomentInfo" role="status" aria-live="polite">Tag und Uhrzeit wählen.</p>
+      <p class="fp-warn" id="fpBackup" role="status" aria-live="polite" hidden></p>
+      <div class="fp-tools">
+        <button class="quiet" type="button" id="fpBackupNow">Sicherung speichern</button>
+        <label class="fp-restore">Sicherung einspielen<input id="fpRestore" type="file" accept="application/json"></label>
+      </div>
 
       <h3 class="fp-subhead">Betriebsart dieser Tischordnung</h3>
       <form class="add-service" id="fpServiceForm">

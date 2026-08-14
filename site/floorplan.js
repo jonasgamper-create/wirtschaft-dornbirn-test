@@ -4,7 +4,7 @@
 
 // Version muss zu den anderen Importen passen, sonst laedt der Browser zwei
 // Kopien desselben Moduls.
-import { ELEMENTS, buildFloorplan, chairSlots, seatNamesFor, tableBody } from './floorplan-layout.mjs?v=6';
+import { ELEMENTS, buildFloorplan, chairSlots, seatNamesFor, tableBody } from './floorplan-layout.mjs?v=505679b2';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const el = (tag, attrs = {}) => {

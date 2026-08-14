@@ -2,7 +2,7 @@
 // localStorage, keine Systemzeit. Damit ist sie in Node testbar, im Browser
 // als Modul ladbar und spaeter unveraendert serverseitig einsetzbar.
 
-import { defaultMinGuests } from './floorplan-layout.mjs?v=5';
+import { defaultMinGuests } from './floorplan-layout.mjs?v=505679b2';
 
 export const DEFAULT_POLICY = {
   durations: [

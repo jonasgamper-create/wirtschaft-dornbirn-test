@@ -528,3 +528,34 @@ es unten rechts einen Schalter mit drei Stufen:
 Die Einstellung bleibt auf dem Gerät gespeichert. Voreingestellt ist
 „vollständig", weil der Gast seinen Tisch finden soll — aber die Entscheidung
 gehört dem Haus, nicht der Software.
+
+## Sicherung
+
+Alles liegt im Browser-Speicher. Ein Klick auf „Websitedaten löschen", ein neuer
+Rechner oder ein privates Fenster — und die Einteilung ist weg. Deshalb:
+
+- **„Sicherung speichern"** legt Tischplan, Reservierungen und Sperren in einer
+  Datei ab. Diese gehört an einen zweiten Ort, nicht auf denselben Rechner.
+- **„Sicherung einspielen"** liest sie zurück und fragt vorher nach.
+- Sind sieben Tage seit der letzten Sicherung vergangen, erinnert die Seite von
+  selbst. Ein Export-Knopf allein reicht nicht — den drückt im Betrieb niemand.
+
+## Sitzplatzdeckel
+
+Die Regel „Deckel schlägt Geometrie" lebt wieder: Sind die freigegebenen Plätze
+zu einem Zeitpunkt aufgebraucht, wird abgelehnt, auch wenn noch ein Tisch frei
+steht. Freigegeben sind alle Sitzplätze abzüglich des Puffers aus dem Cockpit —
+die bewusste Entscheidung, das Haus nicht bis auf den letzten Platz zu füllen.
+
+In der Praxis greift der Deckel selten: Bei einem realen Tischmix gehen die
+**Tische** meist vor den Plätzen aus, weil jede Gruppe Sitze verschenkt. Er ist
+die zweite Sicherung, nicht die erste.
+
+## Versionsangaben
+
+`npm run sync:versions` setzt alle `?v=`-Angaben aus dem Inhalt der Datei, auf
+die sie zeigen, und läuft als Teil von `npm run ci`. Vorher waren es 43
+handgepflegte Zahlen; ich habe mich in einer einzigen Sitzung zweimal vertan,
+und beide Male sah es wie ein Logikfehler aus, war aber nur ein Browser-Cache.
+Der Lauf wiederholt sich bis zum Fixpunkt, weil eine Änderung an einem Modul
+auch den Inhalt seiner Importeure ändert.

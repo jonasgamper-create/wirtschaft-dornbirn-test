@@ -4,9 +4,9 @@
 // Bewusst ohne Reservierungen, Statistik und Ordnungsverwaltung - der Kunde
 // plant genau einen Abend in dem Raum, den das Haus vorbereitet hat.
 
-import { ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, migrate, seatNamesFor, tableLabel, totalSeats } from './floorplan-layout.mjs?v=8';
-import { renderFloorplan } from './floorplan.js?v=14';
-import { createHistory } from './plan-history.mjs?v=1';
+import { ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, migrate, seatNamesFor, tableLabel, totalSeats } from './floorplan-layout.mjs?v=505679b2';
+import { renderFloorplan } from './floorplan.js?v=3a814588';
+import { createHistory } from './plan-history.mjs?v=b86ccb46';
 
 const KEY = 'wirtschaft-kundenplan-v1';
 const byId = id => document.getElementById(id);
