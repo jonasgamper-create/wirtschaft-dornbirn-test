@@ -5,8 +5,8 @@
 // Die Versionsangaben muessen mit denen in den HTML-Dateien mitwandern: ein
 // Modulimport ohne Version bleibt sonst im Browser-Cache haengen.
 import { ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=505679b2';
-import { assignTables, durationFor, stamp } from './table-assignment.mjs?v=124ff675';
-import { renderFloorplan } from './floorplan.js?v=3a814588';
+import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=65718ef0';
+import { renderFloorplan } from './floorplan.js?v=591cca61';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -46,6 +46,12 @@ async function start() {
   const moment = { date: today(), time: '12:00' };
   let picked = null;
   let marked = null;
+  // Filter und Suche der Tischliste. Bewusst nur im Arbeitsspeicher: ein
+  // gespeicherter Filter, den man vergessen hat, versteckt am naechsten Tag
+  // Tische und man sucht den Fehler woanders.
+  const tableFilter = { mode: 'alle', text: '' };
+  // Der naechste Eintrag ist ein Laufkunde und gilt sofort als eingecheckt.
+  let laufkunde = false;
 
   // Jede Aenderung merkt sich, damit Rueckgaengig und Wiederholen jeden
   // einzelnen Schritt treffen - nicht nur den letzten Speichervorgang.
@@ -95,33 +101,78 @@ async function start() {
   };
   const startsAt = party => `${party.date}T${party.time}`;
   const dayParties = () => parties().filter(party => party.date === moment.date);
+  const dauerVon = party => minutesFor(party.guests, party.time);
+  const jetztMarke = () => `${moment.date}T${moment.time}`;
+
+  /** Uhrzeit als HH:MM aus einer Minutenmarke. */
+  const alsUhrzeit = marke => {
+    if (marke === null || marke === undefined) return null;
+    const date = new Date(marke * 60000);
+    const pad = n => String(n).padStart(2, '0');
+    return `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
+  };
+
+  /** Bis wann eine Reservierung den Tisch belegt, als Uhrzeit. */
+  const endeVon = party => alsUhrzeit(belegtBis(party, dauerVon(party)));
+
+  /**
+   * Zustand einer Reservierung im gewaehlten Moment: kommt, wartet,
+   * ueberfaellig, da, weg, vorbei. Die Karte faerbt danach.
+   */
+  const statusVon = party => partyStatus(party, { at: jetztMarke(), minutes: dauerVon(party) });
 
   /** Reservierungen, die zum gewaehlten Zeitpunkt tatsaechlich sitzen. */
   function seatedNow() {
-    const now = stamp(`${moment.date}T${moment.time}`);
-    if (now === null) return [];
-    return dayParties().filter(party => {
-      if (!party.tableIds.length) return false;
-      const from = stamp(startsAt(party));
-      return from !== null && from <= now && now < from + minutesFor(party.guests, party.time);
-    });
+    return dayParties().filter(party => occupiesAt(party, { at: jetztMarke(), minutes: dauerVon(party) }));
   }
 
   function seatingMap() {
     const map = {};
     for (const party of seatedNow()) {
-      for (const id of party.tableIds) map[id] = { name: party.name, guests: party.guests };
+      const eintrag = {
+        name: party.name,
+        guests: party.guests,
+        arrived: Boolean(party.arrived),
+        until: endeVon(party)
+      };
+      for (const id of party.tableIds) map[id] = eintrag;
     }
     return map;
   }
 
-  /** Belegung fuer die Zuweisung: alle Reservierungen des Tages mit Tisch. */
+  /**
+   * Bis wann ein gerade freier Tisch frei bleibt: bis zur naechsten
+   * Reservierung an diesem Tisch. Ohne diese Angabe ist "frei" an der Tuer
+   * wertlos - die Frage lautet immer "frei bis wann".
+   */
+  function freeUntilMap() {
+    const jetzt = stamp(jetztMarke());
+    const belegt = new Set(seatedNow().flatMap(party => party.tableIds));
+    const map = {};
+    if (jetzt === null) return map;
+    for (const party of dayParties()) {
+      if (!party.tableIds.length || party.left) continue;
+      const von = stamp(startsAt(party));
+      if (von === null || von <= jetzt) continue;
+      for (const id of party.tableIds) {
+        if (belegt.has(id)) continue;
+        if (!map[id] || von < stamp(`${moment.date}T${map[id]}`)) map[id] = party.time;
+      }
+    }
+    return map;
+  }
+
+  /**
+   * Belegung fuer die Zuweisung. Die Dauer endet vorzeitig, wenn abgerechnet
+   * wurde - sonst blockiert eine Gruppe, die um 13:00 zahlt, den Tisch
+   * rechnerisch bis 13:45 und der naechste Gast wird grundlos abgewiesen.
+   */
   const occupancyOf = list => list
     .filter(party => party.tableIds.length)
     .map(party => ({
       tableIds: party.tableIds,
       startsAt: startsAt(party),
-      minutes: minutesFor(party.guests, party.time),
+      minutes: Math.max(1, belegtBis(party, dauerVon(party)) - stamp(startsAt(party))),
       guests: party.guests
     }));
 
@@ -172,61 +223,6 @@ async function start() {
     if (marked && !list.some(party => party.id === marked)) marked = null;
     if (picked && !alive.has(picked)) picked = null;
     return notes;
-  }
-
-  function syncServiceMix(plan) {
-    const mix = deriveTableMix(plan);
-    const state = store.load();
-    for (const service of state.services) service.tables = { ...mix };
-    store.save(state);
-  }
-
-  /**
-   * Schreibt Tischmix und Belegung der Zeitfenster aus dem Tischplan und den
-   * echten Reservierungen. Ohne das behauptet Panel 02 im Cockpit "aus dem
-   * Tischplan berechnet" und zeigt in Wahrheit alte Vorgabewerte.
-   */
-  function syncServiceMix(plan) {
-    const mix = deriveTableMix(plan);
-    const state = store.load();
-    for (const service of state.services) {
-      service.tables = { ...mix };
-      service.capacity = totalSeats(plan);
-      // Belegt heisst: wer zu dieser Uhrzeit an einem Tisch sitzt.
-      const marke = stamp(`${service.date}T${service.time}`);
-      service.reserved = (state.parties || [])
-        .filter(party => party.date === service.date && party.tableIds.length)
-        .filter(party => {
-          const von = stamp(`${party.date}T${party.time}`);
-          return von !== null && marke !== null && von <= marke && marke < von + minutesFor(party.guests, party.time);
-        })
-        .reduce((sum, party) => sum + party.guests, 0);
-    }
-    store.save(state);
-  }
-
-  /**
-   * Freie Plaetze zu einem Zeitpunkt: alle Sitzplaetze abzueglich der bereits
-   * sitzenden Gaeste, vermindert um den internen Puffer. Der Puffer ist die
-   * bewusste Entscheidung, das Haus nicht bis auf den letzten Platz zu
-   * verkaufen - ohne ihn steht der Service bei jedem Sonderfall an.
-   */
-  function freiePlaetze(date, time, plan = buildFloorplan(current())) {
-    const state = store.load();
-    const settings = state.settings || {};
-    const gesamt = totalSeats(plan);
-    const limit = settings.bufferEnabled
-      ? Math.max(0, Math.floor(gesamt * (1 - (Number(settings.bufferPercent) || 0) / 100)))
-      : gesamt;
-    const marke = stamp(`${date}T${time}`);
-    const sitzen = (state.parties || [])
-      .filter(party => party.date === date && party.tableIds.length)
-      .filter(party => {
-        const von = stamp(`${party.date}T${party.time}`);
-        return von !== null && marke !== null && von <= marke && marke < von + minutesFor(party.guests, party.time);
-      })
-      .reduce((sum, party) => sum + party.guests, 0);
-    return { gesamt, limit, frei: Math.max(0, limit - sitzen), sitzen };
   }
 
   /**
@@ -319,14 +315,53 @@ async function start() {
   const layoutLevelOf = (config, tableId) =>
     activeLayout(config)?.levels.find(level => level.tables.some(table => table.id === tableId));
 
+  /**
+   * Tische, an denen jemand ueberfaellig ist. Gesperrt schlaegt ueberfaellig:
+   * ein gesperrter Tisch ist ein Zustand des Hauses, kein Gastverhalten.
+   */
+  function tableStates() {
+    const states = {};
+    for (const party of seatedNow()) {
+      if (statusVon(party) !== 'ueberfaellig') continue;
+      for (const id of party.tableIds) states[id] = 'late';
+    }
+    for (const id of blocked()) states[id] = 'blocked';
+    return states;
+  }
+
+  /**
+   * Die Reservierung, die ein Klick auf diesen Tisch meint. Das ist die
+   * sitzende - und wenn keine sitzt, die naechste innerhalb einer
+   * Dreiviertelstunde. Sonst koennte man einen Gast, der zehn Minuten zu frueh
+   * vor einem steht, nicht einchecken.
+   */
+  function partyAtTable(tableId) {
+    const sitzt = seatedNow().find(party => party.tableIds.includes(tableId));
+    if (sitzt) return sitzt;
+    const jetzt = stamp(jetztMarke());
+    if (jetzt === null) return null;
+    return dayParties()
+      .filter(party => party.tableIds.includes(tableId) && !party.left)
+      .filter(party => {
+        const von = stamp(startsAt(party));
+        return von !== null && von > jetzt && von - jetzt <= 45;
+      })
+      .sort((a, b) => a.time.localeCompare(b.time))[0] || null;
+  }
+
   function paintPlan() {
     renderFloorplan(preview, current(), {
       mode: 'select',
-      states: Object.fromEntries(blocked().map(id => [id, 'blocked'])),
+      states: tableStates(),
       seating: seatingMap(),
+      freeUntil: freeUntilMap(),
       selected: picked,
       onSelect: id => {
         if (id && marked) return seatMarked(id);
+        // Ein Klick auf einen Tisch mit Gast checkt ein - das ist im Betrieb
+        // der haeufigste Griff und muss ohne Umweg gehen.
+        const party = id && partyAtTable(id);
+        if (party) return toggleArrival(party.id, id);
         picked = id;
         paintPlan();
         paintSeating();
@@ -442,6 +477,10 @@ async function start() {
       minutes: feste
     });
     if (result.ok) party.tableIds = result.tableIds;
+    // Ein Laufkunde steht bereits im Haus. Ohne die Ankunft waere er in dem
+    // Moment eingetragen, in dem er ueberfaellig wird - das waere absurd.
+    if (laufkunde && result.ok) party.arrived = time;
+    laufkunde = false;
     putParties([...parties(), party]);
 
     moment.date = date;
@@ -492,6 +531,22 @@ async function start() {
     });
     byId('fpResName').value = '';
     resetDishes();
+    byId('fpResName').focus();
+  });
+
+  /**
+   * Laufkunde: Tag und Uhrzeit sind "jetzt", auf die Viertelstunde abgerundet,
+   * damit die Zeit zu den Schichten passt. Danach fehlen nur noch Name und
+   * Personenzahl statt vier Feldern.
+   */
+  byId('fpWalkIn').addEventListener('click', () => {
+    const now = new Date();
+    const viertel = Math.floor(now.getMinutes() / 15) * 15;
+    const pad = n => String(n).padStart(2, '0');
+    byId('fpResDate').value = today();
+    byId('fpResTime').value = `${pad(now.getHours())}:${pad(viertel)}`;
+    laufkunde = true;
+    say('fpResResult', `Laufkunde um ${pad(now.getHours())}:${pad(viertel)}: nur noch Name und Personenzahl eintragen, dann Reservieren. Der Gast gilt sofort als eingecheckt.`);
     byId('fpResName').focus();
   });
 
@@ -590,7 +645,40 @@ async function start() {
         where.textContent = party.id === marked ? 'Tisch anklicken' : 'noch offen';
       }
       pick.append(where);
+
+      // Zustand im Klartext neben der Zeile: ueberfaellig faellt hier genauso
+      // auf wie auf der Karte, auch fuer Vorlesesoftware.
+      const zustand = statusVon(party);
+      if (party.tableIds.length && zustand !== 'kommt') {
+        const chip = document.createElement('span');
+        chip.className = 'fp-until'
+          + (zustand === 'ueberfaellig' ? ' is-late' : zustand === 'da' ? ' is-here' : '');
+        chip.textContent = {
+          da: `✓ da · bis ${endeVon(party)}`,
+          wartet: `erwartet · bis ${endeVon(party)}`,
+          ueberfaellig: `überfällig seit ${alsUhrzeit(stamp(startsAt(party)) + KARENZ_MINUTEN)}`,
+          weg: `gegangen ${party.left}`,
+          vorbei: 'vorbei'
+        }[zustand];
+        pick.append(chip);
+      }
       item.append(pick);
+
+      // Einchecken direkt in der Zeile - der Weg mit der Tastatur. Auf der
+      // Karte geht dasselbe mit einem Klick auf den Tisch.
+      if (party.tableIds.length && zustand !== 'kommt' && zustand !== 'vorbei') {
+        const arrive = document.createElement('button');
+        arrive.type = 'button';
+        arrive.dataset.arriveParty = party.id;
+        arrive.textContent = party.arrived ? 'Doch nicht da' : 'Eingecheckt';
+        item.append(arrive);
+
+        const leave = document.createElement('button');
+        leave.type = 'button';
+        leave.dataset.leaveParty = party.id;
+        leave.textContent = party.left ? 'Sitzt doch' : 'Fertig';
+        item.append(leave);
+      }
 
       if (party.tableIds.length) {
         // Umsetzen quer durch alle Etagen - der haeufigste Griff, wenn
@@ -666,6 +754,11 @@ async function start() {
           : `${party?.name} (${party?.guests}P, ${party?.time}) ist markiert – jetzt einen freien Tisch anklicken.`);
       return;
     }
+    const arrive = event.target.closest('[data-arrive-party]');
+    if (arrive) return toggleArrival(arrive.dataset.arriveParty);
+    const leave = event.target.closest('[data-leave-party]');
+    if (leave) return checkOut(leave.dataset.leaveParty);
+
     const button = event.target.closest('[data-remove-party]');
     if (!button) return;
     const gone = parties().find(party => party.id === button.dataset.removeParty);
@@ -674,6 +767,50 @@ async function start() {
     seatResult(gone ? `${gone.name} entfernt.` : 'Reservierung entfernt.');
     paint();
   });
+
+  // ---- Ankunft und Abgang ---------------------------------------------------
+
+  /**
+   * Einchecken und wieder zuruecknehmen. Die Ankunftszeit ist der gewaehlte
+   * Moment, nicht die Systemuhr - sonst stimmt sie nicht mehr, wenn abends der
+   * Mittag nachgetragen wird.
+   */
+  function toggleArrival(partyId, tableId = null) {
+    const list = parties().map(party => ({ ...party, tableIds: [...party.tableIds] }));
+    const party = list.find(entry => entry.id === partyId);
+    if (!party) return;
+    const wo = tableId ? ` an Tisch ${tisch(tableId)}` : '';
+    if (party.arrived) {
+      party.arrived = null;
+      party.left = null;
+      putParties(list);
+      paint();
+      return seatResult(`${party.name} ist wieder als erwartet markiert${wo}. Nochmal klicken checkt ein.`);
+    }
+    party.arrived = moment.time;
+    party.left = null;
+    putParties(list);
+    paint();
+    seatResult(`${party.name} ist eingecheckt: ${party.guests} Personen${wo}, ${moment.time}. Der Tisch ist bis ${endeVon(party)} belegt.`);
+  }
+
+  /** Abgerechnet und gegangen - der Tisch ist ab sofort wieder frei. */
+  function checkOut(partyId) {
+    const list = parties().map(party => ({ ...party, tableIds: [...party.tableIds] }));
+    const party = list.find(entry => entry.id === partyId);
+    if (!party) return;
+    if (party.left) {
+      party.left = null;
+      putParties(list);
+      paint();
+      return seatResult(`${party.name} sitzt wieder – der Abgang wurde zurückgenommen.`);
+    }
+    party.left = moment.time;
+    if (!party.arrived) party.arrived = party.time;
+    putParties(list);
+    paint();
+    seatResult(`${party.name} ist gegangen (${moment.time}). Tisch ${tischListe(party.tableIds)} ist wieder frei.`);
+  }
 
   /** Zeitliche Kollision auf denselben Tischen, inklusive Pufferzeit. */
   function collidesAt(party, tableIds, list) {
@@ -820,14 +957,37 @@ async function start() {
 
     const sitting = seatedNow();
     const open = dayParties().filter(party => !party.tableIds.length);
+    const freiBis = freeUntilMap();
+    const suche = tableFilter.text.trim().toLowerCase();
 
-    for (const table of plan.tables) {
+    // Filter und Suche entscheiden, welche Zeilen ueberhaupt entstehen. Bei 25
+    // und mehr Tischen ist die vollstaendige Liste im Betrieb nicht lesbar.
+    const sichtbar = plan.tables.filter(table => {
+      const party = sitting.find(entry => entry.tableIds.includes(table.id));
+      const isBlocked = blocked().includes(table.id);
+      if (tableFilter.mode === 'frei' && (party || isBlocked)) return false;
+      if (tableFilter.mode === 'belegt' && !party) return false;
+      if (tableFilter.mode === 'ueberfaellig' && (!party || statusVon(party) !== 'ueberfaellig')) return false;
+      if (!suche) return true;
+      return String(table.number).includes(suche)
+        || tableLabel(table, plan).toLowerCase().includes(suche)
+        || table.levelName.toLowerCase().includes(suche)
+        || (party?.name || '').toLowerCase().includes(suche);
+    });
+
+    say('fpFilterInfo', sichtbar.length === plan.tables.length
+      ? `Alle ${plan.tables.length} Tische.`
+      : `${sichtbar.length} von ${plan.tables.length} Tischen angezeigt.`);
+
+    for (const table of sichtbar) {
       const party = sitting.find(entry => entry.tableIds.includes(table.id));
       const isBlocked = blocked().includes(table.id);
 
+      const zustand = party ? statusVon(party) : null;
       const row = document.createElement('div');
       row.className = 'fp-table-row'
-        + (party ? ' is-busy' : '') + (isBlocked ? ' is-blocked' : '') + (table.id === picked ? ' is-picked' : '');
+        + (party ? ' is-busy' : '') + (zustand === 'ueberfaellig' ? ' is-late' : '')
+        + (isBlocked ? ' is-blocked' : '') + (table.id === picked ? ' is-picked' : '');
 
       const no = document.createElement('span');
       no.className = 'no';
@@ -841,7 +1001,8 @@ async function start() {
       name.type = 'text';
       name.maxLength = 40;
       name.value = party?.name || '';
-      name.placeholder = isBlocked ? 'gesperrt' : 'frei';
+      // "Frei" allein hilft an der Tuer nicht - die Frage ist, wie lange.
+      name.placeholder = isBlocked ? 'gesperrt' : freiBis[table.id] ? `frei bis ${freiBis[table.id]}` : 'frei';
       name.disabled = isBlocked;
       name.dataset.tableId = table.id;
       name.dataset.field = 'name';
@@ -850,6 +1011,23 @@ async function start() {
 
       const actions = document.createElement('div');
       actions.className = 'fp-row-actions';
+
+      if (party) {
+        const chip = document.createElement('span');
+        chip.className = 'fp-until'
+          + (zustand === 'ueberfaellig' ? ' is-late' : party.arrived ? ' is-here' : '');
+        chip.textContent = zustand === 'ueberfaellig'
+          ? 'überfällig'
+          : `${party.arrived ? '✓ ' : ''}bis ${endeVon(party)}`;
+        actions.append(chip);
+
+        const arrive = document.createElement('button');
+        arrive.type = 'button';
+        arrive.dataset.tableId = table.id;
+        arrive.dataset.action = 'arrive';
+        arrive.textContent = party.arrived ? 'Doch nicht da' : 'Eingecheckt';
+        actions.append(arrive);
+      }
 
       const guests = document.createElement('input');
       guests.type = 'number';
@@ -983,12 +1161,33 @@ async function start() {
     paint();
   });
 
+  byId('fpFilter').addEventListener('click', event => {
+    const button = event.target.closest('[data-filter]');
+    if (!button) return;
+    tableFilter.mode = button.dataset.filter;
+    for (const other of byId('fpFilter').querySelectorAll('[data-filter]')) {
+      other.setAttribute('aria-pressed', String(other === button));
+    }
+    paintSeating();
+  });
+
+  byId('fpSearch').addEventListener('input', event => {
+    tableFilter.text = event.target.value;
+    paintSeating();
+    // Der Fokus muss im Suchfeld bleiben - paintSeating zeichnet die Liste neu.
+    byId('fpSearch').focus();
+  });
+
   byId('fpTableList').addEventListener('click', event => {
     const button = event.target.closest('[data-action]');
     if (!button) return;
     const id = button.dataset.tableId;
     const plan = buildFloorplan(current());
     const table = plan.tables.find(item => item.id === id);
+    if (button.dataset.action === 'arrive') {
+      const party = partyAtTable(id);
+      return party ? toggleArrival(party.id, id) : undefined;
+    }
     if (button.dataset.action === 'free') return setTableName(id, '');
     if (seatedNow().some(party => party.tableIds.includes(id))) {
       return seatResult(`Tisch ${tisch(table)} ist belegt. Erst frei machen, dann sperren.`);
