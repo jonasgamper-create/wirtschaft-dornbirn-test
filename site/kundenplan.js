@@ -4,7 +4,7 @@
 // Bewusst ohne Reservierungen, Statistik und Ordnungsverwaltung - der Kunde
 // plant genau einen Abend in dem Raum, den das Haus vorbereitet hat.
 
-import { ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, migrate, seatNamesFor, totalSeats } from './floorplan-layout.mjs?v=8';
+import { ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, migrate, seatNamesFor, tableLabel, totalSeats } from './floorplan-layout.mjs?v=8';
 import { renderFloorplan } from './floorplan.js?v=14';
 import { createHistory } from './plan-history.mjs?v=1';
 
@@ -118,7 +118,9 @@ async function start() {
       const row = document.createElement('div');
       row.className = 'kp-table';
       const head = document.createElement('b');
-      head.textContent = `Tisch ${table.number} · ${table.seats} Plätze`;
+      // Zaehlt jede Etage neu, gibt es Tisch 1 mehrfach - dann muss die Etage
+      // dazu, sonst schreibt der Kunde Namen in den falschen Raum.
+      head.textContent = `Tisch ${tableLabel(table, built)} · ${table.seats} Plätze`;
       row.append(head);
 
       const seats = document.createElement('div');
@@ -133,7 +135,7 @@ async function start() {
         input.placeholder = 'frei';
         input.dataset.tableId = table.id;
         input.dataset.seat = String(index);
-        input.setAttribute('aria-label', `Name für Platz ${index + 1} an Tisch ${table.number}`);
+        input.setAttribute('aria-label', `Name für Platz ${index + 1} an Tisch ${tableLabel(table, built)}`);
         label.append(input);
         seats.append(label);
       });
