@@ -11,9 +11,9 @@
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="stylesheet" href="gastgeber.css?v=68a0ecf6">
   <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=c75294f5">
-  <link rel="stylesheet" href="floorplan.css?v=50628f5e">
-  <script src="inventory-store.js?v=39694807" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=3cea6c6c"></script>
+  <link rel="stylesheet" href="floorplan.css?v=e1d7359c">
+  <script src="inventory-store.js?v=449b7190" defer></script>
+  <script type="module" src="gastgeber-floorplan.js?v=46353138"></script>
 </head>
 <body>
   <header class="topbar">
@@ -46,24 +46,33 @@
       </form>
       <p class="fp-result" id="fpMomentInfo" role="status" aria-live="polite">Tag und Uhrzeit wählen.</p>
       <p class="fp-warn" id="fpBackup" role="status" aria-live="polite" hidden></p>
-      <div class="fp-tools">
-        <button class="quiet" type="button" id="fpBackupNow">Sicherung speichern</button>
-        <label class="fp-restore">Sicherung einspielen<input id="fpRestore" type="file" accept="application/json"></label>
-      </div>
 
-      <h3 class="fp-subhead">Betriebsart dieser Tischordnung</h3>
-      <form class="add-service" id="fpServiceForm">
-        <label>Ablauf<select id="fpMode">
-          <option value="frei">Durchgehend – Dauer nach Gruppengröße</option>
-          <option value="schichten">Schichten – feste Anfangszeiten, Tisch wird nochmal vergeben</option>
-        </select></label>
-        <label>Schichten<input id="fpSeatings" type="text" maxlength="60" placeholder="11:30, 12:45"></label>
-        <label>Ende<input id="fpEndsAt" type="time" step="900"></label>
-        <label>Abräumen<input id="fpBuffer" type="number" min="0" max="60" step="5"></label>
-        <button type="submit">Übernehmen</button>
-      </form>
-      <p class="fp-result" id="fpServiceInfo" role="status" aria-live="polite"></p>
+      <!-- Betriebsart und Sicherung richtet man einmal ein. Im Mittagsbetrieb
+           stehen sie nur im Weg, deshalb zugeklappt. -->
+      <details class="fp-fold">
+        <summary>Betriebsart und Sicherung</summary>
+        <h3 class="fp-subhead">Betriebsart dieser Tischordnung</h3>
+        <form class="add-service" id="fpServiceForm">
+          <label>Ablauf<select id="fpMode">
+            <option value="frei">Durchgehend – Dauer nach Gruppengröße</option>
+            <option value="schichten">Schichten – feste Anfangszeiten, Tisch wird nochmal vergeben</option>
+          </select></label>
+          <label>Schichten<input id="fpSeatings" type="text" maxlength="60" placeholder="11:30, 12:45"></label>
+          <label>Ende<input id="fpEndsAt" type="time" step="900"></label>
+          <label>Abräumen<input id="fpBuffer" type="number" min="0" max="60" step="5"></label>
+          <button type="submit">Übernehmen</button>
+        </form>
+        <p class="fp-result" id="fpServiceInfo" role="status" aria-live="polite"></p>
+        <div class="fp-tools">
+          <button class="quiet" type="button" id="fpBackupNow">Sicherung speichern</button>
+          <label class="fp-restore">Sicherung einspielen<input id="fpRestore" type="file" accept="application/json"></label>
+        </div>
+      </details>
     </section>
+
+    <!-- Karte und Reservierungen sind der Betrieb. Am Rechner stehen sie
+         nebeneinander, damit man zwischen ihnen nicht scrollen muss. -->
+    <div class="fp-work">
 
     <section class="panel" aria-labelledby="mapTitle">
       <div class="panel-head"><div><p>02 · Karte</p><h2 id="mapTitle">Tische anordnen</h2></div><span>Ziehen oder Umschalt und Pfeiltasten</span></div>
@@ -81,6 +90,9 @@
         <label>Uhrzeit<input id="fpResTime" type="time" step="900" required></label>
         <label>Personen<input id="fpResGuests" type="number" min="1" max="24" value="2" required></label>
         <button type="submit">Reservieren</button>
+        <!-- Laufkunde: steht schon da. Tag und Uhrzeit sind dann "jetzt", und
+             eingecheckt ist er auch - sonst wuerde er sofort ueberfaellig. -->
+        <button class="quiet" type="button" id="fpWalkIn">Gast steht da</button>
       </form>
       <fieldset class="fp-dishes" id="fpDishes">
         <legend>Essen vorbestellen – freiwillig, hilft der Küche beim Einkaufen</legend>
@@ -98,47 +110,63 @@
 
       <h3 class="fp-subhead">Reservierungen an diesem Tag</h3>
       <ul class="fp-party-list" id="fpParties"></ul>
-      <h3 class="fp-subhead">Etage räumen</h3>
-      <p class="model-note">Wenn spontan ein Raum gebraucht wird: alle Gäste einer Etage auf die andere umsetzen. Wer dort nicht unterkommt, steht wieder offen und wird namentlich genannt.</p>
-      <form class="add-service" id="fpMoveFloorForm">
-        <label>Von Etage<select id="fpMoveFrom"></select></label>
-        <label>Nach Etage<select id="fpMoveTo"></select></label>
-        <button type="submit">Gäste umsetzen</button>
-      </form>
-
-      <div class="fp-tools">
-        <button class="quiet" type="button" id="fpAutoSeat">Alle offenen verteilen</button>
-        <button class="quiet" type="button" id="fpClearSeating">Reservierungen dieses Tages löschen</button>
-      </div>
-      <p class="fp-result" id="fpSeatResult" role="status" aria-live="polite">Reservierung anklicken, dann einen Tisch auf der Karte – fertig.</p>
+      <p class="fp-result" id="fpSeatResult" role="status" aria-live="polite">Reservierung anklicken, dann einen Tisch auf der Karte – fertig. Ein Klick auf einen belegten Tisch checkt die Gäste ein.</p>
       <p class="fp-kitchen" id="fpKitchen"></p>
+
+      <details class="fp-fold">
+        <summary>Umsetzen, verteilen, löschen</summary>
+        <h3 class="fp-subhead">Etage räumen</h3>
+        <p class="model-note">Wenn spontan ein Raum gebraucht wird: alle Gäste einer Etage auf die andere umsetzen. Wer dort nicht unterkommt, steht wieder offen und wird namentlich genannt.</p>
+        <form class="add-service" id="fpMoveFloorForm">
+          <label>Von Etage<select id="fpMoveFrom"></select></label>
+          <label>Nach Etage<select id="fpMoveTo"></select></label>
+          <button type="submit">Gäste umsetzen</button>
+        </form>
+        <div class="fp-tools">
+          <button class="quiet" type="button" id="fpAutoSeat">Alle offenen verteilen</button>
+          <button class="quiet" type="button" id="fpClearSeating">Reservierungen dieses Tages löschen</button>
+        </div>
+      </details>
     </section>
+    </div>
 
     <section class="panel" aria-labelledby="tablesTitle">
       <div class="panel-head"><div><p>04 · Tische</p><h2 id="tablesTitle">Tischliste</h2></div><span>Name schreiben belegt, Feld leeren macht frei</span></div>
+      <div class="fp-filter" id="fpFilter" role="group" aria-label="Tischliste filtern">
+        <button type="button" data-filter="alle" aria-pressed="true">Alle</button>
+        <button type="button" data-filter="frei" aria-pressed="false">Frei</button>
+        <button type="button" data-filter="belegt" aria-pressed="false">Belegt</button>
+        <button type="button" data-filter="ueberfaellig" aria-pressed="false">Überfällig</button>
+        <input id="fpSearch" type="search" maxlength="40" placeholder="Tischnummer oder Name suchen" aria-label="Tischliste durchsuchen">
+      </div>
       <div class="fp-tables" id="fpTableList"></div>
+      <p class="fp-result" id="fpFilterInfo" role="status" aria-live="polite"></p>
     </section>
 
     <section class="panel" aria-labelledby="roomsTitle">
       <div class="panel-head"><div><p>05 · Räume</p><h2 id="roomsTitle">Etagen, Tische, Stühle</h2></div><span>Gilt nur für die gewählte Ordnung</span></div>
-      <div class="fp-levels-editor" id="fpLevels"></div>
-      <form class="add-service" id="fpAddLevel">
-        <label>Name der Etage<input id="fpNewName" type="text" maxlength="40" placeholder="z. B. Stüberl" required></label>
-        <button type="submit">Etage ergänzen</button>
-      </form>
-      <h3 class="fp-subhead">Raum aufzeichnen</h3>
-      <p class="model-note">Bühne, Bar, Eingang, Ausgang, Terrasse und Wände lassen sich genauso verschieben wie Tische. Sie sperren nichts – sie zeigen dem Kunden, wo er ist.</p>
-      <div class="fp-sizes" id="fpAddElement"></div>
-      <div class="fp-chairs-list" id="fpElements"></div>
+      <!-- Einrichtung. Steht einmal, danach ist sie im Betrieb nur Scrollweg. -->
+      <details class="fp-fold" id="fpRoomsFold">
+        <summary>Etagen, Tische, Stühle und Raumbild bearbeiten</summary>
+        <div class="fp-levels-editor" id="fpLevels"></div>
+        <form class="add-service" id="fpAddLevel">
+          <label>Name der Etage<input id="fpNewName" type="text" maxlength="40" placeholder="z. B. Stüberl" required></label>
+          <button type="submit">Etage ergänzen</button>
+        </form>
+        <h3 class="fp-subhead">Raum aufzeichnen</h3>
+        <p class="model-note">Bühne, Bar, Eingang, Ausgang, Terrasse und Wände lassen sich genauso verschieben wie Tische. Sie sperren nichts – sie zeigen dem Kunden, wo er ist.</p>
+        <div class="fp-sizes" id="fpAddElement"></div>
+        <div class="fp-chairs-list" id="fpElements"></div>
 
-      <form class="add-service" id="fpLayoutForm">
-        <label>Neue Tischordnung<input id="fpLayoutName" type="text" maxlength="40" placeholder="z. B. Hochzeit" required></label>
-        <button type="submit">Ordnung anlegen</button>
-      </form>
-      <div class="fp-tools">
-        <button class="quiet" type="button" id="fpLayoutCopy">Aktuelle Ordnung kopieren</button>
-        <button class="quiet" type="button" id="fpLayoutDelete">Aktuelle Ordnung löschen</button>
-      </div>
+        <form class="add-service" id="fpLayoutForm">
+          <label>Neue Tischordnung<input id="fpLayoutName" type="text" maxlength="40" placeholder="z. B. Hochzeit" required></label>
+          <button type="submit">Ordnung anlegen</button>
+        </form>
+        <div class="fp-tools">
+          <button class="quiet" type="button" id="fpLayoutCopy">Aktuelle Ordnung kopieren</button>
+          <button class="quiet" type="button" id="fpLayoutDelete">Aktuelle Ordnung löschen</button>
+        </div>
+      </details>
     </section>
 
     <section class="panel" aria-labelledby="statsTitle">

@@ -6,8 +6,8 @@
 // im anderen Netz braeuchte einen Server.
 
 import { activeLayout, buildFloorplan, seatingPlan, serviceOf } from './floorplan-layout.mjs?v=505679b2';
-import { durationFor, stamp } from './table-assignment.mjs?v=124ff675';
-import { renderFloorplan } from './floorplan.js?v=3a814588';
+import { durationFor, occupiesAt, stamp } from './table-assignment.mjs?v=65718ef0';
+import { renderFloorplan } from './floorplan.js?v=591cca61';
 
 const KEY = 'wirtschaft-dornbirn-host-control-v1';
 const SICHT = 'wirtschaft-screen-namen';
@@ -79,12 +79,12 @@ async function start() {
     };
 
     const marke = stamp(`${tag}T${zeit}`);
+    // Wer abgerechnet hat und gegangen ist, verschwindet sofort vom Schirm.
+    // Ein Name, der noch am Eingang steht, obwohl der Tisch neu vergeben ist,
+    // schickt die naechsten Gaeste an den falschen Platz.
     const sitzend = (state.parties || [])
       .filter(party => party.date === tag && party.tableIds.length)
-      .filter(party => {
-        const von = stamp(`${party.date}T${party.time}`);
-        return von !== null && von <= marke && marke < von + dauer(party);
-      })
+      .filter(party => occupiesAt(party, { at: `${tag}T${zeit}`, minutes: dauer(party) }))
       .sort((a, b) => a.name.localeCompare(b.name, 'de'));
 
     const nummer = new Map(built.tables.map(table => [table.id, table]));

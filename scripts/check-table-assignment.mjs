@@ -2,7 +2,7 @@
 // Testframework, damit npm run ci keine zusaetzliche Abhaengigkeit braucht.
 
 import { GRID, buildFloorplan, canPlace, chairSlots, defaultMinGuests, footprint, migrate, nextTableId, seatingPlan, tableBody, tableLabel } from '../site/floorplan-layout.mjs';
-import { assignTables, durationFor, shift, stamp } from '../site/table-assignment.mjs';
+import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, shift, stamp } from '../site/table-assignment.mjs';
 
 const errors = [];
 const check = (name, condition, detail = '') => {
@@ -293,6 +293,47 @@ check('Schichten werden sortiert und entdoppelt',
   unsortiert.map(entry => entry.time).join(',') === '11:30,12:45', unsortiert.map(entry => entry.time).join(','));
 check('Unbrauchbare Zeiten fallen raus',
   seatingPlan({ seatings: ['25:00', 'abends', '12:00'], endsAt: '13:00', bufferMinutes: 0 }).length === 1);
+
+// ---- Ankunft, Verspaetung und Abgang ---------------------------------------
+// Ohne diese Faelle gilt ein Tisch rein nach Uhrzeit als belegt: der
+// Verspaetete blockiert ihn, der frueh Gegangene ebenso.
+
+const gast = { date: '2026-08-14', time: '12:00', tableIds: ['eg-4-01'], guests: 4 };
+const um = zeit => ({ at: `2026-08-14T${zeit}`, minutes: 105 });
+
+check('Vor der Zeit ist der Tisch frei',
+  partyStatus(gast, um('11:30')) === 'kommt' && !occupiesAt(gast, um('11:30')),
+  partyStatus(gast, um('11:30')));
+check('Punktgenau gilt der Gast als erwartet',
+  partyStatus(gast, um('12:00')) === 'wartet', partyStatus(gast, um('12:00')));
+check('Innerhalb der Karenz bleibt es beim Erwarten',
+  partyStatus(gast, um('12:14')) === 'wartet', partyStatus(gast, um('12:14')));
+check('Nach der Karenz ist der Gast ueberfaellig',
+  partyStatus(gast, um('12:15')) === 'ueberfaellig', partyStatus(gast, um('12:15')));
+check('Die Karenz betraegt eine Viertelstunde', KARENZ_MINUTEN === 15, String(KARENZ_MINUTEN));
+check('Eingecheckt schlaegt die Verspaetung',
+  partyStatus({ ...gast, arrived: '12:20' }, um('12:40')) === 'da',
+  partyStatus({ ...gast, arrived: '12:20' }, um('12:40')));
+check('Nach Ablauf der Dauer ist das Fenster vorbei',
+  partyStatus(gast, um('13:45')) === 'vorbei' && !occupiesAt(gast, um('13:45')),
+  partyStatus(gast, um('13:45')));
+
+const gegangen = { ...gast, arrived: '12:00', left: '13:00' };
+check('Wer gegangen ist, gibt den Tisch sofort frei',
+  partyStatus(gegangen, um('13:05')) === 'weg' && !occupiesAt(gegangen, um('13:05')),
+  partyStatus(gegangen, um('13:05')));
+check('Vor dem Abgang sitzt derselbe Gast noch',
+  occupiesAt(gegangen, um('12:59')) && partyStatus(gegangen, um('12:59')) === 'da');
+check('Der Abgang verkuerzt die Belegung',
+  belegtBis(gegangen, 105) === stamp('2026-08-14T13:00'), String(belegtBis(gegangen, 105)));
+check('Ein Abgang nach der regulaeren Zeit verlaengert nicht',
+  belegtBis({ ...gast, left: '15:00' }, 105) === stamp('2026-08-14T13:45'));
+// Ein Bedienfehler darf die Belegung nicht auf eine negative Dauer ziehen.
+check('Ein Abgang vor dem Beginn wird ignoriert',
+  belegtBis({ ...gast, left: '11:00' }, 105) === stamp('2026-08-14T13:45'),
+  String(belegtBis({ ...gast, left: '11:00' }, 105)));
+check('Ohne Tisch belegt niemand etwas',
+  !occupiesAt({ ...gast, tableIds: [] }, um('12:30')));
 
 if (errors.length) {
   console.error(errors.join('\n'));

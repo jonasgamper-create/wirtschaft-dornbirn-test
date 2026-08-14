@@ -55,6 +55,10 @@
   };
   const safeDate = value => /^\d{4}-\d{2}-\d{2}$/.test(String(value)) ? String(value) : localDate(0);
   const safeTime = value => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(value)) ? String(value) : '12:00';
+  // Fuer Ankunft und Abgang: "nicht gesetzt" ist ein gueltiger Zustand und darf
+  // nicht wie bei safeTime auf 12:00 hochfallen - das waere eine erfundene
+  // Uhrzeit, an der der Service sich orientieren wuerde.
+  const timeOrNull = value => (/^([01]\d|2[0-3]):[0-5]\d$/.test(String(value)) ? String(value) : null);
   const safeIso = value => Number.isNaN(Date.parse(value)) ? new Date().toISOString() : new Date(value).toISOString();
 
   const safeId = (value, fallback) => (/^[a-z][a-z0-9-]{1,23}$/.test(String(value)) ? String(value) : fallback);
@@ -270,6 +274,10 @@
           time: safeTime(item?.time),
           tableIds: (Array.isArray(item?.tableIds) ? item.tableIds : []).slice(0, 4).map(id => safeText(id, 24)).filter(Boolean),
           dishes,
+          // Ankunft und Abgang. Ohne sie gilt ein Tisch rein nach Uhrzeit als
+          // belegt: der Verspaetete blockiert ihn, der frueh Gegangene auch.
+          arrived: timeOrNull(item?.arrived),
+          left: timeOrNull(item?.left),
           source: ['manuell', 'mail'].includes(item?.source) ? item.source : 'manuell'
         };
       }).filter(item => item.name),

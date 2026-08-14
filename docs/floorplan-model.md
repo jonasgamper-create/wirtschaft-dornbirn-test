@@ -278,6 +278,83 @@ mehreren Geräten braucht es eine geschützte Datenbank mit Anmeldung, eine
 festgelegte Löschfrist und einen Eintrag im Verarbeitungsverzeichnis** — siehe
 `SECURITY.md` und `docs/privacy/data-flow-matrix.md`.
 
+## Einchecken: was die Karte wirklich zeigt
+
+Bis hierher galt ein Tisch allein nach der Uhr als belegt: reserviert um 12:00
+für vier Personen, also rechnerisch besetzt bis 13:45. Das ist an drei Stellen
+falsch. Die Gruppe kommt zwanzig Minuten zu spät — der Tisch steht leer, gilt
+aber als voll, und der Laufkunde an der Tür wird abgewiesen. Die Gruppe geht um
+13:00 — der Tisch bleibt 45 Minuten künstlich gesperrt. Und der Bildschirm am
+Eingang nennt Leute beim Namen, die noch gar nicht im Haus sind.
+
+Deshalb hat jede Reservierung jetzt zwei zusätzliche Angaben: **Ankunft** und
+**Abgang**. Beide sind Uhrzeiten, beide dürfen leer sein.
+
+**Einchecken geht mit einem Klick auf den Tisch.** Steht jemand an der Tür,
+klickt man seinen Tisch auf der Karte an — fertig. Nochmal klicken nimmt es
+zurück. Denselben Weg gibt es mit der Tastatur über den Knopf „Eingecheckt" in
+der Reservierungszeile und in der Tischzeile. Als Ankunftszeit wird der oben
+eingestellte Moment eingetragen, nicht die Systemuhr — so stimmt sie auch, wenn
+der Mittag abends nachgetragen wird.
+
+Daraus ergeben sich sechs Zustände. Die reine Logik dafür steht in
+`site/table-assignment.mjs` (`partyStatus`, `occupiesAt`, `belegtBis`) und ist
+ohne Browser testbar; `npm run check:assignment` prüft jeden Fall einzeln.
+
+| Zustand | Wann | Auf der Karte |
+| --- | --- | --- |
+| kommt | Reservierung liegt noch vor uns | Tisch ist frei |
+| wartet | Zeit läuft, noch nicht da, innerhalb der Karenz | Creme wie belegt |
+| überfällig | Zeit plus Karenz vorbei, niemand eingecheckt | **Gold, auffällig** |
+| da | eingecheckt | Creme mit Häkchen ✓ |
+| weg | abgerechnet und gegangen | Tisch ist sofort wieder frei |
+| vorbei | Zeitfenster abgelaufen | Tisch ist frei |
+
+Die **Karenz** beträgt fünfzehn Minuten (`KARENZ_MINUTEN`). So lange gilt ein
+Gast als erwartet, danach als überfällig. Das ist die übliche Kulanz im Haus;
+danach muss der Service entscheiden, ob der Tisch weitergegeben wird.
+
+Gold ist der auffällige Ton des bestehenden CI — kein neuer Farbwert. Ink auf
+Gold hat ein Kontrastverhältnis von 7,5:1, die Beschriftung bleibt also lesbar.
+Weil Farbe allein nicht genügt, steht derselbe Zustand als Wort in der
+bedienbaren Liste, im Chip neben der Reservierung und in der Legende.
+
+**Fertig** trägt den Abgang ein. Der Tisch ist ab diesem Moment wieder frei —
+und zwar auch für die automatische Zuweisung, nicht nur in der Anzeige. Geprüft:
+eine zweite Zehnergruppe um 13:00 wird abgewiesen, solange die erste
+rechnerisch bis 15:00 sitzt; nach „Fertig" um 12:45 bekommt sie den Tisch.
+
+Ein Abgang vor dem Beginn wird ignoriert, ein Abgang nach der regulären Zeit
+verlängert nicht — beides sind Bedienfehler und dürfen die Belegung nicht auf
+eine negative oder überlange Dauer ziehen.
+
+## Bis wann frei, bis wann belegt
+
+„Frei" allein beantwortet die Frage an der Tür nicht — sie lautet immer „frei
+bis wann". Deshalb steht bei jedem freien Tisch, bis wann er frei bleibt: als
+Platzhalter im Namensfeld der Tischliste („frei bis 12:15") und in der
+bedienbaren Liste unter der Karte. Bei belegten Tischen steht umgekehrt, bis
+wann sie belegt sind.
+
+## Laufkunden
+
+Ein Gast, der ohne Reservierung hereinkommt, kostete vier Felder: Name, Tag,
+Uhrzeit, Personen — obwohl Tag und Uhrzeit „jetzt" sind. Der Knopf **„Gast steht
+da"** setzt Tag und Uhrzeit auf den aktuellen Moment, abgerundet auf die
+Viertelstunde, damit die Zeit zu den Schichten passt, und springt ins Namensfeld.
+Es fehlen dann nur noch Name und Personenzahl.
+
+Der so angelegte Gast gilt sofort als eingecheckt — er steht ja da. Ohne das
+wäre er in dem Moment eingetragen, in dem er überfällig wird.
+
+## Filter und Suche in der Tischliste
+
+Bei 25 und mehr Tischen ist die vollständige Liste im Betrieb nicht mehr lesbar.
+Über der Tischliste stehen vier Filter — Alle, Frei, Belegt, Überfällig — und
+ein Suchfeld für Tischnummer, Etage oder Gastname. Der Filter wird bewusst
+**nicht** gespeichert: ein vergessener Filter versteckt am nächsten Tag Tische,
+und man sucht den Fehler an der falschen Stelle.
+
 ## Zuweisungsregeln, in dieser Reihenfolge
 
 1. **Sitzplatzdeckel vor Geometrie.** Ist das Zeitfenster laut Panel 02 voll,
@@ -301,6 +378,29 @@ festgelegte Löschfrist und einen Eintrag im Verarbeitungsverzeichnis** — sieh
    vorgeschlagen — ein Nein ohne Alternative wäre ein verlorener Gast.
 
 Geprüft wird das von `scripts/check-table-assignment.mjs` in `npm run ci`.
+
+## Aufbau der Seite
+
+Die Seite war 22.243 Pixel lang — rund 25 Bildschirme. Karte und
+Reservierungsliste lagen 3.300 Pixel auseinander, obwohl man im Service
+ständig zwischen ihnen wechselt, und Einrichtung (Panel 01 und 05) machte mit
+6.787 Pixeln fast ein Drittel der Seite aus, obwohl man sie einmal anfasst.
+
+Drei Änderungen, gemessen statt geschätzt:
+
+- Betriebsart, Sicherung, Etagen, Raumbild und die Sammelaktionen liegen in
+  zusammenklappbaren Bereichen und sind zu, bis man sie braucht.
+- Karte und Reservierungen stehen ab 1200 Pixel Fensterbreite nebeneinander.
+  Darin stapelt die Karte ihre eigene Zweiteilung, sonst würde der Plan zu
+  schmal.
+- Der Zeitpunkt oben bleibt immer sichtbar — er steuert alles.
+
+Ergebnis: 5.161 Pixel bei 1440×900, also 5,7 statt 25 Bildschirme. Am Handy
+(390 px) 8.374 Pixel, kein waagrechter Überlauf, alle 64 Bedienelemente
+mindestens 44 Pixel hoch.
+
+Für den Ausdruck werden zugeklappte Bereiche und Auswahlfelder ausgeblendet.
+Vorher standen „Tisch wechseln …"-Dropdowns auf dem Serviceblatt.
 
 ## Barrierefreiheit
 

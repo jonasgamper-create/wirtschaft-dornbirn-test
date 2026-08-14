@@ -55,6 +55,13 @@
 .fp-svg [data-state="blocked"] .fp-num{fill:var(--wine,#8c292b)}
 .fp-svg [data-state="picked"] .fp-shape{fill:var(--green,#244635);stroke:var(--green,#244635)}
 .fp-svg [data-state="picked"] .fp-num{fill:#fff}
+/* Ueberfaellig: die Zeit laeuft, aber niemand hat eingecheckt. Gold ist der
+   auffaellige Ton des bestehenden CI - kein neuer Farbwert. Auf Gold hat Ink
+   ein Kontrastverhaeltnis von 7,5:1, die Beschriftung bleibt also lesbar. */
+.fp-svg [data-state="late"] .fp-shape{fill:var(--gold,#c59b5d);stroke:#a67f45}
+.fp-svg [data-state="late"] .fp-num,.fp-svg [data-state="late"] .fp-name{fill:var(--ink,#11110f)}
+.fp-svg [data-state="late"] .fp-seats{fill:#3c2f18}
+.fp-svg [data-state="late"] .fp-chair{fill:#a67f4599}
 .fp-svg .fp-mark{fill:#57524a;font-family:var(--sans,Inter,system-ui,sans-serif);font-size:.85px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
 
 .fp-list{display:grid;gap:6px;margin:0;padding:0;list-style:none}
@@ -69,7 +76,23 @@
 .fp-legend span{display:inline-flex;align-items:center;gap:6px}
 .fp-legend i{width:12px;height:12px;border:1px solid #11110f40;background:#fff}
 .fp-legend i.busy{background:var(--cream,#ead9bc)}
+.fp-legend i.late{border-color:#a67f45;background:var(--gold,#c59b5d)}
 .fp-legend i.blocked{border-color:var(--wine,#8c292b)}
+
+/* Bis wann belegt, bis wann frei. Steht in der Tischzeile und in der
+   Reservierungszeile - die Frage an der Tuer lautet nie "ist frei", sondern
+   "ist frei bis wann". */
+.fp-until{padding:2px 8px;border:1px solid var(--line,#11110f26);border-radius:99px;color:#57524a;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fp-until.is-late{border-color:#a67f45;background:var(--gold,#c59b5d);color:var(--ink,#11110f)}
+.fp-until.is-here{border-color:var(--green,#244635);background:#e8f0ea;color:var(--green,#244635)}
+
+/* Filter und Suche ueber der Tischliste. Bei 25 und mehr Tischen ist die
+   ungefilterte Liste im Betrieb nicht mehr lesbar. */
+.fp-filter{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px}
+.fp-filter button{min-height:44px;padding:0 14px;border:1px solid #11110f3d;border-radius:999px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:13px;cursor:pointer}
+.fp-filter button[aria-pressed="true"]{border-color:var(--green,#244635);background:var(--green,#244635);color:#fff}
+.fp-filter input{flex:1 1 180px;min-width:140px;min-height:44px;padding:0 12px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#fff;color:inherit;font:inherit;font-size:13px}
+.fp-filter button:focus-visible,.fp-filter input:focus-visible{outline:3px solid var(--gold,#c59b5d);outline-offset:2px}
 
 .fp-status{margin:0;color:#57524a;font-size:var(--t-meta,14.5px);line-height:1.5}
 .fp-empty{margin:0;color:#57524a;font-size:var(--t-meta,14.5px);line-height:1.5}
@@ -111,6 +134,9 @@
 .fp-row-actions input{width:74px}
 .fp-row-actions select{min-height:38px;max-width:180px;padding:0 8px;border:1px solid var(--line,#11110f26);border-radius:6px;background:#fff;color:inherit;font:inherit;font-size:12px;cursor:pointer}
 .fp-table-row.is-busy{background:#f6f1e6}
+/* Ueberfaellig: Zeit laeuft, niemand eingecheckt. Gleiche Sprache wie auf der
+   Karte, damit Liste und Plan nicht verschiedene Dinge behaupten. */
+.fp-table-row.is-late{border-color:#a67f45;background:#f6ecd9}
 .fp-table-row.is-blocked{border-color:var(--wine,#8c292b)}
 .fp-table-row.is-picked{border-color:var(--green,#244635);border-width:2px}
 .fp-table-row .no{font-weight:800;font-variant-numeric:tabular-nums}
@@ -172,12 +198,17 @@
 /* Tagesuebersicht: der gewaehlte Tag steht oben und ist hervorgehoben. */
 #fpStats .is-today td{background:#e8f0ea;font-weight:700}
 
-/* Druck und PDF: nur der Plan, quer, ohne Bedienelemente. */
+/* Druck und PDF: nur der Plan, quer, ohne Bedienelemente. Die Auswahlfelder
+   muessen ausdruecklich mit weg - sie sind keine Knoepfe und blieben sonst als
+   "Tisch wechseln ..." auf dem Serviceblatt stehen. */
 @media print{
   @page{size:landscape;margin:12mm}
-  .topbar,.fp-tools,.fp-levels-editor,.fp-party-list button,.add-service,
-  .fp-dishes,.fp-mail,.fp-table-row .fp-row-actions,.notice,.model-note,
-  #fpStats,.fp-warn,.fp-chairs-list,.fp-sizes{display:none!important}
+  .topbar,.fp-tools,.fp-levels-editor,.fp-party-list button,.fp-party-list select,
+  .add-service,.fp-filter,.fp-dishes,.fp-mail,.fp-table-row .fp-row-actions,
+  .notice,.model-note,#fpStats,.fp-warn,.fp-chairs-list,.fp-sizes{display:none!important}
+  /* Zugeklappte Bereiche gehoeren auch im Druck nicht aufs Blatt. */
+  details:not([open]) > *:not(summary){display:none!important}
+  summary{display:none!important}
   body{background:#fff}
   .panel{page-break-inside:avoid;border:0;padding:0;background:none;box-shadow:none}
   .fp-svg{max-width:100%}
@@ -198,6 +229,25 @@
   .kp-print-head{display:block;margin:0 0 14px;font-family:Georgia,serif;font-size:22px;font-weight:400}
   .kp-names,.welcome,.fp-result{display:none!important}
 }
+
+/* Der Arbeitsbereich im Betrieb: Karte und Reservierungen. Untereinander lagen
+   sie rund 3300 Pixel auseinander, obwohl man im Service staendig zwischen
+   ihnen wechselt. Ab 1200 Pixel stehen sie nebeneinander; darin stapelt die
+   Karte ihre eigene Zweiteilung, sonst wird der Plan zu schmal. */
+@media(min-width:1200px){
+  .fp-work{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+  .fp-work .fp-stage{grid-template-columns:1fr}
+  .fp-work > .panel{margin:0}
+}
+
+/* Zusammenklappbare Bereiche: Einrichtung fasst man einmal an, im Betrieb ist
+   sie nur Weg. Aussehen aus den vorhandenen Komponenten, keine neuen Formen. */
+.fp-fold{margin-top:20px;border-top:1px solid var(--line,#11110f26)}
+.fp-fold > summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:10px 0;color:var(--ink,#11110f);font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;list-style:none}
+.fp-fold > summary::-webkit-details-marker{display:none}
+.fp-fold > summary::before{content:"+";display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:1px solid #11110f3d;border-radius:50%;font-size:14px;line-height:1}
+.fp-fold[open] > summary::before{content:"–"}
+.fp-fold > summary:focus-visible{outline:3px solid var(--gold,#c59b5d);outline-offset:3px}
 
 /* Handy und Tablet: der Plan wird kleiner und ruhiger, die Listen schmaler. */
 @media(max-width:1024px){

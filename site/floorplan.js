@@ -13,7 +13,10 @@ const el = (tag, attrs = {}) => {
   return node;
 };
 
-const STATE_LABEL = { free: 'frei', busy: 'belegt', blocked: 'gesperrt', picked: 'gewählt' };
+const STATE_LABEL = {
+  free: 'frei', busy: 'belegt', blocked: 'gesperrt', picked: 'gewählt',
+  late: 'überfällig – noch nicht eingecheckt'
+};
 
 // Ein Name muss in den Tisch passen. SVG-Text bricht nicht um, und eine
 // Schaetzung ueber die mittlere Zeichenbreite lag bei Namen wie "Bereuter"
@@ -37,6 +40,8 @@ function fitLabels(scope) {
 export function renderFloorplan(root, config, options = {}) {
   const {
     mode = 'orientation', states = {}, seating = {}, selected = null,
+    // Bis wann ein freier Tisch frei bleibt - die Frage an der Tuer.
+    freeUntil = {},
     onSelect = null, onMove = null, onEdit = null,
     // Sitzplan: Namen an den Stuehlen statt Belegung am Tisch.
     seatMode = false, onSeatName = null, onMoveElement = null
@@ -104,7 +109,8 @@ export function renderFloorplan(root, config, options = {}) {
 
     const legend = document.createElement('p');
     legend.className = 'fp-legend';
-    legend.innerHTML = '<span><i></i>frei</span><span><i class="busy"></i>belegt</span><span><i class="blocked"></i>gesperrt</span>';
+    legend.innerHTML = '<span><i></i>frei</span><span><i class="busy"></i>belegt</span>'
+      + '<span><i class="late"></i>überfällig</span><span><i class="blocked"></i>gesperrt</span>';
     root.append(legend);
 
     const status = document.createElement('p');
@@ -188,7 +194,10 @@ export function renderFloorplan(root, config, options = {}) {
         name.dataset.maxw = String(body.w - 0.2);
         name.textContent = party.name;
         const count = el('text', { class: 'fp-seats', x: middle, y: body.y + 1.95 });
-        count.textContent = `${party.guests}/${table.seats}`;
+        // Das Haekchen unterscheidet "sitzt wirklich hier" von "ist angesagt".
+        // Ohne dieses Zeichen sehen eingecheckte und erwartete Gaeste gleich
+        // aus, sobald die Farbe fuer etwas anderes gebraucht wird.
+        count.textContent = `${party.arrived ? '✓ ' : ''}${party.guests}/${table.seats}`;
         group.append(name, count);
       } else {
         const seats = el('text', { class: 'fp-seats', x: middle, y: body.y + 1.8 });
@@ -373,8 +382,17 @@ export function renderFloorplan(root, config, options = {}) {
       button.tabIndex = state === 'picked' ? 0 : -1;
       button.dataset.tableId = table.id;
       const party = seating[table.id];
-      button.textContent = `Tisch ${table.number} · ${table.seats} Plätze · ${level.name} · `
-        + (party ? `${party.name}, ${party.guests} Personen` : STATE_LABEL[state]);
+      // Die Liste ist die bedienbare Wahrheit - was auf der Karte nur Farbe
+      // ist, muss hier als Wort dastehen, sonst ist der Zustand fuer
+      // Vorlesesoftware und Tastatur nicht vorhanden.
+      const zustand = party
+        ? `${party.name}, ${party.guests} Personen`
+          + (party.arrived ? ', eingecheckt' : state === 'late' ? ', überfällig' : ', erwartet')
+          + (party.until ? ` · bis ${party.until}` : '')
+        // "Frei" allein beantwortet die Frage an der Tuer nicht - sie lautet
+        // immer "frei bis wann".
+        : state === 'free' && freeUntil[table.id] ? `frei bis ${freeUntil[table.id]}` : STATE_LABEL[state];
+      button.textContent = `Tisch ${table.number} · ${table.seats} Plätze · ${level.name} · ${zustand}`;
       list.append(button);
     }
 

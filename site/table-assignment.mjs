@@ -33,6 +33,62 @@ export function shift(value, minutes) {
   return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}T${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
 }
 
+/**
+ * Karenz: so lange nach der vereinbarten Zeit gilt ein Gast als "erwartet"
+ * und nicht als ueberfaellig. Fuenfzehn Minuten sind die uebliche Kulanz im
+ * Haus - danach muss der Service entscheiden, ob der Tisch weitergegeben wird.
+ */
+export const KARENZ_MINUTEN = 15;
+
+/**
+ * Bis wann ein Tisch tatsaechlich belegt ist. Regulaer bis zum Ende der
+ * berechneten Dauer - hat der Gast aber abgerechnet und ist gegangen, endet
+ * die Belegung genau dann. Ohne das blockiert eine Gruppe, die um 13:00 zahlt,
+ * den Tisch rechnerisch bis 13:45.
+ */
+export function belegtBis(party, minutes) {
+  const von = stamp(`${party.date}T${party.time}`);
+  if (von === null) return null;
+  const regulaer = von + Math.max(1, Number(minutes) || 0);
+  const gegangen = party.left ? stamp(`${party.date}T${party.left}`) : null;
+  // Ein Abgang vor der Ankunft waere ein Bedienfehler und darf die Belegung
+  // nicht auf eine negative Dauer zusammenziehen.
+  if (gegangen === null || gegangen <= von) return regulaer;
+  return Math.min(regulaer, gegangen);
+}
+
+/** Belegt dieser Gast den Tisch zum Zeitpunkt `at`? */
+export function occupiesAt(party, { at, minutes }) {
+  if (!party?.tableIds?.length) return false;
+  const von = stamp(`${party.date}T${party.time}`);
+  const jetzt = stamp(at);
+  const bis = belegtBis(party, minutes);
+  if (von === null || jetzt === null || bis === null) return false;
+  return von <= jetzt && jetzt < bis;
+}
+
+/**
+ * Der Zustand einer Reservierung zu einem Zeitpunkt. Er ist die Grundlage
+ * dafuer, dass die Karte die Wirklichkeit zeigt und nicht nur die Uhr:
+ *
+ *   kommt        - liegt noch vor uns, der Tisch ist jetzt frei
+ *   wartet       - Zeit laeuft, Gast noch nicht da, aber innerhalb der Karenz
+ *   ueberfaellig - Zeit plus Karenz vorbei und niemand eingecheckt
+ *   da           - eingecheckt, alles in Ordnung
+ *   weg          - abgerechnet und gegangen, Tisch wieder frei
+ *   vorbei       - Zeitfenster abgelaufen
+ */
+export function partyStatus(party, { at, minutes, karenz = KARENZ_MINUTEN }) {
+  const von = stamp(`${party.date}T${party.time}`);
+  const jetzt = stamp(at);
+  if (von === null || jetzt === null) return 'kommt';
+  if (party.left && stamp(`${party.date}T${party.left}`) <= jetzt) return 'weg';
+  if (jetzt < von) return 'kommt';
+  if (jetzt >= belegtBis(party, minutes)) return 'vorbei';
+  if (party.arrived) return 'da';
+  return jetzt >= von + karenz ? 'ueberfaellig' : 'wartet';
+}
+
 export function durationFor(guests, policy = DEFAULT_POLICY) {
   const steps = [...(policy.durations || DEFAULT_POLICY.durations)].sort((a, b) => a.upTo - b.upTo);
   const hit = steps.find(step => guests <= step.upTo);
