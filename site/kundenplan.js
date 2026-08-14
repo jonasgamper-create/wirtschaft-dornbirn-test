@@ -13,8 +13,19 @@ const byId = id => document.getElementById(id);
 const preview = byId('kpPlan');
 if (preview) start();
 
-function start() {
-  const preset = migrate(window.WIRTSCHAFT_FLOORPLAN || {});
+async function start() {
+  // In der Einzeldatei liegt der Raum im Dokument. Aus dem site-Ordner heraus
+  // wird er geholt - sonst stuende die Seite leer da.
+  let quelle = window.WIRTSCHAFT_FLOORPLAN;
+  if (!quelle) {
+    try {
+      quelle = await (await fetch('data/floorplan.json', { cache: 'no-store' })).json();
+    } catch {
+      byId('kpStatus').textContent = 'Der Saalplan konnte nicht geladen werden.';
+      return;
+    }
+  }
+  const preset = migrate(quelle);
 
   const read = () => {
     try {

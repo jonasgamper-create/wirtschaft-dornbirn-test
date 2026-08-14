@@ -14,7 +14,13 @@ const SICHT = 'wirtschaft-screen-namen';
 const byId = id => document.getElementById(id);
 if (byId('scList')) start();
 
-function start() {
+async function start() {
+  // Ist auf diesem Geraet noch nichts geplant, zeigt der Schirm wenigstens den
+  // Saal. Sonst stuende er am Eingang leer da.
+  let raum = window.WIRTSCHAFT_FLOORPLAN || null;
+  if (!raum) {
+    try { raum = await (await fetch('data/floorplan.json', { cache: 'no-store' })).json(); } catch { /* dann eben ohne */ }
+  }
   const lies = () => {
     try {
       return JSON.parse(localStorage.getItem(KEY) || '{}');
@@ -50,12 +56,16 @@ function start() {
 
   function zeichne() {
     const state = lies();
-    const plan = state.floorplan;
+    const plan = state.floorplan || raum;
     const { tag, zeit } = jetzt();
     byId('scClock').textContent = zeit;
 
     if (!plan) {
-      byId('scList').innerHTML = '<p class="sc-empty">Der Tischplan ist auf diesem Gerät noch nicht eingerichtet.</p>';
+      byId('scList').textContent = '';
+      const hinweis = document.createElement('p');
+      hinweis.className = 'sc-empty';
+      hinweis.textContent = 'Der Saalplan ist auf diesem Gerät noch nicht eingerichtet.';
+      byId('scList').append(hinweis);
       return;
     }
 
