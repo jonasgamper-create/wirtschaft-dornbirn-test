@@ -16,7 +16,7 @@
     "check:lunch-menu": "node scripts/check-lunch-menu.mjs",
     "check:floorplan": "node scripts/check-floorplan.mjs",
     "check:assignment": "node scripts/check-table-assignment.mjs",
-    "ci": "npm run build && npm run check:event-data && npm run check:copy && npm run check:optimization && npm run build:public && npm run check:public && npm run check:privacy && npm run check:interactions && npm run check:lunch-menu && npm run check:floorplan && npm run check:assignment",
+    "ci": "npm run build && npm run check:event-data && npm run check:copy && npm run check:optimization && npm run build:tischplan && npm run build:public && npm run check:public && npm run check:privacy && npm run check:interactions && npm run check:lunch-menu && npm run check:floorplan && npm run check:assignment",
     "report:decision": "bash scripts/run_pdf_tool.sh scripts/build-decision-pdf.py",
     "report:performance": "bash scripts/run_pdf_tool.sh scripts/build_performance_audit_pdf.py",
     "qa:performance-pdf": "bash scripts/run_pdf_tool.sh scripts/qa_performance_audit_pdf.py",

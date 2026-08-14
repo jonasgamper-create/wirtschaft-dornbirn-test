@@ -397,3 +397,45 @@ Der Weg, wie ihn auch andere ohne eigenen Server gehen:
 **Was das nicht ist:** ein Link, unter dem der Kunde plant und Wolfgang live
 zusieht. Dafür bräuchte es einen Server, der speichert. Die Eingaben des Kunden
 bleiben auf seinem Gerät, bis er sie schickt — das steht auch so auf der Seite.
+
+## Veröffentlichte Adressen
+
+Auf ausdrücklichen Wunsch liegen die beiden gebauten Einzeldateien unter einem
+eigenen, **nicht verlinkten** Pfad im öffentlichen Build:
+
+| Adresse | Zweck |
+| --- | --- |
+| `…/tischplan/` | interne Planung |
+| `…/tischplan/kunde.html` | Sitzplan zum Verschicken an einen Kunden |
+
+Damit lässt sich dem Kunden ein Link statt einer Datei schicken.
+
+**Was das heißt, unverblümt:** Beide Seiten sind **öffentlich erreichbar, ohne
+Anmeldung**. Wer die Adresse kennt oder rät, sieht das Werkzeug. Sie sind
+`noindex,nofollow`, stehen nicht in der Sitemap, sind nirgends verlinkt, und
+`robots.txt` schließt `/tischplan/` aus — Suchmaschinen finden sie also nicht.
+
+**Was dabei nicht passiert:** Es werden keine Daten mitgeliefert. Belegung,
+Namen und Reservierungen entstehen erst im Browser dessen, der die Seite öffnet,
+und bleiben dort. Zwei Leute sehen nie dieselben Daten. `check:public` prüft bei
+jedem Bau, dass die ausgelieferten Dateien leer sind — kein `parties`, keine
+`seatNames`, keine Sperren.
+
+**Wer echten Zugriffsschutz will**, braucht die Anmeldung aus `SECURITY.md`.
+Solange das Werkzeug niemandem schadet, der es leer vorfindet, ist der
+unverlinkte Pfad ein vertretbarer Kompromiss — aber es ist einer, kein Schutz.
+
+## Gäste zwischen Etagen verschieben
+
+Zwei Wege, beide in Panel 03:
+
+- **Einzeln:** In der Zeile einer sitzenden Reservierung steht „Tisch wechseln",
+  nach Etagen gruppiert. Belegte und zu kleine Tische stehen ausgegraut drin,
+  damit sichtbar bleibt, warum sie nicht gehen.
+- **Alle auf einmal:** „Etage räumen" setzt alle Gäste einer Etage auf die
+  andere um — der Griff für ein spontanes Event. Erst werden alle abgeräumt,
+  dann neu gesetzt, sonst blockieren sie sich selbst. Größte Gruppe zuerst,
+  kleinster passender Tisch. Wer nicht unterkommt, steht wieder offen und wird
+  namentlich genannt.
+
+Beides ist ein Schritt im Verlauf und lässt sich rückgängig machen.

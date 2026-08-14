@@ -457,6 +457,34 @@ async function start() {
       pick.append(where);
       item.append(pick);
 
+      if (party.tableIds.length) {
+        // Umsetzen quer durch alle Etagen - der haeufigste Griff, wenn
+        // spontan ein Raum gebraucht wird.
+        const move = document.createElement('select');
+        move.dataset.moveParty = party.id;
+        move.setAttribute('aria-label', `${party.name} an einen anderen Tisch setzen`);
+        const keep = document.createElement('option');
+        keep.value = '';
+        keep.textContent = 'Tisch wechseln …';
+        move.append(keep);
+        for (const level of plan.levels) {
+          const group = document.createElement('optgroup');
+          group.label = level.name;
+          for (const table of level.tables) {
+            if (party.tableIds.includes(table.id)) continue;
+            const option = document.createElement('option');
+            option.value = table.id;
+            const belegt = collidesAt(party, [table.id], parties());
+            option.textContent = `Tisch ${table.number} · ${table.seats}P`
+              + (belegt ? ` · belegt (${belegt.name})` : '');
+            option.disabled = Boolean(belegt) || party.guests > table.seats || blocked().includes(table.id);
+            group.append(option);
+          }
+          if (group.children.length) move.append(group);
+        }
+        item.append(move);
+      }
+
       const remove = document.createElement('button');
       remove.type = 'button';
       remove.dataset.removeParty = party.id;
@@ -480,6 +508,13 @@ async function start() {
 
     paintTableList(plan);
   }
+
+  byId('fpParties').addEventListener('change', event => {
+    const move = event.target.closest('[data-move-party]');
+    if (!move || !move.value) return;
+    marked = move.dataset.moveParty;
+    seatMarked(move.value);
+  });
 
   byId('fpParties').addEventListener('click', event => {
     const mark = event.target.closest('[data-mark-party]');
@@ -543,6 +578,60 @@ async function start() {
     if (button) button.focus();
     else byId('fpTableList').querySelector(`[data-table-id="${tableId}"][data-field="name"]`)?.focus();
   }
+
+  function paintFloorMove() {
+    const plan = buildFloorplan(current());
+    for (const [id, vorgabe] of [['fpMoveFrom', 0], ['fpMoveTo', 1]]) {
+      const select = byId(id);
+      const gewaehlt = select.value;
+      select.textContent = '';
+      plan.levels.forEach((level, index) => {
+        const option = document.createElement('option');
+        option.value = level.id;
+        option.textContent = level.name;
+        option.selected = gewaehlt ? level.id === gewaehlt : index === Math.min(vorgabe, plan.levels.length - 1);
+        select.append(option);
+      });
+    }
+    byId('fpMoveFloorForm').hidden = plan.levels.length < 2;
+  }
+
+  byId('fpMoveFloorForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const von = byId('fpMoveFrom').value;
+    const nach = byId('fpMoveTo').value;
+    if (von === nach) return seatResult('Bitte zwei verschiedene Etagen wählen.');
+
+    const plan = buildFloorplan(current());
+    const ziel = plan.levels.find(level => level.id === nach);
+    const list = parties().map(party => ({ ...party, tableIds: [...party.tableIds] }));
+    // Nur wer an diesem Tag auf der Ausgangsetage sitzt.
+    const betroffen = list.filter(party => party.date === moment.date && party.tableIds.length
+      && party.tableIds.every(id => plan.tables.find(table => table.id === id)?.levelId === von))
+      .sort((a, b) => b.guests - a.guests);
+    if (!betroffen.length) return seatResult(`Auf dieser Etage sitzt am ${moment.date} niemand.`);
+
+    // Erst alle abraeumen, dann neu setzen - sonst blockieren sie sich selbst.
+    for (const party of betroffen) party.tableIds = [];
+
+    const umgesetzt = [];
+    const offen = [];
+    for (const party of betroffen) {
+      const frei = ziel.tables
+        .filter(table => !blocked().includes(table.id))
+        .filter(table => party.guests <= table.seats)
+        .filter(table => !collidesAt(party, [table.id], list))
+        // Kleinster passender Tisch, wie bei der automatischen Verteilung.
+        .sort((a, b) => (a.seats - party.guests) - (b.seats - party.guests) || a.number - b.number);
+      if (!frei.length) { offen.push(party); continue; }
+      party.tableIds = [frei[0].id];
+      umgesetzt.push(`${party.name} an Tisch ${frei[0].number}`);
+    }
+    putParties(list);
+    paint();
+    seatResult(`${umgesetzt.length} umgesetzt nach ${ziel.name}: ${umgesetzt.join(', ') || '–'}.`
+      + (offen.length ? ` Kein Platz für: ${offen.map(party => `${party.name} (${party.guests}P)`).join(', ')} – steht wieder offen.` : ''));
+  });
 
   byId('fpAutoSeat').addEventListener('click', () => {
     const plan = buildFloorplan(current());
@@ -1237,6 +1326,7 @@ async function start() {
     paintSeating();
     paintLevels();
     paintElements();
+    paintFloorMove();
     paintStats();
     paintHistory();
     byId('fpEventName').value = current().eventName || '';
