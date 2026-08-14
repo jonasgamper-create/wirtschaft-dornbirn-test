@@ -17,12 +17,17 @@ if (store && preview) start();
 
 async function start() {
   if (!store.load().floorplan) {
-    try {
-      const loaded = await (await fetch('data/floorplan.json', { cache: 'no-store' })).json();
-      store.updateFloorplan(migrate(loaded));
-    } catch {
-      warn('Der Tischplan konnte nicht geladen werden. Bitte die Seite über einen lokalen Server öffnen, nicht als Datei.');
-      return;
+    // In der Einzeldatei liegt die Ausgangskonfiguration schon im Dokument.
+    // Nur die Fassung im site-Ordner holt sie per fetch.
+    if (window.WIRTSCHAFT_FLOORPLAN) {
+      store.updateFloorplan(migrate(window.WIRTSCHAFT_FLOORPLAN));
+    } else {
+      try {
+        store.updateFloorplan(migrate(await (await fetch('data/floorplan.json', { cache: 'no-store' })).json()));
+      } catch {
+        warn('Der Tischplan konnte nicht geladen werden. Bitte die Seite über einen lokalen Server öffnen, nicht als Datei.');
+        return;
+      }
     }
   }
 

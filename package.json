@@ -6,6 +6,7 @@
   "scripts": {
     "build": "node -e \"process.stdout.write('Kein Build-Schritt noetig\\n')\"",
     "build:public": "node scripts/build-public.mjs",
+    "build:tischplan": "node scripts/build-tischplan.mjs",
     "check:event-data": "node scripts/check-event-data.mjs",
     "check:copy": "node scripts/check-copy.mjs",
     "check:optimization": "node scripts/check-optimization-contract.mjs",

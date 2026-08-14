@@ -307,3 +307,36 @@ Cockpit und Tischplan liegen im lokalen Browserspeicher und sind nicht Teil der
 öffentlichen Seite. Für mehrere Geräte und Mitarbeitende braucht es eine
 geschützte Datenbank mit Anmeldung — siehe `SECURITY.md` und
 `docs/host-cockpit-architecture.md`.
+
+## Einzeldatei für unterwegs
+
+Die Fassung in `site/` braucht einen lokalen Server: Sie importiert Module und
+holt die Konfiguration per `fetch` — beides scheitert an `file://`.
+
+Für den Alltag gibt es deshalb eine Einzeldatei:
+
+```bash
+npm run build:tischplan
+```
+
+Ergebnis: `output/tischplan/wirtschaft-tischplan.html`, rund 130 KB. Alles steckt
+im Dokument — Stile, Programmcode, Ausgangskonfiguration und das Logo als
+eingebettetes Bild. Kein einziger Netzwerkzugriff, kein Server, kein Internet.
+Die Datei lässt sich per Doppelklick öffnen, auch aus einem geteilten Ordner
+oder von einem Stick. Jeder Lauf überschreibt sie vollständig.
+
+Die Inhaltsrichtlinie bleibt scharf: Stil und Skript sind über ihren
+SHA-256-Hash freigegeben, nicht über `unsafe-inline`, und `connect-src` steht
+auf `none` — die Datei kann gar nichts nach außen senden.
+
+**Was das bedeutet:** Die Einteilung liegt im Browser desjenigen, der die Datei
+öffnet. Auf einem zweiten Rechner ist sie nicht da, und zwei Leute sehen nicht
+dasselbe. Für gemeinsames Arbeiten braucht es den Server aus `SECURITY.md`.
+
+### Warum kein öffentlicher Link
+
+Ein GitHub-Pages-Link wäre technisch möglich, aber **öffentlich und ohne
+Anmeldung**. Gästedaten würden dabei zwar nicht mitgeliefert — sie entstehen
+erst im Browser —, aber die interne Ansicht wäre für jeden erreichbar, der die
+Adresse kennt. Deshalb bleibt der Tischplan aus dem öffentlichen Build heraus;
+die Einzeldatei ist der Weg, ihn trotzdem überall dabeizuhaben.
