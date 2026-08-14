@@ -1,7 +1,7 @@
 // Goldene Testfaelle fuer Geometrie und Tischzuweisung. Laeuft ohne
 // Testframework, damit npm run ci keine zusaetzliche Abhaengigkeit braucht.
 
-import { GRID, buildFloorplan, canPlace, chairSlots, defaultMinGuests, footprint, migrate, nextTableId, seatingPlan, tableBody } from '../site/floorplan-layout.mjs';
+import { GRID, buildFloorplan, canPlace, chairSlots, defaultMinGuests, footprint, migrate, nextTableId, seatingPlan, tableBody, tableLabel } from '../site/floorplan-layout.mjs';
 import { assignTables, durationFor, shift, stamp } from '../site/table-assignment.mjs';
 
 const errors = [];
@@ -246,6 +246,23 @@ check('Zug auf einen besetzten Platz nennt den Tisch',
   canPlace(mixed, first.id, second.col, second.row).blockedBy === second.number,
   JSON.stringify(canPlace(mixed, first.id, second.col, second.row)));
 check('Tisch darf auf seinen eigenen Platz', canPlace(mixed, first.id, first.col, first.row).ok);
+
+// Zaehlweise: fortlaufend ueber alle Etagen oder in jeder Etage neu bei 1.
+const fortlaufend = buildFloorplan({ ...config, numbering: { start: 1, mode: 'fortlaufend' } });
+const proEtage = buildFloorplan({ ...config, numbering: { start: 1, mode: 'pro-etage' } });
+check('Fortlaufend zaehlt durch alle Etagen',
+  fortlaufend.tables.map(table => table.number).join(',') === '1,2,3,4,5,6,7',
+  fortlaufend.tables.map(table => table.number).join(','));
+check('Pro Etage faengt jede Etage bei 1 an',
+  proEtage.tables.map(table => table.number).join(',') === '1,2,3,4,5,1,2',
+  proEtage.tables.map(table => table.number).join(','));
+check('Pro Etage bleibt innerhalb der Etage eindeutig',
+  proEtage.levels.every(level => new Set(level.tables.map(table => table.number)).size === level.tables.length));
+check('Beschriftung nennt die Etage nur wenn noetig',
+  tableLabel(proEtage.tables[5], proEtage) === '1 · Saal' && tableLabel(fortlaufend.tables[5], fortlaufend) === '6',
+  `${tableLabel(proEtage.tables[5], proEtage)} / ${tableLabel(fortlaufend.tables[5], fortlaufend)}`);
+check('Bei einer einzigen Etage bleibt die Beschriftung kurz',
+  tableLabel(mixed.tables[0], mixed) === String(mixed.tables[0].number));
 
 // Mehrere Ordnungen: die aktive bestimmt den Plan.
 const zweiOrdnungen = {

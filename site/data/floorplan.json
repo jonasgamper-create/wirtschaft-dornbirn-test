@@ -3,7 +3,8 @@
   "updatedAt": "2026-08-13T10:00:00+02:00",
   "status": "beispiel",
   "numbering": {
-    "start": 1
+    "start": 1,
+    "mode": "pro-etage"
   },
   "activeLayout": "standard",
   "layouts": [

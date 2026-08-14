@@ -128,10 +128,28 @@ for (const level of floorplan.levels) {
   }
 }
 
-const seenNumber = new Set();
-for (const table of floorplan.tables) {
-  if (seenNumber.has(table.number)) fail(`Tischnummer ${table.number} kommt doppelt vor.`);
-  seenNumber.add(table.number);
+// Bei fortlaufender Zaehlung muss jede Nummer im Haus eindeutig sein, bei
+// "pro-etage" nur innerhalb ihrer Etage.
+if (!['fortlaufend', 'pro-etage'].includes(config.numbering?.mode ?? 'fortlaufend')) {
+  fail('numbering.mode muss "fortlaufend" oder "pro-etage" sein.');
+}
+if (floorplan.numberingMode === 'pro-etage') {
+  for (const level of floorplan.levels) {
+    const gesehen = new Set();
+    for (const table of level.tables) {
+      if (gesehen.has(table.number)) fail(`Tischnummer ${table.number} kommt in "${level.name}" doppelt vor.`);
+      gesehen.add(table.number);
+    }
+    if (level.tables.length && level.tables[0].number !== (config.numbering?.start ?? 1)) {
+      fail(`"${level.name}" beginnt nicht bei ${config.numbering?.start ?? 1}.`);
+    }
+  }
+} else {
+  const seenNumber = new Set();
+  for (const table of floorplan.tables) {
+    if (seenNumber.has(table.number)) fail(`Tischnummer ${table.number} kommt doppelt vor.`);
+    seenNumber.add(table.number);
+  }
 }
 
 const policy = config.policy || {};
@@ -163,6 +181,6 @@ if (errors.length) {
 const mix = deriveTableMix(floorplan);
 const mixText = Object.keys(mix).map(Number).sort((a, b) => a - b).map(seats => `${mix[seats]}×${seats}P`).join(' · ');
 console.log(
-  `Tischplan-Prüfung OK (${config.status}): ${floorplan.levels.length} Etagen, ${floorplan.tables.length} Tische, `
+  `Tischplan-Prüfung OK (${config.status}, ${floorplan.numberingMode}): ${floorplan.levels.length} Etagen, ${floorplan.tables.length} Tische, `
   + `${totalSeats(floorplan)} Plätze, Mix ${mixText}.`
 );
