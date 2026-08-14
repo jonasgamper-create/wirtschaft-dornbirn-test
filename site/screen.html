@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src 'self' data:; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; form-action 'none'; upgrade-insecure-requests">
+  <meta name="theme-color" content="#f3efe6">
+  <title>Willkommen · Wirtschaft Dornbirn</title>
+  <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
+  <link rel="stylesheet" href="screen.css?v=1">
+  <link rel="stylesheet" href="floorplan.css?v=15">
+  <script type="module" src="screen.js?v=2"></script>
+</head>
+<body>
+  <header class="sc-head">
+    <img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn">
+    <div class="sc-when">
+      <span class="sc-clock" id="scClock">—</span>
+      <span class="sc-count" id="scCount"></span>
+    </div>
+  </header>
+
+  <main class="sc-main">
+    <section aria-labelledby="scTitle">
+      <h1 class="sc-title" id="scTitle">Ihr Tisch</h1>
+      <div class="sc-list" id="scList" aria-live="polite"></div>
+    </section>
+
+    <section class="sc-plan" aria-label="Saalplan">
+      <div data-floorplan id="scPlan"></div>
+    </section>
+  </main>
+
+  <footer class="sc-foot">
+    <span>Wirtschaft Dornbirn · Bahnhofstraße&nbsp;24 · 6850 Dornbirn</span>
+    <div class="sc-tools">
+      <button type="button" id="scNames">Namen: vollständig</button>
+      <button type="button" id="scFull">Vollbild</button>
+    </div>
+  </footer>
+</body>
+</html>

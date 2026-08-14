@@ -1,4 +1,4 @@
-import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { access, cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -12,6 +12,20 @@ const excluded = new Set([
   'gastgeber.css',
   'gastgeber-mobile-fix.css',
   'inventory-store.js',
+  // Der Tischplan ist eine interne Einteilungsansicht. Gaeste sehen ihn nicht
+  // und waehlen keinen Tisch, also gehoert nichts davon in den oeffentlichen
+  // Build - auch nicht die Stammdaten.
+  'table-assignment.mjs',
+  'floorplan-layout.mjs',
+  'floorplan.js',
+  'floorplan.css',
+  'floorplan.json',
+  'kundenplan.html',
+  'kundenplan.js',
+  'screen.html',
+  'screen.js',
+  'screen.css',
+  'plan-history.mjs',
   'entwuerfe.html',
   'drafts.css',
   'entwuerfe.css',
@@ -38,7 +52,31 @@ if (process.env.PUBLIC_ENV === 'production' || process.env.VERCEL_ENV === 'produ
     const html = await readFile(file, 'utf8');
     await writeFile(file, html.replace(/<meta\s+name="robots"\s+content="noindex[^>]*>/gi, '<meta name="robots" content="index,follow">'));
   }
-  await writeFile(path.join(output, 'robots.txt'), 'User-agent: *\nAllow: /\nSitemap: https://wirtschaft-dornbirn.at/sitemap.xml\n');
+  // Der Tischplan bleibt aus dem Index heraus - er ist ein Werkzeug fuers
+  // Haus, keine Seite fuer Gaeste.
+  await writeFile(path.join(output, 'robots.txt'),
+    'User-agent: *\nAllow: /\nDisallow: /tischplan/\nSitemap: https://wirtschaft-dornbirn.at/sitemap.xml\n');
 }
 
-console.log(`Public build erstellt: ${path.relative(root, output)}`);
+// Die beiden Einzeldateien bekommen einen eigenen, nicht verlinkten Pfad.
+// Sie tragen keinerlei Daten: Belegung und Namen entstehen erst im Browser
+// dessen, der die Seite oeffnet. Die Quelldateien bleiben trotzdem draussen.
+const einzel = [
+  ['output/tischplan/wirtschaft-tischplan.html', 'tischplan/index.html'],
+  ['output/tischplan/wirtschaft-kundenplan.html', 'tischplan/kunde.html'],
+  ['output/tischplan/wirtschaft-screen.html', 'tischplan/screen.html']
+];
+let veroeffentlicht = 0;
+for (const [quelle, ziel] of einzel) {
+  try {
+    await access(path.join(root, quelle));
+  } catch {
+    continue;
+  }
+  await mkdir(path.dirname(path.join(output, ziel)), { recursive: true });
+  await cp(path.join(root, quelle), path.join(output, ziel));
+  veroeffentlicht += 1;
+}
+
+console.log(`Public build erstellt: ${path.relative(root, output)}`
+  + (veroeffentlicht ? ` (plus ${veroeffentlicht} Tischplan-Seite(n) unter /tischplan/)` : ''));

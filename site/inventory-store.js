@@ -36,6 +36,10 @@
     ],
     reservations: [],
     ticketOrders: [],
+    // Wird beim ersten Laden aus site/data/floorplan.json uebernommen.
+    floorplan: null,
+    blockedTables: [],
+    parties: [],
     updatedAt: new Date().toISOString()
   });
 
@@ -52,6 +56,119 @@
   const safeDate = value => /^\d{4}-\d{2}-\d{2}$/.test(String(value)) ? String(value) : localDate(0);
   const safeTime = value => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(value)) ? String(value) : '12:00';
   const safeIso = value => Number.isNaN(Date.parse(value)) ? new Date().toISOString() : new Date(value).toISOString();
+
+  const safeId = (value, fallback) => (/^[a-z][a-z0-9-]{1,23}$/.test(String(value)) ? String(value) : fallback);
+
+  // Der Tischplan enthaelt ausschliesslich Stammdaten. Alles, was nach Belegung
+  // oder Person aussieht, faellt beim Einlesen weg statt gespeichert zu werden.
+  function sanitizeLevel(level, index) {
+    const id = safeId(level?.id, `etage-${index + 1}`);
+    const seen = new Set();
+    const tables = (Array.isArray(level?.tables) ? level.tables : []).slice(0, 300).map((table, spot) => {
+      let tableId = safeText(table?.id, 24) || `${id}-t${String(spot + 1).padStart(2, '0')}`;
+      while (seen.has(tableId)) tableId = `${tableId}x`.slice(0, 24);
+      seen.add(tableId);
+      // Achtung: Number(null) ist 0. Ohne die ausdrueckliche Pruefung auf
+      // null gilt jeder Tisch als fest auf Position 0,0 gesetzt und alle
+      // stapeln sich uebereinander.
+      const coord = (value, max) => {
+        if (value === null || value === undefined || value === '') return null;
+        const number = Number(value);
+        return Number.isInteger(number) && number >= 0 && number <= max ? number : null;
+      };
+      const seats = safeNumber(table?.seats, 1, 12, 2);
+      return {
+        id: tableId,
+        seats,
+        col: coord(table?.col, 200),
+        row: coord(table?.row, 400),
+        // Stuhlnamen fuer den Sitzplan. Genau wie beim Reservierungsnamen ist
+        // das ein personenbezogenes Feld - mehr steht hier nicht.
+        seatNames: Array.from({ length: seats }, (_, seat) =>
+          safeText(Array.isArray(table?.seatNames) ? table.seatNames[seat] : '', 28))
+      };
+    });
+
+    const kinds = new Set(['eingang', 'ausgang', 'bar', 'buehne', 'terrasse', 'wand']);
+    const elements = (Array.isArray(level?.elements) ? level.elements : []).slice(0, 60)
+      .filter(item => kinds.has(item?.kind))
+      .map((item, spot) => ({
+        id: safeText(item?.id, 24) || `${id}-e${String(spot + 1).padStart(2, '0')}`,
+        kind: item.kind,
+        label: safeText(item?.label, 24),
+        col: safeNumber(item?.col, 0, 200, 0),
+        row: safeNumber(item?.row, 0, 400, 0),
+        w: safeNumber(item?.w, 1, 24, 4),
+        h: safeNumber(item?.h, 1, 24, 1)
+      }));
+
+    return {
+      id,
+      name: safeText(level?.name, 40) || `Etage ${index + 1}`,
+      order: safeNumber(level?.order, 1, 4, index + 1),
+      tables,
+      elements
+    };
+  }
+
+  function sanitizeLayout(layout, index) {
+    const id = safeId(layout?.id, `ordnung-${index + 1}`);
+    const levels = (Array.isArray(layout?.levels) ? layout.levels : []).slice(0, 4).map(sanitizeLevel);
+    const known = new Set(levels.flatMap(level => level.tables.map(table => table.id)));
+    const service = layout?.service && typeof layout.service === 'object' ? layout.service : {};
+    return {
+      id,
+      name: safeText(layout?.name, 40) || `Ordnung ${index + 1}`,
+      // Betriebsart: freier Betrieb oder feste Schichten.
+      service: {
+        mode: service.mode === 'schichten' ? 'schichten' : 'frei',
+        seatings: (Array.isArray(service.seatings) ? service.seatings : ['11:30', '12:45'])
+          .slice(0, 8).map(safeTime),
+        endsAt: safeTime(service.endsAt || '13:45'),
+        bufferMinutes: safeNumber(service.bufferMinutes, 0, 60, 15)
+      },
+      levels,
+      combos: (Array.isArray(layout?.combos) ? layout.combos : []).slice(0, 40).map((combo, spot) => ({
+        id: safeText(combo?.id, 40) || `combo-${spot + 1}`,
+        tables: (Array.isArray(combo?.tables) ? combo.tables : []).slice(0, 4)
+          .map(entry => safeText(entry, 24)).filter(entry => known.has(entry)),
+        minGuests: safeNumber(combo?.minGuests, 1, 24, 1)
+      })).filter(combo => combo.tables.length >= 2)
+    };
+  }
+
+  function sanitizeFloorplan(input) {
+    if (!input || typeof input !== 'object') return null;
+    const layouts = (Array.isArray(input.layouts) ? input.layouts : []).slice(0, 12).map(sanitizeLayout);
+    if (!layouts.length) return null;
+    const ids = new Set(layouts.map(layout => layout.id));
+    const known = new Set(layouts.flatMap(layout => layout.levels.map(level => level.id)));
+    const policy = input.policy && typeof input.policy === 'object' ? input.policy : {};
+    return {
+      version: 2,
+      status: ['beispiel', 'bestaetigt'].includes(input.status) ? input.status : 'beispiel',
+      numbering: { start: safeNumber(input.numbering?.start, 1, 999, 1) },
+      // Steht im PDF-Kopf, damit ein ausgedruckter Plan zuordenbar ist.
+      eventName: safeText(input.eventName, 60),
+      activeLayout: ids.has(input.activeLayout) ? input.activeLayout : layouts[0].id,
+      layouts,
+      menu: (Array.isArray(input.menu) ? input.menu : []).slice(0, 12).map((dish, index) => ({
+        id: safeId(dish?.id, `gericht-${index + 1}`),
+        name: safeText(dish?.name, 40) || `Gericht ${index + 1}`
+      })),
+      policy: {
+        durations: (Array.isArray(policy.durations) ? policy.durations : []).slice(0, 8).map(step => ({
+          upTo: safeNumber(step?.upTo, 1, 24, 2),
+          minutes: safeNumber(step?.minutes, 30, 300, 90)
+        })),
+        bufferMinutes: safeNumber(policy.bufferMinutes, 0, 60, 15),
+        slotMinutes: safeNumber(policy.slotMinutes, 5, 60, 15),
+        maxCoversPerSlot: safeNumber(policy.maxCoversPerSlot, 1, 500, 10),
+        levelOrder: (Array.isArray(policy.levelOrder) ? policy.levelOrder : [])
+          .map(id => safeText(id, 24)).filter(id => known.has(id))
+      }
+    };
+  }
 
   function sanitizeState(input) {
     const defaults = makeDefaults();
@@ -80,12 +197,10 @@
           kind: safeText(item && item.kind, 24) || 'Mittag',
           capacity,
           reserved: safeNumber(item && item.reserved, 0, capacity, 0),
-          tables: {
-            2: safeNumber(tables[2], 0, 500, 0),
-            4: safeNumber(tables[4], 0, 500, 0),
-            6: safeNumber(tables[6], 0, 500, 0),
-            8: safeNumber(tables[8], 0, 500, 0)
-          }
+          // Tischgroessen 2 bis 10 Personen, auch ungerade.
+          tables: Object.fromEntries(Array.from({ length: 9 }, (_, index) => index + 2)
+            .map(seats => [seats, safeNumber(tables[seats], 0, 500, 0)])
+            .filter(([, count]) => count > 0))
         };
       }),
       events: eventsSource.slice(0, 150).map((item, index) => {
@@ -104,7 +219,9 @@
           }))
         };
       }),
-      // Keine Namen, E-Mail-Adressen, Telefonnummern oder Nachrichten im Browser speichern.
+      // Keine E-Mail-Adressen, Telefonnummern oder Nachrichten im Browser
+      // speichern. Ausnahme ist der Name in `parties` - eine Tischbelegung
+      // ohne Namen waere unbrauchbar. Siehe Kommentar dort.
       reservations: (Array.isArray(source.reservations) ? source.reservations : []).slice(0, 40).map(item => ({
         id: safeText(item && item.id, 80),
         createdAt: safeIso(item && item.createdAt),
@@ -124,6 +241,35 @@
         quantity: safeNumber(item && item.quantity, 1, 500, 1),
         total: safeNumber(item && item.total, 0, 1000000, 0)
       })),
+      floorplan: sanitizeFloorplan(source.floorplan),
+      blockedTables: (Array.isArray(source.blockedTables) ? source.blockedTables : [])
+        .slice(0, 200).map(id => safeText(id, 24)).filter(Boolean),
+      // Tischbelegung fuer die interne Einteilung. Der Name ist bewusst das
+      // einzige personenbezogene Feld im Speicher - mehr braucht ein
+      // Sitzplan nicht, und mehr darf hier auch nicht liegen. Kein Kontakt,
+      // keine Notiz, keine Historie. Die Belegung ist tagesaktuell gedacht
+      // und wird ueber "Belegung leeren" wieder entfernt.
+      parties: (Array.isArray(source.parties) ? source.parties : []).slice(0, 300).map((item, index) => {
+        const guests = safeNumber(item?.guests, 1, 24, 1);
+        // Essenswuensche sind freiwillig und rein zur Kalkulation. Es duerfen
+        // nie mehr Portionen als Gaeste sein.
+        const dishes = {};
+        for (const [key, value] of Object.entries(item?.dishes || {})) {
+          const id = safeText(key, 24);
+          const count = safeNumber(value, 0, guests, 0);
+          if (id && count > 0) dishes[id] = count;
+        }
+        return {
+          id: safeText(item?.id, 24) || `p-${index + 1}`,
+          name: safeText(item?.name, 40),
+          guests,
+          date: safeDate(item?.date),
+          time: safeTime(item?.time),
+          tableIds: (Array.isArray(item?.tableIds) ? item.tableIds : []).slice(0, 4).map(id => safeText(id, 24)).filter(Boolean),
+          dishes,
+          source: ['manuell', 'mail'].includes(item?.source) ? item.source : 'manuell'
+        };
+      }).filter(item => item.name),
       updatedAt: safeIso(source.updatedAt)
     };
   }
@@ -169,13 +315,49 @@
   }
 
   function tableSeats(tables) {
-    return [2, 4, 6, 8].reduce((sum, size) => sum + size * Number(tables?.[size] || 0), 0);
+    return Object.entries(tables || {}).reduce((sum, [size, count]) => sum + Number(size) * Number(count || 0), 0);
   }
 
   function updateSettings(patch) {
     const state = load();
     state.settings = { ...state.settings, ...patch };
     return save(state);
+  }
+
+  function updateFloorplan(patch) {
+    const current = load();
+    const next = { ...(current.floorplan || {}), ...patch };
+    current.floorplan = next;
+    return save(current);
+  }
+
+  function setBlockedTables(ids) {
+    const current = load();
+    current.blockedTables = Array.isArray(ids) ? ids : [];
+    return save(current);
+  }
+
+  function setParties(list) {
+    const current = load();
+    current.parties = Array.isArray(list) ? list : [];
+    return save(current);
+  }
+
+  /** Setzt Tischplan, Belegung und Sperren in einem Zug - fuer Rueckgaengig. */
+  function restorePlan(snapshot) {
+    const current = load();
+    return save({
+      ...current,
+      floorplan: snapshot?.floorplan ?? current.floorplan,
+      parties: Array.isArray(snapshot?.parties) ? snapshot.parties : current.parties,
+      blockedTables: Array.isArray(snapshot?.blockedTables) ? snapshot.blockedTables : current.blockedTables
+    });
+  }
+
+  /** Der Teil des Zustands, den Rueckgaengig umfasst. */
+  function planSnapshot() {
+    const current = load();
+    return { floorplan: current.floorplan, parties: current.parties, blockedTables: current.blockedTables };
   }
 
   function updateService(id, patch) {
@@ -276,6 +458,11 @@
     serviceAvailability,
     tableSeats,
     updateSettings,
+    updateFloorplan,
+    setBlockedTables,
+    setParties,
+    restorePlan,
+    planSnapshot,
     updateService,
     updateEvent,
     recordReservation,

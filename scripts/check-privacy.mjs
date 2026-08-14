@@ -6,10 +6,18 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicFiles = [
   path.join(root, 'dist/index.html'),
   path.join(root, 'dist/app.js'),
-  path.join(root, 'dist/feste-catering.js')
+  path.join(root, 'dist/feste-catering.js'),
+  path.join(root, 'dist/tischreservierung.html'),
+  path.join(root, 'dist/tischreservierung.js')
 ];
 const forbidden = [
   /inventory-store/i,
+  /assignTables/i,
+  /table-assignment/i,
+  /floorplan/i,
+  /data-floorplan/i,
+  /holdUntil/i,
+  /"(reserved|sold|available|occupancy)"\s*:/i,
   /recordReservationInquiry/i,
   /recordTicketInquiry/i,
   /\blocalStorage\b/i,

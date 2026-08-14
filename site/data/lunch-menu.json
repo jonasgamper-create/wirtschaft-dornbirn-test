@@ -12,5 +12,9 @@
     "sourceUrl": "https://wirtschaft-dornbirn.at/wp-content/uploads/2026/07/mittagskarte_sommerurlaub_2026.pdf",
     "fetchedAt": "2026-08-09"
   },
-  "days": []
+  "days": [],
+  "pause": {
+    "label": "Sommerpause",
+    "reopen": "2026-08-24"
+  }
 }
