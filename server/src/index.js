@@ -12,7 +12,7 @@
 
 import { DurableObject } from 'cloudflare:workers';
 import {
-  AUFBEWAHRUNG_TAGE, machId, pruefeAnfrage, raeumeAuf, verteile, wendeAktionAn
+  AUFBEWAHRUNG_TAGE, machId, planTaugt, pruefeAnfrage, raeumeAuf, verteile, wendeAktionAn
 } from './haus-logik.mjs';
 import standardPlan from '../../site/data/floorplan.json';
 
@@ -44,13 +44,21 @@ function cors(request, env) {
   };
 }
 
-/** Vergleich ohne fruehen Ausstieg, damit die Laufzeit nichts verraet. */
+/**
+ * Vergleich ohne fruehen Ausstieg, damit die Laufzeit nichts verraet.
+ *
+ * Wichtig: ein leerer erwarteter Wert darf niemals passen. Fehlt das Geheimnis
+ * - falsch benannt, nicht gesetzt, bei einer Umbenennung verloren -, waere
+ * "leer gegen leer" sonst wahr und der interne Bereich stuende jedem offen.
+ * Genau das ist hier live passiert. Im Zweifel zusperren, nicht aufsperren.
+ */
 function gleich(a, b) {
-  const links = String(a ?? '');
-  const rechts = String(b ?? '');
-  if (links.length !== rechts.length) return false;
+  const gegeben = String(a ?? '');
+  const erwartet = String(b ?? '');
+  if (erwartet.length < 8) return false;
+  if (gegeben.length !== erwartet.length) return false;
   let diff = 0;
-  for (let i = 0; i < links.length; i += 1) diff |= links.charCodeAt(i) ^ rechts.charCodeAt(i);
+  for (let i = 0; i < gegeben.length; i += 1) diff |= gegeben.charCodeAt(i) ^ erwartet.charCodeAt(i);
   return diff === 0;
 }
 
@@ -86,9 +94,14 @@ export class Haus extends DurableObject {
   }
 
   #schreib(schluessel, wert) {
+    // JSON.stringify(undefined) liefert kein Textstueck, sondern undefined -
+    // und die Spalte verbietet Leerwerte. Ein fehlendes Feld haette den ganzen
+    // Aufruf mit 500 gesprengt statt sauber abzulehnen. Deshalb wird undefined
+    // als null gespeichert.
+    const text = JSON.stringify(wert === undefined ? null : wert);
     this.ctx.storage.sql.exec(
       'INSERT INTO einstellungen (schluessel, wert) VALUES (?, ?) ON CONFLICT(schluessel) DO UPDATE SET wert = excluded.wert',
-      schluessel, JSON.stringify(wert)
+      schluessel, text
     );
   }
 
@@ -238,12 +251,15 @@ export class Haus extends DurableObject {
   async stand() { return this.#stand(); }
 
   async setzePlan(config, standardEtage, blocked, deckel) {
+    // Einen unbrauchbaren Plan anzunehmen waere schlimmer als ihn abzulehnen:
+    // der Dienst wuerde ab dann jede Onlinebuchung ins Leere zuweisen.
+    if (!planTaugt(config)) return { ok: false, grund: 'plan' };
     this.#schreib('floorplan', config);
     if (standardEtage !== undefined) this.#schreib('standardEtage', standardEtage);
     if (Array.isArray(blocked)) this.#schreib('blocked', blocked);
     if (deckel !== undefined) this.#schreib('deckel', deckel);
     this.#meldeAenderung();
-    return this.#stand();
+    return { ok: true, stand: this.#stand() };
   }
 
   async aktion(befehl) {
@@ -324,8 +340,8 @@ export default {
       if (url.pathname === '/api/plan' && request.method === 'POST') {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         const body = await request.json().catch(() => ({}));
-        const stand = await haus.setzePlan(body.floorplan, body.standardEtage, body.blockedTables, body.deckel);
-        return json({ ok: true, stand }, 200, kopf);
+        const ergebnis = await haus.setzePlan(body.floorplan, body.standardEtage, body.blockedTables, body.deckel);
+        return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
       }
 
       if (url.pathname === '/api/aktion' && request.method === 'POST') {

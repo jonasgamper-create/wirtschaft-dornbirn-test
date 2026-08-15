@@ -129,6 +129,19 @@ export function verteile(anfrage, { config, parties, blocked = [], standardEtage
   return { result, floorplan, minuten: feste };
 }
 
+/**
+ * Taugt das als Tischplan? Einen unbrauchbaren anzunehmen waere schlimmer als
+ * ihn abzulehnen: der Dienst wuerde ab dann jede Onlinebuchung ins Leere
+ * zuweisen, und niemand saehe warum.
+ */
+export function planTaugt(config) {
+  return Boolean(config)
+    && typeof config === 'object'
+    && !Array.isArray(config)
+    && Array.isArray(config.layouts)
+    && config.layouts.length > 0;
+}
+
 /** Eindeutige, sortierbare Kennung ohne Zufall - der Zaehler kommt von aussen. */
 export const machId = (zeitstempel, nummer) =>
   `o-${Number(zeitstempel).toString(36)}-${String(nummer).padStart(3, '0')}`;

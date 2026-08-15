@@ -45,32 +45,12 @@ else
   fi
 fi
 
-# ---- 2. Hausschlüssel ------------------------------------------------------
-sag "Schritt 2 von 4: Hausschlüssel setzen"
-echo "Der Hausschlüssel schützt die interne Planung. Gäste brauchen ihn nie."
-echo
-read -r -p "Soll ich einen sicheren Schlüssel erzeugen? [J/n] " ANTWORT
-ANTWORT="${ANTWORT:-J}"
-
-if [[ "$ANTWORT" =~ ^([JjYy])$ ]]; then
-  SCHLUESSEL="$(openssl rand -base64 24 | tr -d '/+=' | cut -c1-28)"
-  if printf '%s' "$SCHLUESSEL" | "${WRANGLER[@]}" secret put HAUS_TOKEN; then
-    sag "Dein Hausschlüssel – jetzt aufschreiben, er wird nicht nochmal angezeigt:"
-    printf '\n    \033[1;32m%s\033[0m\n\n' "$SCHLUESSEL"
-    echo "Du trägst ihn später einmal im Tischplan ein, unter"
-    echo "Einrichten → Reservierungsdienst."
-    read -r -p "Notiert? Weiter mit [Enter] "
-  else
-    fehler "Der Schlüssel liess sich nicht setzen."
-    exit 1
-  fi
-else
-  echo "Dann tipp ihn jetzt selbst ein (er wird nicht angezeigt):"
-  "${WRANGLER[@]}" secret put HAUS_TOKEN || { fehler "Abgebrochen."; exit 1; }
-fi
-
-# ---- 3. Veröffentlichen ----------------------------------------------------
-sag "Schritt 3 von 4: Dienst veröffentlichen"
+# ---- 2. Veröffentlichen ----------------------------------------------------
+# Erst veroeffentlichen, dann das Geheimnis setzen. Andersherum geht es
+# verloren: "wrangler deploy" bindet nur, was in der Konfiguration steht, und
+# ein zuvor gesetztes Geheimnis faellt dabei aus der Bindungsliste. Der Dienst
+# meldet dann "Der Hausschluessel stimmt nicht" - obwohl er richtig ist.
+sag "Schritt 2 von 4: Dienst veröffentlichen"
 AUSGABE="$("${WRANGLER[@]}" deploy 2>&1)"
 STATUS=$?
 echo "$AUSGABE"
@@ -78,8 +58,40 @@ if [ $STATUS -ne 0 ]; then
   fehler "Das Veröffentlichen ist fehlgeschlagen. Die Meldung steht oben."
   exit 1
 fi
-
 ADRESSE="$(printf '%s' "$AUSGABE" | grep -o 'https://[a-zA-Z0-9._-]*\.workers\.dev' | head -1)"
+
+# ---- 3. Hausschlüssel ------------------------------------------------------
+sag "Schritt 3 von 4: Hausschlüssel setzen"
+echo "Der Hausschlüssel schützt die interne Planung. Gäste brauchen ihn nie."
+echo
+
+SCHLUESSEL="$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 28)"
+if ! printf '%s' "$SCHLUESSEL" | "${WRANGLER[@]}" secret put HAUS_TOKEN; then
+  fehler "Der Schlüssel liess sich nicht setzen."
+  exit 1
+fi
+
+# Nachsehen statt hoffen: der Dienst muss den Schluessel wirklich annehmen.
+if [ -n "$ADRESSE" ]; then
+  sleep 5
+  MIT="$(curl -s -o /dev/null -w '%{http_code}' -H "x-haus-token: $SCHLUESSEL" "$ADRESSE/api/stand")"
+  OHNE="$(curl -s -o /dev/null -w '%{http_code}' "$ADRESSE/api/stand")"
+  if [ "$MIT" != "200" ] || [ "$OHNE" != "401" ]; then
+    fehler "Der Schlüssel greift noch nicht (mit: $MIT, ohne: $OHNE)."
+    echo "Bitte in einer Minute nochmal starten - manchmal braucht die"
+    echo "Verteilung etwas. Bleibt es dabei, melde dich mit dieser Zeile."
+    exit 1
+  fi
+  echo "Geprüft: mit Schlüssel 200, ohne Schlüssel 401."
+fi
+
+sag "Dein Hausschlüssel – jetzt aufschreiben, er wird nicht nochmal angezeigt:"
+printf '\n    \033[1;32m%s\033[0m\n\n' "$SCHLUESSEL"
+if command -v pbcopy >/dev/null 2>&1; then
+  printf '%s' "$SCHLUESSEL" | pbcopy
+  echo "Er liegt auch in der Zwischenablage – im Tischplan mit Cmd+V einfügen."
+fi
+read -r -p "Notiert? Weiter mit [Enter] "
 
 # ---- 4. Eintragen ----------------------------------------------------------
 sag "Schritt 4 von 4: Adresse eintragen"

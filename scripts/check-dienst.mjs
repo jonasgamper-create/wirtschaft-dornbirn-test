@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  etagenReihenfolge, machId, pruefeAnfrage, raeumeAuf, sitzendeGaeste, verteile, wendeAktionAn
+  etagenReihenfolge, machId, planTaugt, pruefeAnfrage, raeumeAuf, sitzendeGaeste, verteile, wendeAktionAn
 } from '../server/src/haus-logik.mjs';
 import { buildFloorplan } from '../site/floorplan-layout.mjs';
 
@@ -138,6 +138,17 @@ check('Alte Reservierungen werden geloescht',
 
 check('Kennungen sind eindeutig und sortierbar',
   machId(1000, 1) !== machId(1000, 2) && machId(1000, 1) < machId(1000, 2));
+
+
+// ---- Tischplan annehmen oder ablehnen -------------------------------------
+// Live gefunden: ein fehlendes Feld sprengte "Uebernehmen und veroeffentlichen"
+// mit 500, weil JSON.stringify(undefined) kein Textstueck liefert und die
+// Spalte Leerwerte verbietet. Jetzt wird sauber abgelehnt.
+check('Ein echter Plan wird angenommen', planTaugt(config));
+check('Leerer Koerper wird abgelehnt', !planTaugt(undefined) && !planTaugt(null) && !planTaugt({}));
+check('Text statt Plan wird abgelehnt', !planTaugt('kaputt'));
+check('Liste statt Plan wird abgelehnt', !planTaugt([]));
+check('Plan ohne Ordnungen wird abgelehnt', !planTaugt({ layouts: [] }));
 
 if (errors.length) {
   console.error(errors.join('\n'));
