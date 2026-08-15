@@ -14,6 +14,13 @@ let gemerkt = null;
 /** Adresse des Dienstes, oder null wenn er nicht eingerichtet ist. */
 export async function apiAdresse() {
   if (gemerkt !== null) return gemerkt;
+  // In der Einzeldatei steht die Adresse im Dokument: sie liegt allein unter
+  // /tischplan/ und kann data/haus.json nicht nachladen.
+  const eingebettet = String(window.WIRTSCHAFT_HAUS?.api || '').trim().replace(/\/+$/, '');
+  if (eingebettet) {
+    gemerkt = /^https?:\/\//.test(eingebettet) ? eingebettet : '';
+    return gemerkt;
+  }
   try {
     const antwort = await fetch(`${KONFIG}?t=${Date.now()}`, { cache: 'no-store' });
     const daten = await antwort.json();

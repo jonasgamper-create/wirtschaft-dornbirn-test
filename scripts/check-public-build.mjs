@@ -46,3 +46,32 @@ const gesperrt = /^\s*Disallow:\s*\/\s*$/m.test(robots) || robots.includes('Disa
 if (robots && !gesperrt) throw new Error('robots.txt muss /tischplan/ ausschließen');
 
 console.log(`Public-Build-Prüfung OK (inklusive ${expectedPaths.length} nicht verlinkter Tischplan-Seiten).`);
+
+// Die veroeffentlichten Tischplan-Seiten sind Einzeldateien mit eigener CSP.
+// Sie wurde einmal uebersehen: die Quelldatei war richtig gesetzt, die
+// ausgelieferte Seite stand auf connect-src 'none' und der Dienst war
+// stillschweigend blockiert. Seitdem wird beides gegeneinander geprueft.
+{
+  const { readFile: lies } = await import('node:fs/promises');
+  const haus = JSON.parse(await lies(new URL('../site/data/haus.json', import.meta.url), 'utf8'));
+  const adresse = String(haus.api || '').trim().replace(/\/+$/, '');
+  for (const datei of ['index.html', 'screen.html', 'kunde.html']) {
+    const seite = await lies(new URL(`../dist/tischplan/${datei}`, import.meta.url), 'utf8');
+    const csp = (seite.match(/connect-src ([^;"]*)/) || [])[1] || '';
+    if (!adresse) {
+      if (csp.trim() !== "'none'") {
+        throw new Error(`dist/tischplan/${datei}: ohne Dienst muss connect-src 'none' sein, ist "${csp}"`);
+      }
+      continue;
+    }
+    const { origin, host, protocol } = new URL(adresse);
+    const draht = `${protocol === 'https:' ? 'wss' : 'ws'}://${host}`;
+    if (!csp.includes(origin) || !csp.includes(draht)) {
+      throw new Error(`dist/tischplan/${datei}: connect-src "${csp}" enthaelt nicht ${origin} und ${draht}`);
+    }
+    if (!seite.includes('WIRTSCHAFT_HAUS')) {
+      throw new Error(`dist/tischplan/${datei}: die Adresse des Dienstes ist nicht eingebettet`);
+    }
+  }
+  console.log(`Tischplan-Einzeldateien OK: connect-src passt zu ${adresse || 'keinem Dienst'}.`);
+}
