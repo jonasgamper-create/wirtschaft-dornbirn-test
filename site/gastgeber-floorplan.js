@@ -4,9 +4,9 @@
 
 // Die Versionsangaben muessen mit denen in den HTML-Dateien mitwandern: ein
 // Modulimport ohne Version bleibt sonst im Browser-Cache haengen.
-import { BIS_TAGESENDE, ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=268bdada';
-import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=3433b591';
-import { renderFloorplan } from './floorplan.js?v=d3336d80';
+import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, formOf, istGedreht, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=d8056338';
+import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=e03ddbf8';
+import { renderFloorplan } from './floorplan.js?v=e371595f';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
 import { apiAdresse, bleibVerbunden, hausToken, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=29758f6f';
 
@@ -638,6 +638,15 @@ async function start() {
     paint();
     if (silent) return party;
 
+    // Was das Haus ueber den Namen weiss, gehoert in dem Moment auf den Schirm,
+    // in dem reserviert wird - nachher liest es niemand mehr.
+    const akte = gastAkte(name, party.id);
+    const hinweis = [
+      akte.besuche ? `${akte.besuche}× schon da gewesen` : '',
+      akte.nichtDa ? `${akte.nichtDa}× nicht erschienen` : '',
+      akte.notizen.length ? `Notiz: ${akte.notizen.join(', ')}` : ''
+    ].filter(Boolean).join(', ');
+
     const wunsch = dishLabel(dishes);
     if (result.ok) {
       const schicht = schichtFor(time);
@@ -647,7 +656,8 @@ async function start() {
           // Der Gast muss wissen, dass der Tisch wieder gebraucht wird.
           ? ` Tisch wird um ${schicht.naechste} erneut vergeben – dem Gast sagen, dass ${schicht.minutes} Minuten zur Verfügung stehen.`
           : '')
-        + (wunsch ? ` Essen vorbestellt: ${wunsch}.` : ''));
+        + (wunsch ? ` Essen vorbestellt: ${wunsch}.` : '')
+        + (hinweis ? ` Bekannt: ${hinweis}.` : ''));
       return party;
     }
     const gruende = {
@@ -659,7 +669,8 @@ async function start() {
     const alternativen = (result.alternatives || [])
       .map(entry => `${entry.startsAt.slice(11)} (Tisch ${tischListe(entry.tableIds)})`).join(', ');
     say('fpResResult', `${name} ist aufgenommen, aber noch ohne Tisch – ${gruende[result.reason]}.`
-      + (alternativen ? ` Möglich wäre: ${alternativen}.` : ''));
+      + (alternativen ? ` Möglich wäre: ${alternativen}.` : '')
+      + (hinweis ? ` Bekannt: ${hinweis}.` : ''));
     return party;
   }
 
@@ -814,6 +825,26 @@ async function start() {
       }
       item.append(pick);
 
+      // Was das Haus ueber diesen Namen schon weiss. Der Check-in liefert die
+      // Angaben ohnehin - ungenutzt waeren sie verschenkt.
+      const akte = gastAkte(party.name, party.id);
+      if (akte.besuche || akte.nichtDa || akte.notizen.length) {
+        const wissen = document.createElement('span');
+        wissen.className = `fp-akte${akte.nichtDa ? ' is-warnung' : ''}`;
+        const teile = [];
+        if (akte.besuche) teile.push(`${akte.besuche}× da`);
+        if (akte.nichtDa) teile.push(`${akte.nichtDa}× nicht erschienen`);
+        wissen.textContent = teile.join(' · ');
+        wissen.title = akte.notizen.length ? `Notizen: ${akte.notizen.join(' | ')}` : '';
+        pick.append(wissen);
+      }
+      if (party.notiz) {
+        const notiz = document.createElement('span');
+        notiz.className = 'fp-notiz';
+        notiz.textContent = party.notiz;
+        pick.append(notiz);
+      }
+
       // Einchecken direkt in der Zeile - der Weg mit der Tastatur. Auf der
       // Karte geht dasselbe mit einem Klick auf den Tisch.
       if (party.tableIds.length && zustand !== 'kommt' && zustand !== 'vorbei') {
@@ -829,6 +860,21 @@ async function start() {
         leave.textContent = party.left ? 'Sitzt doch' : 'Fertig';
         item.append(leave);
       }
+
+      // Nicht erschienen: nur anbieten, wenn es auch stimmen kann.
+      if (party.tableIds.length && !party.arrived && ['ueberfaellig', 'vorbei'].includes(zustand)) {
+        const weg = document.createElement('button');
+        weg.type = 'button';
+        weg.dataset.noshowParty = party.id;
+        weg.textContent = party.nichtDa ? 'Doch gekommen' : 'Nicht erschienen';
+        item.append(weg);
+      }
+
+      const notizKnopf = document.createElement('button');
+      notizKnopf.type = 'button';
+      notizKnopf.dataset.notizParty = party.id;
+      notizKnopf.textContent = party.notiz ? 'Notiz ändern' : 'Notiz';
+      item.append(notizKnopf);
 
       if (party.tableIds.length) {
         // Umsetzen quer durch alle Etagen - der haeufigste Griff, wenn
@@ -908,6 +954,10 @@ async function start() {
     if (arrive) return toggleArrival(arrive.dataset.arriveParty);
     const leave = event.target.closest('[data-leave-party]');
     if (leave) return checkOut(leave.dataset.leaveParty);
+    const noshow = event.target.closest('[data-noshow-party]');
+    if (noshow) return setzeNichtDa(noshow.dataset.noshowParty);
+    const notiz = event.target.closest('[data-notiz-party]');
+    if (notiz) return setzeNotiz(notiz.dataset.notizParty);
 
     const button = event.target.closest('[data-remove-party]');
     if (!button) return;
@@ -918,6 +968,68 @@ async function start() {
     seatResult(gone ? `${gone.name} entfernt.` : 'Reservierung entfernt.');
     paint();
   });
+
+  // ---- Gaestehistorie -------------------------------------------------------
+
+  /**
+   * Was das Haus ueber einen Namen schon weiss. Bewusst nur aus den eigenen
+   * Reservierungen dieses Browsers - es wird nichts zugekauft, nichts
+   * verknuepft und nichts ueber den Namen hinaus gespeichert.
+   *
+   * Der Name ist ein schwacher Schluessel: zwei Familien Huber sind dieselbe
+   * Zeile. Deshalb ist die Anzeige ein Hinweis fuer den Service, keine
+   * Tatsache - und deshalb steht sie klein neben der Zeile statt als Urteil.
+   */
+  function gastAkte(name, ausser = null) {
+    const schluessel = String(name || '').trim().toLowerCase();
+    const leer = { besuche: 0, nichtDa: 0, notizen: [] };
+    if (schluessel.length < 2) return leer;
+    return parties().reduce((summe, party) => {
+      if (party.id === ausser) return summe;
+      if (String(party.name || '').trim().toLowerCase() !== schluessel) return summe;
+      if (party.arrived) summe.besuche += 1;
+      if (party.nichtDa) summe.nichtDa += 1;
+      if (party.notiz && !summe.notizen.includes(party.notiz)) summe.notizen.push(party.notiz);
+      return summe;
+    }, { ...leer, notizen: [] });
+  }
+
+  /** Vermerkt, dass jemand nicht gekommen ist - oder nimmt es zurueck. */
+  function setzeNichtDa(partyId) {
+    const list = parties().map(party => ({ ...party, tableIds: [...party.tableIds] }));
+    const party = list.find(entry => entry.id === partyId);
+    if (!party) return;
+    party.nichtDa = !party.nichtDa;
+    if (party.nichtDa) {
+      // Nicht erschienen heisst: der Tisch war nie besetzt. Er wird sofort frei.
+      party.arrived = null;
+      party.left = party.time;
+    } else {
+      party.left = null;
+    }
+    putParties(list);
+    melde({ art: 'abgang', id: party.id, zeit: party.left });
+    paint();
+    const akte = gastAkte(party.name, party.id);
+    seatResult(party.nichtDa
+      ? `${party.name} als nicht erschienen vermerkt. Tisch ${tischListe(party.tableIds)} ist wieder frei.`
+        + (akte.nichtDa ? ` Achtung: bereits ${akte.nichtDa}× vorher nicht erschienen.` : '')
+      : `${party.name} ist doch da – der Vermerk wurde zurückgenommen.`);
+  }
+
+  /** Notiz zum Besuch: Unvertraeglichkeit, Fensterplatz, Kinderstuhl. */
+  function setzeNotiz(partyId) {
+    const list = parties().map(party => ({ ...party, tableIds: [...party.tableIds] }));
+    const party = list.find(entry => entry.id === partyId);
+    if (!party) return;
+    const eingabe = prompt(`Notiz zu ${party.name} (z. B. „glutenfrei“, „Fensterplatz“, „Kinderstuhl“):`, party.notiz || '');
+    if (eingabe === null) return;
+    party.notiz = eingabe.trim().slice(0, 120);
+    putParties(list);
+    meldeNeu(party);
+    paint();
+    seatResult(party.notiz ? `Notiz zu ${party.name}: ${party.notiz}` : `Notiz zu ${party.name} entfernt.`);
+  }
 
   // ---- Ankunft und Abgang ---------------------------------------------------
 
@@ -1586,11 +1698,33 @@ async function start() {
         plus.textContent = '+';
         plus.setAttribute('aria-label', `Stuhl an Tisch ${tisch(table)} ergänzen`);
         plus.disabled = table.seats >= GRID.maxSeats;
+        // Form und Drehung. Ein Gasthaus hat runde Stammtische, lange Tafeln
+        // und eine Theke - wer nur Rechtecke hat, plant an seinem Haus vorbei.
+        const form = document.createElement('select');
+        form.dataset.form = table.id;
+        form.setAttribute('aria-label', `Form von Tisch ${tisch(table)}`);
+        for (const [wert, angaben] of Object.entries(FORMEN)) {
+          const option = document.createElement('option');
+          option.value = wert;
+          option.textContent = angaben.label;
+          option.selected = wert === formOf(table);
+          form.append(option);
+        }
+
+        const drehen = document.createElement('button');
+        drehen.type = 'button';
+        drehen.dataset.dreh = table.id;
+        drehen.textContent = istGedreht(table) ? '⤾ quer' : '⤿ hochkant';
+        drehen.setAttribute('aria-label', `Tisch ${tisch(table)} drehen, aktuell `
+          + `${istGedreht(table) ? 'hochkant' : 'quer'}`);
+        // Ein runder Tisch sieht gedreht genauso aus - der Knopf waere eine Luege.
+        drehen.disabled = formOf(table) === 'rund';
+
         const drop = document.createElement('button');
         drop.type = 'button';
         drop.dataset.removeTable = table.id;
         drop.textContent = 'Tisch weg';
-        chip.append(label, seats, minus, plus, drop);
+        chip.append(label, seats, minus, plus, form, drehen, drop);
         tables.append(chip);
       }
       wrap.append(tables);
@@ -1646,13 +1780,58 @@ async function start() {
 
   byId('fpLevels').addEventListener('change', event => {
     const feld = event.target.closest('[data-count-level]');
-    if (!feld) return;
-    setzeAnzahl(feld.dataset.countLevel, Number(feld.dataset.seats), feld.value);
+    if (feld) return setzeAnzahl(feld.dataset.countLevel, Number(feld.dataset.seats), feld.value);
+
+    const formFeld = event.target.closest('[data-form]');
+    if (formFeld) return setzeForm(formFeld.dataset.form, formFeld.value);
   });
+
+  /**
+   * Form oder Drehung aendern. Beides aendert die Grundflaeche, also muss der
+   * Tisch danach noch irgendwo hinpassen - sonst schoebe er sich lautlos in
+   * einen anderen hinein.
+   */
+  function aendereTisch(tableId, patch) {
+    const config = current();
+    const level = activeLayout(config).levels.find(item => item.tables.some(t => t.id === tableId));
+    const table = level?.tables.find(item => item.id === tableId);
+    if (!table) return;
+
+    const vorher = { form: formOf(table), dreh: istGedreht(table) ? 90 : 0 };
+    Object.assign(table, patch);
+
+    // Steht der Tisch fest und passt die neue Flaeche nicht mehr, gibt es ihn
+    // frei statt ihn zu ueberlappen - die Anordnung rechnet ihn dann neu.
+    if (Number.isInteger(table.col) && Number.isInteger(table.row)) {
+      const probe = buildFloorplan(config);
+      const verdict = canPlace(probe, tableId, table.col, table.row, GRID);
+      if (!verdict.ok) {
+        table.col = null;
+        table.row = null;
+        save(config);
+        return warn(`Tisch ${tisch(tableId)} passte in der neuen Form nicht mehr an seinen Platz `
+          + 'und wurde neu angeordnet. Bitte auf der Karte wieder hinschieben.');
+      }
+    }
+    save(config);
+    warn(`Tisch ${tisch(tableId)}: ${FORMEN[formOf(table)].label}`
+      + `${formOf(table) !== 'rund' ? (istGedreht(table) ? ', hochkant' : ', quer') : ''}.`);
+    void vorher;
+  }
+
+  const setzeForm = (tableId, wert) => aendereTisch(tableId, { form: FORMEN[wert] ? wert : 'laenglich' });
 
   byId('fpLevels').addEventListener('click', event => {
     const config = current();
     const active = activeLayout(config);
+
+    const dreh = event.target.closest('[data-dreh]');
+    if (dreh) {
+      const alle = activeLayout(config).levels.flatMap(level => level.tables);
+      const table = alle.find(item => item.id === dreh.dataset.dreh);
+      if (table) aendereTisch(table.id, { dreh: istGedreht(table) ? 0 : 90 });
+      return;
+    }
 
     const chair = event.target.closest('[data-chair]');
     if (chair) {

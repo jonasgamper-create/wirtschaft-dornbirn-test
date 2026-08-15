@@ -1,7 +1,7 @@
 // Goldene Testfaelle fuer Geometrie und Tischzuweisung. Laeuft ohne
 // Testframework, damit npm run ci keine zusaetzliche Abhaengigkeit braucht.
 
-import { BIS_TAGESENDE, GRID, buildFloorplan, canPlace, chairSlots, defaultMinGuests, footprint, migrate, nextTableId, seatingPlan, tableBody, tableLabel } from '../site/floorplan-layout.mjs';
+import { BIS_TAGESENDE, FORMEN, GRID, buildFloorplan, canPlace, chairSlots, defaultMinGuests, footprint, formOf, istGedreht, migrate, nextTableId, seatingPlan, tableBody, tableLabel } from '../site/floorplan-layout.mjs';
 import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, shift, stamp } from '../site/table-assignment.mjs';
 
 const errors = [];
@@ -348,6 +348,59 @@ check('Ohne Richtzeit beendet erst der Abgang die Belegung',
   String(occupiesAt({ ...gast, arrived: '12:00', left: '14:00' }, offen)));
 check('Ohne Richtzeit gilt der Gast bis zum Abgang als da',
   partyStatus({ ...gast, arrived: '12:00' }, offen) === 'da');
+
+
+// ---- Formen und Drehung ---------------------------------------------------
+// Ein Gasthaus hat runde Stammtische, lange Tafeln und eine Theke. Wer nur
+// Rechtecke abbilden kann, plant an seinem Haus vorbei.
+
+const flaeche = (seats, table) => {
+  const mass = footprint(seats, table);
+  return { ...table, seats, col: 0, row: 0, ...mass };
+};
+
+check('Ohne Angabe bleibt es beim bisherigen Rechteck',
+  JSON.stringify(footprint(4)) === JSON.stringify(footprint(4, { form: 'laenglich' })));
+check('Drehen tauscht Breite und Hoehe',
+  JSON.stringify(footprint(10, { dreh: 90 })) === JSON.stringify({ w: 4, h: 7 }),
+  JSON.stringify(footprint(10, { dreh: 90 })));
+check('Drehen macht den Tisch nicht groesser',
+  footprint(10).w * footprint(10).h === footprint(10, { dreh: 90 }).w * footprint(10, { dreh: 90 }).h);
+check('Ein runder Tisch ist quadratisch',
+  footprint(6, { form: 'rund' }).w === footprint(6, { form: 'rund' }).h);
+check('Rund bleibt beim Drehen gleich',
+  JSON.stringify(footprint(6, { form: 'rund' })) === JSON.stringify(footprint(6, { form: 'rund', dreh: 90 })));
+check('Eine Tafel ist laenger als ein normaler Tisch',
+  footprint(10, { form: 'tafel' }).w > footprint(10).w);
+check('Eine Theke ist flacher als ein normaler Tisch',
+  footprint(6, { form: 'theke' }).h < footprint(6).h);
+check('Unbekannte Form faellt auf laenglich zurueck', formOf({ form: 'dreieck' }) === 'laenglich');
+check('Es gibt genau vier Formen', Object.keys(FORMEN).length === 4, Object.keys(FORMEN).join(','));
+
+// Jeder Stuhl muss existieren und innerhalb der Grundflaeche liegen - sonst
+// steht auf der Karte ein Platz irgendwo im Raum.
+for (const form of Object.keys(FORMEN)) {
+  for (const dreh of [0, 90]) {
+    for (const seats of [1, 2, 4, 7, 10, 12]) {
+      const table = flaeche(seats, { form, dreh });
+      const slots = chairSlots(table);
+      check(`Stuhlzahl stimmt (${form}, ${dreh} Grad, ${seats}P)`, slots.length === seats,
+        `${slots.length} statt ${seats}`);
+      const draussen = slots.filter(chair =>
+        chair.x < -0.6 || chair.y < -0.6 || chair.x + chair.w > table.w + 0.6 || chair.y + chair.h > table.h + 0.6);
+      check(`Alle Stuehle liegen am Tisch (${form}, ${dreh} Grad, ${seats}P)`, draussen.length === 0,
+        JSON.stringify(draussen[0]));
+      check(`Die Tischplatte hat eine Flaeche (${form}, ${dreh} Grad, ${seats}P)`,
+        tableBody(table).w > 0 && tableBody(table).h > 0);
+    }
+  }
+}
+// An der Theke sitzt niemand auf der Rueckseite.
+const theke = flaeche(6, { form: 'theke', dreh: 0 });
+const thekeReihen = new Set(chairSlots(theke).map(chair => chair.y.toFixed(2)));
+check('An der Theke ist nur eine Seite bestuhlt', thekeReihen.size === 1, [...thekeReihen].join(','));
+check('istGedreht erkennt nur 90 Grad',
+  istGedreht({ dreh: 90 }) && !istGedreht({ dreh: 45 }) && !istGedreht({}));
 
 if (errors.length) {
   console.error(errors.join('\n'));
