@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://tischreservierung.wirtschaft-dornbirn.at" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=1ec5bdb7">
+  <link rel="stylesheet" href="tischreservierung.css?v=bbc73150">
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Restaurant","name":"Wirtschaft Dornbirn","legalName":"„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.","url":"https://wirtschaft-dornbirn.at/","telephone":"+43557220540","email":"willkommen@wirtschaft-dornbirn.at","address":{"@type":"PostalAddress","streetAddress":"Bahnhofstraße 24","postalCode":"6850","addressLocality":"Dornbirn","addressRegion":"Vorarlberg","addressCountry":"AT"},"vatID":"ATU36206707","acceptsReservations":"https://tischreservierung.wirtschaft-dornbirn.at/"}
   </script>
@@ -52,6 +52,12 @@
         <h2>Für welchen Tag möchtest du reservieren?</h2>
         <p class="sub">Wähl’ Tag, Uhrzeit und Personenzahl. Den letzten Schritt macht das offizielle Reservierungssystem – dort gibst du deine Kontaktdaten ein. Diese Seite fragt keine persönlichen Daten ab und speichert nichts.</p>
         <form class="grid" id="bookingForm" novalidate>
+          <!-- Der Name wird nur eingeblendet, wenn wir die Reservierung selbst
+               annehmen. Sonst gibt man ihn beim offiziellen Anbieter ein und
+               wir fragen nichts ab, was wir nicht brauchen. -->
+          <label class="wide" id="guestNameField" hidden>Name*
+            <input type="text" name="gastname" id="guestName" maxlength="40" autocomplete="family-name" placeholder="z. B. Huber">
+          </label>
           <label class="wide">Tag*
             <input type="date" name="day" id="day" required>
           </label>
@@ -90,9 +96,11 @@
         <p class="required">* Pflichtfelder</p>
         <div class="submit-row">
           <a class="button button-green" id="submitBooking" href="https://tischreservierung.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Weiter zur Reservierung ↗</a>
+          <button class="button button-green" id="bookDirect" type="button" hidden>Tisch reservieren</button>
           <p id="submitHint">Freie Tische und die Bestätigung kommen vom offiziellen Reservierungssystem. Deine Kontaktdaten gibst du dort ein – einmal, nicht zweimal.</p>
         </div>
         <p class="form-alert" id="formAlert" role="alert" hidden></p>
+        <p class="booking-result" id="bookingResult" role="status" aria-live="polite" hidden></p>
       </div>
     </section>
 
@@ -112,5 +120,6 @@
   </footer>
 
   <script src="tischreservierung.js?v=9d6d55bc" defer></script>
+  <script type="module" src="tischreservierung-buchung.js?v=76bc9ebb"></script>
 </body>
 </html>

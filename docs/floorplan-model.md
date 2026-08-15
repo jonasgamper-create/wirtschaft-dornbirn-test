@@ -503,6 +503,69 @@ Absicht — beim Sperren eines Tisches wäre ein Versehen teuer. Umschalt und
 Pfeiltaste verschiebt den Tisch und ist die Tastaturalternative zum Ziehen mit
 der Maus; ohne sie wäre das Anordnen nur mit Maus möglich.
 
+## Onlinebuchung und Live-Bildschirm
+
+Bis hierher galt: eine statische Seite kann keinen gemeinsamen Zustand haben,
+also keine echte Onlinebuchung und keinen Bildschirm, der auf einem anderen
+Gerät läuft. Das stimmt weiterhin — deshalb gibt es jetzt ein kleines Stück
+Server unter `server/`, einen Cloudflare Worker mit einem Durable Object.
+
+**Warum kein fertiges Werkzeug.** [OpenResto](https://github.com/karanshukla/openresto)
+ist der aktivste offene Kandidat (ASP.NET, React Native, Docker auf eigenem
+Server) und kann Buchungen — aber keinen grafischen Tischplan, kein Einchecken,
+keinen Gästebildschirm. [TastyIgniter](https://github.com/tastyigniter/TastyIgniter)
+hat dasselbe Loch. Umsteigen hieße: alles wegwerfen, was hier steht, und dann
+fehlt genau der Teil, der im Haus benutzt wird. Uns fehlte umgekehrt nur der
+gemeinsame Zustand.
+
+**Der Server rechnet nicht selbst.** Er lädt `site/table-assignment.mjs` und
+`site/floorplan-layout.mjs` unverändert. Genau dafür wurden sie von Anfang an
+DOM-frei und ohne Systemuhr gebaut. Eine zweite Rechenregel auf dem Server wäre
+die sicherste Art, zwei verschiedene Wahrheiten zu bekommen.
+
+### Der Weg einer Onlinebuchung
+
+1. Gast füllt auf `tischreservierung.html` Name, Tag, Uhrzeit, Personen aus.
+2. Der Dienst prüft die Eingabe streng, weist den kleinsten passenden freien
+   Tisch zu und bevorzugt dabei die **Standard-Etage** aus dem Haus.
+3. Der Gast bekommt sofort eine Antwort mit Tischnummer und Bereich.
+4. Der Dienst schiebt die Änderung über einen offenen Draht an alle
+   angeschlossenen Seiten.
+5. Die Planung im Haus meldet „Neue Onlinebuchung: Kaufmann (2P, 12:15)".
+6. Der Bildschirm am Eingang zeigt den Gast, sobald seine Zeit läuft — ohne
+   Nachfragen und ohne dass er auf demselben Gerät laufen muss.
+
+### Standard-Etage
+
+Unter *Einrichten → Reservierungsdienst* wählbar. Onlinebuchungen landen zuerst
+dort. Ist dort nichts frei, wird der Rest geprüft — ein „leider voll", während
+oben eine ganze Etage leersteht, wäre ein verlorener Gast. Technisch ist das
+kein neuer Algorithmus, sondern nur `policy.levelOrder` mit der Standard-Etage
+an erster Stelle.
+
+### Es bleibt eine Ergänzung
+
+Der Tischplan ist **nie** vom Dienst abhängig. Ist keine Adresse in
+`site/data/haus.json` eingetragen oder fällt der Dienst aus, verhält sich alles
+wie vorher: Die Gästeseite leitet auf den offiziellen Anbieter weiter, die
+Planung arbeitet im Browser. Ein Werkzeug, das im Mittag am Netz hängt, wäre
+schlechter als das bisherige.
+
+### Content-Security-Policy
+
+`connect-src 'self'` hätte jede Verbindung zum Dienst blockiert — und die Seite
+hätte dabei völlig normal ausgesehen. Deshalb trägt `npm run sync:csp` die
+Adresse aus `haus.json` automatisch in die internen Seiten ein, inklusive der
+`wss:`-Form; `connect-src` leitet https nicht von selbst auf wss weiter.
+
+### Datenschutz
+
+Nur Name, Datum, Uhrzeit, Personenzahl. Keine Mailadresse, keine Telefonnummer,
+kein Konto, kein Cookie. Der Zustand liegt in der EU, gelöscht wird automatisch
+30 Tage nach dem Termin. Der Prüfschritt `check:copy` verbietet weiterhin
+`type="email"` und `type="tel"` auf der Reservierungsseite; nur das Namensfeld
+ist seit der eigenen Buchung erlaubt und dort auch begründet.
+
 ## Grenzen
 
 Der Plan zählt **nichts herunter**, wenn ein Gast online bucht. Dafür braucht es

@@ -9,6 +9,8 @@ import { activeLayout, buildFloorplan, seatingPlan, serviceOf } from './floorpla
 import { durationFor, occupiesAt, stamp } from './table-assignment.mjs?v=3433b591';
 import { renderFloorplan } from './floorplan.js?v=d3336d80';
 
+import { bleibVerbunden, hausToken } from './haus-api.js?v=29758f6f';
+
 const KEY = 'wirtschaft-dornbirn-host-control-v1';
 const SICHT = 'wirtschaft-screen-namen';
 const byId = id => document.getElementById(id);
@@ -21,7 +23,13 @@ async function start() {
   if (!raum) {
     try { raum = await (await fetch('data/floorplan.json', { cache: 'no-store' })).json(); } catch { /* dann eben ohne */ }
   }
+  // Kommt der Stand vom Dienst, gilt er. Nur ohne Dienst liest der Schirm den
+  // Browser-Speicher desselben Geraets - dann ist er wie bisher an den einen
+  // Rechner gebunden.
+  let vomDienst = null;
+
   const lies = () => {
+    if (vomDienst) return vomDienst;
     try {
       return JSON.parse(localStorage.getItem(KEY) || '{}');
     } catch {
@@ -140,10 +148,23 @@ async function start() {
     else document.documentElement.requestFullscreen?.();
   });
 
-  // Live: das storage-Ereignis feuert, sobald das Werkzeug im anderen Fenster
-  // schreibt. Der Takt daneben ist fuer die Uhr und den Schichtwechsel.
+  // Live ueber den Dienst: eine Onlinebuchung erscheint in dem Moment, in dem
+  // sie eingeht - ohne Abfragen im Sekundentakt und ohne dass der Schirm auf
+  // demselben Geraet laufen muss wie die Planung.
+  const draht = byId('scLink');
+  bleibVerbunden(hausToken(), stand => {
+    vomDienst = stand;
+    zeichne();
+  }, zustand => {
+    if (!draht) return;
+    draht.hidden = zustand === 'verbunden';
+    draht.textContent = 'Verbindung unterbrochen – die Anzeige kann veraltet sein.';
+  });
+
+  // Ohne Dienst bleibt es beim bisherigen Weg: das storage-Ereignis desselben
+  // Geraets. Der Takt daneben ist fuer die Uhr und den Schichtwechsel.
   window.addEventListener('storage', event => {
-    if (!event.key || event.key === KEY) zeichne();
+    if (!vomDienst && (!event.key || event.key === KEY)) zeichne();
   });
   setInterval(zeichne, 15000);
 
