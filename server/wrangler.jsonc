@@ -25,5 +25,8 @@
 
   // HAUS_TOKEN ist ein Geheimnis und steht nicht in dieser Datei:
   //   npx wrangler secret put HAUS_TOKEN
-  "keep_vars": true
+  //
+  // Kein "keep_vars": es hielt zwar die Variablen, band das Geheimnis aber
+  // nicht an die veroeffentlichte Fassung - HAUS_TOKEN fehlte in der
+  // Bindungsliste und kam im Code als leer an.
 }
