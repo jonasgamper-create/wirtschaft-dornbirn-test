@@ -60,8 +60,22 @@ const embed = value => JSON.stringify(value)
   .replace(/\u2028/g, '\\u2028')
   .replace(/\u2029/g, '\\u2029');
 
+// Adresse des Reservierungsdienstes. Die Einzeldatei kann data/haus.json nicht
+// nachladen - sie liegt allein unter /tischplan/. Deshalb wandert die Adresse
+// beim Bauen mit ins Dokument, und die CSP wird passend dazu gesetzt. Ohne das
+// steht die Seite mit "Kein Dienst eingetragen" da, obwohl er laeuft.
+const hausKonfig = JSON.parse(await readFile(path.join(site, 'data', 'haus.json'), 'utf8'));
+const dienstAdresse = String(hausKonfig.api || '').trim().replace(/\/+$/, '');
+const dienstQuellen = (() => {
+  if (!dienstAdresse) return "'none'";
+  const url = new URL(dienstAdresse);
+  const draht = `${url.protocol === 'https:' ? 'wss' : 'ws'}://${url.host}`;
+  return `${url.origin} ${draht}`;
+})();
+
 async function baue({ quelle, ziel, code, kopfErsatz, stil = styles }) {
-  const script = `window.WIRTSCHAFT_FLOORPLAN=${embed(config)};\n${code}`;
+  const script = `window.WIRTSCHAFT_FLOORPLAN=${embed(config)};\n`
+    + `window.WIRTSCHAFT_HAUS=${embed({ api: dienstAdresse })};\n${code}`;
   const styleBody = `\n${stil}\n  `;
   const scriptBody = `\n${script}\n  `;
   const sha = value => `'sha256-${createHash('sha256').update(value, 'utf8').digest('base64')}'`;
@@ -79,13 +93,14 @@ async function baue({ quelle, ziel, code, kopfErsatz, stil = styles }) {
 
   if (kopfErsatz) html = html.replace(kopfErsatz[0], kopfErsatz[1]);
 
-  // Kein Netzzugriff noetig und keiner erlaubt. Inline-Skript und -Stil sind
-  // ueber ihren Hash freigegeben, nicht ueber 'unsafe-inline'.
+  // Inline-Skript und -Stil sind ueber ihren Hash freigegeben, nicht ueber
+  // 'unsafe-inline'. Nach draussen darf genau eine Adresse: der eigene
+  // Reservierungsdienst - und nur, wenn einer eingetragen ist.
   html = html.replace(
     /<meta http-equiv="Content-Security-Policy"[^>]*>/,
     '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; '
     + `base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; `
-    + `style-src ${sha(styleBody)}; script-src ${sha(scriptBody)}; connect-src 'none'; form-action 'none'">`
+    + `style-src ${sha(styleBody)}; script-src ${sha(scriptBody)}; connect-src ${dienstQuellen}; form-action 'none'">`
   );
 
   await mkdir(path.dirname(ziel), { recursive: true });
