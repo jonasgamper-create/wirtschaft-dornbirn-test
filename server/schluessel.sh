@@ -26,6 +26,12 @@ if ! printf '%s' "$SCHLUESSEL" | npx --yes wrangler@4 secret put HAUS_TOKEN; the
   exit 1
 fi
 
+# Oertlich ablegen (nicht im Repository), damit deploy.sh ihn nach jedem
+# Veroeffentlichen wieder setzen kann - sonst sperrt jede Code-Aenderung das
+# Haus aus.
+printf '%s' "$SCHLUESSEL" > "$HIER/.haus-token"
+chmod 600 "$HIER/.haus-token"
+
 # Nachsehen statt hoffen. "wrangler deploy" wirft ein zuvor gesetztes
 # Geheimnis aus der Bindungsliste - deshalb hier immer pruefen, ob der
 # Schluessel wirklich greift, statt ihn nur hochzuladen.

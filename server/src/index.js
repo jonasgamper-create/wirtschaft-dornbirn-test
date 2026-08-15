@@ -12,7 +12,7 @@
 
 import { DurableObject } from 'cloudflare:workers';
 import {
-  AUFBEWAHRUNG_TAGE, machId, planTaugt, pruefeAnfrage, raeumeAuf, verteile, wendeAktionAn
+  AUFBEWAHRUNG_TAGE, freieZeiten, machId, planTaugt, pruefeAnfrage, raeumeAuf, verteile, wendeAktionAn
 } from './haus-logik.mjs';
 import standardPlan from '../../site/data/floorplan.json';
 
@@ -167,6 +167,8 @@ export class Haus extends DurableObject {
       parties: this.#alle(),
       blockedTables: this.#lies('blocked', []),
       standardEtage: this.#lies('standardEtage', null),
+      // Automatik aus heisst: Anfragen kommen an, aber das Haus teilt ein.
+      automatik: this.#lies('automatik', true) !== false,
       stand: this.#lies('version', 0)
     };
   }
@@ -203,13 +205,18 @@ export class Haus extends DurableObject {
       && party.name.toLowerCase() === anfrage.name.toLowerCase());
     if (doppelt) return { ok: true, doppelt: true, reservierung: doppelt };
 
-    const { result, floorplan } = verteile(anfrage, {
-      config: this.#plan(),
-      parties,
-      blocked: this.#lies('blocked', []),
-      standardEtage: this.#lies('standardEtage', null),
-      deckel: this.#lies('deckel', null)
-    });
+    // Ist die Automatik aus, wird die Anfrage angenommen, aber nicht gesetzt -
+    // Wolfgang teilt selbst ein. Der Gast erfaehrt das auch so.
+    const automatik = this.#lies('automatik', true) !== false;
+    const { result, floorplan } = automatik
+      ? verteile(anfrage, {
+        config: this.#plan(),
+        parties,
+        blocked: this.#lies('blocked', []),
+        standardEtage: this.#lies('standardEtage', null),
+        deckel: this.#lies('deckel', null)
+      })
+      : { result: { ok: false, reason: 'von_hand' }, floorplan: null };
 
     const nummer = (Number(this.#lies('zaehler', 0)) || 0) + 1;
     this.#schreib('zaehler', nummer);
@@ -232,7 +239,7 @@ export class Haus extends DurableObject {
 
     if (!result.ok) {
       return {
-        ok: true, angenommen: true, tisch: null, grund: result.reason,
+        ok: true, angenommen: true, tisch: null, grund: result.reason, automatik,
         alternativen: (result.alternatives || []).map(entry => entry.startsAt.slice(11)),
         reservierung: party
       };
@@ -250,7 +257,30 @@ export class Haus extends DurableObject {
 
   async stand() { return this.#stand(); }
 
-  async setzePlan(config, standardEtage, blocked, deckel) {
+  /** Freie Zeiten fuer die Gaesteseite. Ohne Namen, ohne Belegungsdetails. */
+  async frei(datum, personen) {
+    const automatik = this.#lies('automatik', true) !== false;
+    if (!automatik) {
+      // Ohne Automatik kann niemand ehrlich sagen, was frei ist - das
+      // entscheidet das Haus. Dann ist jede Zeit anfragbar.
+      return { ok: true, automatik, zeiten: null };
+    }
+    return {
+      ok: true,
+      automatik,
+      zeiten: freieZeiten({
+        config: this.#plan(),
+        parties: this.#alle(),
+        blocked: this.#lies('blocked', []),
+        standardEtage: this.#lies('standardEtage', null),
+        deckel: this.#lies('deckel', null),
+        guests: personen,
+        date: datum
+      })
+    };
+  }
+
+  async setzePlan(config, standardEtage, blocked, deckel, automatik) {
     // Einen unbrauchbaren Plan anzunehmen waere schlimmer als ihn abzulehnen:
     // der Dienst wuerde ab dann jede Onlinebuchung ins Leere zuweisen.
     if (!planTaugt(config)) return { ok: false, grund: 'plan' };
@@ -258,6 +288,7 @@ export class Haus extends DurableObject {
     if (standardEtage !== undefined) this.#schreib('standardEtage', standardEtage);
     if (Array.isArray(blocked)) this.#schreib('blocked', blocked);
     if (deckel !== undefined) this.#schreib('deckel', deckel);
+    if (automatik !== undefined) this.#schreib('automatik', automatik !== false);
     this.#meldeAenderung();
     return { ok: true, stand: this.#stand() };
   }
@@ -340,7 +371,9 @@ export default {
       if (url.pathname === '/api/plan' && request.method === 'POST') {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         const body = await request.json().catch(() => ({}));
-        const ergebnis = await haus.setzePlan(body.floorplan, body.standardEtage, body.blockedTables, body.deckel);
+        const ergebnis = await haus.setzePlan(
+          body.floorplan, body.standardEtage, body.blockedTables, body.deckel, body.automatik
+        );
         return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
       }
 
@@ -354,6 +387,16 @@ export default {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         const body = await request.json().catch(() => ({}));
         return json(await haus.lege(body.reservierung), 200, kopf);
+      }
+
+      // Oeffentlich: was ist wann noch frei. Enthaelt keine Namen - diese
+      // Antwort geht an die Gaesteseite.
+      if (url.pathname === '/api/frei' && request.method === 'GET') {
+        const datum = url.searchParams.get('datum') || heute;
+        const personen = Math.max(1, Math.min(24, Number(url.searchParams.get('personen')) || 2));
+        const geprueft = pruefeAnfrage({ name: 'xx', date: datum, time: '12:00', guests: personen }, { heute });
+        if (!geprueft.ok) return json({ ok: false, grund: geprueft.grund }, 400, kopf);
+        return json(await haus.frei(datum, personen), 200, kopf);
       }
 
       if (url.pathname === '/api/gesundheit') return json({ ok: true, dienst: 'wirtschaft-dornbirn' }, 200, kopf);

@@ -130,6 +130,37 @@ export function verteile(anfrage, { config, parties, blocked = [], standardEtage
 }
 
 /**
+ * Die Mittagszeiten, zu denen online reserviert werden kann. Dieselbe Liste
+ * wie auf der Gaesteseite - stuenden dort andere Zeiten, koennte jemand eine
+ * Zeit waehlen, die der Dienst gar nicht kennt.
+ */
+export const MITTAGSZEITEN = [
+  '11:30', '11:45', '12:00', '12:15', '12:30', '12:45', '13:00', '13:15', '13:30'
+];
+
+/**
+ * Was ist an einem Tag noch frei? Antwortet je Uhrzeit mit "geht" oder "voll" -
+ * und zwar fuer genau die angefragte Personenzahl, denn das ist die Frage des
+ * Gastes. Ein "frei", das bei vier Personen doch nicht gilt, waere schlimmer
+ * als gar keine Angabe.
+ *
+ * Bewusst ohne jeden Namen: diese Antwort geht an die oeffentliche Seite.
+ */
+export function freieZeiten({ config, parties, blocked = [], standardEtage = null, deckel = null, guests = 2, zeiten = MITTAGSZEITEN, date }) {
+  return zeiten.map(time => {
+    const { result } = verteile({ name: 'x', date, time, guests }, {
+      config, parties, blocked, standardEtage, deckel
+    });
+    return {
+      zeit: time,
+      frei: result.ok === true,
+      // Der Grund hilft beim Formulieren, verraet aber nichts ueber Gaeste.
+      grund: result.ok ? null : result.reason
+    };
+  });
+}
+
+/**
  * Taugt das als Tischplan? Einen unbrauchbaren anzunehmen waere schlimmer als
  * ihn abzulehnen: der Dienst wuerde ab dann jede Onlinebuchung ins Leere
  * zuweisen, und niemand saehe warum.
