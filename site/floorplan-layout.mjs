@@ -4,12 +4,49 @@
 
 export const GRID = { cols: 24, gap: 1, minSeats: 1, maxSeats: 12 };
 
-// Ein Tisch ist so hoch, dass oben und unten Stuehle Platz haben. Die Breite
-// waechst mit der Personenzahl, aber nicht linear: ein Zehnertisch ist laenger
-// als ein Zweiertisch, nicht fuenfmal so lang.
-export function footprint(seats) {
+/**
+ * Tischformen. Ein Gasthaus hat nicht nur Rechtecke: der runde Stammtisch, die
+ * lange Tafel fuer Hochzeiten, die Theke mit Hockern auf einer Seite. Wer die
+ * echte Anordnung nicht abbilden kann, plant an seinem Haus vorbei.
+ */
+export const FORMEN = {
+  laenglich: { label: 'Länglich', seiten: 2 },
+  rund: { label: 'Rund', seiten: 4 },
+  tafel: { label: 'Lange Tafel', seiten: 2 },
+  theke: { label: 'Theke', seiten: 1 }
+};
+
+export const formKinds = () => Object.keys(FORMEN);
+export const formOf = table => (FORMEN[table?.form] ? table.form : 'laenglich');
+/** Gedreht heisst: um 90 Grad, also hochkant statt quer. */
+export const istGedreht = table => Number(table?.dreh) === 90;
+
+/**
+ * Grundflaeche in Rastereinheiten. Die Breite waechst mit der Personenzahl,
+ * aber nicht linear: ein Zehnertisch ist laenger als ein Zweiertisch, nicht
+ * fuenfmal so lang. Beim Drehen tauschen Breite und Hoehe die Rollen - der
+ * Tisch wird nicht groesser, er steht nur anders.
+ */
+export function footprint(seats, table = null) {
   const size = clampSeats(seats);
-  return { w: 3 + Math.floor(Math.max(0, size - 2) / 2), h: 4 };
+  const form = table ? formOf(table) : 'laenglich';
+  let mass;
+  if (form === 'rund') {
+    // Rund braucht in beide Richtungen Platz, weil rundherum Stuehle stehen.
+    const d = Math.max(4, 3 + Math.ceil(Math.max(0, size - 2) / 3));
+    mass = { w: d, h: d };
+  } else if (form === 'tafel') {
+    // Eine Tafel waechst je Gast, damit die lange Reihe auch lang aussieht.
+    mass = { w: Math.min(20, 4 + Math.max(0, size - 2)), h: 4 };
+  } else if (form === 'theke') {
+    // Nur eine Seite bestuhlt, dafuer flacher.
+    mass = { w: Math.min(20, 2 + size), h: 3 };
+  } else {
+    mass = { w: 3 + Math.floor(Math.max(0, size - 2) / 2), h: 4 };
+  }
+  // Rund bleibt rund: Drehen aendert dort nichts.
+  if (table && istGedreht(table) && form !== 'rund') return { w: mass.h, h: mass.w };
+  return mass;
 }
 
 export const clampSeats = value =>
@@ -30,31 +67,86 @@ export const defaultMinGuests = seats => Math.max(1, Math.ceil(Number(seats) / 2
  */
 export function chairSlots(table) {
   const seats = clampSeats(table.seats);
+  const form = formOf(table);
   const body = tableBody(table);
   const slots = [];
-  const side = seats >= 8 ? 1 : 0;
-  const rest = seats - side * 2;
-  const top = Math.ceil(rest / 2);
-  const bottom = rest - top;
 
-  const row = (count, y) => {
-    for (let i = 0; i < count; i += 1) {
-      slots.push({ x: body.x + (body.w * (i + 0.5)) / count - 0.25, y, w: 0.5, h: 0.4 });
+  // Rund: die Stuehle stehen im Kreis. Bei null Grad faengt es oben an, damit
+  // Platz 1 dort liegt, wo man bei einem Stammtisch zu zaehlen anfaengt.
+  if (form === 'rund') {
+    const mx = body.x + body.w / 2;
+    const my = body.y + body.h / 2;
+    const r = Math.max(body.w, body.h) / 2 + 0.42;
+    for (let i = 0; i < seats; i += 1) {
+      const winkel = -Math.PI / 2 + (2 * Math.PI * i) / seats;
+      slots.push({ x: mx + Math.cos(winkel) * r - 0.25, y: my + Math.sin(winkel) * r - 0.25, w: 0.5, h: 0.5 });
+    }
+    return slots;
+  }
+
+  const gedreht = istGedreht(table);
+  // Laengs des Tisches verteilen, quer dazu die beiden Seiten.
+  const laengeVon = gedreht ? body.h : body.w;
+  const reihe = (anzahl, quer, ausserhalb) => {
+    for (let i = 0; i < anzahl; i += 1) {
+      const mitte = (laengeVon * (i + 0.5)) / anzahl;
+      if (gedreht) {
+        slots.push({ x: quer, y: body.y + mitte - 0.25, w: 0.4, h: 0.5 });
+      } else {
+        slots.push({ x: body.x + mitte - 0.25, y: quer, w: 0.5, h: 0.4 });
+      }
+      void ausserhalb;
     }
   };
-  row(top, table.row + 0.18);
-  row(bottom, table.row + table.h - 0.58);
-  for (let i = 0; i < side; i += 1) {
-    const y = body.y + body.h / 2 - 0.25;
-    slots.push({ x: table.col + 0.18, y, w: 0.4, h: 0.5 });
-    slots.push({ x: table.col + table.w - 0.58, y, w: 0.4, h: 0.5 });
+
+  // Theke: nur eine Seite bestuhlt.
+  if (form === 'theke') {
+    reihe(seats, gedreht ? table.col + table.w - 0.58 : table.row + table.h - 0.58);
+    return slots;
+  }
+
+  // Sehr grosse Tische bekommen zusaetzlich je einen Platz an den Schmalseiten.
+  const kopf = seats >= 8 ? 1 : 0;
+  const rest = seats - kopf * 2;
+  const eins = Math.ceil(rest / 2);
+  const zwei = rest - eins;
+  reihe(eins, gedreht ? table.col + 0.18 : table.row + 0.18);
+  reihe(zwei, gedreht ? table.col + table.w - 0.58 : table.row + table.h - 0.58);
+  for (let i = 0; i < kopf; i += 1) {
+    if (gedreht) {
+      const x = body.x + body.w / 2 - 0.25;
+      slots.push({ x, y: table.row + 0.18, w: 0.5, h: 0.4 });
+      slots.push({ x, y: table.row + table.h - 0.58, w: 0.5, h: 0.4 });
+    } else {
+      const y = body.y + body.h / 2 - 0.25;
+      slots.push({ x: table.col + 0.18, y, w: 0.4, h: 0.5 });
+      slots.push({ x: table.col + table.w - 0.58, y, w: 0.4, h: 0.5 });
+    }
   }
   return slots;
 }
 
 /** Die Tischplatte selbst - der Fussabdruck enthaelt zusaetzlich die Stuehle. */
 export function tableBody(table) {
-  return { x: table.col + 0.15, y: table.row + 0.75, w: table.w - 0.3, h: table.h - 1.5 };
+  const form = formOf(table);
+  // Rund: rundherum Stuehle, also auf allen Seiten derselbe Abstand.
+  if (form === 'rund') {
+    return { x: table.col + 0.75, y: table.row + 0.75, w: table.w - 1.5, h: table.h - 1.5 };
+  }
+  // Theke: nur eine Seite bestuhlt, die andere darf an die Wand.
+  if (form === 'theke') {
+    const rand = istGedreht(table)
+      ? { x: 0.15, y: 0.15, w: 0.9, h: 0.3 }
+      : { x: 0.15, y: 0.15, w: 0.3, h: 0.9 };
+    return { x: table.col + rand.x, y: table.row + rand.y, w: table.w - rand.w, h: table.h - rand.h };
+  }
+  // Sonst: an den bestuhlten Laengsseiten mehr Luft als an den Schmalseiten.
+  // Beim Drehen tauschen die beiden Abstaende die Richtung.
+  const laengs = 0.75;
+  const quer = 0.15;
+  const ix = istGedreht(table) ? laengs : quer;
+  const iy = istGedreht(table) ? quer : laengs;
+  return { x: table.col + ix, y: table.row + iy, w: table.w - 2 * ix, h: table.h - 2 * iy };
 }
 
 // Raumobjekte zur Orientierung. Sie blockieren keine Tische - der Wirt ordnet
@@ -103,7 +195,9 @@ export function buildLevelGeometry(level, grid = GRID) {
     levelId: level.id,
     seats: clampSeats(table.seats),
     seatNames: Array.isArray(table.seatNames) ? table.seatNames : [],
-    ...footprint(table.seats),
+    form: formOf(table),
+    dreh: istGedreht(table) ? 90 : 0,
+    ...footprint(table.seats, table),
     col: Number.isInteger(table.col) ? table.col : null,
     row: Number.isInteger(table.row) ? table.row : null
   }));

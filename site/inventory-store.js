@@ -84,6 +84,10 @@
       return {
         id: tableId,
         seats,
+        // Form und Drehung. Unbekanntes faellt auf den bisherigen Rechtecktisch
+        // zurueck, damit aeltere Sicherungen unveraendert weiterlaufen.
+        form: ['laenglich', 'rund', 'tafel', 'theke'].includes(table?.form) ? table.form : 'laenglich',
+        dreh: Number(table?.dreh) === 90 ? 90 : 0,
         col: coord(table?.col, 200),
         row: coord(table?.row, 400),
         // Stuhlnamen fuer den Sitzplan. Genau wie beim Reservierungsnamen ist
@@ -281,6 +285,13 @@
           // belegt: der Verspaetete blockiert ihn, der frueh Gegangene auch.
           arrived: timeOrNull(item?.arrived),
           left: timeOrNull(item?.left),
+          // Notiz zum Besuch: Unvertraeglichkeiten, Fensterplatz, Kinderstuhl.
+          // Bewusst ein Freitextfeld und bewusst kurz - es ist eine Hilfe fuer
+          // den Service, keine Gaestedatei.
+          notiz: safeText(item?.notiz, 120),
+          // Nicht erschienen. Der Check-in liefert die Angabe ohnehin; ohne
+          // Vermerk bleibt sie ungenutzt.
+          nichtDa: item?.nichtDa === true,
           source: ['manuell', 'mail'].includes(item?.source) ? item.source : 'manuell'
         };
       }).filter(item => item.name),

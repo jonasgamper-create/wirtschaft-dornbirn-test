@@ -388,3 +388,11 @@
   border:1px solid var(--line,#11110f26);border-radius:8px;font-size:11px;font-weight:700;
   letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
 .fp-restore input{position:absolute;width:1px;height:1px;opacity:0}
+
+/* Gaestehistorie. Ein Hinweis fuer den Service, kein Urteil - deshalb klein
+   und neben der Zeile, nicht als Ueberschrift. */
+.fp-akte{padding:2px 8px;border-radius:99px;background:#e8f0ea;color:var(--green,#244635);font-size:11px;font-weight:700;white-space:nowrap}
+.fp-akte.is-warnung{background:#f6ecd9;color:#6b4f1f}
+.fp-notiz{flex:1 1 100%;color:var(--muted,#6d675f);font-size:11.5px;font-style:italic}
+/* Form und Drehung in der Tischzeile. */
+.fp-chair-chip select{min-height:44px;padding:0 8px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#fff;font:inherit;font-size:12px}

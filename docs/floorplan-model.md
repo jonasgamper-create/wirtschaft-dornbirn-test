@@ -128,6 +128,58 @@ und auf `bestaetigt`, sobald die echten Tische eingetragen wurden. Das ist ein
 Qualitätsmerkmal für die Daten, keine Sichtbarkeitsschaltung — sichtbar ist der
 Plan ohnehin nur intern.
 
+## Tischformen und Drehen
+
+Ein Gasthaus hat nicht nur Rechtecke. Der runde Stammtisch, die lange Tafel für
+eine Hochzeit, die Theke mit Hockern auf einer Seite — wer die echte Anordnung
+nicht abbilden kann, plant an seinem Haus vorbei. Der Marktvergleich bestätigt
+das: Drehen und Formauswahl sind bei [Resos](https://resos.com/feature/visual-restaurant-table-plan/),
+[SeatPlan](https://seatplan.io/use-cases/restaurants) und
+[SevenRooms](https://sevenrooms.com/blog/restaurant-floor-plan/) Standard.
+
+| Form | Grundfläche | Stühle |
+| --- | --- | --- |
+| Länglich | wächst langsam mit der Personenzahl | oben und unten, ab 8 auch an den Schmalseiten |
+| Rund | quadratisch, in beide Richtungen Platz | im Kreis, Platz 1 oben |
+| Lange Tafel | je Gast länger | oben und unten |
+| Theke | flacher | nur auf einer Seite |
+
+**Drehen** tauscht Breite und Höhe — der Tisch wird nicht größer, er steht nur
+anders. Die Stühle wandern mit: quer sitzen sie oben und unten, hochkant links
+und rechts. Bei runden Tischen ist der Knopf gesperrt, weil ein gedrehter
+Kreis derselbe Kreis ist; ein Knopf, der nichts tut, wäre eine Lüge.
+
+Ändert sich durch Form oder Drehung die Grundfläche so, dass der Tisch an
+seinem festen Platz nicht mehr hinpasst, wird er freigegeben und neu
+angeordnet — mit Hinweis. Lautlos in einen anderen Tisch hineinzuschieben wäre
+die schlechtere Antwort.
+
+Geprüft in `check:assignment`: für alle vier Formen, beide Drehungen und die
+Größen 1 bis 12 stimmt die Stuhlzahl, liegt jeder Stuhl am Tisch und hat die
+Tischplatte eine Fläche — das sind 144 Einzelfälle.
+
+## Gästehistorie
+
+Der Check-in liefert die Angaben ohnehin; ungenutzt wären sie verschenkt. Beim
+Anlegen einer Reservierung steht deshalb direkt in der Antwort, was das Haus
+über den Namen weiß:
+
+> Huber, 2 Personen am 15.08. um 13:00: Tisch 12 – passgenau.
+> **Bekannt: 1× schon da gewesen, 1× nicht erschienen.**
+
+In dem Moment liest man es; nachher nicht mehr.
+
+- **Nicht erschienen** vermerkt man in der Reservierungszeile. Der Tisch wird
+  dadurch sofort frei — wer nicht kommt, hat nie besetzt.
+- **Notiz** je Besuch: „glutenfrei", „Fensterplatz", „Kinderstuhl". Höchstens
+  120 Zeichen.
+
+Ehrliche Grenze: Der Name ist ein schwacher Schlüssel. Zwei Familien Huber sind
+dieselbe Zeile. Deshalb steht die Historie klein neben der Reservierung und
+nicht als Urteil — sie ist ein Hinweis für den Service, keine Tatsache. Es wird
+nichts zugekauft, nichts verknüpft und nichts über den Namen hinaus
+gespeichert.
+
 ## Tischnummern
 
 Zwei Zählweisen, einstellbar im Setup und mit dem Plan gespeichert:

@@ -4,7 +4,7 @@
 
 // Version muss zu den anderen Importen passen, sonst laedt der Browser zwei
 // Kopien desselben Moduls.
-import { ELEMENTS, buildFloorplan, chairSlots, seatNamesFor, tableBody } from './floorplan-layout.mjs?v=268bdada';
+import { ELEMENTS, buildFloorplan, chairSlots, seatNamesFor, tableBody } from './floorplan-layout.mjs?v=d8056338';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const el = (tag, attrs = {}) => {
@@ -175,7 +175,15 @@ export function renderFloorplan(root, config, options = {}) {
         group.append(seat);
       });
       const body = tableBody(table);
-      group.append(el('rect', { class: 'fp-shape', x: body.x, y: body.y, width: body.w, height: body.h, rx: 0.12 }));
+      // Ein runder Tisch muss rund aussehen, sonst hilft die Form beim Planen
+      // nichts. Ein rect mit halber Ecke ist eine Ellipse - kein zweiter
+      // Elementtyp noetig.
+      group.append(el('rect', {
+        class: 'fp-shape',
+        x: body.x, y: body.y, width: body.w, height: body.h,
+        rx: table.form === 'rund' ? body.w / 2 : 0.12,
+        ry: table.form === 'rund' ? body.h / 2 : 0.12
+      }));
 
       const party = seating[table.id];
       const middle = table.col + table.w / 2;
