@@ -396,3 +396,7 @@
 .fp-notiz{flex:1 1 100%;color:var(--muted,#6d675f);font-size:11.5px;font-style:italic}
 /* Form und Drehung in der Tischzeile. */
 .fp-chair-chip select{min-height:44px;padding:0 8px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#fff;font:inherit;font-size:12px}
+
+/* Der Automatik-Schalter steht auf eigener Zeile: er ist die wichtigste
+   Entscheidung in diesem Kasten und soll nicht neben einem Feld untergehen. */
+.fp-toggle-block{display:inline-flex;margin:14px 0 0}

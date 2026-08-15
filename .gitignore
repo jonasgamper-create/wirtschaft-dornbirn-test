@@ -12,3 +12,8 @@ dist/
 
 # Oertlicher Zustand des Reservierungsdienstes (wrangler dev)
 server/.wrangler/
+
+# Oertliche Kopie des Hausschluessels. Gehoert nie ins Repository - das ist
+# oeffentlich. Sie existiert nur, damit deploy.sh denselben Schluessel nach
+# jedem Veroeffentlichen wieder setzen kann.
+server/.haus-token

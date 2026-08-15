@@ -61,37 +61,54 @@ fi
 ADRESSE="$(printf '%s' "$AUSGABE" | grep -o 'https://[a-zA-Z0-9._-]*\.workers\.dev' | head -1)"
 
 # ---- 3. Hausschlüssel ------------------------------------------------------
+# Gemessen: "wrangler deploy" entfernt ein zuvor gesetztes Geheimnis aus der
+# Bindungsliste - dauerhaft, nicht nur kurz. Jede Code-Aenderung wuerde das
+# Haus also aussperren. Deshalb liegt der Schluessel zusaetzlich in einer
+# oertlichen Datei (nicht im Repository) und wird nach jedem Veroeffentlichen
+# neu gesetzt. So bleibt derselbe Schluessel gueltig.
 sag "Schritt 3 von 4: Hausschlüssel setzen"
-echo "Der Hausschlüssel schützt die interne Planung. Gäste brauchen ihn nie."
-echo
+ABLAGE="$HIER/.haus-token"
 
-SCHLUESSEL="$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 28)"
+if [ -s "$ABLAGE" ]; then
+  SCHLUESSEL="$(cat "$ABLAGE")"
+  echo "Bekannter Schlüssel wird wieder gesetzt (er bleibt derselbe)."
+  NEU=0
+else
+  SCHLUESSEL="$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 28)"
+  NEU=1
+fi
+
 if ! printf '%s' "$SCHLUESSEL" | "${WRANGLER[@]}" secret put HAUS_TOKEN; then
   fehler "Der Schlüssel liess sich nicht setzen."
   exit 1
 fi
+printf '%s' "$SCHLUESSEL" > "$ABLAGE"
+chmod 600 "$ABLAGE"
 
 # Nachsehen statt hoffen: der Dienst muss den Schluessel wirklich annehmen.
 if [ -n "$ADRESSE" ]; then
-  sleep 5
+  sleep 6
   MIT="$(curl -s -o /dev/null -w '%{http_code}' -H "x-haus-token: $SCHLUESSEL" "$ADRESSE/api/stand")"
   OHNE="$(curl -s -o /dev/null -w '%{http_code}' "$ADRESSE/api/stand")"
   if [ "$MIT" != "200" ] || [ "$OHNE" != "401" ]; then
     fehler "Der Schlüssel greift noch nicht (mit: $MIT, ohne: $OHNE)."
-    echo "Bitte in einer Minute nochmal starten - manchmal braucht die"
-    echo "Verteilung etwas. Bleibt es dabei, melde dich mit dieser Zeile."
+    echo "Bitte in einer Minute nochmal starten."
     exit 1
   fi
   echo "Geprüft: mit Schlüssel 200, ohne Schlüssel 401."
 fi
 
-sag "Dein Hausschlüssel – jetzt aufschreiben, er wird nicht nochmal angezeigt:"
-printf '\n    \033[1;32m%s\033[0m\n\n' "$SCHLUESSEL"
-if command -v pbcopy >/dev/null 2>&1; then
-  printf '%s' "$SCHLUESSEL" | pbcopy
-  echo "Er liegt auch in der Zwischenablage – im Tischplan mit Cmd+V einfügen."
+if [ "$NEU" = "1" ]; then
+  sag "Dein Hausschlüssel – einmal aufschreiben:"
+  printf '\n    \033[1;32m%s\033[0m\n\n' "$SCHLUESSEL"
+  if command -v pbcopy >/dev/null 2>&1; then
+    printf '%s' "$SCHLUESSEL" | pbcopy
+    echo "Er liegt auch in der Zwischenablage – im Tischplan mit Cmd+V einfügen."
+  fi
+  read -r -p "Notiert? Weiter mit [Enter] "
+else
+  echo "Der Schlüssel ist unverändert – im Tischplan muss nichts geändert werden."
 fi
-read -r -p "Notiert? Weiter mit [Enter] "
 
 # ---- 4. Eintragen ----------------------------------------------------------
 sag "Schritt 4 von 4: Adresse eintragen"

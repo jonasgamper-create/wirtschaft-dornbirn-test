@@ -11,9 +11,9 @@
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="stylesheet" href="gastgeber.css?v=68a0ecf6">
   <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=c75294f5">
-  <link rel="stylesheet" href="floorplan.css?v=a9e65e13">
+  <link rel="stylesheet" href="floorplan.css?v=a46b1644">
   <script src="inventory-store.js?v=fe61cc1e" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=d182388e"></script>
+  <script type="module" src="gastgeber-floorplan.js?v=ce74986c"></script>
 </head>
 <body>
   <header class="topbar">
@@ -200,9 +200,15 @@
         <p class="fp-result" id="fpDienstInfo" role="status" aria-live="polite">Wird geprüft …</p>
         <form class="add-service" id="fpDienstForm">
           <label>Hausschlüssel<input id="fpToken" type="password" maxlength="120" autocomplete="off" placeholder="der beim Veröffentlichen gesetzte Wert"></label>
-          <label>Standard-Etage für Onlinebuchungen<select id="fpStandardEtage"></select></label>
+          <label>Etage für Onlinebuchungen<select id="fpStandardEtage"></select></label>
           <button type="submit">Übernehmen und veröffentlichen</button>
         </form>
+        <!-- Der eine Schalter, der im Betrieb wirklich zaehlt: teilt der
+             Dienst selbst ein, oder macht es das Haus? -->
+        <label class="fp-toggle fp-toggle-block" id="fpAutomatikLabel">
+          <input id="fpAutomatik" type="checkbox" checked>
+          <span>Onlinebuchungen automatisch einteilen<b id="fpAutomatikInfo"></b></span>
+        </label>
         <p class="model-note">Der Hausschlüssel bleibt in diesem Browser und wird nie an die Gästeseite gegeben. Onlinebuchungen landen bevorzugt auf der Standard-Etage; ist dort nichts frei, wird der Rest geprüft – ein „leider voll“, während oben eine Etage leersteht, wäre ein verlorener Gast. Mit „Veröffentlichen“ bekommt der Dienst den aktuellen Tischplan; ohne ihn rechnet er mit dem hinterlegten Beispiel.</p>
       </section>
 

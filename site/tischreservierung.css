@@ -117,3 +117,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .booking-result[data-art="gut"]{border-color:var(--green,#244635);background:#e8f0ea}
 .booking-result[data-art="warnung"]{border-color:#a67f45;background:#f6ecd9}
 .booking-result[data-art="fehler"]{border-color:var(--wine,#8c292b);background:#8c292b14;color:#6b2224}
+
+/* Belegte Zeiten stehen sichtbar da, aber ausgegraut. Sie zu verstecken waere
+   verwirrend - der Gast sucht dann eine Zeit, die es nicht mehr gibt. */
+.slots button[data-voll]{border-style:dashed;background:#11110f08;color:#a29b90;cursor:not-allowed;text-decoration:line-through}
+.slots button[data-pruefe]{opacity:.55}
+.slot-info{display:block;margin-top:10px;color:var(--muted,#6d675f);font-size:13.5px;font-weight:400;letter-spacing:0;line-height:1.5;text-transform:none}

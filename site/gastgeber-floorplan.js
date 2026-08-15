@@ -8,7 +8,7 @@ import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, activeLayout, buildFloorplan, ca
 import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=e03ddbf8';
 import { renderFloorplan } from './floorplan.js?v=e371595f';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
-import { apiAdresse, bleibVerbunden, hausToken, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=4d2e5d8e';
+import { apiAdresse, bleibVerbunden, hausToken, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=d2fd0923';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 const store = window.WirtschaftData;
@@ -1459,6 +1459,8 @@ async function start() {
    * andere - Tischplan, Sperren - bleibt hier.
    */
   function uebernimm(stand) {
+    if (stand && typeof stand.automatik === 'boolean') zeigeAutomatik(stand.automatik);
+    if (stand && stand.standardEtage) byId('fpStandardEtage').value = stand.standardEtage;
     if (!Array.isArray(stand?.parties)) return;
     const state = store.load();
     const vorher = JSON.stringify(state.parties || []);
@@ -1496,6 +1498,15 @@ async function start() {
     });
   }
 
+  /** Zeigt an, ob der Dienst selbst einteilt - aus muss man sehen koennen. */
+  function zeigeAutomatik(an) {
+    byId('fpAutomatik').checked = an;
+    byId('fpAutomatikLabel').classList.toggle('is-off', !an);
+    byId('fpAutomatikInfo').textContent = an
+      ? 'Gast bekommt sofort einen Tisch genannt'
+      : 'aus – Anfragen kommen ohne Tisch herein';
+  }
+
   function paintStandardEtage() {
     const select = byId('fpStandardEtage');
     const gewaehlt = select.value;
@@ -1510,6 +1521,8 @@ async function start() {
     }
   }
 
+  byId('fpAutomatik').addEventListener('change', event => zeigeAutomatik(event.target.checked));
+
   byId('fpDienstForm').addEventListener('submit', async event => {
     event.preventDefault();
     setzeToken(byId('fpToken').value.trim());
@@ -1520,12 +1533,16 @@ async function start() {
       floorplan: current(),
       standardEtage: byId('fpStandardEtage').value || null,
       blockedTables: blocked(),
-      deckel: platz.limit
+      deckel: platz.limit,
+      automatik: byId('fpAutomatik').checked
     });
     if (antwort?.grund === 'token') return dienstInfo('Der Hausschlüssel stimmt nicht. Bitte prüfen.');
     if (!antwort?.ok) return dienstInfo('Der Dienst war nicht erreichbar. Später nochmal versuchen.');
-    dienstInfo(`Veröffentlicht: ${buildFloorplan(current()).tables.length} Tische, Standard-Etage `
-      + `${byId('fpStandardEtage').selectedOptions[0]?.textContent || '–'}. Onlinebuchungen werden ab jetzt so eingeteilt.`);
+    dienstInfo(`Veröffentlicht: ${buildFloorplan(current()).tables.length} Tische, Etage `
+      + `${byId('fpStandardEtage').selectedOptions[0]?.textContent || '–'}. `
+      + (byId('fpAutomatik').checked
+        ? 'Onlinebuchungen bekommen ab jetzt automatisch einen Tisch.'
+        : 'Onlinebuchungen kommen ab jetzt ohne Tisch herein – du teilst selbst ein.'));
     starteDienst();
   });
 

@@ -66,6 +66,10 @@ async function ruf(pfad, { methode = 'GET', koerper = null, token = null } = {})
 /** Gaestebuchung. Braucht keinen Token - sonst stuende er auf der Gaesteseite. */
 export const buche = anfrage => ruf('/api/reservierung', { methode: 'POST', koerper: anfrage });
 
+/** Was ist an diesem Tag noch frei? Oeffentlich, ohne Namen. */
+export const holeFrei = (datum, personen) =>
+  ruf(`/api/frei?datum=${encodeURIComponent(datum)}&personen=${encodeURIComponent(personen)}`);
+
 export const holeStand = token => ruf('/api/stand', { token });
 
 export const sendePlan = (token, koerper) => ruf('/api/plan', { methode: 'POST', koerper, token });
