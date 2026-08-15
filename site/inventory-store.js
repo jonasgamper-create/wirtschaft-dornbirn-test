@@ -129,7 +129,10 @@
         seatings: (Array.isArray(service.seatings) ? service.seatings : ['11:30', '12:45'])
           .slice(0, 8).map(safeTime),
         endsAt: safeTime(service.endsAt || '13:45'),
-        bufferMinutes: safeNumber(service.bufferMinutes, 0, 60, 15)
+        bufferMinutes: safeNumber(service.bufferMinutes, 0, 60, 15),
+        // Fehlt der Wert (aeltere Sicherung), gilt die Richtzeit - so hat es
+        // sich bisher verhalten.
+        richtzeit: service.richtzeit !== false
       },
       levels,
       combos: (Array.isArray(layout?.combos) ? layout.combos : []).slice(0, 40).map((combo, spot) => ({

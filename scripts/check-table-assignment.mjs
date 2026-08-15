@@ -1,7 +1,7 @@
 // Goldene Testfaelle fuer Geometrie und Tischzuweisung. Laeuft ohne
 // Testframework, damit npm run ci keine zusaetzliche Abhaengigkeit braucht.
 
-import { GRID, buildFloorplan, canPlace, chairSlots, defaultMinGuests, footprint, migrate, nextTableId, seatingPlan, tableBody, tableLabel } from '../site/floorplan-layout.mjs';
+import { BIS_TAGESENDE, GRID, buildFloorplan, canPlace, chairSlots, defaultMinGuests, footprint, migrate, nextTableId, seatingPlan, tableBody, tableLabel } from '../site/floorplan-layout.mjs';
 import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, shift, stamp } from '../site/table-assignment.mjs';
 
 const errors = [];
@@ -334,6 +334,20 @@ check('Ein Abgang vor dem Beginn wird ignoriert',
   String(belegtBis({ ...gast, left: '11:00' }, 105)));
 check('Ohne Tisch belegt niemand etwas',
   !occupiesAt({ ...gast, tableIds: [] }, um('12:30')));
+
+// Richtzeit abgeschaltet: die Belegung endet nicht von selbst, sondern erst,
+// wenn jemand "Fertig" drueckt. BIS_TAGESENDE ist die Dauer in diesem Fall.
+const offen = { at: '2026-08-14T14:30', minutes: BIS_TAGESENDE };
+check('Ohne Richtzeit sitzt der Gast auch nach der Regeldauer noch',
+  occupiesAt(gast, offen) && partyStatus(gast, offen) === 'ueberfaellig',
+  partyStatus(gast, offen));
+check('Mit Richtzeit waere derselbe Gast laengst vorbei',
+  partyStatus(gast, { at: '2026-08-14T14:30', minutes: 105 }) === 'vorbei');
+check('Ohne Richtzeit beendet erst der Abgang die Belegung',
+  !occupiesAt({ ...gast, arrived: '12:00', left: '14:00' }, offen),
+  String(occupiesAt({ ...gast, arrived: '12:00', left: '14:00' }, offen)));
+check('Ohne Richtzeit gilt der Gast bis zum Abgang als da',
+  partyStatus({ ...gast, arrived: '12:00' }, offen) === 'da');
 
 if (errors.length) {
   console.error(errors.join('\n'));

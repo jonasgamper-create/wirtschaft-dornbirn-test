@@ -399,6 +399,49 @@ bleibt, wäre genau der stille Fehler, den dieser Abschnitt beseitigen soll.
 Ausgesetzt wird nur bei Feldern, die `paint()` selbst überschreibt
 (`SCHREIBT_PAINT`), und in den Listen, die es neu aufbaut.
 
+## Richtzeit: die 1,5 Stunden sind eine Annahme, keine Tatsache
+
+Die berechnete Sitzdauer (90 Minuten für zwei Personen bis 180 für große
+Gruppen) ist eine **Richtzeit**. Viele Häuser geben den Tisch nicht nach der
+Uhr weiter, sondern wenn der Gast geht. Deshalb steht oben in der Servicezeile
+ein Häkchen:
+
+- **Richtzeit an** (Vorgabe): Der Tisch wird nach der berechneten Dauer wieder
+  frei. Der Chip nennt die Uhrzeit, zum Beispiel „bis 13:45".
+- **Richtzeit aus**: Der Tisch bleibt belegt, bis jemand **Fertig** drückt. Der
+  Chip liest dann „offen". Das Häkchenfeld färbt sich, damit dieser Zustand
+  nicht unbemerkt bleibt.
+
+Der Preis der abgeschalteten Richtzeit steht offen in der Meldung: wer das
+Abräumen nicht meldet, blockiert den Tisch bis Betriebsschluss. Intern wird
+dafür `BIS_TAGESENDE` als Dauer verwendet, und erst `left` beendet die
+Belegung.
+
+Im **Schichtbetrieb** steht der Schalter nicht zur Wahl und ist ausgegraut —
+dort ist die feste Zeit ja gerade der Zweck. Die Einstellung gehört zur
+Tischordnung, nicht zum Haus: der Mittagsbetrieb kann getaktet laufen und die
+Hochzeit am selben Abend offen.
+
+Geprüft in `check:assignment`: derselbe Gast ist um 14:30 mit Richtzeit
+„vorbei" und ohne Richtzeit noch „überfällig"; erst der Abgang beendet die
+Belegung.
+
+## Tischzahlen eintragen
+
+Tische einzeln anzulegen waren bei 25 Tischen 25 Griffe. Im Reiter
+*Einrichten* steht je Etage eine Zeile mit einem Feld pro Größe: 2er, 3er, 4er,
+5er, 6er, 7er, 8er, 9er, 10er. Zahl eintippen, fertig — die Tische werden
+ergänzt oder entfernt.
+
+**Entfernt werden nur Tische, an denen keine Reservierung hängt**, und zwar die
+zuletzt angelegten zuerst. Bleiben welche übrig, sagt die Meldung genau das:
+„1 von 3 Tischen mit 4 Plätzen entfernt. 2 bleiben – dort hängt noch eine
+Reservierung." Einen belegten Tisch stillschweigend zu löschen wäre der
+teuerste Fehler, den dieses Feld machen könnte.
+
+Die Stuhlzahl einzelner Tische bleibt darunter feineinstellbar — ein Vierer,
+an dem ausnahmsweise fünf sitzen, geht weiter über die Plus- und Minusknöpfe.
+
 ## Servicezeile
 
 Sie klebt oben und beantwortet die vier Fragen des Mittags: welcher Moment
