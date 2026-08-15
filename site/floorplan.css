@@ -262,6 +262,20 @@
 .fp-live[aria-pressed="true"] i{background:#8fd6a8}
 .fp-live:focus-visible,.fp-bar-go:focus-visible,.fp-bar-field input:focus-visible{outline:3px solid var(--gold,#c59b5d);outline-offset:2px}
 
+/* Richtzeit-Haekchen. Aus ist ein Zustand, den man sehen muss - sonst wundert
+   sich abends jemand, warum kein Tisch frei geworden ist. */
+.fp-toggle{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:0 14px;border:1px solid #11110f3d;border-radius:999px;background:#fff;cursor:pointer}
+.fp-toggle input{width:18px;height:18px;accent-color:var(--green,#244635);cursor:pointer}
+.fp-toggle span{display:grid;font-size:13px;font-weight:700;line-height:1.2}
+.fp-toggle b{color:var(--muted,#6d675f);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
+.fp-toggle.is-off{border-color:#a67f45;background:#f6ecd9}
+.fp-toggle.is-off b{color:#6b4f1f}
+.fp-toggle:focus-within{outline:3px solid var(--gold,#c59b5d);outline-offset:2px}
+
+/* Mengeneingabe je Tischgroesse: "8 Zweier, 6 Vierer" statt 25 Einzelklicks. */
+.fp-counts label{gap:5px;color:var(--muted,#6d675f)}
+.fp-counts input{width:56px;min-height:44px;text-align:center}
+
 .fp-bar-stats{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-left:auto}
 .fp-stat{display:inline-flex;align-items:baseline;gap:5px;padding:5px 11px;border:1px solid var(--line,#11110f26);border-radius:999px;background:#fff;color:#57524a;font-size:12px;white-space:nowrap}
 .fp-stat b{color:var(--ink,#11110f);font-size:15px;font-variant-numeric:tabular-nums}

@@ -5,9 +5,9 @@
 // wirklich live, ueber das storage-Ereignis ohne jede Verzoegerung. Ein Geraet
 // im anderen Netz braeuchte einen Server.
 
-import { activeLayout, buildFloorplan, seatingPlan, serviceOf } from './floorplan-layout.mjs?v=505679b2';
-import { durationFor, occupiesAt, stamp } from './table-assignment.mjs?v=65718ef0';
-import { renderFloorplan } from './floorplan.js?v=591cca61';
+import { activeLayout, buildFloorplan, seatingPlan, serviceOf } from './floorplan-layout.mjs?v=268bdada';
+import { durationFor, occupiesAt, stamp } from './table-assignment.mjs?v=3433b591';
+import { renderFloorplan } from './floorplan.js?v=d3336d80';
 
 const KEY = 'wirtschaft-dornbirn-host-control-v1';
 const SICHT = 'wirtschaft-screen-namen';

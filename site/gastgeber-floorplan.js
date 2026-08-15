@@ -4,9 +4,9 @@
 
 // Die Versionsangaben muessen mit denen in den HTML-Dateien mitwandern: ein
 // Modulimport ohne Version bleibt sonst im Browser-Cache haengen.
-import { ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=505679b2';
-import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=65718ef0';
-import { renderFloorplan } from './floorplan.js?v=591cca61';
+import { BIS_TAGESENDE, ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=268bdada';
+import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=3433b591';
+import { renderFloorplan } from './floorplan.js?v=d3336d80';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -102,9 +102,15 @@ async function start() {
    * Nur im freien Betrieb haengt sie an der Gruppengroesse.
    */
   const minutesFor = (guests, time) => {
+    // Ohne Richtzeit endet die Belegung nicht von selbst: der Tisch bleibt
+    // besetzt, bis jemand "Fertig" drueckt. Im Schichtbetrieb waere das ein
+    // Widerspruch - dort ist die feste Zeit ja der Zweck -, deshalb gilt es
+    // nur im durchgehenden Betrieb.
+    const rules = service();
+    if (rules.mode !== 'schichten' && rules.richtzeit === false) return BIS_TAGESENDE;
     const schicht = time ? schichtFor(time) : null;
     if (schicht) return schicht.minutes;
-    if (service().mode === 'schichten' && schichten().length) return schichten()[0].minutes;
+    if (rules.mode === 'schichten' && schichten().length) return schichten()[0].minutes;
     return durationFor(guests, policy());
   };
   const startsAt = party => `${party.date}T${party.time}`;
@@ -120,8 +126,19 @@ async function start() {
     return `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
   };
 
-  /** Bis wann eine Reservierung den Tisch belegt, als Uhrzeit. */
-  const endeVon = party => alsUhrzeit(belegtBis(party, dauerVon(party)));
+  /**
+   * Bis wann eine Reservierung den Tisch belegt, als Uhrzeit - oder null, wenn
+   * es kein berechnetes Ende gibt. Ohne Richtzeit waere die Rechnung
+   * "Beginn plus ein Tag" und stuende als Uhrzeit von gestern da.
+   */
+  const endeVon = party => {
+    // Immer ueber belegtBis rechnen, damit Anzeige und Belegung dasselbe sagen:
+    // die Funktion nimmt den frueheren der beiden Zeitpunkte.
+    if (dauerVon(party) >= BIS_TAGESENDE && !party.left) return null;
+    return alsUhrzeit(belegtBis(party, dauerVon(party)));
+  };
+  /** "bis 13:45" oder "offen" - nie eine erfundene Uhrzeit. */
+  const endeText = party => (endeVon(party) ? `bis ${endeVon(party)}` : 'offen');
 
   /**
    * Zustand einer Reservierung im gewaehlten Moment: kommt, wartet,
@@ -251,14 +268,12 @@ async function start() {
 
   /** Wie viele Gaeste zu diesem Zeitpunkt tatsaechlich an Tischen sitzen. */
   function sitzendeGaeste(date, time, state = store.load()) {
-    const marke = stamp(`${date}T${time}`);
-    if (marke === null) return 0;
+    // Muss dieselbe Regel benutzen wie Karte und Zuweisung. Rechnete der
+    // Zaehler nur nach der Uhr, gaebe "Fertig" den Tisch auf der Karte frei,
+    // ohne dass die freien Plaetze steigen - zwei Wahrheiten auf einer Seite.
     return (state.parties || [])
       .filter(party => party.date === date && party.tableIds.length)
-      .filter(party => {
-        const von = stamp(`${party.date}T${party.time}`);
-        return von !== null && von <= marke && marke < von + minutesFor(party.guests, party.time);
-      })
+      .filter(party => occupiesAt(party, { at: `${date}T${time}`, minutes: minutesFor(party.guests, party.time) }))
       .reduce((sum, party) => sum + party.guests, 0);
   }
 
@@ -292,6 +307,17 @@ async function start() {
     live.title = moment.live
       ? 'Die Uhr läuft mit. Klicken hält den Plan an.'
       : 'Der Plan steht auf einer festen Uhrzeit. Klicken lässt ihn wieder mitlaufen.';
+
+    // Im Schichtbetrieb ist die feste Zeit der Zweck - dort waere ein Schalter
+    // fuer "keine Zeit" ein Widerspruch, also steht er nicht zur Wahl.
+    const rules = service();
+    const schichtbetrieb = rules.mode === 'schichten';
+    byId('fpRichtzeit').checked = schichtbetrieb || rules.richtzeit !== false;
+    byId('fpRichtzeit').disabled = schichtbetrieb;
+    byId('fpRichtzeitLabel').classList.toggle('is-off', !schichtbetrieb && rules.richtzeit === false);
+    byId('fpRichtzeitInfo').textContent = schichtbetrieb
+      ? 'Schichten'
+      : rules.richtzeit === false ? 'aus – bis „Fertig“' : `${durationFor(2, policy())}–${durationFor(20, policy())} Min`;
 
     const plan = buildFloorplan(current());
     const platz = freiePlaetze(moment.date, moment.time, plan);
@@ -378,6 +404,19 @@ async function start() {
     paint();
   }
   byId('fpLive').addEventListener('click', () => liveAn(!moment.live));
+
+  // Richtzeit an oder aus. Gehoert zur Tischordnung, damit ein Haus je Ordnung
+  // anders arbeiten kann - Mittagsbetrieb getaktet, Hochzeit offen.
+  byId('fpRichtzeit').addEventListener('change', event => {
+    const config = current();
+    const entry = config.layouts.find(item => item.id === config.activeLayout);
+    if (!entry) return;
+    entry.service = { ...serviceOf(entry), richtzeit: event.target.checked };
+    save(config, { quiet: true });
+    seatResult(event.target.checked
+      ? 'Richtzeit an: Tische werden nach der berechneten Sitzdauer wieder frei.'
+      : 'Richtzeit aus: Tische bleiben belegt, bis jemand „Fertig“ drückt. Nicht vergessen – sonst blockieren sie bis Betriebsschluss.');
+  });
 
   /**
    * Darf der Takt jetzt neu zeichnen? Nur die Felder aussetzen, die `paint()`
@@ -761,8 +800,8 @@ async function start() {
         chip.className = 'fp-until'
           + (zustand === 'ueberfaellig' ? ' is-late' : zustand === 'da' ? ' is-here' : '');
         chip.textContent = {
-          da: `✓ da · bis ${endeVon(party)}`,
-          wartet: `erwartet · bis ${endeVon(party)}`,
+          da: `✓ da · ${endeText(party)}`,
+          wartet: `erwartet · ${endeText(party)}`,
           ueberfaellig: `überfällig seit ${alsUhrzeit(stamp(startsAt(party)) + KARENZ_MINUTEN)}`,
           weg: `gegangen ${party.left}`,
           vorbei: 'vorbei'
@@ -898,7 +937,8 @@ async function start() {
     party.left = null;
     putParties(list);
     paint();
-    seatResult(`${party.name} ist eingecheckt: ${party.guests} Personen${wo}, ${moment.time}. Der Tisch ist bis ${endeVon(party)} belegt.`);
+    seatResult(`${party.name} ist eingecheckt: ${party.guests} Personen${wo}, ${moment.time}. `
+      + (endeVon(party) ? `Der Tisch ist bis ${endeVon(party)} belegt.` : 'Der Tisch bleibt belegt, bis „Fertig“ gedrückt wird.'));
   }
 
   /** Abgerechnet und gegangen - der Tisch ist ab sofort wieder frei. */
@@ -1125,7 +1165,7 @@ async function start() {
           + (zustand === 'ueberfaellig' ? ' is-late' : party.arrived ? ' is-here' : '');
         chip.textContent = zustand === 'ueberfaellig'
           ? 'überfällig'
-          : `${party.arrived ? '✓ ' : ''}bis ${endeVon(party)}`;
+          : `${party.arrived ? '✓ ' : ''}${endeText(party)}`;
         actions.append(chip);
 
         const arrive = document.createElement('button');
@@ -1385,16 +1425,24 @@ async function start() {
       nameLabel.append(nameInput);
       head.append(nameLabel);
 
+      // Mengen statt Einzelklicks. Ein Haus mit 25 Tischen einzeln anzulegen
+      // waren 25 Griffe; hier traegt man "8 Zweier, 6 Vierer" ein und fertig.
+      const eigene = plan.tables.filter(entry => entry.levelId === level.id);
       const add = document.createElement('div');
-      add.className = 'fp-sizes';
+      add.className = 'fp-sizes fp-counts';
       for (const seats of SIZES) {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.dataset.addTable = level.id;
-        button.dataset.seats = String(seats);
-        button.textContent = `+ ${seats}P`;
-        button.setAttribute('aria-label', `Tisch mit ${seats} Plätzen in ${level.name} ergänzen`);
-        add.append(button);
+        const label = document.createElement('label');
+        label.append(`${seats}er`);
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.min = '0';
+        input.max = '60';
+        input.value = String(eigene.filter(entry => entry.seats === seats).length);
+        input.dataset.countLevel = level.id;
+        input.dataset.seats = String(seats);
+        input.setAttribute('aria-label', `Anzahl Tische mit ${seats} Plätzen in ${level.name}`);
+        label.append(input);
+        add.append(label);
       }
       head.append(add);
 
@@ -1451,18 +1499,51 @@ async function start() {
     save(config, { quiet: true });
   });
 
+  /**
+   * Setzt die Anzahl der Tische einer Groesse auf einer Etage. Zu wenige werden
+   * ergaenzt, zu viele entfernt - aber nur solche, an denen an keinem Tag eine
+   * Reservierung haengt. Einen belegten Tisch stillschweigend zu loeschen waere
+   * der teuerste Fehler, den dieses Feld machen koennte.
+   */
+  function setzeAnzahl(levelId, seats, wunsch) {
+    const config = current();
+    const level = activeLayout(config).levels.find(item => item.id === levelId);
+    if (!level) return;
+    const ziel = Math.max(0, Math.min(60, Math.trunc(Number(wunsch) || 0)));
+    const gleiche = level.tables.filter(table => table.seats === seats);
+
+    if (ziel > gleiche.length) {
+      for (let i = gleiche.length; i < ziel; i += 1) {
+        level.tables.push({ id: nextTableId(level), seats, col: null, row: null });
+      }
+      save(config);
+      return warn(`${level.name}: jetzt ${ziel} Tische mit ${seats} Plätzen.`);
+    }
+    if (ziel === gleiche.length) return warn('');
+
+    const belegt = new Set(parties().flatMap(party => party.tableIds));
+    // Von hinten wegnehmen: die zuletzt angelegten Tische zuerst.
+    const frei = [...gleiche].reverse().filter(table => !belegt.has(table.id));
+    const wieViele = gleiche.length - ziel;
+    const weg = new Set(frei.slice(0, wieViele).map(table => table.id));
+    level.tables = level.tables.filter(table => !weg.has(table.id));
+    save(config);
+
+    const fehlen = wieViele - weg.size;
+    warn(fehlen > 0
+      ? `${weg.size} von ${wieViele} Tischen mit ${seats} Plätzen entfernt. ${fehlen} bleiben – dort hängt noch eine Reservierung. Erst die Reservierung entfernen.`
+      : `${level.name}: jetzt ${ziel} Tische mit ${seats} Plätzen.`);
+  }
+
+  byId('fpLevels').addEventListener('change', event => {
+    const feld = event.target.closest('[data-count-level]');
+    if (!feld) return;
+    setzeAnzahl(feld.dataset.countLevel, Number(feld.dataset.seats), feld.value);
+  });
+
   byId('fpLevels').addEventListener('click', event => {
     const config = current();
     const active = activeLayout(config);
-
-    const add = event.target.closest('[data-add-table]');
-    if (add) {
-      const level = active.levels.find(item => item.id === add.dataset.addTable);
-      if (!level) return;
-      level.tables.push({ id: nextTableId(level), seats: clampSeats(add.dataset.seats), col: null, row: null });
-      save(config);
-      return;
-    }
 
     const chair = event.target.closest('[data-chair]');
     if (chair) {

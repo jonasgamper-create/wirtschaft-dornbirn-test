@@ -149,8 +149,16 @@ export const DEFAULT_SERVICE = {
   mode: 'frei',
   seatings: ['11:30', '12:45'],
   endsAt: '13:45',
-  bufferMinutes: 15
+  bufferMinutes: 15,
+  // Die berechnete Sitzdauer ist eine Richtzeit, keine Tatsache. Ist sie aus,
+  // bleibt ein Tisch belegt, bis jemand "Fertig" drueckt - so arbeiten Haeuser,
+  // die den Tisch nicht nach der Uhr weitergeben. Der Preis dafuer: wer das
+  // Abraeumen nicht meldet, blockiert den Tisch bis Betriebsschluss.
+  richtzeit: true
 };
+
+/** Minuten bis Betriebsschluss - die Belegung ohne Richtzeit. */
+export const BIS_TAGESENDE = 24 * 60;
 
 export const serviceOf = layout => ({ ...DEFAULT_SERVICE, ...(layout?.service || {}) });
 
