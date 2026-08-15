@@ -25,7 +25,11 @@ if (!/tischreservierung\.html|tischreservierung\.wirtschaft-dornbirn\.at/.test(l
 if (!/https:\/\/tischreservierung\.wirtschaft-dornbirn\.at\//.test(reservierung)) {
   errors.push('site/tischreservierung.html: Der offizielle Reservierungsanbieter fehlt');
 }
-if (/name="(name|email|phone|telefon)"|type="email"|type="tel"/i.test(reservierung)) {
+// Kontaktdaten bleiben verboten. Der Name der Gruppe ist seit der eigenen
+// Onlinebuchung erlaubt und noetig - ohne ihn kann der Tisch niemandem
+// zugeordnet werden. Mehr als der Name wird bewusst nicht erhoben: keine
+// Mailadresse, keine Telefonnummer, keine Anschrift.
+if (/type="email"|type="tel"|name="(email|phone|telefon|adresse)"/i.test(reservierung)) {
   errors.push('site/tischreservierung.html: Diese Seite darf keine Kontaktdaten abfragen');
 }
 if (/Abendtisch|Tisch am Abend|abends reservieren/i.test(index)) {

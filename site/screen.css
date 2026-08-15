@@ -61,3 +61,8 @@ body{margin:0;min-height:100vh;background:var(--paper);color:var(--ink);font-fam
   .sc-row em{grid-column:1}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* Hinweis, wenn der Draht zum Dienst abreisst. Der Schirm zeigt dann weiter
+   den letzten Stand - aber er sagt, dass er alt sein koennte. Eine still
+   veraltete Anzeige am Eingang schickt Gaeste an falsche Tische. */
+.sc-link{margin:0;padding:10px 24px;background:#8c292b;color:#fff;font-size:15px;font-weight:700;text-align:center}

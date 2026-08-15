@@ -8,6 +8,7 @@ import { BIS_TAGESENDE, ELEMENTS, GRID, activeLayout, buildFloorplan, canPlace, 
 import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=3433b591';
 import { renderFloorplan } from './floorplan.js?v=d3336d80';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
+import { apiAdresse, bleibVerbunden, hausToken, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=29758f6f';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 const store = window.WirtschaftData;
@@ -628,6 +629,9 @@ async function start() {
     if (laufkunde && result.ok) party.arrived = time;
     laufkunde = false;
     putParties([...parties(), party]);
+    // Auch im Haus angelegte Reservierungen gehoeren in den Dienst - sonst
+    // vergibt eine Onlinebuchung denselben Tisch ein zweites Mal.
+    meldeNeu(party);
 
     moment.date = date;
     moment.time = time;
@@ -910,6 +914,7 @@ async function start() {
     const gone = parties().find(party => party.id === button.dataset.removeParty);
     if (marked === button.dataset.removeParty) marked = null;
     putParties(parties().filter(party => party.id !== button.dataset.removeParty));
+    melde({ art: 'entfernen', id: button.dataset.removeParty });
     seatResult(gone ? `${gone.name} entfernt.` : 'Reservierung entfernt.');
     paint();
   });
@@ -930,12 +935,14 @@ async function start() {
       party.arrived = null;
       party.left = null;
       putParties(list);
+      melde({ art: 'ankunft', id: party.id, zeit: null });
       paint();
       return seatResult(`${party.name} ist wieder als erwartet markiert${wo}. Nochmal klicken checkt ein.`);
     }
     party.arrived = moment.time;
     party.left = null;
     putParties(list);
+    melde({ art: 'ankunft', id: party.id, zeit: party.arrived });
     paint();
     seatResult(`${party.name} ist eingecheckt: ${party.guests} Personen${wo}, ${moment.time}. `
       + (endeVon(party) ? `Der Tisch ist bis ${endeVon(party)} belegt.` : 'Der Tisch bleibt belegt, bis „Fertig“ gedrückt wird.'));
@@ -949,12 +956,14 @@ async function start() {
     if (party.left) {
       party.left = null;
       putParties(list);
+      melde({ art: 'abgang', id: party.id, zeit: null });
       paint();
       return seatResult(`${party.name} sitzt wieder – der Abgang wurde zurückgenommen.`);
     }
     party.left = moment.time;
     if (!party.arrived) party.arrived = party.time;
     putParties(list);
+    melde({ art: 'abgang', id: party.id, zeit: party.left });
     paint();
     seatResult(`${party.name} ist gegangen (${moment.time}). Tisch ${tischListe(party.tableIds)} ist wieder frei.`);
   }
@@ -989,6 +998,7 @@ async function start() {
     party.tableIds = [tableId];
     marked = null;
     putParties(list);
+    melde({ art: 'tisch', id: party.id, tableIds: party.tableIds });
     seatResult(`${party.name} sitzt an Tisch ${tisch(table)} (${party.guests} von ${table.seats} Plätzen, ${party.time}).`);
     paint();
 
@@ -1306,6 +1316,105 @@ async function start() {
       ? `Tisch ${tisch(table)} hat nur ${seats} Plätze – auf ${seats} begrenzt.`
       : `Tisch ${tisch(table)}: ${party.name}, ${party.guests} Personen.`);
     paint();
+  });
+
+  // ---- Reservierungsdienst -------------------------------------------------
+  //
+  // Der Dienst ist eine Ergaenzung, keine Voraussetzung. Faellt er aus, laeuft
+  // die Planung im Haus unveraendert weiter - nur Onlinebuchungen kommen dann
+  // nicht an. Ein Werkzeug, das im Mittag am Netz haengt, waere schlechter als
+  // das bisherige.
+
+  const dienst = { an: false, verbunden: false, zuletzt: 0 };
+
+  function dienstInfo(text) { say('fpDienstInfo', text); }
+
+  /** Sagt dem Dienst Bescheid - und schweigt, wenn er nicht eingerichtet ist. */
+  async function melde(befehl) {
+    if (!dienst.an || !hausToken()) return;
+    const antwort = await sendeAktion(hausToken(), befehl);
+    if (antwort?.grund === 'token') dienstInfo('Der Hausschlüssel stimmt nicht mehr. Bitte neu eintragen.');
+  }
+
+  async function meldeNeu(party) {
+    if (!dienst.an || !hausToken()) return;
+    await sendeReservierung(hausToken(), party);
+  }
+
+  /**
+   * Uebernimmt den Stand des Dienstes. Der Dienst ist die Wahrheit fuer
+   * Reservierungen: nur er sieht die Onlinebuchungen aller Gaeste. Alles
+   * andere - Tischplan, Sperren - bleibt hier.
+   */
+  function uebernimm(stand) {
+    if (!Array.isArray(stand?.parties)) return;
+    const state = store.load();
+    const vorher = JSON.stringify(state.parties || []);
+    const nachher = JSON.stringify(stand.parties);
+    if (vorher === nachher) return;
+    const neueOnline = stand.parties.filter(party => party.quelle === 'online'
+      && !(state.parties || []).some(alt => alt.id === party.id));
+    store.setParties(stand.parties);
+    paint();
+    if (neueOnline.length) {
+      const namen = neueOnline.map(party => `${party.name} (${party.guests}P, ${party.time})`).join(', ');
+      seatResult(`Neue Onlinebuchung: ${namen}.`);
+      dienstInfo(`Zuletzt eingegangen: ${namen}.`);
+    }
+  }
+
+  async function starteDienst() {
+    const adresse = await apiAdresse();
+    if (!adresse) {
+      dienstInfo('Kein Dienst eingetragen. Onlinebuchungen sind aus; alles läuft nur in diesem Browser. '
+        + 'Zum Einschalten die Adresse in site/data/haus.json eintragen.');
+      byId('fpDienstForm').hidden = true;
+      return;
+    }
+    dienst.an = true;
+    byId('fpToken').value = hausToken();
+    if (!hausToken()) {
+      return dienstInfo('Dienst gefunden. Bitte einmal den Hausschlüssel eintragen, dann kommen Onlinebuchungen hier an.');
+    }
+    bleibVerbunden(hausToken(), uebernimm, zustand => {
+      dienst.verbunden = zustand === 'verbunden';
+      dienstInfo(dienst.verbunden
+        ? `Verbunden mit ${adresse}. Onlinebuchungen erscheinen sofort.`
+        : 'Verbindung zum Dienst unterbrochen. Die Planung läuft weiter, Onlinebuchungen kommen gerade nicht an.');
+    });
+  }
+
+  function paintStandardEtage() {
+    const select = byId('fpStandardEtage');
+    const gewaehlt = select.value;
+    const plan = buildFloorplan(current());
+    select.textContent = '';
+    for (const level of plan.levels) {
+      const option = document.createElement('option');
+      option.value = level.id;
+      option.textContent = level.name;
+      option.selected = level.id === gewaehlt;
+      select.append(option);
+    }
+  }
+
+  byId('fpDienstForm').addEventListener('submit', async event => {
+    event.preventDefault();
+    setzeToken(byId('fpToken').value.trim());
+    if (!hausToken()) return dienstInfo('Ohne Hausschlüssel kann der Dienst nicht angesprochen werden.');
+    dienstInfo('Wird veröffentlicht …');
+    const platz = freiePlaetze(moment.date, moment.time);
+    const antwort = await sendePlan(hausToken(), {
+      floorplan: current(),
+      standardEtage: byId('fpStandardEtage').value || null,
+      blockedTables: blocked(),
+      deckel: platz.limit
+    });
+    if (antwort?.grund === 'token') return dienstInfo('Der Hausschlüssel stimmt nicht. Bitte prüfen.');
+    if (!antwort?.ok) return dienstInfo('Der Dienst war nicht erreichbar. Später nochmal versuchen.');
+    dienstInfo(`Veröffentlicht: ${buildFloorplan(current()).tables.length} Tische, Standard-Etage `
+      + `${byId('fpStandardEtage').selectedOptions[0]?.textContent || '–'}. Onlinebuchungen werden ab jetzt so eingeteilt.`);
+    starteDienst();
   });
 
   // ---- Reiter ---------------------------------------------------------------
@@ -2076,6 +2185,7 @@ async function start() {
     paintReservationTime();
     paintFloorMove();
     paintStats();
+    paintStandardEtage();
     paintHistory();
     pruefeSicherung();
     // Auch nach einer Reservierung, nicht nur nach Planaenderungen - sonst
@@ -2096,6 +2206,7 @@ async function start() {
   } catch { /* privater Modus */ }
   zeigeReiter(starte);
   paintDishes();
+  starteDienst();
   syncServiceMix(buildFloorplan(current()));
   paint();
 }

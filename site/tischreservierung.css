@@ -111,3 +111,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.button{transition:none}.button:hover,.button:active{transform:none}.skip-link{transition:none}}
 @media print{.site-head,.back-link,.submit-row,.skip-link{display:none!important}body{background:#fff;color:#000}a[href^="http"]:after{content:" (" attr(href) ")";font-size:10pt;color:#444}}
+
+/* Rueckmeldung der eigenen Buchung. Drei Toene: geschafft, Achtung, Fehler. */
+.booking-result{margin:14px 0 0;padding:14px 16px;border-left:3px solid var(--green,#244635);background:#11110f08;color:#3c3833;font-size:15px;line-height:1.55;max-width:60ch}
+.booking-result[data-art="gut"]{border-color:var(--green,#244635);background:#e8f0ea}
+.booking-result[data-art="warnung"]{border-color:#a67f45;background:#f6ecd9}
+.booking-result[data-art="fehler"]{border-color:var(--wine,#8c292b);background:#8c292b14;color:#6b2224}

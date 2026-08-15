@@ -1,0 +1,5 @@
+{
+  "_hinweis": "Adresse des Reservierungsdienstes. Leer bedeutet: aus. Dann verhaelt sich alles wie vorher - die Gaesteseite leitet auf den offiziellen Anbieter weiter, der Tischplan arbeitet nur im Browser. Nach dem Veroeffentlichen des Workers hier die Adresse eintragen, zum Beispiel https://wirtschaft-reservierung.<konto>.workers.dev",
+  "api": "",
+  "status": "aus – nach dem Veroeffentlichen des Workers hier die Adresse eintragen, siehe server/README.md"
+}

@@ -1,0 +1,29 @@
+{
+  // Reservierungsdienst der Wirtschaft Dornbirn.
+  // Der Tischplan im Haus laeuft ohne diesen Dienst weiter; er ergaenzt nur
+  // das, was eine statische Seite nicht kann: gemeinsamen Zustand.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wirtschaft-reservierung",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "observability": { "enabled": true },
+
+  "durable_objects": {
+    "bindings": [{ "name": "HAUS", "class_name": "Haus" }]
+  },
+  // SQLite-gestuetzt: die Reservierungen liegen in einer echten Tabelle, nicht
+  // in einem einzelnen Schluessel mit Groessengrenze.
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Haus"] }],
+
+  "vars": {
+    // Nur diese Herkuenfte duerfen den Dienst im Browser ansprechen.
+    // Beim eigenen Domainnamen hier ergaenzen.
+    "ALLOWED_ORIGINS": "https://jonasgamper-create.github.io,http://localhost:4321"
+  },
+
+  // HAUS_TOKEN ist ein Geheimnis und steht nicht in dieser Datei:
+  //   npx wrangler secret put HAUS_TOKEN
+  "keep_vars": true
+}
