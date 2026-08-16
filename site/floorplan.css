@@ -412,3 +412,41 @@
 /* Der Automatik-Schalter steht auf eigener Zeile: er ist die wichtigste
    Entscheidung in diesem Kasten und soll nicht neben einem Feld untergehen. */
 .fp-toggle-block{display:inline-flex;margin:14px 0 0}
+
+/* Raumelemente: jede Sorte klar unterscheidbar, ohne bunt zu werden. */
+.fp-svg [data-kind="toilette"] .fp-element-shape{fill:#24463514;stroke:#24463566}
+.fp-svg [data-kind="kueche"] .fp-element-shape{fill:#11110f14;stroke:#11110f59}
+.fp-svg [data-kind="garderobe"] .fp-element-shape{fill:#c59b5d1a;stroke:#c59b5d80}
+/* Eine Saeule steht wirklich im Weg - deshalb voll durchgezeichnet. */
+.fp-svg [data-kind="saeule"] .fp-element-shape{fill:#11110f80;stroke:#11110f}
+/* Fenster: eine Linie in der Wand, kein Block. */
+.fp-svg [data-kind="fenster"] .fp-element-shape{fill:#8fb8d6;stroke:#5b87a6}
+/* Wege sind gestrichelt und leer - sie sind Freiflaeche, kein Moebel. */
+.fp-svg [data-kind="weg"] .fp-element-shape{fill:none;stroke:#11110f4d;stroke-dasharray:.4 .3}
+.fp-svg [data-kind="weg"] .fp-element-label{fill:#8b857b}
+
+/* Massfelder am Raumelement: Zahl und Einheit nebeneinander, damit klar ist,
+   dass hier Meter stehen und keine Rasterkaestchen. */
+.fp-mass{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted,#6d675f)}
+.fp-mass input{width:64px;min-height:44px;padding:0 8px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#fff;font:inherit;font-size:13px;font-variant-numeric:tabular-nums;text-align:center}
+.fp-mass small{font-size:11px;text-transform:none}
+
+/* Posteingang. Er ist das einzige, was von aussen hereinkommt - deshalb steht
+   er oben und faellt auf, solange etwas ungelesen ist. */
+.fp-inbox{border-left:3px solid var(--green,#244635)}
+.fp-mail-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.fp-mail-list li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line,#11110f26);border-radius:10px;background:#fff}
+.fp-mail-list li.is-neu{border-color:var(--green,#244635);background:#e8f0ea}
+.fp-mail-list .wann{font-size:11px;font-weight:700;color:var(--muted,#6d675f);font-variant-numeric:tabular-nums;text-align:center;line-height:1.3}
+.fp-mail-list .wann b{display:block;font-size:15px;color:var(--ink,#11110f)}
+.fp-mail-list .was{font-size:14px;line-height:1.45}
+.fp-mail-list .was b{font-size:15px}
+.fp-mail-list .was em{font-style:normal;color:var(--muted,#6d675f)}
+.fp-mail-list .tat{display:flex;flex-wrap:wrap;gap:8px}
+.fp-mail-list button{min-height:44px;padding:0 14px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.fp-mail-list button.haupt{border-color:var(--ink,#11110f);background:var(--ink,#11110f);color:#fff}
+.fp-tab-badge.is-post{background:var(--green,#244635);color:#fff}
+@media(max-width:760px){
+  .fp-mail-list li{grid-template-columns:auto minmax(0,1fr)}
+  .fp-mail-list .tat{grid-column:1 / -1}
+}

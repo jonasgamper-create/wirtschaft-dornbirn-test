@@ -4,9 +4,9 @@
 
 // Die Versionsangaben muessen mit denen in den HTML-Dateien mitwandern: ein
 // Modulimport ohne Version bleibt sonst im Browser-Cache haengen.
-import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, formOf, istGedreht, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=d8056338';
-import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=e03ddbf8';
-import { renderFloorplan } from './floorplan.js?v=e371595f';
+import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, METER_PRO_EINHEIT, alsMeter, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, formOf, istGedreht, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=4e77fe92';
+import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=e5651f4b';
+import { renderFloorplan } from './floorplan.js?v=11cfb662';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
 import { apiAdresse, bleibVerbunden, hausToken, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=d2fd0923';
 
@@ -969,6 +969,114 @@ async function start() {
     paint();
   });
 
+  // ---- Posteingang ----------------------------------------------------------
+  //
+  // Eine Onlineanfrage ist das einzige, was von aussen hereinkommt und eine
+  // Entscheidung braucht. In der langen Reservierungsliste geht sie unter -
+  // deshalb steht sie oben, mit der Uhrzeit ihres Eingangs, bis jemand sie
+  // zur Kenntnis genommen hat.
+
+  const offenePost = () => parties()
+    .filter(party => party.quelle === 'online' && party.eingegangen && !party.gesehen)
+    .sort((a, b) => String(b.eingegangen).localeCompare(String(a.eingegangen)));
+
+  /** Uhrzeit des Eingangs, und bei aelteren Anfragen auch der Tag. */
+  function eingangsZeit(iso) {
+    const wann = new Date(iso);
+    if (Number.isNaN(wann.getTime())) return { uhr: '—', tag: '' };
+    const pad = n => String(n).padStart(2, '0');
+    const heuteIso = today();
+    const tagIso = `${wann.getFullYear()}-${pad(wann.getMonth() + 1)}-${pad(wann.getDate())}`;
+    return {
+      uhr: `${pad(wann.getHours())}:${pad(wann.getMinutes())}`,
+      tag: tagIso === heuteIso ? 'heute' : `${pad(wann.getDate())}.${pad(wann.getMonth() + 1)}.`
+    };
+  }
+
+  function paintPost() {
+    const liste = offenePost();
+    const kasten = byId('fpInbox');
+    kasten.hidden = liste.length === 0;
+    const abzeichen = byId('fpBadgePost');
+    abzeichen.hidden = liste.length === 0;
+    abzeichen.textContent = String(liste.length);
+    abzeichen.setAttribute('aria-label', `${liste.length} neue Anfragen`);
+    say('fpInboxCount', liste.length === 1 ? '1 neue Anfrage' : `${liste.length} neue Anfragen`);
+
+    const box = byId('fpInboxList');
+    box.textContent = '';
+    for (const party of liste) {
+      const zeile = document.createElement('li');
+      zeile.className = 'is-neu';
+
+      const wann = document.createElement('span');
+      wann.className = 'wann';
+      const zeit = eingangsZeit(party.eingegangen);
+      wann.append(Object.assign(document.createElement('b'), { textContent: zeit.uhr }), zeit.tag);
+      wann.title = `Anfrage eingegangen am ${new Date(party.eingegangen).toLocaleString('de-AT')}`;
+
+      const was = document.createElement('span');
+      was.className = 'was';
+      const wer = document.createElement('b');
+      wer.textContent = `${party.name}, ${party.guests} ${party.guests === 1 ? 'Person' : 'Personen'}`;
+      const wo = document.createElement('em');
+      wo.textContent = party.tableIds.length
+        ? ` · ${party.date} um ${party.time} · Tisch ${tischListe(party.tableIds)}`
+        : ` · ${party.date} um ${party.time} · noch ohne Tisch`;
+      was.append(wer, wo);
+
+      const tat = document.createElement('span');
+      tat.className = 'tat';
+      if (!party.tableIds.length) {
+        const setzen = document.createElement('button');
+        setzen.type = 'button';
+        setzen.className = 'haupt';
+        setzen.dataset.postSetzen = party.id;
+        setzen.textContent = 'Tisch zuweisen';
+        tat.append(setzen);
+      }
+      const ok = document.createElement('button');
+      ok.type = 'button';
+      ok.className = party.tableIds.length ? 'haupt' : '';
+      ok.dataset.postGesehen = party.id;
+      ok.textContent = 'Gesehen';
+      tat.append(ok);
+
+      zeile.append(wann, was, tat);
+      box.append(zeile);
+    }
+  }
+
+  /** Zur Kenntnis genommen - die Anfrage verlaesst den Posteingang. */
+  function markiereGesehen(partyId) {
+    const list = parties().map(party => ({ ...party, tableIds: [...party.tableIds] }));
+    const party = list.find(entry => entry.id === partyId);
+    if (!party) return;
+    party.gesehen = true;
+    putParties(list);
+    meldeNeu(party);
+    paint();
+  }
+
+  byId('fpInboxList').addEventListener('click', event => {
+    const gesehen = event.target.closest('[data-post-gesehen]');
+    if (gesehen) return markiereGesehen(gesehen.dataset.postGesehen);
+
+    const setzen = event.target.closest('[data-post-setzen]');
+    if (!setzen) return;
+    // Zur Anfrage springen und sie markieren - der naechste Klick auf einen
+    // Tisch setzt sie. Genau der Weg, den das Haus ohnehin kennt.
+    const party = parties().find(entry => entry.id === setzen.dataset.postSetzen);
+    if (!party) return;
+    moment.date = party.date;
+    moment.time = party.time;
+    moment.live = false;
+    marked = party.id;
+    paint();
+    seatResult(`${party.name} (${party.guests}P, ${party.time}) ist markiert – jetzt einen freien Tisch auf der Karte anklicken.`);
+    byId('fpPreview').scrollIntoView({ block: 'center' });
+  });
+
   // ---- Gaestehistorie -------------------------------------------------------
 
   /**
@@ -1105,9 +1213,40 @@ async function start() {
       return seatResult(`${party.name} sind ${party.guests} Personen – Tisch ${tisch(table)} hat nur ${table.seats} Plätze.`);
     }
     const clash = collidesAt(party, [tableId], list);
-    if (clash) return seatResult(`Tisch ${tisch(table)} ist um ${party.time} schon von ${clash.name} belegt.`);
+    if (clash) {
+      // Belegt heisst nicht "geht nicht": im Betrieb will man tauschen.
+      // Das geht aber nur, wenn beide Gruppen an den jeweils anderen Tisch
+      // passen - sonst sitzt gleich jemand zu eng.
+      const meine = [...party.tableIds];
+      const andere = clash.tableIds.filter(id => id !== tableId);
+      const zielPlaetze = table.seats;
+      const eigenePlaetze = meine.reduce((sum, id) =>
+        sum + (plan.tables.find(entry => entry.id === id)?.seats || 0), 0);
+      if (!meine.length) {
+        return seatResult(`Tisch ${tisch(table)} ist um ${party.time} von ${clash.name} belegt. `
+          + 'Zum Tauschen zuerst eine sitzende Gruppe markieren.');
+      }
+      if (party.guests > zielPlaetze || clash.guests > eigenePlaetze) {
+        return seatResult(`Tauschen geht nicht: ${party.name} braucht ${party.guests} Plätze `
+          + `(Tisch ${tisch(table)} hat ${zielPlaetze}), ${clash.name} braucht ${clash.guests} `
+          + `(hat dann ${eigenePlaetze}).`);
+      }
+      const partner = list.find(entry => entry.id === clash.id);
+      partner.tableIds = meine;
+      party.tableIds = [tableId, ...andere];
+      party.gesehen = true;
+      marked = null;
+      putParties(list);
+      melde({ art: 'tisch', id: party.id, tableIds: party.tableIds });
+      melde({ art: 'tisch', id: partner.id, tableIds: partner.tableIds });
+      paint();
+      return seatResult(`Getauscht: ${party.name} sitzt jetzt an Tisch ${tischListe(party.tableIds)}, `
+        + `${partner.name} an Tisch ${tischListe(partner.tableIds)}.`);
+    }
 
     party.tableIds = [tableId];
+    // Von Hand gesetzt heisst auch: zur Kenntnis genommen.
+    party.gesehen = true;
     marked = null;
     putParties(list);
     melde({ art: 'tisch', id: party.id, tableIds: party.tableIds });
@@ -2012,7 +2151,7 @@ async function start() {
       const button = document.createElement('button');
       button.type = 'button';
       button.dataset.addElement = kind;
-      button.textContent = `+ ${ELEMENTS[kind].label || 'Wand'}`;
+      button.textContent = `+ ${ELEMENTS[kind].name || ELEMENTS[kind].label || kind}`;
       add.append(button);
     }
 
@@ -2024,18 +2163,28 @@ async function start() {
         const chip = document.createElement('div');
         chip.className = 'fp-chair-chip';
         const label = document.createElement('b');
-        label.textContent = item.label || ELEMENTS[item.kind]?.label || 'Wand';
+        label.textContent = item.label || ELEMENTS[item.kind]?.name || 'Element';
         const where = document.createElement('span');
-        where.textContent = `${level.name} · ${item.w}×${item.h}`;
+        where.textContent = level.name;
         chip.append(label, where);
-        for (const [step, zeichen, titel] of [['-1', '−', 'kürzer'], ['1', '+', 'länger']]) {
-          const button = document.createElement('button');
-          button.type = 'button';
-          button.dataset.sizeElement = item.id;
-          button.dataset.step = step;
-          button.textContent = zeichen;
-          button.setAttribute('aria-label', `${label.textContent} ${titel}`);
-          chip.append(button);
+
+        // Echte Masse statt Plus und Minus. Ein Grundriss ohne Masse ist ein
+        // Bild; beim Ausmessen im Lokal hilft nur die Zahl in Metern.
+        for (const [achse, titel] of [['w', 'Breite'], ['h', 'Tiefe']]) {
+          const feld = document.createElement('label');
+          feld.className = 'fp-mass';
+          feld.append(titel);
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.min = String(METER_PRO_EINHEIT);
+          input.max = '12';
+          input.step = String(METER_PRO_EINHEIT);
+          input.value = (item[achse] * METER_PRO_EINHEIT).toFixed(1);
+          input.dataset.massElement = item.id;
+          input.dataset.achse = achse;
+          input.setAttribute('aria-label', `${titel} von ${label.textContent} in Metern`);
+          feld.append(input, Object.assign(document.createElement('small'), { textContent: 'm' }));
+          chip.append(feld);
         }
         const turn = document.createElement('button');
         turn.type = 'button';
@@ -2054,6 +2203,23 @@ async function start() {
 
   const elementLevel = (config, id) =>
     activeLayout(config).levels.find(level => (level.elements || []).some(item => item.id === id));
+
+  // Masse in Metern entgegennehmen und in Rastereinheiten umrechnen.
+  byId('fpElements').addEventListener('change', event => {
+    const feld = event.target.closest('[data-mass-element]');
+    if (!feld) return;
+    const config = current();
+    const level = elementLevel(config, feld.dataset.massElement);
+    const item = level?.elements.find(entry => entry.id === feld.dataset.massElement);
+    if (!item) return;
+    const meter = Math.max(METER_PRO_EINHEIT, Math.min(12, Number(feld.value) || METER_PRO_EINHEIT));
+    const einheiten = Math.max(1, Math.round(meter / METER_PRO_EINHEIT));
+    item[feld.dataset.achse] = einheiten;
+    // Nicht ueber den Raum hinaus: sonst steht die Haelfte ausserhalb.
+    if (feld.dataset.achse === 'w') item.col = Math.max(0, Math.min(item.col, GRID.cols - item.w));
+    save(config, { quiet: true });
+    warn(`${item.label || ELEMENTS[item.kind]?.label || 'Wand'}: ${alsMeter(item.w)} breit, ${alsMeter(item.h)} tief.`);
+  });
 
   byId('fpAddElement').addEventListener('click', event => {
     const button = event.target.closest('[data-add-element]');
@@ -2221,6 +2387,7 @@ async function start() {
     byId('fpSeatings').value = rules.seatings.join(', ');
     byId('fpEndsAt').value = rules.endsAt;
     byId('fpBuffer').value = String(rules.bufferMinutes);
+    byId('fpDauer').value = String(durationFor(4, policy()));
     const schicht = rules.mode === 'schichten';
     for (const id of ['fpSeatings', 'fpEndsAt']) byId(id).disabled = !schicht;
 
@@ -2263,10 +2430,17 @@ async function start() {
       mode: byId('fpMode').value,
       seatings: zeiten.length ? zeiten : alt.seatings,
       endsAt: byId('fpEndsAt').value || alt.endsAt,
-      bufferMinutes: Math.max(0, Math.min(60, Number(byId('fpBuffer').value) || 0))
+      bufferMinutes: Math.max(0, Math.min(60, Number(byId('fpBuffer').value) || 0)),
+      richtzeit: alt.richtzeit
     };
+    // Eine eingestellte Sitzdauer gilt fuer alle Gruppengroessen. Sie ersetzt
+    // die Staffel nach Personenzahl - wer eine feste Zahl vorgibt, will genau
+    // die und keine Rechnung dahinter.
+    const dauer = Math.max(30, Math.min(240, Number(byId('fpDauer').value) || 0));
+    config.policy = { ...(config.policy || {}), durations: [{ upTo: 24, minutes: dauer }] };
     save(config, { quiet: true });
-    seatResult('Betriebsart übernommen. Bestehende Reservierungen behalten ihre Uhrzeit.');
+    seatResult(`Betriebsart übernommen: Sitzdauer ${dauer} Minuten. `
+      + 'Bestehende Reservierungen behalten ihre Uhrzeit.');
   });
 
   /** Im Schichtbetrieb gibt es nur die Schichtzeiten zur Auswahl. */
@@ -2372,6 +2546,7 @@ async function start() {
 
   function paint() {
     paintBar();
+    paintPost();
     paintMoment();
     paintPlan();
     paintSeating();
