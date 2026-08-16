@@ -11,9 +11,9 @@
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="stylesheet" href="gastgeber.css?v=68a0ecf6">
   <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=c75294f5">
-  <link rel="stylesheet" href="floorplan.css?v=c876798b">
+  <link rel="stylesheet" href="floorplan.css?v=e6f7f820">
   <script src="inventory-store.js?v=4587c57c" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=ff0f297c"></script>
+  <script type="module" src="gastgeber-floorplan.js?v=d98253e8"></script>
 </head>
 <body>
   <header class="topbar">
@@ -109,14 +109,6 @@
           <p class="fp-result" id="fpSeatResult" role="status" aria-live="polite">Reservierung anklicken, dann einen Tisch auf der Karte – fertig. Ein Klick auf einen belegten Tisch checkt die Gäste ein.</p>
           <p class="fp-kitchen" id="fpKitchen"></p>
 
-          <details class="fp-fold">
-            <summary>Aus einer E-Mail übernehmen</summary>
-            <p class="model-note">Text der Mail hier einfügen. Erkannt werden Name, Datum, Uhrzeit und Personenzahl. Ein Postfach automatisch auszulesen kann eine statische Seite nicht – dafür bräuchte es einen Server.</p>
-            <label class="fp-mail-label">Mailtext
-              <textarea id="fpMailText" rows="5" placeholder="Guten Tag, ich möchte für den 24.08.2026 um 12:00 einen Tisch für 4 Personen auf den Namen Huber reservieren."></textarea>
-            </label>
-            <button class="quiet" type="button" id="fpMailImport">Aus Text übernehmen</button>
-          </details>
 
           <details class="fp-fold">
             <summary>Umsetzen, verteilen, löschen</summary>
