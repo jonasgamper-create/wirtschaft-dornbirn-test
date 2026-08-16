@@ -256,17 +256,19 @@ Auch eine einzelne Portion bei vier Personen ist erlaubt — der Rest entscheide
 vor Ort. Unter der Liste steht die Küchenübersicht des Tages: wie viel von was,
 von wie vielen Reservierungen, bei wie vielen Gästen insgesamt.
 
-### Aus einer E-Mail übernehmen
+### Zwei Wege, kein dritter
 
-Mailtext einfügen, „Aus Text übernehmen". Erkannt werden Name, Datum, Uhrzeit
-und Personenzahl aus den üblichen Formulierungen („auf den Namen Huber",
-„Familie Schwarzmann", „für Herrn Ritter", „24.08.2026", „12:30", „12 Uhr",
-„für 5 Personen"). Wird etwas nicht sicher gelesen, sagt die Seite das und
-verlangt die Eingabe von Hand statt zu raten.
+Eine Reservierung entsteht an genau zwei Stellen:
 
-**Was das nicht ist:** ein Postfach, das sich selbst ausliest. Dafür bräuchte es
-einen Server, der Mails abruft und verarbeitet — eine statische Seite kann das
-nicht, und der Text auf der Seite sagt das auch so.
+1. **Der Gast bucht auf der Webseite.** Sie kommt über den Dienst herein und
+   steht im Posteingang, mit der Uhrzeit ihres Eingangs.
+2. **Das Haus trägt sie oben im Formular ein** — am Telefon, an der Tür, aus
+   einer Mail abgetippt.
+
+Es gab einmal ein „Aus einer E-Mail übernehmen", das einen Mailtext geparst
+hat. Es ist entfernt: ein dritter Weg zum selben Ziel ist ein Arbeitsschritt,
+den niemand braucht, und er machte die Seite unübersichtlicher, ohne etwas zu
+ermöglichen, das die zwei anderen Wege nicht können.
 
 ## Belegung: wer sitzt an welchem Tisch
 

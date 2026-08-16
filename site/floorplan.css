@@ -164,10 +164,6 @@
 .fp-dishes label{display:grid;gap:6px;font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.06em}
 .fp-dishes input{width:74px;min-height:38px;padding:0 8px;border:1px solid var(--line,#11110f26);border-radius:6px;background:#fff;color:inherit;font:inherit;text-align:center;font-variant-numeric:tabular-nums}
 .fp-kitchen{margin:12px 0 0;padding:12px 16px;border-left:2px solid var(--gold,#c59b5d);background:#c59b5d14;color:#3c3833;font-size:12px;line-height:1.55}
-.fp-mail{margin:0 0 16px;padding:12px 16px;border:1px solid var(--line,#11110f26);border-radius:10px;background:#fff}
-.fp-mail summary{cursor:pointer;font-size:12px;font-weight:700}
-.fp-mail-label{display:grid;gap:6px;margin:10px 0;font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.06em}
-.fp-mail textarea{width:100%;padding:10px 12px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#fff;color:inherit;font:inherit;font-size:13px;font-weight:400;letter-spacing:0;resize:vertical}
 
 /* Tische und Stuehle je Etage. */
 .fp-level-block{padding:14px;border:1px solid var(--line,#11110f26);border-radius:10px;background:#fff}
@@ -211,7 +207,7 @@
 @media print{
   @page{size:landscape;margin:12mm}
   .topbar,.fp-tools,.fp-levels-editor,.fp-party-list button,.fp-party-list select,
-  .add-service,.fp-filter,.fp-dishes,.fp-mail,.fp-table-row .fp-row-actions,
+  .add-service,.fp-filter,.fp-dishes,.fp-table-row .fp-row-actions,
   .notice,.model-note,#fpStats,.fp-warn,.fp-chairs-list,.fp-sizes,
   .fp-tabs,.fp-quick,.fp-bar-when{display:none!important}
   /* Der Moment gehoert aufs Blatt, die Bedienung nicht. */

@@ -711,51 +711,10 @@ async function start() {
     byId('fpResName').focus();
   });
 
-  // Aus einem Mailtext lesen. Kein Postfachzugriff - das braucht einen Server.
-  function parseMail(text) {
-    const clean = text.replace(/\s+/g, ' ');
-    const guests = Number((/(\d{1,2})\s*(?:personen|pers\.?|gäste|gaeste|leute)/i.exec(clean) || [])[1]) || null;
-    const dmy = /(\d{1,2})\.(\d{1,2})\.(\d{2,4})/.exec(clean);
-    const iso = /(\d{4})-(\d{2})-(\d{2})/.exec(clean);
-
-    // Das Datum zuerst herausnehmen, sonst liest der Zeit-Ausdruck "24.08"
-    // als 24:08. Erst danach nach der Uhrzeit suchen.
-    const ohneDatum = clean.replace(dmy?.[0] || ' ', ' ').replace(iso?.[0] || ' ', ' ');
-    const clock = /\b([0-2]?\d)[:.]([0-5]\d)\b/.exec(ohneDatum);
-    const uhrOnly = (/\b([0-2]?\d)\s*uhr\b/i.exec(ohneDatum) || [])[1];
-    // Das Schluesselwort darf gross oder klein stehen; der Name selbst muss
-    // gross anfangen, sonst faengt der Ausdruck das naechstbeste Verb ein.
-    const name = (/[Nn]ame[ns]?:?\s+([A-ZÄÖÜ][\wÄÖÜäöüß-]+(?:\s[A-ZÄÖÜ][\wÄÖÜäöüß-]+)?)/.exec(text) || [])[1]
-      || (/[Ff]amilie\s+([A-ZÄÖÜ][\wÄÖÜäöüß-]+)/.exec(text) || [])[1]
-      || (/\b(?:[Hh]err?n?|[Ff]rau)\s+([A-ZÄÖÜ][\wÄÖÜäöüß-]+)/.exec(text) || [])[1]
-      || null;
-
-    let date = today();
-    if (iso) date = `${iso[1]}-${iso[2]}-${iso[3]}`;
-    else if (dmy) {
-      const year = dmy[3].length === 2 ? `20${dmy[3]}` : dmy[3];
-      date = `${year}-${String(dmy[2]).padStart(2, '0')}-${String(dmy[1]).padStart(2, '0')}`;
-    }
-    const hour = clock ? clock[1] : uhrOnly;
-    const minute = clock ? clock[2] : '00';
-    return {
-      name: name ? name.trim() : null,
-      date,
-      time: hour ? `${String(hour).padStart(2, '0')}:${minute}` : '12:00',
-      guests
-    };
-  }
-
-  byId('fpMailImport').addEventListener('click', () => {
-    const text = byId('fpMailText').value;
-    if (!text.trim()) return say('fpResResult', 'Bitte zuerst den Mailtext einfügen.');
-    const parsed = parseMail(text);
-    if (!parsed.name || !parsed.guests) {
-      return say('fpResResult', 'Aus dem Text ließen sich Name und Personenzahl nicht sicher lesen. Bitte oben von Hand eintragen.');
-    }
-    addReservation({ ...parsed, dishes: {}, source: 'mail' });
-    byId('fpMailText').value = '';
-  });
+  // Reservierungen entstehen an genau zwei Stellen: der Gast bucht auf der
+  // Webseite, oder das Haus traegt sie oben im Formular ein. Das Uebernehmen
+  // aus einem Mailtext gab es einmal - es war ein dritter Weg fuer denselben
+  // Zweck und damit ein Arbeitsschritt, den niemand braucht.
 
   function paintSeating() {
     const plan = buildFloorplan(current());

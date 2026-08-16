@@ -74,9 +74,13 @@ if (!/name="robots" content="noindex/.test(internal)) fail('Die interne Tischpla
 for (const id of ['fpDate', 'fpTime', 'fpLayout', 'fpResForm', 'fpDishes', 'fpParties', 'fpTableList', 'fpLevels', 'fpKitchen']) {
   if (!internal.includes(`id="${id}"`)) fail(`Der interne Tischplan hat kein Element mit id="${id}"`);
 }
-// Die Seite darf nicht versprechen, ein Postfach auszulesen - das kann sie nicht.
-if (!/kann eine statische Seite nicht/.test(internal)) {
-  fail('Der Hinweis fehlt, dass ein Postfach nicht automatisch ausgelesen werden kann');
+// Reservierungen entstehen an genau zwei Stellen: der Gast bucht auf der
+// Webseite, oder das Haus traegt sie im Formular ein. Ein dritter Weg - frueher
+// das Uebernehmen aus einem Mailtext - ist entfernt, und mit ihm die Regel, die
+// den Hinweis dazu verlangte. Was es nicht mehr gibt, muss auch nichts mehr
+// erklaeren; die Pruefung darauf waere ab jetzt nur noch Ballast.
+if (/fpMailImport|Mailtext/.test(internal)) {
+  fail('Das Uebernehmen aus einem Mailtext wurde bewusst entfernt und darf nicht zurueckkommen');
 }
 
 const renderer = await readFile(path.join(root, 'site/floorplan.js'), 'utf8');
