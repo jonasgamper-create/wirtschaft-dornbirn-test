@@ -60,6 +60,10 @@
   // Uhrzeit, an der der Service sich orientieren wuerde.
   const timeOrNull = value => (/^([01]\d|2[0-3]):[0-5]\d$/.test(String(value)) ? String(value) : null);
   const safeIso = value => Number.isNaN(Date.parse(value)) ? new Date().toISOString() : new Date(value).toISOString();
+  // Fuer Zeitpunkte, die es auch nicht geben darf: safeIso wuerde hier die
+  // aktuelle Uhrzeit erfinden, und eine Handeingabe saehe aus wie eine gerade
+  // eingegangene Onlineanfrage.
+  const isoOrNull = value => (value && !Number.isNaN(Date.parse(value)) ? new Date(value).toISOString() : null);
 
   const safeId = (value, fallback) => (/^[a-z][a-z0-9-]{1,23}$/.test(String(value)) ? String(value) : fallback);
 
@@ -97,7 +101,10 @@
       };
     });
 
-    const kinds = new Set(['eingang', 'ausgang', 'bar', 'buehne', 'terrasse', 'wand']);
+    // Muss mit ELEMENTS in floorplan-layout.mjs uebereinstimmen: was hier
+    // fehlt, faellt beim Laden lautlos aus der Zeichnung.
+    const kinds = new Set(['eingang', 'ausgang', 'bar', 'buehne', 'terrasse',
+      'toilette', 'garderobe', 'kueche', 'saeule', 'fenster', 'weg', 'wand']);
     const elements = (Array.isArray(level?.elements) ? level.elements : []).slice(0, 60)
       .filter(item => kinds.has(item?.kind))
       .map((item, spot) => ({
@@ -285,6 +292,13 @@
           // belegt: der Verspaetete blockiert ihn, der frueh Gegangene auch.
           arrived: timeOrNull(item?.arrived),
           left: timeOrNull(item?.left),
+          // Wann die Anfrage hereinkam - nicht wann der Tisch reserviert ist.
+          // Der Service will wissen, was neu ist, seit er zuletzt geschaut hat.
+          eingegangen: isoOrNull(item?.eingegangen),
+          // Vom Haus zur Kenntnis genommen. Bis dahin steht die Anfrage im
+          // Posteingang und traegt die ungelesen-Markierung.
+          gesehen: item?.gesehen === true,
+          quelle: item?.quelle === 'online' ? 'online' : null,
           // Notiz zum Besuch: Unvertraeglichkeiten, Fensterplatz, Kinderstuhl.
           // Bewusst ein Freitextfeld und bewusst kurz - es ist eine Hilfe fuer
           // den Service, keine Gaestedatei.

@@ -11,9 +11,9 @@
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="stylesheet" href="gastgeber.css?v=68a0ecf6">
   <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=c75294f5">
-  <link rel="stylesheet" href="floorplan.css?v=b89bf6ea">
-  <script src="inventory-store.js?v=fe61cc1e" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=ce74986c"></script>
+  <link rel="stylesheet" href="floorplan.css?v=c876798b">
+  <script src="inventory-store.js?v=4587c57c" defer></script>
+  <script type="module" src="gastgeber-floorplan.js?v=ff0f297c"></script>
 </head>
 <body>
   <header class="topbar">
@@ -50,7 +50,7 @@
     <nav class="fp-tabs" id="fpTabs">
       <div role="tablist" aria-label="Bereiche">
         <button type="button" role="tab" id="tab-service" aria-controls="panel-service" aria-selected="true" tabindex="0" data-tab="service">
-          Service<span class="fp-tab-badge" id="fpBadgeService" hidden></span>
+          Service<span class="fp-tab-badge" id="fpBadgeService" hidden></span><span class="fp-tab-badge is-post" id="fpBadgePost" hidden></span>
         </button>
         <button type="button" role="tab" id="tab-tische" aria-controls="panel-tische" aria-selected="false" tabindex="-1" data-tab="tische">Tische</button>
         <button type="button" role="tab" id="tab-einrichten" aria-controls="panel-einrichten" aria-selected="false" tabindex="-1" data-tab="einrichten">Einrichten</button>
@@ -64,6 +64,13 @@
 
     <!-- ======================= SERVICE ======================= -->
     <div class="fp-tabpanel" id="panel-service" role="tabpanel" aria-labelledby="tab-service" tabindex="0">
+      <!-- Posteingang. Steht ganz oben, weil eine neue Anfrage das einzige
+           ist, was von aussen hereinkommt und eine Entscheidung braucht. -->
+      <section class="panel fp-inbox" id="fpInbox" aria-labelledby="inboxTitle" hidden>
+        <div class="panel-head"><div><p>Posteingang</p><h2 id="inboxTitle">Neue Anfragen</h2></div><span id="fpInboxCount"></span></div>
+        <ul class="fp-mail-list" id="fpInboxList"></ul>
+      </section>
+
       <div class="fp-work">
         <section class="panel" aria-labelledby="mapTitle">
           <div class="panel-head"><div><p>Karte</p><h2 id="mapTitle">Wer sitzt wo?</h2></div><span>Klick auf einen Tisch checkt die Gäste ein</span></div>
@@ -168,6 +175,9 @@
           <label>Schichten<input id="fpSeatings" type="text" maxlength="60" placeholder="11:30, 12:45"></label>
           <label>Ende<input id="fpEndsAt" type="time" step="900"></label>
           <label>Abräumen<input id="fpBuffer" type="number" min="0" max="60" step="5"></label>
+          <!-- Die Richtzeit ist eine Annahme ueber den Mittag. Wer schneller
+               oder laenger isst, stellt sie hier ein. -->
+          <label>Sitzdauer (Minuten)<input id="fpDauer" type="number" min="30" max="240" step="15"></label>
           <button type="submit">Übernehmen</button>
         </form>
         <p class="fp-result" id="fpServiceInfo" role="status" aria-live="polite"></p>

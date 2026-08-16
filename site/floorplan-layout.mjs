@@ -152,13 +152,40 @@ export function tableBody(table) {
 // Raumobjekte zur Orientierung. Sie blockieren keine Tische - der Wirt ordnet
 // von Hand an, und eine Sperre waere hier eher im Weg als eine Hilfe. Nur die
 // automatische Platzierung neuer Tische weicht ihnen aus.
+/**
+ * Massstab. Eine Rastereinheit ist ein halber Meter - damit ist ein Vierertisch
+ * 2 mal 2 Meter und ein Zweiertisch 1,5 mal 2 Meter, also das, was wirklich im
+ * Raum steht. Ohne festen Massstab ist jede Zeichnung nur ein Bild und beim
+ * Ausmessen im Lokal wertlos.
+ */
+export const METER_PRO_EINHEIT = 0.5;
+
+/** Rastereinheiten als Meterangabe, wie man sie hinschreibt: 3,5 m */
+export const alsMeter = einheiten =>
+  `${(Number(einheiten) * METER_PRO_EINHEIT).toFixed(1).replace('.', ',')} m`;
+
+// `label` steht im Plan auf dem Element, `name` nur in der Bedienung. Eine
+// Saeule traegt keine Aufschrift - der Knopf zum Anlegen braucht aber einen
+// Namen, sonst heissen Saeule, Fenster und Wand alle gleich.
 export const ELEMENTS = {
-  eingang: { label: 'Eingang', w: 4, h: 1 },
-  ausgang: { label: 'Ausgang', w: 4, h: 1 },
-  bar: { label: 'Bar', w: 7, h: 2 },
-  buehne: { label: 'Bühne', w: 9, h: 3 },
-  terrasse: { label: 'Terrasse', w: 7, h: 4 },
-  wand: { label: '', w: 8, h: 1 }
+  eingang: { label: 'Eingang', name: 'Eingang', w: 4, h: 1 },
+  ausgang: { label: 'Ausgang', name: 'Ausgang', w: 4, h: 1 },
+  bar: { label: 'Bar', name: 'Bar', w: 7, h: 2 },
+  buehne: { label: 'Bühne', name: 'Bühne', w: 9, h: 3 },
+  terrasse: { label: 'Terrasse', name: 'Terrasse', w: 7, h: 4 },
+  // Ein Gastraum besteht nicht nur aus Tischen. Der Weg zur Toilette, die
+  // Saeule mitten im Raum und die Garderobe entscheiden mit darueber, wo ein
+  // Tisch ueberhaupt stehen kann.
+  toilette: { label: 'WC', name: 'WC', w: 3, h: 2 },
+  garderobe: { label: 'Garderobe', name: 'Garderobe', w: 4, h: 1 },
+  kueche: { label: 'Küche', name: 'Küche', w: 6, h: 3 },
+  saeule: { label: '', name: 'Säule', w: 1, h: 1 },
+  fenster: { label: '', name: 'Fenster', w: 4, h: 1 },
+  weg: { label: 'Weg', name: 'Weg zur Toilette', w: 2, h: 6 },
+  // Waende sind der Weg zu einem Raum, der nicht rechteckig ist: mehrere
+  // Segmente ergeben jeden Grundriss. Ein Vieleck-Editor waere maechtiger und
+  // fuer den Zweck deutlich zu umstaendlich.
+  wand: { label: '', name: 'Wand', w: 8, h: 1 }
 };
 
 export const elementKinds = () => Object.keys(ELEMENTS);
