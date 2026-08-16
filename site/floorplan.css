@@ -363,6 +363,18 @@
   /* Das Auswahlfeld zum Umsetzen erbte am Handy nur 18 Pixel Hoehe - mit dem
      Finger nicht zu treffen. Es bekommt eine eigene Zeile in voller Breite. */
   .fp-party-list select{flex:1 1 100%;min-width:0;min-height:44px;padding:0 10px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#fff;font:inherit;font-size:12.5px}
+  /* Die Tischzeile bekam mit Form und Drehen mehr Inhalt, als in 375 Pixel
+     passt - und ein Flex-Element ohne Umbruch schiebt ueber den Rand hinaus,
+     statt schmaler zu werden. Dasselbe bei den Mengenfeldern: als Flex-Kind
+     schrumpft ein Block ohne min-width:0 nie unter seinen Inhalt. */
+  .fp-chair-chip{flex-wrap:wrap;justify-content:flex-start;border-radius:12px}
+  .fp-chair-chip select{flex:1 1 100%;min-width:0}
+  .fp-chair-chip button{min-height:44px}
+  .fp-sizes{flex:1 1 100%;min-width:0}
+  .fp-counts label{flex:0 0 auto}
+  .fp-level-row{gap:10px}
+  .fp-level-name input{min-width:0;width:100%}
+  .fp-level-name{flex:1 1 100%}
   /* Am Handy wuerde die ganze Kopfleiste die halbe Anzeige fressen. Sie
      scrollt deshalb mit; nur die Reiter bleiben oben stehen. */
   .fp-sticky{position:static}
