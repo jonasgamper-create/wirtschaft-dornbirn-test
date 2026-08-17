@@ -11,8 +11,11 @@ const data = JSON.parse(await readFile(path.join(root, 'site/data/lunch-menu.jso
 const index = await readFile(path.join(root, 'site/index.html'), 'utf8');
 
 if (!['pause', 'active'].includes(data.status)) fail('status muss "pause" oder "active" sein.');
-if (!/^https:\/\/([\w-]+\.)*wirtschaft-dornbirn\.at\//i.test(data.reservationUrl || '')) {
-  fail('reservationUrl muss auf die offizielle Domain zeigen.');
+// Reserviert wird auf der eigenen Seite. Erlaubt ist deshalb der eigene Pfad
+// oder eine Adresse auf der offiziellen Domain - alles andere fuehrt den Gast
+// aus der Seite hinaus, und genau das wurde bewusst abgeschafft.
+if (!/^tischreservierung\.html$|^https:\/\/([\w-]+\.)*wirtschaft-dornbirn\.at\//i.test(data.reservationUrl || '')) {
+  fail('reservationUrl muss die eigene Reservierungsseite oder die offizielle Domain sein.');
 }
 if (!Number.isFinite(Date.parse(data.updatedAt || ''))) fail('updatedAt ist kein gültiger Zeitstempel.');
 

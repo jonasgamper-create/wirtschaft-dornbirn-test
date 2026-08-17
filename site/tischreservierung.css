@@ -123,3 +123,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .slots button[data-voll]{border-style:dashed;background:#11110f08;color:#a29b90;cursor:not-allowed;text-decoration:line-through}
 .slots button[data-pruefe]{opacity:.55}
 .slot-info{display:block;margin-top:10px;color:var(--muted,#6d675f);font-size:13.5px;font-weight:400;letter-spacing:0;line-height:1.5;text-transform:none}
+
+/* Der Beleg des Gastes. Ruhig und klar - er wird gelesen, wenn jemand gerade
+   erleichtert ist, nicht ueberflogen. */
+.booking-done{margin:22px 0 0;padding:22px 24px;border:1px solid var(--green,#244635);border-radius:14px;background:#e8f0ea;max-width:56ch}
+.booking-done .done-kicker{margin:0;color:var(--green,#244635);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.booking-done h3{margin:6px 0 16px;font-size:24px;font-weight:400}
+.booking-done dl{display:grid;gap:10px;margin:0 0 18px}
+.booking-done dl div{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;align-items:baseline}
+.booking-done dt{color:var(--muted,#6d675f);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.booking-done dd{margin:0;font-size:16px;font-weight:700}
+.booking-done .done-note{margin:16px 0 0;color:#3c3833;font-size:13.5px;line-height:1.55}
+@media(max-width:560px){.booking-done dl div{grid-template-columns:1fr;gap:2px}}

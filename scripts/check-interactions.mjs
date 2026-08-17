@@ -41,8 +41,10 @@ const eventIds = new Set(events.events.map(event => event.id));
 for (const match of main.matchAll(/data-calendar-event="([^"]+)"/g)) {
   if (!eventIds.has(match[1])) fail(`Kalenderaktion verweist auf unbekanntes Event ${match[1]}`);
 }
+// Der externe Reservierungsanbieter ist entfernt - reserviert wird auf der
+// eigenen Seite. Die anderen Pfade bleiben Pflicht.
 for (const required of [
-  'https://tischreservierung.wirtschaft-dornbirn.at/',
+  'tischreservierung.html',
   'https://wirtschaft-dornbirn.at/event/',
   'feste-catering.html'
 ]) {
