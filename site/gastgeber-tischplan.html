@@ -11,9 +11,9 @@
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="stylesheet" href="gastgeber.css?v=68a0ecf6">
   <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=c75294f5">
-  <link rel="stylesheet" href="floorplan.css?v=eac51f34">
-  <script src="inventory-store.js?v=235d05d1" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=32d8dce7"></script>
+  <link rel="stylesheet" href="floorplan.css?v=1e2d55ca">
+  <script src="inventory-store.js?v=bdbf27dd" defer></script>
+  <script type="module" src="gastgeber-floorplan.js?v=9162a891"></script>
 </head>
 <body>
   <header class="topbar">
@@ -96,6 +96,22 @@
           <div class="panel-head"><div><p>Karte</p><h2 id="mapTitle">Wer sitzt wo?</h2></div><span>Klick auf einen Tisch checkt die Gäste ein</span></div>
           <div data-floorplan id="fpPreview" data-mode="select"></div>
           <p class="fp-warn" id="fpWarn" role="status" aria-live="polite" hidden></p>
+
+          <!-- Die Zeichenwerkzeuge gehoeren zur Karte, nicht in die
+               Einrichtung: man zeichnet auf der Karte, und ein verstecktes
+               Element kann man nicht anklicken. -->
+          <details class="fp-fold" id="fpGrundrissFold">
+            <summary>Grundriss zeichnen</summary>
+            <p class="model-note">Für Räume, die nicht rechteckig sind. „Zeichnen starten“, dann in die Karte klicken – jeder Klick setzt eine Ecke. Zum Schluss auf den ersten Punkt klicken oder „Schließen“ drücken. Die Punkte rasten auf halbe Meter ein, damit Wände gerade werden.</p>
+            <div class="fp-tools fp-zeichentools">
+              <button class="quiet" type="button" id="fpZeichnenStart">Zeichnen starten</button>
+              <button class="quiet" type="button" id="fpZeichnenZurueck" hidden>Letzten Punkt zurück</button>
+              <button class="quiet" type="button" id="fpZeichnenFertig" hidden>Schließen</button>
+              <button class="quiet" type="button" id="fpZeichnenWeg" hidden>Grundriss entfernen</button>
+            </div>
+            <p class="fp-result" id="fpZeichnenInfo" role="status" aria-live="polite"></p>
+          </details>
+
           <details class="fp-fold">
             <summary>Was die Karte kann</summary>
             <p class="model-note">Ein Klick auf einen Tisch mit Gast checkt ein, nochmal klicken nimmt es zurück. Ein Klick auf einen freien Tisch wählt ihn aus und springt in seine Zeile in der Tischliste. Ein Doppelklick schreibt einen Namen direkt auf den Tisch. Verschieben mit der Maus oder – wenn ein Tisch in der Liste im Fokus ist – mit Umschalt und Pfeiltaste. Die Tischnummern folgen der Leserichtung im Raum: erst anordnen, dann Tischkarten drucken.</p>

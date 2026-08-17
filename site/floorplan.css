@@ -499,3 +499,11 @@
    aus Rechteck minus Rechteck eine L- oder U-Form. Der eigene Rand bleibt,
    damit die neue Kante genauso kraeftig ist wie die alte. */
 .fp-svg .fp-ausschnitt{fill:var(--paper,#f3efe6);stroke:#11110f;stroke-width:3;vector-effect:non-scaling-stroke}
+
+/* Raum zeichnen: der Entwurf ist gestrichelt und gruen, die gesetzten Punkte
+   sind Griffe. Der erste Punkt ist hervorgehoben - ihn klickt man zum
+   Schliessen der Form. */
+.fp-svg .fp-entwurf{fill:#24463514;stroke:var(--green,#244635);stroke-width:2;stroke-dasharray:6 4;vector-effect:non-scaling-stroke}
+.fp-svg .fp-punkt{fill:#fff;stroke:var(--green,#244635);stroke-width:2;vector-effect:non-scaling-stroke}
+.fp-svg .fp-punkt.ist-erster{fill:var(--green,#244635)}
+.fp-zeichnen .fp-svg{cursor:crosshair}
