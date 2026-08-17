@@ -446,3 +446,41 @@
   .fp-mail-list li{grid-template-columns:auto minmax(0,1fr)}
   .fp-mail-list .tat{grid-column:1 / -1}
 }
+
+/* Geraet koppeln. Ein Link statt Abtippen - der haeufigste Grund, warum ein
+   zweites Geraet nie eingerichtet wird, ist das Abtippen. */
+.fp-koppeln{margin:16px 0;padding:14px 16px;border:1px solid var(--line,#11110f26);border-radius:10px;background:#fff}
+.fp-koppeln b{display:block;font-size:14px}
+.fp-koppeln p{margin:6px 0 12px;color:#57524a;font-size:13px;line-height:1.5;max-width:60ch}
+.fp-koppeln-zeile{display:flex;flex-wrap:wrap;gap:8px}
+.fp-koppeln input{flex:1 1 240px;min-width:0;min-height:44px;padding:0 12px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#f7f5f0;color:#57524a;font:inherit;font-size:12.5px}
+.fp-koppeln small{display:block;margin-top:10px;color:var(--muted,#6d675f);font-size:12px}
+
+/* Startseite "Heute". Zahlen gross, Erklaerung klein - man liest sie im
+   Vorbeigehen, nicht im Sitzen. */
+.fp-kacheln{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.fp-kachel{padding:16px 18px;border:1px solid var(--line,#11110f26);border-radius:12px;background:#fff}
+.fp-kachel b{display:block;font-size:34px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums}
+.fp-kachel span{display:block;margin-top:6px;color:#57524a;font-size:13px;line-height:1.4}
+.fp-kachel.is-warnung{border-color:#a67f45;background:#f6ecd9}
+.fp-kachel.is-neu{border-color:var(--green,#244635);background:#e8f0ea}
+.fp-kachel.is-neu b,.fp-kachel.is-warnung b{color:var(--ink,#11110f)}
+
+.fp-zeitachse{display:grid;gap:6px;margin:0 0 26px;padding:0;list-style:none}
+.fp-zeitachse li{display:grid;grid-template-columns:62px minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 14px;border-left:2px solid var(--line,#11110f26);font-size:14px}
+.fp-zeitachse li.is-jetzt{border-left-color:var(--green,#244635);background:#e8f0ea;font-weight:700}
+.fp-zeitachse li.is-spaet{border-left-color:#a67f45;background:#f6ecd9}
+.fp-zeitachse .uhr{font-weight:700;font-variant-numeric:tabular-nums}
+.fp-zeitachse .wer{overflow-wrap:anywhere}
+.fp-zeitachse .wo{color:var(--muted,#6d675f);font-size:12.5px;white-space:nowrap}
+.fp-zeitachse .leer{grid-column:1 / -1;color:var(--muted,#6d675f);border-left-color:transparent}
+
+.fp-einstellungen{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.fp-einstellungen li{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line,#11110f14);font-size:14px}
+.fp-einstellungen b{color:var(--muted,#6d675f);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+@media(max-width:760px){
+  .fp-kachel b{font-size:28px}
+  .fp-einstellungen li{grid-template-columns:1fr}
+  .fp-zeitachse li{grid-template-columns:54px minmax(0,1fr)}
+  .fp-zeitachse .wo{grid-column:2}
+}

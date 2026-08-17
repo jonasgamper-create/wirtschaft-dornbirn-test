@@ -11,9 +11,9 @@
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="stylesheet" href="gastgeber.css?v=68a0ecf6">
   <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=c75294f5">
-  <link rel="stylesheet" href="floorplan.css?v=e6f7f820">
+  <link rel="stylesheet" href="floorplan.css?v=9eccbde7">
   <script src="inventory-store.js?v=4587c57c" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=d98253e8"></script>
+  <script type="module" src="gastgeber-floorplan.js?v=0ec5b5a6"></script>
 </head>
 <body>
   <header class="topbar">
@@ -49,7 +49,8 @@
 
     <nav class="fp-tabs" id="fpTabs">
       <div role="tablist" aria-label="Bereiche">
-        <button type="button" role="tab" id="tab-service" aria-controls="panel-service" aria-selected="true" tabindex="0" data-tab="service">
+        <button type="button" role="tab" id="tab-heute" aria-controls="panel-heute" aria-selected="true" tabindex="0" data-tab="heute">Heute</button>
+        <button type="button" role="tab" id="tab-service" aria-controls="panel-service" aria-selected="false" tabindex="-1" data-tab="service">
           Service<span class="fp-tab-badge" id="fpBadgeService" hidden></span><span class="fp-tab-badge is-post" id="fpBadgePost" hidden></span>
         </button>
         <button type="button" role="tab" id="tab-tische" aria-controls="panel-tische" aria-selected="false" tabindex="-1" data-tab="tische">Tische</button>
@@ -62,8 +63,27 @@
 
     <p class="fp-warn" id="fpBackup" role="status" aria-live="polite" hidden></p>
 
+    <!-- ======================= HEUTE =======================
+         Die Startseite. Sie beantwortet die erste Frage des Tages - was
+         erwartet mich - und zeigt in einem Satz, wie das Haus eingestellt
+         ist. Kein Formular: wer hier etwas aendern will, geht in den
+         passenden Reiter. -->
+    <div class="fp-tabpanel" id="panel-heute" role="tabpanel" aria-labelledby="tab-heute" tabindex="0">
+      <section class="panel" aria-labelledby="heuteTitle">
+        <div class="panel-head"><div><p id="heuteDatum">Heute</p><h2 id="heuteTitle">Was erwartet mich?</h2></div><span id="heuteStand"></span></div>
+        <div class="fp-kacheln" id="fpKacheln"></div>
+        <p class="fp-result" id="fpHeuteTun" role="status" aria-live="polite"></p>
+
+        <h3 class="fp-subhead">Der Tag im Verlauf</h3>
+        <ol class="fp-zeitachse" id="fpZeitachse"></ol>
+
+        <h3 class="fp-subhead">So ist das Haus eingestellt</h3>
+        <ul class="fp-einstellungen" id="fpEinstellungen"></ul>
+      </section>
+    </div>
+
     <!-- ======================= SERVICE ======================= -->
-    <div class="fp-tabpanel" id="panel-service" role="tabpanel" aria-labelledby="tab-service" tabindex="0">
+    <div class="fp-tabpanel" id="panel-service" role="tabpanel" aria-labelledby="tab-service" tabindex="0" hidden>
       <!-- Posteingang. Steht ganz oben, weil eine neue Anfrage das einzige
            ist, was von aussen hereinkommt und eine Entscheidung braucht. -->
       <section class="panel fp-inbox" id="fpInbox" aria-labelledby="inboxTitle" hidden>
@@ -211,6 +231,18 @@
           <input id="fpAutomatik" type="checkbox" checked>
           <span>Onlinebuchungen automatisch einteilen<b id="fpAutomatikInfo"></b></span>
         </label>
+        <!-- Geraet koppeln: der Schluessel wandert per Link aufs Handy, statt
+             ihn abzutippen. Er steht hinter dem Doppelkreuz und wird deshalb
+             nie an einen Server geschickt. -->
+        <div class="fp-koppeln" id="fpKoppeln" hidden>
+          <b>Weiteres Gerät einrichten</b>
+          <p>Diesen Link ans Handy schicken – per Nachricht, AirDrop oder Mail. Ein Antippen genügt, dann ist das Gerät eingerichtet. Der Schlüssel muss nirgends abgetippt werden.</p>
+          <div class="fp-koppeln-zeile">
+            <input id="fpKoppelLink" type="text" readonly aria-label="Einrichtungslink für ein weiteres Gerät">
+            <button class="quiet" type="button" id="fpKoppelKopie">Link kopieren</button>
+          </div>
+          <small>Behandle ihn wie einen Schlüssel: wer ihn hat, sieht eure Reservierungen.</small>
+        </div>
         <p class="model-note">Der Hausschlüssel bleibt in diesem Browser und wird nie an die Gästeseite gegeben. Onlinebuchungen landen bevorzugt auf der Standard-Etage; ist dort nichts frei, wird der Rest geprüft – ein „leider voll“, während oben eine Etage leersteht, wäre ein verlorener Gast. Mit „Veröffentlichen“ bekommt der Dienst den aktuellen Tischplan; ohne ihn rechnet er mit dem hinterlegten Beispiel.</p>
       </section>
 

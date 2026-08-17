@@ -32,6 +32,29 @@ export async function apiAdresse() {
   return gemerkt;
 }
 
+/**
+ * Ein Geraet ueber einen Link einrichten. Der Schluessel steht hinter dem
+ * Doppelkreuz: dieser Teil einer Adresse wird nie an einen Server geschickt,
+ * er bleibt im Browser. Direkt nach dem Uebernehmen wird er aus der Adresszeile
+ * entfernt, damit er nicht im Verlauf stehen bleibt.
+ */
+export function schluesselAusAdresse() {
+  const roh = window.location.hash || '';
+  const treffer = /(?:^#|&)k=([^&]+)/.exec(roh);
+  if (!treffer) return false;
+  try {
+    const wert = decodeURIComponent(treffer[1]).trim();
+    if (wert.length < 8) return false;
+    localStorage.setItem(TOKEN_SCHLUESSEL, wert);
+  } catch {
+    return false;
+  }
+  // Aus der Adresszeile nehmen, ohne einen Eintrag im Verlauf zu hinterlassen.
+  const sauber = window.location.href.split('#')[0];
+  window.history.replaceState(null, '', sauber);
+  return true;
+}
+
 export const hausToken = () => {
   try { return localStorage.getItem(TOKEN_SCHLUESSEL) || ''; } catch { return ''; }
 };
