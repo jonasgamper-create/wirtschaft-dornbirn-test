@@ -484,3 +484,12 @@
   .fp-zeitachse li{grid-template-columns:54px minmax(0,1fr)}
   .fp-zeitachse .wo{grid-column:2}
 }
+
+/* Aussenkante des Raums. Eine kraeftige Linie, damit der Grundriss als Raum
+   lesbar ist und nicht als Ansammlung von Tischen. */
+.fp-svg .fp-raum{fill:none;stroke:#11110f;stroke-width:3;vector-effect:non-scaling-stroke}
+
+/* Die Raumflaeche steht vor den Tischzahlen und ist optisch abgesetzt: erst
+   der Raum, dann was hineinpasst. */
+.fp-raumfeld{flex:1 1 100%;gap:12px;padding:10px 0;border-bottom:1px solid var(--line,#11110f14)}
+.fp-raumfeld .fp-mass input{width:78px}

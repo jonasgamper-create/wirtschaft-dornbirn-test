@@ -201,9 +201,9 @@ function tooClose(a, b, gap) {
     && a.row < b.row + b.h + gap && b.row < a.row + a.h + gap;
 }
 
-function findSpot(placed, spec, grid) {
+function findSpot(placed, spec, grid, breite = grid.cols) {
   for (let row = 0; row < 400; row += 1) {
-    for (let col = 0; col + spec.w <= grid.cols; col += 1) {
+    for (let col = 0; col + spec.w <= breite; col += 1) {
       const candidate = { col, row, w: spec.w, h: spec.h };
       if (!placed.some(other => tooClose(candidate, other, grid.gap))) return { col, row };
     }
@@ -216,6 +216,19 @@ function findSpot(placed, spec, grid) {
  * Position rutscht in die erste freie Luecke. So bleibt eine von Hand gebaute
  * Anordnung erhalten, wenn nur ein Tisch dazukommt.
  */
+/**
+ * Die Raumflaeche einer Etage in Rastereinheiten. Traegt die Etage eigene
+ * Masse, gelten die - so passt der Plan zum echten Lokal statt zu einem
+ * Standardraster. Ohne Angabe bleibt es bei der bisherigen Breite.
+ */
+export function raumMass(level, grid = GRID) {
+  const breite = Number.isInteger(level?.breite) && level.breite >= 6
+    ? Math.min(level.breite, 60) : grid.cols;
+  const tiefe = Number.isInteger(level?.tiefe) && level.tiefe >= 6
+    ? Math.min(level.tiefe, 80) : null;
+  return { breite, tiefe };
+}
+
 export function buildLevelGeometry(level, grid = GRID) {
   const specs = (Array.isArray(level?.tables) ? level.tables : []).map(table => ({
     id: table.id,
@@ -242,21 +255,27 @@ export function buildLevelGeometry(level, grid = GRID) {
       h: Number.isInteger(item.h) ? item.h : ELEMENTS[item.kind].h
     }));
 
+  const { breite, tiefe } = raumMass(level, grid);
+
   const placed = [];
-  for (const spec of specs.filter(item => item.col !== null && item.row !== null && item.col + item.w <= grid.cols)) {
+  for (const spec of specs.filter(item => item.col !== null && item.row !== null && item.col + item.w <= breite)) {
     placed.push({ ...spec, pinned: true });
   }
   // Neue Tische weichen auch Raumobjekten aus - sonst landet der erste Tisch
   // mitten auf der Buehne.
   for (const spec of specs.filter(item => !placed.some(done => done.id === item.id))) {
-    placed.push({ ...spec, ...findSpot([...placed, ...elements], spec, grid), pinned: false });
+    placed.push({ ...spec, ...findSpot([...placed, ...elements], spec, grid, breite), pinned: false });
   }
 
   // Leserichtung: oben links nach unten rechts. Das macht die Karte
   // selbsterklaerend - Tisch 1 ist der erste, den man beim Reinkommen sieht.
   placed.sort((a, b) => a.row - b.row || a.col - b.col || String(a.id).localeCompare(String(b.id)));
-  const rows = [...placed, ...elements].reduce((max, item) => Math.max(max, item.row + item.h), 0);
-  return { cols: grid.cols, rows, tables: placed, elements };
+  // Die Zeichenflaeche ist mindestens der eingestellte Raum. Steht etwas
+  // darueber hinaus, waechst sie mit - sonst waere es unsichtbar und man
+  // suchte einen Tisch, den es scheinbar nicht gibt.
+  const belegt = [...placed, ...elements].reduce((max, item) => Math.max(max, item.row + item.h), 0);
+  const rows = Math.max(tiefe || 0, belegt);
+  return { cols: breite, rows, raum: tiefe ? { breite, tiefe } : null, tables: placed, elements };
 }
 
 // Betriebsart je Tischordnung. "frei" ist der rollende Betrieb: die Dauer
@@ -342,6 +361,7 @@ export function buildFloorplan(config, grid = GRID) {
       order: Number(level.order) || 0,
       cols: geometry.cols,
       rows: geometry.rows,
+      raum: geometry.raum,
       tables,
       elements: geometry.elements
     });
@@ -418,7 +438,10 @@ export function totalSeats(floorplan, levelIds) {
 export function canPlace(floorplan, tableId, col, row, grid = GRID) {
   const table = floorplan.tables.find(item => item.id === tableId);
   if (!table) return { ok: false, reason: 'unknown' };
-  if (col < 0 || row < 0 || col + table.w > grid.cols) return { ok: false, reason: 'outside' };
+  // Die Grenze ist der Raum dieser Etage, nicht das Raster.
+  const heim = floorplan.levels.find(entry => entry.tables.some(item => item.id === tableId));
+  const breite = heim?.cols || grid.cols;
+  if (col < 0 || row < 0 || col + table.w > breite) return { ok: false, reason: 'outside' };
   const moved = { col, row, w: table.w, h: table.h };
   const clash = floorplan.tables.find(other =>
     other.id !== tableId && other.levelId === table.levelId && overlapsRect(moved, other));

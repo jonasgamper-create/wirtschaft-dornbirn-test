@@ -4,7 +4,7 @@
 
 // Version muss zu den anderen Importen passen, sonst laedt der Browser zwei
 // Kopien desselben Moduls.
-import { ELEMENTS, buildFloorplan, chairSlots, seatNamesFor, tableBody } from './floorplan-layout.mjs?v=4e77fe92';
+import { ELEMENTS, buildFloorplan, chairSlots, seatNamesFor, tableBody } from './floorplan-layout.mjs?v=2ceb6cd0';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const el = (tag, attrs = {}) => {
@@ -131,6 +131,18 @@ export function renderFloorplan(root, config, options = {}) {
       'aria-hidden': 'true',
       focusable: 'false'
     });
+    // Der Raum selbst zuerst: eine sichtbare Aussenkante macht aus einer
+    // Ansammlung von Tischen einen Grundriss. Ohne sie sieht man nicht, wo das
+    // Lokal aufhoert.
+    if (level.raum) {
+      svg.append(el('rect', {
+        class: 'fp-raum',
+        x: 0.06, y: 0.06,
+        width: Math.max(0.1, level.raum.breite - 0.12),
+        height: Math.max(0.1, level.raum.tiefe - 0.12)
+      }));
+    }
+
     // Raum zuerst: Waende, Buehne, Bar und Eingaenge liegen unter den Tischen.
     for (const item of level.elements || []) {
       const group = el('g', { class: 'fp-element', 'data-element-id': item.id, 'data-kind': item.kind });
