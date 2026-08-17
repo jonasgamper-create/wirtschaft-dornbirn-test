@@ -22,8 +22,15 @@ const reservierung = await readFile('site/tischreservierung.html', 'utf8');
 if (!/tischreservierung\.html|tischreservierung\.wirtschaft-dornbirn\.at/.test(lunchSection)) {
   errors.push('site/index.html: Im Mittagsbereich fehlt der Weg zur Reservierung');
 }
-if (!/https:\/\/tischreservierung\.wirtschaft-dornbirn\.at\//.test(reservierung)) {
-  errors.push('site/tischreservierung.html: Der offizielle Reservierungsanbieter fehlt');
+// Der externe Anbieter ist entfernt: die Wirtschaft nimmt Mittagsreservierungen
+// selbst entgegen. Zwei Wege zum selben Ziel waren einer zu viel, und der
+// zweite fuehrte aus der Seite hinaus. Was bleiben muss, ist die Telefonnummer
+// - ohne sie stuende ein Gast ohne Ausweg da, wenn online nichts frei ist.
+if (/tischreservierung\.wirtschaft-dornbirn\.at/.test(reservierung)) {
+  errors.push('site/tischreservierung.html: Der alte externe Anbieter wurde bewusst entfernt');
+}
+if (!/tel:\+43557220540/.test(reservierung)) {
+  errors.push('site/tischreservierung.html: Die Telefonnummer fehlt als Ausweg');
 }
 // Kontaktdaten bleiben verboten. Der Name der Gruppe ist seit der eigenen
 // Onlinebuchung erlaubt und noetig - ohne ihn kann der Tisch niemandem

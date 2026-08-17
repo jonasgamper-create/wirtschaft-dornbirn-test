@@ -98,6 +98,46 @@ async function start() {
   });
   if (byId('day')?.value) zeigeVerfuegbarkeit();
 
+  /**
+   * Die Bestaetigung. Sie ist der Beleg des Gastes - deshalb steht dort alles,
+   * was er braucht, und nicht nur ein "hat geklappt". Dazu ein Kalendereintrag
+   * zum Mitnehmen: er ist der einzige Beleg, den der Gast ohne unser Zutun
+   * behaelt, und er kostet ihn keine Datenangabe.
+   */
+  function zeigeBestaetigung({ wer, tag, zeit, gaeste, tisch, etage }) {
+    const kasten = byId('bookingDone');
+    const datum = new Date(`${tag}T12:00:00`);
+    const langesDatum = datum.toLocaleDateString('de-AT', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+
+    byId('doneName').textContent = wer;
+    byId('doneWhen').textContent = `${langesDatum}, ${zeit} Uhr`;
+    byId('doneWho').textContent = `${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'}`;
+    byId('doneTable').textContent = `Tisch ${tisch}${etage ? ` · ${etage}` : ''}`;
+    kasten.hidden = false;
+    kasten.scrollIntoView({ block: 'center', behavior: 'smooth' });
+
+    // Kalendereintrag: Beginn zur reservierten Zeit, zwei Stunden Dauer.
+    const stempel = (datumsteil, uhrzeit) => `${datumsteil.replace(/-/g, '')}T${uhrzeit.replace(':', '')}00`;
+    const [stunde, minute] = zeit.split(':').map(Number);
+    const ende = `${String((stunde + 2) % 24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    const ics = [
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Wirtschaft Dornbirn//Reservierung//DE',
+      'BEGIN:VEVENT',
+      `UID:${tag}-${zeit.replace(':', '')}-${encodeURIComponent(wer)}@wirtschaft-dornbirn.at`,
+      `DTSTART:${stempel(tag, zeit)}`,
+      `DTEND:${stempel(tag, ende)}`,
+      'SUMMARY:Tisch in der Wirtschaft Dornbirn',
+      `DESCRIPTION:Reserviert auf ${wer}\\, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'}\\, Tisch ${tisch}`,
+      'LOCATION:Wirtschaft Dornbirn\\, Bahnhofstraße 24\\, 6850 Dornbirn',
+      'END:VEVENT', 'END:VCALENDAR'
+    ].join('\r\n');
+    const link = byId('doneCalendar');
+    link.href = `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
+    link.download = `wirtschaft-dornbirn-${tag}.ics`;
+  }
+
   knopf.addEventListener('click', async () => {
     const tag = byId('day')?.value;
     const zeit = byId('time')?.value;
@@ -136,6 +176,7 @@ async function start() {
     }
     if (antwort.tisch) {
       zeigeVerfuegbarkeit();
+      zeigeBestaetigung({ wer, tag, zeit, gaeste, tisch: antwort.tisch, etage: antwort.etage });
       return sag(`Passt: ${wer}, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'} am ${tag} um ${zeit}. `
         + `Tisch ${antwort.tisch}${antwort.etage ? ` im Bereich ${antwort.etage}` : ''}. `
         + 'Wir sehen uns – ein Anruf ist nicht mehr nötig.', 'gut');

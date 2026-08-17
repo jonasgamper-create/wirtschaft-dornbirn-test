@@ -10,12 +10,11 @@
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
   <meta name="theme-color" content="#11110f">
   <title>Tischreservierung · Wirtschaft Dornbirn</title>
-  <link rel="preconnect" href="https://tischreservierung.wirtschaft-dornbirn.at" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=1362bc3e">
+  <link rel="stylesheet" href="tischreservierung.css?v=06081177">
   <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Restaurant","name":"Wirtschaft Dornbirn","legalName":"„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.","url":"https://wirtschaft-dornbirn.at/","telephone":"+43557220540","email":"willkommen@wirtschaft-dornbirn.at","address":{"@type":"PostalAddress","streetAddress":"Bahnhofstraße 24","postalCode":"6850","addressLocality":"Dornbirn","addressRegion":"Vorarlberg","addressCountry":"AT"},"vatID":"ATU36206707","acceptsReservations":"https://tischreservierung.wirtschaft-dornbirn.at/"}
+{"@context":"https://schema.org","@type":"Restaurant","name":"Wirtschaft Dornbirn","legalName":"„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.","url":"https://wirtschaft-dornbirn.at/","telephone":"+43557220540","email":"willkommen@wirtschaft-dornbirn.at","address":{"@type":"PostalAddress","streetAddress":"Bahnhofstraße 24","postalCode":"6850","addressLocality":"Dornbirn","addressRegion":"Vorarlberg","addressCountry":"AT"},"vatID":"ATU36206707","acceptsReservations":"https://wirtschaft-dornbirn.at/tischreservierung.html"}
   </script>
 </head>
 <body>
@@ -96,12 +95,27 @@
         <p class="group-hint">Mehr als 10 Personen? Ruf’ uns an: <a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
         <p class="required">* Pflichtfelder</p>
         <div class="submit-row">
-          <a class="button button-green" id="submitBooking" href="https://tischreservierung.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Weiter zur Reservierung ↗</a>
+          <a class="button button-green" id="submitBooking" href="tel:+43557220540">Lieber anrufen: +43 (0)5572 20 540</a>
           <button class="button button-green" id="bookDirect" type="button" hidden>Tisch reservieren</button>
           <p id="submitHint">Freie Tische und die Bestätigung kommen vom offiziellen Reservierungssystem. Deine Kontaktdaten gibst du dort ein – einmal, nicht zweimal.</p>
         </div>
         <p class="form-alert" id="formAlert" role="alert" hidden></p>
         <p class="booking-result" id="bookingResult" role="status" aria-live="polite" hidden></p>
+
+        <!-- Der Beleg des Gastes. Er steht erst da, wenn wirklich reserviert
+             ist, und enthaelt alles, was er braucht - nicht nur "hat geklappt". -->
+        <aside class="booking-done" id="bookingDone" hidden>
+          <p class="done-kicker">Reserviert</p>
+          <h3>Dein Tisch ist eingeteilt</h3>
+          <dl>
+            <div><dt>Name</dt><dd id="doneName"></dd></div>
+            <div><dt>Wann</dt><dd id="doneWhen"></dd></div>
+            <div><dt>Für</dt><dd id="doneWho"></dd></div>
+            <div><dt>Platz</dt><dd id="doneTable"></dd></div>
+          </dl>
+          <a class="button button-green" id="doneCalendar" href="#" download>In den Kalender legen</a>
+          <p class="done-note">Wir haben deinen Tisch fest eingeteilt. Solltest du es doch nicht schaffen, ruf uns kurz an: <a href="tel:+43557220540">+43 (0)5572 20 540</a> – dann geben wir den Platz weiter.</p>
+        </aside>
       </div>
     </section>
 
@@ -121,6 +135,6 @@
   </footer>
 
   <script src="tischreservierung.js?v=9d6d55bc" defer></script>
-  <script type="module" src="tischreservierung-buchung.js?v=e58d64f6"></script>
+  <script type="module" src="tischreservierung-buchung.js?v=61e75f47"></script>
 </body>
 </html>

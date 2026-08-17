@@ -3,7 +3,7 @@
   "updatedAt": "2026-08-09T20:10:00+02:00",
   "status": "pause",
   "serviceWindow": "Montag bis Freitag · 11:30–13:30",
-  "reservationUrl": "https://tischreservierung.wirtschaft-dornbirn.at/",
+  "reservationUrl": "tischreservierung.html",
   "sourceUrl": "https://wirtschaft-dornbirn.at/",
   "pauseNote": "Sommerpause bis 23. August. Ab Montag, 24. August kochen wir wieder mittags.",
   "card": {
