@@ -493,3 +493,9 @@
    der Raum, dann was hineinpasst. */
 .fp-raumfeld{flex:1 1 100%;gap:12px;padding:10px 0;border-bottom:1px solid var(--line,#11110f14)}
 .fp-raumfeld .fp-mass input{width:78px}
+
+/* Weggenommene Ecke: dieser Bereich gehoert nicht zum Gastraum. Er wird in
+   der Seitenfarbe gefuellt und ueberdeckt damit die Aussenkante - so entsteht
+   aus Rechteck minus Rechteck eine L- oder U-Form. Der eigene Rand bleibt,
+   damit die neue Kante genauso kraeftig ist wie die alte. */
+.fp-svg .fp-ausschnitt{fill:var(--paper,#f3efe6);stroke:#11110f;stroke-width:3;vector-effect:non-scaling-stroke}

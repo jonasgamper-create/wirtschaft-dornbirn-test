@@ -4,7 +4,7 @@
 
 // Version muss zu den anderen Importen passen, sonst laedt der Browser zwei
 // Kopien desselben Moduls.
-import { ELEMENTS, buildFloorplan, chairSlots, seatNamesFor, tableBody } from './floorplan-layout.mjs?v=2ceb6cd0';
+import { ELEMENTS, buildFloorplan, chairSlots, seatNamesFor, tableBody } from './floorplan-layout.mjs?v=d7d5b511';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const el = (tag, attrs = {}) => {
@@ -143,8 +143,20 @@ export function renderFloorplan(root, config, options = {}) {
       }));
     }
 
+    // Weggenommene Ecken zuerst und getrennt: sie liegen ueber der Aussenkante,
+    // damit sie deren Linie ueberdecken. Erst dadurch sieht ein L-foermiger
+    // Raum wie ein L aus und nicht wie ein Rechteck mit einem Kasten darin.
+    for (const item of (level.elements || []).filter(entry => entry.kind === 'ausschnitt')) {
+      const gruppe = el('g', { class: 'fp-element', 'data-element-id': item.id, 'data-kind': item.kind });
+      gruppe.append(el('rect', {
+        class: 'fp-ausschnitt',
+        x: item.col, y: item.row, width: item.w, height: item.h
+      }));
+      svg.append(gruppe);
+    }
+
     // Raum zuerst: Waende, Buehne, Bar und Eingaenge liegen unter den Tischen.
-    for (const item of level.elements || []) {
+    for (const item of (level.elements || []).filter(entry => entry.kind !== 'ausschnitt')) {
       const group = el('g', { class: 'fp-element', 'data-element-id': item.id, 'data-kind': item.kind });
       group.append(el('rect', {
         class: 'fp-element-shape',

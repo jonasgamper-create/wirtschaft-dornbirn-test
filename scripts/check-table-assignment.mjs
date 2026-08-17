@@ -1,7 +1,7 @@
 // Goldene Testfaelle fuer Geometrie und Tischzuweisung. Laeuft ohne
 // Testframework, damit npm run ci keine zusaetzliche Abhaengigkeit braucht.
 
-import { BIS_TAGESENDE, FORMEN, GRID, buildFloorplan, canPlace, chairSlots, defaultMinGuests, footprint, formOf, istGedreht, migrate, nextTableId, seatingPlan, tableBody, tableLabel } from '../site/floorplan-layout.mjs';
+import { BIS_TAGESENDE, FORMEN, GRID, ausschnitteVon, buildFloorplan, canPlace, chairSlots, defaultMinGuests, footprint, formOf, istGedreht, migrate, nextTableId, seatingPlan, tableBody, tableLabel } from '../site/floorplan-layout.mjs';
 import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, shift, stamp } from '../site/table-assignment.mjs';
 
 const errors = [];
@@ -401,6 +401,45 @@ const thekeReihen = new Set(chairSlots(theke).map(chair => chair.y.toFixed(2)));
 check('An der Theke ist nur eine Seite bestuhlt', thekeReihen.size === 1, [...thekeReihen].join(','));
 check('istGedreht erkennt nur 90 Grad',
   istGedreht({ dreh: 90 }) && !istGedreht({ dreh: 45 }) && !istGedreht({}));
+
+
+// ---- Raumform: Ecken wegnehmen --------------------------------------------
+// Ein Gastraum ist selten ein Rechteck. Ein Rechteck minus Rechtecke ergibt
+// jede Form mit rechten Winkeln - und in einer weggenommenen Ecke darf kein
+// Tisch stehen, sonst plant man Gaeste in eine Wand.
+
+const mitLoch = migrate({
+  version: 1,
+  numbering: { start: 1 },
+  levels: [{ id: 'eg', name: 'Gaststube', order: 1, counts: { 4: 2 } }],
+  policy
+});
+const etage = mitLoch.layouts[0].levels[0];
+etage.breite = 20;
+etage.tiefe = 20;
+etage.elements = [{ id: 'loch', kind: 'ausschnitt', col: 12, row: 0, w: 8, h: 8 }];
+const raumPlan = buildFloorplan(mitLoch);
+const ersterTisch = raumPlan.tables[0].id;
+
+check('Die weggenommene Ecke wird erkannt',
+  ausschnitteVon(raumPlan.levels[0]).length === 1,
+  String(ausschnitteVon(raumPlan.levels[0]).length));
+check('In der weggenommenen Ecke steht kein Tisch',
+  canPlace(raumPlan, ersterTisch, 14, 2, GRID).reason === 'ausserhalb',
+  JSON.stringify(canPlace(raumPlan, ersterTisch, 14, 2, GRID)));
+check('Ausserhalb der Ecke ist alles erlaubt',
+  canPlace(raumPlan, ersterTisch, 2, 14, GRID).ok === true,
+  JSON.stringify(canPlace(raumPlan, ersterTisch, 2, 14, GRID)));
+check('Auch knapp hineinragen zaehlt als aussen',
+  canPlace(raumPlan, ersterTisch, 11, 7, GRID).reason === 'ausserhalb',
+  JSON.stringify(canPlace(raumPlan, ersterTisch, 11, 7, GRID)));
+check('Ueber die Raumbreite hinaus bleibt verboten',
+  canPlace(raumPlan, ersterTisch, 19, 12, GRID).reason === 'outside');
+// Automatisch gesetzte Tische weichen der Ecke ebenfalls aus.
+const drin = raumPlan.tables.every(table =>
+  !(table.col + table.w > 12 && table.col < 20 && table.row < 8));
+check('Neue Tische landen nicht in der weggenommenen Ecke', drin,
+  raumPlan.tables.map(t => `${t.number}@${t.col},${t.row}`).join(' '));
 
 if (errors.length) {
   console.error(errors.join('\n'));

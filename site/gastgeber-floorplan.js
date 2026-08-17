@@ -4,9 +4,9 @@
 
 // Die Versionsangaben muessen mit denen in den HTML-Dateien mitwandern: ein
 // Modulimport ohne Version bleibt sonst im Browser-Cache haengen.
-import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, METER_PRO_EINHEIT, alsMeter, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, formOf, istGedreht, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=2ceb6cd0';
-import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=c666432c';
-import { renderFloorplan } from './floorplan.js?v=2db63d04';
+import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, METER_PRO_EINHEIT, alsMeter, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, formOf, istGedreht, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=d7d5b511';
+import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=d03cc291';
+import { renderFloorplan } from './floorplan.js?v=2a19dd21';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
 import { apiAdresse, bleibVerbunden, hausToken, istOffen, schluesselAusAdresse, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=af41a6d8';
 
@@ -536,7 +536,8 @@ async function start() {
         if (!verdict.ok) {
           paintPlan();
           const reasons = {
-            outside: 'Dort ist kein Platz mehr im Raster.',
+            ausserhalb: 'Dort ist kein Gastraum – die Ecke ist weggenommen.',
+            outside: 'Dort ist kein Platz mehr im Raum.',
             occupied: `Dort steht schon Tisch ${verdict.blockedBy}.`,
             unknown: 'Diesen Tisch gibt es nicht mehr.'
           };

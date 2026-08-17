@@ -182,6 +182,11 @@ export const ELEMENTS = {
   saeule: { label: '', name: 'Säule', w: 1, h: 1 },
   fenster: { label: '', name: 'Fenster', w: 4, h: 1 },
   weg: { label: 'Weg', name: 'Weg zur Toilette', w: 2, h: 6 },
+  // Ecke wegnehmen: dieser Bereich gehoert nicht zum Gastraum. Ein Rechteck
+  // minus Rechtecke ergibt jede Form mit rechten Winkeln - L, U, Nische. Ein
+  // Vieleck-Editor waere maechtiger und fuer den Zweck deutlich zu
+  // umstaendlich, und niemand zeichnet damit freiwillig einen Gastraum.
+  ausschnitt: { label: '', name: 'Ecke wegnehmen', w: 6, h: 6 },
   // Waende sind der Weg zu einem Raum, der nicht rechteckig ist: mehrere
   // Segmente ergeben jeden Grundriss. Ein Vieleck-Editor waere maechtiger und
   // fuer den Zweck deutlich zu umstaendlich.
@@ -435,6 +440,10 @@ export function totalSeats(floorplan, levelIds) {
  * Prueft, ob ein Tisch an eine Position darf. Gibt den Grund zurueck, damit
  * die Oberflaeche sagen kann, warum ein Zug nicht geht.
  */
+/** Die weggenommenen Bereiche einer Etage - dort ist kein Gastraum. */
+export const ausschnitteVon = level =>
+  (level?.elements || []).filter(item => item.kind === 'ausschnitt');
+
 export function canPlace(floorplan, tableId, col, row, grid = GRID) {
   const table = floorplan.tables.find(item => item.id === tableId);
   if (!table) return { ok: false, reason: 'unknown' };
@@ -443,6 +452,10 @@ export function canPlace(floorplan, tableId, col, row, grid = GRID) {
   const breite = heim?.cols || grid.cols;
   if (col < 0 || row < 0 || col + table.w > breite) return { ok: false, reason: 'outside' };
   const moved = { col, row, w: table.w, h: table.h };
+  // In einer weggenommenen Ecke steht kein Tisch - dort ist kein Raum.
+  if (ausschnitteVon(heim).some(loch => overlapsRect(moved, loch))) {
+    return { ok: false, reason: 'ausserhalb' };
+  }
   const clash = floorplan.tables.find(other =>
     other.id !== tableId && other.levelId === table.levelId && overlapsRect(moved, other));
   return clash ? { ok: false, reason: 'occupied', blockedBy: clash.number } : { ok: true };
