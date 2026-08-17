@@ -111,7 +111,7 @@
     };
 
     const kinds = new Set(['eingang', 'ausgang', 'bar', 'buehne', 'terrasse',
-      'toilette', 'garderobe', 'kueche', 'saeule', 'fenster', 'weg', 'wand']);
+      'toilette', 'garderobe', 'kueche', 'saeule', 'fenster', 'weg', 'ausschnitt', 'wand']);
     const elements = (Array.isArray(level?.elements) ? level.elements : []).slice(0, 60)
       .filter(item => kinds.has(item?.kind))
       .map((item, spot) => ({
@@ -120,8 +120,8 @@
         label: safeText(item?.label, 24),
         col: safeNumber(item?.col, 0, 200, 0),
         row: safeNumber(item?.row, 0, 400, 0),
-        w: safeNumber(item?.w, 1, 24, 4),
-        h: safeNumber(item?.h, 1, 24, 1)
+        w: safeNumber(item?.w, 1, 60, 4),
+        h: safeNumber(item?.h, 1, 80, 1)
       }));
 
     return {
