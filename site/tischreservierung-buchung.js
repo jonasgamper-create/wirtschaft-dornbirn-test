@@ -4,7 +4,7 @@
 // wie bisher und leitet auf den offiziellen Anbieter weiter. Erst wenn der
 // Dienst laeuft, wird aus dem Formular eine echte Buchung.
 
-import { apiAdresse, buche, holeFrei } from './haus-api.js?v=1b0bb579';
+import { apiAdresse, buche, holeFrei } from './haus-api.js?v=af41a6d8';
 
 const byId = id => document.getElementById(id);
 start();

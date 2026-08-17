@@ -89,6 +89,16 @@ async function ruf(pfad, { methode = 'GET', koerper = null, token = null } = {})
 /** Gaestebuchung. Braucht keinen Token - sonst stuende er auf der Gaesteseite. */
 export const buche = anfrage => ruf('/api/reservierung', { methode: 'POST', koerper: anfrage });
 
+/**
+ * Laeuft der Dienst offen, also ohne Hausschluessel? Die Oberflaeche fragt das
+ * einmal beim Start: sie soll weder nach etwas fragen, das nicht gebraucht
+ * wird, noch verschweigen, dass gerade jeder mitlesen kann.
+ */
+export async function istOffen() {
+  const antwort = await ruf('/api/gesundheit');
+  return antwort?.offen === true;
+}
+
 /** Was ist an diesem Tag noch frei? Oeffentlich, ohne Namen. */
 export const holeFrei = (datum, personen) =>
   ruf(`/api/frei?datum=${encodeURIComponent(datum)}&personen=${encodeURIComponent(personen)}`);

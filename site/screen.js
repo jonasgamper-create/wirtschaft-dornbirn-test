@@ -9,7 +9,7 @@ import { activeLayout, buildFloorplan, seatingPlan, serviceOf } from './floorpla
 import { durationFor, occupiesAt, stamp } from './table-assignment.mjs?v=e5651f4b';
 import { renderFloorplan } from './floorplan.js?v=11cfb662';
 
-import { bleibVerbunden, hausToken } from './haus-api.js?v=1b0bb579';
+import { bleibVerbunden, hausToken, istOffen } from './haus-api.js?v=af41a6d8';
 
 const KEY = 'wirtschaft-dornbirn-host-control-v1';
 const SICHT = 'wirtschaft-screen-namen';
@@ -152,7 +152,10 @@ async function start() {
   // sie eingeht - ohne Abfragen im Sekundentakt und ohne dass der Schirm auf
   // demselben Geraet laufen muss wie die Planung.
   const draht = byId('scLink');
-  bleibVerbunden(hausToken(), stand => {
+  // Im offenen Betrieb braucht der Schirm kein Passwort. Er haengt am Eingang
+  // und soll ohne Einrichtung laufen - genau dort ist jede Huerde am teuersten.
+  const zugang = (await istOffen()) ? 'offen' : hausToken();
+  bleibVerbunden(zugang, stand => {
     vomDienst = stand;
     zeichne();
   }, zustand => {

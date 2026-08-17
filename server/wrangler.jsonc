@@ -20,7 +20,16 @@
   "vars": {
     // Nur diese Herkuenfte duerfen den Dienst im Browser ansprechen.
     // Beim eigenen Domainnamen hier ergaenzen.
-    "ALLOWED_ORIGINS": "https://jonasgamper-create.github.io,http://localhost:4321"
+    "ALLOWED_ORIGINS": "https://jonasgamper-create.github.io,http://localhost:4321",
+
+    // Offener Betrieb: die interne Planung verlangt keinen Hausschluessel.
+    // Jeder, der die Adresse kennt, sieht die Reservierungen mit Namen und
+    // kann einteilen. Bewusste Entscheidung fuer diese Etappe - Bedienbarkeit
+    // zuerst, Absicherung als naechster Schritt.
+    //
+    // Zum Zusperren: auf "nein" stellen, `npx wrangler deploy`, danach
+    // `bash schluessel.sh`. Der Hausschluessel gilt dann wieder.
+    "OFFEN": "ja"
   },
 
   // HAUS_TOKEN ist ein Geheimnis und steht nicht in dieser Datei:

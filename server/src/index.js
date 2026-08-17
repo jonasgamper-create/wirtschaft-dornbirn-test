@@ -344,7 +344,16 @@ export default {
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: kopf });
 
     const haus = stub(env);
-    const darf = () => gleich(request.headers.get('x-haus-token'), env.HAUS_TOKEN);
+
+    // Offener Betrieb. Bewusst gesetzt und bewusst sichtbar: die Oberflaeche
+    // zeigt einen Hinweis, solange er gilt. In dieser Etappe zaehlt allein,
+    // dass die Bedienung ohne Huerde funktioniert; die Absicherung ist der
+    // naechste Schritt und braucht dann nur diese eine Zeile in wrangler.jsonc.
+    //
+    // Was das heisst, ohne Beschoenigung: wer die Adresse kennt, sieht die
+    // Reservierungen mit Namen und kann die Einteilung aendern.
+    const offen = String(env.OFFEN || '').toLowerCase() === 'ja';
+    const darf = () => offen || gleich(request.headers.get('x-haus-token'), env.HAUS_TOKEN);
     const heute = new Date().toISOString().slice(0, 10);
 
     try {
@@ -353,7 +362,9 @@ export default {
         if (request.headers.get('Upgrade') !== 'websocket') return json({ ok: false }, 426, kopf);
         // Der Token steht in der Adresse, weil ein WebSocket keine eigenen
         // Kopfzeilen mitschicken kann.
-        if (!gleich(url.searchParams.get('token'), env.HAUS_TOKEN)) return json({ ok: false }, 401, kopf);
+        if (!offen && !gleich(url.searchParams.get('token'), env.HAUS_TOKEN)) {
+          return json({ ok: false }, 401, kopf);
+        }
         return haus.fetch(request);
       }
 
@@ -399,7 +410,11 @@ export default {
         return json(await haus.frei(datum, personen), 200, kopf);
       }
 
-      if (url.pathname === '/api/gesundheit') return json({ ok: true, dienst: 'wirtschaft-dornbirn' }, 200, kopf);
+      // Hier fragt die Oberflaeche, ob sie ueberhaupt nach einem Schluessel
+      // fragen muss - und ob sie den Hinweis auf den offenen Betrieb zeigt.
+      if (url.pathname === '/api/gesundheit') {
+        return json({ ok: true, dienst: 'wirtschaft-dornbirn', offen }, 200, kopf);
+      }
 
       return json({ ok: false, grund: 'unbekannt' }, 404, kopf);
     } catch (fehler) {
