@@ -8,7 +8,7 @@ import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, METER_PRO_EINHEIT, alsMeter, act
 import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=e5651f4b';
 import { renderFloorplan } from './floorplan.js?v=11cfb662';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
-import { apiAdresse, bleibVerbunden, hausToken, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=d2fd0923';
+import { apiAdresse, bleibVerbunden, hausToken, schluesselAusAdresse, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=1b0bb579';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 const store = window.WirtschaftData;
@@ -928,6 +928,114 @@ async function start() {
     paint();
   });
 
+  // ---- Startseite "Heute" ---------------------------------------------------
+  //
+  // Die erste Frage am Morgen ist nicht "welche Einstellung gilt", sondern
+  // "was kommt heute auf mich zu". Deshalb zuerst Zahlen, dann der Verlauf,
+  // dann die Einstellungen als lesbare Saetze - kein Formular. Wer etwas
+  // aendern will, geht in den passenden Reiter.
+
+  function paintHeute() {
+    const plan = buildFloorplan(current());
+    const tag = dayParties();
+    const platz = freiePlaetze(moment.date, moment.time, plan);
+    const gaeste = tag.reduce((sum, party) => sum + party.guests, 0);
+    const spaet = seatedNow().filter(party => statusVon(party) === 'ueberfaellig');
+    const post = offenePost();
+    const ohneTisch = tag.filter(party => !party.tableIds.length);
+
+    const datum = new Date(`${moment.date}T12:00:00`);
+    say('heuteDatum', datum.toLocaleDateString('de-AT', { weekday: 'long', day: 'numeric', month: 'long' }));
+    say('heuteStand', moment.live ? `Stand ${moment.time} Uhr` : `Angehalten auf ${moment.time} Uhr`);
+
+    // ---- Kacheln
+    const box = byId('fpKacheln');
+    box.textContent = '';
+    const kachel = (zahl, text, klasse = '') => {
+      const el = document.createElement('div');
+      el.className = `fp-kachel${klasse}`;
+      el.append(Object.assign(document.createElement('b'), { textContent: String(zahl) }),
+        Object.assign(document.createElement('span'), { textContent: text }));
+      box.append(el);
+    };
+    kachel(tag.length, tag.length === 1 ? 'Reservierung heute' : 'Reservierungen heute');
+    kachel(gaeste, gaeste === 1 ? 'Gast erwartet' : 'Gäste erwartet');
+    kachel(platz.frei, `von ${platz.limit} Plätzen gerade frei`);
+    if (post.length) kachel(post.length, post.length === 1 ? 'neue Anfrage' : 'neue Anfragen', ' is-neu');
+    if (spaet.length) kachel(spaet.length, 'überfällig – noch nicht da', ' is-warnung');
+    if (ohneTisch.length) kachel(ohneTisch.length, 'noch ohne Tisch', ' is-warnung');
+
+    // ---- Was jetzt zu tun ist. Eine Zeile, keine Liste von Moeglichkeiten.
+    const tun = post.length
+      ? `${post.length === 1 ? 'Eine neue Anfrage wartet' : `${post.length} neue Anfragen warten`} im Posteingang.`
+      : spaet.length
+        ? `${spaet.length === 1 ? 'Ein Tisch ist' : `${spaet.length} Tische sind`} überfällig – nachschauen, ob die Gäste da sind.`
+        : ohneTisch.length
+          ? `${ohneTisch.length === 1 ? 'Eine Reservierung hat' : `${ohneTisch.length} Reservierungen haben`} noch keinen Tisch.`
+          : tag.length
+            ? 'Alles eingeteilt. Nichts zu tun.'
+            : 'Für heute ist noch nichts reserviert.';
+    say('fpHeuteTun', tun);
+
+    // ---- Zeitachse: wer kommt wann
+    const achse = byId('fpZeitachse');
+    achse.textContent = '';
+    const sortiert = [...tag].sort((a, b) => a.time.localeCompare(b.time));
+    if (!sortiert.length) {
+      const leer = document.createElement('li');
+      leer.className = 'leer';
+      leer.textContent = 'Noch keine Reservierung für diesen Tag.';
+      achse.append(leer);
+    }
+    for (const party of sortiert) {
+      const zustand = statusVon(party);
+      const zeile = document.createElement('li');
+      if (zustand === 'ueberfaellig') zeile.className = 'is-spaet';
+      else if (['da', 'wartet'].includes(zustand)) zeile.className = 'is-jetzt';
+
+      const uhr = document.createElement('span');
+      uhr.className = 'uhr';
+      uhr.textContent = party.time;
+      const wer = document.createElement('span');
+      wer.className = 'wer';
+      wer.textContent = `${party.name} · ${party.guests}P`;
+      const wo = document.createElement('span');
+      wo.className = 'wo';
+      wo.textContent = party.tableIds.length
+        ? `Tisch ${tischListe(party.tableIds, plan)}`
+        : 'noch offen';
+      zeile.append(uhr, wer, wo);
+      achse.append(zeile);
+    }
+
+    // ---- Einstellungen als Saetze
+    const rules = service();
+    const liste = byId('fpEinstellungen');
+    liste.textContent = '';
+    const zeile = (was, wie) => {
+      const li = document.createElement('li');
+      li.append(Object.assign(document.createElement('b'), { textContent: was }),
+        Object.assign(document.createElement('span'), { textContent: wie }));
+      liste.append(li);
+    };
+    zeile('Tischordnung', `${plan.layoutName} – ${plan.tables.length} Tische, ${totalSeats(plan)} Plätze`);
+    // Nur behaupten, was wirklich gilt: ohne Verbindung wissen wir den Zustand
+    // des Dienstes nicht, und eine erfundene Zusage waere hier am teuersten.
+    zeile('Onlinebuchung', !dienst.an
+      ? 'aus – die Gästeseite leitet auf den offiziellen Anbieter weiter'
+      : !dienst.verbunden
+        ? 'Dienst eingerichtet, aber nicht verbunden – Hausschlüssel eintragen'
+        : dienst.automatik === false
+          ? 'kommt herein, den Tisch teilt das Haus selbst ein'
+          : `bekommt automatisch einen Tisch${dienst.etage ? ` – ${dienst.etage}` : ''}`);
+    zeile('Sitzdauer', rules.mode === 'schichten'
+      ? `Schichten: ${rules.seatings.join(', ')} bis ${rules.endsAt}`
+      : rules.richtzeit === false
+        ? 'offen – Tisch bleibt belegt, bis „Fertig" gedrückt wird'
+        : `${durationFor(4, policy())} Minuten als Richtzeit`);
+    zeile('Abräumen', `${rules.bufferMinutes} Minuten zwischen zwei Gruppen`);
+  }
+
   // ---- Posteingang ----------------------------------------------------------
   //
   // Eine Onlineanfrage ist das einzige, was von aussen hereinkommt und eine
@@ -1535,7 +1643,7 @@ async function start() {
   // nicht an. Ein Werkzeug, das im Mittag am Netz haengt, waere schlechter als
   // das bisherige.
 
-  const dienst = { an: false, verbunden: false, zuletzt: 0 };
+  const dienst = { an: false, verbunden: false, automatik: true, etage: null, zuletzt: 0 };
 
   function dienstInfo(text) { say('fpDienstInfo', text); }
 
@@ -1557,8 +1665,14 @@ async function start() {
    * andere - Tischplan, Sperren - bleibt hier.
    */
   function uebernimm(stand) {
-    if (stand && typeof stand.automatik === 'boolean') zeigeAutomatik(stand.automatik);
-    if (stand && stand.standardEtage) byId('fpStandardEtage').value = stand.standardEtage;
+    if (stand && typeof stand.automatik === 'boolean') {
+      dienst.automatik = stand.automatik;
+      zeigeAutomatik(stand.automatik);
+    }
+    if (stand && stand.standardEtage) {
+      byId('fpStandardEtage').value = stand.standardEtage;
+      dienst.etage = buildFloorplan(current()).levels.find(l => l.id === stand.standardEtage)?.name || null;
+    }
     if (!Array.isArray(stand?.parties)) return;
     const state = store.load();
     const vorher = JSON.stringify(state.parties || []);
@@ -1575,7 +1689,43 @@ async function start() {
     }
   }
 
+  /** Zeigt den Einrichtungslink fuer ein weiteres Geraet. */
+  function paintKoppeln(adresse) {
+    const kasten = byId('fpKoppeln');
+    const da = Boolean(adresse && hausToken());
+    kasten.hidden = !da;
+    if (!da) return;
+    const basis = window.location.href.split('#')[0];
+    byId('fpKoppelLink').value = `${basis}#k=${encodeURIComponent(hausToken())}`;
+  }
+
+  // Wird der Link bei offener Seite eingefuegt, aendert sich nur der Teil nach
+  // dem Doppelkreuz - das laedt die Seite nicht neu. Ohne diesen Fall passiert
+  // scheinbar gar nichts, und niemand versteht warum.
+  window.addEventListener('hashchange', () => {
+    if (!schluesselAusAdresse()) return;
+    byId('fpToken').value = hausToken();
+    dienstInfo('Dieses Gerät ist eingerichtet. Der Hausschlüssel ist gespeichert.');
+    starteDienst();
+  });
+
+  byId('fpKoppelKopie').addEventListener('click', async () => {
+    const feld = byId('fpKoppelLink');
+    feld.select();
+    try {
+      await navigator.clipboard.writeText(feld.value);
+      dienstInfo('Link kopiert. Jetzt ans Handy schicken – ein Antippen richtet es ein.');
+    } catch {
+      // Ohne Zwischenablage-Recht bleibt der markierte Text: von Hand kopieren.
+      dienstInfo('Der Link ist markiert – mit Cmd+C kopieren.');
+    }
+  });
+
   async function starteDienst() {
+    // Kommt der Schluessel ueber einen Einrichtungslink, gleich uebernehmen.
+    if (schluesselAusAdresse()) {
+      dienstInfo('Dieses Gerät ist eingerichtet. Der Hausschlüssel ist gespeichert.');
+    }
     const adresse = await apiAdresse();
     if (!adresse) {
       dienstInfo('Kein Dienst eingetragen. Onlinebuchungen sind aus; alles läuft nur in diesem Browser. '
@@ -1585,6 +1735,7 @@ async function start() {
     }
     dienst.an = true;
     byId('fpToken').value = hausToken();
+    paintKoppeln(adresse);
     if (!hausToken()) {
       return dienstInfo('Dienst gefunden. Bitte einmal den Hausschlüssel eintragen, dann kommen Onlinebuchungen hier an.');
     }
@@ -2506,6 +2657,7 @@ async function start() {
   function paint() {
     paintBar();
     paintPost();
+    paintHeute();
     paintMoment();
     paintPlan();
     paintSeating();
@@ -2529,7 +2681,7 @@ async function start() {
   byId('fpResTime').value = moment.time;
   // Immer im Service starten. Ein gemerkter Reiter ist bequem, aber der Mittag
   // faengt nie in der Einrichtung an.
-  let starte = 'service';
+  let starte = 'heute';
   try {
     const gemerkt = localStorage.getItem(TAB_KEY);
     if (gemerkt && tabs().some(tab => tab.dataset.tab === gemerkt)) starte = gemerkt;
