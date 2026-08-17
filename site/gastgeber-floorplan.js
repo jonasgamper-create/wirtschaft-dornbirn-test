@@ -8,7 +8,7 @@ import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, METER_PRO_EINHEIT, alsMeter, act
 import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=e5651f4b';
 import { renderFloorplan } from './floorplan.js?v=11cfb662';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
-import { apiAdresse, bleibVerbunden, hausToken, schluesselAusAdresse, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=1b0bb579';
+import { apiAdresse, bleibVerbunden, hausToken, istOffen, schluesselAusAdresse, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=af41a6d8';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 const store = window.WirtschaftData;
@@ -1643,19 +1643,19 @@ async function start() {
   // nicht an. Ein Werkzeug, das im Mittag am Netz haengt, waere schlechter als
   // das bisherige.
 
-  const dienst = { an: false, verbunden: false, automatik: true, etage: null, zuletzt: 0 };
+  const dienst = { an: false, offen: false, verbunden: false, automatik: true, etage: null, zuletzt: 0 };
 
   function dienstInfo(text) { say('fpDienstInfo', text); }
 
   /** Sagt dem Dienst Bescheid - und schweigt, wenn er nicht eingerichtet ist. */
   async function melde(befehl) {
-    if (!dienst.an || !hausToken()) return;
+    if (!dienst.an || !(dienst.offen || hausToken())) return;
     const antwort = await sendeAktion(hausToken(), befehl);
     if (antwort?.grund === 'token') dienstInfo('Der Hausschlüssel stimmt nicht mehr. Bitte neu eintragen.');
   }
 
   async function meldeNeu(party) {
-    if (!dienst.an || !hausToken()) return;
+    if (!dienst.an || !(dienst.offen || hausToken())) return;
     await sendeReservierung(hausToken(), party);
   }
 
@@ -1734,12 +1734,25 @@ async function start() {
       return;
     }
     dienst.an = true;
+    dienst.offen = await istOffen();
     byId('fpToken').value = hausToken();
     paintKoppeln(adresse);
-    if (!hausToken()) {
-      return dienstInfo('Dienst gefunden. Bitte einmal den Hausschlüssel eintragen, dann kommen Onlinebuchungen hier an.');
+
+    // Im offenen Betrieb nach einem Schluessel zu fragen waere eine Huerde
+    // ohne Zweck. Dass offen gearbeitet wird, muss man aber sehen - ein
+    // offenes System, von dem niemand weiss, ist das eigentliche Problem.
+    byId('fpSchluesselFeld').hidden = dienst.offen;
+    byId('fpKoppeln').hidden = dienst.offen || !hausToken();
+    const hinweis = byId('fpOffenHinweis');
+    hinweis.hidden = !dienst.offen;
+    hinweis.textContent = 'Offener Betrieb: Diese Seite verlangt kein Passwort. '
+      + 'Wer die Adresse kennt, sieht die Reservierungen mit Namen und kann einteilen. '
+      + 'Für den Testbetrieb so gewollt – vor echten Gästedaten bitte zusperren.';
+
+    if (!dienst.offen && !hausToken()) {
+      return dienstInfo('Dienst gefunden. Bitte einmal das Passwort eintragen, dann kommen Onlinebuchungen hier an.');
     }
-    bleibVerbunden(hausToken(), uebernimm, zustand => {
+    bleibVerbunden(dienst.offen ? 'offen' : hausToken(), uebernimm, zustand => {
       dienst.verbunden = zustand === 'verbunden';
       dienstInfo(dienst.verbunden
         ? `Verbunden mit ${adresse}. Onlinebuchungen erscheinen sofort.`
@@ -1775,7 +1788,9 @@ async function start() {
   byId('fpDienstForm').addEventListener('submit', async event => {
     event.preventDefault();
     setzeToken(byId('fpToken').value.trim());
-    if (!hausToken()) return dienstInfo('Ohne Hausschlüssel kann der Dienst nicht angesprochen werden.');
+    if (!dienst.offen && !hausToken()) {
+      return dienstInfo('Ohne Passwort kann der Dienst nicht angesprochen werden.');
+    }
     dienstInfo('Wird veröffentlicht …');
     const platz = freiePlaetze(moment.date, moment.time);
     const antwort = await sendePlan(hausToken(), {
