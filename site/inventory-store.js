@@ -103,6 +103,13 @@
 
     // Muss mit ELEMENTS in floorplan-layout.mjs uebereinstimmen: was hier
     // fehlt, faellt beim Laden lautlos aus der Zeichnung.
+    // Raumflaeche der Etage in Rastereinheiten (eine Einheit = ein halber
+    // Meter). Fehlt sie, bleibt es beim bisherigen Standardraster.
+    const mass = value => {
+      const zahl = Number(value);
+      return Number.isInteger(zahl) && zahl >= 6 && zahl <= 80 ? zahl : null;
+    };
+
     const kinds = new Set(['eingang', 'ausgang', 'bar', 'buehne', 'terrasse',
       'toilette', 'garderobe', 'kueche', 'saeule', 'fenster', 'weg', 'wand']);
     const elements = (Array.isArray(level?.elements) ? level.elements : []).slice(0, 60)
@@ -121,6 +128,9 @@
       id,
       name: safeText(level?.name, 40) || `Etage ${index + 1}`,
       order: safeNumber(level?.order, 1, 4, index + 1),
+      // Raumflaeche der Etage. null heisst: kein eigenes Mass hinterlegt.
+      breite: mass(level?.breite),
+      tiefe: mass(level?.tiefe),
       tables,
       elements
     };

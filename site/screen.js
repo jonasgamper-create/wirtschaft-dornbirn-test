@@ -5,9 +5,9 @@
 // wirklich live, ueber das storage-Ereignis ohne jede Verzoegerung. Ein Geraet
 // im anderen Netz braeuchte einen Server.
 
-import { activeLayout, buildFloorplan, seatingPlan, serviceOf } from './floorplan-layout.mjs?v=4e77fe92';
-import { durationFor, occupiesAt, stamp } from './table-assignment.mjs?v=e5651f4b';
-import { renderFloorplan } from './floorplan.js?v=11cfb662';
+import { activeLayout, buildFloorplan, seatingPlan, serviceOf } from './floorplan-layout.mjs?v=2ceb6cd0';
+import { durationFor, occupiesAt, stamp } from './table-assignment.mjs?v=c666432c';
+import { renderFloorplan } from './floorplan.js?v=2db63d04';
 
 import { bleibVerbunden, hausToken, istOffen } from './haus-api.js?v=af41a6d8';
 

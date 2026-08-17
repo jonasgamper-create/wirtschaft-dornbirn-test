@@ -4,9 +4,9 @@
 
 // Die Versionsangaben muessen mit denen in den HTML-Dateien mitwandern: ein
 // Modulimport ohne Version bleibt sonst im Browser-Cache haengen.
-import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, METER_PRO_EINHEIT, alsMeter, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, formOf, istGedreht, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=4e77fe92';
-import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=e5651f4b';
-import { renderFloorplan } from './floorplan.js?v=11cfb662';
+import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, METER_PRO_EINHEIT, alsMeter, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, formOf, istGedreht, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=2ceb6cd0';
+import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=c666432c';
+import { renderFloorplan } from './floorplan.js?v=2db63d04';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
 import { apiAdresse, bleibVerbunden, hausToken, istOffen, schluesselAusAdresse, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=af41a6d8';
 
@@ -1948,6 +1948,29 @@ async function start() {
       }
       head.append(add);
 
+      // Die Raumflaeche. Sie steht vor den Tischen, weil man zuerst weiss, wie
+      // gross der Raum ist, und dann was hineinpasst.
+      const flaeche = document.createElement('div');
+      flaeche.className = 'fp-sizes fp-raumfeld';
+      for (const [achse, titel] of [['breite', 'Raumbreite'], ['tiefe', 'Raumtiefe']]) {
+        const feld = document.createElement('label');
+        feld.className = 'fp-mass';
+        feld.append(titel);
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.min = '3';
+        input.max = '40';
+        input.step = '0.5';
+        input.placeholder = achse === 'breite' ? '12' : 'offen';
+        input.value = level[achse] ? (level[achse] * METER_PRO_EINHEIT).toFixed(1) : '';
+        input.dataset.raumLevel = level.id;
+        input.dataset.achse = achse;
+        input.setAttribute('aria-label', `${titel} von ${level.name} in Metern`);
+        feld.append(input, Object.assign(document.createElement('small'), { textContent: 'm' }));
+        flaeche.append(feld);
+      }
+      head.append(flaeche);
+
       const remove = document.createElement('button');
       remove.type = 'button';
       remove.className = 'quiet';
@@ -2060,6 +2083,43 @@ async function start() {
   }
 
   byId('fpLevels').addEventListener('change', event => {
+    const raum = event.target.closest('[data-raum-level]');
+    if (raum) {
+      const config = current();
+      const level = activeLayout(config).levels.find(item => item.id === raum.dataset.raumLevel);
+      if (!level) return;
+      const meter = Number(raum.value);
+      // Leeres Feld heisst: kein eigenes Mass. Das ist ein gueltiger Zustand
+      // und darf nicht als Null durchgehen.
+      level[raum.dataset.achse] = raum.value.trim() === '' || !Number.isFinite(meter)
+        ? null
+        : Math.max(6, Math.min(80, Math.round(meter / METER_PRO_EINHEIT)));
+      save(config);
+      const plan = buildFloorplan(current());
+      const gebaut = plan.levels.find(item => item.id === level.id);
+      if (!gebaut?.raum) {
+        return warn(`${level.name}: Raumtiefe offen – die Fläche wächst mit den Tischen.`);
+      }
+      // Tische, die vor dem Festlegen der Flaeche gesetzt wurden, koennen jetzt
+      // ausserhalb liegen. Sie stillschweigend zu verschieben waere schlimmer
+      // als es zu sagen - der Wirt weiss, wo sie wirklich stehen.
+      // Auch Raumelemente: ein WC ausserhalb des Raums ist genauso falsch wie
+      // ein Tisch, und es fiel beim ersten Anlauf durch, weil nur Tische
+      // geprueft wurden.
+      const passtNicht = item =>
+        item.col + item.w > gebaut.raum.breite || item.row + item.h > gebaut.raum.tiefe;
+      const draussen = [
+        ...gebaut.tables.filter(passtNicht).map(table => `Tisch ${tisch(table, gebaut)}`),
+        ...(gebaut.elements || []).filter(passtNicht)
+          .map(item => item.label || ELEMENTS[item.kind]?.name || 'Element')
+      ];
+      const flaeche = (gebaut.raum.breite * gebaut.raum.tiefe * METER_PRO_EINHEIT * METER_PRO_EINHEIT).toFixed(0);
+      return warn(`${level.name}: ${alsMeter(gebaut.raum.breite)} × ${alsMeter(gebaut.raum.tiefe)} (${flaeche} m²).`
+        + (draussen.length
+          ? ` Außerhalb des Raums: ${draussen.join(', ')} – auf der Karte hineinschieben.`
+          : ''));
+    }
+
     const feld = event.target.closest('[data-count-level]');
     if (feld) return setzeAnzahl(feld.dataset.countLevel, Number(feld.dataset.seats), feld.value);
 
