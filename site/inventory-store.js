@@ -131,6 +131,17 @@
       // Raumflaeche der Etage. null heisst: kein eigenes Mass hinterlegt.
       breite: mass(level?.breite),
       tiefe: mass(level?.tiefe),
+      // Gezeichneter Grundriss als Punktfolge. Ohne diese Zeile verschwand er
+      // beim Speichern lautlos - die Zeichnung war nach dem Schliessen weg,
+      // und es sah aus, als haette das Zeichnen nicht funktioniert.
+      umriss: (() => {
+        const roh = Array.isArray(level?.umriss) ? level.umriss : null;
+        if (!roh || roh.length < 3) return undefined;
+        const punkte = roh.slice(0, 60)
+          .map(punkt => (Array.isArray(punkt) ? punkt : []))
+          .map(([x, y]) => [safeNumber(x, 0, 200, 0), safeNumber(y, 0, 400, 0)]);
+        return punkte.length >= 3 ? punkte : undefined;
+      })(),
       tables,
       elements
     };

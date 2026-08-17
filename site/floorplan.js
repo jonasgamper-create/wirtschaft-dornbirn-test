@@ -4,7 +4,7 @@
 
 // Version muss zu den anderen Importen passen, sonst laedt der Browser zwei
 // Kopien desselben Moduls.
-import { ELEMENTS, buildFloorplan, chairSlots, seatNamesFor, tableBody } from './floorplan-layout.mjs?v=d7d5b511';
+import { ELEMENTS, buildFloorplan, chairSlots, seatNamesFor, tableBody } from './floorplan-layout.mjs?v=482664fa';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const el = (tag, attrs = {}) => {
@@ -42,6 +42,8 @@ export function renderFloorplan(root, config, options = {}) {
     mode = 'orientation', states = {}, seating = {}, selected = null,
     // Bis wann ein freier Tisch frei bleibt - die Frage an der Tuer.
     freeUntil = {},
+    // Raum zeichnen: Klicks setzen Punkte statt Tische auszuwaehlen.
+    zeichnet = false, entwurf = [], onPunkt = null,
     onSelect = null, onMove = null, onEdit = null,
     // Sitzplan: Namen an den Stuehlen statt Belegung am Tisch.
     seatMode = false, onSeatName = null, onMoveElement = null
@@ -134,13 +136,35 @@ export function renderFloorplan(root, config, options = {}) {
     // Der Raum selbst zuerst: eine sichtbare Aussenkante macht aus einer
     // Ansammlung von Tischen einen Grundriss. Ohne sie sieht man nicht, wo das
     // Lokal aufhoert.
-    if (level.raum) {
+    // Ein gezeichneter Umriss schlaegt das Rechteck: wer Punkte gesetzt hat,
+    // will genau diese Form sehen.
+    if (level.umriss) {
+      svg.append(el('polygon', {
+        class: 'fp-raum',
+        points: level.umriss.map(([x, y]) => `${x},${y}`).join(' ')
+      }));
+    } else if (level.raum) {
       svg.append(el('rect', {
         class: 'fp-raum',
         x: 0.06, y: 0.06,
         width: Math.max(0.1, level.raum.breite - 0.12),
         height: Math.max(0.1, level.raum.tiefe - 0.12)
       }));
+    }
+
+    // Waehrend des Zeichnens: die bisherigen Punkte als Linie und als Griffe.
+    // Ohne sichtbare Punkte weiss niemand, wo er schon geklickt hat.
+    if (zeichnet && entwurf.length) {
+      svg.append(el('polyline', {
+        class: 'fp-entwurf',
+        points: entwurf.map(([x, y]) => `${x},${y}`).join(' ')
+      }));
+      entwurf.forEach(([x, y], index) => {
+        svg.append(el('circle', {
+          class: `fp-punkt${index === 0 ? ' ist-erster' : ''}`,
+          cx: x, cy: y, r: 0.45
+        }));
+      });
     }
 
     // Weggenommene Ecken zuerst und getrennt: sie liegen ueber der Aussenkante,
@@ -238,6 +262,18 @@ export function renderFloorplan(root, config, options = {}) {
       }
       svg.append(group);
     }
+    // Im Zeichenmodus setzt jeder Klick einen Punkt - auf ganze Rastereinheiten
+    // gerundet, damit Waende gerade werden und Ecken sauber schliessen.
+    if (zeichnet && onPunkt) {
+      svg.addEventListener('click', event => {
+        const matrix = svg.getScreenCTM();
+        if (!matrix) return;
+        const punkt = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
+        onPunkt(Math.max(0, Math.round(punkt.x)), Math.max(0, Math.round(punkt.y)));
+      });
+      return svg;
+    }
+
     if (mode === 'select') {
       svg.addEventListener('click', event => {
         if (svg.dataset.dragged === '1') { svg.dataset.dragged = '0'; return; }

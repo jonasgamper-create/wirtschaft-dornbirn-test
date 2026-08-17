@@ -4,9 +4,9 @@
 
 // Die Versionsangaben muessen mit denen in den HTML-Dateien mitwandern: ein
 // Modulimport ohne Version bleibt sonst im Browser-Cache haengen.
-import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, METER_PRO_EINHEIT, alsMeter, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, formOf, istGedreht, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=d7d5b511';
-import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=d03cc291';
-import { renderFloorplan } from './floorplan.js?v=2a19dd21';
+import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, METER_PRO_EINHEIT, alsMeter, rechteckImUmriss, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, formOf, istGedreht, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=482664fa';
+import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=6d7cae32';
+import { renderFloorplan } from './floorplan.js?v=a48d9860';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
 import { apiAdresse, bleibVerbunden, hausToken, istOffen, schluesselAusAdresse, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=af41a6d8';
 
@@ -496,9 +496,101 @@ async function start() {
       .sort((a, b) => a.time.localeCompare(b.time))[0] || null;
   }
 
+  // ---- Grundriss zeichnen ---------------------------------------------------
+  //
+  // Punkte statt Rechtecke: damit laesst sich jeder Grundriss abbilden, auch
+  // mit schraegen Waenden. Der Entwurf bleibt getrennt vom gespeicherten
+  // Umriss, bis er geschlossen wird - ein halber Grundriss darf die Karte
+  // nicht durcheinanderbringen.
+  let entwurf = null;
+
+  function zeichenLage() {
+    const laeuft = Array.isArray(entwurf);
+    preview.classList.toggle('fp-zeichnen', laeuft);
+    byId('fpZeichnenStart').textContent = laeuft ? 'Abbrechen' : 'Zeichnen starten';
+    byId('fpZeichnenZurueck').hidden = !laeuft || !entwurf.length;
+    byId('fpZeichnenFertig').hidden = !laeuft || entwurf.length < 3;
+    const hatUmriss = Boolean(activeLayout(current()).levels.some(level => level.umriss));
+    byId('fpZeichnenWeg').hidden = laeuft || !hatUmriss;
+    say('fpZeichnenInfo', laeuft
+      ? (entwurf.length < 3
+        ? `In die Karte klicken. ${entwurf.length} von mindestens 3 Ecken gesetzt.`
+        : `${entwurf.length} Ecken gesetzt. Auf den ersten Punkt klicken oder „Schließen“ drücken.`)
+      : hatUmriss ? 'Ein Grundriss ist gezeichnet.' : '');
+  }
+
+  /** Welche Etage gerade auf der Karte zu sehen ist. */
+  const sichtbareEtage = () => {
+    const plan = buildFloorplan(current());
+    return plan.levels.find(level => level.id === preview.dataset.level) || plan.levels[0];
+  };
+
+  function setzePunkt(x, y) {
+    if (!Array.isArray(entwurf)) return;
+    // Auf den ersten Punkt geklickt heisst: Form schliessen.
+    if (entwurf.length >= 3) {
+      const [ex, ey] = entwurf[0];
+      if (Math.abs(ex - x) <= 1 && Math.abs(ey - y) <= 1) return schliesseEntwurf();
+    }
+    entwurf.push([x, y]);
+    paintPlan();
+    zeichenLage();
+  }
+
+  function schliesseEntwurf() {
+    if (!Array.isArray(entwurf) || entwurf.length < 3) return;
+    const config = current();
+    const ziel = activeLayout(config).levels.find(level => level.id === sichtbareEtage().id);
+    if (!ziel) return;
+    ziel.umriss = entwurf.map(([x, y]) => [x, y]);
+    entwurf = null;
+    save(config);
+    zeichenLage();
+    const gebaut = buildFloorplan(current()).levels.find(level => level.id === ziel.id);
+    const draussen = (gebaut?.tables || []).filter(table =>
+      !rechteckImUmriss({ col: table.col, row: table.row, w: table.w, h: table.h }, gebaut.umriss));
+    warn(`Grundriss für ${ziel.name} gespeichert: ${ziel.umriss.length} Ecken.`
+      + (draussen.length
+        ? ` ${draussen.length === 1 ? 'Ein Tisch steht' : `${draussen.length} Tische stehen`} außerhalb`
+          + ` (${draussen.map(table => tisch(table, gebaut)).join(', ')}) – hineinschieben.`
+        : ''));
+  }
+
+  byId('fpZeichnenStart').addEventListener('click', () => {
+    entwurf = Array.isArray(entwurf) ? null : [];
+    // Zum Zeichnen muss die Karte sichtbar sein - auf ein verstecktes Element
+    // kann man nicht klicken, und die Klicks landeten alle bei null.
+    if (entwurf) {
+      zeigeReiter('service');
+      byId('fpGrundrissFold').open = true;
+      byId('fpPreview').scrollIntoView({ block: 'center' });
+    }
+    paintPlan();
+    zeichenLage();
+  });
+  byId('fpZeichnenZurueck').addEventListener('click', () => {
+    if (!Array.isArray(entwurf)) return;
+    entwurf.pop();
+    paintPlan();
+    zeichenLage();
+  });
+  byId('fpZeichnenFertig').addEventListener('click', schliesseEntwurf);
+  byId('fpZeichnenWeg').addEventListener('click', () => {
+    const config = current();
+    const ziel = activeLayout(config).levels.find(level => level.id === sichtbareEtage().id);
+    if (!ziel?.umriss) return say('fpZeichnenInfo', 'Für diese Etage ist kein Grundriss gezeichnet.');
+    if (!confirm(`Grundriss von ${ziel.name} entfernen? Der Raum ist danach wieder rechteckig.`)) return;
+    delete ziel.umriss;
+    save(config);
+    zeichenLage();
+  });
+
   function paintPlan() {
     renderFloorplan(preview, current(), {
       mode: 'select',
+      zeichnet: Array.isArray(entwurf),
+      entwurf: entwurf || [],
+      onPunkt: setzePunkt,
       states: tableStates(),
       seating: seatingMap(),
       freeUntil: freeUntilMap(),
@@ -2744,6 +2836,7 @@ async function start() {
     paintFloorMove();
     paintStats();
     paintStandardEtage();
+    zeichenLage();
     paintHistory();
     pruefeSicherung();
     // Auch nach einer Reservierung, nicht nur nach Planaenderungen - sonst

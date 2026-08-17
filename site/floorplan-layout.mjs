@@ -206,10 +206,11 @@ function tooClose(a, b, gap) {
     && a.row < b.row + b.h + gap && b.row < a.row + a.h + gap;
 }
 
-function findSpot(placed, spec, grid, breite = grid.cols) {
+function findSpot(placed, spec, grid, breite = grid.cols, umriss = null) {
   for (let row = 0; row < 400; row += 1) {
     for (let col = 0; col + spec.w <= breite; col += 1) {
       const candidate = { col, row, w: spec.w, h: spec.h };
+      if (umriss && !rechteckImUmriss(candidate, umriss)) continue;
       if (!placed.some(other => tooClose(candidate, other, grid.gap))) return { col, row };
     }
   }
@@ -269,7 +270,7 @@ export function buildLevelGeometry(level, grid = GRID) {
   // Neue Tische weichen auch Raumobjekten aus - sonst landet der erste Tisch
   // mitten auf der Buehne.
   for (const spec of specs.filter(item => !placed.some(done => done.id === item.id))) {
-    placed.push({ ...spec, ...findSpot([...placed, ...elements], spec, grid, breite), pinned: false });
+    placed.push({ ...spec, ...findSpot([...placed, ...elements], spec, grid, breite, umrissVon(level)), pinned: false });
   }
 
   // Leserichtung: oben links nach unten rechts. Das macht die Karte
@@ -279,8 +280,18 @@ export function buildLevelGeometry(level, grid = GRID) {
   // darueber hinaus, waechst sie mit - sonst waere es unsichtbar und man
   // suchte einen Tisch, den es scheinbar nicht gibt.
   const belegt = [...placed, ...elements].reduce((max, item) => Math.max(max, item.row + item.h), 0);
-  const rows = Math.max(tiefe || 0, belegt);
-  return { cols: breite, rows, raum: tiefe ? { breite, tiefe } : null, tables: placed, elements };
+  const umriss = umrissVon(level);
+  const umrissTief = umriss ? Math.ceil(Math.max(...umriss.map(([, y]) => y))) : 0;
+  const umrissBreit = umriss ? Math.ceil(Math.max(...umriss.map(([x]) => x))) : 0;
+  const rows = Math.max(tiefe || 0, umrissTief, belegt);
+  return {
+    cols: Math.max(breite, umrissBreit),
+    rows,
+    raum: tiefe ? { breite, tiefe } : null,
+    umriss,
+    tables: placed,
+    elements
+  };
 }
 
 // Betriebsart je Tischordnung. "frei" ist der rollende Betrieb: die Dauer
@@ -367,6 +378,7 @@ export function buildFloorplan(config, grid = GRID) {
       cols: geometry.cols,
       rows: geometry.rows,
       raum: geometry.raum,
+      umriss: geometry.umriss,
       tables,
       elements: geometry.elements
     });
@@ -440,6 +452,53 @@ export function totalSeats(floorplan, levelIds) {
  * Prueft, ob ein Tisch an eine Position darf. Gibt den Grund zurueck, damit
  * die Oberflaeche sagen kann, warum ein Zug nicht geht.
  */
+/**
+ * Der gezeichnete Umriss einer Etage: eine Folge von Punkten in
+ * Rastereinheiten. Damit laesst sich jeder Grundriss abbilden, auch mit
+ * schraegen Waenden - was mit "Ecke wegnehmen" allein nicht geht.
+ * Weniger als drei Punkte ergeben keine Flaeche.
+ */
+export function umrissVon(level) {
+  const roh = level?.umriss;
+  if (!Array.isArray(roh) || roh.length < 3) return null;
+  const punkte = roh
+    .map(punkt => (Array.isArray(punkt) ? punkt : [punkt?.x, punkt?.y]))
+    .map(([x, y]) => [Number(x), Number(y)])
+    .filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y));
+  return punkte.length >= 3 ? punkte : null;
+}
+
+/**
+ * Liegt ein Punkt im Vieleck? Strahlenverfahren: eine Halbgerade nach rechts
+ * schneidet den Rand bei einem Punkt innerhalb ungerade oft.
+ */
+export function punktImUmriss(x, y, umriss) {
+  let drin = false;
+  for (let i = 0, j = umriss.length - 1; i < umriss.length; j = i, i += 1) {
+    const [xi, yi] = umriss[i];
+    const [xj, yj] = umriss[j];
+    const schneidet = (yi > y) !== (yj > y)
+      && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+    if (schneidet) drin = !drin;
+  }
+  return drin;
+}
+
+/**
+ * Passt ein Rechteck vollstaendig in den Umriss? Geprueft wird jede
+ * Rasterzelle, die es belegt. Nur die vier Ecken zu pruefen genuegt nicht:
+ * ein Tisch kann ueber eine einspringende Ecke hinwegreichen, waehrend alle
+ * vier Ecken im Raum liegen.
+ */
+export function rechteckImUmriss(rect, umriss) {
+  for (let x = rect.col; x < rect.col + rect.w; x += 1) {
+    for (let y = rect.row; y < rect.row + rect.h; y += 1) {
+      if (!punktImUmriss(x + 0.5, y + 0.5, umriss)) return false;
+    }
+  }
+  return true;
+}
+
 /** Die weggenommenen Bereiche einer Etage - dort ist kein Gastraum. */
 export const ausschnitteVon = level =>
   (level?.elements || []).filter(item => item.kind === 'ausschnitt');
@@ -454,6 +513,11 @@ export function canPlace(floorplan, tableId, col, row, grid = GRID) {
   const moved = { col, row, w: table.w, h: table.h };
   // In einer weggenommenen Ecke steht kein Tisch - dort ist kein Raum.
   if (ausschnitteVon(heim).some(loch => overlapsRect(moved, loch))) {
+    return { ok: false, reason: 'ausserhalb' };
+  }
+  // Und ist ein Umriss gezeichnet, gilt der.
+  const umriss = heim?.umriss;
+  if (umriss && !rechteckImUmriss(moved, umriss)) {
     return { ok: false, reason: 'ausserhalb' };
   }
   const clash = floorplan.tables.find(other =>
