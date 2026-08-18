@@ -33,6 +33,12 @@ export function pruefeAnfrage(roh, { heute, tageImVoraus = 90 } = {}) {
     return { ok: false, grund: 'datum' };
   }
   if (!UHRZEIT.test(time)) return { ok: false, grund: 'uhrzeit' };
+  // Mittags wird Montag bis Freitag gekocht. Die Seite faengt das Wochenende
+  // schon ab - aber die Seite ist nicht die Grenze, der Dienst ist es. Was im
+  // Haus von Hand eingetragen wird, geht nicht durch diese Pruefung und
+  // bleibt frei fuer Feste am Wochenende.
+  const wochentag = new Date(`${date}T12:00:00Z`).getUTCDay();
+  if (wochentag === 0 || wochentag === 6) return { ok: false, grund: 'wochenende' };
   if (!Number.isFinite(guests) || guests < 1 || guests > 24) return { ok: false, grund: 'personen' };
 
   // Kein Datum in der Vergangenheit und keines in ferner Zukunft. Ohne diese

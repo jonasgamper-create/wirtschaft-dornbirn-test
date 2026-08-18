@@ -93,6 +93,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .contact-field .contact-check input{width:22px;height:22px;min-height:0;margin-top:2px;flex:0 0 auto;accent-color:var(--green)}
 .contact-field .contact-check span{font-size:var(--t-meta);line-height:1.5;max-width:52ch}
 .contact-field.invalid input[type="email"],.contact-field.invalid input[type="tel"]{border-color:var(--wine)}
+.done-newsletter{margin-top:16px;padding-top:14px;border-top:1px solid #11110f1a}
+.done-newsletter .contact-check{display:flex;align-items:flex-start;gap:10px;font-weight:400;letter-spacing:0;text-transform:none}
+.done-newsletter .contact-check input{width:22px;height:22px;min-height:0;margin-top:2px;flex:0 0 auto;accent-color:var(--green)}
+.done-newsletter .contact-check span{font-size:var(--t-meta);line-height:1.5;max-width:52ch}
 @media(min-width:761px){.contact-field{grid-template-columns:1fr 1fr}.contact-lead,.contact-note,.contact-field .contact-check{grid-column:1/-1}}
 .field-error{margin:0;color:var(--wine);font-size:var(--t-meta);font-weight:400;letter-spacing:0;text-transform:none}
 .form-alert{margin:16px 0 0;padding:12px 16px;border-left:2px solid var(--wine);background:#8c292b14;color:#6b2224;font-size:var(--t-meta);line-height:1.5;max-width:56ch}

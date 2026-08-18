@@ -21,7 +21,6 @@ async function start() {
   const kontaktFeld = byId('guestContactField');
   const mail = byId('guestMail');
   const telefon = byId('guestPhone');
-  const mittagskarte = byId('guestNewsletter');
   const ergebnis = byId('bookingResult');
   const hinweis = byId('submitHint');
   nameFeld.hidden = false;
@@ -38,9 +37,8 @@ async function start() {
   }
   weiter.hidden = true;
   knopf.hidden = false;
-  hinweis.textContent = 'Wir teilen den Tisch direkt ein und melden dir sofort, ob es passt. '
-    + 'Wir brauchen eine Erreichbarkeit, damit die Bestätigung ankommt – und damit wir dich erreichen, '
-    + 'falls wir kurzfristig absagen müssen.';
+  hinweis.textContent = 'Sofort fix: Du bekommst die Zusage direkt hier – ohne Anruf, ohne Konto. '
+    + 'Absagen geht jederzeit über den Link in der Bestätigung.';
 
   const sag = (text, art = 'info') => {
     ergebnis.hidden = false;
@@ -55,9 +53,7 @@ async function start() {
   // geht, statt auf gut Glueck zu waehlen und dann eine Absage zu bekommen.
 
   const zeitKnoepfe = () => [...document.querySelectorAll('#timeSlots [data-time]')];
-  const personenZahl = () =>
-    Number(document.querySelector('[name="adults"]')?.value || 0)
-    + Number(document.querySelector('[name="children"]')?.value || 0);
+  const personenZahl = () => Number(document.querySelector('[name="guests"]')?.value || 0);
 
   let laeuft = 0;
   async function zeigeVerfuegbarkeit() {
@@ -106,7 +102,19 @@ async function start() {
       : `Grau hinterlegte Zeiten sind für ${personen} ${personen === 1 ? 'Person' : 'Personen'} schon belegt.`;
   }
 
-  byId('day')?.addEventListener('change', zeigeVerfuegbarkeit);
+  // Mittags kochen wir Montag bis Freitag. Ein Samstag, der erst nach dem
+  // Ausfuellen abgelehnt wird, ist ein verlorener Gast - deshalb sofort sagen.
+  const istWochenende = tag => [0, 6].includes(new Date(`${tag}T12:00:00`).getDay());
+  byId('day')?.addEventListener('change', () => {
+    const tag = byId('day').value;
+    if (tag && istWochenende(tag)) {
+      byId('day').value = '';
+      byId('slotInfo').textContent = 'Mittags kochen wir Montag bis Freitag. '
+        + 'Am Wochenende gibt es abends Platz über das Eventticket.';
+      return;
+    }
+    zeigeVerfuegbarkeit();
+  });
   document.querySelector('#bookingForm')?.addEventListener('click', event => {
     // Personenzahl geaendert: die Verfuegbarkeit haengt daran.
     if (event.target.closest('[data-step]')) setTimeout(zeigeVerfuegbarkeit, 0);
@@ -215,14 +223,35 @@ async function start() {
     byId('doneHint').textContent = (ausgeloest
       ? 'Der Termin wurde in deinen Kalender gelegt. Öffnet sich nichts, tipp auf den Knopf.'
       : 'Tipp auf den Knopf, um den Termin in deinen Kalender zu legen.') + perMail;
+
+    // Die Mittagskarte kommt erst nach dem Erfolg ins Bild. Vorher waere sie
+    // eine Huerde im Formular; jetzt ist sie eine Zugabe - und nur sichtbar,
+    // wenn es eine Adresse gibt, an die sie gehen koennte.
+    byId('doneNewsletterRow').hidden = !wohin;
   }
+
+  byId('guestNewsletter')?.addEventListener('change', async event => {
+    const kasten = event.target;
+    const status = byId('doneNewsletterHint');
+    if (!kasten.checked) return;
+    const wohin = mail.value.trim();
+    if (!wohin) { kasten.checked = false; return; }
+    kasten.disabled = true;
+    const antwort = await meldeMittagskarte(wohin, 'reservierung');
+    status.hidden = false;
+    if (antwort?.ok) {
+      status.textContent = 'Fast geschafft: Wir haben dir eine Mail geschickt – bestätige die Anmeldung dort kurz.';
+    } else {
+      status.textContent = 'Das hat gerade nicht geklappt. Du kannst es später auf dieser Seite noch einmal versuchen.';
+      kasten.disabled = false;
+      kasten.checked = false;
+    }
+  });
 
   knopf.addEventListener('click', async () => {
     const tag = byId('day')?.value;
     const zeit = byId('time')?.value;
-    const erwachsene = Number(document.querySelector('[name="adults"]')?.value || 0);
-    const kinder = Number(document.querySelector('[name="children"]')?.value || 0);
-    const gaeste = erwachsene + kinder;
+    const gaeste = Number(document.querySelector('[name="guests"]')?.value || 0);
     const wer = name.value.trim();
     const wohin = mail.value.trim();
     const anruf = telefon.value.trim();
@@ -232,6 +261,7 @@ async function start() {
     if (!tag) return sag('Bitte einen Tag wählen.', 'fehler');
     if (!zeit) return sag('Bitte eine Uhrzeit wählen.', 'fehler');
     if (gaeste < 1) return sag('Bitte die Personenzahl angeben.', 'fehler');
+    if (istWochenende(tag)) return sag('Mittags kochen wir Montag bis Freitag – am Wochenende gibt es abends Platz über das Eventticket.', 'fehler');
     // Eines von beiden - nicht als Huerde, sondern damit eine Absage ankommt.
     kontaktFeld.classList.toggle('invalid', !wohin && !anruf);
     if (!wohin && !anruf) {
@@ -255,6 +285,7 @@ async function start() {
         personen: 'Die Personenzahl passt nicht.',
         vergangen: 'Dieser Tag liegt in der Vergangenheit.',
         zu_weit: 'So weit im Voraus nehmen wir online noch keine Reservierung an.',
+        wochenende: 'Mittags kochen wir Montag bis Freitag.',
         zu_viele: 'Gerade kommen sehr viele Anfragen. Bitte ruf uns kurz an.',
         kontakt: 'Bitte eine E-Mail-Adresse oder eine Telefonnummer angeben.',
         mail: 'Diese E-Mail-Adresse sieht nicht richtig aus. Bitte noch einmal prüfen.',
@@ -269,13 +300,6 @@ async function start() {
     }
     if (antwort.tisch) {
       zeigeVerfuegbarkeit();
-      // Die Anmeldung zur Mittagskarte ist ein eigener Vorgang mit eigenem
-      // Zweck: sie geht getrennt hinaus und ist nie Bedingung fuer den Tisch.
-      // Gueltig wird sie erst mit dem Klick in der Bestaetigungsmail.
-      if (mittagskarte?.checked && wohin) {
-        meldeMittagskarte(wohin, 'reservierung');
-        mittagskarte.checked = false;
-      }
       zeigeBestaetigung({ wer, tag, zeit, gaeste, tisch: antwort.tisch, etage: antwort.etage, wohin });
       return sag(`Passt: ${wer}, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'} am ${tag} um ${zeit}. `
         + `Tisch ${antwort.tisch}${antwort.etage ? ` im Bereich ${antwort.etage}` : ''}. `

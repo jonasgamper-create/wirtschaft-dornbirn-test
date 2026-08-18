@@ -33,6 +33,10 @@ check('Erfundenes Datum faellt raus',
   JSON.stringify(pruefeAnfrage({ name: 'Huber', date: '2026-02-31', time: '12:00', guests: 4 }, { heute })));
 check('Unmoegliche Uhrzeit faellt raus',
   pruefeAnfrage({ name: 'Huber', date: heute, time: '25:99', guests: 4 }, { heute }).grund === 'uhrzeit');
+check('Samstag faellt raus',
+  pruefeAnfrage({ name: 'Huber', date: '2026-08-22', time: '12:00', guests: 4 }, { heute }).grund === 'wochenende');
+check('Sonntag faellt raus',
+  pruefeAnfrage({ name: 'Huber', date: '2026-08-23', time: '12:00', guests: 4 }, { heute }).grund === 'wochenende');
 check('Vergangenheit faellt raus',
   pruefeAnfrage({ name: 'Huber', date: '2020-01-01', time: '12:00', guests: 4 }, { heute }).grund === 'vergangen');
 check('Ferne Zukunft faellt raus',

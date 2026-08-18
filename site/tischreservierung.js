@@ -8,9 +8,7 @@
     const out = box.querySelector('output');
     const field = box.querySelector('input');
     const kind = box.dataset.stepper;
-    const label = n => kind === 'adults'
-      ? (n === 1 ? '1 Erwachsener' : `${n} Erwachsene`)
-      : (n === 0 ? 'keine' : n === 1 ? '1 Kind' : `${n} Kinder`);
+    const label = n => (n === 1 ? '1 Person' : `${n} Personen`);
     let value = Number(box.dataset.value);
     const paint = () => {
       out.textContent = label(value);
