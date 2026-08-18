@@ -124,14 +124,14 @@ export function bestaetigung({ name, tag, zeit, gaeste, tisch, etage, absageLink
     zeile('Wann', `${langesDatum(tag)}, ${zeit} Uhr`),
     zeile('Für', personen),
     tisch ? zeile('Platz', `Tisch ${tisch}${etage ? ` · ${etage}` : ''}`) : '',
-    knopf(absageLink, 'Doch nicht schaffen? Hier absagen', '#8c292b'),
+    knopf(absageLink, 'Leider absagen', '#8c292b'),
     `<tr><td style="padding:10px 28px 22px;"><p style="margin:0;font:400 12px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">Der Link gilt nur für diese Reservierung. Ein Anruf tut es genauso.</p></td></tr>`
   ].join(''));
   return {
     betreff: `Tisch reserviert: ${langesDatum(tag)}, ${zeit} Uhr`,
     html,
     text: `Dein Tisch steht.\n\n${name}\n${langesDatum(tag)}, ${zeit} Uhr\n${personen}\n`
-      + `${tisch ? `Tisch ${tisch}${etage ? ` (${etage})` : ''}\n` : ''}\nAbsagen: ${absageLink}\nOder anrufen: +43 5572 20540\n`
+      + `${tisch ? `Tisch ${tisch}${etage ? ` (${etage})` : ''}\n` : ''}\nLeider absagen: ${absageLink}\nOder anrufen: +43 5572 20540\n`
   };
 }
 
