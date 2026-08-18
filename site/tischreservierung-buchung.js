@@ -104,10 +104,68 @@ async function start() {
    * zum Mitnehmen: er ist der einzige Beleg, den der Gast ohne unser Zutun
    * behaelt, und er kostet ihn keine Datenangabe.
    */
-  function zeigeBestaetigung({ wer, tag, zeit, gaeste, tisch, etage }) {
+  /**
+   * Der Kalendereintrag. Er ist die Bestaetigung des Gastes: er landet auf
+   * seinem Telefon, erinnert ihn von selbst und kostet ihn keine einzige
+   * zusaetzliche Angabe - keine Mailadresse, keine Telefonnummer.
+   */
+  function baueTermin({ wer, tag, zeit, gaeste, tisch, etage }) {
+    // Zeilen ueber 75 Zeichen muessen nach der Kalendernorm umgebrochen
+    // werden; Fortsetzungszeilen beginnen mit einem Leerzeichen. Ohne das
+    // verschlucken manche Kalender den Rest der Zeile.
+    const falte = zeile => {
+      if (zeile.length <= 74) return zeile;
+      const teile = [zeile.slice(0, 74)];
+      let rest = zeile.slice(74);
+      while (rest.length > 73) {
+        teile.push(` ${rest.slice(0, 73)}`);
+        rest = rest.slice(73);
+      }
+      if (rest) teile.push(` ${rest}`);
+      return teile.join('\r\n');
+    };
+    const schuetze = text => String(text).replace(/[\;,]/g, treffer => `\\${treffer}`).replace(/\n/g, '\\n');
+
+    const oertlich = (datumsteil, uhrzeit) => `${datumsteil.replace(/-/g, '')}T${uhrzeit.replace(':', '')}00`;
+    const [stunde, minute] = zeit.split(':').map(Number);
+    const ende = `${String(Math.min(23, stunde + 2)).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    // DTSTAMP ist Pflicht. Fehlt es, lehnen manche Kalender den Termin ab -
+    // und der Gast haette eine Bestaetigung, die sich nicht speichern laesst.
+    const jetzt = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const personen = `${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'}`;
+
+    const zeilen = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'CALSCALE:GREGORIAN',
+      'PRODID:-//Wirtschaft Dornbirn//Tischreservierung//DE',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      `UID:${tag.replace(/-/g, '')}-${zeit.replace(':', '')}-${Math.random().toString(36).slice(2, 8)}@wirtschaft-dornbirn.at`,
+      `DTSTAMP:${jetzt}`,
+      `DTSTART:${oertlich(tag, zeit)}`,
+      `DTEND:${oertlich(tag, ende)}`,
+      'STATUS:CONFIRMED',
+      'SUMMARY:Tisch in der Wirtschaft Dornbirn',
+      falte(`DESCRIPTION:Reserviert auf ${schuetze(wer)}${schuetze(',')} ${personen}${schuetze(',')} Tisch ${schuetze(tisch)}${etage ? ` (${schuetze(etage)})` : ''}. Falls es doch nicht klappt${schuetze(',')} kurz anrufen: +43 5572 20540`),
+      falte(`LOCATION:Wirtschaft Dornbirn${schuetze(',')} Bahnhofstraße 24${schuetze(',')} 6850 Dornbirn`),
+      // Eine Erinnerung eine Stunde vorher - das ist der eigentliche Nutzen
+      // gegenueber einer Mail, die im Postfach liegen bleibt.
+      'BEGIN:VALARM',
+      'TRIGGER:-PT1H',
+      'ACTION:DISPLAY',
+      'DESCRIPTION:In einer Stunde: Tisch in der Wirtschaft Dornbirn',
+      'END:VALARM',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ];
+    return `${zeilen.join('\r\n')}\r\n`;
+  }
+
+  function zeigeBestaetigung(daten) {
+    const { wer, tag, zeit, gaeste, tisch, etage } = daten;
     const kasten = byId('bookingDone');
-    const datum = new Date(`${tag}T12:00:00`);
-    const langesDatum = datum.toLocaleDateString('de-AT', {
+    const langesDatum = new Date(`${tag}T12:00:00`).toLocaleDateString('de-AT', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
     });
 
@@ -118,24 +176,29 @@ async function start() {
     kasten.hidden = false;
     kasten.scrollIntoView({ block: 'center', behavior: 'smooth' });
 
-    // Kalendereintrag: Beginn zur reservierten Zeit, zwei Stunden Dauer.
-    const stempel = (datumsteil, uhrzeit) => `${datumsteil.replace(/-/g, '')}T${uhrzeit.replace(':', '')}00`;
-    const [stunde, minute] = zeit.split(':').map(Number);
-    const ende = `${String((stunde + 2) % 24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-    const ics = [
-      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Wirtschaft Dornbirn//Reservierung//DE',
-      'BEGIN:VEVENT',
-      `UID:${tag}-${zeit.replace(':', '')}-${encodeURIComponent(wer)}@wirtschaft-dornbirn.at`,
-      `DTSTART:${stempel(tag, zeit)}`,
-      `DTEND:${stempel(tag, ende)}`,
-      'SUMMARY:Tisch in der Wirtschaft Dornbirn',
-      `DESCRIPTION:Reserviert auf ${wer}\\, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'}\\, Tisch ${tisch}`,
-      'LOCATION:Wirtschaft Dornbirn\\, Bahnhofstraße 24\\, 6850 Dornbirn',
-      'END:VEVENT', 'END:VCALENDAR'
-    ].join('\r\n');
     const link = byId('doneCalendar');
-    link.href = `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
+    // Blob statt data-Adresse: nur so uebernehmen Browser den Dateinamen
+    // zuverlaessig, und sehr lange Adressen entfallen.
+    const blob = new Blob([baueTermin(daten)], { type: 'text/calendar;charset=utf-8' });
+    if (link.dataset.blob) URL.revokeObjectURL(link.dataset.blob);
+    const adresse = URL.createObjectURL(blob);
+    link.href = adresse;
+    link.dataset.blob = adresse;
     link.download = `wirtschaft-dornbirn-${tag}.ics`;
+
+    // Automatisch anbieten. Browser duerfen das ablehnen, wenn sie es nicht
+    // als Folge eines Klicks sehen - deshalb bleibt der Knopf sichtbar und der
+    // Hinweis sagt, was zu tun ist, statt dass der Gast im Leeren steht.
+    let ausgeloest = false;
+    try {
+      link.click();
+      ausgeloest = true;
+    } catch {
+      ausgeloest = false;
+    }
+    byId('doneHint').textContent = ausgeloest
+      ? 'Der Termin wurde in deinen Kalender gelegt. Öffnet sich nichts, tipp auf den Knopf.'
+      : 'Tipp auf den Knopf, um den Termin in deinen Kalender zu legen.';
   }
 
   knopf.addEventListener('click', async () => {
