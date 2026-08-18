@@ -135,3 +135,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .booking-done dd{margin:0;font-size:16px;font-weight:700}
 .booking-done .done-note{margin:16px 0 0;color:#3c3833;font-size:13.5px;line-height:1.55}
 @media(max-width:560px){.booking-done dl div{grid-template-columns:1fr;gap:2px}}
+
+/* Hinweis zum Kalendertermin. Er steht unter dem Knopf, weil er nur dann
+   gelesen wird, wenn etwas nicht wie erwartet passiert ist. */
+.booking-done .done-hint{margin:10px 0 0;color:var(--green,#244635);font-size:13px;font-weight:700;line-height:1.5}
