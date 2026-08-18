@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=c75294f5">
   <link rel="stylesheet" href="floorplan.css?v=6bccba59">
   <script src="inventory-store.js?v=f9ac7a38" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=c0149056"></script>
+  <script type="module" src="gastgeber-floorplan.js?v=f78d86ab"></script>
 </head>
 <body>
   <header class="topbar">
@@ -254,6 +254,14 @@
         <label class="fp-toggle fp-toggle-block" id="fpAutomatikLabel">
           <input id="fpAutomatik" type="checkbox" checked>
           <span>Onlinebuchungen automatisch einteilen<b id="fpAutomatikInfo"></b></span>
+        </label>
+        <!-- Optional und bewusst aus: die Tischnummer ist eine interne
+             Groesse. Der Gast bekommt "dein Platz ist fix" - wie bei den
+             grossen Reservierungssystemen. Wer die Nummer nennen will,
+             schaltet sie hier zu. -->
+        <label class="fp-toggle fp-toggle-block">
+          <input id="fpTischAnzeigen" type="checkbox">
+          <span>Tischnummer in der Gast-Bestätigung nennen (optional)<b></b></span>
         </label>
         <!-- Geraet koppeln: der Schluessel wandert per Link aufs Handy, statt
              ihn abzutippen. Er steht hinter dem Doppelkreuz und wird deshalb

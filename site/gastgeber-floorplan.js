@@ -1804,6 +1804,11 @@ async function start() {
       dienst.automatik = stand.automatik;
       zeigeAutomatik(stand.automatik);
     }
+    // Der Schalter zeigt, was der Dienst wirklich tut - nicht, was zuletzt
+    // im Browser angehakt war.
+    if (stand && typeof stand.tischAnzeigen === 'boolean') {
+      byId('fpTischAnzeigen').checked = stand.tischAnzeigen;
+    }
     if (stand && stand.standardEtage) {
       byId('fpStandardEtage').value = stand.standardEtage;
       dienst.etage = buildFloorplan(current()).levels.find(l => l.id === stand.standardEtage)?.name || null;
@@ -2042,7 +2047,8 @@ async function start() {
       standardEtage: byId('fpStandardEtage').value || null,
       blockedTables: blocked(),
       deckel: platz.limit,
-      automatik: byId('fpAutomatik').checked
+      automatik: byId('fpAutomatik').checked,
+      tischAnzeigen: byId('fpTischAnzeigen').checked
     });
     if (antwort?.grund === 'token') return dienstInfo('Der Hausschlüssel stimmt nicht. Bitte prüfen.');
     if (!antwort?.ok) return dienstInfo('Der Dienst war nicht erreichbar. Später nochmal versuchen.');

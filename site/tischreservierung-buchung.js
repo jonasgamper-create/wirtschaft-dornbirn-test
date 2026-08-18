@@ -227,7 +227,7 @@ async function start() {
       `DTEND:${oertlich(tag, ende)}`,
       'STATUS:CONFIRMED',
       'SUMMARY:Tisch in der Wirtschaft Dornbirn',
-      falte(`DESCRIPTION:Reserviert auf ${schuetze(wer)}${schuetze(',')} ${personen}${schuetze(',')} Tisch ${schuetze(tisch)}${etage ? ` (${schuetze(etage)})` : ''}. Falls es doch nicht klappt${schuetze(',')} kurz anrufen: +43 5572 20540`),
+      falte(`DESCRIPTION:Reserviert auf ${schuetze(wer)}${schuetze(',')} ${personen}${tisch ? `${schuetze(',')} Tisch ${schuetze(tisch)}${etage ? ` (${schuetze(etage)})` : ''}` : ''}. Falls es doch nicht klappt${schuetze(',')} kurz anrufen: +43 5572 20540`),
       falte(`LOCATION:Wirtschaft Dornbirn${schuetze(',')} Bahnhofstraße 24${schuetze(',')} 6850 Dornbirn`),
       // Eine Erinnerung eine Stunde vorher - das ist der eigentliche Nutzen
       // gegenueber einer Mail, die im Postfach liegen bleibt.
@@ -252,7 +252,10 @@ async function start() {
     byId('doneName').textContent = wer;
     byId('doneWhen').textContent = `${langesDatum}, ${zeit} Uhr`;
     byId('doneWho').textContent = `${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'}`;
-    byId('doneTable').textContent = `Tisch ${tisch}${etage ? ` · ${etage}` : ''}`;
+    // Ohne Tischnummer faellt die Zeile weg - "Tisch null" waere schlimmer.
+    const tischZeile = byId('doneTable').closest('div');
+    if (tischZeile) tischZeile.hidden = !tisch;
+    byId('doneTable').textContent = tisch ? `Tisch ${tisch}${etage ? ` · ${etage}` : ''}` : '';
     kasten.hidden = false;
     kasten.scrollIntoView({ block: 'center', behavior: 'smooth' });
 
@@ -355,12 +358,16 @@ async function start() {
     if (antwort.doppelt) {
       return sag(`Diese Reservierung haben wir schon – auf den Namen ${antwort.reservierung.name} um ${antwort.reservierung.time}. Bis dann!`, 'gut');
     }
-    if (antwort.tisch) {
+    if (antwort.fix || antwort.tisch) {
       zeigeVerfuegbarkeit();
       zeigeAmpel();
       zeigeBestaetigung({ wer, tag, zeit, gaeste, tisch: antwort.tisch, etage: antwort.etage, wohin });
+      // Die Tischnummer erscheint nur, wenn das Haus sie ausdruecklich zeigt -
+      // fuer den Gast zaehlt die Zusage, nicht die interne Nummer.
       return sag(`Passt: ${wer}, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'} am ${tag} um ${zeit}. `
-        + `Tisch ${antwort.tisch}${antwort.etage ? ` im Bereich ${antwort.etage}` : ''}. `
+        + (antwort.tisch
+          ? `Tisch ${antwort.tisch}${antwort.etage ? ` im Bereich ${antwort.etage}` : ''}. `
+          : 'Dein Platz ist fix reserviert. ')
         + 'Wir sehen uns – ein Anruf ist nicht mehr nötig.', 'gut');
     }
     if (antwort.automatik === false) {

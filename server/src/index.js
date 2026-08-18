@@ -360,6 +360,8 @@ export class Haus extends DurableObject {
       standardEtage: this.#lies('standardEtage', null),
       // Automatik aus heisst: Anfragen kommen an, aber das Haus teilt ein.
       automatik: this.#lies('automatik', true) !== false,
+      // Ob der Gast seine Tischnummer erfaehrt. Standard: nein - sie ist intern.
+      tischAnzeigen: this.#lies('tischAnzeigen', false) === true,
       stand: this.#lies('version', 0)
     };
   }
@@ -454,20 +456,27 @@ export class Haus extends DurableObject {
     }
     const tisch = floorplan.tables.find(table => table.id === result.tableIds[0]);
 
+    // Die Tischnummer ist eine interne Groesse: der Gast braucht die Zusage,
+    // nicht die Nummer. Nur wenn das Haus sie ausdruecklich zeigt, geht sie
+    // in Antwort und Mail - intern ist der Tisch immer zugewiesen.
+    const zeigeTisch = this.#lies('tischAnzeigen', false) === true;
+    const tischText = zeigeTisch ? result.numbers.join(' + ') : null;
+    const etageText = zeigeTisch ? (tisch?.levelName || null) : null;
+
     // Die Bestaetigung geht raus, nachdem die Antwort beim Gast ist. Ein
     // langsamer oder gestoerter Mailversand darf die Reservierung nicht
     // aufhalten und schon gar nicht scheitern lassen.
     this.ctx.waitUntil(this.#schickeBestaetigung(party, {
-      tisch: result.numbers.join(' + '),
-      etage: tisch?.levelName || null,
+      tisch: tischText,
+      etage: etageText,
       basis
     }));
 
     return {
-      ok: true, angenommen: true,
-      tisch: result.numbers.join(' + '),
-      etage: tisch?.levelName || null,
-      reservierung: ohneGeheimnis(party)
+      ok: true, angenommen: true, fix: true,
+      tisch: tischText,
+      etage: etageText,
+      reservierung: ohneGeheimnis(zeigeTisch ? party : { ...party, tableIds: [] })
     };
   }
 
@@ -906,13 +915,17 @@ export class Haus extends DurableObject {
     };
   }
 
-  async setzePlan(config, standardEtage, blocked, deckel, automatik) {
+  async setzePlan(config, standardEtage, blocked, deckel, automatik, tischAnzeigen) {
     // Einen unbrauchbaren Plan anzunehmen waere schlimmer als ihn abzulehnen:
     // der Dienst wuerde ab dann jede Onlinebuchung ins Leere zuweisen.
     if (!planTaugt(config)) return { ok: false, grund: 'plan' };
     this.#schreib('floorplan', config);
     if (standardEtage !== undefined) this.#schreib('standardEtage', standardEtage);
     if (Array.isArray(blocked)) this.#schreib('blocked', blocked);
+    // Die Tischnummer ist eine interne Groesse. Standardmaessig bekommt der
+    // Gast nur "dein Platz ist fix" - so machen es auch die grossen
+    // Reservierungssysteme. Wer die Nummer nennen will, schaltet sie zu.
+    if (tischAnzeigen !== undefined) this.#schreib('tischAnzeigen', tischAnzeigen === true);
     if (deckel !== undefined) this.#schreib('deckel', deckel);
     if (automatik !== undefined) this.#schreib('automatik', automatik !== false);
     this.#meldeAenderung();
@@ -1147,7 +1160,8 @@ export default {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         const body = await request.json().catch(() => ({}));
         const ergebnis = await haus.setzePlan(
-          body.floorplan, body.standardEtage, body.blockedTables, body.deckel, body.automatik
+          body.floorplan, body.standardEtage, body.blockedTables, body.deckel, body.automatik,
+          body.tischAnzeigen
         );
         return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
       }
