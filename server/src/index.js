@@ -23,6 +23,7 @@ import {
   absage as absageMail, baueTermin, bestaetigung as bestaetigungsMail, brevoPaket,
   escapeHtml, newsletterFrage, sendeMail, termin_uid
 } from './mail.mjs';
+import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
 
 const HAUS = 'wirtschaft-dornbirn';
 /** Notbremse gegen Fluten. Ein Haus dieser Groesse bucht das nie aus. */
@@ -108,7 +109,7 @@ function cors(request, env) {
   return {
     'access-control-allow-origin': origin,
     'access-control-allow-headers': 'content-type,x-haus-token',
-    'access-control-allow-methods': 'GET,POST,OPTIONS',
+    'access-control-allow-methods': 'GET,POST,DELETE,OPTIONS',
     'access-control-max-age': '86400',
     vary: 'Origin'
   };
@@ -169,6 +170,14 @@ export class Haus extends DurableObject {
         CREATE TABLE IF NOT EXISTS sperrliste (
           fingerabdruck TEXT PRIMARY KEY,
           seit TEXT NOT NULL
+        )
+      `);
+      // Die Mittagskarte als PDF, in Stuecken - eine Zeile darf hoechstens
+      // zwei Megabyte tragen. Reihenfolge ueber nr.
+      this.ctx.storage.sql.exec(`
+        CREATE TABLE IF NOT EXISTS mittagskarte (
+          nr INTEGER PRIMARY KEY,
+          teil BLOB NOT NULL
         )
       `);
     });
@@ -619,6 +628,48 @@ export class Haus extends DurableObject {
     };
   }
 
+  // ---- Mittagskarte --------------------------------------------------------
+  //
+  // Der Ablauf: Wolfgang laedt hoch, der Dienst prueft und speichert, die
+  // Gaesteseite zeigt. Der Moment des Uploads ist der Moment der
+  // Veroeffentlichung - dazwischen liegt nichts.
+
+  async karteSetzen(bytes) {
+    const geprueft = pruefeKarte(bytes);
+    if (!geprueft.ok) return { ok: false, grund: geprueft.grund };
+    // Erst alles rein, dann der Eintrag mit dem Stand: der Stand ist das
+    // Signal "fertig". Eine halb geschriebene Karte haette keinen Stand.
+    this.ctx.storage.sql.exec('DELETE FROM mittagskarte');
+    inTeile(bytes).forEach((teil, nr) => {
+      this.ctx.storage.sql.exec('INSERT INTO mittagskarte (nr, teil) VALUES (?, ?)', nr, teil);
+    });
+    const info = { stand: new Date().toISOString(), groesse: geprueft.groesse };
+    this.#schreib('karteStand', info);
+    return { ok: true, ...info };
+  }
+
+  async karteWeg() {
+    this.ctx.storage.sql.exec('DELETE FROM mittagskarte');
+    this.#schreib('karteStand', null);
+    return { ok: true };
+  }
+
+  /** Oeffentlich: gibt es eine Karte, und von wann ist sie? Keine Inhalte. */
+  async karteInfo() {
+    const info = this.#lies('karteStand', null);
+    return { ok: true, da: Boolean(info), ...(info || {}) };
+  }
+
+  /** Die Datei selbst, zusammengesetzt. null, wenn keine da ist. */
+  async karte() {
+    if (!this.#lies('karteStand', null)) return null;
+    const teile = this.ctx.storage.sql
+      .exec('SELECT teil FROM mittagskarte ORDER BY nr').toArray()
+      .map(row => row.teil);
+    if (!teile.length) return null;
+    return zusammen(teile).buffer;
+  }
+
   // ---- Nur fuer das Haus ---------------------------------------------------
 
   async stand() { return this.#stand(); }
@@ -817,6 +868,32 @@ export default {
         }
         return seite('Abgemeldet',
           'Deine Adresse ist gelöscht. Wir schreiben dir nicht mehr.');
+      }
+
+      // ---- Die Mittagskarte als PDF -----------------------------------
+
+      // Oeffentlich: die Karte selbst. Mit nosniff und ohne Zwischenspeicher -
+      // siehe karte.mjs, warum beides nicht verhandelbar ist.
+      if (url.pathname === '/mittagskarte.pdf' && request.method === 'GET') {
+        const datei = await haus.karte();
+        if (!datei) return json({ ok: false, grund: 'keine_karte' }, 404, kopf);
+        return new Response(datei, { status: 200, headers: { ...karteKopf(), ...kopf } });
+      }
+
+      if (url.pathname === '/api/mittagskarte') {
+        if (request.method === 'GET') return json(await haus.karteInfo(), 200, kopf);
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        if (request.method === 'DELETE') return json(await haus.karteWeg(), 200, kopf);
+        if (request.method === 'POST') {
+          // Die Grenze zuerst am Tor pruefen: einen zu grossen Koerper gar
+          // nicht erst einlesen, wenn die Laenge ihn schon verraet.
+          const laenge = Number(request.headers.get('content-length') || 0);
+          if (laenge > 8 * 1024 * 1024) return json({ ok: false, grund: 'zu_gross' }, 413, kopf);
+          const bytes = await request.arrayBuffer();
+          const ergebnis = await haus.karteSetzen(bytes);
+          return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
+        }
+        return json({ ok: false }, 405, kopf);
       }
 
       // Anmeldung zur Mittagskarte. Eigener Weg, eigener Zweck: sie ist nie

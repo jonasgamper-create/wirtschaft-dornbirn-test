@@ -117,7 +117,7 @@
 .fp-sizes input{width:62px;text-align:center;font-variant-numeric:tabular-nums}
 .fp-warn{margin:0 0 16px;padding:12px 16px;border-left:2px solid var(--wine,#8c292b);background:#8c292b14;color:#6b2224;font-size:var(--t-meta,14.5px);line-height:1.5;max-width:64ch}
 .fp-tools{display:grid;gap:12px;margin-top:20px}
-.fp-result{margin:0;padding:12px 16px;border-left:2px solid var(--green,#244635);background:#11110f0a;color:#3c3833;font-size:var(--t-meta,14.5px);line-height:1.55;max-width:64ch}
+.fp-result{margin:0;padding:12px 16px;border-left:2px solid var(--green,#244635);background:#11110f0a;color:#3c3833;font-size:var(--t-meta,14.5px);line-height:1.55;max-width:64ch}.fp-result:empty{display:none}
 
 /* Belegung: offene Gruppen oben, Einzelzuweisung unten. */
 .fp-party-list{display:grid;gap:6px;margin:16px 0 0;padding:0;list-style:none}

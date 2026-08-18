@@ -4,7 +4,7 @@
 // wie bisher und leitet auf den offiziellen Anbieter weiter. Erst wenn der
 // Dienst laeuft, wird aus dem Formular eine echte Buchung.
 
-import { apiAdresse, buche, holeFrei, meldeMittagskarte } from './haus-api.js?v=51178a05';
+import { apiAdresse, buche, holeFrei, holeKarteInfo, karteAdresse, meldeMittagskarte } from './haus-api.js?v=ca19e511';
 
 const byId = id => document.getElementById(id);
 start();
@@ -39,6 +39,27 @@ async function start() {
   knopf.hidden = false;
   hinweis.textContent = 'Sofort fix: Du bekommst die Zusage direkt hier – ohne Anruf, ohne Konto. '
     + 'Absagen geht jederzeit über den Link in der Bestätigung.';
+
+  // ---- Die Mittagskarte, frisch vom Haus -----------------------------------
+  //
+  // Sie haengt am Dienst, nicht am Repo: laedt Wolfgang eine neue hoch, ist
+  // sie hier mit dem naechsten Abruf da. Die Seite fragt beim Laden und
+  // danach alle fuenf Minuten nach - wer die Seite offen liegen laesst,
+  // bekommt die neue Karte trotzdem.
+  async function zeigeKarte() {
+    const kasten = byId('lunchLive');
+    if (!kasten) return;
+    const info = await holeKarteInfo();
+    if (!info?.ok || !info.da) { kasten.hidden = true; return; }
+    byId('lunchLiveLink').href = await karteAdresse();
+    const stand = new Date(info.stand);
+    byId('lunchLiveStand').textContent = Number.isNaN(stand.getTime()) ? '' : `Stand: ${stand.toLocaleDateString('de-AT', {
+      weekday: 'long', day: 'numeric', month: 'long'
+    })}, ${stand.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' })} Uhr`;
+    kasten.hidden = false;
+  }
+  zeigeKarte();
+  setInterval(zeigeKarte, 5 * 60 * 1000);
 
   const sag = (text, art = 'info') => {
     ergebnis.hidden = false;

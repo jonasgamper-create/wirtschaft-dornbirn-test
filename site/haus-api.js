@@ -100,6 +100,53 @@ export const buche = anfrage => ruf('/api/reservierung', { methode: 'POST', koer
 export const meldeMittagskarte = (email, quelle = 'seite') =>
   ruf('/api/newsletter', { methode: 'POST', koerper: { email, quelle, einwilligung: true } });
 
+/** Wo die aktuelle Mittagskarte liegt - oder null, wenn kein Dienst da ist. */
+export async function karteAdresse() {
+  const basis = await apiAdresse();
+  return basis ? `${basis}/mittagskarte.pdf` : null;
+}
+
+/** Gibt es eine Karte, und von wann ist sie? Oeffentlich, ohne Inhalt. */
+export const holeKarteInfo = () => ruf('/api/mittagskarte');
+
+/**
+ * Die Karte hochladen. Die Datei geht unveraendert als Koerper hinaus; der
+ * Dienst prueft selbst, ob es wirklich ein PDF ist - der Dateiname hier ist
+ * nur eine Behauptung.
+ */
+export async function sendeKarte(token, datei) {
+  const basis = await apiAdresse();
+  if (!basis) return { ok: false, grund: 'aus' };
+  try {
+    const antwort = await fetch(`${basis}/api/mittagskarte`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/pdf', 'x-haus-token': token || '' },
+      body: datei
+    });
+    const daten = await antwort.json().catch(() => ({}));
+    if (antwort.status === 401) return { ok: false, grund: 'token' };
+    return daten;
+  } catch {
+    return { ok: false, grund: 'netz' };
+  }
+}
+
+export async function loescheKarte(token) {
+  const basis = await apiAdresse();
+  if (!basis) return { ok: false, grund: 'aus' };
+  try {
+    const antwort = await fetch(`${basis}/api/mittagskarte`, {
+      method: 'DELETE',
+      headers: { 'x-haus-token': token || '' }
+    });
+    const daten = await antwort.json().catch(() => ({}));
+    if (antwort.status === 401) return { ok: false, grund: 'token' };
+    return daten;
+  } catch {
+    return { ok: false, grund: 'netz' };
+  }
+}
+
 /**
  * Laeuft der Dienst offen, also ohne Hausschluessel? Die Oberflaeche fragt das
  * einmal beim Start: sie soll weder nach etwas fragen, das nicht gebraucht

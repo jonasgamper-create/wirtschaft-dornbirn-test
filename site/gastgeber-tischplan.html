@@ -9,11 +9,11 @@
   <meta name="theme-color" content="#173e2c">
   <title>Tischplan · Interne Einteilung</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
-  <link rel="stylesheet" href="gastgeber.css?v=68a0ecf6">
+  <link rel="stylesheet" href="gastgeber.css?v=7691cc5c">
   <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=c75294f5">
-  <link rel="stylesheet" href="floorplan.css?v=1e2d55ca">
+  <link rel="stylesheet" href="floorplan.css?v=983efcf4">
   <script src="inventory-store.js?v=bdbf27dd" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=09c49200"></script>
+  <script type="module" src="gastgeber-floorplan.js?v=7743c72d"></script>
 </head>
 <body>
   <header class="topbar">
@@ -266,6 +266,21 @@
             <button class="quiet" type="button" id="fpKoppelKopie">Link kopieren</button>
           </div>
           <small>Behandle ihn wie einen Schlüssel: wer ihn hat, sieht eure Reservierungen.</small>
+        </div>
+        <!-- Die Mittagskarte: hochladen, fertig. Sie liegt danach beim
+             Dienst und steht sofort auf der Reservierungsseite - ohne
+             Webseiten-Update, ohne Zwischenschritt. -->
+        <div class="fp-karte" id="fpKarte" hidden>
+          <h3 class="fp-subhead">Mittagskarte für die Gästeseite</h3>
+          <p class="model-note" id="fpKarteStand">Noch keine Karte hochgeladen.</p>
+          <div class="fp-tools">
+            <label class="quiet fp-karte-upload">Neues PDF hochladen
+              <input id="fpKarteDatei" type="file" accept="application/pdf,.pdf" hidden>
+            </label>
+            <a class="quiet" id="fpKarteAnsehen" href="#" target="_blank" rel="noopener noreferrer" hidden>Aktuelle ansehen</a>
+            <button class="quiet" type="button" id="fpKarteWeg" hidden>Karte entfernen</button>
+          </div>
+          <p class="fp-result" id="fpKarteInfo" role="status" aria-live="polite"></p>
         </div>
         <p class="model-note">Der Hausschlüssel bleibt in diesem Browser und wird nie an die Gästeseite gegeben. Onlinebuchungen landen bevorzugt auf der Standard-Etage; ist dort nichts frei, wird der Rest geprüft – ein „leider voll“, während oben eine Etage leersteht, wäre ein verlorener Gast. Mit „Veröffentlichen“ bekommt der Dienst den aktuellen Tischplan; ohne ihn rechnet er mit dem hinterlegten Beispiel.</p>
       </section>

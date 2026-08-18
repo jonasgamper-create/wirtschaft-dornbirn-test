@@ -8,7 +8,7 @@ import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, METER_PRO_EINHEIT, alsMeter, rec
 import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=6d7cae32';
 import { renderFloorplan } from './floorplan.js?v=a48d9860';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
-import { apiAdresse, bleibVerbunden, hausToken, istOffen, schluesselAusAdresse, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=51178a05';
+import { apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, istOffen, karteAdresse, loescheKarte, schluesselAusAdresse, sendeAktion, sendeKarte, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=ca19e511';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 const store = window.WirtschaftData;
@@ -1849,6 +1849,72 @@ async function start() {
     }
   });
 
+  // ---- Mittagskarte hochladen ---------------------------------------------
+  //
+  // Der ganze Ablauf: PDF waehlen, pruefen, hochladen, fertig. In dem Moment,
+  // in dem der Dienst zusagt, steht die Karte auf der Reservierungsseite -
+  // es gibt keinen Zwischenschritt, der vergessen werden koennte.
+
+  const karteSag = text => say('fpKarteInfo', text);
+
+  async function zeigeKarte() {
+    const kasten = byId('fpKarte');
+    kasten.hidden = !dienst.an;
+    if (!dienst.an) return;
+    const info = await holeKarteInfo();
+    const da = Boolean(info?.ok && info.da);
+    byId('fpKarteWeg').hidden = !da;
+    const ansehen = byId('fpKarteAnsehen');
+    ansehen.hidden = !da;
+    if (da) {
+      ansehen.href = await karteAdresse();
+      const stand = new Date(info.stand);
+      const mb = (info.groesse / (1024 * 1024)).toFixed(1).replace('.', ',');
+      byId('fpKarteStand').textContent = `Aktuelle Karte vom ${stand.toLocaleDateString('de-AT', {
+        day: 'numeric', month: 'long'
+      })}, ${stand.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' })} Uhr (${mb} MB). `
+        + 'Sie steht auf der Reservierungsseite.';
+    } else {
+      byId('fpKarteStand').textContent = 'Noch keine Karte hochgeladen. '
+        + 'Ein PDF genügt – es erscheint sofort auf der Reservierungsseite.';
+    }
+  }
+
+  byId('fpKarteDatei').addEventListener('change', async event => {
+    const datei = event.target.files?.[0];
+    event.target.value = '';
+    if (!datei) return;
+    // Was der Dienst ablehnen wuerde, gar nicht erst hinschicken.
+    if (datei.size > 8 * 1024 * 1024) {
+      return karteSag('Die Datei ist größer als 8 MB. Bitte das PDF kleiner exportieren.');
+    }
+    if (!(dienst.offen || hausToken())) {
+      return karteSag('Dafür braucht es den Hausschlüssel. Bitte oben eintragen.');
+    }
+    karteSag('Wird hochgeladen …');
+    const antwort = await sendeKarte(hausToken(), datei);
+    if (!antwort?.ok) {
+      const gruende = {
+        kein_pdf: 'Das ist kein PDF. Bitte die Karte als PDF exportieren und noch einmal wählen.',
+        zu_gross: 'Die Datei ist zu groß. Bitte das PDF kleiner exportieren.',
+        leer: 'Die Datei ist leer.',
+        token: 'Der Hausschlüssel stimmt nicht mehr. Bitte neu eintragen.',
+        netz: 'Die Verbindung hat nicht geklappt. Bitte noch einmal versuchen.'
+      };
+      return karteSag(gruende[antwort?.grund] || 'Das hat nicht geklappt. Bitte noch einmal versuchen.');
+    }
+    karteSag('Hochgeladen. Die Karte steht jetzt auf der Reservierungsseite.');
+    zeigeKarte();
+  });
+
+  byId('fpKarteWeg').addEventListener('click', async () => {
+    if (!confirm('Die Mittagskarte von der Reservierungsseite nehmen?')) return;
+    const antwort = await loescheKarte(hausToken());
+    karteSag(antwort?.ok ? 'Entfernt. Auf der Reservierungsseite steht keine Karte mehr.'
+      : 'Das hat nicht geklappt. Bitte noch einmal versuchen.');
+    zeigeKarte();
+  });
+
   async function starteDienst() {
     // Kommt der Schluessel ueber einen Einrichtungslink, gleich uebernehmen.
     if (schluesselAusAdresse()) {
@@ -1865,6 +1931,7 @@ async function start() {
     dienst.offen = await istOffen();
     byId('fpToken').value = hausToken();
     paintKoppeln(adresse);
+    zeigeKarte();
 
     // Im offenen Betrieb nach einem Schluessel zu fragen waere eine Huerde
     // ohne Zweck. Dass offen gearbeitet wird, muss man aber sehen - ein

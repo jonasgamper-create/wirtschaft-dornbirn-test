@@ -12,7 +12,7 @@
   <title>Tischreservierung · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=ebf036dc">
+  <link rel="stylesheet" href="tischreservierung.css?v=c5d7fc05">
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Restaurant","name":"Wirtschaft Dornbirn","legalName":"„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.","url":"https://wirtschaft-dornbirn.at/","telephone":"+43557220540","email":"willkommen@wirtschaft-dornbirn.at","address":{"@type":"PostalAddress","streetAddress":"Bahnhofstraße 24","postalCode":"6850","addressLocality":"Dornbirn","addressRegion":"Vorarlberg","addressCountry":"AT"},"vatID":"ATU36206707","acceptsReservations":"https://wirtschaft-dornbirn.at/tischreservierung.html"}
   </script>
@@ -103,6 +103,16 @@
           <button class="button button-green" id="bookDirect" type="button" hidden>Tisch reservieren</button>
           <p id="submitHint">Freie Tische und die Bestätigung kommen vom offiziellen Reservierungssystem. Deine Kontaktdaten gibst du dort ein – einmal, nicht zweimal.</p>
         </div>
+        <!-- Die aktuelle Mittagskarte, direkt vom Haus. Erscheint nur, wenn
+             der Dienst laeuft und eine Karte hochgeladen ist - und ist in dem
+             Moment aktuell, in dem Wolfgang sie hochlaedt. -->
+        <aside class="lunch-live" id="lunchLive" hidden>
+          <p class="lunch-live-kicker">Mittagskarte</p>
+          <h3>Was diese Woche auf den Tisch kommt</h3>
+          <p class="lunch-live-note">Frisch vom Haus hochgeladen – so kommt sie auch an den Tisch.</p>
+          <a class="button button-green" id="lunchLiveLink" href="#" target="_blank" rel="noopener noreferrer">Mittagskarte öffnen (PDF)</a>
+          <small class="lunch-live-stand" id="lunchLiveStand"></small>
+        </aside>
         <p class="form-alert" id="formAlert" role="alert" hidden></p>
         <p class="booking-result" id="bookingResult" role="status" aria-live="polite" hidden></p>
 
@@ -149,6 +159,6 @@
   </footer>
 
   <script src="tischreservierung.js?v=0208ba12" defer></script>
-  <script type="module" src="tischreservierung-buchung.js?v=e3e4d2a6"></script>
+  <script type="module" src="tischreservierung-buchung.js?v=31baac18"></script>
 </body>
 </html>

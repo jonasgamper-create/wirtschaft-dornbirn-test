@@ -93,6 +93,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .contact-field .contact-check input{width:22px;height:22px;min-height:0;margin-top:2px;flex:0 0 auto;accent-color:var(--green)}
 .contact-field .contact-check span{font-size:var(--t-meta);line-height:1.5;max-width:52ch}
 .contact-field.invalid input[type="email"],.contact-field.invalid input[type="tel"]{border-color:var(--wine)}
+.lunch-live{margin-top:var(--s-block);padding:22px 24px;border:1px solid #11110f24;background:#ffffff5c;max-width:720px}
+.lunch-live-kicker{margin:0 0 6px;color:var(--green);font-size:var(--t-label);font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.lunch-live h3{margin:0 0 8px;font-size:clamp(24px,3vw,30px);line-height:1.1}
+.lunch-live-note{margin:0 0 16px;color:#57524a;font-size:var(--t-meta);line-height:1.5;max-width:52ch}
+.lunch-live-stand{display:block;margin-top:12px;color:#57524a;font-size:var(--t-label);letter-spacing:0;text-transform:none}
 .done-newsletter{margin-top:16px;padding-top:14px;border-top:1px solid #11110f1a}
 .done-newsletter .contact-check{display:flex;align-items:flex-start;gap:10px;font-weight:400;letter-spacing:0;text-transform:none}
 .done-newsletter .contact-check input{width:22px;height:22px;min-height:0;margin-top:2px;flex:0 0 auto;accent-color:var(--green)}
