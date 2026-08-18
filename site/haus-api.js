@@ -165,6 +165,26 @@ export const holeFrei = (datum, personen) =>
 export const holeAmpel = datum =>
   ruf(`/api/ampel?datum=${encodeURIComponent(datum)}`);
 
+// ---- Takeaway --------------------------------------------------------------
+
+/** Die bestellbare Karte: Gerichte und Preise. Oeffentlich. */
+export const holeTakeawayKarte = () => ruf('/api/takeaway/karte');
+
+/** Eine Bestellung aufgeben. Braucht keinen Token - sie kommt vom Gast. */
+export const bestelleTakeaway = bestellung =>
+  ruf('/api/takeaway/bestellung', { methode: 'POST', koerper: bestellung });
+
+/** Der Wirt setzt die Karte: die Zeilen aus dem Mittagskarten-PDF. */
+export const sendeTakeawayKarte = (token, text) =>
+  ruf('/api/takeaway/karte', { methode: 'POST', koerper: { text }, token });
+
+/** Abgeholt, zurueckgenommen, entfernt. */
+export const sendeTakeawayAktion = (token, befehl) =>
+  ruf('/api/takeaway/aktion', { methode: 'POST', koerper: befehl, token });
+
+/** Das Protokoll der letzten 30 Tage - was lief gut. */
+export const holeTakeawayProtokoll = token => ruf('/api/takeaway/protokoll', { token });
+
 export const holeStand = token => ruf('/api/stand', { token });
 
 /** Laufkundschaft: der Dienst setzt die Gruppe sofort auf einen freien Tisch. */

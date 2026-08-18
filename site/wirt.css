@@ -68,3 +68,4 @@ h2{font-size:24px;margin-bottom:6px}
   .lauf-knoepfe button{min-height:72px}
   .haus-liste li{flex-wrap:wrap}
 }
+.haus-liste li[data-erledigt]{opacity:.55}

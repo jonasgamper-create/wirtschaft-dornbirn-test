@@ -5,8 +5,9 @@
 
 import {
   apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeStand, karteAdresse,
-  loescheKarte, schluesselAusAdresse, sendeAktion, sendeKarte, sendeLaufkunde
-} from './haus-api.js?v=a0e5d122';
+  loescheKarte, schluesselAusAdresse, sendeAktion, sendeKarte, sendeLaufkunde,
+  sendeTakeawayAktion
+} from './haus-api.js?v=6e3ea1dd';
 import { buildFloorplan } from './floorplan-layout.mjs?v=8cd1fbb4';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=ec7c8e39';
 
@@ -75,6 +76,16 @@ async function start() {
     if (!knopf) return;
     knopf.disabled = true;
     await sendeAktion(hausToken(), { art: 'abgang', id: knopf.dataset.freiId, zeit: jetzt().zeit });
+    // Die Antwort kommt ueber den Draht zurueck und malt die Liste neu.
+  });
+
+  byId('takeawayListe').addEventListener('click', async event => {
+    const knopf = event.target.closest('[data-takeaway-id]');
+    if (!knopf) return;
+    knopf.disabled = true;
+    await sendeTakeawayAktion(hausToken(), {
+      art: knopf.dataset.art, id: knopf.dataset.takeawayId, zeit: jetzt().zeit
+    });
     // Die Antwort kommt ueber den Draht zurueck und malt die Liste neu.
   });
 
@@ -186,6 +197,57 @@ function male() {
   byId('kommend').textContent = kommende.length
     ? `Reserviert für später: ${kommende.length} ${kommende.length === 1 ? 'Gruppe' : 'Gruppen'}, die nächste um ${kommende[0].time} (${kommende[0].name}, ${kommende[0].guests} P.).`
     : 'Für später ist heute nichts reserviert.';
+
+  maleTakeaway(nu);
+}
+
+/**
+ * Die Takeaway-Bestellungen des Tages. Offene zuerst, nach Abholzeit -
+ * ein Griff auf "Abgeholt", und die Zahl des Tages zaehlt mit. Abgeholte
+ * bleiben sichtbar: sie sind der Beleg, was heute schon hinausging.
+ */
+function maleTakeaway(nu) {
+  const liste = byId('takeawayListe');
+  const heute = (stand.takeaway || []).filter(bestellung => bestellung.date === nu.datum);
+  const offene = heute.filter(bestellung => bestellung.status === 'offen')
+    .sort((a, b) => a.abholzeit.localeCompare(b.abholzeit));
+  const abgeholte = heute.filter(bestellung => bestellung.status === 'abgeholt')
+    .sort((a, b) => (b.abgeholtUm || '').localeCompare(a.abgeholtUm || ''));
+
+  const portionen = heute.reduce((sum, bestellung) =>
+    sum + (bestellung.posten || []).reduce((s, eintrag) => s + eintrag.menge, 0), 0);
+  byId('takeawayZaehler').textContent = heute.length
+    ? `Heute ${heute.length} ${heute.length === 1 ? 'Bestellung' : 'Bestellungen'} mit ${portionen} Portionen · ${offene.length} noch abzuholen.`
+    : 'Noch keine Bestellung heute.';
+
+  liste.textContent = '';
+  for (const bestellung of [...offene, ...abgeholte]) {
+    const zeile = document.createElement('li');
+    if (bestellung.status === 'abgeholt') zeile.dataset.erledigt = '';
+    const wer = document.createElement('div');
+    wer.className = 'wer';
+    const titel = document.createElement('b');
+    titel.textContent = `Nr. ${bestellung.nummer} · ${bestellung.abholzeit} Uhr · ${bestellung.name}`;
+    const info = document.createElement('span');
+    const essen = (bestellung.posten || []).map(eintrag => `${eintrag.menge}× ${eintrag.name}`).join(', ');
+    info.textContent = `${essen} · € ${Number(bestellung.summe).toFixed(2).replace('.', ',')}`
+      + (bestellung.status === 'abgeholt' ? ` · abgeholt ${bestellung.abgeholtUm || ''}` : '');
+    wer.append(titel, info);
+    const knopf = document.createElement('button');
+    knopf.type = 'button';
+    knopf.className = bestellung.status === 'abgeholt' ? 'knopf leise' : 'knopf';
+    knopf.dataset.takeawayId = bestellung.id;
+    knopf.dataset.art = bestellung.status === 'abgeholt' ? 'offen' : 'abgeholt';
+    knopf.textContent = bestellung.status === 'abgeholt' ? 'Doch nicht' : 'Abgeholt';
+    zeile.append(wer, knopf);
+    liste.append(zeile);
+  }
+  if (!heute.length) {
+    const zeile = document.createElement('li');
+    zeile.className = 'leer';
+    zeile.textContent = 'Bestellungen erscheinen hier, sobald sie eingehen.';
+    liste.append(zeile);
+  }
 }
 
 async function zeigeKarte() {

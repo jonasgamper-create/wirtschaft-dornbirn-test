@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="description" content="Takeaway der Wirtschaft Dornbirn – Mittagsgerichte zum Mitnehmen, bestellt in zwei Minuten, abholbereit in 20–30 Minuten. Letzte Bestellung 13:45.">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
+  <meta name="theme-color" content="#11110f">
+  <title>Takeaway · Wirtschaft Dornbirn</title>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
+  <link rel="stylesheet" href="tischreservierung.css?v=ff8f3e04">
+</head>
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <header class="wrap site-head">
+    <a href="index.html" aria-label="Wirtschaft Dornbirn – zur Startseite"><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"></a>
+    <a class="back-link" href="index.html">← Zur Startseite</a>
+  </header>
+
+  <main id="main">
+    <section class="wrap hero" id="hero">
+      <div>
+        <p class="eyebrow">Takeaway · Mittag zum Mitnehmen</p>
+        <h1>Heute kocht<br>Eugen für dich</h1>
+        <p class="lead">Bestell’ dein Mittagsgericht online, hol’ es frisch am Tresen ab – fertig in etwa 20–30 Minuten. Letzte Bestellung um 13:45 Uhr.</p>
+        <p class="ta-anruf-zeile">
+          <a class="button" href="tel:+43557220540">Lieber anrufen: +43 (0)5572 20 540</a>
+        </p>
+      </div>
+      <aside class="ta-truck" aria-hidden="true">
+        <img src="assets/eugen-truck-closed.webp" width="320" height="240" alt="" loading="lazy">
+      </aside>
+    </section>
+
+    <section class="form-section" id="bestellen">
+      <div class="wrap section" style="border-top:0">
+        <p class="eyebrow">Bestellen</p>
+        <h2>Was darf’s heute sein?</h2>
+        <p class="sub">Die Gerichte kommen aus der aktuellen Mittagskarte. Bezahlt wird bei der Abholung – bar oder mit Karte.</p>
+
+        <!-- Ohne Dienst oder ohne Karte gibt es nichts zu bestellen - dann
+             sagt die Seite das ehrlich und bietet den Anruf an. -->
+        <p class="ta-leer" id="taLeer">Die Online-Bestellung ist gerade nicht verfügbar. Ruf’ uns einfach an:
+          <a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
+
+        <form class="grid" id="taForm" hidden novalidate>
+          <div class="wide ta-karte" id="taKarte" aria-label="Gerichte zum Mitnehmen"></div>
+
+          <label class="wide">Abholung*
+            <span class="slots" role="radiogroup" aria-label="Abholzeit wählen" id="taZeiten"></span>
+            <small class="slot-info" id="taZeitInfo" role="status" aria-live="polite"></small>
+          </label>
+
+          <label class="wide">Name*
+            <input type="text" id="taName" maxlength="40" autocomplete="family-name" placeholder="z. B. Huber">
+          </label>
+          <label class="wide">Telefon*
+            <input type="tel" id="taTelefon" maxlength="25" autocomplete="tel" inputmode="tel" placeholder="+43 660 1234567">
+          </label>
+          <p class="contact-note wide">Nur für diese Bestellung: Wir rufen an, falls etwas ausgeht. Gelöscht spätestens 30 Tage nach der Abholung.</p>
+        </form>
+
+        <div class="submit-row" id="taSenden" hidden>
+          <button class="button button-green" id="taBestellen" type="button">Bestellung aufgeben</button>
+          <p id="taSumme"></p>
+        </div>
+        <p class="booking-result" id="taErgebnis" hidden role="status" aria-live="polite"></p>
+
+        <div class="booking-done" id="taFertig" hidden>
+          <p class="done-kicker">Bestellung angenommen</p>
+          <h3>Bis gleich!</h3>
+          <dl>
+            <div><dt>Nummer</dt><dd id="taDoneNummer"></dd></div>
+            <div><dt>Abholung</dt><dd id="taDoneZeit"></dd></div>
+            <div><dt>Summe</dt><dd id="taDoneSumme"></dd></div>
+          </dl>
+          <p class="done-note">Sag’ am Tresen einfach deine Nummer. Bezahlt wird bei der Abholung – bar oder mit Karte.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap site-footer">
+    <div>
+      <img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn">
+      <p>Bahnhofstraße 24, 6850 Dornbirn</p>
+      <p><a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
+    </div>
+    <div>
+      <p><a href="index.html">Startseite</a></p>
+      <p><a href="tischreservierung.html">Tischreservierung</a></p>
+      <p><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a></p>
+      <p><a href="impressum.html">Impressum</a></p>
+    </div>
+  </footer>
+
+  <script type="module" src="takeaway.js"></script>
+</body>
+</html>

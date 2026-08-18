@@ -25,6 +25,9 @@ import {
   escapeHtml, newsletterFrage, sendeMail, termin_uid
 } from './mail.mjs';
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
+import {
+  BESTELLSCHLUSS, LETZTE_ABHOLUNG, WARTEZEIT_TEXT, parseKarte, pruefeBestellung, statistik
+} from './takeaway.mjs';
 
 const HAUS = 'wirtschaft-dornbirn';
 /** Notbremse gegen Fluten. Ein Haus dieser Groesse bucht das nie aus. */
@@ -165,6 +168,17 @@ export class Haus extends DurableObject {
         )
       `);
       this.ctx.storage.sql.exec('CREATE INDEX IF NOT EXISTS nl_token ON newsletter (token)');
+      // Takeaway-Bestellungen: eigener Speicher, gleiche Aufbewahrung wie
+      // Reservierungen. Das Protokoll je Gericht rechnet daraus - deshalb
+      // bleiben auch abgeholte Bestellungen die 30 Tage liegen.
+      this.ctx.storage.sql.exec(`
+        CREATE TABLE IF NOT EXISTS takeaway (
+          id TEXT PRIMARY KEY,
+          tag TEXT NOT NULL,
+          daten TEXT NOT NULL
+        )
+      `);
+      this.ctx.storage.sql.exec('CREATE INDEX IF NOT EXISTS ta_tag ON takeaway (tag)');
       // Fingerabdruecke widerrufener Adressen. Keine Adresse, keine Namen -
       // nur die Sperre, damit ein spaeterer Import niemanden zurueckholt.
       this.ctx.storage.sql.exec(`
@@ -182,6 +196,20 @@ export class Haus extends DurableObject {
         )
       `);
     });
+  }
+
+  // ---- Takeaway-Speicher ---------------------------------------------------
+
+  #takeawayAlle() {
+    return this.ctx.storage.sql.exec('SELECT daten FROM takeaway').toArray()
+      .map(row => JSON.parse(row.daten));
+  }
+
+  #takeawaySichere(bestellung) {
+    this.ctx.storage.sql.exec(
+      'INSERT INTO takeaway (id, tag, daten) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET tag = excluded.tag, daten = excluded.daten',
+      bestellung.id, bestellung.date, JSON.stringify(bestellung)
+    );
   }
 
   // ---- Speicher ------------------------------------------------------------
@@ -323,6 +351,11 @@ export class Haus extends DurableObject {
       // Ohne Token: er ist der Schluessel zur Absage und geht nur an den Gast
       // in seiner eigenen Mail. Im Haus wird er nie gebraucht.
       parties: this.#alle().map(({ token, ...party }) => fuerRolle(party)),
+      // Takeaway nur fuer die Wirt-Ansichten. Der Bildschirm am Eingang zeigt
+      // Tische - wer sein Essen abholt, steht am Tresen, nicht auf dem Schirm.
+      takeaway: rolle === 'haus' ? this.#takeawayAlle() : [],
+      takeawayKarte: this.#lies('takeawayKarte', []),
+      takeawayKarteText: rolle === 'haus' ? this.#lies('takeawayKarteText', '') : '',
       blockedTables: this.#lies('blocked', []),
       standardEtage: this.#lies('standardEtage', null),
       // Automatik aus heisst: Anfragen kommen an, aber das Haus teilt ein.
@@ -758,6 +791,98 @@ export class Haus extends DurableObject {
     };
   }
 
+  // ---- Takeaway ------------------------------------------------------------
+
+  /** Die bestellbare Karte. Oeffentlich: Name und Preis, sonst nichts. */
+  async takeawayKarte() {
+    return {
+      ok: true,
+      gerichte: this.#lies('takeawayKarte', []),
+      schluss: BESTELLSCHLUSS,
+      letzteAbholung: LETZTE_ABHOLUNG,
+      wartezeit: WARTEZEIT_TEXT
+    };
+  }
+
+  /**
+   * Der Wirt setzt die Karte: die Zeilen aus dem Mittagskarten-PDF, pro Zeile
+   * links das Gericht, rechts der Preis. Geparst wird hier - eine zweite
+   * Rechenregel im Browser waere der sicherste Weg zu zwei Wahrheiten.
+   */
+  async setzeTakeawayKarte(text) {
+    const gerichte = parseKarte(text);
+    this.#schreib('takeawayKarte', gerichte);
+    this.#schreib('takeawayKarteText', String(text || '').slice(0, 4000));
+    this.#meldeAenderung();
+    return { ok: true, gerichte, text: this.#lies('takeawayKarteText', '') };
+  }
+
+  /** Eine Bestellung von der Gaesteseite. */
+  async bestelleTakeaway(roh, heute, jetzt) {
+    // Dieselbe Notbremse wie bei Reservierungen: ein Haus dieser Groesse
+    // verkauft das nie ehrlich aus.
+    const fenster = `${heute}T${String(jetzt).slice(0, 2)}`;
+    const zaehler = this.#lies('taFenster', { fenster: '', anzahl: 0 });
+    const anzahl = zaehler.fenster === fenster ? zaehler.anzahl : 0;
+    if (anzahl >= ONLINE_PRO_STUNDE) return { ok: false, grund: 'zu_viele' };
+
+    const gecheckt = pruefeBestellung(roh, {
+      gerichte: this.#lies('takeawayKarte', []), heute, jetzt
+    });
+    if (!gecheckt.ok) return { ok: false, grund: gecheckt.grund };
+
+    // Doppelklick: gleicher Name, gleiche Nummer, gleiche Summe am selben Tag
+    // ist keine zweite Bestellung.
+    const heutige = this.#takeawayAlle().filter(bestellung => bestellung.date === heute);
+    const doppelt = heutige.find(bestellung => bestellung.status === 'offen'
+      && bestellung.name.toLowerCase() === gecheckt.bestellung.name.toLowerCase()
+      && bestellung.telefon === gecheckt.bestellung.telefon
+      && bestellung.summe === gecheckt.bestellung.summe);
+    if (doppelt) return { ok: true, doppelt: true, nummer: doppelt.nummer, abholzeit: doppelt.abholzeit, summe: doppelt.summe };
+
+    const laufend = (Number(this.#lies('taZaehler', 0)) || 0) + 1;
+    this.#schreib('taZaehler', laufend);
+    const bestellung = {
+      id: `t-${Date.now().toString(36)}-${String(laufend).padStart(4, '0')}`,
+      // Die Nummer des Tages - sie wird am Tresen gerufen, nicht der Name.
+      nummer: heutige.length + 1,
+      ...gecheckt.bestellung,
+      status: 'offen',
+      eingegangen: new Date().toISOString()
+    };
+    this.#takeawaySichere(bestellung);
+    this.#schreib('taFenster', { fenster, anzahl: anzahl + 1 });
+    await this.ctx.storage.setAlarm(Date.now() + 24 * 60 * 60 * 1000);
+    this.#meldeAenderung();
+    return { ok: true, nummer: bestellung.nummer, abholzeit: bestellung.abholzeit, summe: bestellung.summe };
+  }
+
+  /** Abgeholt, zurueckgenommen oder entfernt - die drei Griffe des Wirts. */
+  async takeawayAktion(befehl) {
+    const bestellung = this.#takeawayAlle().find(eintrag => eintrag.id === befehl?.id);
+    if (!bestellung) return { ok: false, grund: 'unbekannt' };
+    if (befehl.art === 'abgeholt') {
+      bestellung.status = 'abgeholt';
+      bestellung.abgeholtUm = befehl.zeit || null;
+      this.#takeawaySichere(bestellung);
+    } else if (befehl.art === 'offen') {
+      bestellung.status = 'offen';
+      bestellung.abgeholtUm = null;
+      this.#takeawaySichere(bestellung);
+    } else if (befehl.art === 'entfernen') {
+      this.ctx.storage.sql.exec('DELETE FROM takeaway WHERE id = ?', befehl.id);
+    } else {
+      return { ok: false, grund: 'unbekannt' };
+    }
+    this.#meldeAenderung();
+    return { ok: true };
+  }
+
+  /** Das Protokoll: was lief in den letzten 30 Tagen. */
+  async takeawayProtokoll() {
+    return { ok: true, ...statistik(this.#takeawayAlle()) };
+  }
+
   /** Die Ampel fuer die Gaesteseite. Nur Zahlen und eine Stufe, keine Namen. */
   async ampel(datum, jetzt) {
     const automatik = this.#lies('automatik', true) !== false;
@@ -815,6 +940,11 @@ export class Haus extends DurableObject {
     const behalten = raeumeAuf(this.#alle(), heute, AUFBEWAHRUNG_TAGE);
     this.#ersetzeAlle(behalten);
 
+    // Takeaway-Bestellungen altern wie Reservierungen: nach 30 Tagen weg.
+    const taGrenze = new Date(`${heute}T00:00:00Z`);
+    taGrenze.setUTCDate(taGrenze.getUTCDate() - AUFBEWAHRUNG_TAGE);
+    this.ctx.storage.sql.exec('DELETE FROM takeaway WHERE tag < ?', taGrenze.toISOString().slice(0, 10));
+
     // Eine Anmeldung ohne Bestaetigung ist keine Einwilligung. Sie faellt
     // nach der Frist weg, ohne dass jemand daran denken muss.
     const eintraege = this.#newsletterAlle();
@@ -826,7 +956,8 @@ export class Haus extends DurableObject {
     // Anmeldungen zaehlen dazu - sonst bliebe eine unbestaetigte Adresse
     // liegen, weil an dem Tag niemand reserviert hat.
     const offeneAnmeldungen = this.#newsletterAlle().some(eintrag => eintrag.status !== 'bestaetigt');
-    if (behalten.length || offeneAnmeldungen) {
+    const takeawayDa = this.#takeawayAlle().length > 0;
+    if (behalten.length || offeneAnmeldungen || takeawayDa) {
       await this.ctx.storage.setAlarm(Date.now() + 24 * 60 * 60 * 1000);
     }
   }
@@ -1047,6 +1178,35 @@ export default {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         const body = await request.json().catch(() => ({}));
         return json(await haus.lege(body.reservierung), 200, kopf);
+      }
+
+      // ---- Takeaway --------------------------------------------------------
+
+      // Oeffentlich: die bestellbare Karte - Name und Preis, sonst nichts.
+      if (url.pathname === '/api/takeaway/karte' && request.method === 'GET') {
+        return json(await haus.takeawayKarte(), 200, kopf);
+      }
+      // Der Wirt setzt die Karte: die Zeilen aus dem Mittagskarten-PDF.
+      if (url.pathname === '/api/takeaway/karte' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.setzeTakeawayKarte(String(body.text || '')), 200, kopf);
+      }
+      // Oeffentlich: eine Bestellung. Die Uhr des Hauses entscheidet ueber
+      // Bestellschluss und Abholzeit, nie die des Gastes.
+      if (url.pathname === '/api/takeaway/bestellung' && request.method === 'POST') {
+        const body = await request.json().catch(() => ({}));
+        const uhr = jetztImHaus();
+        return json(await haus.bestelleTakeaway(body, uhr.datum, uhr.zeit), 200, kopf);
+      }
+      if (url.pathname === '/api/takeaway/aktion' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.takeawayAktion(body), 200, kopf);
+      }
+      if (url.pathname === '/api/takeaway/protokoll' && request.method === 'GET') {
+        if (!darf()) return json({ ok: false }, 401, kopf);
+        return json(await haus.takeawayProtokoll(), 200, kopf);
       }
 
       // Oeffentlich: die Ampel - wie voll ist der Mittag heute. Nur Zahlen

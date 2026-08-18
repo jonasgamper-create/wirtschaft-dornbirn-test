@@ -513,3 +513,6 @@
 .fp-svg .fp-punkt{fill:#fff;stroke:var(--green,#244635);stroke-width:2;vector-effect:non-scaling-stroke}
 .fp-svg .fp-punkt.ist-erster{fill:var(--green,#244635)}
 .fp-zeichnen .fp-svg{cursor:crosshair}
+
+/* Takeaway-Karte im Cockpit: ein Textfeld, eine Zeile je Gericht. */
+#fpTakeawayText{width:100%;max-width:640px;min-height:120px;padding:10px 12px;border:1px solid var(--line,#11110f26);border-radius:8px;font:inherit;font-size:14px;line-height:1.5;background:#fff;resize:vertical}

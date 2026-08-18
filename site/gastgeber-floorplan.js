@@ -8,7 +8,7 @@ import { BIS_TAGESENDE, ELEMENTS, FLEX_STANDARD, FORMEN, GRID, METER_PRO_EINHEIT
 import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=ec7c8e39';
 import { renderFloorplan } from './floorplan.js?v=bf76e472';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
-import { apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, istOffen, karteAdresse, loescheKarte, schluesselAusAdresse, sendeAktion, sendeKarte, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=a0e5d122';
+import { apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeTakeawayProtokoll, istOffen, karteAdresse, loescheKarte, schluesselAusAdresse, sendeAktion, sendeKarte, sendePlan, sendeReservierung, sendeTakeawayKarte, setzeToken } from './haus-api.js?v=6e3ea1dd';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 const store = window.WirtschaftData;
@@ -1793,6 +1793,13 @@ async function start() {
    * andere - Tischplan, Sperren - bleibt hier.
    */
   function uebernimm(stand) {
+    // Die Takeaway-Karte des Dienstes vorbefuellen - aber nie ueberschreiben,
+    // was der Wirt gerade selbst tippt.
+    if (typeof stand?.takeawayKarteText === 'string') {
+      const feld = byId('fpTakeawayText');
+      if (feld && !feld.dataset.beruehrt) feld.value = stand.takeawayKarteText;
+      zeigeTakeawayGerichte(stand.takeawayKarte);
+    }
     if (stand && typeof stand.automatik === 'boolean') {
       dienst.automatik = stand.automatik;
       zeigeAutomatik(stand.automatik);
@@ -1861,6 +1868,7 @@ async function start() {
     const kasten = byId('fpKarte');
     kasten.hidden = !dienst.an;
     if (!dienst.an) return;
+    zeigeTakeawayProtokoll();
     const info = await holeKarteInfo();
     const da = Boolean(info?.ok && info.da);
     byId('fpKarteWeg').hidden = !da;
@@ -1906,6 +1914,47 @@ async function start() {
     karteSag('Hochgeladen. Die Karte steht jetzt auf der Reservierungsseite.');
     zeigeKarte();
   });
+
+  // ---- Takeaway: Karte setzen und Protokoll lesen --------------------------
+
+  const taSag = text => say('fpTakeawayInfo', text);
+
+  // Was der Wirt selbst tippt, wird nie vom Dienst ueberschrieben.
+  byId('fpTakeawayText').addEventListener('input', event => { event.target.dataset.beruehrt = '1'; });
+
+  byId('fpTakeawaySetzen').addEventListener('click', async () => {
+    if (!(dienst.offen || hausToken())) {
+      return taSag('Dafür braucht es den Hausschlüssel. Bitte oben eintragen.');
+    }
+    taSag('Wird veröffentlicht …');
+    const antwort = await sendeTakeawayKarte(hausToken(), byId('fpTakeawayText').value);
+    if (!antwort?.ok) {
+      return taSag(antwort?.grund === 'token'
+        ? 'Der Hausschlüssel stimmt nicht mehr. Bitte neu eintragen.'
+        : 'Das hat nicht geklappt. Bitte noch einmal versuchen.');
+    }
+    zeigeTakeawayGerichte(antwort.gerichte);
+    taSag(antwort.gerichte.length
+      ? `Veröffentlicht: ${antwort.gerichte.length} Gericht(e) stehen jetzt auf der Takeaway-Seite.`
+      : 'Keine Zeile mit Preis erkannt – die Takeaway-Seite nimmt jetzt keine Bestellungen an.');
+  });
+
+  function zeigeTakeawayGerichte(gerichte) {
+    byId('fpTakeawayListe').textContent = (gerichte || [])
+      .map(gericht => `${gericht.name} – € ${Number(gericht.preis).toFixed(2).replace('.', ',')}`)
+      .join(' · ');
+  }
+
+  /** Das Protokoll: was lief in den letzten 30 Tagen - die Basis fuer den Einkauf. */
+  async function zeigeTakeawayProtokoll() {
+    const antwort = await holeTakeawayProtokoll(hausToken());
+    if (!antwort?.ok) return;
+    byId('fpTakeawayProtokoll').textContent = antwort.bestellungen
+      ? `Protokoll (30 Tage): ${antwort.bestellungen} Bestellungen, ${antwort.portionen} Portionen, `
+        + `€ ${Number(antwort.umsatz).toFixed(2).replace('.', ',')} – `
+        + antwort.gerichte.slice(0, 6).map(gericht => `${gericht.name}: ${gericht.portionen}×`).join(', ')
+      : 'Protokoll: noch keine Bestellungen in den letzten 30 Tagen.';
+  }
 
   byId('fpKarteWeg').addEventListener('click', async () => {
     if (!confirm('Die Mittagskarte von der Reservierungsseite nehmen?')) return;

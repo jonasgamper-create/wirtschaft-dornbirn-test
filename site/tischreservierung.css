@@ -178,3 +178,24 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* Hinweis zum Kalendertermin. Er steht unter dem Knopf, weil er nur dann
    gelesen wird, wenn etwas nicht wie erwartet passiert ist. */
 .booking-done .done-hint{margin:10px 0 0;color:var(--green,#244635);font-size:13px;font-weight:700;line-height:1.5}
+
+/* ---- Takeaway ------------------------------------------------------------ */
+/* Eugens Wagen als ruhiges Bild - keine Bewegung ueber Text, siehe
+   Motion-Regeln. Auf schmalen Schirmen rueckt er unter die Zeile. */
+.ta-truck{display:flex;justify-content:center}
+.ta-truck img{width:min(320px,70vw);height:auto}
+.ta-anruf-zeile{margin:24px 0 0}
+.ta-leer{margin:var(--s-block) 0 0;padding:14px 16px;border-left:2px solid var(--green);background:#11110f0a;color:#3c3833;font-size:var(--t-meta);line-height:1.55;max-width:56ch}
+.ta-leer[hidden]{display:none}
+/* Die Karte: pro Zeile links das Gericht, rechts Preis und Menge - dieselbe
+   Ordnung wie auf der gedruckten Karte. */
+.ta-karte{display:grid;gap:0;border:1px solid #11110f24;background:#fff}
+.ta-gericht{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:14px 16px;border-top:1px solid #11110f14}
+.ta-gericht:first-child{border-top:0}
+.ta-gericht-name{font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none}
+.ta-gericht-preis{color:#57524a;font-size:var(--t-meta);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ta-menge{display:inline-flex;align-items:center;gap:2px;border:1px solid #11110f3d;border-radius:999px;background:#fff;overflow:hidden}
+.ta-menge button{min-width:44px;min-height:44px;border:0;background:transparent;color:var(--ink);font-size:20px;line-height:1;cursor:pointer}
+.ta-menge button:disabled{opacity:.3;cursor:default}
+.ta-menge output{min-width:2ch;text-align:center;font-size:var(--t-body);font-variant-numeric:tabular-nums}
+@media(max-width:560px){.ta-gericht{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name menge" "preis menge"}.ta-gericht-name{grid-area:name}.ta-gericht-preis{grid-area:preis}.ta-menge{grid-area:menge}}
