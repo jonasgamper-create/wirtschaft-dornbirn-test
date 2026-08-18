@@ -167,6 +167,10 @@ export const holeAmpel = datum =>
 
 export const holeStand = token => ruf('/api/stand', { token });
 
+/** Laufkundschaft: der Dienst setzt die Gruppe sofort auf einen freien Tisch. */
+export const sendeLaufkunde = (token, personen) =>
+  ruf('/api/laufkunde', { methode: 'POST', koerper: { personen }, token });
+
 export const sendePlan = (token, koerper) => ruf('/api/plan', { methode: 'POST', koerper, token });
 
 export const sendeAktion = (token, befehl) => ruf('/api/aktion', { methode: 'POST', koerper: befehl, token });

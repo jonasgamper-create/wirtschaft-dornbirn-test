@@ -26,6 +26,11 @@ const excluded = new Set([
   'screen.js',
   'screen.css',
   'plan-history.mjs',
+  // Die einfache Wirt-Ansicht ist ein Werkzeug fuers Haus. Sie geht als
+  // Einzeldatei unter /tischplan/ hinaus, nie als Quelldatei in den Gaeste-Build.
+  'wirt.html',
+  'wirt.js',
+  'wirt.css',
   'entwuerfe.html',
   'drafts.css',
   'entwuerfe.css',
@@ -64,7 +69,8 @@ if (process.env.PUBLIC_ENV === 'production' || process.env.VERCEL_ENV === 'produ
 const einzel = [
   ['output/tischplan/wirtschaft-tischplan.html', 'tischplan/index.html'],
   ['output/tischplan/wirtschaft-kundenplan.html', 'tischplan/kunde.html'],
-  ['output/tischplan/wirtschaft-screen.html', 'tischplan/screen.html']
+  ['output/tischplan/wirtschaft-screen.html', 'tischplan/screen.html'],
+  ['output/tischplan/wirtschaft-wirt.html', 'tischplan/wirt.html']
 ];
 let veroeffentlicht = 0;
 for (const [quelle, ziel] of einzel) {

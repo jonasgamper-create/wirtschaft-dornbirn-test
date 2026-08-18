@@ -15,6 +15,7 @@ import {
   AUFBEWAHRUNG_TAGE, ampelFuer, freieZeiten, machId, planTaugt, pruefeAnfrage, raeumeAuf, verteile, wendeAktionAn
 } from './haus-logik.mjs';
 import standardPlan from '../../site/data/floorplan.json';
+import { shift } from '../../site/table-assignment.mjs';
 import { pruefeKontakt } from './kontakt.mjs';
 import {
   bestaetige, machEintrag, pruefeAnmeldung, raeumeAufOffene, sperrschluessel
@@ -697,6 +698,66 @@ export class Haus extends DurableObject {
     };
   }
 
+  /**
+   * Laufkundschaft: Gaeste stehen an der Tuer, der Wirt drueckt eine Zahl.
+   * Der Dienst waehlt den kleinsten passenden freien Tisch und setzt die
+   * Gruppe sofort als angekommen - eine Buchung ohne Namen, ohne Kontakt,
+   * ohne Mail. Pacing gilt hier nicht: wer schon da ist, wird nicht von
+   * einer Rechenregel weggeschickt. Zwei Geraete koennen nicht denselben
+   * Tisch vergeben, weil alle Anfragen hier nacheinander laufen.
+   */
+  async laufkunde(personen, datum, zeit) {
+    const guests = Math.trunc(Number(personen));
+    if (!Number.isFinite(guests) || guests < 1 || guests > 24) return { ok: false, grund: 'personen' };
+
+    const parties = this.#alle();
+    const { result, floorplan, minuten } = verteile(
+      { name: 'Laufkundschaft', date: datum, time: zeit, guests },
+      {
+        config: this.#plan(),
+        parties,
+        blocked: this.#lies('blocked', []),
+        standardEtage: this.#lies('standardEtage', null),
+        deckel: this.#lies('deckel', null),
+        ohnePacing: true
+      }
+    );
+    if (!result.ok) return { ok: false, grund: 'voll' };
+
+    const nummer = (Number(this.#lies('zaehler', 0)) || 0) + 1;
+    this.#schreib('zaehler', nummer);
+    const lfd = parties.filter(party => party.date === datum && party.quelle === 'laufkunde').length + 1;
+    const party = {
+      id: machId(Date.parse(`${datum}T${zeit}:00Z`), nummer),
+      name: `Laufkundschaft ${lfd}`,
+      date: datum,
+      time: zeit,
+      guests,
+      kontakt: null,
+      status: 'offen',
+      tableIds: result.tableIds,
+      dishes: {},
+      arrived: zeit,
+      left: null,
+      source: 'laufkunde',
+      quelle: 'laufkunde',
+      eingegangen: new Date().toISOString()
+    };
+    this.#sichere(party);
+    await this.ctx.storage.setAlarm(Date.now() + 24 * 60 * 60 * 1000);
+    this.#meldeAenderung();
+
+    const tisch = floorplan.tables.find(table => table.id === result.tableIds[0]);
+    return {
+      ok: true,
+      id: party.id,
+      tisch: result.numbers.join(' + '),
+      etage: tisch?.levelName || null,
+      bis: shift(`${datum}T${zeit}`, minuten)?.slice(11) || null,
+      reservierung: party
+    };
+  }
+
   /** Die Ampel fuer die Gaesteseite. Nur Zahlen und eine Stufe, keine Namen. */
   async ampel(datum, jetzt) {
     const automatik = this.#lies('automatik', true) !== false;
@@ -958,6 +1019,16 @@ export default {
           body.floorplan, body.standardEtage, body.blockedTables, body.deckel, body.automatik
         );
         return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
+      }
+
+      // Laufkundschaft: der Wirt drueckt eine Personenzahl, der Dienst setzt
+      // die Gruppe auf den kleinsten passenden freien Tisch - jetzt, nicht
+      // zu einer Slotzeit. Nur fuers Haus.
+      if (url.pathname === '/api/laufkunde' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        const hausUhr = jetztImHaus();
+        return json(await haus.laufkunde(body.personen, hausUhr.datum, hausUhr.zeit), 200, kopf);
       }
 
       if (url.pathname === '/api/aktion' && request.method === 'POST') {

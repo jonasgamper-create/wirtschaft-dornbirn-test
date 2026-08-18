@@ -113,7 +113,7 @@ export function dauerRegel(config) {
   };
 }
 
-export function verteile(anfrage, { config, parties, blocked = [], standardEtage = null, deckel = null }) {
+export function verteile(anfrage, { config, parties, blocked = [], standardEtage = null, deckel = null, ohnePacing = false }) {
   const floorplan = buildFloorplan(config);
   const layout = activeLayout(config);
   const service = serviceOf(layout);
@@ -139,7 +139,9 @@ export function verteile(anfrage, { config, parties, blocked = [], standardEtage
       ...policy,
       levelOrder: etagenReihenfolge(floorplan, standardEtage),
       // Im Schichtbetrieb kommen alle gleichzeitig - Pacing waere sinnlos.
-      ...(service.mode === 'schichten' ? { maxCoversPerSlot: Number.MAX_SAFE_INTEGER } : {})
+      // Und wer schon an der Tuer steht, wird nicht von einer Rechenregel
+      // weggeschickt: fuer Laufkundschaft entscheidet der Wirt, nicht das Pacing.
+      ...(service.mode === 'schichten' || ohnePacing ? { maxCoversPerSlot: Number.MAX_SAFE_INTEGER } : {})
     },
     minutes: feste
   });

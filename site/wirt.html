@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src 'self' data:; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self' https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'; upgrade-insecure-requests">
+  <meta name="theme-color" content="#173e2c">
+  <title>Heute Mittag · Wirtschaft Dornbirn</title>
+  <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
+  <link rel="stylesheet" href="wirt.css?v=ba5af585">
+  <script type="module" src="wirt.js?v=b3665723"></script>
+</head>
+<body>
+  <!-- Eine Seite, drei Griffe: sehen was frei ist, Laufkundschaft setzen,
+       Mittagskarte tauschen. Alles andere kann der grosse Tischplan -
+       diese Seite ist bewusst das Gegenteil davon. -->
+  <header class="kopf">
+    <img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn">
+    <p class="verbindung" id="verbindung"><i aria-hidden="true"></i><span id="verbindungText">Verbinde …</span></p>
+  </header>
+
+  <main>
+    <section class="karte-frei" aria-labelledby="freiTitel">
+      <p class="vorzeile">Heute Mittag</p>
+      <h1 id="freiTitel"><span id="freiGross">–</span></h1>
+      <p class="frei-plaetze" id="freiPlaetze"></p>
+      <ul class="groessen" id="freiGroessen" aria-label="Freie Tische nach Größe"></ul>
+    </section>
+
+    <section class="laufkunde" aria-labelledby="laufTitel">
+      <h2 id="laufTitel">Gäste stehen da?</h2>
+      <p class="hinweis">Zahl drücken – der passende Tisch wird sofort vergeben und ist überall belegt, auch online.</p>
+      <div class="lauf-knoepfe" role="group" aria-label="Personenzahl der Laufkundschaft">
+        <button type="button" data-personen="1">1</button>
+        <button type="button" data-personen="2">2</button>
+        <button type="button" data-personen="3">3</button>
+        <button type="button" data-personen="4">4</button>
+        <button type="button" data-personen="5">5</button>
+        <button type="button" data-personen="6">6</button>
+      </div>
+      <p class="lauf-ergebnis" id="laufErgebnis" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="im-haus" aria-labelledby="hausTitel">
+      <h2 id="hausTitel">Jetzt an den Tischen</h2>
+      <p class="hinweis" id="kommend"></p>
+      <ul class="haus-liste" id="imHaus"></ul>
+    </section>
+
+    <section class="karte-upload" aria-labelledby="karteTitel">
+      <h2 id="karteTitel">Mittagskarte</h2>
+      <p class="hinweis" id="karteStand">Noch keine Karte hochgeladen.</p>
+      <div class="karte-knoepfe">
+        <label class="knopf">Neues PDF hochladen
+          <input id="karteDatei" type="file" accept="application/pdf,.pdf" hidden>
+        </label>
+        <a class="knopf leise" id="karteAnsehen" href="#" target="_blank" rel="noopener noreferrer" hidden>Ansehen</a>
+        <button class="knopf leise" type="button" id="karteWeg" hidden>Entfernen</button>
+      </div>
+      <p class="lauf-ergebnis" id="karteInfo" role="status" aria-live="polite"></p>
+    </section>
+
+    <p class="fuss">Tische bleiben nach dem Setzen 90 Minuten belegt und werden dann von selbst wieder frei.
+      Mehr Werkzeug – Tischplan, Sperren, Reservierungen im Voraus – gibt es in der
+      <a href="gastgeber-tischplan.html" id="cockpitLink">großen Einteilung</a>.</p>
+  </main>
+</body>
+</html>

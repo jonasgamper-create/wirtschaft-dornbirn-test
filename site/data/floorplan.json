@@ -211,20 +211,8 @@
   "policy": {
     "durations": [
       {
-        "upTo": 2,
-        "minutes": 90
-      },
-      {
-        "upTo": 4,
-        "minutes": 105
-      },
-      {
-        "upTo": 6,
-        "minutes": 150
-      },
-      {
         "upTo": 20,
-        "minutes": 180
+        "minutes": 90
       }
     ],
     "bufferMinutes": 15,
