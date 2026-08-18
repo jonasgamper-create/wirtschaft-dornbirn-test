@@ -70,6 +70,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .grid label{display:grid;gap:8px;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase}
 .grid label.wide{grid-column:1/-1}
 .grid input{width:100%;min-height:48px;padding:12px 14px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none}
+/* Das ganze Datumsfeld oeffnet den Kalender, also zeigt es das auch. */
+.grid input[type="date"]{cursor:pointer}
 .stepper{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;min-height:52px;border:1px solid #11110f3d;border-radius:999px;background:#fff;overflow:hidden}
 .stepper button{min-height:52px;border:0;background:transparent;color:var(--ink);font-size:22px;line-height:1;cursor:pointer}
 .stepper button:disabled{opacity:.3;cursor:default}

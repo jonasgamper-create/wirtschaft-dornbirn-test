@@ -62,6 +62,26 @@
   const iso = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   if (day) day.min = iso(new Date());
 
+  // Ein Griff aufs Feld oeffnet den Kalender - nicht nur das kleine Symbol
+  // rechts. Am Handy ist dieses Symbol ein Ziel von wenigen Millimetern; wer
+  // danebentippt, steht vor einem Feld, in das er von Hand ein Datum tippen
+  // soll. showPicker() gibt es nicht ueberall und wirft ausserhalb einer
+  // echten Geste - dann bleibt es beim gewohnten Verhalten.
+  if (day && typeof day.showPicker === 'function') {
+    const oeffne = event => {
+      // Der Klick aufs eigene Symbol oeffnet den Kalender schon selbst; ein
+      // zweiter Aufruf wuerde ihn im selben Moment wieder zuklappen.
+      if (event.type === 'click' && event.offsetX > day.clientWidth - 40) return;
+      try { day.showPicker(); } catch { /* keine Geste oder nicht unterstuetzt */ }
+    };
+    day.addEventListener('click', oeffne);
+    // Auch bei Tastaturbedienung: wer mit Tab hierher springt, bekommt
+    // denselben Kalender statt einer stillen Eingabezeile.
+    day.addEventListener('focus', () => {
+      try { day.showPicker(); } catch { /* Fokus ohne Geste - dann eben nicht */ }
+    });
+  }
+
   const nameOf = { day: 'Tag', time: 'Uhrzeit' };
 
   function markField(field, show) {
