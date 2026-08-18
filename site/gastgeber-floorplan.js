@@ -8,7 +8,7 @@ import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, METER_PRO_EINHEIT, alsMeter, rec
 import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=6d7cae32';
 import { renderFloorplan } from './floorplan.js?v=a48d9860';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
-import { apiAdresse, bleibVerbunden, hausToken, istOffen, schluesselAusAdresse, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=af41a6d8';
+import { apiAdresse, bleibVerbunden, hausToken, istOffen, schluesselAusAdresse, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=51178a05';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 const store = window.WirtschaftData;
@@ -1511,6 +1511,41 @@ async function start() {
     marked = null;
     paint();
     seatResult(`Reservierungen vom ${moment.date} gelöscht. Für diesen Tag sind keine Namen mehr gespeichert.`);
+  });
+
+  /**
+   * Der ganze Mittag faellt aus. Das ist die einzige Stelle, an der das Haus
+   * von sich aus Mails ausloest - deshalb mit Rueckfrage und mit einer
+   * ehrlichen Anrufliste danach: wer keine Mailadresse hinterlassen hat,
+   * erfaehrt es sonst nicht.
+   */
+  byId('fpDayOffForm').addEventListener('submit', async event => {
+    event.preventDefault();
+    const sagen = text => say('fpDayOffResult', text);
+    if (!dienst.an || !(dienst.offen || hausToken())) {
+      return sagen('Dafür muss der Reservierungsdienst verbunden sein. Ohne ihn erreichen wir niemanden.');
+    }
+    const betroffen = dayParties().length;
+    if (!betroffen) return sagen('Für diesen Tag ist nichts eingetragen.');
+    if (!confirm(`Alle ${betroffen} Reservierungen vom ${moment.date} absagen und die Gäste benachrichtigen?`)) return;
+
+    const grund = byId('fpDayOffReason').value.trim();
+    sagen('Wird abgesagt …');
+    const antwort = await sendeAktion(hausToken(), { art: 'tagesabsage', tag: moment.date, grund });
+    if (!antwort?.ok) {
+      return sagen(antwort?.grund === 'token'
+        ? 'Der Hausschlüssel stimmt nicht mehr. Bitte neu eintragen.'
+        : 'Das hat nicht geklappt. Bitte noch einmal versuchen.');
+    }
+    if (Array.isArray(antwort.stand?.parties)) {
+      store.setParties(antwort.stand.parties);
+      paint();
+    }
+    const anrufen = antwort.anrufen || [];
+    sagen(`${antwort.abgesagt} Reservierung(en) abgesagt.`
+      + (anrufen.length
+        ? ` Bitte noch anrufen: ${anrufen.map(gast => `${gast.name} (${gast.zeit}${gast.telefon ? `, ${gast.telefon}` : ', keine Nummer'})`).join(' · ')}`
+        : ' Alle Gäste wurden per Mail verständigt.'));
   });
 
   // ---- Tischliste ----------------------------------------------------------

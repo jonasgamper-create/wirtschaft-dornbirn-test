@@ -90,6 +90,17 @@ async function ruf(pfad, { methode = 'GET', koerper = null, token = null } = {})
 export const buche = anfrage => ruf('/api/reservierung', { methode: 'POST', koerper: anfrage });
 
 /**
+ * Anmeldung zur Mittagskarte. Eigener Weg, eigener Zweck - sie haengt an
+ * keiner Reservierung und ist nie Bedingung dafuer. Gueltig wird sie erst mit
+ * dem Klick in der Bestaetigungsmail; hier passiert nur die Anfrage.
+ *
+ * Fehler bleiben still: eine misslungene Anmeldung darf eine gelungene
+ * Reservierung nicht wie einen Fehlschlag aussehen lassen.
+ */
+export const meldeMittagskarte = (email, quelle = 'seite') =>
+  ruf('/api/newsletter', { methode: 'POST', koerper: { email, quelle, einwilligung: true } });
+
+/**
  * Laeuft der Dienst offen, also ohne Hausschluessel? Die Oberflaeche fragt das
  * einmal beim Start: sie soll weder nach etwas fragen, das nicht gebraucht
  * wird, noch verschweigen, dass gerade jeder mitlesen kann.
@@ -118,7 +129,7 @@ export const sendeReservierung = (token, reservierung) =>
  * ein Bildschirm am Eingang laeuft ueber Wochen und darf nach dem ersten
  * Netzwackler nicht tot sein.
  */
-export async function bleibVerbunden(token, beiAenderung, beiZustand = () => {}) {
+export async function bleibVerbunden(token, beiAenderung, beiZustand = () => {}, rolle = 'haus') {
   const basis = await apiAdresse();
   if (!basis || !token) return () => {};
 
@@ -129,7 +140,10 @@ export async function bleibVerbunden(token, beiAenderung, beiZustand = () => {})
 
   const verbinde = () => {
     if (beendet) return;
-    const adresse = `${basis.replace(/^http/, 'ws')}/api/live?token=${encodeURIComponent(token)}`;
+    // Die Rolle entscheidet, was ueber den Draht geht: der Bildschirm im
+    // Eingang bekommt keine Kontaktdaten - er zeigt nur Namen und Tische.
+    const adresse = `${basis.replace(/^http/, 'ws')}/api/live?token=${encodeURIComponent(token)}`
+      + `&rolle=${encodeURIComponent(rolle)}`;
     socket = new WebSocket(adresse);
 
     socket.addEventListener('open', () => { versuch = 0; beiZustand('verbunden'); });

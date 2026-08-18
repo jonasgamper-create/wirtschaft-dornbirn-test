@@ -79,6 +79,21 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .slots button{min-height:48px;padding:0 16px;border:1px solid #11110f3d;border-radius:999px;background:#fff;color:var(--ink);font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none;cursor:pointer;font-variant-numeric:tabular-nums}
 .slots button[aria-checked="true"]{border-color:var(--green);background:var(--green);color:#fff}
 .grid label.invalid input,.grid label.invalid .slots button{border-color:var(--wine)}
+/* [hidden] setzt display:none, verliert aber gegen die Klassenregel .button -
+   der Anrufknopf blieb neben dem Reservierknopf stehen, obwohl er versteckt
+   war. Zwei Wege zum selben Ziel sind einer zu viel. */
+.button[hidden],.contact-field[hidden]{display:none}
+.contact-field{display:grid;gap:12px;grid-column:1/-1;padding:18px;border:1px solid #11110f24;border-radius:8px;background:#ffffff5c}
+.contact-field label{display:grid;gap:8px;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.contact-field input[type="email"],.contact-field input[type="tel"]{width:100%;min-height:48px;padding:12px 14px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none}
+.contact-lead{margin:0;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.contact-lead span{display:block;margin-top:4px;color:#57524a;font-weight:400;letter-spacing:0;text-transform:none;font-size:var(--t-meta)}
+.contact-note{margin:0;color:#57524a;font-size:var(--t-meta);line-height:1.5;max-width:56ch}
+.contact-field .contact-check{display:flex;align-items:flex-start;gap:10px;padding-top:12px;border-top:1px solid #11110f1a;font-weight:400;letter-spacing:0;text-transform:none}
+.contact-field .contact-check input{width:22px;height:22px;min-height:0;margin-top:2px;flex:0 0 auto;accent-color:var(--green)}
+.contact-field .contact-check span{font-size:var(--t-meta);line-height:1.5;max-width:52ch}
+.contact-field.invalid input[type="email"],.contact-field.invalid input[type="tel"]{border-color:var(--wine)}
+@media(min-width:761px){.contact-field{grid-template-columns:1fr 1fr}.contact-lead,.contact-note,.contact-field .contact-check{grid-column:1/-1}}
 .field-error{margin:0;color:var(--wine);font-size:var(--t-meta);font-weight:400;letter-spacing:0;text-transform:none}
 .form-alert{margin:16px 0 0;padding:12px 16px;border-left:2px solid var(--wine);background:#8c292b14;color:#6b2224;font-size:var(--t-meta);line-height:1.5;max-width:56ch}
 .required{margin:14px 0 0;color:#57524a;font-size:var(--t-label)}

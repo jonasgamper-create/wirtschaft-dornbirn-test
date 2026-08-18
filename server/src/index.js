@@ -15,16 +15,86 @@ import {
   AUFBEWAHRUNG_TAGE, freieZeiten, machId, planTaugt, pruefeAnfrage, raeumeAuf, verteile, wendeAktionAn
 } from './haus-logik.mjs';
 import standardPlan from '../../site/data/floorplan.json';
+import { pruefeKontakt } from './kontakt.mjs';
+import {
+  bestaetige, machEintrag, pruefeAnmeldung, raeumeAufOffene, sperrschluessel
+} from './newsletter.mjs';
+import {
+  absage as absageMail, baueTermin, bestaetigung as bestaetigungsMail, brevoPaket,
+  escapeHtml, newsletterFrage, sendeMail, termin_uid
+} from './mail.mjs';
 
 const HAUS = 'wirtschaft-dornbirn';
 /** Notbremse gegen Fluten. Ein Haus dieser Groesse bucht das nie aus. */
 const ONLINE_PRO_STUNDE = 40;
+
+/**
+ * Was den Dienst verlaesst, enthaelt kein Geheimnis. Der Token ist der
+ * Schluessel zur Absage: er steht in genau einer Mail und sonst nirgends.
+ */
+const ohneGeheimnis = ({ token, ...rest }) => rest;
+
+/** Zeitstempel in der Form, die der Kalender verlangt. */
+const jetztFuerKalender = () =>
+  new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 
 const json = (data, status = 200, extra = {}) =>
   new Response(JSON.stringify(data), {
     status,
     headers: { 'content-type': 'application/json; charset=utf-8', ...extra }
   });
+
+/**
+ * Eine kleine Seite fuer die Links aus den Mails. Bewusst ohne Skript und
+ * ohne fremde Schrift - sie muss in jedem Mailbrowser aufgehen.
+ *
+ * Und bewusst mit Knopf: Mailprogramme und Virenscanner rufen Links im
+ * Hintergrund auf. Wuerde der Aufruf allein schon absagen oder eine
+ * Einwilligung setzen, waeren beides Zufallsergebnisse - eine stornierte
+ * Reservierung, die niemand storniert hat, und eine Einwilligung, die niemand
+ * gegeben hat. Erst der abgeschickte Knopf zaehlt.
+ */
+function seite(titel, text, knopf = null, status = 200) {
+  const inhalt = `<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${escapeHtml(titel)} · Wirtschaft Dornbirn</title>
+<style>
+  body{margin:0;padding:48px 20px;background:#f3efe6;color:#11110f;font:400 17px/1.6 Helvetica,Arial,sans-serif;}
+  main{max-width:34rem;margin:0 auto;background:#faf7f0;border:1px solid #e0d8c8;padding:32px 28px;}
+  p.kicker{margin:0;font:800 10px/1.4 Helvetica,Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8c292b;}
+  h1{margin:10px 0 14px;font:400 32px/1.1 Georgia,serif;}
+  p{margin:0 0 14px;}
+  button{margin-top:8px;padding:14px 26px;border:0;border-radius:999px;background:#244635;color:#fff;
+    font:800 12px/1 Helvetica,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;}
+  small{display:block;margin-top:22px;color:#8f887b;font-size:13px;}
+</style></head>
+<body><main>
+<p class="kicker">Wirtschaft Dornbirn</p>
+<h1>${escapeHtml(titel)}</h1>
+<p>${escapeHtml(text)}</p>
+${knopf ? `<form method="post" action="${escapeHtml(knopf.ziel)}"><input type="hidden" name="t" value="${escapeHtml(knopf.token)}"><button type="submit">${escapeHtml(knopf.text)}</button></form>` : ''}
+<small>Bahnhofstraße 24 · 6850 Dornbirn · +43 (0)5572 20 540</small>
+</main></body></html>`;
+  return new Response(inhalt, {
+    status,
+    headers: {
+      'content-type': 'text/html; charset=utf-8',
+      'referrer-policy': 'no-referrer',
+      'cache-control': 'no-store',
+      'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'"
+    }
+  });
+}
+
+/** Das Token aus einem abgeschickten Formular. */
+async function tokenAusKoerper(request) {
+  try {
+    const daten = await request.formData();
+    return String(daten.get('t') || '');
+  } catch {
+    return '';
+  }
+}
 
 /**
  * Nur die eigenen Seiten duerfen den Dienst im Browser ansprechen. ALLOWED_ORIGINS
@@ -81,6 +151,26 @@ export class Haus extends DurableObject {
           wert TEXT NOT NULL
         )
       `);
+      // Der Newsletter steht bewusst in einer eigenen Tabelle. Zwei Zwecke,
+      // zwei Rechtsgrundlagen, zwei Loeschwege: wer widerruft, verliert seine
+      // Adresse hier - und nichts an seiner Reservierung. Siehe
+      // docs/privacy/newsletter-einwilligung.md.
+      this.ctx.storage.sql.exec(`
+        CREATE TABLE IF NOT EXISTS newsletter (
+          email TEXT PRIMARY KEY,
+          token TEXT NOT NULL,
+          daten TEXT NOT NULL
+        )
+      `);
+      this.ctx.storage.sql.exec('CREATE INDEX IF NOT EXISTS nl_token ON newsletter (token)');
+      // Fingerabdruecke widerrufener Adressen. Keine Adresse, keine Namen -
+      // nur die Sperre, damit ein spaeterer Import niemanden zurueckholt.
+      this.ctx.storage.sql.exec(`
+        CREATE TABLE IF NOT EXISTS sperrliste (
+          fingerabdruck TEXT PRIMARY KEY,
+          seit TEXT NOT NULL
+        )
+      `);
     });
   }
 
@@ -131,6 +221,47 @@ export class Haus extends DurableObject {
     return this.#lies('floorplan') || standardPlan;
   }
 
+  /** Ein Token fuer genau einen Link. Zufaellig, nicht ableitbar, ohne Inhalt. */
+  #token() {
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    return [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('');
+  }
+
+  #reservierungMitToken(token) {
+    return this.#alle().find(party => party.token && party.token === token) || null;
+  }
+
+  // ---- Newsletter: eigener Speicher, eigener Loeschweg ---------------------
+
+  #newsletterAlle() {
+    return this.ctx.storage.sql.exec('SELECT daten FROM newsletter').toArray()
+      .map(row => JSON.parse(row.daten));
+  }
+
+  #newsletterEiner(spalte, wert) {
+    const row = this.ctx.storage.sql
+      .exec(`SELECT daten FROM newsletter WHERE ${spalte} = ?`, wert).toArray()[0];
+    return row ? JSON.parse(row.daten) : null;
+  }
+
+  #newsletterSichere(eintrag) {
+    this.ctx.storage.sql.exec(
+      'INSERT INTO newsletter (email, token, daten) VALUES (?, ?, ?) '
+      + 'ON CONFLICT(email) DO UPDATE SET token = excluded.token, daten = excluded.daten',
+      eintrag.email, eintrag.token, JSON.stringify(eintrag)
+    );
+  }
+
+  #newsletterLoesche(email) {
+    this.ctx.storage.sql.exec('DELETE FROM newsletter WHERE email = ?', email);
+  }
+
+  async #gesperrt(email) {
+    const abdruck = await sperrschluessel(email);
+    return this.ctx.storage.sql
+      .exec('SELECT fingerabdruck FROM sperrliste WHERE fingerabdruck = ?', abdruck).toArray().length > 0;
+  }
+
   // ---- Live: der Bildschirm haengt am Draht --------------------------------
 
   /**
@@ -147,24 +278,41 @@ export class Haus extends DurableObject {
     }
     const paar = new WebSocketPair();
     const [client, server] = Object.values(paar);
-    this.ctx.acceptWebSocket(server);
-    server.send(JSON.stringify({ art: 'start', stand: this.#stand() }));
+    // Der Bildschirm im Eingang bekommt weniger zu sehen als das Cockpit. Das
+    // Etikett bleibt am Draht haengen, auch wenn das Objekt zwischendurch
+    // schlaeft - sonst waere die Rolle nach dem ersten Schlaf vergessen.
+    const rolle = new URL(request.url).searchParams.get('rolle') === 'schirm' ? 'schirm' : 'haus';
+    this.ctx.acceptWebSocket(server, [rolle]);
+    server.send(JSON.stringify({ art: 'start', stand: this.#stand(rolle) }));
     return new Response(null, { status: 101, webSocket: client });
   }
 
   webSocketMessage(ws) {
     // Der Bildschirm fragt nur nach dem aktuellen Stand; er schickt nie Daten.
-    ws.send(JSON.stringify({ art: 'stand', stand: this.#stand() }));
+    ws.send(JSON.stringify({ art: 'stand', stand: this.#stand(this.#rolleVon(ws)) }));
+  }
+
+  #rolleVon(ws) {
+    return this.ctx.getTags(ws).includes('schirm') ? 'schirm' : 'haus';
   }
 
   webSocketClose(ws, code, reason) {
     try { ws.close(code, reason); } catch { /* schon zu */ }
   }
 
-  #stand() {
+  /**
+   * Der Stand des Hauses. `rolle` entscheidet, wie viel davon hinausgeht: der
+   * Bildschirm im Eingang zeigt Namen und Tische und braucht keine
+   * Kontaktdaten - also bekommt er sie auch nicht. Datensparsamkeit ist an
+   * einem Geraet, auf das jeder Gast schaut, keine Formalie.
+   */
+  #stand(rolle = 'haus') {
+    const fuerRolle = party => (rolle === 'schirm' ? (({ kontakt, ...rest }) => rest)(party) : party);
     return {
       floorplan: this.#plan(),
-      parties: this.#alle(),
+      // Ohne Token: er ist der Schluessel zur Absage und geht nur an den Gast
+      // in seiner eigenen Mail. Im Haus wird er nie gebraucht.
+      parties: this.#alle().map(({ token, ...party }) => fuerRolle(party)),
       blockedTables: this.#lies('blocked', []),
       standardEtage: this.#lies('standardEtage', null),
       // Automatik aus heisst: Anfragen kommen an, aber das Haus teilt ein.
@@ -176,17 +324,26 @@ export class Haus extends DurableObject {
   #meldeAenderung() {
     const version = (Number(this.#lies('version', 0)) || 0) + 1;
     this.#schreib('version', version);
-    const paket = JSON.stringify({ art: 'aenderung', stand: this.#stand() });
+    const pakete = {
+      haus: JSON.stringify({ art: 'aenderung', stand: this.#stand('haus') }),
+      schirm: JSON.stringify({ art: 'aenderung', stand: this.#stand('schirm') })
+    };
     for (const socket of this.ctx.getWebSockets()) {
-      try { socket.send(paket); } catch { /* gleich weg, kein Grund zum Abbruch */ }
+      try { socket.send(pakete[this.#rolleVon(socket)]); } catch { /* gleich weg, kein Grund zum Abbruch */ }
     }
   }
 
   // ---- Oeffentlich: eine Onlinebuchung -------------------------------------
 
-  async buche(roh, heute) {
+  async buche(roh, heute, basis = '') {
     const gecheckt = pruefeAnfrage(roh, { heute });
     if (!gecheckt.ok) return { ok: false, grund: gecheckt.grund };
+
+    // Eine Erreichbarkeit ist Pflicht. Nicht fuer Werbung, sondern damit eine
+    // Absage ankommt: sagt das Haus den Mittag ab, muss jeder Gast das
+    // erfahren - Mail oder Telefon, eines genuegt.
+    const kontaktCheck = pruefeKontakt(roh?.kontakt || {});
+    if (!kontaktCheck.ok) return { ok: false, grund: kontaktCheck.grund };
 
     // Notbremse: Zaehler je angefangener Stunde, ohne irgendeine Kennung des
     // Absenders zu speichern. Eine IP zu hinterlegen waere mehr Datenhaltung,
@@ -220,9 +377,17 @@ export class Haus extends DurableObject {
 
     const nummer = (Number(this.#lies('zaehler', 0)) || 0) + 1;
     this.#schreib('zaehler', nummer);
+    const id = machId(Date.parse(`${anfrage.date}T${anfrage.time}:00Z`), nummer);
     const party = {
-      id: machId(Date.parse(`${anfrage.date}T${anfrage.time}:00Z`), nummer),
+      id,
       ...anfrage,
+      kontakt: kontaktCheck.kontakt,
+      // Kennung und Zaehler des Kalendereintrags kommen vom Dienst. Nur so
+      // laesst sich derselbe Termin spaeter zurueckziehen.
+      uid: termin_uid(id),
+      sequenz: 0,
+      token: this.#token(),
+      status: 'offen',
       tableIds: result.ok ? result.tableIds : [],
       dishes: {},
       arrived: null,
@@ -241,15 +406,216 @@ export class Haus extends DurableObject {
       return {
         ok: true, angenommen: true, tisch: null, grund: result.reason, automatik,
         alternativen: (result.alternatives || []).map(entry => entry.startsAt.slice(11)),
-        reservierung: party
+        reservierung: ohneGeheimnis(party)
       };
     }
     const tisch = floorplan.tables.find(table => table.id === result.tableIds[0]);
+
+    // Die Bestaetigung geht raus, nachdem die Antwort beim Gast ist. Ein
+    // langsamer oder gestoerter Mailversand darf die Reservierung nicht
+    // aufhalten und schon gar nicht scheitern lassen.
+    this.ctx.waitUntil(this.#schickeBestaetigung(party, {
+      tisch: result.numbers.join(' + '),
+      etage: tisch?.levelName || null,
+      basis
+    }));
+
     return {
       ok: true, angenommen: true,
       tisch: result.numbers.join(' + '),
       etage: tisch?.levelName || null,
-      reservierung: party
+      reservierung: ohneGeheimnis(party)
+    };
+  }
+
+  // ---- Mail: Bestaetigung und Absage --------------------------------------
+
+  async #schickeBestaetigung(party, { tisch, etage, basis }) {
+    if (!party.kontakt?.email) return { ok: false, grund: 'keine_mail' };
+    const absender = String(this.env?.BREVO_ABSENDER || '');
+    if (!absender) return { ok: false, grund: 'nicht_eingerichtet' };
+
+    const termin = baueTermin({
+      uid: party.uid,
+      sequenz: party.sequenz,
+      methode: 'REQUEST',
+      jetzt: jetztFuerKalender(),
+      name: party.name,
+      tag: party.date,
+      zeit: party.time,
+      gaeste: party.guests,
+      tisch,
+      etage,
+      absender
+    });
+    const inhalt = bestaetigungsMail({
+      name: party.name,
+      tag: party.date,
+      zeit: party.time,
+      gaeste: party.guests,
+      tisch,
+      etage,
+      absageLink: `${basis}/absage?t=${party.token}`
+    });
+    return sendeMail(this.env, brevoPaket({
+      absender,
+      an: party.kontakt.email,
+      anName: party.name,
+      betreff: inhalt.betreff,
+      html: inhalt.html,
+      text: inhalt.text,
+      anhang: { name: `wirtschaft-dornbirn-${party.date}.ics`, inhalt: termin }
+    }));
+  }
+
+  /**
+   * Die Absage. Sie zieht denselben Termin zurueck, den die Bestaetigung
+   * gelegt hat: gleiche Kennung, hoehere Nummer, METHOD:CANCEL. Damit
+   * verschwindet der Eintrag im Kalender des Gastes von selbst.
+   */
+  async #schickeAbsage(party, { grund, vomHaus }) {
+    if (!party.kontakt?.email) return { ok: false, grund: 'keine_mail' };
+    const absender = String(this.env?.BREVO_ABSENDER || '');
+    if (!absender) return { ok: false, grund: 'nicht_eingerichtet' };
+
+    const termin = baueTermin({
+      uid: party.uid,
+      sequenz: party.sequenz,
+      methode: 'CANCEL',
+      jetzt: jetztFuerKalender(),
+      name: party.name,
+      tag: party.date,
+      zeit: party.time,
+      gaeste: party.guests,
+      grund,
+      absender
+    });
+    const inhalt = absageMail({
+      name: party.name, tag: party.date, zeit: party.time, gaeste: party.guests, grund, vomHaus
+    });
+    return sendeMail(this.env, brevoPaket({
+      absender,
+      an: party.kontakt.email,
+      anName: party.name,
+      betreff: inhalt.betreff,
+      html: inhalt.html,
+      text: inhalt.text,
+      anhang: { name: `wirtschaft-dornbirn-${party.date}-absage.ics`, inhalt: termin }
+    }));
+  }
+
+  #storniere(party, grund) {
+    return {
+      ...party,
+      status: 'storniert',
+      storniertAm: new Date().toISOString(),
+      stornoGrund: grund || null,
+      // Der Tisch ist ab sofort wieder frei - das ist der eigentliche Zweck.
+      tableIds: [],
+      sequenz: (Number(party.sequenz) || 0) + 1
+    };
+  }
+
+  /** Der Gast sagt selbst ab, ueber den Link in seiner Bestaetigung. */
+  async gastAbsage(token) {
+    const party = this.#reservierungMitToken(String(token || ''));
+    if (!party) return { ok: false, grund: 'unbekannt' };
+    if (party.status === 'storniert') return { ok: true, schon: true, reservierung: ohneGeheimnis(party) };
+
+    const storniert = this.#storniere(party, null);
+    this.#sichere(storniert);
+    this.#meldeAenderung();
+    this.ctx.waitUntil(this.#schickeAbsage(storniert, { grund: null, vomHaus: false }));
+    return { ok: true, reservierung: ohneGeheimnis(storniert) };
+  }
+
+  /**
+   * Wolfgang sagt einen ganzen Mittag ab. Jeder Gast mit Mailadresse bekommt
+   * die Absage samt zurueckgezogenem Termin; wer nur eine Nummer hinterlassen
+   * hat, steht in der Anrufliste. Diese Liste ist der ehrliche Teil: sie
+   * verschwindet nicht, nur weil der Rest automatisch ging.
+   */
+  async tagAbsage(tag, grund) {
+    const betroffen = this.#amTag(String(tag || '')).filter(party => party.status !== 'storniert');
+    const anrufen = [];
+    for (const party of betroffen) {
+      const storniert = this.#storniere(party, grund);
+      this.#sichere(storniert);
+      if (storniert.kontakt?.email) {
+        this.ctx.waitUntil(this.#schickeAbsage(storniert, { grund, vomHaus: true }));
+      } else {
+        anrufen.push({
+          name: storniert.name, zeit: storniert.time, telefon: storniert.kontakt?.telefon || null
+        });
+      }
+    }
+    if (betroffen.length) this.#meldeAenderung();
+    return { ok: true, abgesagt: betroffen.length, anrufen, stand: this.#stand() };
+  }
+
+  // ---- Newsletter ----------------------------------------------------------
+
+  async newsletterAnmeldung(roh, basis) {
+    const gecheckt = pruefeAnmeldung(roh);
+    if (!gecheckt.ok) return { ok: false, grund: gecheckt.grund };
+    const { email, quelle } = gecheckt.anmeldung;
+
+    // Wer widerrufen hat, wird nicht wieder angeschrieben - auch nicht, wenn
+    // jemand anderes die Adresse eintraegt.
+    if (await this.#gesperrt(email)) return { ok: true, gesperrt: true };
+
+    const vorhanden = this.#newsletterEiner('email', email);
+    if (vorhanden?.status === 'bestaetigt') return { ok: true, schon: true };
+
+    const eintrag = vorhanden
+      ? { ...vorhanden, angefragtAm: new Date().toISOString() }
+      : machEintrag({ email, quelle, token: this.#token(), jetzt: new Date().toISOString() });
+    this.#newsletterSichere(eintrag);
+
+    this.ctx.waitUntil((async () => {
+      const absender = String(this.env?.BREVO_ABSENDER || '');
+      if (!absender) return;
+      const inhalt = newsletterFrage({
+        jaLink: `${basis}/newsletter/ja?t=${eintrag.token}`,
+        wortlaut: eintrag.wortlaut
+      });
+      await sendeMail(this.env, brevoPaket({
+        absender, an: eintrag.email, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
+      }));
+    })());
+    return { ok: true, gefragt: true };
+  }
+
+  /** Der Klick in der Bestaetigungsmail. Erst hier entsteht die Einwilligung. */
+  async newsletterJa(token) {
+    const eintrag = this.#newsletterEiner('token', String(token || ''));
+    if (!eintrag) return { ok: false, grund: 'unbekannt' };
+    const ergebnis = bestaetige(eintrag, new Date().toISOString());
+    if (!ergebnis.ok) return ergebnis;
+    this.#newsletterSichere(ergebnis.eintrag);
+    return { ok: true, schon: ergebnis.schon === true };
+  }
+
+  /** Der Widerruf. Loescht den Eintrag; zurueck bleibt nur die Sperre. */
+  async newsletterWeg(token) {
+    const eintrag = this.#newsletterEiner('token', String(token || ''));
+    if (!eintrag) return { ok: false, grund: 'unbekannt' };
+    const abdruck = await sperrschluessel(eintrag.email);
+    this.#newsletterLoesche(eintrag.email);
+    this.ctx.storage.sql.exec(
+      'INSERT INTO sperrliste (fingerabdruck, seit) VALUES (?, ?) ON CONFLICT(fingerabdruck) DO NOTHING',
+      abdruck, new Date().toISOString()
+    );
+    return { ok: true };
+  }
+
+  /** Nur fuer das Haus: wie viele bestaetigte Adressen es gibt. Ohne Adressen. */
+  async newsletterZahlen() {
+    const alle = this.#newsletterAlle();
+    return {
+      ok: true,
+      bestaetigt: alle.filter(eintrag => eintrag.status === 'bestaetigt').length,
+      offen: alle.filter(eintrag => eintrag.status !== 'bestaetigt').length
     };
   }
 
@@ -313,8 +679,21 @@ export class Haus extends DurableObject {
     const heute = new Date().toISOString().slice(0, 10);
     const behalten = raeumeAuf(this.#alle(), heute, AUFBEWAHRUNG_TAGE);
     this.#ersetzeAlle(behalten);
-    // Nur weiterlaufen lassen, solange ueberhaupt Daten da sind.
-    if (behalten.length) await this.ctx.storage.setAlarm(Date.now() + 24 * 60 * 60 * 1000);
+
+    // Eine Anmeldung ohne Bestaetigung ist keine Einwilligung. Sie faellt
+    // nach der Frist weg, ohne dass jemand daran denken muss.
+    const eintraege = this.#newsletterAlle();
+    const bleiben = new Set(raeumeAufOffene(eintraege, new Date().toISOString()).map(e => e.email));
+    for (const eintrag of eintraege) {
+      if (!bleiben.has(eintrag.email)) this.#newsletterLoesche(eintrag.email);
+    }
+    // Nur weiterlaufen lassen, solange ueberhaupt Daten da sind. Offene
+    // Anmeldungen zaehlen dazu - sonst bliebe eine unbestaetigte Adresse
+    // liegen, weil an dem Tag niemand reserviert hat.
+    const offeneAnmeldungen = this.#newsletterAlle().some(eintrag => eintrag.status !== 'bestaetigt');
+    if (behalten.length || offeneAnmeldungen) {
+      await this.ctx.storage.setAlarm(Date.now() + 24 * 60 * 60 * 1000);
+    }
   }
 }
 
@@ -370,8 +749,87 @@ export default {
 
       if (url.pathname === '/api/reservierung' && request.method === 'POST') {
         const roh = await request.json().catch(() => ({}));
-        const ergebnis = await haus.buche(roh, heute);
+        const ergebnis = await haus.buche(roh, heute, url.origin);
         return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
+      }
+
+      // ---- Links aus den Mails ----------------------------------------
+      //
+      // Sie liegen bewusst nicht unter /api: der Gast sieht sie in der
+      // Adresszeile, und dort soll etwas Lesbares stehen.
+
+      if (url.pathname === '/absage') {
+        const token = request.method === 'POST'
+          ? await tokenAusKoerper(request)
+          : url.searchParams.get('t') || '';
+        if (request.method === 'GET') {
+          return seite('Reservierung absagen',
+            'Möchtest du deine Reservierung wirklich absagen? Wir geben den Tisch dann weiter.',
+            { ziel: '/absage', token, text: 'Ja, absagen' });
+        }
+        if (request.method !== 'POST') return json({ ok: false }, 405, kopf);
+        const ergebnis = await haus.gastAbsage(token);
+        if (!ergebnis.ok) {
+          return seite('Das ging nicht',
+            'Diese Reservierung kennen wir nicht mehr. Vielleicht ist sie schon abgesagt oder der Tag ist vorbei. '
+            + 'Ruf uns kurz an, dann klären wir es: +43 (0)5572 20 540.', null, 404);
+        }
+        return seite('Abgesagt',
+          ergebnis.schon
+            ? 'Diese Reservierung war schon abgesagt. Es ist alles in Ordnung.'
+            : 'Danke für die Nachricht. Dein Tisch ist wieder frei, und der Termin verschwindet aus deinem Kalender.');
+      }
+
+      if (url.pathname === '/newsletter/ja') {
+        const token = request.method === 'POST'
+          ? await tokenAusKoerper(request)
+          : url.searchParams.get('t') || '';
+        if (request.method === 'GET') {
+          return seite('Anmeldung bestätigen',
+            'Bestätige hier, dass du die Mittagskarte per E-Mail bekommen möchtest. '
+            + 'Abmelden kannst du dich jederzeit mit einem Klick in jeder Mail.',
+            { ziel: '/newsletter/ja', token, text: 'Ja, bitte schicken' });
+        }
+        if (request.method !== 'POST') return json({ ok: false }, 405, kopf);
+        const ergebnis = await haus.newsletterJa(token);
+        if (!ergebnis.ok) {
+          return seite('Das ging nicht',
+            'Dieser Link ist abgelaufen oder wurde schon benutzt. Trag dich einfach neu ein.', null, 404);
+        }
+        return seite('Danke, das war es schon',
+          'Du bekommst die Mittagskarte ab jetzt per E-Mail. In jeder Mail steht ein Abmeldelink.');
+      }
+
+      if (url.pathname === '/newsletter/weg') {
+        const token = request.method === 'POST'
+          ? await tokenAusKoerper(request)
+          : url.searchParams.get('t') || '';
+        if (request.method === 'GET') {
+          return seite('Abmelden',
+            'Möchtest du die Mittagskarte nicht mehr bekommen? Wir löschen deine Adresse dann vollständig.',
+            { ziel: '/newsletter/weg', token, text: 'Ja, abmelden' });
+        }
+        if (request.method !== 'POST') return json({ ok: false }, 405, kopf);
+        const ergebnis = await haus.newsletterWeg(token);
+        if (!ergebnis.ok) {
+          return seite('Das ging nicht',
+            'Diese Adresse haben wir nicht mehr. Dann bekommst du auch keine Mail mehr von uns.', null, 404);
+        }
+        return seite('Abgemeldet',
+          'Deine Adresse ist gelöscht. Wir schreiben dir nicht mehr.');
+      }
+
+      // Anmeldung zur Mittagskarte. Eigener Weg, eigener Zweck: sie ist nie
+      // Voraussetzung fuer eine Reservierung.
+      if (url.pathname === '/api/newsletter' && request.method === 'POST') {
+        const roh = await request.json().catch(() => ({}));
+        const ergebnis = await haus.newsletterAnmeldung(roh, url.origin);
+        return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
+      }
+
+      if (url.pathname === '/api/newsletter/zahlen' && request.method === 'GET') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        return json(await haus.newsletterZahlen(), 200, kopf);
       }
 
       if (url.pathname === '/api/stand' && request.method === 'GET') {
@@ -391,6 +849,12 @@ export default {
       if (url.pathname === '/api/aktion' && request.method === 'POST') {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         const body = await request.json().catch(() => ({}));
+        // Der ganze Mittag faellt aus. Eigener Weg, weil hier Mails
+        // hinausgehen - das ist keine Umsortierung im Haus.
+        if (body?.art === 'tagesabsage') {
+          const ergebnis = await haus.tagAbsage(body.tag, String(body.grund || '').slice(0, 200));
+          return json(ergebnis, 200, kopf);
+        }
         return json(await haus.aktion(body), 200, kopf);
       }
 

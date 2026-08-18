@@ -9,7 +9,7 @@ import { activeLayout, buildFloorplan, seatingPlan, serviceOf } from './floorpla
 import { durationFor, occupiesAt, stamp } from './table-assignment.mjs?v=6d7cae32';
 import { renderFloorplan } from './floorplan.js?v=a48d9860';
 
-import { bleibVerbunden, hausToken, istOffen } from './haus-api.js?v=af41a6d8';
+import { bleibVerbunden, hausToken, istOffen } from './haus-api.js?v=51178a05';
 
 const KEY = 'wirtschaft-dornbirn-host-control-v1';
 const SICHT = 'wirtschaft-screen-namen';
@@ -162,7 +162,7 @@ async function start() {
     if (!draht) return;
     draht.hidden = zustand === 'verbunden';
     draht.textContent = 'Verbindung unterbrochen – die Anzeige kann veraltet sein.';
-  });
+  }, 'schirm');
 
   // Ohne Dienst bleibt es beim bisherigen Weg: das storage-Ereignis desselben
   // Geraets. Der Takt daneben ist fuer die Uhr und den Schichtwechsel.

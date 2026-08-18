@@ -1,9 +1,11 @@
 # Übersicht: Brevo, Zusage und Storno, Tischkontingent
 
 Stand 18.08.2026. Diese Übersicht beschreibt, was heute schon steht, was Brevo
-dazu bringen würde, und welche Entscheidungen vorher zu treffen sind. Sie ist
-eine Entscheidungsgrundlage, kein Umsetzungsauftrag. Es ist noch nichts gebaut,
-kein Konto angelegt und kein Schlüssel hinterlegt.
+dazu bringt, und welche Entscheidungen getroffen sind.
+
+**Umgesetzt am 18.08.2026** – siehe Abschnitt 9. Kein Konto angelegt, kein
+Schlüssel hinterlegt: ohne `BREVO_KEY` und `BREVO_ABSENDER` versendet der
+Dienst nichts und verhält sich wie zuvor.
 
 ## 1. Was heute steht
 
@@ -137,7 +139,19 @@ Automatik-aus.
 | Tageskontingent je Datum | Cockpit + Zuweisung | mittel bis gross |
 | Prüfung `check:mail` in `npm run ci` | `scripts/` | klein |
 
-## 7. Zu entscheiden
+## 7. Entschieden am 18.08.2026
+
+1. **Erreichbarkeit ist Pflicht, aber frei wählbar:** E-Mail *oder* Telefon.
+   Grund: Eine Absage muss ankommen. Wer nur eine Nummer hinterlässt, hat keine
+   Mailadresse im System.
+2. **Die Reservierung gilt auch ohne Klick.** Die Mail ist Bestätigung, keine
+   Bedingung; sie enthält einen Absagelink für den Fall der Fälle.
+3. **Newsletter mit eigenem Speicher**, Brevo nur Versand. Double-Opt-In,
+   getrennte Tabelle, getrennter Löschweg.
+4. Offen bleiben: Brevo-AVV und Subprozessoren, SPF/DKIM/DMARC der
+   Absenderdomain, Tageskontingent je Datum.
+
+## 8. Zuvor offen gewesen
 
 1. Mailadresse: freiwillig oder Pflicht? Empfehlung freiwillig, mit dem Satz,
    wofür sie gebraucht wird – sonst fällt das heutige Datenschutzversprechen.
@@ -148,9 +162,26 @@ Automatik-aus.
 5. Brevo-AVV, Subprozessoren, Serverstandort, Löschfrist.
 6. Soll das Kontingent tagesweise variieren? Davon hängt Punkt 7 der Bauliste ab.
 
-## 8. Ausdrücklich nicht Teil davon
+## 10. Ausdrücklich nicht Teil davon
 
 Newsletter, Werbestrecken, Öffnungs- und Klicktracking, Zahlungen,
 Gästekonten, Kartendaten, ein zweiter Kalender neben dem Kalender des Gastes.
 Die Mittagskarten-Mail (`npm run lunch:mail`) bleibt ein getrennter Vorgang und
 wird nicht automatisch versendet.
+
+## 9. Was am 18.08.2026 gebaut wurde
+
+| Teil | Ort |
+| --- | --- |
+| Brevo-Versand, Kalendereintrag mit `REQUEST`/`CANCEL` | `server/src/mail.mjs` |
+| Einwilligung: Prüfung, Double-Opt-In, Widerruf, Sperrliste | `server/src/newsletter.mjs` |
+| Erreichbarkeit: Mail oder Telefon | `server/src/kontakt.mjs` |
+| Eigene Tabellen `newsletter` und `sperrliste`, UID serverseitig, Tokenlinks | `server/src/index.js` |
+| Seiten für Absage-, Bestätigungs- und Abmeldeklick | `server/src/index.js` (`seite()`) |
+| Kontaktfeld und getrenntes Häkchen | `site/tischreservierung.html`, `site/tischreservierung-buchung.js` |
+| „Mittag absagen" mit Anrufliste | `site/gastgeber-tischplan.html`, `site/gastgeber-floorplan.js` |
+| Bildschirm im Eingang ohne Kontaktdaten | `site/screen.js`, `server/src/index.js` |
+| Datenschutzangaben | `site/datenschutz-sicherheit.html`, `docs/privacy/newsletter-einwilligung.md` |
+| Prüfung | `scripts/check-mail.mjs` (`npm run ci`) |
+
+Noch nicht gebaut: das Tageskontingent je Datum (Punkt 7 der Bauliste).

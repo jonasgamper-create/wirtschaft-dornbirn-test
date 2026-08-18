@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=c75294f5">
   <link rel="stylesheet" href="floorplan.css?v=1e2d55ca">
   <script src="inventory-store.js?v=bdbf27dd" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=9162a891"></script>
+  <script type="module" src="gastgeber-floorplan.js?v=09c49200"></script>
 </head>
 <body>
   <header class="topbar">
@@ -159,6 +159,13 @@
               <button class="quiet" type="button" id="fpAutoSeat">Alle offenen verteilen</button>
               <button class="quiet" type="button" id="fpClearSeating">Reservierungen dieses Tages löschen</button>
             </div>
+            <h3 class="fp-subhead">Mittag absagen</h3>
+            <p class="model-note">Wenn heute nicht gekocht wird: alle Reservierungen dieses Tages werden storniert. Wer eine E-Mail-Adresse hinterlassen hat, bekommt die Absage samt zurückgezogenem Kalendertermin. Alle anderen erscheinen hier als Anrufliste.</p>
+            <form class="add-service" id="fpDayOffForm">
+              <label>Grund für die Gäste<input id="fpDayOffReason" type="text" maxlength="200" placeholder="z. B. Wir kochen heute leider nicht mittags."></label>
+              <button type="submit">Mittag dieses Tages absagen</button>
+            </form>
+            <p class="model-note" id="fpDayOffResult" role="status" aria-live="polite"></p>
           </details>
         </section>
       </div>

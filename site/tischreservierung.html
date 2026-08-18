@@ -12,7 +12,7 @@
   <title>Tischreservierung · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=f2d46085">
+  <link rel="stylesheet" href="tischreservierung.css?v=40c4cf52">
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Restaurant","name":"Wirtschaft Dornbirn","legalName":"„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.","url":"https://wirtschaft-dornbirn.at/","telephone":"+43557220540","email":"willkommen@wirtschaft-dornbirn.at","address":{"@type":"PostalAddress","streetAddress":"Bahnhofstraße 24","postalCode":"6850","addressLocality":"Dornbirn","addressRegion":"Vorarlberg","addressCountry":"AT"},"vatID":"ATU36206707","acceptsReservations":"https://wirtschaft-dornbirn.at/tischreservierung.html"}
   </script>
@@ -49,7 +49,7 @@
       <div class="wrap section" style="border-top:0">
         <p class="eyebrow">Reservierung</p>
         <h2>Für welchen Tag möchtest du reservieren?</h2>
-        <p class="sub">Wähl’ Tag, Uhrzeit und Personenzahl. Den letzten Schritt macht das offizielle Reservierungssystem – dort gibst du deine Kontaktdaten ein. Diese Seite fragt keine persönlichen Daten ab und speichert nichts.</p>
+        <p class="sub" id="bookingLead">Wähl’ Tag, Uhrzeit und Personenzahl. Den letzten Schritt macht das offizielle Reservierungssystem – dort gibst du deine Kontaktdaten ein. Diese Seite fragt keine persönlichen Daten ab und speichert nichts.</p>
         <form class="grid" id="bookingForm" novalidate>
           <!-- Der Name wird nur eingeblendet, wenn wir die Reservierung selbst
                annehmen. Sonst gibt man ihn beim offiziellen Anbieter ein und
@@ -57,6 +57,23 @@
           <label class="wide" id="guestNameField" hidden>Name*
             <input type="text" name="gastname" id="guestName" maxlength="40" autocomplete="family-name" placeholder="z. B. Huber">
           </label>
+          <!-- Erreichbarkeit: eines von beiden genuegt. Sie steht hier, damit
+               eine Absage ankommt - nicht fuer Werbung. Die Anmeldung zur
+               Mittagskarte darunter ist davon getrennt und freiwillig. -->
+          <div class="wide contact-field" id="guestContactField" hidden>
+            <p class="contact-lead">Wie erreichen wir dich?* <span>E-Mail oder Telefon – eines genügt.</span></p>
+            <label>E-Mail
+              <input type="email" name="gastmail" id="guestMail" maxlength="120" autocomplete="email" inputmode="email" placeholder="name@beispiel.at">
+            </label>
+            <label>Telefon
+              <input type="tel" name="gasttelefon" id="guestPhone" maxlength="25" autocomplete="tel" inputmode="tel" placeholder="+43 660 1234567">
+            </label>
+            <p class="contact-note">Wir nutzen das nur für diese Reservierung: Bestätigung und – falls wir kurzfristig absagen müssen – die Absage. Gelöscht wird beides spätestens 30 Tage nach dem Termin.</p>
+            <label class="contact-check">
+              <input type="checkbox" name="mittagskarte" id="guestNewsletter" value="ja">
+              <span>Schickt mir die Mittagskarte per E-Mail. Ich kann mich jederzeit mit einem Klick abmelden.</span>
+            </label>
+          </div>
           <label class="wide">Tag*
             <input type="date" name="day" id="day" required>
           </label>
@@ -136,6 +153,6 @@
   </footer>
 
   <script src="tischreservierung.js?v=9d6d55bc" defer></script>
-  <script type="module" src="tischreservierung-buchung.js?v=f32764b3"></script>
+  <script type="module" src="tischreservierung-buchung.js?v=29d3914f"></script>
 </body>
 </html>

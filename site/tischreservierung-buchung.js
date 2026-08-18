@@ -4,7 +4,7 @@
 // wie bisher und leitet auf den offiziellen Anbieter weiter. Erst wenn der
 // Dienst laeuft, wird aus dem Formular eine echte Buchung.
 
-import { apiAdresse, buche, holeFrei } from './haus-api.js?v=af41a6d8';
+import { apiAdresse, buche, holeFrei, meldeMittagskarte } from './haus-api.js?v=51178a05';
 
 const byId = id => document.getElementById(id);
 start();
@@ -18,14 +18,29 @@ async function start() {
   // Ab hier nehmen wir die Reservierung selbst an.
   const nameFeld = byId('guestNameField');
   const name = byId('guestName');
+  const kontaktFeld = byId('guestContactField');
+  const mail = byId('guestMail');
+  const telefon = byId('guestPhone');
+  const mittagskarte = byId('guestNewsletter');
   const ergebnis = byId('bookingResult');
   const hinweis = byId('submitHint');
   nameFeld.hidden = false;
   name.required = true;
+  kontaktFeld.hidden = false;
+  // Der Vorspann stammt aus der Zeit des externen Anbieters. Nehmen wir die
+  // Reservierung selbst an, stimmt er nicht mehr - und was ueber Daten auf
+  // einer Seite steht, muss stimmen.
+  const vorspann = byId('bookingLead');
+  if (vorspann) {
+    vorspann.textContent = 'Wähl’ Tag, Uhrzeit und Personenzahl. Wir teilen den Tisch direkt ein. '
+      + 'Gespeichert werden nur Name, Termin, Personenzahl und eine Erreichbarkeit – '
+      + 'gelöscht spätestens 30 Tage nach dem Termin.';
+  }
   weiter.hidden = true;
   knopf.hidden = false;
   hinweis.textContent = 'Wir teilen den Tisch direkt ein und melden dir sofort, ob es passt. '
-    + 'Ausser dem Namen speichern wir nichts – keine Mailadresse, keine Telefonnummer.';
+    + 'Wir brauchen eine Erreichbarkeit, damit die Bestätigung ankommt – und damit wir dich erreichen, '
+    + 'falls wir kurzfristig absagen müssen.';
 
   const sag = (text, art = 'info') => {
     ergebnis.hidden = false;
@@ -163,7 +178,7 @@ async function start() {
   }
 
   function zeigeBestaetigung(daten) {
-    const { wer, tag, zeit, gaeste, tisch, etage } = daten;
+    const { wer, tag, zeit, gaeste, tisch, etage, wohin } = daten;
     const kasten = byId('bookingDone');
     const langesDatum = new Date(`${tag}T12:00:00`).toLocaleDateString('de-AT', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
@@ -196,9 +211,10 @@ async function start() {
     } catch {
       ausgeloest = false;
     }
-    byId('doneHint').textContent = ausgeloest
+    const perMail = wohin ? ' Die Bestätigung schicken wir dir zusätzlich per E-Mail.' : '';
+    byId('doneHint').textContent = (ausgeloest
       ? 'Der Termin wurde in deinen Kalender gelegt. Öffnet sich nichts, tipp auf den Knopf.'
-      : 'Tipp auf den Knopf, um den Termin in deinen Kalender zu legen.';
+      : 'Tipp auf den Knopf, um den Termin in deinen Kalender zu legen.') + perMail;
   }
 
   knopf.addEventListener('click', async () => {
@@ -208,16 +224,27 @@ async function start() {
     const kinder = Number(document.querySelector('[name="children"]')?.value || 0);
     const gaeste = erwachsene + kinder;
     const wer = name.value.trim();
+    const wohin = mail.value.trim();
+    const anruf = telefon.value.trim();
 
     // Vor dem Netz pruefen, was man ohne Netz pruefen kann.
     if (!wer || wer.length < 2) return sag('Bitte den Namen eintragen, auf den der Tisch laufen soll.', 'fehler');
     if (!tag) return sag('Bitte einen Tag wählen.', 'fehler');
     if (!zeit) return sag('Bitte eine Uhrzeit wählen.', 'fehler');
     if (gaeste < 1) return sag('Bitte die Personenzahl angeben.', 'fehler');
+    // Eines von beiden - nicht als Huerde, sondern damit eine Absage ankommt.
+    kontaktFeld.classList.toggle('invalid', !wohin && !anruf);
+    if (!wohin && !anruf) {
+      return sag('Bitte eine E-Mail-Adresse oder eine Telefonnummer angeben. Sonst können wir dich nicht erreichen, '
+        + 'wenn wir kurzfristig absagen müssen.', 'fehler');
+    }
 
     knopf.disabled = true;
     sag('Einen Moment, wir schauen nach einem Tisch …');
-    const antwort = await buche({ name: wer, date: tag, time: zeit, guests: gaeste });
+    const antwort = await buche({
+      name: wer, date: tag, time: zeit, guests: gaeste,
+      kontakt: { email: wohin || null, telefon: anruf || null }
+    });
     knopf.disabled = false;
 
     if (!antwort?.ok) {
@@ -229,6 +256,9 @@ async function start() {
         vergangen: 'Dieser Tag liegt in der Vergangenheit.',
         zu_weit: 'So weit im Voraus nehmen wir online noch keine Reservierung an.',
         zu_viele: 'Gerade kommen sehr viele Anfragen. Bitte ruf uns kurz an.',
+        kontakt: 'Bitte eine E-Mail-Adresse oder eine Telefonnummer angeben.',
+        mail: 'Diese E-Mail-Adresse sieht nicht richtig aus. Bitte noch einmal prüfen.',
+        telefon: 'Diese Telefonnummer sieht nicht richtig aus. Bitte noch einmal prüfen.',
         netz: 'Die Verbindung hat nicht geklappt. Bitte ruf uns kurz an: +43 (0)5572 20 540.',
         aus: 'Bitte ruf uns kurz an: +43 (0)5572 20 540.'
       };
@@ -239,7 +269,14 @@ async function start() {
     }
     if (antwort.tisch) {
       zeigeVerfuegbarkeit();
-      zeigeBestaetigung({ wer, tag, zeit, gaeste, tisch: antwort.tisch, etage: antwort.etage });
+      // Die Anmeldung zur Mittagskarte ist ein eigener Vorgang mit eigenem
+      // Zweck: sie geht getrennt hinaus und ist nie Bedingung fuer den Tisch.
+      // Gueltig wird sie erst mit dem Klick in der Bestaetigungsmail.
+      if (mittagskarte?.checked && wohin) {
+        meldeMittagskarte(wohin, 'reservierung');
+        mittagskarte.checked = false;
+      }
+      zeigeBestaetigung({ wer, tag, zeit, gaeste, tisch: antwort.tisch, etage: antwort.etage, wohin });
       return sag(`Passt: ${wer}, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'} am ${tag} um ${zeit}. `
         + `Tisch ${antwort.tisch}${antwort.etage ? ` im Bereich ${antwort.etage}` : ''}. `
         + 'Wir sehen uns – ein Anruf ist nicht mehr nötig.', 'gut');
