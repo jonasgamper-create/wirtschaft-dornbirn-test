@@ -142,6 +142,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .booking-result[data-art="warnung"]{border-color:#a67f45;background:#f6ecd9}
 .booking-result[data-art="fehler"]{border-color:var(--wine,#8c292b);background:#8c292b14;color:#6b2224}
 
+/* Die Ampel zum Mittag: derselbe Punkt wie im Status auf der Startseite.
+   Gruen heisst Platz, Gold heisst wenige Tische, Wein heisst voll - alles
+   Toene aus der bestehenden CI, kein neues Signalrot. */
+.ampel{display:flex;align-items:center;gap:10px;margin:14px 0 0;max-width:56ch;color:#3c3833;font-size:var(--t-meta);line-height:1.5}
+.ampel i{width:10px;height:10px;flex:0 0 10px;border-radius:50%;background:var(--green)}
+.ampel[data-stufe="orange"] i{background:var(--gold)}
+.ampel[data-stufe="rot"] i{background:var(--wine)}
+.ampel[hidden]{display:none}
+
 /* Belegte Zeiten stehen sichtbar da, aber ausgegraut. Sie zu verstecken waere
    verwirrend - der Gast sucht dann eine Zeit, die es nicht mehr gibt. */
 .slots button[data-voll]{border-style:dashed;background:#11110f08;color:#a29b90;cursor:not-allowed;text-decoration:line-through}

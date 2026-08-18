@@ -4,7 +4,7 @@
 // wie bisher und leitet auf den offiziellen Anbieter weiter. Erst wenn der
 // Dienst laeuft, wird aus dem Formular eine echte Buchung.
 
-import { apiAdresse, buche, holeFrei, holeKarteInfo, karteAdresse, meldeMittagskarte } from './haus-api.js?v=ca19e511';
+import { apiAdresse, buche, holeAmpel, holeFrei, holeKarteInfo, karteAdresse, meldeMittagskarte } from './haus-api.js?v=81e2b54d';
 
 const byId = id => document.getElementById(id);
 start();
@@ -60,6 +60,42 @@ async function start() {
   }
   zeigeKarte();
   setInterval(zeigeKarte, 5 * 60 * 1000);
+
+  // ---- Die Ampel: wie voll ist der Mittag heute ----------------------------
+  //
+  // Sie sagt vor jedem Klick, woran der Gast ist: gruen heisst Platz, Gold
+  // heisst nur noch wenige Tische, Wein heisst voll. Die Zahlen kommen live
+  // vom Dienst; sperrt das Haus Tische oder wird ein Tisch nach dem Essen
+  // wieder frei, stimmt die Ampel mit dem naechsten Abruf wieder.
+
+  async function zeigeAmpel() {
+    const kasten = byId('ampelStand');
+    if (!kasten) return;
+    const jetzt = new Date();
+    const pad = zahl => String(zahl).padStart(2, '0');
+    const heute = `${jetzt.getFullYear()}-${pad(jetzt.getMonth() + 1)}-${pad(jetzt.getDate())}`;
+    const antwort = await holeAmpel(heute);
+    // Ohne ehrliche Auskunft keine Ampel: lieber nichts sagen als raten.
+    if (!antwort?.ok || !antwort.stufe || antwort.stufe === 'vorbei') { kasten.hidden = true; return; }
+    const tische = antwort.freieTische === 1 ? 'ist nur noch ein Tisch' : `sind nur noch ${antwort.freieTische} Tische`;
+    const texte = {
+      gruen: 'Heute Mittag ist noch gut Platz.',
+      orange: antwort.zweierFrei
+        ? `Heute Mittag ${tische} frei.`
+        : 'Heute Mittag ist online kein Tisch für zwei mehr frei – für größere Gruppen kann es noch klappen.',
+      rot: 'Heute Mittag ist online alles vergeben. Ruf uns kurz an: +43 (0)5572 20 540.'
+    };
+    if (!texte[antwort.stufe]) { kasten.hidden = true; return; }
+    kasten.dataset.stufe = antwort.stufe;
+    byId('ampelText').textContent = texte[antwort.stufe];
+    kasten.hidden = false;
+  }
+  zeigeAmpel();
+  // Jede Minute frisch - und sofort, wenn die Seite wieder in den Blick kommt:
+  // wer sein Handy um 11:00 weglegt und um 12:30 draufschaut, sieht sonst
+  // eine Ampel von vor anderthalb Stunden.
+  setInterval(zeigeAmpel, 60 * 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) zeigeAmpel(); });
 
   const sag = (text, art = 'info') => {
     ergebnis.hidden = false;
@@ -321,6 +357,7 @@ async function start() {
     }
     if (antwort.tisch) {
       zeigeVerfuegbarkeit();
+      zeigeAmpel();
       zeigeBestaetigung({ wer, tag, zeit, gaeste, tisch: antwort.tisch, etage: antwort.etage, wohin });
       return sag(`Passt: ${wer}, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'} am ${tag} um ${zeit}. `
         + `Tisch ${antwort.tisch}${antwort.etage ? ` im Bereich ${antwort.etage}` : ''}. `

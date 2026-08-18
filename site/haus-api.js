@@ -161,6 +161,10 @@ export async function istOffen() {
 export const holeFrei = (datum, personen) =>
   ruf(`/api/frei?datum=${encodeURIComponent(datum)}&personen=${encodeURIComponent(personen)}`);
 
+/** Die Ampel: wie voll ist der Mittag heute. Oeffentlich, nur Zahlen. */
+export const holeAmpel = datum =>
+  ruf(`/api/ampel?datum=${encodeURIComponent(datum)}`);
+
 export const holeStand = token => ruf('/api/stand', { token });
 
 export const sendePlan = (token, koerper) => ruf('/api/plan', { methode: 'POST', koerper, token });

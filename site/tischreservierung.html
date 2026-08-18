@@ -12,7 +12,7 @@
   <title>Tischreservierung · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=c5d7fc05">
+  <link rel="stylesheet" href="tischreservierung.css?v=9ce8cc05">
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Restaurant","name":"Wirtschaft Dornbirn","legalName":"„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.","url":"https://wirtschaft-dornbirn.at/","telephone":"+43557220540","email":"willkommen@wirtschaft-dornbirn.at","address":{"@type":"PostalAddress","streetAddress":"Bahnhofstraße 24","postalCode":"6850","addressLocality":"Dornbirn","addressRegion":"Vorarlberg","addressCountry":"AT"},"vatID":"ATU36206707","acceptsReservations":"https://wirtschaft-dornbirn.at/tischreservierung.html"}
   </script>
@@ -50,6 +50,12 @@
         <p class="eyebrow">Reservierung</p>
         <h2>Für welchen Tag möchtest du reservieren?</h2>
         <p class="sub" id="bookingLead">Wähl’ Tag, Uhrzeit und Personenzahl. Den letzten Schritt macht das offizielle Reservierungssystem – dort gibst du deine Kontaktdaten ein. Diese Seite fragt keine persönlichen Daten ab und speichert nichts.</p>
+        <!-- Die Ampel: wie voll ist der Mittag heute. Sie erscheint nur, wenn
+             der Reservierungsdienst laeuft und etwas Ehrliches zu sagen hat. -->
+        <p class="ampel" id="ampelStand" role="status" aria-live="polite" hidden>
+          <i aria-hidden="true"></i>
+          <span id="ampelText"></span>
+        </p>
         <form class="grid" id="bookingForm" novalidate>
           <label class="wide">Tag*
             <input type="date" name="day" id="day" required>
@@ -159,6 +165,6 @@
   </footer>
 
   <script src="tischreservierung.js?v=0208ba12" defer></script>
-  <script type="module" src="tischreservierung-buchung.js?v=31baac18"></script>
+  <script type="module" src="tischreservierung-buchung.js?v=7bc3b299"></script>
 </body>
 </html>

@@ -12,7 +12,7 @@
 
 import { DurableObject } from 'cloudflare:workers';
 import {
-  AUFBEWAHRUNG_TAGE, freieZeiten, machId, planTaugt, pruefeAnfrage, raeumeAuf, verteile, wendeAktionAn
+  AUFBEWAHRUNG_TAGE, ampelFuer, freieZeiten, machId, planTaugt, pruefeAnfrage, raeumeAuf, verteile, wendeAktionAn
 } from './haus-logik.mjs';
 import standardPlan from '../../site/data/floorplan.json';
 import { pruefeKontakt } from './kontakt.mjs';
@@ -697,6 +697,29 @@ export class Haus extends DurableObject {
     };
   }
 
+  /** Die Ampel fuer die Gaesteseite. Nur Zahlen und eine Stufe, keine Namen. */
+  async ampel(datum, jetzt) {
+    const automatik = this.#lies('automatik', true) !== false;
+    if (!automatik) {
+      // Ohne Automatik weiss nur das Haus, was frei ist - dann lieber keine
+      // Ampel als eine, die raet.
+      return { ok: true, automatik, stufe: null };
+    }
+    return {
+      ok: true,
+      automatik,
+      ...ampelFuer({
+        config: this.#plan(),
+        parties: this.#alle(),
+        blocked: this.#lies('blocked', []),
+        standardEtage: this.#lies('standardEtage', null),
+        deckel: this.#lies('deckel', null),
+        date: datum,
+        jetzt
+      })
+    };
+  }
+
   async setzePlan(config, standardEtage, blocked, deckel, automatik) {
     // Einen unbrauchbaren Plan anzunehmen waere schlimmer als ihn abzulehnen:
     // der Dienst wuerde ab dann jede Onlinebuchung ins Leere zuweisen.
@@ -749,6 +772,20 @@ export class Haus extends DurableObject {
 }
 
 // ---- Der Worker davor ------------------------------------------------------
+
+/**
+ * Datum und Uhrzeit im Haus, nicht auf dem Server. Der Worker rechnet in UTC;
+ * fuer die Ampel zaehlt aber, wie spaet es in Dornbirn ist - sonst meldet sie
+ * im Sommer eine Stunde lang "vorbei", obwohl noch gekocht wird.
+ */
+function jetztImHaus() {
+  const teile = new Intl.DateTimeFormat('de-AT', {
+    timeZone: 'Europe/Vienna', hourCycle: 'h23',
+    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+  }).formatToParts(new Date());
+  const wert = art => teile.find(teil => teil.type === art)?.value || '00';
+  return { datum: `${wert('year')}-${wert('month')}-${wert('day')}`, zeit: `${wert('hour')}:${wert('minute')}` };
+}
 
 function stub(env) {
   // Der Zustand bleibt in der EU. Das ist eine Einstellung zum Speicherort,
@@ -939,6 +976,21 @@ export default {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         const body = await request.json().catch(() => ({}));
         return json(await haus.lege(body.reservierung), 200, kopf);
+      }
+
+      // Oeffentlich: die Ampel - wie voll ist der Mittag heute. Nur Zahlen
+      // und eine Stufe; sie steht sichtbar auf der Gaesteseite.
+      if (url.pathname === '/api/ampel' && request.method === 'GET') {
+        const hausUhr = jetztImHaus();
+        const datum = url.searchParams.get('datum') || hausUhr.datum;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(datum)) return json({ ok: false, grund: 'datum' }, 400, kopf);
+        // Am Wochenende gibt es keinen Mittag - dann gibt es auch keine Ampel.
+        const wochentag = new Date(`${datum}T12:00:00Z`).getUTCDay();
+        if (wochentag === 0 || wochentag === 6) return json({ ok: true, automatik: true, stufe: null }, 200, kopf);
+        // Fuer heute zaehlen nur die Zeiten, die noch vor uns liegen; ein
+        // vergangener Tag ist vorbei, ein kuenftiger noch ganz offen.
+        const jetzt = datum === hausUhr.datum ? hausUhr.zeit : (datum < hausUhr.datum ? '23:59' : null);
+        return json(await haus.ampel(datum, jetzt), 200, kopf);
       }
 
       // Oeffentlich: was ist wann noch frei. Enthaelt keine Namen - diese
