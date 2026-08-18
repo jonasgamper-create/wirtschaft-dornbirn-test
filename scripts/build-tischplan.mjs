@@ -131,7 +131,20 @@ const kbScreen = await baue({
   stil: screenStyles
 });
 
+// Die einfache Wirt-Ansicht: eigenes, absichtlich kleines Stilblatt. In der
+// Einzeldatei zeigt der Verweis auf die grosse Einteilung auf deren
+// veroeffentlichten Namen statt auf die Quelldatei.
+const target4 = path.join(root, 'output/tischplan/wirtschaft-wirt.html');
+const kbWirt = await baue({
+  quelle: 'wirt.html',
+  ziel: target4,
+  code: await buendel('wirt.js'),
+  stil: await stilFuer(['wirt.css']),
+  kopfErsatz: [/href="gastgeber-tischplan\.html"/, 'href="index.html"']
+});
+
 console.log(`Einzeldateien geschrieben:`);
 console.log(`  ${path.relative(root, target)} (${kbIntern} KB) - interne Planung`);
 console.log(`  ${path.relative(root, target2)} (${kbKunde} KB) - zum Verschicken an den Kunden`);
 console.log(`  ${path.relative(root, target3)} (${kbScreen} KB) - Bildschirm am Eingang`);
+console.log(`  ${path.relative(root, target4)} (${kbWirt} KB) - einfache Wirt-Ansicht`);

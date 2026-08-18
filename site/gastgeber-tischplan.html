@@ -9,11 +9,11 @@
   <meta name="theme-color" content="#173e2c">
   <title>Tischplan · Interne Einteilung</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
-  <link rel="stylesheet" href="gastgeber.css?v=68a0ecf6">
+  <link rel="stylesheet" href="gastgeber.css?v=7691cc5c">
   <link rel="stylesheet" href="gastgeber-mobile-fix.css?v=c75294f5">
-  <link rel="stylesheet" href="floorplan.css?v=1e2d55ca">
-  <script src="inventory-store.js?v=bdbf27dd" defer></script>
-  <script type="module" src="gastgeber-floorplan.js?v=9162a891"></script>
+  <link rel="stylesheet" href="floorplan.css?v=6bccba59">
+  <script src="inventory-store.js?v=f9ac7a38" defer></script>
+  <script type="module" src="gastgeber-floorplan.js?v=c0149056"></script>
 </head>
 <body>
   <header class="topbar">
@@ -159,6 +159,13 @@
               <button class="quiet" type="button" id="fpAutoSeat">Alle offenen verteilen</button>
               <button class="quiet" type="button" id="fpClearSeating">Reservierungen dieses Tages löschen</button>
             </div>
+            <h3 class="fp-subhead">Mittag absagen</h3>
+            <p class="model-note">Wenn heute nicht gekocht wird: alle Reservierungen dieses Tages werden storniert. Wer eine E-Mail-Adresse hinterlassen hat, bekommt die Absage samt zurückgezogenem Kalendertermin. Alle anderen erscheinen hier als Anrufliste.</p>
+            <form class="add-service" id="fpDayOffForm">
+              <label>Grund für die Gäste<input id="fpDayOffReason" type="text" maxlength="200" placeholder="z. B. Wir kochen heute leider nicht mittags."></label>
+              <button type="submit">Mittag dieses Tages absagen</button>
+            </form>
+            <p class="model-note" id="fpDayOffResult" role="status" aria-live="polite"></p>
           </details>
         </section>
       </div>
@@ -259,6 +266,34 @@
             <button class="quiet" type="button" id="fpKoppelKopie">Link kopieren</button>
           </div>
           <small>Behandle ihn wie einen Schlüssel: wer ihn hat, sieht eure Reservierungen.</small>
+        </div>
+        <!-- Die Mittagskarte: hochladen, fertig. Sie liegt danach beim
+             Dienst und steht sofort auf der Reservierungsseite - ohne
+             Webseiten-Update, ohne Zwischenschritt. -->
+        <div class="fp-karte" id="fpKarte" hidden>
+          <h3 class="fp-subhead">Mittagskarte für die Gästeseite</h3>
+          <p class="model-note" id="fpKarteStand">Noch keine Karte hochgeladen.</p>
+          <div class="fp-tools">
+            <label class="quiet fp-karte-upload">Neues PDF hochladen
+              <input id="fpKarteDatei" type="file" accept="application/pdf,.pdf" hidden>
+            </label>
+            <a class="quiet" id="fpKarteAnsehen" href="#" target="_blank" rel="noopener noreferrer" hidden>Aktuelle ansehen</a>
+            <button class="quiet" type="button" id="fpKarteWeg" hidden>Karte entfernen</button>
+          </div>
+          <p class="fp-result" id="fpKarteInfo" role="status" aria-live="polite"></p>
+
+          <!-- Die Takeaway-Karte: die Zeilen aus dem PDF eingefuegt, pro Zeile
+               links das Gericht, rechts der Preis. Geparst wird beim Dienst -
+               eine Wahrheit, nicht zwei. -->
+          <h3 class="fp-subhead">Takeaway-Karte</h3>
+          <p class="model-note">Die Zeilen aus der Mittagskarte hier einfügen – pro Zeile links das Gericht, rechts der Preis (z. B. „Käsespätzle mit Bergkäse 12,50“). Zeilen ohne Preis werden übergangen. Leeres Feld veröffentlichen nimmt die Bestellung von der Seite.</p>
+          <textarea id="fpTakeawayText" rows="6" spellcheck="false" aria-label="Takeaway-Karte, eine Zeile je Gericht mit Preis"></textarea>
+          <div class="fp-karte-zeile">
+            <button type="button" id="fpTakeawaySetzen">Takeaway-Karte veröffentlichen</button>
+          </div>
+          <p class="fp-result" id="fpTakeawayListe"></p>
+          <p class="fp-result" id="fpTakeawayInfo" role="status" aria-live="polite"></p>
+          <p class="model-note" id="fpTakeawayProtokoll">Protokoll: noch keine Bestellungen.</p>
         </div>
         <p class="model-note">Der Hausschlüssel bleibt in diesem Browser und wird nie an die Gästeseite gegeben. Onlinebuchungen landen bevorzugt auf der Standard-Etage; ist dort nichts frei, wird der Rest geprüft – ein „leider voll“, während oben eine Etage leersteht, wäre ein verlorener Gast. Mit „Veröffentlichen“ bekommt der Dienst den aktuellen Tischplan; ohne ihn rechnet er mit dem hinterlegten Beispiel.</p>
       </section>

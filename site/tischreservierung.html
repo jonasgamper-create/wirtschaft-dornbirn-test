@@ -12,7 +12,7 @@
   <title>Tischreservierung · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=f2d46085">
+  <link rel="stylesheet" href="tischreservierung.css?v=a02276c8">
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Restaurant","name":"Wirtschaft Dornbirn","legalName":"„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.","url":"https://wirtschaft-dornbirn.at/","telephone":"+43557220540","email":"willkommen@wirtschaft-dornbirn.at","address":{"@type":"PostalAddress","streetAddress":"Bahnhofstraße 24","postalCode":"6850","addressLocality":"Dornbirn","addressRegion":"Vorarlberg","addressCountry":"AT"},"vatID":"ATU36206707","acceptsReservations":"https://wirtschaft-dornbirn.at/tischreservierung.html"}
   </script>
@@ -49,14 +49,14 @@
       <div class="wrap section" style="border-top:0">
         <p class="eyebrow">Reservierung</p>
         <h2>Für welchen Tag möchtest du reservieren?</h2>
-        <p class="sub">Wähl’ Tag, Uhrzeit und Personenzahl. Den letzten Schritt macht das offizielle Reservierungssystem – dort gibst du deine Kontaktdaten ein. Diese Seite fragt keine persönlichen Daten ab und speichert nichts.</p>
+        <p class="sub" id="bookingLead">Wähl’ Tag, Uhrzeit und Personenzahl. Den letzten Schritt macht das offizielle Reservierungssystem – dort gibst du deine Kontaktdaten ein. Diese Seite fragt keine persönlichen Daten ab und speichert nichts.</p>
+        <!-- Die Ampel: wie voll ist der Mittag heute. Sie erscheint nur, wenn
+             der Reservierungsdienst laeuft und etwas Ehrliches zu sagen hat. -->
+        <p class="ampel" id="ampelStand" role="status" aria-live="polite" hidden>
+          <i aria-hidden="true"></i>
+          <span id="ampelText"></span>
+        </p>
         <form class="grid" id="bookingForm" novalidate>
-          <!-- Der Name wird nur eingeblendet, wenn wir die Reservierung selbst
-               annehmen. Sonst gibt man ihn beim offiziellen Anbieter ein und
-               wir fragen nichts ab, was wir nicht brauchen. -->
-          <label class="wide" id="guestNameField" hidden>Name*
-            <input type="text" name="gastname" id="guestName" maxlength="40" autocomplete="family-name" placeholder="z. B. Huber">
-          </label>
           <label class="wide">Tag*
             <input type="date" name="day" id="day" required>
           </label>
@@ -75,30 +75,52 @@
             </span>
             <small class="slot-info" id="slotInfo" role="status" aria-live="polite"></small>
           </label>
-          <label class="wide stepper-field">Anzahl Erwachsene*
-            <span class="stepper" data-stepper="adults" data-min="1" data-max="10" data-value="2">
-              <button type="button" data-step="-1" aria-label="Ein Erwachsener weniger">−</button>
-              <output aria-live="polite">2 Erwachsene</output>
-              <button type="button" data-step="1" aria-label="Ein Erwachsener mehr">+</button>
-              <input type="hidden" name="adults" value="2">
+          <label class="wide stepper-field">Anzahl Personen*
+            <span class="stepper" data-stepper="guests" data-min="1" data-max="20" data-value="2">
+              <button type="button" data-step="-1" aria-label="Eine Person weniger">−</button>
+              <span class="stepper-zahl">
+                <input type="number" name="guests" inputmode="numeric" min="1" max="20" step="1" value="2" aria-label="Anzahl Personen – auch direkt eintippbar">
+                <span data-einheit aria-hidden="true">Personen</span>
+              </span>
+              <button type="button" data-step="1" aria-label="Eine Person mehr">+</button>
             </span>
           </label>
-          <label class="wide stepper-field">Anzahl Kinder
-            <span class="stepper" data-stepper="children" data-min="0" data-max="10" data-value="0">
-              <button type="button" data-step="-1" aria-label="Ein Kind weniger">−</button>
-              <output aria-live="polite">keine</output>
-              <button type="button" data-step="1" aria-label="Ein Kind mehr">+</button>
-              <input type="hidden" name="children" value="0">
-            </span>
+          <!-- Erst wenn Tag, Zeit und Personen stehen, fragen wir, wer kommt.
+               Der Name wird nur eingeblendet, wenn wir die Reservierung selbst
+               annehmen; sonst fragt der offizielle Anbieter. -->
+          <label class="wide" id="guestNameField" hidden>Name*
+            <input type="text" name="gastname" id="guestName" maxlength="40" autocomplete="family-name" placeholder="z. B. Huber">
           </label>
+          <!-- Erreichbarkeit: eines von beiden genuegt. Sie steht hier, damit
+               eine Absage ankommt - nicht fuer Werbung. -->
+          <div class="wide contact-field" id="guestContactField" hidden>
+            <p class="contact-lead">Wie erreichen wir dich?* <span>E-Mail oder Telefon – eines genügt.</span></p>
+            <label>E-Mail
+              <input type="email" name="gastmail" id="guestMail" maxlength="120" autocomplete="email" inputmode="email" placeholder="name@beispiel.at">
+            </label>
+            <label>Telefon
+              <input type="tel" name="gasttelefon" id="guestPhone" maxlength="25" autocomplete="tel" inputmode="tel" placeholder="+43 660 1234567">
+            </label>
+            <p class="contact-note">Nur für diese Reservierung: Bestätigung – und die Absage, falls wir kurzfristig nicht kochen können. Gelöscht spätestens 30 Tage nach dem Termin.</p>
+          </div>
         </form>
-        <p class="group-hint">Mehr als 10 Personen? Ruf’ uns an: <a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
+        <p class="group-hint">Mehr als 20 Personen? Ruf’ uns an: <a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
         <p class="required">* Pflichtfelder</p>
         <div class="submit-row">
           <a class="button button-green" id="submitBooking" href="tel:+43557220540">Lieber anrufen: +43 (0)5572 20 540</a>
           <button class="button button-green" id="bookDirect" type="button" hidden>Tisch reservieren</button>
           <p id="submitHint">Freie Tische und die Bestätigung kommen vom offiziellen Reservierungssystem. Deine Kontaktdaten gibst du dort ein – einmal, nicht zweimal.</p>
         </div>
+        <!-- Die aktuelle Mittagskarte, direkt vom Haus. Erscheint nur, wenn
+             der Dienst laeuft und eine Karte hochgeladen ist - und ist in dem
+             Moment aktuell, in dem Wolfgang sie hochlaedt. -->
+        <aside class="lunch-live" id="lunchLive" hidden>
+          <p class="lunch-live-kicker">Mittagskarte</p>
+          <h3>Was diese Woche auf den Tisch kommt</h3>
+          <p class="lunch-live-note">Frisch vom Haus hochgeladen – so kommt sie auch an den Tisch.</p>
+          <a class="button button-green" id="lunchLiveLink" href="#" target="_blank" rel="noopener noreferrer">Mittagskarte öffnen (PDF)</a>
+          <small class="lunch-live-stand" id="lunchLiveStand"></small>
+        </aside>
         <p class="form-alert" id="formAlert" role="alert" hidden></p>
         <p class="booking-result" id="bookingResult" role="status" aria-live="polite" hidden></p>
 
@@ -115,6 +137,15 @@
           </dl>
           <a class="button button-green" id="doneCalendar" href="#" download>In den Kalender legen</a>
           <p class="done-hint" id="doneHint" role="status" aria-live="polite"></p>
+          <!-- Freiwillige Zugabe nach dem Erfolg - nie Teil des Formulars,
+               nie Bedingung. Gueltig erst mit dem Klick in der Mail. -->
+          <div class="done-newsletter" id="doneNewsletterRow" hidden>
+            <label class="contact-check">
+              <input type="checkbox" name="mittagskarte" id="guestNewsletter" value="ja">
+              <span>Schickt mir die Mittagskarte per E-Mail. Abmelden geht jederzeit mit einem Klick.</span>
+            </label>
+            <p class="done-hint" id="doneNewsletterHint" role="status" aria-live="polite" hidden></p>
+          </div>
           <p class="done-note">Wir haben deinen Tisch fest eingeteilt. Solltest du es doch nicht schaffen, ruf uns kurz an: <a href="tel:+43557220540">+43 (0)5572 20 540</a> – dann geben wir den Platz weiter.</p>
         </aside>
       </div>
@@ -135,7 +166,7 @@
     <p class="prototype-note">Öffentliche Testumgebung · Reservierung über den offiziellen Anbieter</p>
   </footer>
 
-  <script src="tischreservierung.js?v=9d6d55bc" defer></script>
-  <script type="module" src="tischreservierung-buchung.js?v=f32764b3"></script>
+  <script src="tischreservierung.js?v=428d54e5" defer></script>
+  <script type="module" src="tischreservierung-buchung.js?v=3ec6db90"></script>
 </body>
 </html>

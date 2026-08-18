@@ -90,6 +90,64 @@ async function ruf(pfad, { methode = 'GET', koerper = null, token = null } = {})
 export const buche = anfrage => ruf('/api/reservierung', { methode: 'POST', koerper: anfrage });
 
 /**
+ * Anmeldung zur Mittagskarte. Eigener Weg, eigener Zweck - sie haengt an
+ * keiner Reservierung und ist nie Bedingung dafuer. Gueltig wird sie erst mit
+ * dem Klick in der Bestaetigungsmail; hier passiert nur die Anfrage.
+ *
+ * Fehler bleiben still: eine misslungene Anmeldung darf eine gelungene
+ * Reservierung nicht wie einen Fehlschlag aussehen lassen.
+ */
+export const meldeMittagskarte = (email, quelle = 'seite') =>
+  ruf('/api/newsletter', { methode: 'POST', koerper: { email, quelle, einwilligung: true } });
+
+/** Wo die aktuelle Mittagskarte liegt - oder null, wenn kein Dienst da ist. */
+export async function karteAdresse() {
+  const basis = await apiAdresse();
+  return basis ? `${basis}/mittagskarte.pdf` : null;
+}
+
+/** Gibt es eine Karte, und von wann ist sie? Oeffentlich, ohne Inhalt. */
+export const holeKarteInfo = () => ruf('/api/mittagskarte');
+
+/**
+ * Die Karte hochladen. Die Datei geht unveraendert als Koerper hinaus; der
+ * Dienst prueft selbst, ob es wirklich ein PDF ist - der Dateiname hier ist
+ * nur eine Behauptung.
+ */
+export async function sendeKarte(token, datei) {
+  const basis = await apiAdresse();
+  if (!basis) return { ok: false, grund: 'aus' };
+  try {
+    const antwort = await fetch(`${basis}/api/mittagskarte`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/pdf', 'x-haus-token': token || '' },
+      body: datei
+    });
+    const daten = await antwort.json().catch(() => ({}));
+    if (antwort.status === 401) return { ok: false, grund: 'token' };
+    return daten;
+  } catch {
+    return { ok: false, grund: 'netz' };
+  }
+}
+
+export async function loescheKarte(token) {
+  const basis = await apiAdresse();
+  if (!basis) return { ok: false, grund: 'aus' };
+  try {
+    const antwort = await fetch(`${basis}/api/mittagskarte`, {
+      method: 'DELETE',
+      headers: { 'x-haus-token': token || '' }
+    });
+    const daten = await antwort.json().catch(() => ({}));
+    if (antwort.status === 401) return { ok: false, grund: 'token' };
+    return daten;
+  } catch {
+    return { ok: false, grund: 'netz' };
+  }
+}
+
+/**
  * Laeuft der Dienst offen, also ohne Hausschluessel? Die Oberflaeche fragt das
  * einmal beim Start: sie soll weder nach etwas fragen, das nicht gebraucht
  * wird, noch verschweigen, dass gerade jeder mitlesen kann.
@@ -103,7 +161,35 @@ export async function istOffen() {
 export const holeFrei = (datum, personen) =>
   ruf(`/api/frei?datum=${encodeURIComponent(datum)}&personen=${encodeURIComponent(personen)}`);
 
+/** Die Ampel: wie voll ist der Mittag heute. Oeffentlich, nur Zahlen. */
+export const holeAmpel = datum =>
+  ruf(`/api/ampel?datum=${encodeURIComponent(datum)}`);
+
+// ---- Takeaway --------------------------------------------------------------
+
+/** Die bestellbare Karte: Gerichte und Preise. Oeffentlich. */
+export const holeTakeawayKarte = () => ruf('/api/takeaway/karte');
+
+/** Eine Bestellung aufgeben. Braucht keinen Token - sie kommt vom Gast. */
+export const bestelleTakeaway = bestellung =>
+  ruf('/api/takeaway/bestellung', { methode: 'POST', koerper: bestellung });
+
+/** Der Wirt setzt die Karte: die Zeilen aus dem Mittagskarten-PDF. */
+export const sendeTakeawayKarte = (token, text) =>
+  ruf('/api/takeaway/karte', { methode: 'POST', koerper: { text }, token });
+
+/** Abgeholt, zurueckgenommen, entfernt. */
+export const sendeTakeawayAktion = (token, befehl) =>
+  ruf('/api/takeaway/aktion', { methode: 'POST', koerper: befehl, token });
+
+/** Das Protokoll der letzten 30 Tage - was lief gut. */
+export const holeTakeawayProtokoll = token => ruf('/api/takeaway/protokoll', { token });
+
 export const holeStand = token => ruf('/api/stand', { token });
+
+/** Laufkundschaft: der Dienst setzt die Gruppe sofort auf einen freien Tisch. */
+export const sendeLaufkunde = (token, personen) =>
+  ruf('/api/laufkunde', { methode: 'POST', koerper: { personen }, token });
 
 export const sendePlan = (token, koerper) => ruf('/api/plan', { methode: 'POST', koerper, token });
 
@@ -118,7 +204,7 @@ export const sendeReservierung = (token, reservierung) =>
  * ein Bildschirm am Eingang laeuft ueber Wochen und darf nach dem ersten
  * Netzwackler nicht tot sein.
  */
-export async function bleibVerbunden(token, beiAenderung, beiZustand = () => {}) {
+export async function bleibVerbunden(token, beiAenderung, beiZustand = () => {}, rolle = 'haus') {
   const basis = await apiAdresse();
   if (!basis || !token) return () => {};
 
@@ -129,7 +215,10 @@ export async function bleibVerbunden(token, beiAenderung, beiZustand = () => {})
 
   const verbinde = () => {
     if (beendet) return;
-    const adresse = `${basis.replace(/^http/, 'ws')}/api/live?token=${encodeURIComponent(token)}`;
+    // Die Rolle entscheidet, was ueber den Draht geht: der Bildschirm im
+    // Eingang bekommt keine Kontaktdaten - er zeigt nur Namen und Tische.
+    const adresse = `${basis.replace(/^http/, 'ws')}/api/live?token=${encodeURIComponent(token)}`
+      + `&rolle=${encodeURIComponent(rolle)}`;
     socket = new WebSocket(adresse);
 
     socket.addEventListener('open', () => { versuch = 0; beiZustand('verbunden'); });

@@ -1,0 +1,71 @@
+/* Die einfache Wirt-Ansicht. Handy zuerst: grosse Ziffern, grosse Knoepfe,
+   nichts zum Suchen. Farben und Schrift aus der bestehenden Wirtschaft-CI. */
+:root{
+  --ink:#11110f;--paper:#f3efe6;--cream:#ead9bc;--wine:#8c292b;--green:#244635;--gold:#c59b5d;
+  --muted:#57524a;--linie:#11110f26;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color-scheme:light
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-size:17px;line-height:1.5}
+button,input,a{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-offset:3px}
+
+.kopf{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px max(18px,4vw)}
+.kopf img{width:150px;height:auto}
+.verbindung{display:flex;align-items:center;gap:8px;margin:0;color:var(--muted);font-size:12.5px}
+.verbindung i{width:9px;height:9px;border-radius:50%;background:#a29b90}
+.verbindung[data-zustand="verbunden"] i{background:var(--green)}
+.verbindung[data-zustand="getrennt"] i{background:var(--wine)}
+
+main{width:min(680px,100%);margin:0 auto;padding:0 max(18px,4vw) 64px}
+section{padding:26px 0;border-top:1px solid var(--linie)}
+section:first-child{border-top:0}
+h1,h2{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:0}
+h2{font-size:24px;margin-bottom:6px}
+.vorzeile{margin:0 0 8px;color:var(--green);font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.hinweis{margin:0 0 14px;color:var(--muted);font-size:14.5px}
+
+/* Die grosse Zahl: das Erste, was man sieht, und das Einzige, was man
+   wissen muss, bevor man "Ja, kommt's rein" sagt. */
+.karte-frei h1{font-size:clamp(34px,9vw,52px);line-height:1.05;letter-spacing:-.02em}
+.frei-plaetze{margin:6px 0 0;color:var(--muted);font-size:16px}
+.groessen{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;padding:0;list-style:none}
+.groessen li{padding:9px 14px;border:1px solid var(--linie);border-radius:999px;background:#fff;font-size:14.5px;font-variant-numeric:tabular-nums}
+.groessen li[data-leer]{color:#a29b90;border-style:dashed;background:transparent}
+
+/* Laufkundschaft: die Knoepfe sind absichtlich die groessten Elemente der
+   Seite - sie sind der Grund, warum es die Seite gibt. */
+.lauf-knoepfe{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;max-width:520px}
+.lauf-knoepfe button{min-height:64px;border:1px solid var(--green);border-radius:12px;background:#fff;color:var(--green);font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.lauf-knoepfe button:active{background:var(--green);color:#fff}
+.lauf-knoepfe button:disabled{opacity:.4;cursor:default}
+.lauf-ergebnis{margin:12px 0 0;min-height:1.4em;font-size:15px;color:#3c3833}
+.lauf-ergebnis[data-art="gut"]{color:var(--green);font-weight:700}
+.lauf-ergebnis[data-art="fehler"]{color:var(--wine);font-weight:700}
+
+/* Wer sitzt: eine Zeile je Gruppe, ein Knopf je Zeile. */
+.haus-liste{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.haus-liste li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--linie);border-radius:10px;background:#fff}
+.haus-liste .wer{display:grid;gap:2px;min-width:0}
+.haus-liste .wer b{font-size:16px;font-weight:700}
+.haus-liste .wer span{color:var(--muted);font-size:13px}
+.haus-liste .leer{border-style:dashed;background:transparent;color:var(--muted);justify-content:flex-start;font-size:14.5px}
+
+.knopf{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border:1px solid var(--green);border-radius:999px;background:var(--green);color:#fff;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;cursor:pointer}
+.knopf.leise{background:transparent;color:var(--ink);border-color:var(--linie)}
+/* [hidden] verliert gegen display:inline-flex der Klassenregel - dieselbe
+   Falle wie beim Anrufknopf der Gaesteseite. Einmal explizit, nie wieder raten. */
+.knopf[hidden]{display:none}
+.karte-knoepfe{display:flex;flex-wrap:wrap;gap:10px}
+
+.fuss{margin:34px 0 0;padding-top:18px;border-top:1px solid var(--linie);color:var(--muted);font-size:13.5px}
+.fuss a{color:var(--wine)}
+
+@media(max-width:520px){
+  .lauf-knoepfe{grid-template-columns:repeat(3,1fr)}
+  .lauf-knoepfe button{min-height:72px}
+  .haus-liste li{flex-wrap:wrap}
+}
+.haus-liste li[data-erledigt]{opacity:.55}

@@ -32,12 +32,26 @@ if (/tischreservierung\.wirtschaft-dornbirn\.at/.test(reservierung)) {
 if (!/tel:\+43557220540/.test(reservierung)) {
   errors.push('site/tischreservierung.html: Die Telefonnummer fehlt als Ausweg');
 }
-// Kontaktdaten bleiben verboten. Der Name der Gruppe ist seit der eigenen
-// Onlinebuchung erlaubt und noetig - ohne ihn kann der Tisch niemandem
-// zugeordnet werden. Mehr als der Name wird bewusst nicht erhoben: keine
-// Mailadresse, keine Telefonnummer, keine Anschrift.
-if (/type="email"|type="tel"|name="(email|phone|telefon|adresse)"/i.test(reservierung)) {
-  errors.push('site/tischreservierung.html: Diese Seite darf keine Kontaktdaten abfragen');
+// Erhoben wird der Name und genau eine Erreichbarkeit: E-Mail oder Telefon.
+// Beides steht dort aus einem Grund - eine Absage des Hauses muss ankommen -
+// und beides zusammen ist die Obergrenze. Anschrift, Geburtsdatum oder ein
+// Konto haben auf dieser Seite nichts verloren; die Grenze steht hier, damit
+// sie nicht beim naechsten Wunsch stillschweigend verschoben wird.
+const mailFelder = (reservierung.match(/type="email"/g) || []).length;
+const telFelder = (reservierung.match(/type="tel"/g) || []).length;
+if (mailFelder > 1 || telFelder > 1) {
+  errors.push('site/tischreservierung.html: Eine Erreichbarkeit genügt – je ein Feld für Mail und Telefon');
+}
+if (/name="(adresse|strasse|straße|plz|ort|geburt|firma)"/i.test(reservierung)) {
+  errors.push('site/tischreservierung.html: Diese Seite darf keine weiteren persönlichen Daten abfragen');
+}
+// Ein vorausgefuelltes Haekchen waere keine Einwilligung.
+if (/id="guestNewsletter"[^>]*\schecked/i.test(reservierung)) {
+  errors.push('site/tischreservierung.html: Die Anmeldung zur Mittagskarte darf nicht vorausgewählt sein');
+}
+// Kopplung waere unzulaessig: der Tisch darf nie an der Anmeldung haengen.
+if (/required[^>]*id="guestNewsletter"|id="guestNewsletter"[^>]*required/i.test(reservierung)) {
+  errors.push('site/tischreservierung.html: Die Anmeldung zur Mittagskarte darf keine Pflicht sein');
 }
 if (/Abendtisch|Tisch am Abend|abends reservieren/i.test(index)) {
   errors.push('site/index.html: Abends gibt es nur Events, keine Tischreservierung');

@@ -4,7 +4,7 @@
 // wie bisher und leitet auf den offiziellen Anbieter weiter. Erst wenn der
 // Dienst laeuft, wird aus dem Formular eine echte Buchung.
 
-import { apiAdresse, buche, holeFrei } from './haus-api.js?v=af41a6d8';
+import { apiAdresse, buche, holeAmpel, holeFrei, holeKarteInfo, karteAdresse, meldeMittagskarte } from './haus-api.js?v=6e3ea1dd';
 
 const byId = id => document.getElementById(id);
 start();
@@ -18,14 +18,84 @@ async function start() {
   // Ab hier nehmen wir die Reservierung selbst an.
   const nameFeld = byId('guestNameField');
   const name = byId('guestName');
+  const kontaktFeld = byId('guestContactField');
+  const mail = byId('guestMail');
+  const telefon = byId('guestPhone');
   const ergebnis = byId('bookingResult');
   const hinweis = byId('submitHint');
   nameFeld.hidden = false;
   name.required = true;
+  kontaktFeld.hidden = false;
+  // Der Vorspann stammt aus der Zeit des externen Anbieters. Nehmen wir die
+  // Reservierung selbst an, stimmt er nicht mehr - und was ueber Daten auf
+  // einer Seite steht, muss stimmen.
+  const vorspann = byId('bookingLead');
+  if (vorspann) {
+    vorspann.textContent = 'Wähl’ Tag, Uhrzeit und Personenzahl. Wir teilen den Tisch direkt ein. '
+      + 'Gespeichert werden nur Name, Termin, Personenzahl und eine Erreichbarkeit – '
+      + 'gelöscht spätestens 30 Tage nach dem Termin.';
+  }
   weiter.hidden = true;
   knopf.hidden = false;
-  hinweis.textContent = 'Wir teilen den Tisch direkt ein und melden dir sofort, ob es passt. '
-    + 'Ausser dem Namen speichern wir nichts – keine Mailadresse, keine Telefonnummer.';
+  hinweis.textContent = 'Sofort fix: Du bekommst die Zusage direkt hier – ohne Anruf, ohne Konto. '
+    + 'Absagen geht jederzeit über den Link in der Bestätigung.';
+
+  // ---- Die Mittagskarte, frisch vom Haus -----------------------------------
+  //
+  // Sie haengt am Dienst, nicht am Repo: laedt Wolfgang eine neue hoch, ist
+  // sie hier mit dem naechsten Abruf da. Die Seite fragt beim Laden und
+  // danach alle fuenf Minuten nach - wer die Seite offen liegen laesst,
+  // bekommt die neue Karte trotzdem.
+  async function zeigeKarte() {
+    const kasten = byId('lunchLive');
+    if (!kasten) return;
+    const info = await holeKarteInfo();
+    if (!info?.ok || !info.da) { kasten.hidden = true; return; }
+    byId('lunchLiveLink').href = await karteAdresse();
+    const stand = new Date(info.stand);
+    byId('lunchLiveStand').textContent = Number.isNaN(stand.getTime()) ? '' : `Stand: ${stand.toLocaleDateString('de-AT', {
+      weekday: 'long', day: 'numeric', month: 'long'
+    })}, ${stand.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' })} Uhr`;
+    kasten.hidden = false;
+  }
+  zeigeKarte();
+  setInterval(zeigeKarte, 5 * 60 * 1000);
+
+  // ---- Die Ampel: wie voll ist der Mittag heute ----------------------------
+  //
+  // Sie sagt vor jedem Klick, woran der Gast ist: gruen heisst Platz, Gold
+  // heisst nur noch wenige Tische, Wein heisst voll. Die Zahlen kommen live
+  // vom Dienst; sperrt das Haus Tische oder wird ein Tisch nach dem Essen
+  // wieder frei, stimmt die Ampel mit dem naechsten Abruf wieder.
+
+  async function zeigeAmpel() {
+    const kasten = byId('ampelStand');
+    if (!kasten) return;
+    const jetzt = new Date();
+    const pad = zahl => String(zahl).padStart(2, '0');
+    const heute = `${jetzt.getFullYear()}-${pad(jetzt.getMonth() + 1)}-${pad(jetzt.getDate())}`;
+    const antwort = await holeAmpel(heute);
+    // Ohne ehrliche Auskunft keine Ampel: lieber nichts sagen als raten.
+    if (!antwort?.ok || !antwort.stufe || antwort.stufe === 'vorbei') { kasten.hidden = true; return; }
+    const tische = antwort.freieTische === 1 ? 'ist nur noch ein Tisch' : `sind nur noch ${antwort.freieTische} Tische`;
+    const texte = {
+      gruen: 'Heute Mittag ist noch gut Platz.',
+      orange: antwort.zweierFrei
+        ? `Heute Mittag ${tische} frei.`
+        : 'Heute Mittag ist online kein Tisch für zwei mehr frei – für größere Gruppen kann es noch klappen.',
+      rot: 'Heute Mittag ist online alles vergeben. Ruf uns kurz an: +43 (0)5572 20 540.'
+    };
+    if (!texte[antwort.stufe]) { kasten.hidden = true; return; }
+    kasten.dataset.stufe = antwort.stufe;
+    byId('ampelText').textContent = texte[antwort.stufe];
+    kasten.hidden = false;
+  }
+  zeigeAmpel();
+  // Jede Minute frisch - und sofort, wenn die Seite wieder in den Blick kommt:
+  // wer sein Handy um 11:00 weglegt und um 12:30 draufschaut, sieht sonst
+  // eine Ampel von vor anderthalb Stunden.
+  setInterval(zeigeAmpel, 60 * 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) zeigeAmpel(); });
 
   const sag = (text, art = 'info') => {
     ergebnis.hidden = false;
@@ -40,9 +110,7 @@ async function start() {
   // geht, statt auf gut Glueck zu waehlen und dann eine Absage zu bekommen.
 
   const zeitKnoepfe = () => [...document.querySelectorAll('#timeSlots [data-time]')];
-  const personenZahl = () =>
-    Number(document.querySelector('[name="adults"]')?.value || 0)
-    + Number(document.querySelector('[name="children"]')?.value || 0);
+  const personenZahl = () => Number(document.querySelector('[name="guests"]')?.value || 0);
 
   let laeuft = 0;
   async function zeigeVerfuegbarkeit() {
@@ -91,7 +159,19 @@ async function start() {
       : `Grau hinterlegte Zeiten sind für ${personen} ${personen === 1 ? 'Person' : 'Personen'} schon belegt.`;
   }
 
-  byId('day')?.addEventListener('change', zeigeVerfuegbarkeit);
+  // Mittags kochen wir Montag bis Freitag. Ein Samstag, der erst nach dem
+  // Ausfuellen abgelehnt wird, ist ein verlorener Gast - deshalb sofort sagen.
+  const istWochenende = tag => [0, 6].includes(new Date(`${tag}T12:00:00`).getDay());
+  byId('day')?.addEventListener('change', () => {
+    const tag = byId('day').value;
+    if (tag && istWochenende(tag)) {
+      byId('day').value = '';
+      byId('slotInfo').textContent = 'Mittags kochen wir Montag bis Freitag. '
+        + 'Am Wochenende gibt es abends Platz über das Eventticket.';
+      return;
+    }
+    zeigeVerfuegbarkeit();
+  });
   document.querySelector('#bookingForm')?.addEventListener('click', event => {
     // Personenzahl geaendert: die Verfuegbarkeit haengt daran.
     if (event.target.closest('[data-step]')) setTimeout(zeigeVerfuegbarkeit, 0);
@@ -163,7 +243,7 @@ async function start() {
   }
 
   function zeigeBestaetigung(daten) {
-    const { wer, tag, zeit, gaeste, tisch, etage } = daten;
+    const { wer, tag, zeit, gaeste, tisch, etage, wohin } = daten;
     const kasten = byId('bookingDone');
     const langesDatum = new Date(`${tag}T12:00:00`).toLocaleDateString('de-AT', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
@@ -196,28 +276,62 @@ async function start() {
     } catch {
       ausgeloest = false;
     }
-    byId('doneHint').textContent = ausgeloest
+    const perMail = wohin ? ' Die Bestätigung schicken wir dir zusätzlich per E-Mail.' : '';
+    byId('doneHint').textContent = (ausgeloest
       ? 'Der Termin wurde in deinen Kalender gelegt. Öffnet sich nichts, tipp auf den Knopf.'
-      : 'Tipp auf den Knopf, um den Termin in deinen Kalender zu legen.';
+      : 'Tipp auf den Knopf, um den Termin in deinen Kalender zu legen.') + perMail;
+
+    // Die Mittagskarte kommt erst nach dem Erfolg ins Bild. Vorher waere sie
+    // eine Huerde im Formular; jetzt ist sie eine Zugabe - und nur sichtbar,
+    // wenn es eine Adresse gibt, an die sie gehen koennte.
+    byId('doneNewsletterRow').hidden = !wohin;
   }
+
+  byId('guestNewsletter')?.addEventListener('change', async event => {
+    const kasten = event.target;
+    const status = byId('doneNewsletterHint');
+    if (!kasten.checked) return;
+    const wohin = mail.value.trim();
+    if (!wohin) { kasten.checked = false; return; }
+    kasten.disabled = true;
+    const antwort = await meldeMittagskarte(wohin, 'reservierung');
+    status.hidden = false;
+    if (antwort?.ok) {
+      status.textContent = 'Fast geschafft: Wir haben dir eine Mail geschickt – bestätige die Anmeldung dort kurz.';
+    } else {
+      status.textContent = 'Das hat gerade nicht geklappt. Du kannst es später auf dieser Seite noch einmal versuchen.';
+      kasten.disabled = false;
+      kasten.checked = false;
+    }
+  });
 
   knopf.addEventListener('click', async () => {
     const tag = byId('day')?.value;
     const zeit = byId('time')?.value;
-    const erwachsene = Number(document.querySelector('[name="adults"]')?.value || 0);
-    const kinder = Number(document.querySelector('[name="children"]')?.value || 0);
-    const gaeste = erwachsene + kinder;
+    const gaeste = Number(document.querySelector('[name="guests"]')?.value || 0);
     const wer = name.value.trim();
+    const wohin = mail.value.trim();
+    const anruf = telefon.value.trim();
 
     // Vor dem Netz pruefen, was man ohne Netz pruefen kann.
     if (!wer || wer.length < 2) return sag('Bitte den Namen eintragen, auf den der Tisch laufen soll.', 'fehler');
     if (!tag) return sag('Bitte einen Tag wählen.', 'fehler');
     if (!zeit) return sag('Bitte eine Uhrzeit wählen.', 'fehler');
     if (gaeste < 1) return sag('Bitte die Personenzahl angeben.', 'fehler');
+    if (istWochenende(tag)) return sag('Mittags kochen wir Montag bis Freitag – am Wochenende gibt es abends Platz über das Eventticket.', 'fehler');
+    // Eines von beiden - nicht als Huerde, sondern damit eine Absage ankommt.
+    kontaktFeld.classList.toggle('invalid', !wohin && !anruf);
+    if (!wohin && !anruf) {
+      return sag('Bitte eine E-Mail-Adresse oder eine Telefonnummer angeben. Sonst können wir dich nicht erreichen, '
+        + 'wenn wir kurzfristig absagen müssen.', 'fehler');
+    }
 
     knopf.disabled = true;
     sag('Einen Moment, wir schauen nach einem Tisch …');
-    const antwort = await buche({ name: wer, date: tag, time: zeit, guests: gaeste });
+    const antwort = await buche({
+      name: wer, date: tag, time: zeit, guests: gaeste,
+      kontakt: { email: wohin || null, telefon: anruf || null }
+    });
     knopf.disabled = false;
 
     if (!antwort?.ok) {
@@ -228,7 +342,11 @@ async function start() {
         personen: 'Die Personenzahl passt nicht.',
         vergangen: 'Dieser Tag liegt in der Vergangenheit.',
         zu_weit: 'So weit im Voraus nehmen wir online noch keine Reservierung an.',
+        wochenende: 'Mittags kochen wir Montag bis Freitag.',
         zu_viele: 'Gerade kommen sehr viele Anfragen. Bitte ruf uns kurz an.',
+        kontakt: 'Bitte eine E-Mail-Adresse oder eine Telefonnummer angeben.',
+        mail: 'Diese E-Mail-Adresse sieht nicht richtig aus. Bitte noch einmal prüfen.',
+        telefon: 'Diese Telefonnummer sieht nicht richtig aus. Bitte noch einmal prüfen.',
         netz: 'Die Verbindung hat nicht geklappt. Bitte ruf uns kurz an: +43 (0)5572 20 540.',
         aus: 'Bitte ruf uns kurz an: +43 (0)5572 20 540.'
       };
@@ -239,7 +357,8 @@ async function start() {
     }
     if (antwort.tisch) {
       zeigeVerfuegbarkeit();
-      zeigeBestaetigung({ wer, tag, zeit, gaeste, tisch: antwort.tisch, etage: antwort.etage });
+      zeigeAmpel();
+      zeigeBestaetigung({ wer, tag, zeit, gaeste, tisch: antwort.tisch, etage: antwort.etage, wohin });
       return sag(`Passt: ${wer}, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'} am ${tag} um ${zeit}. `
         + `Tisch ${antwort.tisch}${antwort.etage ? ` im Bereich ${antwort.etage}` : ''}. `
         + 'Wir sehen uns – ein Anruf ist nicht mehr nötig.', 'gut');

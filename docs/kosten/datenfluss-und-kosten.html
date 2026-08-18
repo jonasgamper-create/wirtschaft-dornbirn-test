@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Daten, Hintergrund und Kosten · Wirtschaft Dornbirn</title>
+<style>
+  :root{
+    --ink:#11110f; --paper:#f3efe6; --cream:#ead9bc;
+    --wine:#8c292b; --gold:#c59b5d; --green:#244635;
+    --line:rgba(17,17,15,.16);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:"Helvetica Neue",Arial,sans-serif; font-size:17px; line-height:1.6;
+  }
+  main{max-width:60rem; margin:0 auto; padding:3rem 1.25rem 5rem}
+  h1,h2,h3{font-family:Georgia,"Times New Roman",serif; font-weight:400; line-height:1.2}
+  h1{font-size:2.6rem; margin:0 0 .5rem}
+  h2{font-size:1.7rem; margin:3rem 0 .75rem; padding-top:1.5rem; border-top:1px solid var(--line)}
+  h3{font-size:1.2rem; margin:2rem 0 .5rem}
+  .kicker{
+    font-size:.78rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--wine); margin:0 0 .75rem
+  }
+  .lead{font-size:1.15rem; max-width:44rem}
+  .hinweis{
+    background:var(--cream); border-left:3px solid var(--gold);
+    padding:1rem 1.15rem; margin:1.5rem 0; font-size:.95rem
+  }
+  .hinweis strong{color:var(--wine)}
+  table{width:100%; border-collapse:collapse; margin:1.25rem 0; font-size:.94rem}
+  th,td{text-align:left; padding:.6rem .7rem; border-bottom:1px solid var(--line); vertical-align:top}
+  th{font-size:.76rem; letter-spacing:.09em; text-transform:uppercase; color:var(--green)}
+  td.zahl,th.zahl{text-align:right; white-space:nowrap}
+  .wrap{overflow-x:auto}
+  pre{
+    background:#fff; border:1px solid var(--line); padding:1rem;
+    overflow-x:auto; font-size:.85rem; line-height:1.5
+  }
+  ul,ol{max-width:48rem}
+  li{margin:.35rem 0}
+  .tag{
+    display:inline-block; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase;
+    padding:.15rem .45rem; border:1px solid var(--line); border-radius:2px; color:var(--green)
+  }
+  .tag.offen{color:var(--wine); border-color:var(--wine)}
+  footer{margin-top:3rem; padding-top:1.25rem; border-top:1px solid var(--line); font-size:.88rem}
+  a{color:var(--wine)}
+  @media (max-width:480px){ h1{font-size:2rem} body{font-size:16px} }
+</style>
+</head>
+<body>
+<main>
+
+<p class="kicker">Strategie · Stand 18. August 2026</p>
+<h1>Daten, Hintergrund und Kosten</h1>
+<p class="lead">Wo liegen welche Daten, welcher Teil davon ist Agenturbasis und
+welcher eine durchlaufende Auslage des Kunden, und was kostet die Cloud-Ebene –
+Vercel, Cloudflare und Mailversand – tatsächlich pro Monat.</p>
+
+<div class="hinweis">
+<strong>Grundlage, kein Angebot.</strong> Alle Beträge sind Planungswerte aus
+<code>docs/cost-model.md</code> und aus Anbieterseiten. Preise, Steuern, Nutzung,
+Wechselkurse und Vertragsbedingungen sind vor jedem Abschluss zu prüfen. Es ist
+bisher kein Brevo-Konto angelegt, kein Schlüssel hinterlegt und kein
+Produktionsvertrag geschlossen.
+</div>
+
+<h2>1. Kurzfassung in fünf Sätzen</h2>
+<ol>
+  <li>Die Gästeseite ist statisch; sie speichert nichts und lädt keine Tracker.</li>
+  <li>Gemeinsamer Zustand – Reservierung, Kontingent, Zuteilung – liegt in einem
+      Cloudflare Worker mit Durable Object im EU-Rechtsraum, 30 Tage Aufbewahrung.</li>
+  <li>Ausgehende Mail läuft ausschließlich serverseitig über Brevo, niemals aus
+      dem Browser des Gastes.</li>
+  <li>Ticket- und Zahlungsdaten bleiben vollständig beim Anbieter (Ticketist,
+      später eventuell pretix); wir betreiben keine Zahlungsplattform.</li>
+  <li>Kostenseitig entstehen drei Ebenen: geteilte Agenturbasis, kundenspezifische
+      Auslagen und verbrauchsabhängige Cloud-Kosten – letztere sind im
+      Mittagsbetrieb der kleinste Posten.</li>
+</ol>
+
+<h2>2. Der Hintergrund, wie er heute läuft</h2>
+
+<pre>
+Gast (Browser)
+  │  statische Seite, keine Tracker, kein localStorage für Buchungsdaten
+  │
+  ├─► Worker  POST /api/reservierung          Cloudflare, EU
+  │      └─ Durable Object (SQLite)  ── Name, Datum, Zeit, Personenzahl
+  │            Aufbewahrung 30 Tage nach Termin, automatisch
+  │
+  ├─► Kalendereintrag (.ics) im Browser erzeugt        kein Serverkontakt
+  │
+  └─► externer Anbieter (Ticket / Tischplan)  Ticketist · Resmio/Reservier.at
+         Checkout, Zahlung, Refund, Einlass – vollständig dort
+
+Gastgeber (Wolfgang)
+  └─► /api/plan · /api/aktion · /api/stand    dieselbe Worker-Instanz
+
+Worker ──► Brevo API   Mail an Gast (Bestätigung, Storno, .ics)
+       └─► Brevo API   Mail an Wolfgang (Tagesübersicht, Storno-Beleg)
+</pre>
+
+<h3>Welche Daten wo liegen</h3>
+<div class="wrap">
+<table>
+  <thead><tr><th>Datenklasse</th><th>Ort</th><th>Rechtsraum</th><th>Frist</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td>Name, Datum, Zeit, Personenzahl</td><td>Durable Object (SQLite)</td><td>EU</td><td>30 Tage nach Termin</td><td><span class="tag">läuft</span></td></tr>
+    <tr><td>Tischkontingent, Sperren, Tagesdeckel</td><td>Durable Object</td><td>EU</td><td>solange gültig</td><td><span class="tag">läuft</span></td></tr>
+    <tr><td>Mailadresse des Gastes</td><td>Durable Object + Brevo</td><td>EU / AVV offen</td><td>mit Reservierung</td><td><span class="tag offen">Entscheidung offen</span></td></tr>
+    <tr><td>Newsletter-Einwilligung Mittagskarte</td><td>getrennter Speicher</td><td>EU / AVV offen</td><td>bis Widerruf, unbestätigt 30 Tage</td><td><span class="tag offen">nicht produktiv</span></td></tr>
+    <tr><td>Ticket-, Karten- und Zahlungsdaten</td><td>ausschließlich Anbieter</td><td>Anbieter</td><td>Anbieter</td><td><span class="tag">nie bei uns</span></td></tr>
+    <tr><td>Website-Quelle, Assets, Dokumentation</td><td>privates GitHub-Repository</td><td>GitHub</td><td>dauerhaft</td><td><span class="tag">läuft</span></td></tr>
+    <tr><td>Rohbilder, Videos, Freigaben</td><td>geschützter Drive-Ordner</td><td>Drive-Anbieter</td><td>Archiv</td><td><span class="tag">läuft</span></td></tr>
+    <tr><td>Reichweitenmessung</td><td>—</td><td>—</td><td>—</td><td><span class="tag offen">nicht eingebaut</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="hinweis">
+<strong>Der eine harte Punkt.</strong> Die Seite verspricht dem Gast heute
+wörtlich, dass außer dem Namen nichts gespeichert wird. Jede Bestätigungs- oder
+Storno-Mail setzt eine Mailadresse voraus. Das ist keine technische, sondern eine
+Versprechens-Frage und muss vor der Umsetzung entschieden werden – nicht danach.
+Zweitens: die Termin-UID muss künftig der Worker vergeben und speichern, sonst
+lässt sich ein Kalendereintrag später nicht zurückziehen.
+</div>
+
+<h2>3. Kostenebene A · geteilte Agenturbasis</h2>
+<p>Fällt einmal an, unabhängig von der Kundenzahl. Sie steckt im Agenturfixum und
+wird <em>nicht</em> einzeln weiterverrechnet.</p>
+<div class="wrap">
+<table>
+  <thead><tr><th>Position</th><th class="zahl">Planungswert / Monat</th><th>Charakter</th></tr></thead>
+  <tbody>
+    <tr><td>GitHub Team, 2 Nutzer</td><td class="zahl">ca. 8 USD</td><td>pro Nutzer</td></tr>
+    <tr><td>Vercel Pro, 2 Entwickler</td><td class="zahl">ca. 40 USD + Nutzung</td><td>pro Sitz plus Verbrauch</td></tr>
+    <tr><td>OpenAI Business, 2 Nutzer</td><td class="zahl">ca. 40–50 USD</td><td>pro Nutzer</td></tr>
+    <tr><td>Cloudflare Workers Paid</td><td class="zahl">ab ca. 5 USD</td><td>Sockel plus Verbrauch</td></tr>
+    <tr><td>Backups, Monitoring, Dokumentation</td><td class="zahl">ca. 30–60 EUR</td><td>fix</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>4. Kostenebene B · kundenspezifische Auslagen</h2>
+<p>Diese Posten laufen je Kunde an und gehören sauber als Auslage in dessen
+Rechnung – am besten im Namen und auf Rechnung des Kunden, damit Vertrag, AVV
+und Kündigung dort liegen, wo die Daten liegen.</p>
+<div class="wrap">
+<table>
+  <thead><tr><th>Position</th><th class="zahl">Anbieterangabe</th><th>Abrechnung</th></tr></thead>
+  <tbody>
+    <tr><td>Domain und geschäftliche E-Mail</td><td class="zahl">ca. 15–40 EUR</td><td>durchlaufend</td></tr>
+    <tr><td>Resmio Premium (Tischplan)</td><td class="zahl">69,90 EUR netto</td><td>durchlaufend, Alternative unten</td></tr>
+    <tr><td>Resmio Ultimate</td><td class="zahl">129,90 EUR netto</td><td>nur falls nötig</td></tr>
+    <tr><td>Reservier.at Pro</td><td class="zahl">39,90 EUR</td><td>günstigere Alternative, vor Vertrag prüfen</td></tr>
+    <tr><td>Ticketist</td><td class="zahl">Provision je Ticket</td><td>Gast zahlt bzw. Umsatzabzug</td></tr>
+    <tr><td>pretix Hosted (Option)</td><td class="zahl">2,5 % vom Netto, max. 15 EUR</td><td>keine Grundgebühr</td></tr>
+    <tr><td>Brevo Transaktionsmail</td><td class="zahl">Free-Kontingent bis kleiner Tarif</td><td>siehe Ebene C</td></tr>
+    <tr><td>Google Ads</td><td class="zahl">Mediabudget</td><td>getrennt, vom Kunden freigegeben</td></tr>
+    <tr><td>Arbeitszeit: Strategie, CI, QA, Recht, Schulung</td><td class="zahl">nach Angebot</td><td>Leistung, keine Auslage</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>5. Kostenebene C · Cloud und Verbrauch</h2>
+
+<h3>Vercel</h3>
+<ul>
+  <li><strong>Preis:</strong> Pro liegt pro Sitz plus Nutzung; für zwei
+      Entwickler rechnen wir mit ca. 40 USD/Monat plus Verbrauch. Hobby ist für
+      kommerzielle Kundenseiten keine Option.</li>
+  <li><strong>Was es bringt:</strong> Preview-Deployment je Pull Request,
+      Produktion erst nach Freigabe – genau der Review-Workflow, den CLAUDE.md
+      verlangt.</li>
+  <li><strong>Datenschutz:</strong> Compute-Region Frankfurt (<code>fra1</code>)
+      existiert, aber CDN und weitere Dienstverarbeitung sind global. Eine
+      EU-Region ist <em>keine</em> pauschale Garantie vollständiger
+      EU-Datenresidenz. DPA, Subprozessoren und Konfiguration je Kunde prüfen.</li>
+  <li><strong>Betrieb:</strong> Team im Kundenkonto oder in einer dokumentierten
+      Geschäftsorganisation, keine geteilten Logins.</li>
+</ul>
+
+<h3>Cloudflare</h3>
+<ul>
+  <li>Der Reservierungsdienst ist der einzige Ort mit Gästedaten. Sockel ab ca.
+      5 USD/Monat für den bezahlten Workers-Plan; Durable Object mit SQLite,
+      Observability aktiv.</li>
+  <li>Volumen: Mittagsbetrieb eines Hauses – einige Hundert Anfragen am Tag.
+      Das bleibt in jedem Tarif im untersten Bereich; die Verbrauchsposten sind
+      Rundungsfehler gegenüber den Fixkosten.</li>
+  <li>Der Tischplan im Haus läuft auch ohne diesen Dienst weiter. Ein Ausfall
+      kostet Komfort, nicht den Betrieb.</li>
+</ul>
+
+<h3>Brevo</h3>
+<ul>
+  <li>Rolle: ausschließlich Transaktionsversender, aufgerufen vom Worker.
+      Die Gästeseite bindet kein Brevo-Skript ein, <code>connect-src</code>
+      bleibt bei <code>self</code> plus eigenem Dienst.</li>
+  <li>Volumen im Mittagsbetrieb: Bestätigung, gelegentliches Storno,
+      Tagesübersicht – zweistellig pro Tag. Das liegt im Free- bis kleinsten
+      Bezahlkontingent; die Anbieterangaben sind vor Vertrag zu bestätigen.</li>
+  <li>Brevo sieht Mailadresse, Name, Datum, Uhrzeit, Personenzahl. Das ist
+      Auftragsverarbeitung: AVV, Subprozessoren, Serverstandort und Löschfristen
+      müssen vor Produktivschaltung schriftlich vorliegen.</li>
+</ul>
+
+<h3>GitHub Pages</h3>
+<p>Kostenlos, aber ausdrücklich Test- und Vorschauumgebung: <code>noindex,
+nofollow</code>, kein Produktionsort für kommerzielle Buchungen oder Zahlungen.</p>
+
+<h2>6. Zwei Clouds – die eigentliche Entscheidung</h2>
+<p>Aktuell stehen drei Plattformen im Spiel: GitHub Pages als Test, Vercel als
+geplante Produktion, Cloudflare als Zustandsdienst. Das ist bezahlbar, aber es
+sind zwei Rechnungen und zwei Datenschutzprüfungen für eine Website.</p>
+<div class="wrap">
+<table>
+  <thead><tr><th>Variante</th><th class="zahl">Cloud/Monat</th><th>Dafür</th><th>Dagegen</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>A · Vercel + Cloudflare</strong><br><span class="tag">heutiger Plan</span></td>
+      <td class="zahl">ca. 45 USD +</td>
+      <td>bester Preview-Workflow, vertraute Oberfläche</td>
+      <td>zwei Anbieter, zwei DPAs, Residenzfrage bei Vercel</td>
+    </tr>
+    <tr>
+      <td><strong>B · alles Cloudflare</strong><br>Pages + Worker</td>
+      <td class="zahl">ca. 5 USD +</td>
+      <td>eine Rechnung, eine Prüfung, Daten und Auslieferung beim selben Anbieter</td>
+      <td>Umzug und erneute Abnahme nötig, Vercel-Komfort entfällt</td>
+    </tr>
+    <tr>
+      <td><strong>C · Pages/Vercel nur Test, Kundendomain beim Kunden</strong></td>
+      <td class="zahl">variabel</td>
+      <td>Vertrag und Daten liegen beim Kunden</td>
+      <td>mehr Abstimmung, langsamere Deployments</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p><strong>Empfehlung:</strong> Variante A für die Pilotphase beibehalten – der
+Review-Workflow ist die Qualitätssicherung, und 40 USD sind dafür günstig.
+Sobald mehr als etwa fünf Kundenseiten laufen, Variante B ernsthaft rechnen:
+sie spart nicht nur Geld, sondern eine komplette Anbieterprüfung je Kunde.</p>
+
+<h2>7. Gesamtbild nach Kundenzahl</h2>
+<p>Softwarebasis ohne Arbeitszeit, Ads und Ticketprovisionen, lineare
+Planungsannahme aus <code>docs/cost-model.md</code>:</p>
+<div class="wrap">
+<table>
+  <thead><tr><th class="zahl">Kunden</th><th class="zahl">Softwarebasis / Monat</th><th>Kommentar</th></tr></thead>
+  <tbody>
+    <tr><td class="zahl">1</td><td class="zahl">ca. 200–270 EUR</td><td>Agenturbasis dominiert</td></tr>
+    <tr><td class="zahl">10</td><td class="zahl">ca. 1.010–1.350 EUR</td><td>Buchungstarife dominieren</td></tr>
+    <tr><td class="zahl">20</td><td class="zahl">ca. 1.910–2.550 EUR</td><td>Reservier.at statt Resmio prüfen</td></tr>
+    <tr><td class="zahl">30</td><td class="zahl">ca. 2.810–3.750 EUR</td><td>Variante B rechnen</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Der größte Hebel ist nicht die Cloud, sondern der Buchungstarif je Kunde:
+Resmio Premium gegen Reservier.at Pro sind rund 30 EUR Unterschied pro Kunde und
+Monat – bei zwanzig Kunden mehr als die gesamte Agenturbasis.</p>
+
+<h2>8. Was der Kunde zu sehen bekommt</h2>
+<ul>
+  <li><strong>Leistung</strong> (Agenturfixum): Website, CI, Inhalte, Motion,
+      QA, Dokumentation, Schulung. Enthält GitHub, Vercel, Cloudflare, KI-Tools,
+      Monitoring – nicht einzeln ausgewiesen.</li>
+  <li><strong>Auslagen</strong> (1:1 durchlaufend, mit Belegverweis): Domain,
+      Mailpostfach, Buchungstarif, Mailversand, Ads-Budget.</li>
+  <li><strong>Anbieterverträge</strong>: Buchung, Ticketing und Zahlung laufen
+      auf den Kunden. Wir bauen keine eigene Zahlungsplattform und keine eigene
+      Kapazitätsdatenbank.</li>
+</ul>
+
+<h2>9. Offene Punkte vor dem Go-live</h2>
+<ol>
+  <li>Mailadresse des Gastes: freiwillig, empfohlen oder nicht – und das
+      Versprechen auf der Seite entsprechend anpassen.</li>
+  <li>Termin-UID vom Worker vergeben und speichern (Voraussetzung für Storno).</li>
+  <li>AVV, Subprozessoren, Transfers und Löschfristen für Brevo, Vercel,
+      Cloudflare und den Buchungsanbieter ablegen.</li>
+  <li>Tischanbieter entscheiden: Resmio Premium oder Reservier.at Pro.</li>
+  <li>Reichweitenmessung: erst nach wirksamer Einwilligung – TKG 2021 §165(3)
+      erfasst laut Datenschutzbehörde nicht nur Cookies.</li>
+  <li>Produktionsdomain, Rechtstexte und Consent freigeben, dann
+      <code>PUBLIC_ENV=production npm run build:public</code>.</li>
+</ol>
+
+<footer>
+<p><strong>Quellen im Repository:</strong>
+<code>docs/cost-model.md</code>,
+<code>docs/hosting/vercel.md</code>,
+<code>docs/privacy/data-flow-matrix.md</code>,
+<code>docs/privacy/newsletter-einwilligung.md</code>,
+<code>docs/integrations/brevo-mail-und-kontingent.md</code>,
+<code>docs/decision-record-booking-stack-2026-08.md</code>,
+<code>docs/final-cloud-handoff.md</code>,
+<code>server/wrangler.jsonc</code>.</p>
+<p><strong>Anbieterseiten:</strong>
+<a href="https://vercel.com/pricing">Vercel Pricing</a> ·
+<a href="https://vercel.com/docs/regions">Vercel Regions</a> ·
+<a href="https://vercel.com/legal/dpa">Vercel DPA</a> ·
+<a href="https://github.com/pricing">GitHub Pricing</a> ·
+<a href="https://www.resmio.com/en/price/">Resmio</a> ·
+<a href="https://www.ticketist.io/preise/">Ticketist</a>.
+Alle Beträge vor Vertrag prüfen.</p>
+</footer>
+
+</main>
+</body>
+</html>

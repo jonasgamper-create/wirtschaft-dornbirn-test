@@ -33,7 +33,16 @@ export function pruefeAnfrage(roh, { heute, tageImVoraus = 90 } = {}) {
     return { ok: false, grund: 'datum' };
   }
   if (!UHRZEIT.test(time)) return { ok: false, grund: 'uhrzeit' };
-  if (!Number.isFinite(guests) || guests < 1 || guests > 24) return { ok: false, grund: 'personen' };
+  // Mittags wird Montag bis Freitag gekocht. Die Seite faengt das Wochenende
+  // schon ab - aber die Seite ist nicht die Grenze, der Dienst ist es. Was im
+  // Haus von Hand eingetragen wird, geht nicht durch diese Pruefung und
+  // bleibt frei fuer Feste am Wochenende.
+  const wochentag = new Date(`${date}T12:00:00Z`).getUTCDay();
+  if (wochentag === 0 || wochentag === 6) return { ok: false, grund: 'wochenende' };
+  // Online bis 20 Personen - das traegt der Plan mit zusammengeschobenen
+  // Tischen. Groessere Gesellschaften gehoeren ans Telefon: da haengen Menue,
+  // Anzahlung und Raumaufteilung dran, die kein Formular abfragen soll.
+  if (!Number.isFinite(guests) || guests < 1 || guests > 20) return { ok: false, grund: 'personen' };
 
   // Kein Datum in der Vergangenheit und keines in ferner Zukunft. Ohne diese
   // Grenze kann jemand den Speicher mit Reservierungen fuer das Jahr 2400
@@ -68,9 +77,13 @@ export function sitzendeGaeste(parties, { date, time, dauerVon }) {
 }
 
 /**
- * Belegung fuer die Zuweisung. `countsForPacing:false` fuer bereits sitzende
- * Gaeste: sie sperren ihren Tisch, duerfen aber keine Pacing-Ablehnung
- * ausloesen - sonst lehnt das Haus ab, weil es selbst schon eingeteilt hat.
+ * Belegung fuer die Zuweisung. `countsForPacing:false` fuer Gaeste, die das
+ * Haus selbst eingeteilt hat: sie sperren ihren Tisch, duerfen aber keine
+ * Pacing-Ablehnung ausloesen - sonst lehnt das Haus ab, weil es selbst schon
+ * eingeteilt hat. Online-Buchungen zaehlen dagegen voll: das Limit je
+ * Viertelstunde schuetzt die Kueche, und genau der Online-Zustrom ist der,
+ * den niemand von Hand bremst. Die Bedingung stand verkehrt herum - damit
+ * konnten sich beliebig viele Online-Gaeste in dieselbe Viertelstunde legen.
  */
 export function belegungFuer(parties, date, dauerVon) {
   return parties
@@ -80,7 +93,7 @@ export function belegungFuer(parties, date, dauerVon) {
       startsAt: `${party.date}T${party.time}`,
       minutes: dauerVon(party),
       guests: party.guests,
-      countsForPacing: party.quelle !== 'online'
+      countsForPacing: party.quelle === 'online'
     }));
 }
 
@@ -89,20 +102,28 @@ export function belegungFuer(parties, date, dauerVon) {
  * Module wie die Seite im Haus - eine zweite Rechenregel auf dem Server waere
  * die sicherste Art, zwei verschiedene Wahrheiten zu bekommen.
  */
-export function verteile(anfrage, { config, parties, blocked = [], standardEtage = null, deckel = null }) {
-  const floorplan = buildFloorplan(config);
+export function dauerRegel(config) {
   const layout = activeLayout(config);
   const service = serviceOf(layout);
   const policy = config?.policy || {};
   const schichten = service.mode === 'schichten' ? seatingPlan(service) : [];
-
-  const dauerVon = party => {
+  return party => {
     const schicht = schichten.find(entry => entry.time === party.time);
     if (schicht) return schicht.minutes;
     if (service.mode !== 'schichten' && service.richtzeit === false) return 24 * 60;
     if (service.mode === 'schichten' && schichten.length) return schichten[0].minutes;
     return durationFor(party.guests, policy);
   };
+}
+
+export function verteile(anfrage, { config, parties, blocked = [], standardEtage = null, deckel = null, ohnePacing = false }) {
+  const floorplan = buildFloorplan(config);
+  const layout = activeLayout(config);
+  const service = serviceOf(layout);
+  const policy = config?.policy || {};
+  const schichten = service.mode === 'schichten' ? seatingPlan(service) : [];
+
+  const dauerVon = dauerRegel(config);
   const feste = dauerVon({ guests: anfrage.guests, time: anfrage.time });
 
   // Der Sitzplatzdeckel des Hauses gilt auch online. Ohne ihn koennte eine
@@ -121,7 +142,9 @@ export function verteile(anfrage, { config, parties, blocked = [], standardEtage
       ...policy,
       levelOrder: etagenReihenfolge(floorplan, standardEtage),
       // Im Schichtbetrieb kommen alle gleichzeitig - Pacing waere sinnlos.
-      ...(service.mode === 'schichten' ? { maxCoversPerSlot: Number.MAX_SAFE_INTEGER } : {})
+      // Und wer schon an der Tuer steht, wird nicht von einer Rechenregel
+      // weggeschickt: fuer Laufkundschaft entscheidet der Wirt, nicht das Pacing.
+      ...(service.mode === 'schichten' || ohnePacing ? { maxCoversPerSlot: Number.MAX_SAFE_INTEGER } : {})
     },
     minutes: feste
   });
@@ -158,6 +181,56 @@ export function freieZeiten({ config, parties, blocked = [], standardEtage = nul
       grund: result.ok ? null : result.reason
     };
   });
+}
+
+/** Ab so wenigen freien Tischen springt die Ampel auf Orange. */
+export const AMPEL_WENIGE = 3;
+
+/**
+ * Die Ampel fuer die Gaesteseite: wie voll ist der Mittag an diesem Tag?
+ * Antwortet nur mit Zahlen und einer Stufe - keine Namen, keine Belegung im
+ * Detail, denn diese Auskunft ist oeffentlich.
+ *
+ *   gruen  - noch gut Platz
+ *   orange - nur noch wenige Tische, oder kein Tisch fuer zwei mehr
+ *   rot    - zu keiner verbleibenden Zeit ist ein Tisch frei
+ *   vorbei - alle Mittagszeiten dieses Tages liegen hinter uns
+ *
+ * `jetzt` (HH:MM) kommt von aussen, nie aus der Systemuhr - vergangene Zeiten
+ * zaehlen nicht mehr: ein "alles voll", das nur an 11:30 liegt, waere gelogen.
+ */
+export function ampelFuer({ config, parties, blocked = [], standardEtage = null, deckel = null, date, jetzt = null, zeiten = MITTAGSZEITEN }) {
+  const offen = jetzt ? zeiten.filter(zeit => zeit >= jetzt) : [...zeiten];
+  if (!offen.length) return { stufe: 'vorbei', freieTische: 0, zweierFrei: false };
+
+  const floorplan = buildFloorplan(config);
+  const dauerVon = dauerRegel(config);
+  const gesperrt = new Set(blocked);
+
+  // Freie Tische je verbleibender Zeit; die beste Zeit zaehlt. Wer um 12:00
+  // nichts bekommt, aber um 13:00 schon, findet noch einen Tisch - und genau
+  // das soll die Ampel sagen.
+  let freieTische = 0;
+  for (const zeit of offen) {
+    const belegt = new Set();
+    for (const party of parties) {
+      if (party.date !== date || !party.tableIds?.length) continue;
+      if (!occupiesAt(party, { at: `${date}T${zeit}`, minutes: dauerVon(party) })) continue;
+      for (const id of party.tableIds) belegt.add(id);
+    }
+    const frei = floorplan.tables.filter(table => !gesperrt.has(table.id) && !belegt.has(table.id)).length;
+    freieTische = Math.max(freieTische, frei);
+  }
+
+  // Der Zweiertisch ist die haeufigste Anfrage - ob er noch geht, entscheidet
+  // ueber denselben Weg wie eine echte Buchung, nicht ueber eine Nebenrechnung.
+  const zweierFrei = freieZeiten({ config, parties, blocked, standardEtage, deckel, guests: 2, zeiten: offen, date })
+    .some(eintrag => eintrag.frei);
+
+  const stufe = freieTische === 0
+    ? 'rot'
+    : (freieTische <= AMPEL_WENIGE || !zweierFrei ? 'orange' : 'gruen');
+  return { stufe, freieTische, zweierFrei };
 }
 
 /**

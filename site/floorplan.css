@@ -117,7 +117,7 @@
 .fp-sizes input{width:62px;text-align:center;font-variant-numeric:tabular-nums}
 .fp-warn{margin:0 0 16px;padding:12px 16px;border-left:2px solid var(--wine,#8c292b);background:#8c292b14;color:#6b2224;font-size:var(--t-meta,14.5px);line-height:1.5;max-width:64ch}
 .fp-tools{display:grid;gap:12px;margin-top:20px}
-.fp-result{margin:0;padding:12px 16px;border-left:2px solid var(--green,#244635);background:#11110f0a;color:#3c3833;font-size:var(--t-meta,14.5px);line-height:1.55;max-width:64ch}
+.fp-result{margin:0;padding:12px 16px;border-left:2px solid var(--green,#244635);background:#11110f0a;color:#3c3833;font-size:var(--t-meta,14.5px);line-height:1.55;max-width:64ch}.fp-result:empty{display:none}
 
 /* Belegung: offene Gruppen oben, Einzelzuweisung unten. */
 .fp-party-list{display:grid;gap:6px;margin:16px 0 0;padding:0;list-style:none}
@@ -271,6 +271,12 @@
 /* Mengeneingabe je Tischgroesse: "8 Zweier, 6 Vierer" statt 25 Einzelklicks. */
 .fp-counts label{gap:5px;color:var(--muted,#6d675f)}
 .fp-counts input{width:56px;min-height:44px;text-align:center}
+
+/* Flexibel-Betrieb: drei Zahlen statt Einzeltische. Die Summe steht direkt
+   daneben - sie ist die Stuhlzahl, nach der der Wirt fragt. */
+.fp-flex-summe{align-self:center;color:var(--ink,#11110f);font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.fp-flex-hinweis{display:block;color:var(--muted,#6d675f);font-size:12.5px;line-height:1.5;max-width:56ch}
+.fp-level-name select{min-height:44px}
 
 .fp-bar-stats{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-left:auto}
 .fp-stat{display:inline-flex;align-items:baseline;gap:5px;padding:5px 11px;border:1px solid var(--line,#11110f26);border-radius:999px;background:#fff;color:#57524a;font-size:12px;white-space:nowrap}
@@ -507,3 +513,6 @@
 .fp-svg .fp-punkt{fill:#fff;stroke:var(--green,#244635);stroke-width:2;vector-effect:non-scaling-stroke}
 .fp-svg .fp-punkt.ist-erster{fill:var(--green,#244635)}
 .fp-zeichnen .fp-svg{cursor:crosshair}
+
+/* Takeaway-Karte im Cockpit: ein Textfeld, eine Zeile je Gericht. */
+#fpTakeawayText{width:100%;max-width:640px;min-height:120px;padding:10px 12px;border:1px solid var(--line,#11110f26);border-radius:8px;font:inherit;font-size:14px;line-height:1.5;background:#fff;resize:vertical}

@@ -1,20 +1,17 @@
 (() => {
   'use strict';
 
-  // Personenzahl als Schrittwahl statt Dropdown - auf dem Handy kein Vollbild-Menue.
+  // Personenzahl als Schrittwahl mit Tippfeld: die Knoepfe fuer den Daumen,
+  // das Feld fuer die Zwoelfergruppe - zwoelfmal Plus ist kein Bedienweg.
   document.querySelectorAll('[data-stepper]').forEach(box => {
     const min = Number(box.dataset.min);
     const max = Number(box.dataset.max);
-    const out = box.querySelector('output');
     const field = box.querySelector('input');
-    const kind = box.dataset.stepper;
-    const label = n => kind === 'adults'
-      ? (n === 1 ? '1 Erwachsener' : `${n} Erwachsene`)
-      : (n === 0 ? 'keine' : n === 1 ? '1 Kind' : `${n} Kinder`);
+    const einheit = box.querySelector('[data-einheit]');
     let value = Number(box.dataset.value);
     const paint = () => {
-      out.textContent = label(value);
       field.value = String(value);
+      if (einheit) einheit.textContent = value === 1 ? 'Person' : 'Personen';
       box.querySelector('[data-step="-1"]').disabled = value <= min;
       box.querySelector('[data-step="1"]').disabled = value >= max;
     };
@@ -22,6 +19,26 @@
       const step = event.target.closest('[data-step]');
       if (!step) return;
       value = Math.min(max, Math.max(min, value + Number(step.dataset.step)));
+      paint();
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    // Getippt: waehrend der Eingabe nichts ueberschreiben, erst beim Verlassen
+    // in die Grenzen holen. Wer "15" tippt, darf nicht nach der "1" gestoppt
+    // werden.
+    field.addEventListener('input', () => {
+      const getippt = Math.trunc(Number(field.value));
+      if (Number.isFinite(getippt) && getippt >= min && getippt <= max) {
+        value = getippt;
+        if (einheit) einheit.textContent = value === 1 ? 'Person' : 'Personen';
+        box.querySelector('[data-step="-1"]').disabled = value <= min;
+        box.querySelector('[data-step="1"]').disabled = value >= max;
+      }
+    });
+    field.addEventListener('blur', () => {
+      const getippt = Math.trunc(Number(field.value));
+      value = Number.isFinite(getippt) && getippt >= min
+        ? Math.min(max, getippt)
+        : value;
       paint();
       field.dispatchEvent(new Event('input', { bubbles: true }));
     });
@@ -44,6 +61,26 @@
   const day = document.getElementById('day');
   const iso = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   if (day) day.min = iso(new Date());
+
+  // Ein Griff aufs Feld oeffnet den Kalender - nicht nur das kleine Symbol
+  // rechts. Am Handy ist dieses Symbol ein Ziel von wenigen Millimetern; wer
+  // danebentippt, steht vor einem Feld, in das er von Hand ein Datum tippen
+  // soll. showPicker() gibt es nicht ueberall und wirft ausserhalb einer
+  // echten Geste - dann bleibt es beim gewohnten Verhalten.
+  if (day && typeof day.showPicker === 'function') {
+    const oeffne = event => {
+      // Der Klick aufs eigene Symbol oeffnet den Kalender schon selbst; ein
+      // zweiter Aufruf wuerde ihn im selben Moment wieder zuklappen.
+      if (event.type === 'click' && event.offsetX > day.clientWidth - 40) return;
+      try { day.showPicker(); } catch { /* keine Geste oder nicht unterstuetzt */ }
+    };
+    day.addEventListener('click', oeffne);
+    // Auch bei Tastaturbedienung: wer mit Tab hierher springt, bekommt
+    // denselben Kalender statt einer stillen Eingabezeile.
+    day.addEventListener('focus', () => {
+      try { day.showPicker(); } catch { /* Fokus ohne Geste - dann eben nicht */ }
+    });
+  }
 
   const nameOf = { day: 'Tag', time: 'Uhrzeit' };
 

@@ -4,11 +4,11 @@
 
 // Die Versionsangaben muessen mit denen in den HTML-Dateien mitwandern: ein
 // Modulimport ohne Version bleibt sonst im Browser-Cache haengen.
-import { BIS_TAGESENDE, ELEMENTS, FORMEN, GRID, METER_PRO_EINHEIT, alsMeter, rechteckImUmriss, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, formOf, istGedreht, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=482664fa';
-import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=6d7cae32';
-import { renderFloorplan } from './floorplan.js?v=a48d9860';
+import { BIS_TAGESENDE, ELEMENTS, FLEX_STANDARD, FORMEN, GRID, METER_PRO_EINHEIT, alsMeter, rechteckImUmriss, activeLayout, buildFloorplan, canPlace, clampSeats, deriveTableMix, elementKinds, flexWerte, formOf, istFlexibel, istGedreht, migrate, nextElementId, nextTableId, seatNamesFor, seatingPlan, serviceOf, tableLabel, totalSeats } from './floorplan-layout.mjs?v=8cd1fbb4';
+import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=ec7c8e39';
+import { renderFloorplan } from './floorplan.js?v=bf76e472';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
-import { apiAdresse, bleibVerbunden, hausToken, istOffen, schluesselAusAdresse, sendeAktion, sendePlan, sendeReservierung, setzeToken } from './haus-api.js?v=af41a6d8';
+import { apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeTakeawayProtokoll, istOffen, karteAdresse, loescheKarte, schluesselAusAdresse, sendeAktion, sendeKarte, sendePlan, sendeReservierung, sendeTakeawayKarte, setzeToken } from './haus-api.js?v=6e3ea1dd';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 const store = window.WirtschaftData;
@@ -1513,6 +1513,41 @@ async function start() {
     seatResult(`Reservierungen vom ${moment.date} gelöscht. Für diesen Tag sind keine Namen mehr gespeichert.`);
   });
 
+  /**
+   * Der ganze Mittag faellt aus. Das ist die einzige Stelle, an der das Haus
+   * von sich aus Mails ausloest - deshalb mit Rueckfrage und mit einer
+   * ehrlichen Anrufliste danach: wer keine Mailadresse hinterlassen hat,
+   * erfaehrt es sonst nicht.
+   */
+  byId('fpDayOffForm').addEventListener('submit', async event => {
+    event.preventDefault();
+    const sagen = text => say('fpDayOffResult', text);
+    if (!dienst.an || !(dienst.offen || hausToken())) {
+      return sagen('Dafür muss der Reservierungsdienst verbunden sein. Ohne ihn erreichen wir niemanden.');
+    }
+    const betroffen = dayParties().length;
+    if (!betroffen) return sagen('Für diesen Tag ist nichts eingetragen.');
+    if (!confirm(`Alle ${betroffen} Reservierungen vom ${moment.date} absagen und die Gäste benachrichtigen?`)) return;
+
+    const grund = byId('fpDayOffReason').value.trim();
+    sagen('Wird abgesagt …');
+    const antwort = await sendeAktion(hausToken(), { art: 'tagesabsage', tag: moment.date, grund });
+    if (!antwort?.ok) {
+      return sagen(antwort?.grund === 'token'
+        ? 'Der Hausschlüssel stimmt nicht mehr. Bitte neu eintragen.'
+        : 'Das hat nicht geklappt. Bitte noch einmal versuchen.');
+    }
+    if (Array.isArray(antwort.stand?.parties)) {
+      store.setParties(antwort.stand.parties);
+      paint();
+    }
+    const anrufen = antwort.anrufen || [];
+    sagen(`${antwort.abgesagt} Reservierung(en) abgesagt.`
+      + (anrufen.length
+        ? ` Bitte noch anrufen: ${anrufen.map(gast => `${gast.name} (${gast.zeit}${gast.telefon ? `, ${gast.telefon}` : ', keine Nummer'})`).join(' · ')}`
+        : ' Alle Gäste wurden per Mail verständigt.'));
+  });
+
   // ---- Tischliste ----------------------------------------------------------
 
   function paintTableList(plan) {
@@ -1758,6 +1793,13 @@ async function start() {
    * andere - Tischplan, Sperren - bleibt hier.
    */
   function uebernimm(stand) {
+    // Die Takeaway-Karte des Dienstes vorbefuellen - aber nie ueberschreiben,
+    // was der Wirt gerade selbst tippt.
+    if (typeof stand?.takeawayKarteText === 'string') {
+      const feld = byId('fpTakeawayText');
+      if (feld && !feld.dataset.beruehrt) feld.value = stand.takeawayKarteText;
+      zeigeTakeawayGerichte(stand.takeawayKarte);
+    }
     if (stand && typeof stand.automatik === 'boolean') {
       dienst.automatik = stand.automatik;
       zeigeAutomatik(stand.automatik);
@@ -1814,6 +1856,114 @@ async function start() {
     }
   });
 
+  // ---- Mittagskarte hochladen ---------------------------------------------
+  //
+  // Der ganze Ablauf: PDF waehlen, pruefen, hochladen, fertig. In dem Moment,
+  // in dem der Dienst zusagt, steht die Karte auf der Reservierungsseite -
+  // es gibt keinen Zwischenschritt, der vergessen werden koennte.
+
+  const karteSag = text => say('fpKarteInfo', text);
+
+  async function zeigeKarte() {
+    const kasten = byId('fpKarte');
+    kasten.hidden = !dienst.an;
+    if (!dienst.an) return;
+    zeigeTakeawayProtokoll();
+    const info = await holeKarteInfo();
+    const da = Boolean(info?.ok && info.da);
+    byId('fpKarteWeg').hidden = !da;
+    const ansehen = byId('fpKarteAnsehen');
+    ansehen.hidden = !da;
+    if (da) {
+      ansehen.href = await karteAdresse();
+      const stand = new Date(info.stand);
+      const mb = (info.groesse / (1024 * 1024)).toFixed(1).replace('.', ',');
+      byId('fpKarteStand').textContent = `Aktuelle Karte vom ${stand.toLocaleDateString('de-AT', {
+        day: 'numeric', month: 'long'
+      })}, ${stand.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' })} Uhr (${mb} MB). `
+        + 'Sie steht auf der Reservierungsseite.';
+    } else {
+      byId('fpKarteStand').textContent = 'Noch keine Karte hochgeladen. '
+        + 'Ein PDF genügt – es erscheint sofort auf der Reservierungsseite.';
+    }
+  }
+
+  byId('fpKarteDatei').addEventListener('change', async event => {
+    const datei = event.target.files?.[0];
+    event.target.value = '';
+    if (!datei) return;
+    // Was der Dienst ablehnen wuerde, gar nicht erst hinschicken.
+    if (datei.size > 8 * 1024 * 1024) {
+      return karteSag('Die Datei ist größer als 8 MB. Bitte das PDF kleiner exportieren.');
+    }
+    if (!(dienst.offen || hausToken())) {
+      return karteSag('Dafür braucht es den Hausschlüssel. Bitte oben eintragen.');
+    }
+    karteSag('Wird hochgeladen …');
+    const antwort = await sendeKarte(hausToken(), datei);
+    if (!antwort?.ok) {
+      const gruende = {
+        kein_pdf: 'Das ist kein PDF. Bitte die Karte als PDF exportieren und noch einmal wählen.',
+        zu_gross: 'Die Datei ist zu groß. Bitte das PDF kleiner exportieren.',
+        leer: 'Die Datei ist leer.',
+        token: 'Der Hausschlüssel stimmt nicht mehr. Bitte neu eintragen.',
+        netz: 'Die Verbindung hat nicht geklappt. Bitte noch einmal versuchen.'
+      };
+      return karteSag(gruende[antwort?.grund] || 'Das hat nicht geklappt. Bitte noch einmal versuchen.');
+    }
+    karteSag('Hochgeladen. Die Karte steht jetzt auf der Reservierungsseite.');
+    zeigeKarte();
+  });
+
+  // ---- Takeaway: Karte setzen und Protokoll lesen --------------------------
+
+  const taSag = text => say('fpTakeawayInfo', text);
+
+  // Was der Wirt selbst tippt, wird nie vom Dienst ueberschrieben.
+  byId('fpTakeawayText').addEventListener('input', event => { event.target.dataset.beruehrt = '1'; });
+
+  byId('fpTakeawaySetzen').addEventListener('click', async () => {
+    if (!(dienst.offen || hausToken())) {
+      return taSag('Dafür braucht es den Hausschlüssel. Bitte oben eintragen.');
+    }
+    taSag('Wird veröffentlicht …');
+    const antwort = await sendeTakeawayKarte(hausToken(), byId('fpTakeawayText').value);
+    if (!antwort?.ok) {
+      return taSag(antwort?.grund === 'token'
+        ? 'Der Hausschlüssel stimmt nicht mehr. Bitte neu eintragen.'
+        : 'Das hat nicht geklappt. Bitte noch einmal versuchen.');
+    }
+    zeigeTakeawayGerichte(antwort.gerichte);
+    taSag(antwort.gerichte.length
+      ? `Veröffentlicht: ${antwort.gerichte.length} Gericht(e) stehen jetzt auf der Takeaway-Seite.`
+      : 'Keine Zeile mit Preis erkannt – die Takeaway-Seite nimmt jetzt keine Bestellungen an.');
+  });
+
+  function zeigeTakeawayGerichte(gerichte) {
+    byId('fpTakeawayListe').textContent = (gerichte || [])
+      .map(gericht => `${gericht.name} – € ${Number(gericht.preis).toFixed(2).replace('.', ',')}`)
+      .join(' · ');
+  }
+
+  /** Das Protokoll: was lief in den letzten 30 Tagen - die Basis fuer den Einkauf. */
+  async function zeigeTakeawayProtokoll() {
+    const antwort = await holeTakeawayProtokoll(hausToken());
+    if (!antwort?.ok) return;
+    byId('fpTakeawayProtokoll').textContent = antwort.bestellungen
+      ? `Protokoll (30 Tage): ${antwort.bestellungen} Bestellungen, ${antwort.portionen} Portionen, `
+        + `€ ${Number(antwort.umsatz).toFixed(2).replace('.', ',')} – `
+        + antwort.gerichte.slice(0, 6).map(gericht => `${gericht.name}: ${gericht.portionen}×`).join(', ')
+      : 'Protokoll: noch keine Bestellungen in den letzten 30 Tagen.';
+  }
+
+  byId('fpKarteWeg').addEventListener('click', async () => {
+    if (!confirm('Die Mittagskarte von der Reservierungsseite nehmen?')) return;
+    const antwort = await loescheKarte(hausToken());
+    karteSag(antwort?.ok ? 'Entfernt. Auf der Reservierungsseite steht keine Karte mehr.'
+      : 'Das hat nicht geklappt. Bitte noch einmal versuchen.');
+    zeigeKarte();
+  });
+
   async function starteDienst() {
     // Kommt der Schluessel ueber einen Einrichtungslink, gleich uebernehmen.
     if (schluesselAusAdresse()) {
@@ -1830,6 +1980,7 @@ async function start() {
     dienst.offen = await istOffen();
     byId('fpToken').value = hausToken();
     paintKoppeln(adresse);
+    zeigeKarte();
 
     // Im offenen Betrieb nach einem Schluessel zu fragen waere eine Huerde
     // ohne Zweck. Dass offen gearbeitet wird, muss man aber sehen - ein
@@ -2020,26 +2171,75 @@ async function start() {
       nameLabel.append(nameInput);
       head.append(nameLabel);
 
-      // Mengen statt Einzelklicks. Ein Haus mit 25 Tischen einzeln anzulegen
-      // waren 25 Griffe; hier traegt man "8 Zweier, 6 Vierer" ein und fertig.
-      const eigene = plan.tables.filter(entry => entry.levelId === level.id);
-      const add = document.createElement('div');
-      add.className = 'fp-sizes fp-counts';
-      for (const seats of SIZES) {
-        const label = document.createElement('label');
-        label.append(`${seats}er`);
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.min = '0';
-        input.max = '60';
-        input.value = String(eigene.filter(entry => entry.seats === seats).length);
-        input.dataset.countLevel = level.id;
-        input.dataset.seats = String(seats);
-        input.setAttribute('aria-label', `Anzahl Tische mit ${seats} Plätzen in ${level.name}`);
-        label.append(input);
-        add.append(label);
+      // Zwei Betriebsarten je Etage. Fest: einzelne Tische mit eigener Groesse
+      // und Position. Flexibel: lauter gleiche Tische, die sich fuer groessere
+      // Gruppen zusammenschieben lassen - beschrieben durch drei Zahlen.
+      const modusFeld = document.createElement('label');
+      modusFeld.className = 'fp-level-name';
+      modusFeld.append('Betrieb');
+      const modusWahl = document.createElement('select');
+      modusWahl.dataset.modusLevel = level.id;
+      modusWahl.setAttribute('aria-label', `Betriebsart von ${level.name}`);
+      for (const [wert, text] of [['fest', 'Fest – Tische einzeln'], ['flexibel', 'Flexibel – zusammenschiebbar']]) {
+        const option = document.createElement('option');
+        option.value = wert;
+        option.textContent = text;
+        option.selected = (istFlexibel(level) ? 'flexibel' : 'fest') === wert;
+        modusWahl.append(option);
       }
-      head.append(add);
+      modusFeld.append(modusWahl);
+      head.append(modusFeld);
+
+      if (istFlexibel(level)) {
+        const flex = flexWerte(level);
+        const felder = document.createElement('div');
+        felder.className = 'fp-sizes fp-counts';
+        for (const [feld, titel, min, max] of [
+          ['anzahl', 'Tische', 1, 200],
+          ['plaetze', 'Plätze je Tisch', 1, 6],
+          ['maxKombi', 'Max. zusammen', 1, 12]
+        ]) {
+          const label = document.createElement('label');
+          label.append(titel);
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.min = String(min);
+          input.max = String(max);
+          input.value = String(flex[feld]);
+          input.dataset.flexLevel = level.id;
+          input.dataset.flexFeld = feld;
+          input.setAttribute('aria-label', `${titel} in ${level.name}`);
+          label.append(input);
+          felder.append(label);
+        }
+        // Die Summe steht direkt daneben: das ist die Stuhlzahl der Etage.
+        const summe = document.createElement('b');
+        summe.className = 'fp-flex-summe';
+        summe.textContent = `= ${flex.anzahl * flex.plaetze} Stühle · Gruppen bis ${flex.plaetze * flex.maxKombi} P`;
+        felder.append(summe);
+        head.append(felder);
+      } else {
+        // Mengen statt Einzelklicks. Ein Haus mit 25 Tischen einzeln anzulegen
+        // waren 25 Griffe; hier traegt man "8 Zweier, 6 Vierer" ein und fertig.
+        const eigene = plan.tables.filter(entry => entry.levelId === level.id);
+        const add = document.createElement('div');
+        add.className = 'fp-sizes fp-counts';
+        for (const seats of SIZES) {
+          const label = document.createElement('label');
+          label.append(`${seats}er`);
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.min = '0';
+          input.max = '60';
+          input.value = String(eigene.filter(entry => entry.seats === seats).length);
+          input.dataset.countLevel = level.id;
+          input.dataset.seats = String(seats);
+          input.setAttribute('aria-label', `Anzahl Tische mit ${seats} Plätzen in ${level.name}`);
+          label.append(input);
+          add.append(label);
+        }
+        head.append(add);
+      }
 
       // Die Raumflaeche. Sie steht vor den Tischen, weil man zuerst weiss, wie
       // gross der Raum ist, und dann was hineinpasst.
@@ -2074,6 +2274,18 @@ async function start() {
 
       const tables = document.createElement('div');
       tables.className = 'fp-chairs-list';
+      if (istFlexibel(level)) {
+        // Keine Einzeltisch-Pflege im Flexibel-Betrieb: die Tische sind
+        // absichtlich alle gleich. Sperren einzelner Tische geht weiter
+        // ueber die Karte.
+        const hinweis = document.createElement('small');
+        hinweis.className = 'fp-flex-hinweis';
+        hinweis.textContent = 'Alle Tische gleich. Größere Gruppen bekommen automatisch zusammengeschobene Tische; einzelne Tische sperrst du auf der Karte.';
+        tables.append(hinweis);
+        wrap.append(tables);
+        box.append(wrap);
+        continue;
+      }
       for (const table of plan.tables.filter(entry => entry.levelId === level.id)) {
         const chip = document.createElement('div');
         chip.className = 'fp-chair-chip';
@@ -2216,9 +2428,81 @@ async function start() {
     const feld = event.target.closest('[data-count-level]');
     if (feld) return setzeAnzahl(feld.dataset.countLevel, Number(feld.dataset.seats), feld.value);
 
+    const modusFeld = event.target.closest('[data-modus-level]');
+    if (modusFeld) return setzeModus(modusFeld.dataset.modusLevel, modusFeld.value);
+
+    const flexFeld = event.target.closest('[data-flex-level]');
+    if (flexFeld) return setzeFlex(flexFeld.dataset.flexLevel, flexFeld.dataset.flexFeld, flexFeld.value);
+
     const formFeld = event.target.closest('[data-form]');
     if (formFeld) return setzeForm(formFeld.dataset.form, formFeld.value);
   });
+
+  /**
+   * Betriebsart einer Etage wechseln. Beim Umschalten wechseln alle Tische
+   * der Etage - haengt irgendwo noch eine Reservierung, wuerde sie ihren
+   * Tisch verlieren, ohne dass es jemand sieht. Deshalb: erst umsetzen,
+   * dann umschalten.
+   */
+  function setzeModus(levelId, modus) {
+    const config = current();
+    const level = activeLayout(config).levels.find(item => item.id === levelId);
+    if (!level) return;
+    const aktuell = istFlexibel(level) ? 'flexibel' : 'fest';
+    if (modus === aktuell) return;
+
+    const eigene = new Set(buildFloorplan(config).tables
+      .filter(table => table.levelId === levelId).map(table => table.id));
+    const betroffen = parties().filter(party => (party.tableIds || []).some(id => eigene.has(id)));
+    if (betroffen.length) {
+      paintLevels();
+      return warn(`${level.name}: dort hängen noch ${betroffen.length} Reservierung(en) an Tischen. `
+        + 'Erst umsetzen oder entfernen, dann umschalten - beim Wechsel werden alle Tische der Etage ersetzt.');
+    }
+    if (modus === 'flexibel') {
+      level.modus = 'flexibel';
+      level.flex = { ...FLEX_STANDARD, ...(level.flex || {}) };
+    } else {
+      delete level.modus;
+    }
+    // Gesperrte Tische der alten Betriebsart gibt es nicht mehr - die Sperre
+    // wuerde sonst unsichtbar auf Kennungen zeigen, die niemand sieht.
+    putBlocked(blocked().filter(id => !eigene.has(id)));
+    save(config);
+    const flex = flexWerte(level);
+    warn(modus === 'flexibel'
+      ? `${level.name} ist jetzt flexibel: ${flex.anzahl} gleiche Tische à ${flex.plaetze} Plätze, bis ${flex.maxKombi} zusammenschiebbar.`
+      : `${level.name} ist jetzt fest: Tische einzeln anlegen und anordnen.`);
+  }
+
+  /** Eine der drei Zahlen einer Flexibel-Etage aendern. */
+  function setzeFlex(levelId, feld, wert) {
+    const config = current();
+    const level = activeLayout(config).levels.find(item => item.id === levelId);
+    if (!level || !istFlexibel(level)) return;
+
+    const naechste = { ...flexWerte(level), [feld]: Math.trunc(Number(wert) || 0) };
+    // Weniger Tische: keiner darf eine Reservierung tragen. Die erzeugten
+    // Kennungen fallen von hinten weg, also reicht es, die wegfallenden zu
+    // pruefen.
+    if (feld === 'anzahl' || feld === 'plaetze') {
+      const belegt = new Set(parties().flatMap(party => party.tableIds || []));
+      const eigene = buildFloorplan(config).tables.filter(table => table.levelId === levelId);
+      const wegfallend = feld === 'anzahl' ? eigene.slice(Math.max(1, naechste.anzahl)) : eigene;
+      const problem = feld === 'anzahl'
+        ? wegfallend.some(table => belegt.has(table.id))
+        : eigene.some(table => belegt.has(table.id)) && naechste.plaetze < flexWerte(level).plaetze;
+      if (problem) {
+        paintLevels();
+        return warn(`${level.name}: an wegfallenden Tischen hängen noch Reservierungen. Erst umsetzen, dann verkleinern.`);
+      }
+    }
+    level.flex = naechste;
+    save(config);
+    const flex = flexWerte(level);
+    warn(`${level.name}: ${flex.anzahl} Tische à ${flex.plaetze} Plätze (= ${flex.anzahl * flex.plaetze} Stühle), `
+      + `bis ${flex.maxKombi} Tische zusammenschiebbar (Gruppen bis ${flex.plaetze * flex.maxKombi} Personen).`);
+  }
 
   /**
    * Form oder Drehung aendern. Beides aendert die Grundflaeche, also muss der
