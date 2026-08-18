@@ -74,6 +74,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .stepper button{min-height:52px;border:0;background:transparent;color:var(--ink);font-size:22px;line-height:1;cursor:pointer}
 .stepper button:disabled{opacity:.3;cursor:default}
 .stepper output{text-align:center;font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
+/* Die Zahl ist tippbar: gleiches Schriftbild wie vorher, nur eben ein Feld.
+   Die Browser-Spinner fallen weg - Plus und Minus stehen ja direkt daneben. */
+.stepper-zahl{display:flex;align-items:center;justify-content:center;gap:7px}
+.stepper-zahl input{width:2.4ch;min-height:0;padding:0;border:0;background:transparent;text-align:right;font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums;-moz-appearance:textfield;appearance:textfield}
+.stepper-zahl input::-webkit-outer-spin-button,.stepper-zahl input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.stepper-zahl span{font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none}
 @media(min-width:761px){.stepper{max-width:320px}}
 .slots{display:flex;flex-wrap:wrap;gap:8px}
 .slots button{min-height:48px;padding:0 16px;border:1px solid #11110f3d;border-radius:999px;background:#fff;color:var(--ink);font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none;cursor:pointer;font-variant-numeric:tabular-nums}

@@ -39,7 +39,10 @@ export function pruefeAnfrage(roh, { heute, tageImVoraus = 90 } = {}) {
   // bleibt frei fuer Feste am Wochenende.
   const wochentag = new Date(`${date}T12:00:00Z`).getUTCDay();
   if (wochentag === 0 || wochentag === 6) return { ok: false, grund: 'wochenende' };
-  if (!Number.isFinite(guests) || guests < 1 || guests > 24) return { ok: false, grund: 'personen' };
+  // Online bis 20 Personen - das traegt der Plan mit zusammengeschobenen
+  // Tischen. Groessere Gesellschaften gehoeren ans Telefon: da haengen Menue,
+  // Anzahlung und Raumaufteilung dran, die kein Formular abfragen soll.
+  if (!Number.isFinite(guests) || guests < 1 || guests > 20) return { ok: false, grund: 'personen' };
 
   // Kein Datum in der Vergangenheit und keines in ferner Zukunft. Ohne diese
   // Grenze kann jemand den Speicher mit Reservierungen fuer das Jahr 2400

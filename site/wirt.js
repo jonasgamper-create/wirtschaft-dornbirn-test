@@ -7,8 +7,8 @@ import {
   apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeStand, karteAdresse,
   loescheKarte, schluesselAusAdresse, sendeAktion, sendeKarte, sendeLaufkunde
 } from './haus-api.js?v=a0e5d122';
-import { buildFloorplan } from './floorplan-layout.mjs?v=482664fa';
-import { durationFor, occupiesAt } from './table-assignment.mjs?v=6d7cae32';
+import { buildFloorplan } from './floorplan-layout.mjs?v=8cd1fbb4';
+import { durationFor, occupiesAt } from './table-assignment.mjs?v=ec7c8e39';
 
 const byId = id => document.getElementById(id);
 const pad = zahl => String(zahl).padStart(2, '0');

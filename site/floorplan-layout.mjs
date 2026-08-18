@@ -218,6 +218,57 @@ function findSpot(placed, spec, grid, breite = grid.cols, umriss = null) {
 }
 
 /**
+ * Der Flexibel-Betrieb einer Etage: lauter gleiche Tische, die sich
+ * zusammenschieben lassen. Statt 50 Tische einzeln zu pflegen, stehen hier
+ * drei Zahlen - Anzahl, Plaetze je Tisch, und wie viele Tische hoechstens
+ * aneinandergeschoben werden. Tische und Kombinationen entstehen daraus
+ * automatisch: 1 Tisch traegt 1-2 Personen, 2 Tische 3-4, 3 Tische 5-6.
+ */
+export const FLEX_STANDARD = { anzahl: 50, plaetze: 2, maxKombi: 5 };
+
+export const istFlexibel = level => level?.modus === 'flexibel';
+
+/** Die drei Zahlen einer Flexibel-Etage, in sichere Grenzen gebracht. */
+export function flexWerte(level) {
+  const roh = level?.flex || {};
+  const zahl = (wert, min, max, standard) => {
+    const n = Math.trunc(Number(wert));
+    return Number.isFinite(n) && n >= min ? Math.min(max, n) : standard;
+  };
+  return {
+    anzahl: zahl(roh.anzahl, 1, 200, FLEX_STANDARD.anzahl),
+    plaetze: zahl(roh.plaetze, 1, 6, FLEX_STANDARD.plaetze),
+    maxKombi: zahl(roh.maxKombi, 1, 12, FLEX_STANDARD.maxKombi)
+  };
+}
+
+/**
+ * Die erzeugten Tische einer Flexibel-Etage. Die Anordnung ist reine
+ * Arithmetik - Reihen von links nach rechts - statt der Luecken-Suche des
+ * festen Betriebs: sie wird bei jeder Buchung auf dem Server gerechnet und
+ * muss deshalb auch bei 200 Tischen billig sein.
+ */
+function flexTables(level, grid = GRID) {
+  const { anzahl, plaetze } = flexWerte(level);
+  const mass = footprint(plaetze);
+  const { breite } = raumMass(level, grid);
+  const jeReihe = Math.max(1, Math.floor((breite + grid.gap) / (mass.w + grid.gap)));
+  return Array.from({ length: anzahl }, (_, index) => ({
+    id: `${level.id}-f${String(index + 1).padStart(3, '0')}`,
+    levelId: level.id,
+    seats: plaetze,
+    seatNames: [],
+    form: 'laenglich',
+    dreh: 0,
+    ...mass,
+    col: (index % jeReihe) * (mass.w + grid.gap),
+    row: Math.floor(index / jeReihe) * (mass.h + grid.gap),
+    pinned: true,
+    flex: true
+  }));
+}
+
+/**
  * Legt die Tische einer Etage. Gemerkte Positionen gewinnen; alles ohne
  * Position rutscht in die erste freie Luecke. So bleibt eine von Hand gebaute
  * Anordnung erhalten, wenn nur ein Tisch dazukommt.
@@ -236,6 +287,21 @@ export function raumMass(level, grid = GRID) {
 }
 
 export function buildLevelGeometry(level, grid = GRID) {
+  // Flexibel: Tische kommen aus drei Zahlen, nicht aus einer Liste.
+  if (istFlexibel(level)) {
+    const tables = flexTables(level, grid);
+    const { breite, tiefe } = raumMass(level, grid);
+    const belegt = tables.reduce((max, table) => Math.max(max, table.row + table.h), 0);
+    return {
+      cols: Math.max(breite, tables.reduce((max, table) => Math.max(max, table.col + table.w), 0)),
+      rows: Math.max(tiefe || 0, belegt),
+      raum: tiefe ? { breite, tiefe } : null,
+      umriss: null,
+      tables,
+      elements: []
+    };
+  }
+
   const specs = (Array.isArray(level?.tables) ? level.tables : []).map(table => ({
     id: table.id,
     levelId: level.id,
@@ -388,6 +454,28 @@ export function buildFloorplan(config, grid = GRID) {
   const byId = new Map(all.map(table => [table.id, table]));
   const combos = [];
   const orphans = [];
+
+  // Flexibel-Etagen: die Kombinationen entstehen automatisch. k gleiche
+  // Tische zusammengeschoben tragen hoechstens k mal die Plaetze - und
+  // mindestens einen Gast mehr, als k-1 Tische schaffen: eine Zweiergruppe
+  // bekommt keinen Doppel-Tisch, solange ein einzelner reicht.
+  for (const level of levels.filter(istFlexibel)) {
+    const { plaetze, maxKombi } = flexWerte(level);
+    const eigene = all.filter(table => table.levelId === level.id);
+    for (let k = 2; k <= Math.min(maxKombi, eigene.length); k += 1) {
+      for (let start = 0; start + k <= eigene.length; start += 1) {
+        const members = eigene.slice(start, start + k);
+        combos.push({
+          id: `${level.id}-k${k}-${String(start + 1).padStart(3, '0')}`,
+          tableIds: members.map(table => table.id),
+          levelId: level.id,
+          seats: plaetze * k,
+          minGuests: plaetze * (k - 1) + 1,
+          maxGuests: plaetze * k
+        });
+      }
+    }
+  }
 
   for (const combo of layout?.combos || []) {
     const ids = Array.isArray(combo?.tables) ? combo.tables : [];

@@ -128,6 +128,17 @@
       id,
       name: safeText(level?.name, 40) || `Etage ${index + 1}`,
       order: safeNumber(level?.order, 1, 4, index + 1),
+      // Flexibel-Betrieb: lauter gleiche Tische, beschrieben durch drei
+      // Zahlen. Ohne diese Zeilen fiel der Modus beim Speichern lautlos weg -
+      // der Schalter sprang zurueck, und es sah aus, als ginge er nicht.
+      ...(level?.modus === 'flexibel' ? {
+        modus: 'flexibel',
+        flex: {
+          anzahl: safeNumber(level?.flex?.anzahl, 1, 200, 50),
+          plaetze: safeNumber(level?.flex?.plaetze, 1, 6, 2),
+          maxKombi: safeNumber(level?.flex?.maxKombi, 1, 12, 5)
+        }
+      } : {}),
       // Raumflaeche der Etage. null heisst: kein eigenes Mass hinterlegt.
       breite: mass(level?.breite),
       tiefe: mass(level?.tiefe),

@@ -1,18 +1,17 @@
 (() => {
   'use strict';
 
-  // Personenzahl als Schrittwahl statt Dropdown - auf dem Handy kein Vollbild-Menue.
+  // Personenzahl als Schrittwahl mit Tippfeld: die Knoepfe fuer den Daumen,
+  // das Feld fuer die Zwoelfergruppe - zwoelfmal Plus ist kein Bedienweg.
   document.querySelectorAll('[data-stepper]').forEach(box => {
     const min = Number(box.dataset.min);
     const max = Number(box.dataset.max);
-    const out = box.querySelector('output');
     const field = box.querySelector('input');
-    const kind = box.dataset.stepper;
-    const label = n => (n === 1 ? '1 Person' : `${n} Personen`);
+    const einheit = box.querySelector('[data-einheit]');
     let value = Number(box.dataset.value);
     const paint = () => {
-      out.textContent = label(value);
       field.value = String(value);
+      if (einheit) einheit.textContent = value === 1 ? 'Person' : 'Personen';
       box.querySelector('[data-step="-1"]').disabled = value <= min;
       box.querySelector('[data-step="1"]').disabled = value >= max;
     };
@@ -20,6 +19,26 @@
       const step = event.target.closest('[data-step]');
       if (!step) return;
       value = Math.min(max, Math.max(min, value + Number(step.dataset.step)));
+      paint();
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    // Getippt: waehrend der Eingabe nichts ueberschreiben, erst beim Verlassen
+    // in die Grenzen holen. Wer "15" tippt, darf nicht nach der "1" gestoppt
+    // werden.
+    field.addEventListener('input', () => {
+      const getippt = Math.trunc(Number(field.value));
+      if (Number.isFinite(getippt) && getippt >= min && getippt <= max) {
+        value = getippt;
+        if (einheit) einheit.textContent = value === 1 ? 'Person' : 'Personen';
+        box.querySelector('[data-step="-1"]').disabled = value <= min;
+        box.querySelector('[data-step="1"]').disabled = value >= max;
+      }
+    });
+    field.addEventListener('blur', () => {
+      const getippt = Math.trunc(Number(field.value));
+      value = Number.isFinite(getippt) && getippt >= min
+        ? Math.min(max, getippt)
+        : value;
       paint();
       field.dispatchEvent(new Event('input', { bubbles: true }));
     });

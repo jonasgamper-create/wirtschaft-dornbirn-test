@@ -12,7 +12,7 @@
   <title>Tischreservierung · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=9ce8cc05">
+  <link rel="stylesheet" href="tischreservierung.css?v=d377caae">
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Restaurant","name":"Wirtschaft Dornbirn","legalName":"„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.","url":"https://wirtschaft-dornbirn.at/","telephone":"+43557220540","email":"willkommen@wirtschaft-dornbirn.at","address":{"@type":"PostalAddress","streetAddress":"Bahnhofstraße 24","postalCode":"6850","addressLocality":"Dornbirn","addressRegion":"Vorarlberg","addressCountry":"AT"},"vatID":"ATU36206707","acceptsReservations":"https://wirtschaft-dornbirn.at/tischreservierung.html"}
   </script>
@@ -76,11 +76,13 @@
             <small class="slot-info" id="slotInfo" role="status" aria-live="polite"></small>
           </label>
           <label class="wide stepper-field">Anzahl Personen*
-            <span class="stepper" data-stepper="guests" data-min="1" data-max="10" data-value="2">
+            <span class="stepper" data-stepper="guests" data-min="1" data-max="20" data-value="2">
               <button type="button" data-step="-1" aria-label="Eine Person weniger">−</button>
-              <output aria-live="polite">2 Personen</output>
+              <span class="stepper-zahl">
+                <input type="number" name="guests" inputmode="numeric" min="1" max="20" step="1" value="2" aria-label="Anzahl Personen – auch direkt eintippbar">
+                <span data-einheit aria-hidden="true">Personen</span>
+              </span>
               <button type="button" data-step="1" aria-label="Eine Person mehr">+</button>
-              <input type="hidden" name="guests" value="2">
             </span>
           </label>
           <!-- Erst wenn Tag, Zeit und Personen stehen, fragen wir, wer kommt.
@@ -102,7 +104,7 @@
             <p class="contact-note">Nur für diese Reservierung: Bestätigung – und die Absage, falls wir kurzfristig nicht kochen können. Gelöscht spätestens 30 Tage nach dem Termin.</p>
           </div>
         </form>
-        <p class="group-hint">Mehr als 10 Personen? Ruf’ uns an: <a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
+        <p class="group-hint">Mehr als 20 Personen? Ruf’ uns an: <a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
         <p class="required">* Pflichtfelder</p>
         <div class="submit-row">
           <a class="button button-green" id="submitBooking" href="tel:+43557220540">Lieber anrufen: +43 (0)5572 20 540</a>
@@ -164,7 +166,7 @@
     <p class="prototype-note">Öffentliche Testumgebung · Reservierung über den offiziellen Anbieter</p>
   </footer>
 
-  <script src="tischreservierung.js?v=0208ba12" defer></script>
+  <script src="tischreservierung.js?v=8e8d7ed0" defer></script>
   <script type="module" src="tischreservierung-buchung.js?v=1c819e7d"></script>
 </body>
 </html>

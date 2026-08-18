@@ -207,6 +207,52 @@ const spaeter = ampelFuer({ config, parties: besetzt, date: heute, jetzt: '13:15
 check('Nach dem Essen zaehlt der Tisch wieder als frei',
   spaeter.freieTische === plan.tables.length, `${spaeter.freieTische} von ${plan.tables.length}`);
 
+// ---- Flexibel-Betrieb: gleiche Tische, zusammenschiebbar ------------------
+// 50 Tische a 2 Plaetze, bis 5 zusammenschiebbar: 1 Tisch traegt 1-2 Personen,
+// 2 Tische 3-4, 5 Tische 9-10. Alles daraus erzeugt, nichts von Hand gepflegt.
+
+const flexConfig = {
+  version: 2,
+  numbering: { start: 1 },
+  activeLayout: 'flex',
+  layouts: [{
+    id: 'flex',
+    name: 'Flexibel',
+    levels: [{ id: 'saal', name: 'Saal', order: 0, modus: 'flexibel', flex: { anzahl: 50, plaetze: 2, maxKombi: 5 }, tables: [] }],
+    combos: []
+  }],
+  policy: { maxCoversPerSlot: 100 }
+};
+const flexPlan = buildFloorplan(flexConfig);
+check('Flexibel erzeugt die Tische', flexPlan.tables.length === 50, String(flexPlan.tables.length));
+check('Flexibel erzeugt die Stuehle', flexPlan.tables.reduce((s, t) => s + t.seats, 0) === 100);
+check('Flexibel erzeugt die Kombinationen', flexPlan.combos.length === 49 + 48 + 47 + 46, String(flexPlan.combos.length));
+
+const einPaar = verteile({ name: 'Paar', date: heute, time: '12:00', guests: 2 }, { config: flexConfig, parties: [] });
+check('Paar bekommt einen einzelnen Tisch', einPaar.result.ok && einPaar.result.tableIds.length === 1,
+  JSON.stringify(einPaar.result.tableIds));
+const zuDritt = verteile({ name: 'Drei', date: heute, time: '12:00', guests: 3 }, { config: flexConfig, parties: [] });
+check('Drei bekommen zwei zusammengeschobene Tische', zuDritt.result.ok && zuDritt.result.tableIds.length === 2,
+  JSON.stringify(zuDritt.result.tableIds));
+const zehn = verteile({ name: 'Zehn', date: heute, time: '12:00', guests: 10 }, { config: flexConfig, parties: [] });
+check('Zehn bekommen fuenf Tische', zehn.result.ok && zehn.result.tableIds.length === 5,
+  JSON.stringify(zehn.result.tableIds));
+const elf = verteile({ name: 'Elf', date: heute, time: '12:00', guests: 11 }, { config: flexConfig, parties: [] });
+check('Elf sprengen die Kombigrenze von 5 Tischen', !elf.result.ok, JSON.stringify(elf.result));
+
+// Online-Grenze: bis 20 Personen, darueber ans Telefon.
+check('Zwanzig Personen gehen online durch',
+  pruefeAnfrage({ name: 'Gross', date: heute, time: '12:00', guests: 20 }, { heute }).ok);
+check('Einundzwanzig gehoeren ans Telefon',
+  pruefeAnfrage({ name: 'Zu gross', date: heute, time: '12:00', guests: 21 }, { heute }).grund === 'personen');
+
+// Eine groessere Kombigrenze traegt auch die Zwanzigergruppe.
+const grossConfig = structuredClone(flexConfig);
+grossConfig.layouts[0].levels[0].flex.maxKombi = 10;
+const zwanzig = verteile({ name: 'Zwanzig', date: heute, time: '12:00', guests: 20 }, { config: grossConfig, parties: [] });
+check('Mit Kombigrenze 10 sitzen zwanzig an zehn Tischen',
+  zwanzig.result.ok && zwanzig.result.tableIds.length === 10, JSON.stringify(zwanzig.result));
+
 // ---- Tischplan annehmen oder ablehnen -------------------------------------
 // Live gefunden: ein fehlendes Feld sprengte "Uebernehmen und veroeffentlichen"
 // mit 500, weil JSON.stringify(undefined) kein Textstueck liefert und die
