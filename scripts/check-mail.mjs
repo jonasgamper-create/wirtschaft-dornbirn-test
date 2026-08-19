@@ -134,7 +134,13 @@ check('Der Token verlaesst den Dienst nicht', /const ohneGeheimnis/.test(dienst)
 // Der Bildschirm im Eingang haengt am selben Draht wie das Cockpit - aber
 // nicht an denselben Daten.
 check('Der Schirm bekommt keine Kontaktdaten',
-  /rolle === 'schirm'/.test(dienst) && /\(\{ kontakt, \.\.\.rest \}\)/.test(dienst));
+  /rolle === 'schirm'/.test(dienst) && /const \{ kontakt, gastSchluessel, \.\.\.rest \} = party/.test(dienst));
+// Und erst recht kein Gastprofil: "4. Besuch, glutenfrei" neben einem Namen
+// waere auf einem Schirm, auf den jeder Gast schaut, ein Aushang ueber
+// Menschen, die dem nie zugestimmt haben.
+check('Der Schirm bekommt kein Gastprofil',
+  /CREATE TABLE IF NOT EXISTS gastprofile/.test(dienst)
+  && /gastSchluessel \? fuerDenWirt/.test(dienst));
 const schirm = await readFile(path.join(root, 'site/screen.js'), 'utf8');
 check('Der Schirm meldet sich als Schirm an', /'schirm'\)/.test(schirm));
 check('Absage und Einwilligung brauchen ein Formular',
