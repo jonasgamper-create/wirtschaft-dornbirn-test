@@ -117,7 +117,7 @@
         : '';
       reserveCta.textContent = paused && reopenLong
         ? `ab ${reopenLong.toLowerCase()} reservieren`
-        : 'tisch reservieren';
+        : 'Mittagstisch reservieren';
       reserveCta.dataset.paused = String(paused);
     }
     const nextEvent = calendarEvents.find(item => item.date >= todayIso && !['cancelled', 'paused'].includes(item.status));

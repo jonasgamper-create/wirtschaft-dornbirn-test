@@ -667,7 +667,16 @@ html{scroll-padding-top:0}
 .lunch-subscribe span{color:#57524a;font-size:var(--t-meta);line-height:1.5}
 .button-ghost-dark{border-color:#11110f;color:#11110f;background:transparent}
 .button-ghost-dark:hover{background:#11110f;color:#f3efe6}
-@media(max-width:520px){.lunch-subscribe{gap:12px}.lunch-subscribe .button{width:100%}}
+/* Das Abo direkt hier: Adresse eintragen, fertig - kein Umweg uebers
+   Mailprogramm. Die Bestaetigungsmail bleibt der einzige Weg zur
+   Einwilligung. */
+.lunch-abo{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.lunch-abo-feld{display:grid;gap:4px;color:#57524a;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.lunch-abo-feld input{min-width:230px;min-height:46px;padding:10px 14px;border:1px solid #11110f44;border-radius:8px;background:#fff;color:#11110f;font-size:var(--t-meta);font-weight:400;letter-spacing:0;text-transform:none}
+.lunch-abo-feld[hidden],.lunch-abo button[hidden]{display:none}
+.lunch-abo-status{flex-basis:100%;color:var(--green);font-size:var(--t-meta);font-weight:700;min-height:0}
+.lunch-abo-status:empty{display:none}
+@media(max-width:520px){.lunch-subscribe{gap:12px}.lunch-subscribe .button{width:100%}.lunch-abo-feld{width:100%}.lunch-abo-feld input{width:100%;min-width:0}}
 
 /* Restliche Ausreisser auf die Skala ziehen. */
 .final-site .prologue-copy>p.luxury-reveal:not(.eyebrow),

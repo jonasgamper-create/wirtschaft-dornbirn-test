@@ -9,7 +9,7 @@ import { activeLayout, buildFloorplan, seatingPlan, serviceOf } from './floorpla
 import { durationFor, occupiesAt, stamp } from './table-assignment.mjs?v=ec7c8e39';
 import { renderFloorplan } from './floorplan.js?v=bf76e472';
 
-import { bleibVerbunden, hausToken, istOffen } from './haus-api.js?v=6e3ea1dd';
+import { bleibVerbunden, hausToken, istOffen } from './haus-api.js?v=ae22f464';
 
 const KEY = 'wirtschaft-dornbirn-host-control-v1';
 const SICHT = 'wirtschaft-screen-namen';

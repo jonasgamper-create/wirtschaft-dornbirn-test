@@ -18,11 +18,11 @@ import standardPlan from '../../site/data/floorplan.json';
 import { shift } from '../../site/table-assignment.mjs';
 import { pruefeKontakt } from './kontakt.mjs';
 import {
-  bestaetige, machEintrag, pruefeAnmeldung, raeumeAufOffene, sperrschluessel
+  bestaetige, empfaenger, machEintrag, pruefeAnmeldung, raeumeAufOffene, sperrschluessel
 } from './newsletter.mjs';
 import {
   absage as absageMail, baueTermin, bestaetigung as bestaetigungsMail, brevoPaket,
-  escapeHtml, newsletterFrage, sendeMail, termin_uid
+  escapeHtml, newsletterFrage, sendeMail, termin_uid, wochenkarte as wochenkarteMail
 } from './mail.mjs';
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
 import {
@@ -362,6 +362,13 @@ export class Haus extends DurableObject {
       automatik: this.#lies('automatik', true) !== false,
       // Ob der Gast seine Tischnummer erfaehrt. Standard: nein - sie ist intern.
       tischAnzeigen: this.#lies('tischAnzeigen', false) === true,
+      // Liegt ein geleerter Tag im Papierkorb, kann die Ansicht Rueckgaengig
+      // anbieten - nur die Eckdaten, nie der Inhalt.
+      papierkorb: (() => {
+        const korb = this.#lies('papierkorb', null);
+        if (!korb || Date.now() - Date.parse(korb.zeit) > 15 * 60 * 1000) return null;
+        return { tag: korb.tag, zeit: korb.zeit, anzahl: (korb.parties || []).length + (korb.takeawayIds || []).length };
+      })(),
       stand: this.#lies('version', 0)
     };
   }
@@ -800,6 +807,147 @@ export class Haus extends DurableObject {
     };
   }
 
+  /**
+   * Eine telefonische Reservierung aus der Wirt-Ansicht: vier Angaben, Tisch
+   * kommt automatisch. Ohne Pacing - der Wirt hat schon zugesagt, als er den
+   * Hoerer aufgelegt hat.
+   */
+  async legeEinfach({ name, date, time, guests, telefon }) {
+    const wer = String(name || '').trim().replace(/\s+/g, ' ').slice(0, 40);
+    if (wer.length < 2) return { ok: false, grund: 'name' };
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return { ok: false, grund: 'datum' };
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(String(time || ''))) return { ok: false, grund: 'uhrzeit' };
+    const anzahl = Math.trunc(Number(guests));
+    if (!Number.isFinite(anzahl) || anzahl < 1 || anzahl > 24) return { ok: false, grund: 'personen' };
+
+    const parties = this.#alle();
+    const { result, floorplan } = verteile({ name: wer, date, time, guests: anzahl }, {
+      config: this.#plan(),
+      parties,
+      blocked: this.#lies('blocked', []),
+      standardEtage: this.#lies('standardEtage', null),
+      deckel: this.#lies('deckel', null),
+      ohnePacing: true
+    });
+
+    const nummer = (Number(this.#lies('zaehler', 0)) || 0) + 1;
+    this.#schreib('zaehler', nummer);
+    const party = {
+      id: machId(Date.parse(`${date}T${time}:00Z`), nummer),
+      name: wer,
+      date,
+      time,
+      guests: anzahl,
+      kontakt: telefon ? { email: null, telefon: String(telefon).trim().slice(0, 25) } : null,
+      status: 'offen',
+      // Auch ohne freien Tisch wird angenommen - der Wirt hat zugesagt und
+      // teilt notfalls von Hand ein. Die Liste zeigt "ohne Tisch" ehrlich an.
+      tableIds: result.ok ? result.tableIds : [],
+      dishes: {},
+      arrived: null,
+      left: null,
+      source: 'haus',
+      quelle: 'haus',
+      eingegangen: new Date().toISOString()
+    };
+    this.#sichere(party);
+    await this.ctx.storage.setAlarm(Date.now() + 24 * 60 * 60 * 1000);
+    this.#meldeAenderung();
+    const tisch = result.ok ? floorplan.tables.find(table => table.id === result.tableIds[0]) : null;
+    return {
+      ok: true,
+      tisch: result.ok ? result.numbers.join(' + ') : null,
+      etage: tisch?.levelName || null,
+      reservierung: ohneGeheimnis(party)
+    };
+  }
+
+  /**
+   * Der Tagesabschluss auf einen Griff: heutige Reservierungen raus, offene
+   * Abholungen abgehakt. Kein "bist du sicher?" - sondern Rueckgaengig: der
+   * geraeumte Stand liegt eine Viertelstunde im Papierkorb. Kuenftige Tage
+   * bleiben unberuehrt.
+   */
+  async leereTag(datum) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(datum || ''))) return { ok: false, grund: 'datum' };
+    const parties = this.#amTag(datum);
+    const offene = this.#takeawayAlle().filter(bestellung =>
+      bestellung.date === datum && bestellung.status === 'offen');
+    if (!parties.length && !offene.length) return { ok: true, geleert: 0 };
+
+    this.#schreib('papierkorb', {
+      tag: datum,
+      zeit: new Date().toISOString(),
+      parties,
+      takeawayIds: offene.map(bestellung => bestellung.id)
+    });
+    this.ctx.storage.sql.exec('DELETE FROM reservierungen WHERE tag = ?', datum);
+    // Offene Abholungen werden abgehakt, nicht geloescht - das Protokoll je
+    // Gericht soll den Tag behalten.
+    for (const bestellung of offene) {
+      bestellung.status = 'abgeholt';
+      bestellung.abgeholtUm = null;
+      this.#takeawaySichere(bestellung);
+    }
+    this.#meldeAenderung();
+    return { ok: true, geleert: parties.length + offene.length };
+  }
+
+  async stelleTagWiederHer() {
+    const korb = this.#lies('papierkorb', null);
+    if (!korb) return { ok: false, grund: 'leer' };
+    // Nach einer Viertelstunde ist der Abschluss gewollt - dann kein Zurueck.
+    if (Date.now() - Date.parse(korb.zeit) > 15 * 60 * 1000) {
+      this.#schreib('papierkorb', null);
+      return { ok: false, grund: 'abgelaufen' };
+    }
+    for (const party of korb.parties || []) this.#sichere(party);
+    const zurueck = new Set(korb.takeawayIds || []);
+    for (const bestellung of this.#takeawayAlle()) {
+      if (!zurueck.has(bestellung.id)) continue;
+      bestellung.status = 'offen';
+      bestellung.abgeholtUm = null;
+      this.#takeawaySichere(bestellung);
+    }
+    this.#schreib('papierkorb', null);
+    this.#meldeAenderung();
+    return { ok: true, zurueck: (korb.parties || []).length + zurueck.size };
+  }
+
+  /**
+   * Montag frueh: die Wochenkarte an alle bestaetigten Abonnenten - aber nur,
+   * wenn seit dem letzten Versand eine neue Karte hochgeladen wurde. Dieselbe
+   * Karte zweimal zu schicken waere die schnellste Abmeldung der Welt.
+   */
+  async wochenkarteVersand(basis) {
+    const karte = this.#lies('karteStand', null);
+    if (!karte) return { ok: true, versendet: 0, grund: 'keine_karte' };
+    const marke = String(karte.stand || JSON.stringify(karte));
+    if (this.#lies('wochenkarteMarke', null) === marke) {
+      return { ok: true, versendet: 0, grund: 'unveraendert' };
+    }
+    const alle = empfaenger(this.#newsletterAlle());
+    let versendet = 0;
+    for (const eintrag of alle) {
+      const inhalt = wochenkarteMail({
+        karteLink: `${basis}/mittagskarte.pdf`,
+        abmeldeLink: `${basis}/newsletter/weg?t=${eintrag.token}`
+      });
+      const ergebnis = await sendeMail(this.env, brevoPaket({
+        absender: String(this.env?.BREVO_ABSENDER || ''),
+        an: eintrag.email,
+        betreff: inhalt.betreff,
+        html: inhalt.html,
+        text: inhalt.text
+      }));
+      if (ergebnis.ok) versendet += 1;
+    }
+    // Die Marke wird auch ohne Abonnenten gesetzt: die Karte gilt als
+    // verschickt, sonst ginge sie beim ersten Abonnenten Wochen spaeter raus.
+    this.#schreib('wochenkarteMarke', marke);
+    return { ok: true, versendet, abonnenten: alle.length };
+  }
+
   // ---- Takeaway ------------------------------------------------------------
 
   /** Die bestellbare Karte. Oeffentlich: Name und Preis, sonst nichts. */
@@ -1009,6 +1157,19 @@ function stub(env) {
 }
 
 export default {
+  /**
+   * Montag 7:15 im Haus: die Wochenkarte an die Abonnenten. Zwei UTC-Plaene
+   * decken Sommer- und Winterzeit ab; die Ortszeit entscheidet, welcher der
+   * beiden der echte ist - der andere Lauf endet hier sofort.
+   */
+  async scheduled(event, env, ctx) {
+    const uhr = jetztImHaus();
+    if (uhr.zeit !== '07:15') return;
+    const basis = String(env.DIENST_BASIS || '').replace(/\/+$/, '');
+    if (!basis) return;
+    ctx.waitUntil(stub(env).wochenkarteVersand(basis));
+  },
+
   async fetch(request, env) {
     const url = new URL(request.url);
     const kopf = cors(request, env);
@@ -1169,6 +1330,24 @@ export default {
       // Laufkundschaft: der Wirt drueckt eine Personenzahl, der Dienst setzt
       // die Gruppe auf den kleinsten passenden freien Tisch - jetzt, nicht
       // zu einer Slotzeit. Nur fuers Haus.
+      // Telefonische Reservierung aus der Wirt-Ansicht: vier Angaben genuegen.
+      if (url.pathname === '/api/reservierung/einfach' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.legeEinfach(body), 200, kopf);
+      }
+
+      // Tagesabschluss und sein Rueckgaengig.
+      if (url.pathname === '/api/tag/leeren' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.leereTag(body.datum || jetztImHaus().datum), 200, kopf);
+      }
+      if (url.pathname === '/api/tag/wiederherstellen' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        return json(await haus.stelleTagWiederHer(), 200, kopf);
+      }
+
       if (url.pathname === '/api/laufkunde' && request.method === 'POST') {
         if (!darf()) return json({ ok: false }, 401, kopf);
         const body = await request.json().catch(() => ({}));
