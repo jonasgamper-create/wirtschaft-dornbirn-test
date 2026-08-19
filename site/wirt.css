@@ -104,3 +104,26 @@ h2{font-size:24px;margin-bottom:6px}
   .haus-liste li{flex-wrap:wrap}
 }
 .haus-liste li[data-erledigt]{opacity:.55}
+
+/* Neu eingegangen: leuchtet gold, bis die Zeile einmal angetippt wurde. */
+.haus-liste li[data-neu]{border-color:var(--gold,#c59b5d);background:#c59b5d22}
+.haus-liste li[data-party]{cursor:pointer}
+.haus-liste .wer .wunsch{color:#8c6a2f;font-size:13px}
+
+/* Das Aktionsblatt. Ein Blatt, drei Griffe: Tisch, Personen, Notiz. */
+.blatt{width:min(560px,calc(100vw - 24px));border:1px solid var(--linie);border-radius:14px;padding:18px 18px 16px;background:#fff}
+.blatt::backdrop{background:#11110f66}
+.blatt-kopf{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.blatt-kopf b{display:block;font-size:18px}
+.blatt-kopf span{display:block;margin-top:2px;color:var(--muted);font-size:13.5px}
+.blatt-notiz{margin:10px 0 0;padding:10px 12px;border-left:2px solid var(--gold,#c59b5d);background:#c59b5d1c;color:#5b451d;font-size:14px}
+.blatt-teil{margin-top:16px}
+.blatt-teil h3{margin:0 0 8px;font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.blatt-tische{display:flex;flex-wrap:wrap;gap:8px}
+.blatt-tische button{min-height:46px;padding:0 14px;border:1px solid var(--linie);border-radius:999px;background:#fff;color:var(--ink);font:inherit;font-size:14.5px;cursor:pointer}
+.blatt-tische button:hover{border-color:var(--green)}
+.blatt-tische button.leise{color:var(--muted)}
+.blatt-leer{margin:0 0 4px;color:var(--muted);font-size:14px;flex:1 1 100%}
+.blatt-zeile{display:flex;gap:10px}
+.blatt-zeile input{flex:1;min-height:48px;padding:8px 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;font:inherit;font-size:16px}
+.blatt-zeile input[type="number"]{max-width:110px;text-align:center;font-variant-numeric:tabular-nums}
