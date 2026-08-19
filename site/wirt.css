@@ -119,6 +119,9 @@ h2{font-size:24px;margin-bottom:6px}
 .haus-liste li[data-neu]{border-color:var(--gold,#c59b5d);background:#c59b5d22}
 .haus-liste li[data-party]{cursor:pointer}
 .haus-liste .wer .wunsch{color:#8c6a2f;font-size:13px}
+/* Stammgast: gruen, weil es eine gute Nachricht ist - im Gegensatz zum
+   goldenen Wunsch, der eine Aufgabe ist. */
+.haus-liste .wer .stammgast{color:var(--green);font-size:13px;font-weight:700}
 
 /* Das Aktionsblatt. Ein Blatt, drei Griffe: Tisch, Personen, Notiz. */
 .blatt{width:min(560px,calc(100vw - 24px));border:1px solid var(--linie);border-radius:14px;padding:18px 18px 16px;background:#fff}

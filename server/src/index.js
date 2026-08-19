@@ -18,6 +18,9 @@ import standardPlan from '../../site/data/floorplan.json';
 import { shift } from '../../site/table-assignment.mjs';
 import { pruefeKontakt } from './kontakt.mjs';
 import {
+  fuerDenWirt, pruefeWunsch, raeumeAufProfile, schluesselFuer, widerrufe, zaehleBesuch
+} from './gast.mjs';
+import {
   bestaetige, empfaenger, machEintrag, pruefeAnmeldung, raeumeAufOffene, sperrschluessel
 } from './newsletter.mjs';
 import {
@@ -195,7 +198,42 @@ export class Haus extends DurableObject {
           teil BLOB NOT NULL
         )
       `);
+      // Gastprofile. Eigene Tabelle, eigener Zweck, eigene Loeschung: sie
+      // ueberleben die Reservierung und stehen auf einer Einwilligung, nicht
+      // auf dem Vertrag. Der Schluessel ist ein Hash - hier steht keine
+      // Adresse und keine Nummer.
+      this.ctx.storage.sql.exec(`
+        CREATE TABLE IF NOT EXISTS gastprofile (
+          schluessel TEXT PRIMARY KEY,
+          daten TEXT NOT NULL
+        )
+      `);
     });
+  }
+
+  // ---- Gastprofile ---------------------------------------------------------
+
+  #gastAlle() {
+    return this.ctx.storage.sql.exec('SELECT schluessel, daten FROM gastprofile').toArray()
+      .map(row => ({ schluessel: row.schluessel, ...JSON.parse(row.daten) }));
+  }
+
+  #gastLies(schluessel) {
+    const treffer = this.ctx.storage.sql
+      .exec('SELECT daten FROM gastprofile WHERE schluessel = ?', schluessel).toArray();
+    return treffer.length ? JSON.parse(treffer[0].daten) : null;
+  }
+
+  #gastSichere(schluessel, profil) {
+    this.ctx.storage.sql.exec(
+      'INSERT INTO gastprofile (schluessel, daten) VALUES (?, ?) '
+      + 'ON CONFLICT(schluessel) DO UPDATE SET daten = excluded.daten',
+      schluessel, JSON.stringify(profil)
+    );
+  }
+
+  #gastLoesche(schluessel) {
+    this.ctx.storage.sql.exec('DELETE FROM gastprofile WHERE schluessel = ?', schluessel);
   }
 
   // ---- Takeaway-Speicher ---------------------------------------------------
@@ -345,7 +383,18 @@ export class Haus extends DurableObject {
    * einem Geraet, auf das jeder Gast schaut, keine Formalie.
    */
   #stand(rolle = 'haus') {
-    const fuerRolle = party => (rolle === 'schirm' ? (({ kontakt, ...rest }) => rest)(party) : party);
+    // Der Bildschirm am Eingang bekommt weder Kontaktdaten noch das Profil:
+    // dort schaut jeder Gast hin, und "4. Besuch, glutenfrei" neben einem
+    // Namen waere genau die Art Aushang, die niemand ueber sich will.
+    const fuerRolle = party => {
+      if (rolle === 'schirm') {
+        const { kontakt, gastSchluessel, ...rest } = party;
+        return rest;
+      }
+      const { gastSchluessel, ...rest } = party;
+      const profil = gastSchluessel ? fuerDenWirt(this.#gastLies(gastSchluessel)) : null;
+      return profil ? { ...rest, gast: profil } : rest;
+    };
     return {
       floorplan: this.#plan(),
       // Ohne Token: er ist der Schluessel zur Absage und geht nur an den Gast
@@ -451,6 +500,23 @@ export class Haus extends DurableObject {
       quelle: 'online',
       eingegangen: new Date().toISOString()
     };
+    // Das Gastprofil - nur wenn der Gast ausdruecklich zugestimmt hat. Es
+    // haengt am Kontakt, nicht an der Reservierung: die verfaellt nach
+    // dreissig Tagen, das Profil ueberlebt sie.
+    const wunsch = pruefeWunsch(roh?.profil);
+    if (wunsch.merken) {
+      const schluessel = await schluesselFuer(kontaktCheck.kontakt);
+      if (schluessel) {
+        this.#gastSichere(schluessel, zaehleBesuch(this.#gastLies(schluessel), {
+          jetzt: new Date().toISOString(), datum: anfrage.date, wunsch
+        }));
+        // Der Schluessel kommt an die Reservierung, damit der Wirt das Profil
+        // sehen kann, ohne dass der Stand den Hash erst rechnen muss - er
+        // wird bei jeder Aenderung neu gebaut, auch mitten im Mittag.
+        party.gastSchluessel = schluessel;
+      }
+    }
+
     this.#sichere(party);
     this.#schreib('fenster', { fenster, anzahl: anzahl + 1 });
     // Ein Alarm raeumt spaeter auf - Speicherbegrenzung ist kein Nachgedanke.
@@ -1058,6 +1124,33 @@ export class Haus extends DurableObject {
     };
   }
 
+  /**
+   * Auskunft und Widerruf zum eigenen Profil. `widerruf` ist entweder
+   * 'alles' - dann faellt das Profil weg - oder 'gesundheit', dann bleibt die
+   * Besuchszahl und nur die Unvertraeglichkeit geht.
+   *
+   * Antwortet absichtlich gleich, ob es ein Profil gab oder nicht: sonst
+   * liesse sich mit fremden Adressen abfragen, wer hier schon einmal gegessen
+   * hat.
+   */
+  async gastAuskunft(kontakt, widerruf) {
+    const schluessel = await schluesselFuer(kontakt);
+    if (!schluessel) return { ok: true, profil: null };
+    const profil = this.#gastLies(schluessel);
+    if (!profil) return { ok: true, profil: null };
+
+    if (widerruf === 'alles') {
+      this.#gastLoesche(schluessel);
+      return { ok: true, profil: null, widerrufen: 'alles' };
+    }
+    if (widerruf === 'gesundheit') {
+      const naechstes = widerrufe(profil, 'gesundheit');
+      this.#gastSichere(schluessel, naechstes);
+      return { ok: true, profil: fuerDenWirt(naechstes), widerrufen: 'gesundheit' };
+    }
+    return { ok: true, profil: fuerDenWirt(profil) };
+  }
+
   async takeawayProtokoll() {
     return { ok: true, ...statistik(this.#takeawayAlle()) };
   }
@@ -1127,6 +1220,16 @@ export class Haus extends DurableObject {
     const taGrenze = new Date(`${heute}T00:00:00Z`);
     taGrenze.setUTCDate(taGrenze.getUTCDate() - AUFBEWAHRUNG_TAGE);
     this.ctx.storage.sql.exec('DELETE FROM takeaway WHERE tag < ?', taGrenze.toISOString().slice(0, 10));
+
+    // Gastprofile ohne Besuch verfallen. Eine Einwilligung ist kein
+    // Dauerauftrag: wer zwei Jahre nicht da war, steht auch nicht mehr im
+    // Speicher - ohne dass jemand daran denken muss.
+    const profile = this.#gastAlle();
+    const bleibenProfile = new Set(raeumeAufProfile(profile, new Date().toISOString())
+      .map(profil => profil.schluessel));
+    for (const profil of profile) {
+      if (!bleibenProfile.has(profil.schluessel)) this.#gastLoesche(profil.schluessel);
+    }
 
     // Eine Anmeldung ohne Bestaetigung ist keine Einwilligung. Sie faellt
     // nach der Frist weg, ohne dass jemand daran denken muss.
@@ -1430,6 +1533,19 @@ export default {
         const datum = url.searchParams.get('datum') || jetztImHaus().datum;
         if (!/^\d{4}-\d{2}-\d{2}$/.test(datum)) return json({ ok: false, grund: 'datum' }, 400, kopf);
         return json(await haus.kuechenzettel(datum), 200, kopf);
+      }
+
+      // Oeffentlich: das eigene Gastprofil einsehen und widerrufen.
+      //
+      // Ohne diesen Weg waere die Einwilligung wertlos - ein Widerruf muss so
+      // einfach sein wie die Zustimmung (Art. 7 Abs. 3 DSGVO). Kein Token:
+      // wer seine eigene Adresse nennt, bekommt Auskunft ueber genau diese
+      // eine Adresse. Mehr als "so oft warst du da" steht ohnehin nicht drin.
+      if (url.pathname === '/api/gast' && request.method === 'POST') {
+        const body = await request.json().catch(() => ({}));
+        const geprueft = pruefeKontakt(body?.kontakt);
+        if (!geprueft.ok) return json({ ok: false, grund: geprueft.grund }, 400, kopf);
+        return json(await haus.gastAuskunft(geprueft.kontakt, body?.widerruf || null), 200, kopf);
       }
 
       // Oeffentlich: die Ampel - wie voll ist der Mittag heute. Nur Zahlen
