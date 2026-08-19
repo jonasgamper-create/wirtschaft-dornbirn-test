@@ -4,7 +4,7 @@
 // wie bisher und leitet auf den offiziellen Anbieter weiter. Erst wenn der
 // Dienst laeuft, wird aus dem Formular eine echte Buchung.
 
-import { apiAdresse, buche, holeAmpel, holeFrei, holeKarteInfo, karteAdresse, meldeMittagskarte } from './haus-api.js?v=6e3ea1dd';
+import { apiAdresse, buche, holeAmpel, holeFrei, holeKarteInfo, karteAdresse, meldeMittagskarte } from './haus-api.js?v=ae22f464';
 
 const byId = id => document.getElementById(id);
 start();

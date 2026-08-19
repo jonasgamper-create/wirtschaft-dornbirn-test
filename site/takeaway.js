@@ -2,7 +2,7 @@
 // sie zeigt den Anrufknopf und sonst nichts - ein Formular, das ins Leere
 // schickt, waere schlimmer als keines.
 
-import { apiAdresse, bestelleTakeaway, holeTakeawayKarte } from './haus-api.js?v=6e3ea1dd';
+import { apiAdresse, bestelleTakeaway, holeTakeawayKarte } from './haus-api.js?v=ae22f464';
 
 const byId = id => document.getElementById(id);
 const alsPreis = wert => `€ ${Number(wert).toFixed(2).replace('.', ',')}`;

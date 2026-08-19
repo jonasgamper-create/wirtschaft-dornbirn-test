@@ -185,6 +185,15 @@ export const sendeTakeawayAktion = (token, befehl) =>
 /** Das Protokoll der letzten 30 Tage - was lief gut. */
 export const holeTakeawayProtokoll = token => ruf('/api/takeaway/protokoll', { token });
 
+/** Telefonische Reservierung aus der Wirt-Ansicht: vier Angaben genuegen. */
+export const legeEinfach = (token, reservierung) =>
+  ruf('/api/reservierung/einfach', { methode: 'POST', koerper: reservierung, token });
+
+/** Tagesabschluss: heute leeren - und sein Rueckgaengig. */
+export const leereTag = token => ruf('/api/tag/leeren', { methode: 'POST', koerper: {}, token });
+export const stelleTagWiederHer = token =>
+  ruf('/api/tag/wiederherstellen', { methode: 'POST', koerper: {}, token });
+
 export const holeStand = token => ruf('/api/stand', { token });
 
 /** Laufkundschaft: der Dienst setzt die Gruppe sofort auf einen freien Tisch. */

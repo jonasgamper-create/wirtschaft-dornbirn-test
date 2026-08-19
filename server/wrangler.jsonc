@@ -10,6 +10,12 @@
 
   "observability": { "enabled": true },
 
+  // Montag frueh die Wochenkarte an die Abonnenten - aber nur, wenn seit dem
+  // letzten Versand eine neue Karte hochgeladen wurde. Zwei UTC-Zeitplaene
+  // decken Sommer- und Winterzeit ab; im Code entscheidet die Ortszeit
+  // (07:15 in Dornbirn), welcher der beiden wirklich feuert.
+  "triggers": { "crons": ["15 5 * * 1", "15 6 * * 1"] },
+
   "durable_objects": {
     "bindings": [{ "name": "HAUS", "class_name": "Haus" }]
   },
@@ -21,6 +27,10 @@
     // Nur diese Herkuenfte duerfen den Dienst im Browser ansprechen.
     // Beim eigenen Domainnamen hier ergaenzen.
     "ALLOWED_ORIGINS": "https://jonasgamper-create.github.io,http://localhost:4321",
+
+    // Die eigene Adresse fuer Links in automatisch versendeten Mails - der
+    // Wochenkarten-Versand hat keine Anfrage, aus der er sie lesen koennte.
+    "DIENST_BASIS": "https://wirtschaft-reservierung.jonas-gamper.workers.dev",
 
     // Offener Betrieb: die interne Planung verlangt keinen Hausschluessel.
     // Jeder, der die Adresse kennt, sieht die Reservierungen mit Namen und

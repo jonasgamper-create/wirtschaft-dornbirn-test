@@ -1,13 +1,15 @@
-// Die einfache Wirt-Ansicht: was ist frei, Laufkundschaft setzen, Karte
-// tauschen. Sie rechnet nichts selbst aus, was der Dienst besser weiss -
-// der Tisch wird serverseitig vergeben, damit zwei Handys nie denselben
-// letzten Tisch erwischen.
+// Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps: drei Zahlen
+// oben, darunter EINE chronologische Liste des Tages - Reservierungen und
+// Abholungen gemischt, je Zeile ein grosser Statusknopf. Sie rechnet nichts
+// selbst aus, was der Dienst besser weiss: Tische vergibt der Server, damit
+// zwei Handys nie denselben letzten Tisch erwischen.
 
 import {
   apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeStand, karteAdresse,
-  loescheKarte, schluesselAusAdresse, sendeAktion, sendeKarte, sendeLaufkunde,
-  sendeTakeawayAktion
-} from './haus-api.js?v=6e3ea1dd';
+  leereTag, legeEinfach, loescheKarte, schluesselAusAdresse, sendeAktion,
+  sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
+  stelleTagWiederHer
+} from './haus-api.js?v=ae22f464';
 import { buildFloorplan } from './floorplan-layout.mjs?v=8cd1fbb4';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=ec7c8e39';
 
@@ -29,17 +31,19 @@ async function start() {
   schluesselAusAdresse();
   if (!(await apiAdresse())) {
     byId('verbindungText').textContent = 'Kein Dienst eingetragen';
-    byId('freiGross').textContent = 'Dienst fehlt';
+    byId('zahlErwartet').textContent = '–';
     return;
   }
+
+  byId('tagZeile').textContent = `Heute Mittag · ${new Date().toLocaleDateString('de-AT', {
+    weekday: 'long', day: 'numeric', month: 'long'
+  })}`;
 
   // Erst der letzte bekannte Stand, dann der offene Draht. So steht sofort
   // etwas da, auch wenn der Draht eine Sekunde braucht.
   const erster = await holeStand(hausToken());
   if (erster?.stand) { stand = erster.stand; male(); }
 
-  // Laeuft der Dienst offen, braucht der Draht keinen echten Schluessel -
-  // der Platzhalter haelt nur die Verbindungslogik zufrieden.
   bleibVerbunden(hausToken() || 'offen', neuerStand => {
     stand = neuerStand;
     male();
@@ -48,10 +52,231 @@ async function start() {
     byId('verbindungText').textContent = zustand === 'verbunden' ? 'Live verbunden' : 'Getrennt – verbinde neu …';
   });
 
-  // Die Uhr laeuft weiter, auch wenn nichts passiert: nach 90 Minuten wird
-  // ein Tisch von selbst frei, und die Zahlen muessen mitgehen.
+  // Die Uhr laeuft weiter, auch wenn nichts passiert: nach der Essenszeit
+  // wird ein Tisch von selbst frei, und die Zahlen muessen mitgehen.
   setInterval(male, 60 * 1000);
 
+  verdrahteHeuteListe();
+  verdrahteNeueReservierung();
+  verdrahteLaufkundschaft();
+  verdrahteTagLeeren();
+  verdrahteKarten();
+}
+
+function sag(wo, text, art = '') {
+  const ziel = byId(wo);
+  ziel.textContent = text;
+  if (art) ziel.dataset.art = art; else delete ziel.dataset.art;
+}
+
+// ---- Der Tag als eine Liste ------------------------------------------------
+
+function verdrahteHeuteListe() {
+  byId('heuteListe').addEventListener('click', async event => {
+    const knopf = event.target.closest('[data-aktion]');
+    if (!knopf) return;
+    knopf.disabled = true;
+    const { aktion, id } = knopf.dataset;
+    const nu = jetzt();
+    if (aktion === 'ankunft') await sendeAktion(hausToken(), { art: 'ankunft', id, zeit: nu.zeit });
+    if (aktion === 'abgang') await sendeAktion(hausToken(), { art: 'abgang', id, zeit: nu.zeit });
+    if (aktion === 'zurueck') await sendeAktion(hausToken(), { art: 'abgang', id, zeit: null });
+    if (aktion === 'abgeholt') await sendeTakeawayAktion(hausToken(), { art: 'abgeholt', id, zeit: nu.zeit });
+    if (aktion === 'doch-nicht') await sendeTakeawayAktion(hausToken(), { art: 'offen', id });
+    // Die Antwort kommt ueber den Draht zurueck und malt die Liste neu.
+  });
+}
+
+/**
+ * Eine Zeile der Tagesliste. Links die Zeit, in der Mitte wer und was,
+ * rechts genau ein Knopf - der naechste sinnvolle Schritt und sonst nichts.
+ */
+function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, leiseKnopf = false, ton = '' }) {
+  const li = document.createElement('li');
+  if (erledigt) li.dataset.erledigt = '';
+  if (ton) li.dataset.ton = ton;
+  const zeitEl = document.createElement('span');
+  zeitEl.className = 'zeit';
+  zeitEl.textContent = zeit;
+  const wer = document.createElement('div');
+  wer.className = 'wer';
+  const b = document.createElement('b');
+  b.textContent = titel;
+  const s = document.createElement('span');
+  s.textContent = info;
+  wer.append(b, s);
+  li.append(zeitEl, wer);
+  if (knopfText) {
+    const knopf = document.createElement('button');
+    knopf.type = 'button';
+    knopf.className = leiseKnopf ? 'knopf leise' : 'knopf';
+    knopf.dataset.aktion = aktion;
+    knopf.dataset.id = id;
+    knopf.textContent = knopfText;
+    li.append(knopf);
+  }
+  return li;
+}
+
+/** Alles neu malen: die eine Wahrheit ist der Stand des Dienstes. */
+function male() {
+  if (!stand?.floorplan) return;
+  const plan = buildFloorplan(stand.floorplan);
+  const policy = stand.floorplan.policy || {};
+  const nu = jetzt();
+  const at = `${nu.datum}T${nu.zeit}`;
+  const dauer = party => durationFor(party.guests, policy);
+
+  const heute = (stand.parties || []).filter(party => party.date === nu.datum);
+  const takeaway = (stand.takeaway || []).filter(bestellung => bestellung.date === nu.datum);
+
+  // Wer sitzt gerade, was ist belegt.
+  const belegt = new Set();
+  let imHaus = 0;
+  for (const party of heute) {
+    if (!party.tableIds?.length) continue;
+    if (!occupiesAt(party, { at, minutes: dauer(party) })) continue;
+    imHaus += party.guests;
+    for (const id of party.tableIds) belegt.add(id);
+  }
+  const gesperrt = new Set(stand.blockedTables || []);
+  const offen = plan.tables.filter(table => !gesperrt.has(table.id));
+  const freie = offen.filter(table => !belegt.has(table.id));
+
+  // Die drei Zahlen.
+  const erwartete = heute.filter(party => !party.arrived && !party.left);
+  byId('zahlErwartet').textContent = String(erwartete.length);
+  byId('subErwartet').textContent = erwartete.length
+    ? `${erwartete.reduce((sum, party) => sum + party.guests, 0)} Personen`
+    : 'nichts offen';
+  byId('zahlImHaus').textContent = String(imHaus);
+  byId('subImHaus').textContent = imHaus ? 'sitzen an Tischen' : 'noch leer';
+  byId('zahlFrei').textContent = `${freie.length}`;
+  const offeneAbholungen = takeaway.filter(bestellung => bestellung.status === 'offen').length;
+  byId('subFrei').textContent = `von ${offen.length} Tischen`
+    + (offeneAbholungen ? ` · ${offeneAbholungen} Abholung${offeneAbholungen === 1 ? '' : 'en'} offen` : '');
+
+  // Rueckgaengig-Balken, wenn ein geleerter Tag im Papierkorb liegt.
+  const korb = stand.papierkorb;
+  byId('korbBalken').hidden = !korb;
+  if (korb) {
+    byId('korbText').textContent = `Tag geleert – ${korb.anzahl} ${korb.anzahl === 1 ? 'Eintrag' : 'Einträge'} im Papierkorb (15 Minuten).`;
+  }
+
+  // Die Tagesliste: Reservierungen und Abholungen gemischt, nach Zeit.
+  const eintraege = [];
+  for (const party of heute) {
+    const zeitVon = party.time;
+    const tische = party.tableIds?.length
+      ? `Tisch ${party.tableIds.map(id => plan.tables.find(t => t.id === id)?.number ?? '?').join(' + ')}`
+      : 'noch ohne Tisch';
+    const [stunde, minute] = zeitVon.split(':').map(Number);
+    const bis = stunde * 60 + minute + dauer(party);
+    const bisText = `${pad(Math.floor(bis / 60) % 24)}:${pad(bis % 60)}`;
+    const personen = `${party.guests} P.`;
+
+    if (party.left) {
+      eintraege.push(zeile({
+        zeit: zeitVon, id: party.id,
+        titel: `${party.name} · ${personen}`,
+        info: `fertig um ${party.left} · ${tische}`,
+        knopfText: 'Zurück', aktion: 'zurueck', erledigt: true, leiseKnopf: true
+      }));
+    } else if (party.arrived) {
+      eintraege.push(zeile({
+        zeit: zeitVon, id: party.id,
+        titel: `${party.name} · ${personen}`,
+        info: `im Haus seit ${party.arrived} · ${tische} · frei gegen ${bisText}`,
+        knopfText: 'Fertig', aktion: 'abgang', ton: 'da'
+      }));
+    } else {
+      const ueberfaellig = zeitVon < nu.zeit && !party.arrived;
+      eintraege.push(zeile({
+        zeit: zeitVon, id: party.id,
+        titel: `${party.name} · ${personen}`,
+        info: `${ueberfaellig ? 'überfällig' : 'erwartet'} · ${tische}`,
+        knopfText: 'Da', aktion: 'ankunft', ton: ueberfaellig ? 'spaet' : ''
+      }));
+    }
+  }
+  for (const bestellung of takeaway) {
+    const essen = (bestellung.posten || []).map(eintrag => `${eintrag.menge}× ${eintrag.name}`).join(', ');
+    const summe = `€ ${Number(bestellung.summe).toFixed(2).replace('.', ',')}`;
+    if (bestellung.status === 'abgeholt') {
+      eintraege.push(zeile({
+        zeit: bestellung.abholzeit, id: bestellung.id,
+        titel: `Takeaway Nr. ${bestellung.nummer} · ${bestellung.name}`,
+        info: `${essen} · ${summe}${bestellung.abgeholtUm ? ` · abgeholt ${bestellung.abgeholtUm}` : ''}`,
+        knopfText: 'Doch nicht', aktion: 'doch-nicht', erledigt: true, leiseKnopf: true
+      }));
+    } else {
+      eintraege.push(zeile({
+        zeit: bestellung.abholzeit, id: bestellung.id,
+        titel: `Takeaway Nr. ${bestellung.nummer} · ${bestellung.name}`,
+        info: `${essen} · ${summe} · zahlt bei Abholung`,
+        knopfText: 'Abgeholt', aktion: 'abgeholt', ton: 'takeaway'
+      }));
+    }
+  }
+  eintraege.sort((a, b) => a.querySelector('.zeit').textContent.localeCompare(b.querySelector('.zeit').textContent));
+
+  const liste = byId('heuteListe');
+  liste.textContent = '';
+  for (const eintrag of eintraege) liste.append(eintrag);
+  if (!eintraege.length) {
+    const leer = document.createElement('li');
+    leer.className = 'leer';
+    leer.textContent = 'Heute steht noch nichts an. Reservierungen und Bestellungen erscheinen hier von selbst.';
+    liste.append(leer);
+  }
+}
+
+// ---- Telefonische Reservierung ---------------------------------------------
+
+function verdrahteNeueReservierung() {
+  const form = byId('neuForm');
+  byId('neuZeigen').addEventListener('click', () => {
+    form.hidden = !form.hidden;
+    if (!form.hidden) {
+      // Naechste Viertelstunde vorschlagen - meistens ist es "gleich".
+      const d = new Date();
+      const minuten = Math.min(13 * 60 + 30, Math.max(11 * 60 + 30, Math.ceil((d.getHours() * 60 + d.getMinutes() + 15) / 15) * 15));
+      byId('neuZeit').value = `${pad(Math.floor(minuten / 60))}:${pad(minuten % 60)}`;
+      byId('neuName').focus();
+    }
+  });
+  byId('neuWeg').addEventListener('click', () => { form.hidden = true; });
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const name = byId('neuName').value.trim();
+    const time = byId('neuZeit').value;
+    const guests = Number(byId('neuPersonen').value);
+    if (name.length < 2 || !time || !guests) {
+      return sag('neuErgebnis', 'Name, Uhrzeit und Personenzahl eintragen – mehr braucht es nicht.', 'fehler');
+    }
+    sag('neuErgebnis', 'Einen Moment …');
+    const antwort = await legeEinfach(hausToken(), {
+      name, time, guests,
+      date: jetzt().datum,
+      telefon: byId('neuTelefon').value.trim() || null
+    });
+    if (!antwort?.ok) {
+      return sag('neuErgebnis', 'Das hat nicht geklappt – bitte noch einmal.', 'fehler');
+    }
+    form.hidden = true;
+    byId('neuName').value = '';
+    byId('neuTelefon').value = '';
+    byId('neuPersonen').value = '2';
+    sag('neuErgebnis', antwort.tisch
+      ? `Eingetragen: ${name}, ${guests} P. um ${time} – Tisch ${antwort.tisch}.`
+      : `Eingetragen: ${name}, ${guests} P. um ${time} – noch ohne Tisch, in der großen Einteilung zuteilen.`, 'gut');
+  });
+}
+
+// ---- Laufkundschaft --------------------------------------------------------
+
+function verdrahteLaufkundschaft() {
   byId('laufErgebnis').textContent = '';
   document.querySelector('.lauf-knoepfe').addEventListener('click', async event => {
     const knopf = event.target.closest('[data-personen]');
@@ -67,28 +292,41 @@ async function start() {
       return;
     }
     sag('laufErgebnis', antwort?.grund === 'voll'
-      ? 'Gerade ist kein passender Tisch frei. Unten nachsehen, wer bald geht.'
+      ? 'Gerade ist kein passender Tisch frei. Oben nachsehen, wer bald fertig ist.'
       : 'Das hat nicht geklappt – bitte noch einmal drücken.', 'fehler');
   });
+}
 
-  byId('imHaus').addEventListener('click', async event => {
-    const knopf = event.target.closest('[data-frei-id]');
-    if (!knopf) return;
+// ---- Tag leeren mit Rueckgaengig -------------------------------------------
+
+function verdrahteTagLeeren() {
+  byId('tagLeeren').addEventListener('click', async () => {
+    const knopf = byId('tagLeeren');
     knopf.disabled = true;
-    await sendeAktion(hausToken(), { art: 'abgang', id: knopf.dataset.freiId, zeit: jetzt().zeit });
-    // Die Antwort kommt ueber den Draht zurueck und malt die Liste neu.
+    const antwort = await leereTag(hausToken());
+    knopf.disabled = false;
+    if (!antwort?.ok) return sag('laufErgebnis', 'Leeren hat nicht geklappt – bitte noch einmal.', 'fehler');
+    if (!antwort.geleert) return sag('laufErgebnis', 'Heute war nichts zu leeren.', '');
+    // Der Balken kommt ueber den Draht (Stand enthaelt den Papierkorb).
   });
-
-  byId('takeawayListe').addEventListener('click', async event => {
-    const knopf = event.target.closest('[data-takeaway-id]');
-    if (!knopf) return;
+  byId('korbZurueck').addEventListener('click', async () => {
+    const knopf = byId('korbZurueck');
     knopf.disabled = true;
-    await sendeTakeawayAktion(hausToken(), {
-      art: knopf.dataset.art, id: knopf.dataset.takeawayId, zeit: jetzt().zeit
-    });
-    // Die Antwort kommt ueber den Draht zurueck und malt die Liste neu.
+    const antwort = await stelleTagWiederHer(hausToken());
+    knopf.disabled = false;
+    if (!antwort?.ok) {
+      byId('korbText').textContent = antwort?.grund === 'abgelaufen'
+        ? 'Die 15 Minuten sind vorbei – der Tag bleibt geleert.'
+        : 'Da war nichts wiederherzustellen.';
+      return;
+    }
+    byId('korbBalken').hidden = true;
   });
+}
 
+// ---- Mittagskarte und Takeaway-Karte ---------------------------------------
+
+function verdrahteKarten() {
   zeigeKarte();
   byId('karteDatei').addEventListener('change', async event => {
     const datei = event.target.files?.[0];
@@ -107,147 +345,25 @@ async function start() {
     sag('karteInfo', antwort?.ok ? 'Karte entfernt.' : 'Entfernen hat nicht geklappt.', antwort?.ok ? 'gut' : 'fehler');
     zeigeKarte();
   });
-}
 
-function sag(wo, text, art = '') {
-  const ziel = byId(wo);
-  ziel.textContent = text;
-  if (art) ziel.dataset.art = art; else delete ziel.dataset.art;
-}
-
-/** Alles neu malen: die eine Wahrheit ist der Stand des Dienstes. */
-function male() {
-  if (!stand?.floorplan) return;
-  const plan = buildFloorplan(stand.floorplan);
-  const policy = stand.floorplan.policy || {};
-  const nu = jetzt();
-  const at = `${nu.datum}T${nu.zeit}`;
-
-  const heute = (stand.parties || []).filter(party => party.date === nu.datum);
-  const belegt = new Set();
-  const sitzen = [];
-  for (const party of heute) {
-    if (!party.tableIds?.length) continue;
-    if (!occupiesAt(party, { at, minutes: durationFor(party.guests, policy) })) continue;
-    sitzen.push(party);
-    for (const id of party.tableIds) belegt.add(id);
-  }
-  const gesperrt = new Set(stand.blockedTables || []);
-  const offen = plan.tables.filter(table => !gesperrt.has(table.id));
-  const freie = offen.filter(table => !belegt.has(table.id));
-
-  byId('freiGross').textContent = freie.length === 0
-    ? 'Alles besetzt'
-    : `${freie.length} von ${offen.length} Tischen frei`;
-  byId('freiPlaetze').textContent = freie.length
-    ? `${freie.reduce((summe, table) => summe + table.seats, 0)} Plätze insgesamt`
-    : 'Unten steht, wer wann wieder geht.';
-
-  // Nach Groesse, wie man am Telefon denkt: "Habt ihr noch einen Vierer?"
-  const groessen = new Map();
-  for (const table of offen) {
-    const eintrag = groessen.get(table.seats) || { frei: 0, gesamt: 0 };
-    eintrag.gesamt += 1;
-    if (!belegt.has(table.id)) eintrag.frei += 1;
-    groessen.set(table.seats, eintrag);
-  }
-  const liste = byId('freiGroessen');
-  liste.textContent = '';
-  for (const [plaetze, eintrag] of [...groessen.entries()].sort((a, b) => a[0] - b[0])) {
-    const punkt = document.createElement('li');
-    punkt.textContent = `${plaetze}er · ${eintrag.frei} von ${eintrag.gesamt} frei`;
-    if (!eintrag.frei) punkt.setAttribute('data-leer', '');
-    liste.append(punkt);
-  }
-
-  // Wer sitzt gerade - und wer kommt noch. Sortiert nach Beginn, damit oben
-  // steht, wer als Naechstes fertig wird.
-  const kasten = byId('imHaus');
-  kasten.textContent = '';
-  const dauer = party => durationFor(party.guests, policy);
-  for (const party of [...sitzen].sort((a, b) => a.time.localeCompare(b.time))) {
-    const zeile = document.createElement('li');
-    const wer = document.createElement('div');
-    wer.className = 'wer';
-    const titel = document.createElement('b');
-    titel.textContent = `Tisch ${party.tableIds.map(id => plan.tables.find(t => t.id === id)?.number ?? '?').join(' + ')} · ${party.guests} P.`;
-    const info = document.createElement('span');
-    const [stunde, minute] = party.time.split(':').map(Number);
-    const bisMinuten = stunde * 60 + minute + dauer(party);
-    info.textContent = `${party.name} · seit ${party.arrived || party.time} · frei gegen ${pad(Math.floor(bisMinuten / 60) % 24)}:${pad(bisMinuten % 60)}`;
-    wer.append(titel, info);
-    const frei = document.createElement('button');
-    frei.type = 'button';
-    frei.className = 'knopf leise';
-    frei.dataset.freiId = party.id;
-    frei.textContent = 'Wieder frei';
-    zeile.append(wer, frei);
-    kasten.append(zeile);
-  }
-  if (!sitzen.length) {
-    const zeile = document.createElement('li');
-    zeile.className = 'leer';
-    zeile.textContent = 'Gerade sitzt niemand.';
-    kasten.append(zeile);
-  }
-
-  const kommende = heute
-    .filter(party => party.time > nu.zeit && !party.arrived && !party.left)
-    .sort((a, b) => a.time.localeCompare(b.time));
-  byId('kommend').textContent = kommende.length
-    ? `Reserviert für später: ${kommende.length} ${kommende.length === 1 ? 'Gruppe' : 'Gruppen'}, die nächste um ${kommende[0].time} (${kommende[0].name}, ${kommende[0].guests} P.).`
-    : 'Für später ist heute nichts reserviert.';
-
-  maleTakeaway(nu);
-}
-
-/**
- * Die Takeaway-Bestellungen des Tages. Offene zuerst, nach Abholzeit -
- * ein Griff auf "Abgeholt", und die Zahl des Tages zaehlt mit. Abgeholte
- * bleiben sichtbar: sie sind der Beleg, was heute schon hinausging.
- */
-function maleTakeaway(nu) {
-  const liste = byId('takeawayListe');
-  const heute = (stand.takeaway || []).filter(bestellung => bestellung.date === nu.datum);
-  const offene = heute.filter(bestellung => bestellung.status === 'offen')
-    .sort((a, b) => a.abholzeit.localeCompare(b.abholzeit));
-  const abgeholte = heute.filter(bestellung => bestellung.status === 'abgeholt')
-    .sort((a, b) => (b.abgeholtUm || '').localeCompare(a.abgeholtUm || ''));
-
-  const portionen = heute.reduce((sum, bestellung) =>
-    sum + (bestellung.posten || []).reduce((s, eintrag) => s + eintrag.menge, 0), 0);
-  byId('takeawayZaehler').textContent = heute.length
-    ? `Heute ${heute.length} ${heute.length === 1 ? 'Bestellung' : 'Bestellungen'} mit ${portionen} Portionen · ${offene.length} noch abzuholen.`
-    : 'Noch keine Bestellung heute.';
-
-  liste.textContent = '';
-  for (const bestellung of [...offene, ...abgeholte]) {
-    const zeile = document.createElement('li');
-    if (bestellung.status === 'abgeholt') zeile.dataset.erledigt = '';
-    const wer = document.createElement('div');
-    wer.className = 'wer';
-    const titel = document.createElement('b');
-    titel.textContent = `Nr. ${bestellung.nummer} · ${bestellung.abholzeit} Uhr · ${bestellung.name}`;
-    const info = document.createElement('span');
-    const essen = (bestellung.posten || []).map(eintrag => `${eintrag.menge}× ${eintrag.name}`).join(', ');
-    info.textContent = `${essen} · € ${Number(bestellung.summe).toFixed(2).replace('.', ',')}`
-      + (bestellung.status === 'abgeholt' ? ` · abgeholt ${bestellung.abgeholtUm || ''}` : '');
-    wer.append(titel, info);
-    const knopf = document.createElement('button');
-    knopf.type = 'button';
-    knopf.className = bestellung.status === 'abgeholt' ? 'knopf leise' : 'knopf';
-    knopf.dataset.takeawayId = bestellung.id;
-    knopf.dataset.art = bestellung.status === 'abgeholt' ? 'offen' : 'abgeholt';
-    knopf.textContent = bestellung.status === 'abgeholt' ? 'Doch nicht' : 'Abgeholt';
-    zeile.append(wer, knopf);
-    liste.append(zeile);
-  }
-  if (!heute.length) {
-    const zeile = document.createElement('li');
-    zeile.className = 'leer';
-    zeile.textContent = 'Bestellungen erscheinen hier, sobald sie eingehen.';
-    liste.append(zeile);
-  }
+  // Takeaway-Karte: vorbefuellt vom Dienst, nie ueberschrieben beim Tippen.
+  const feld = byId('taKarteText');
+  feld.addEventListener('input', () => { feld.dataset.beruehrt = '1'; });
+  const fuelleVor = () => {
+    if (!feld.dataset.beruehrt && typeof stand?.takeawayKarteText === 'string') {
+      feld.value = stand.takeawayKarteText;
+    }
+  };
+  fuelleVor();
+  setInterval(fuelleVor, 5000);
+  byId('taKarteSetzen').addEventListener('click', async () => {
+    sag('taKarteInfo', 'Wird veröffentlicht …');
+    const antwort = await sendeTakeawayKarte(hausToken(), feld.value);
+    if (!antwort?.ok) return sag('taKarteInfo', 'Das hat nicht geklappt – bitte noch einmal.', 'fehler');
+    sag('taKarteInfo', antwort.gerichte.length
+      ? `Veröffentlicht: ${antwort.gerichte.length} Gericht(e) sind jetzt bestellbar.`
+      : 'Karte geleert – die Seite nimmt keine Bestellungen mehr an.', 'gut');
+  });
 }
 
 async function zeigeKarte() {

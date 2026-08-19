@@ -9,29 +9,61 @@
   <meta name="theme-color" content="#173e2c">
   <title>Heute Mittag · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
-  <link rel="stylesheet" href="wirt.css?v=26267a3a">
-  <script type="module" src="wirt.js?v=631d670b"></script>
+  <link rel="stylesheet" href="wirt.css?v=cb2ef7b3">
+  <script type="module" src="wirt.js?v=6748fb83"></script>
 </head>
 <body>
-  <!-- Eine Seite, drei Griffe: sehen was frei ist, Laufkundschaft setzen,
-       Mittagskarte tauschen. Alles andere kann der grosse Tischplan -
-       diese Seite ist bewusst das Gegenteil davon. -->
+  <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
+       drei Zahlen oben, darunter EINE chronologische Liste des Tages -
+       Reservierungen und Abholungen gemischt, je Zeile ein grosser
+       Statusknopf. Alles andere ist eingeklappt. -->
   <header class="kopf">
     <img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn">
     <p class="verbindung" id="verbindung"><i aria-hidden="true"></i><span id="verbindungText">Verbinde …</span></p>
   </header>
 
   <main>
-    <section class="karte-frei" aria-labelledby="freiTitel">
-      <p class="vorzeile">Heute Mittag</p>
-      <h1 id="freiTitel"><span id="freiGross">–</span></h1>
-      <p class="frei-plaetze" id="freiPlaetze"></p>
-      <ul class="groessen" id="freiGroessen" aria-label="Freie Tische nach Größe"></ul>
+    <p class="vorzeile" id="tagZeile">Heute Mittag</p>
+
+    <!-- Die drei Zahlen, die den Mittag beschreiben. -->
+    <section class="zahlen" aria-label="Der Mittag in Zahlen">
+      <div class="kachel"><b id="zahlErwartet">–</b><span>Gruppen erwartet</span><small id="subErwartet"></small></div>
+      <div class="kachel"><b id="zahlImHaus">–</b><span>Gäste im Haus</span><small id="subImHaus"></small></div>
+      <div class="kachel"><b id="zahlFrei">–</b><span>Tische frei</span><small id="subFrei"></small></div>
+    </section>
+
+    <!-- Rueckgaengig statt Warndialog: nach dem Leeren liegt der Tag eine
+         Viertelstunde im Papierkorb. -->
+    <p class="korb" id="korbBalken" hidden>
+      <span id="korbText"></span>
+      <button class="knopf leise" type="button" id="korbZurueck">Rückgängig</button>
+    </p>
+
+    <section class="heute" aria-labelledby="heuteTitel">
+      <div class="zeile-kopf">
+        <h2 id="heuteTitel">Der Tag</h2>
+        <button class="knopf leise" type="button" id="neuZeigen">+ Reservierung</button>
+      </div>
+
+      <!-- Telefon klingelt: vier Angaben, Tisch kommt automatisch. -->
+      <form class="neu-form" id="neuForm" hidden>
+        <label>Name<input type="text" id="neuName" maxlength="40" placeholder="z. B. Huber" required></label>
+        <label>Uhrzeit<input type="time" id="neuZeit" min="11:30" max="13:30" step="900" required></label>
+        <label>Personen<input type="number" id="neuPersonen" min="1" max="24" value="2" inputmode="numeric" required></label>
+        <label>Telefon (optional)<input type="tel" id="neuTelefon" maxlength="25" inputmode="tel" placeholder="+43 …"></label>
+        <div class="neu-knoepfe">
+          <button class="knopf" type="submit">Eintragen</button>
+          <button class="knopf leise" type="button" id="neuWeg">Abbrechen</button>
+        </div>
+      </form>
+      <p class="lauf-ergebnis" id="neuErgebnis" role="status" aria-live="polite"></p>
+
+      <ul class="haus-liste" id="heuteListe"></ul>
     </section>
 
     <section class="laufkunde" aria-labelledby="laufTitel">
       <h2 id="laufTitel">Gäste stehen da?</h2>
-      <p class="hinweis">Zahl drücken – der passende Tisch wird sofort vergeben und ist überall belegt, auch online.</p>
+      <p class="hinweis">Zahl drücken – der Tisch wird automatisch vergeben, auch online ist er dann belegt.</p>
       <div class="lauf-knoepfe" role="group" aria-label="Personenzahl der Laufkundschaft">
         <button type="button" data-personen="1">1</button>
         <button type="button" data-personen="2">2</button>
@@ -43,20 +75,8 @@
       <p class="lauf-ergebnis" id="laufErgebnis" role="status" aria-live="polite"></p>
     </section>
 
-    <section class="im-haus" aria-labelledby="hausTitel">
-      <h2 id="hausTitel">Jetzt an den Tischen</h2>
-      <p class="hinweis" id="kommend"></p>
-      <ul class="haus-liste" id="imHaus"></ul>
-    </section>
-
-    <section class="im-haus" aria-labelledby="takeawayTitel">
-      <h2 id="takeawayTitel">Takeaway heute</h2>
-      <p class="hinweis" id="takeawayZaehler">Noch keine Bestellung heute.</p>
-      <ul class="haus-liste" id="takeawayListe"></ul>
-    </section>
-
-    <section class="karte-upload" aria-labelledby="karteTitel">
-      <h2 id="karteTitel">Mittagskarte</h2>
+    <details class="werkzeug">
+      <summary>Mittagskarte (PDF)</summary>
       <p class="hinweis" id="karteStand">Noch keine Karte hochgeladen.</p>
       <div class="karte-knoepfe">
         <label class="knopf">Neues PDF hochladen
@@ -66,11 +86,26 @@
         <button class="knopf leise" type="button" id="karteWeg" hidden>Entfernen</button>
       </div>
       <p class="lauf-ergebnis" id="karteInfo" role="status" aria-live="polite"></p>
-    </section>
+    </details>
 
-    <p class="fuss">Tische bleiben nach dem Setzen 90 Minuten belegt und werden dann von selbst wieder frei.
-      Mehr Werkzeug – Tischplan, Sperren, Reservierungen im Voraus – gibt es in der
-      <a href="gastgeber-tischplan.html" id="cockpitLink">großen Einteilung</a>.</p>
+    <details class="werkzeug">
+      <summary>Takeaway-Karte</summary>
+      <p class="hinweis">Die Zeilen aus der Mittagskarte einfügen – pro Zeile links das Gericht, rechts der Preis. Leeres Feld veröffentlichen nimmt die Bestellung von der Seite.</p>
+      <textarea id="taKarteText" rows="6" spellcheck="false" aria-label="Takeaway-Karte, eine Zeile je Gericht mit Preis"></textarea>
+      <div class="karte-knoepfe">
+        <button class="knopf" type="button" id="taKarteSetzen">Veröffentlichen</button>
+      </div>
+      <p class="lauf-ergebnis" id="taKarteInfo" role="status" aria-live="polite"></p>
+    </details>
+
+    <p class="fuss">
+      Tische werden nach der Essenszeit von selbst wieder frei. Mehr Werkzeug – Tischplan, Sperren,
+      Auswertung – gibt es in der <a href="gastgeber-tischplan.html" id="cockpitLink">großen Einteilung</a>.
+    </p>
+    <p class="fuss abschluss">
+      <button class="knopf rot" type="button" id="tagLeeren">Tag leeren</button>
+      <span>Räumt alle heutigen Reservierungen und offenen Abholungen – mit 15 Minuten Rückgängig. Morgen bleibt unberührt.</span>
+    </p>
   </main>
 </body>
 </html>

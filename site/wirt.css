@@ -27,13 +27,33 @@ h2{font-size:24px;margin-bottom:6px}
 .vorzeile{margin:0 0 8px;color:var(--green);font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
 .hinweis{margin:0 0 14px;color:var(--muted);font-size:14.5px}
 
-/* Die grosse Zahl: das Erste, was man sieht, und das Einzige, was man
-   wissen muss, bevor man "Ja, kommt's rein" sagt. */
-.karte-frei h1{font-size:clamp(34px,9vw,52px);line-height:1.05;letter-spacing:-.02em}
-.frei-plaetze{margin:6px 0 0;color:var(--muted);font-size:16px}
-.groessen{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;padding:0;list-style:none}
-.groessen li{padding:9px 14px;border:1px solid var(--linie);border-radius:999px;background:#fff;font-size:14.5px;font-variant-numeric:tabular-nums}
-.groessen li[data-leer]{color:#a29b90;border-style:dashed;background:transparent}
+/* Die drei Zahlen des Mittags: erwartet, im Haus, frei. Sie sind das Erste,
+   was man sieht - und meistens das Einzige, was man wissen muss. */
+.zahlen{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:18px 0 22px}
+.kachel{display:grid;gap:2px;padding:16px 14px;border:1px solid var(--linie);border-radius:12px;background:#fff}
+.kachel b{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:clamp(30px,8vw,44px);line-height:1;font-variant-numeric:tabular-nums}
+.kachel span{color:var(--muted);font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.kachel small{color:var(--muted);font-size:12.5px;min-height:1.2em}
+
+/* Rueckgaengig statt Warndialog: der Balken erscheint nach dem Leeren. */
+.korb{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:12px 14px;border:1px solid #a67f45;border-radius:10px;background:var(--gold);color:var(--ink);font-size:14.5px;font-weight:700}
+.korb[hidden]{display:none}
+
+.zeile-kopf{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.zeile-kopf h2{margin:0}
+
+/* Telefonische Reservierung: vier Felder, fertig. */
+.neu-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px;padding:14px;border:1px solid var(--linie);border-radius:12px;background:#fff}
+.neu-form label{display:grid;gap:5px;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.neu-form input{min-height:48px;padding:8px 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;color:var(--ink);font-size:17px;font-weight:400;letter-spacing:0;text-transform:none}
+.neu-form .neu-knoepfe{grid-column:1/-1;display:flex;gap:10px}
+.neu-form[hidden]{display:none}
+
+/* Die Zeitmarke am Zeilenanfang - die Liste liest sich wie der Tag selbst. */
+.haus-liste .zeit{flex:0 0 auto;padding:6px 10px;border:1px solid var(--linie);border-radius:8px;background:var(--paper);font-size:14.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.haus-liste li[data-ton="spaet"]{border-color:#a67f45;background:#f6ecd9}
+.haus-liste li[data-ton="takeaway"]{border-left:3px solid var(--green)}
+.haus-liste li .wer{flex:1 1 auto}
 
 /* Laufkundschaft: die Knoepfe sind absichtlich die groessten Elemente der
    Seite - sie sind der Grund, warum es die Seite gibt. */
@@ -60,8 +80,19 @@ h2{font-size:24px;margin-bottom:6px}
 .knopf[hidden]{display:none}
 .karte-knoepfe{display:flex;flex-wrap:wrap;gap:10px}
 
+/* Eingeklappte Werkzeuge: Karte und Takeaway-Karte brauchen den Platz nur,
+   wenn man sie wirklich in der Hand hat. */
+.werkzeug{padding:16px 0;border-top:1px solid var(--linie)}
+.werkzeug summary{min-height:44px;display:flex;align-items:center;font-family:Georgia,"Times New Roman",serif;font-size:20px;cursor:pointer}
+.werkzeug[open] summary{margin-bottom:10px}
+.werkzeug textarea{width:100%;min-height:120px;margin:0 0 10px;padding:10px 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;font:inherit;font-size:14.5px;line-height:1.5;resize:vertical}
+
+.knopf.rot{background:transparent;color:var(--wine);border-color:var(--wine)}
+
 .fuss{margin:34px 0 0;padding-top:18px;border-top:1px solid var(--linie);color:var(--muted);font-size:13.5px}
 .fuss a{color:var(--wine)}
+.fuss.abschluss{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-top:0;padding-top:0}
+.fuss.abschluss span{flex:1 1 240px}
 
 @media(max-width:520px){
   .lauf-knoepfe{grid-template-columns:repeat(3,1fr)}

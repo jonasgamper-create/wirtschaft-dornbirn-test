@@ -183,6 +183,25 @@ export function newsletterFrage({ jaLink, wortlaut }) {
   };
 }
 
+/**
+ * Die Wochenkarte am Montagmorgen. Kurz und ohne Anhang: ein Knopf zur
+ * aktuellen Karte, ein Abmeldelink - mehr braucht diese Mail nicht.
+ */
+export function wochenkarte({ karteLink, abmeldeLink }) {
+  const html = rahmen('Die Wochenkarte ist da', [
+    kopf('Mittag · Mo–Fr 11:30–13:30', 'Das kochen wir diese Woche'),
+    `<tr><td style="padding:12px 28px 4px;"><p style="margin:0;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#4a453d;">Die neue Mittagskarte ist online. Reservieren oder Takeaway bestellen geht direkt über die Website – und wie immer auch am Telefon: +43 5572 20540.</p></td></tr>`,
+    knopf(karteLink, 'Wochenkarte ansehen'),
+    `<tr><td style="padding:14px 28px 22px;"><p style="margin:0;font:400 12px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">Du bekommst diese Mail, weil du die Mittagskarte abonniert hast. <a href="${escapeHtml(abmeldeLink)}" style="color:#8f887b;">Mit einem Klick abmelden</a>.</p></td></tr>`
+  ].join(''));
+  return {
+    betreff: 'Die Wochenkarte der Wirtschaft ist da',
+    html,
+    text: 'Die neue Mittagskarte der Wirtschaft Dornbirn ist online.\n\n'
+      + `Karte ansehen: ${karteLink}\n\nAbmelden: ${abmeldeLink}\n`
+  };
+}
+
 /** Das Paket, das an Brevo geht. Getrennt gebaut, damit es pruefbar bleibt. */
 export function brevoPaket({ absender, absenderName, an, anName, betreff, html, text, anhang = null }) {
   const paket = {
