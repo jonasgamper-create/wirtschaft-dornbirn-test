@@ -57,7 +57,11 @@ h2{font-size:24px;margin-bottom:6px}
 
 /* Laufkundschaft: die Knoepfe sind absichtlich die groessten Elemente der
    Seite - sie sind der Grund, warum es die Seite gibt. */
-.lauf-knoepfe{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;max-width:520px}
+.lauf-knoepfe{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:520px}
+/* Die grosse Gesellschaft: eintippen statt zwanzig Knoepfe. */
+.lauf-mehr{display:flex;align-items:center;gap:10px;margin:12px 0 0}
+.lauf-mehr label{color:var(--muted);font-size:14.5px}
+.lauf-mehr input{width:90px;min-height:48px;padding:8px 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;font-size:18px;text-align:center;font-variant-numeric:tabular-nums}
 .lauf-knoepfe button{min-height:64px;border:1px solid var(--green);border-radius:12px;background:#fff;color:var(--green);font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
 .lauf-knoepfe button:active{background:var(--green);color:#fff}
 .lauf-knoepfe button:disabled{opacity:.4;cursor:default}
@@ -95,8 +99,8 @@ h2{font-size:24px;margin-bottom:6px}
 .fuss.abschluss span{flex:1 1 240px}
 
 @media(max-width:520px){
-  .lauf-knoepfe{grid-template-columns:repeat(3,1fr)}
-  .lauf-knoepfe button{min-height:72px}
+  .lauf-knoepfe{grid-template-columns:repeat(5,1fr)}
+  .lauf-knoepfe button{min-height:64px}
   .haus-liste li{flex-wrap:wrap}
 }
 .haus-liste li[data-erledigt]{opacity:.55}
