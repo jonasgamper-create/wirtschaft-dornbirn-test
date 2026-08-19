@@ -24,6 +24,7 @@ const jetzt = () => {
 };
 
 let stand = null;
+let korbSeit = null;
 
 start();
 
@@ -120,7 +121,9 @@ function sag(wo, text, art = '') {
 // ---- Der Tag als eine Liste ------------------------------------------------
 
 function verdrahteHeuteListe() {
-  byId('heuteListe').addEventListener('click', async event => {
+  // Dieselben Griffe in Tagesliste und Archiv - "Zurueck" und "Doch nicht"
+  // holen Erledigtes wieder nach oben.
+  const behandle = async event => {
     const knopf = event.target.closest('[data-aktion]');
     if (!knopf) return;
     knopf.disabled = true;
@@ -132,7 +135,9 @@ function verdrahteHeuteListe() {
     if (aktion === 'abgeholt') await sendeTakeawayAktion(hausToken(), { art: 'abgeholt', id, zeit: nu.zeit });
     if (aktion === 'doch-nicht') await sendeTakeawayAktion(hausToken(), { art: 'offen', id });
     // Die Antwort kommt ueber den Draht zurueck und malt die Liste neu.
-  });
+  };
+  byId('heuteListe').addEventListener('click', behandle);
+  byId('archivListe').addEventListener('click', behandle);
 }
 
 /**
@@ -215,15 +220,24 @@ function male() {
   byId('subFrei').textContent = `von ${offen.length} Tischen`
     + (offeneAbholungen ? ` · ${offeneAbholungen} Abholung${offeneAbholungen === 1 ? '' : 'en'} offen` : '');
 
-  // Rueckgaengig-Balken, wenn ein geleerter Tag im Papierkorb liegt.
+  // Rueckgaengig-Balken beim Leeren-Knopf. Nach zwei Minuten verschwindet er
+  // von selbst - das Wiederherstellen beim Dienst geht still noch laenger.
   const korb = stand.papierkorb;
-  byId('korbBalken').hidden = !korb;
-  if (korb) {
-    byId('korbText').textContent = `Tag geleert – ${korb.anzahl} ${korb.anzahl === 1 ? 'Eintrag' : 'Einträge'} im Papierkorb (15 Minuten).`;
+  if (korb && !korbSeit) {
+    korbSeit = Date.now();
+    setTimeout(male, 2 * 60 * 1000 + 500);
+  }
+  if (!korb) korbSeit = null;
+  const korbZeigen = Boolean(korb) && Date.now() - korbSeit < 2 * 60 * 1000;
+  byId('korbBalken').hidden = !korbZeigen;
+  if (korbZeigen) {
+    byId('korbText').textContent = `Tag geleert – ${korb.anzahl} ${korb.anzahl === 1 ? 'Eintrag' : 'Einträge'} im Papierkorb.`;
   }
 
   // Die Tagesliste: Reservierungen und Abholungen gemischt, nach Zeit.
+  // Erledigtes wandert ins eingeklappte Archiv - anschaubar, aber aus dem Weg.
   const eintraege = [];
+  const erledigte = [];
   for (const party of heute) {
     const zeitVon = party.time;
     const tische = party.tableIds?.length
@@ -235,7 +249,7 @@ function male() {
     const personen = `${party.guests} P.`;
 
     if (party.left) {
-      eintraege.push(zeile({
+      erledigte.push(zeile({
         zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz,
         titel: `${party.name} · ${personen}`,
         info: `fertig um ${party.left} · ${tische}`,
@@ -262,7 +276,7 @@ function male() {
     const essen = (bestellung.posten || []).map(eintrag => `${eintrag.menge}× ${eintrag.name}`).join(', ');
     const summe = `€ ${Number(bestellung.summe).toFixed(2).replace('.', ',')}`;
     if (bestellung.status === 'abgeholt') {
-      eintraege.push(zeile({
+      erledigte.push(zeile({
         zeit: bestellung.abholzeit, id: bestellung.id,
         titel: `Takeaway Nr. ${bestellung.nummer} · ${bestellung.name}`,
         info: `${essen} · ${summe}${bestellung.abgeholtUm ? ` · abgeholt ${bestellung.abgeholtUm}` : ''}`,
@@ -277,7 +291,9 @@ function male() {
       }));
     }
   }
-  eintraege.sort((a, b) => a.querySelector('.zeit').textContent.localeCompare(b.querySelector('.zeit').textContent));
+  const nachZeit = (a, b) => a.querySelector('.zeit').textContent.localeCompare(b.querySelector('.zeit').textContent);
+  eintraege.sort(nachZeit);
+  erledigte.sort(nachZeit);
 
   const liste = byId('heuteListe');
   liste.textContent = '';
@@ -285,9 +301,18 @@ function male() {
   if (!eintraege.length) {
     const leer = document.createElement('li');
     leer.className = 'leer';
-    leer.textContent = 'Heute steht noch nichts an. Reservierungen und Bestellungen erscheinen hier von selbst.';
+    leer.textContent = erledigte.length
+      ? 'Alles erledigt – der Rest liegt unten im Archiv des Tages.'
+      : 'Heute steht noch nichts an. Reservierungen und Bestellungen erscheinen hier von selbst.';
     liste.append(leer);
   }
+
+  const archiv = byId('archiv');
+  archiv.hidden = !erledigte.length;
+  byId('archivTitel').textContent = `Erledigt heute (${erledigte.length})`;
+  const archivListe = byId('archivListe');
+  archivListe.textContent = '';
+  for (const eintrag of erledigte) archivListe.append(eintrag);
 }
 
 // ---- Das Aktionsblatt: Zeile antippen, Blatt geht auf ----------------------
@@ -306,7 +331,7 @@ const minutenVon = zeit => {
 function verdrahteBlatt() {
   const blatt = byId('blatt');
 
-  byId('heuteListe').addEventListener('click', event => {
+  const oeffne = event => {
     if (event.target.closest('[data-aktion]')) return;
     const li = event.target.closest('li[data-party]');
     if (!li) return;
@@ -316,7 +341,9 @@ function verdrahteBlatt() {
     sag('blattErgebnis', '');
     fuelleBlatt();
     blatt.showModal();
-  });
+  };
+  byId('heuteListe').addEventListener('click', oeffne);
+  byId('archivListe').addEventListener('click', oeffne);
 
   byId('blattZu').addEventListener('click', () => blatt.close());
   blatt.addEventListener('click', event => { if (event.target === blatt) blatt.close(); });
@@ -335,12 +362,12 @@ function verdrahteBlatt() {
   }
 
   byId('blattTische').addEventListener('click', event => {
-    const knopf = event.target.closest('[data-tisch-id]');
+    const knopf = event.target.closest('[data-tisch-ids]');
     if (!knopf) return;
-    if (knopf.dataset.tischId === 'ohne') {
+    if (knopf.dataset.tischIds === 'ohne') {
       return tuUndZeige({ art: 'tisch', id: blattId, tableIds: [] }, 'Tisch freigegeben – die Gruppe steht ohne Tisch.');
     }
-    tuUndZeige({ art: 'tisch', id: blattId, tableIds: [knopf.dataset.tischId] },
+    tuUndZeige({ art: 'tisch', id: blattId, tableIds: knopf.dataset.tischIds.split(',') },
       `Umgesetzt auf Tisch ${knopf.dataset.nummer}.`);
   });
 
@@ -396,34 +423,55 @@ function fuelleBlatt() {
   }
   const gesperrt = new Set(stand.blockedTables || []);
   const aktuelleIds = new Set(party.tableIds || []);
-  const kandidaten = plan.tables
-    .filter(tisch => !gesperrt.has(tisch.id) && !belegt.has(tisch.id) && !aktuelleIds.has(tisch.id))
-    .filter(tisch => tisch.seats >= party.guests)
-    .sort((a, b) => (a.seats - party.guests) - (b.seats - party.guests) || a.number - b.number)
+  const passtFrei = id => !gesperrt.has(id) && !belegt.has(id) && !aktuelleIds.has(id);
+
+  // Einzeltische und zusammengeschobene Tische in einer Liste, die beste
+  // Groesse zuerst - grosse Gruppen bekommen so denselben Ein-Tipp-Weg.
+  const nummerVon = id => plan.tables.find(entry => entry.id === id)?.number ?? '?';
+  const einzelne = plan.tables
+    .filter(tisch => passtFrei(tisch.id) && tisch.seats >= party.guests)
+    .map(tisch => ({
+      ids: [tisch.id],
+      nummer: String(tisch.number),
+      seats: tisch.seats,
+      text: `Tisch ${tisch.number} · ${tisch.seats} Pl.${plan.levels.length > 1 ? ` · ${tisch.levelName}` : ''}`
+    }));
+  const kombis = (plan.combos || [])
+    .filter(kombi => kombi.seats >= party.guests
+      && party.guests >= (kombi.minGuests || 1)
+      && kombi.tableIds.every(passtFrei))
+    .map(kombi => ({
+      ids: kombi.tableIds,
+      nummer: kombi.tableIds.map(nummerVon).join(' + '),
+      seats: kombi.seats,
+      text: `Tisch ${kombi.tableIds.map(nummerVon).join(' + ')} · ${kombi.seats} Pl.`
+    }));
+  const kandidaten = [...einzelne, ...kombis]
+    .sort((a, b) => (a.seats - party.guests) - (b.seats - party.guests) || a.ids.length - b.ids.length)
     .slice(0, 12);
 
   const kasten = byId('blattTische');
   kasten.textContent = '';
-  for (const tisch of kandidaten) {
+  for (const kandidat of kandidaten) {
     const knopf = document.createElement('button');
     knopf.type = 'button';
-    knopf.dataset.tischId = tisch.id;
-    knopf.dataset.nummer = String(tisch.number);
-    knopf.textContent = `Tisch ${tisch.number} · ${tisch.seats} Pl.${plan.levels.length > 1 ? ` · ${tisch.levelName}` : ''}`;
+    knopf.dataset.tischIds = kandidat.ids.join(',');
+    knopf.dataset.nummer = kandidat.nummer;
+    knopf.textContent = kandidat.text;
     kasten.append(knopf);
   }
   if (party.tableIds?.length) {
     const ohne = document.createElement('button');
     ohne.type = 'button';
     ohne.className = 'leise';
-    ohne.dataset.tischId = 'ohne';
+    ohne.dataset.tischIds = 'ohne';
     ohne.textContent = 'Ohne Tisch';
     kasten.append(ohne);
   }
   if (!kandidaten.length) {
     const hinweis = document.createElement('p');
     hinweis.className = 'blatt-leer';
-    hinweis.textContent = 'Zur gewünschten Zeit ist kein passender Einzeltisch frei. Zusammengeschobene Tische vergibt die große Einteilung.';
+    hinweis.textContent = 'Zur gewünschten Zeit ist nichts Passendes frei – auch nicht zusammengeschoben. Früher oder später am Mittag ist eher Platz.';
     kasten.prepend(hinweis);
   }
 }
