@@ -23,24 +23,32 @@ async function start() {
   const antwort = await holeTakeawayKarte();
   if (!antwort?.ok || !Array.isArray(antwort.gerichte) || !antwort.gerichte.length) return;
 
-  // Nach Bestellschluss gibt es heute nichts mehr zu bestellen.
+  karte = antwort.gerichte;
+  allergenNamen = antwort.allergenNamen || {};
+
+  // Die Karte wird immer gezeigt - auch wenn die Kueche durch ist. Wer abends
+  // oder am Sonntag nachschaut, will wissen, was es gibt; eine Seite, die
+  // dann nur "geschlossen" sagt, verschweigt genau das, wofuer man
+  // hergekommen ist. Zu ist nur das Bestellen, nicht die Karte.
+  zeigeKarte();
+  zeigeAllergene();
+  byId('taForm').hidden = false;
+
   const jetzt = new Date();
   const minuten = jetzt.getHours() * 60 + jetzt.getMinutes();
   const werktag = jetzt.getDay() >= 1 && jetzt.getDay() <= 5;
   if (!werktag || minuten > BESTELLSCHLUSS) {
+    // Nur schauen: Mengenknoepfe und Bestellfelder fallen weg, die Gerichte
+    // mit Preisen und Allergenen bleiben stehen.
+    byId('taForm').dataset.nurschau = '';
     byId('taLeer').innerHTML = werktag
-      ? 'Für heute ist die Küche durch – die letzte Bestellung geht bis 13:45 Uhr. Morgen ab 11:00 Uhr wieder, oder ruf’ uns an: <a href="tel:+43557220540">+43 (0)5572 20 540</a>'
-      : 'Takeaway gibt es Montag bis Freitag zum Mittag. Am Wochenende öffnen wir abends für Events.';
+      ? 'Das gibt es diese Woche zum Mitnehmen. Für heute ist die Küche durch – die letzte Bestellung geht bis 13:45 Uhr. Morgen ab 11:00 Uhr wieder, oder ruf’ uns an: <a href="tel:+43557220540">+43 (0)5572 20 540</a>'
+      : 'Das gibt es zum Mitnehmen. Bestellen geht Montag bis Freitag zum Mittag – am Wochenende öffnen wir abends für Events.';
     return;
   }
 
-  karte = antwort.gerichte;
-  allergenNamen = antwort.allergenNamen || {};
   byId('taLeer').hidden = true;
-  byId('taForm').hidden = false;
   byId('taSenden').hidden = false;
-  zeigeKarte();
-  zeigeAllergene();
   zeigeZeiten(minuten);
   zeigeSumme();
 }
