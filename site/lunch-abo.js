@@ -34,7 +34,9 @@ async function zeigeLiveGerichte() {
       const zeileEl = document.createElement('p');
       zeileEl.className = 'lunch-dish';
       const name = document.createElement('span');
-      name.textContent = gericht.name;
+      name.textContent = gericht.allergene?.length
+        ? `${gericht.name} (${gericht.allergene.join(', ')})`
+        : gericht.name;
       const preis = document.createElement('b');
       preis.textContent = alsPreis(gericht.preis);
       zeileEl.append(name, preis);

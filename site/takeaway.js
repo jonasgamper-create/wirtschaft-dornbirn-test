@@ -12,6 +12,7 @@ const LETZTE_ABHOLUNG = 14 * 60;
 const VORLAUF = 20;
 
 let karte = [];
+let allergenNamen = {};
 const mengen = new Map();
 let abholung = 'sofort';
 
@@ -34,12 +35,29 @@ async function start() {
   }
 
   karte = antwort.gerichte;
+  allergenNamen = antwort.allergenNamen || {};
   byId('taLeer').hidden = true;
   byId('taForm').hidden = false;
   byId('taSenden').hidden = false;
   zeigeKarte();
+  zeigeAllergene();
   zeigeZeiten(minuten);
   zeigeSumme();
+}
+
+/**
+ * Die Allergen-Legende: nur die Buchstaben, die heute wirklich vorkommen,
+ * mit ihren Klarnamen - plus der ehrliche Satz zu Spuren, den jede gute
+ * Karte traegt.
+ */
+function zeigeAllergene() {
+  const kasten = byId('taAllergene');
+  const codes = [...new Set(karte.flatMap(gericht => gericht.allergene || []))].sort();
+  if (!codes.length) { kasten.hidden = true; return; }
+  kasten.textContent = `Allergene: ${codes.map(code => `${code} = ${allergenNamen[code] || code}`).join(' · ')}. `
+    + 'Trotz sorgfältiger Zubereitung können unsere Gerichte Spuren weiterer Allergene enthalten. '
+    + 'Fragen zu Zutaten beantworten wir gerne: +43 (0)5572 20 540.';
+  kasten.hidden = false;
 }
 
 function zeigeKarte() {
@@ -51,6 +69,13 @@ function zeigeKarte() {
     const name = document.createElement('span');
     name.className = 'ta-gericht-name';
     name.textContent = gericht.name;
+    if (gericht.allergene?.length) {
+      const codes = document.createElement('small');
+      codes.className = 'ta-codes';
+      codes.textContent = gericht.allergene.join(', ');
+      codes.setAttribute('aria-label', `Allergene: ${gericht.allergene.map(code => allergenNamen[code] || code).join(', ')}`);
+      name.append(codes);
+    }
     const preis = document.createElement('span');
     preis.className = 'ta-gericht-preis';
     preis.textContent = alsPreis(gericht.preis);

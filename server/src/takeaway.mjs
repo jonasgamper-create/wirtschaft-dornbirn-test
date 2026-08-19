@@ -29,10 +29,33 @@ const alsZeit = minuten => {
 };
 
 /**
+ * Die oesterreichischen Allergen-Codes nach Allergeninformationsverordnung.
+ * Der Wirt schreibt sie in Klammern hinter das Gericht - "(A,C,G)" -,
+ * genau wie auf jeder gedruckten Karte im Land.
+ */
+export const ALLERGENE = {
+  A: 'Glutenhaltiges Getreide',
+  B: 'Krebstiere',
+  C: 'Eier',
+  D: 'Fisch',
+  E: 'Erdnüsse',
+  F: 'Sojabohnen',
+  G: 'Milch oder Laktose',
+  H: 'Schalenfrüchte',
+  L: 'Sellerie',
+  M: 'Senf',
+  N: 'Sesam',
+  O: 'Schwefeldioxid und Sulfite',
+  P: 'Lupinen',
+  R: 'Weichtiere'
+};
+
+/**
  * Zeilen der Mittagskarte in Gerichte verwandeln. Pro Zeile links der Name,
- * rechts der Preis - genau so, wie die Karte im PDF aussieht. Zeilen ohne
- * Preis (Ueberschriften, Grussworte) fallen still weg; der Wirt sieht das
- * Ergebnis vor dem Veroeffentlichen.
+ * dahinter optional die Allergene in Klammern, rechts der Preis - genau so,
+ * wie die Karte im PDF aussieht. Zeilen ohne Preis (Ueberschriften,
+ * Grussworte) fallen still weg; der Wirt sieht das Ergebnis vor dem
+ * Veroeffentlichen.
  */
 export function parseKarte(text) {
   const gerichte = [];
@@ -42,10 +65,21 @@ export function parseKarte(text) {
     // Preis am Zeilenende: "€ 12,50", "12,50 €", "12.50" - mit oder ohne Zeichen.
     const treffer = /^(.*?)[\s.·…]*(?:€\s*)?(\d{1,3}[.,]\d{2})\s*(?:€|EUR)?\s*$/i.exec(zeile);
     if (!treffer) continue;
-    const name = treffer[1].replace(/[\s.·…\-–]+$/, '').trim().slice(0, 80);
+    let name = treffer[1].replace(/[\s.·…\-–]+$/, '').trim().slice(0, 80);
     const preis = Number(treffer[2].replace(',', '.'));
+
+    // Allergene in Klammern hinter dem Namen: "(A,C,G)". Nur bekannte
+    // Buchstaben zaehlen - eine Klammer wie "(hausgemacht)" bleibt Name.
+    let allergene = [];
+    const klammer = /\(([A-Ra-r](?:\s*[,/]\s*[A-Ra-r])*)\)$/.exec(name);
+    if (klammer) {
+      allergene = [...new Set(klammer[1].toUpperCase().split(/[,/]/).map(code => code.trim()))]
+        .filter(code => ALLERGENE[code]);
+      name = name.slice(0, klammer.index).replace(/[\s.·…\-–]+$/, '').trim();
+    }
+
     if (name.length < 2 || !Number.isFinite(preis) || preis <= 0 || preis > 500) continue;
-    gerichte.push({ id: `g${gerichte.length + 1}`, name, preis: Math.round(preis * 100) / 100 });
+    gerichte.push({ id: `g${gerichte.length + 1}`, name, preis: Math.round(preis * 100) / 100, allergene });
   }
   // Mehr als 30 Gerichte sind keine Mittagskarte mehr, sondern ein Versehen.
   return gerichte.slice(0, 30);

@@ -2,7 +2,7 @@
 // dieselben Funktionen laufen im Worker.
 
 import {
-  BESTELLSCHLUSS, LETZTE_ABHOLUNG, MAX_PORTIONEN,
+  ALLERGENE, BESTELLSCHLUSS, LETZTE_ABHOLUNG, MAX_PORTIONEN,
   abholzeitFuer, alsPreis, parseKarte, pruefeBestellung, statistik
 } from '../server/src/takeaway.mjs';
 
@@ -32,6 +32,18 @@ check('Preis als Text', alsPreis(12.5) === '€ 12,50');
 
 const leer = parseKarte('nur Text ohne jeden Preis\n\nnoch einer');
 check('Ohne Preise bleibt die Karte leer', leer.length === 0);
+
+// Allergene in Klammern, wie auf jeder gedruckten Karte im Land.
+const mitAllergenen = parseKarte('Käsknöpfle mit Röstzwiebeln (A,C,G) 12,90\nSalat (hausgemacht) 8,50\nSuppe (a/g) 4,20');
+check('Allergene werden erkannt und vom Namen getrennt',
+  mitAllergenen[0].name === 'Käsknöpfle mit Röstzwiebeln'
+  && mitAllergenen[0].allergene.join('') === 'ACG', JSON.stringify(mitAllergenen[0]));
+check('Eine Wortklammer bleibt Teil des Namens',
+  mitAllergenen[1].name === 'Salat (hausgemacht)' && mitAllergenen[1].allergene.length === 0,
+  JSON.stringify(mitAllergenen[1]));
+check('Kleinschreibung und Schraegstrich gehen auch',
+  mitAllergenen[2].allergene.join('') === 'AG', JSON.stringify(mitAllergenen[2]));
+check('Jeder Code hat einen Namen', mitAllergenen[0].allergene.every(code => ALLERGENE[code]));
 
 // ---- 2. Abholzeit ----------------------------------------------------------
 
