@@ -280,6 +280,25 @@ export function wendeAktionAn(parties, aktion) {
       party.tableIds = Array.isArray(aktion.tableIds) ? aktion.tableIds.slice(0, 4) : [];
       return { ok: true, parties: liste };
     }
+    // "Wir sind doch zu sechst": die Zahl aendert sich, der Tisch bleibt -
+    // ob er noch passt, entscheidet der Wirt mit dem Tischwechsel daneben.
+    case 'personen': {
+      const party = finde(aktion.id);
+      if (!party) return { ok: false, grund: 'unbekannt' };
+      const anzahl = Math.trunc(Number(aktion.guests));
+      if (!Number.isFinite(anzahl) || anzahl < 1 || anzahl > 24) return { ok: false, grund: 'personen' };
+      party.guests = anzahl;
+      return { ok: true, parties: liste };
+    }
+    // Notiz am Gast: Fensterplatz, Kinderstuhl, glutenfrei. Kurz und ohne
+    // Zeilenumbrueche - sie steht in einer Listenzeile, nicht in einem Brief.
+    case 'notiz': {
+      const party = finde(aktion.id);
+      if (!party) return { ok: false, grund: 'unbekannt' };
+      const text = String(aktion.text ?? '').replace(/\s+/g, ' ').trim().slice(0, 140);
+      party.notiz = text || null;
+      return { ok: true, parties: liste };
+    }
     case 'entfernen':
       return { ok: true, parties: liste.filter(party => party.id !== aktion.id) };
     default:

@@ -433,6 +433,9 @@ export class Haus extends DurableObject {
     const party = {
       id,
       ...anfrage,
+      // Der Wunsch des Gastes - Fensterplatz, Kinderstuhl, glutenfrei. Er
+      // steht beim Wirt an der Zeile; die Seite fragt ihn freiwillig ab.
+      notiz: String(roh?.wunsch ?? '').replace(/\s+/g, ' ').trim().slice(0, 140) || null,
       kontakt: kontaktCheck.kontakt,
       // Kennung und Zaehler des Kalendereintrags kommen vom Dienst. Nur so
       // laesst sich derselbe Termin spaeter zurueckziehen.

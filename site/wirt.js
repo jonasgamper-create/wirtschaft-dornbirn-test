@@ -57,10 +57,58 @@ async function start() {
   setInterval(male, 60 * 1000);
 
   verdrahteHeuteListe();
+  verdrahteBlatt();
   verdrahteNeueReservierung();
   verdrahteLaufkundschaft();
   verdrahteTagLeeren();
   verdrahteKarten();
+}
+
+// ---- Neue Buchungen hoerbar machen -----------------------------------------
+//
+// Im Mittagslaerm geht Stilles unter: eine neu eingegangene Online-Buchung
+// klingt kurz und leuchtet in der Liste, bis ihre Zeile angetippt wird.
+// Der Ton braucht eine erste Beruehrung der Seite - Browserregel, keine Wahl.
+
+const gesehen = new Set();
+const neue = new Set();
+let erstesMal = true;
+let tonKontext = null;
+
+document.addEventListener('pointerdown', () => {
+  if (!tonKontext && window.AudioContext) tonKontext = new AudioContext();
+  tonKontext?.resume?.();
+}, { once: true });
+
+function klingle() {
+  if (!tonKontext || tonKontext.state !== 'running') return;
+  const oszillator = tonKontext.createOscillator();
+  const laut = tonKontext.createGain();
+  oszillator.frequency.value = 880;
+  laut.gain.setValueAtTime(0.0001, tonKontext.currentTime);
+  laut.gain.exponentialRampToValueAtTime(0.12, tonKontext.currentTime + 0.02);
+  laut.gain.exponentialRampToValueAtTime(0.0001, tonKontext.currentTime + 0.35);
+  oszillator.connect(laut).connect(tonKontext.destination);
+  oszillator.start();
+  oszillator.stop(tonKontext.currentTime + 0.4);
+}
+
+/** Merkt sich, was schon da war - alles Neue leuchtet und klingt. */
+function merkeNeue(heute, takeaway) {
+  const alle = [...heute.map(p => p.id), ...takeaway.map(b => b.id)];
+  if (erstesMal) {
+    alle.forEach(id => gesehen.add(id));
+    erstesMal = false;
+    return;
+  }
+  let frisch = 0;
+  for (const id of alle) {
+    if (gesehen.has(id)) continue;
+    gesehen.add(id);
+    neue.add(id);
+    frisch += 1;
+  }
+  if (frisch) klingle();
 }
 
 function sag(wo, text, art = '') {
@@ -91,10 +139,14 @@ function verdrahteHeuteListe() {
  * Eine Zeile der Tagesliste. Links die Zeit, in der Mitte wer und was,
  * rechts genau ein Knopf - der naechste sinnvolle Schritt und sonst nichts.
  */
-function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, leiseKnopf = false, ton = '' }) {
+function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, leiseKnopf = false, ton = '', notiz = null, partyId = null }) {
   const li = document.createElement('li');
   if (erledigt) li.dataset.erledigt = '';
   if (ton) li.dataset.ton = ton;
+  // Reservierungszeilen oeffnen das Aktionsblatt; neu Eingegangenes leuchtet,
+  // bis es einmal angetippt wurde.
+  if (partyId) li.dataset.party = partyId;
+  if (neue.has(id)) li.dataset.neu = '';
   const zeitEl = document.createElement('span');
   zeitEl.className = 'zeit';
   zeitEl.textContent = zeit;
@@ -105,6 +157,12 @@ function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, lei
   const s = document.createElement('span');
   s.textContent = info;
   wer.append(b, s);
+  if (notiz) {
+    const wunsch = document.createElement('span');
+    wunsch.className = 'wunsch';
+    wunsch.textContent = `♡ ${notiz}`;
+    wer.append(wunsch);
+  }
   li.append(zeitEl, wer);
   if (knopfText) {
     const knopf = document.createElement('button');
@@ -129,6 +187,7 @@ function male() {
 
   const heute = (stand.parties || []).filter(party => party.date === nu.datum);
   const takeaway = (stand.takeaway || []).filter(bestellung => bestellung.date === nu.datum);
+  merkeNeue(heute, takeaway);
 
   // Wer sitzt gerade, was ist belegt.
   const belegt = new Set();
@@ -177,14 +236,14 @@ function male() {
 
     if (party.left) {
       eintraege.push(zeile({
-        zeit: zeitVon, id: party.id,
+        zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz,
         titel: `${party.name} · ${personen}`,
         info: `fertig um ${party.left} · ${tische}`,
         knopfText: 'Zurück', aktion: 'zurueck', erledigt: true, leiseKnopf: true
       }));
     } else if (party.arrived) {
       eintraege.push(zeile({
-        zeit: zeitVon, id: party.id,
+        zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz,
         titel: `${party.name} · ${personen}`,
         info: `im Haus seit ${party.arrived} · ${tische} · frei gegen ${bisText}`,
         knopfText: 'Fertig', aktion: 'abgang', ton: 'da'
@@ -192,7 +251,7 @@ function male() {
     } else {
       const ueberfaellig = zeitVon < nu.zeit && !party.arrived;
       eintraege.push(zeile({
-        zeit: zeitVon, id: party.id,
+        zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz,
         titel: `${party.name} · ${personen}`,
         info: `${ueberfaellig ? 'überfällig' : 'erwartet'} · ${tische}`,
         knopfText: 'Da', aktion: 'ankunft', ton: ueberfaellig ? 'spaet' : ''
@@ -228,6 +287,144 @@ function male() {
     leer.className = 'leer';
     leer.textContent = 'Heute steht noch nichts an. Reservierungen und Bestellungen erscheinen hier von selbst.';
     liste.append(leer);
+  }
+}
+
+// ---- Das Aktionsblatt: Zeile antippen, Blatt geht auf ----------------------
+//
+// Tisch aendern zeigt nur passende freie Tische zur Zeit der Reservierung -
+// die Automatik schlaegt vor, der Wirt hat das letzte Wort. Dazu Personenzahl
+// und Notiz, jeweils ein Feld, ein Knopf.
+
+let blattId = null;
+
+const minutenVon = zeit => {
+  const [stunde, minute] = String(zeit || '0:0').split(':').map(Number);
+  return stunde * 60 + minute;
+};
+
+function verdrahteBlatt() {
+  const blatt = byId('blatt');
+
+  byId('heuteListe').addEventListener('click', event => {
+    if (event.target.closest('[data-aktion]')) return;
+    const li = event.target.closest('li[data-party]');
+    if (!li) return;
+    neue.delete(li.dataset.party);
+    delete li.dataset.neu;
+    blattId = li.dataset.party;
+    sag('blattErgebnis', '');
+    fuelleBlatt();
+    blatt.showModal();
+  });
+
+  byId('blattZu').addEventListener('click', () => blatt.close());
+  blatt.addEventListener('click', event => { if (event.target === blatt) blatt.close(); });
+
+  // Nach jeder Aktion kommt der frische Stand direkt zurueck - Blatt und
+  // Liste malen sofort neu, ohne auf den Draht zu warten.
+  async function tuUndZeige(befehl, meldung) {
+    sag('blattErgebnis', 'Einen Moment …');
+    const antwort = await sendeAktion(hausToken(), befehl);
+    if (!antwort?.ok) {
+      return sag('blattErgebnis', 'Das hat nicht geklappt – bitte noch einmal.', 'fehler');
+    }
+    if (antwort.stand) { stand = antwort.stand; male(); }
+    fuelleBlatt();
+    sag('blattErgebnis', meldung, 'gut');
+  }
+
+  byId('blattTische').addEventListener('click', event => {
+    const knopf = event.target.closest('[data-tisch-id]');
+    if (!knopf) return;
+    if (knopf.dataset.tischId === 'ohne') {
+      return tuUndZeige({ art: 'tisch', id: blattId, tableIds: [] }, 'Tisch freigegeben – die Gruppe steht ohne Tisch.');
+    }
+    tuUndZeige({ art: 'tisch', id: blattId, tableIds: [knopf.dataset.tischId] },
+      `Umgesetzt auf Tisch ${knopf.dataset.nummer}.`);
+  });
+
+  byId('blattPersonenForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const anzahl = Math.trunc(Number(byId('blattPersonen').value));
+    if (!Number.isFinite(anzahl) || anzahl < 1 || anzahl > 24) {
+      return sag('blattErgebnis', 'Bitte 1 bis 24 Personen eintragen.', 'fehler');
+    }
+    tuUndZeige({ art: 'personen', id: blattId, guests: anzahl }, `Personenzahl auf ${anzahl} geändert.`);
+  });
+
+  byId('blattNotizForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const text = byId('blattNotiz').value.trim();
+    tuUndZeige({ art: 'notiz', id: blattId, text }, text ? 'Notiz gespeichert.' : 'Notiz entfernt.');
+  });
+}
+
+function fuelleBlatt() {
+  const party = (stand?.parties || []).find(eintrag => eintrag.id === blattId);
+  if (!party) { byId('blatt').close(); return; }
+  const plan = buildFloorplan(stand.floorplan);
+  const policy = stand.floorplan.policy || {};
+  const dauer = wer => durationFor(wer.guests, policy);
+
+  byId('blattName').textContent = `${party.name} · ${party.guests} P. · ${party.time} Uhr`;
+  const aktuelle = party.tableIds?.length
+    ? `Tisch ${party.tableIds.map(id => plan.tables.find(t => t.id === id)?.number ?? '?').join(' + ')}`
+    : 'noch ohne Tisch';
+  byId('blattInfo').textContent = aktuelle
+    + (party.kontakt?.telefon ? ` · ${party.kontakt.telefon}` : '')
+    + (party.quelle === 'online' ? ' · online gebucht' : '');
+  const notizZeile = byId('blattNotizZeile');
+  notizZeile.hidden = !party.notiz;
+  notizZeile.textContent = party.notiz ? `Wunsch des Gastes: ${party.notiz}` : '';
+  byId('blattPersonen').value = String(party.guests);
+  byId('blattNotiz').value = party.notiz || '';
+
+  // Freie Tische im Zeitfenster dieser Reservierung. Zwei Fenster stossen
+  // sich, wenn keines vor dem anderen endet.
+  const start = minutenVon(party.time);
+  const ende = start + dauer(party);
+  const belegt = new Set();
+  for (const andere of stand.parties || []) {
+    if (andere.id === party.id || andere.date !== party.date || !andere.tableIds?.length) continue;
+    const andererStart = minutenVon(andere.time);
+    let andereEnde = andererStart + dauer(andere);
+    if (andere.left) andereEnde = Math.min(andereEnde, minutenVon(andere.left));
+    if (andererStart < ende && start < andereEnde) {
+      for (const id of andere.tableIds) belegt.add(id);
+    }
+  }
+  const gesperrt = new Set(stand.blockedTables || []);
+  const aktuelleIds = new Set(party.tableIds || []);
+  const kandidaten = plan.tables
+    .filter(tisch => !gesperrt.has(tisch.id) && !belegt.has(tisch.id) && !aktuelleIds.has(tisch.id))
+    .filter(tisch => tisch.seats >= party.guests)
+    .sort((a, b) => (a.seats - party.guests) - (b.seats - party.guests) || a.number - b.number)
+    .slice(0, 12);
+
+  const kasten = byId('blattTische');
+  kasten.textContent = '';
+  for (const tisch of kandidaten) {
+    const knopf = document.createElement('button');
+    knopf.type = 'button';
+    knopf.dataset.tischId = tisch.id;
+    knopf.dataset.nummer = String(tisch.number);
+    knopf.textContent = `Tisch ${tisch.number} · ${tisch.seats} Pl.${plan.levels.length > 1 ? ` · ${tisch.levelName}` : ''}`;
+    kasten.append(knopf);
+  }
+  if (party.tableIds?.length) {
+    const ohne = document.createElement('button');
+    ohne.type = 'button';
+    ohne.className = 'leise';
+    ohne.dataset.tischId = 'ohne';
+    ohne.textContent = 'Ohne Tisch';
+    kasten.append(ohne);
+  }
+  if (!kandidaten.length) {
+    const hinweis = document.createElement('p');
+    hinweis.className = 'blatt-leer';
+    hinweis.textContent = 'Zur gewünschten Zeit ist kein passender Einzeltisch frei. Zusammengeschobene Tische vergibt die große Einteilung.';
+    kasten.prepend(hinweis);
   }
 }
 

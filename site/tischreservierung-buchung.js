@@ -364,6 +364,7 @@ async function start() {
     sag('Einen Moment, wir schauen nach einem Tisch …');
     const antwort = await buche({
       name: wer, date: tag, time: zeit, guests: gaeste,
+      wunsch: byId('guestWish')?.value.trim() || null,
       kontakt: { email: wohin || null, telefon: anruf || null }
     });
     knopf.disabled = false;
