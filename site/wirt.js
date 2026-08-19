@@ -435,6 +435,11 @@ function verdrahteNeueReservierung() {
   byId('neuZeigen').addEventListener('click', () => {
     form.hidden = !form.hidden;
     if (!form.hidden) {
+      // Heute vorbelegen - wer fuer einen anderen Tag reserviert, stellt um.
+      const nu = jetzt();
+      const tag = byId('neuTag');
+      tag.value = tag.value || nu.datum;
+      tag.min = nu.datum;
       // Naechste Viertelstunde vorschlagen - meistens ist es "gleich".
       const d = new Date();
       const minuten = Math.min(13 * 60 + 30, Math.max(11 * 60 + 30, Math.ceil((d.getHours() * 60 + d.getMinutes() + 15) / 15) * 15));
@@ -447,15 +452,15 @@ function verdrahteNeueReservierung() {
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const name = byId('neuName').value.trim();
+    const date = byId('neuTag').value;
     const time = byId('neuZeit').value;
     const guests = Number(byId('neuPersonen').value);
-    if (name.length < 2 || !time || !guests) {
-      return sag('neuErgebnis', 'Name, Uhrzeit und Personenzahl eintragen – mehr braucht es nicht.', 'fehler');
+    if (name.length < 2 || !date || !time || !guests) {
+      return sag('neuErgebnis', 'Name, Tag, Uhrzeit und Personenzahl eintragen – mehr braucht es nicht.', 'fehler');
     }
     sag('neuErgebnis', 'Einen Moment …');
     const antwort = await legeEinfach(hausToken(), {
-      name, time, guests,
-      date: jetzt().datum,
+      name, date, time, guests,
       telefon: byId('neuTelefon').value.trim() || null
     });
     if (!antwort?.ok) {
@@ -465,9 +470,16 @@ function verdrahteNeueReservierung() {
     byId('neuName').value = '';
     byId('neuTelefon').value = '';
     byId('neuPersonen').value = '2';
-    sag('neuErgebnis', antwort.tisch
-      ? `Eingetragen: ${name}, ${guests} P. um ${time} – Tisch ${antwort.tisch}.`
-      : `Eingetragen: ${name}, ${guests} P. um ${time} – noch ohne Tisch, in der großen Einteilung zuteilen.`, 'gut');
+    byId('neuTag').value = '';
+    // Ein anderer Tag taucht nicht in der heutigen Liste auf - das muss die
+    // Meldung sagen, sonst sieht das Eintragen wie verschluckt aus.
+    const heute = jetzt().datum;
+    const wann = date === heute ? `um ${time}` : `am ${new Date(`${date}T12:00:00`).toLocaleDateString('de-AT', {
+      weekday: 'long', day: 'numeric', month: 'long'
+    })} um ${time}`;
+    const wohin = antwort.tisch ? `Tisch ${antwort.tisch}` : 'noch ohne Tisch, in der großen Einteilung zuteilen';
+    sag('neuErgebnis', `Eingetragen: ${name}, ${guests} P. ${wann} – ${wohin}.`
+      + (date === heute ? '' : ' Erscheint am Tag selbst in der Liste.'), 'gut');
   });
 }
 
