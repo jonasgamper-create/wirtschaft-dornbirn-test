@@ -26,7 +26,7 @@ import {
 } from './mail.mjs';
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
 import {
-  ALLERGENE, BESTELLSCHLUSS, LETZTE_ABHOLUNG, WARTEZEIT_TEXT, parseKarte, pruefeBestellung, statistik
+  ALLERGENE, BESTELLSCHLUSS, LETZTE_ABHOLUNG, WARTEZEIT_TEXT, kuechenzettel, parseKarte, pruefeBestellung, statistik
 } from './takeaway.mjs';
 
 const HAUS = 'wirtschaft-dornbirn';
@@ -1041,6 +1041,23 @@ export class Haus extends DurableObject {
   }
 
   /** Das Protokoll: was lief in den letzten 30 Tagen. */
+  /**
+   * Der Kuechenzettel eines Tages. Intern: er nennt zwar keine Gastnamen,
+   * verraet aber die Auslastung des Hauses - das geht niemanden ausser dem
+   * Wirt etwas an.
+   */
+  async kuechenzettel(datum) {
+    return {
+      ok: true,
+      ...kuechenzettel({
+        gerichte: this.#lies('takeawayKarte', []),
+        bestellungen: this.#takeawayAlle(),
+        parties: this.#alle(),
+        date: datum
+      })
+    };
+  }
+
   async takeawayProtokoll() {
     return { ok: true, ...statistik(this.#takeawayAlle()) };
   }
@@ -1405,6 +1422,14 @@ export default {
       if (url.pathname === '/api/takeaway/protokoll' && request.method === 'GET') {
         if (!darf()) return json({ ok: false }, 401, kopf);
         return json(await haus.takeawayProtokoll(), 200, kopf);
+      }
+
+      // Intern: der Kuechenzettel. Wie viel wird heute ungefaehr gebraucht.
+      if (url.pathname === '/api/kuechenzettel' && request.method === 'GET') {
+        if (!darf()) return json({ ok: false }, 401, kopf);
+        const datum = url.searchParams.get('datum') || jetztImHaus().datum;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(datum)) return json({ ok: false, grund: 'datum' }, 400, kopf);
+        return json(await haus.kuechenzettel(datum), 200, kopf);
       }
 
       // Oeffentlich: die Ampel - wie voll ist der Mittag heute. Nur Zahlen

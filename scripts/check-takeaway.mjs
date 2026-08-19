@@ -3,7 +3,7 @@
 
 import {
   ALLERGENE, BESTELLSCHLUSS, LETZTE_ABHOLUNG, MAX_PORTIONEN,
-  abholzeitFuer, alsPreis, parseKarte, pruefeBestellung, statistik
+  abholzeitFuer, alsPreis, kuechenzettel, parseKarte, pruefeBestellung, statistik
 } from '../server/src/takeaway.mjs';
 
 const errors = [];
@@ -98,8 +98,55 @@ check('Protokoll zaehlt Portionen', protokoll.portionen === 6);
 check('Der Renner steht oben', protokoll.gerichte[0].name === 'Käsespätzle' && protokoll.gerichte[0].portionen === 5);
 check('Umsatz stimmt', protokoll.umsatz === 5 * 12.5 + 4.2, String(protokoll.umsatz));
 
+// ---- Kuechenzettel: wie viel wird heute gebraucht -------------------------
+// Er darf nie mehr behaupten, als das Haus wirklich weiss: Bestelltes ist
+// Tatsache, der Rest eine Verteilung aus der eigenen Vergangenheit.
+
+const zettelKarte = [{ name: 'Käsespätzle', preis: 12.5 }, { name: 'Schnitzel', preis: 15.9 }];
+const HEUTE = '2026-08-24';
+
+// Ohne Vergangenheit wird gleichmaessig verteilt - und der Zettel sagt das.
+const ohneErfahrung = kuechenzettel({
+  gerichte: zettelKarte, bestellungen: [], parties: [{ date: HEUTE, guests: 10 }], date: HEUTE
+});
+check('Ohne Vergangenheit keine behauptete Erfahrung', ohneErfahrung.ausErfahrung === false);
+check('Ohne Vergangenheit gleichmaessig verteilt',
+  ohneErfahrung.zeilen.every(zeile => zeile.empfohlen === 5), JSON.stringify(ohneErfahrung.zeilen));
+check('Erwartete Gaeste kommen aus den Reservierungen', ohneErfahrung.erwarteteGaeste === 10);
+
+// Mit Vergangenheit: 8 von 10 Portionen waren Kaesespaetzle, also 80 Prozent.
+const gestern = [
+  { date: '2026-08-21', posten: [{ name: 'Käsespätzle', preis: 12.5, menge: 8 }, { name: 'Schnitzel', preis: 15.9, menge: 2 }] }
+];
+const zettel = kuechenzettel({
+  gerichte: zettelKarte,
+  bestellungen: [...gestern, { date: HEUTE, posten: [{ name: 'Schnitzel', preis: 15.9, menge: 3 }] }],
+  parties: [{ date: HEUTE, guests: 10 }],
+  date: HEUTE
+});
+check('Mit Vergangenheit steht die Erfahrung dahinter', zettel.ausErfahrung === true);
+check('Die Grundlage wird genannt', zettel.grundlage === 10, String(zettel.grundlage));
+const spaetzle = zettel.zeilen.find(zeile => zeile.name === 'Käsespätzle');
+const schnitzel = zettel.zeilen.find(zeile => zeile.name === 'Schnitzel');
+check('Anteil kommt aus der eigenen Vergangenheit', spaetzle.anteil === 80, String(spaetzle.anteil));
+check('Schon Bestelltes zaehlt unveraendert mit', schnitzel.bestellt === 3, String(schnitzel.bestellt));
+check('Empfehlung ist Bestelltes plus erwartete Gaeste',
+  spaetzle.empfohlen === 8 && schnitzel.empfohlen === 3 + 2,
+  `${spaetzle.empfohlen} / ${schnitzel.empfohlen}`);
+check('Nur der heutige Tag zaehlt als bestellt', zettel.bestelltGesamt === 3, String(zettel.bestelltGesamt));
+
+// Ein Gericht von der alten Karte darf die Anteile der heutigen nicht druecken.
+const alteKarte = kuechenzettel({
+  gerichte: [{ name: 'Käsespätzle', preis: 12.5 }],
+  bestellungen: [{ date: '2026-08-21', posten: [{ name: 'Gibt es nicht mehr', preis: 9, menge: 90 }, { name: 'Käsespätzle', preis: 12.5, menge: 10 }] }],
+  parties: [{ date: HEUTE, guests: 10 }],
+  date: HEUTE
+});
+check('Gerichte ausser Karte verzerren die Anteile nicht',
+  alteKarte.zeilen[0].anteil === 100, JSON.stringify(alteKarte.zeilen));
+
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);
 }
-console.log(`Takeaway-Prüfung OK: Karte, Abholzeit, Bestellung und Protokoll geprüft (${karte.length} Beispielgerichte).`);
+console.log(`Takeaway-Prüfung OK: Karte, Abholzeit, Bestellung, Protokoll und Küchenzettel geprüft (${karte.length} Beispielgerichte).`);
