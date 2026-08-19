@@ -10,7 +10,7 @@
   <title>Heute Mittag · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="stylesheet" href="wirt.css?v=7af80041">
-  <script type="module" src="wirt.js?v=125bccb2"></script>
+  <script type="module" src="wirt.js?v=4af46f18"></script>
 </head>
 <body>
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -31,13 +31,6 @@
       <div class="kachel"><b id="zahlImHaus">–</b><span>Gäste im Haus</span><small id="subImHaus"></small></div>
       <div class="kachel"><b id="zahlFrei">–</b><span>Tische frei</span><small id="subFrei"></small></div>
     </section>
-
-    <!-- Rueckgaengig statt Warndialog: nach dem Leeren liegt der Tag eine
-         Viertelstunde im Papierkorb. -->
-    <p class="korb" id="korbBalken" hidden>
-      <span id="korbText"></span>
-      <button class="knopf leise" type="button" id="korbZurueck">Rückgängig</button>
-    </p>
 
     <section class="heute" aria-labelledby="heuteTitel">
       <div class="zeile-kopf">
@@ -62,6 +55,13 @@
       <p class="lauf-ergebnis" id="neuErgebnis" role="status" aria-live="polite"></p>
 
       <ul class="haus-liste" id="heuteListe"></ul>
+
+      <!-- Erledigtes verstopft die Liste nicht: es liegt eingeklappt im
+           Archiv des Tages - anschaubar, rueckholbar, aber aus dem Weg. -->
+      <details class="werkzeug archiv" id="archiv" hidden>
+        <summary id="archivTitel">Erledigt heute</summary>
+        <ul class="haus-liste" id="archivListe"></ul>
+      </details>
     </section>
 
     <section class="laufkunde" aria-labelledby="laufTitel">
@@ -152,7 +152,13 @@
     </dialog>
     <p class="fuss abschluss">
       <button class="knopf rot" type="button" id="tagLeeren">Tag leeren</button>
-      <span>Räumt alle heutigen Reservierungen und offenen Abholungen – mit 15 Minuten Rückgängig. Morgen bleibt unberührt.</span>
+      <span>Räumt alle heutigen Reservierungen und offenen Abholungen – mit Rückgängig. Morgen bleibt unberührt.</span>
+    </p>
+    <!-- Rueckgaengig statt Warndialog: der Balken steht beim Knopf, der ihn
+         ausgeloest hat, und verschwindet nach zwei Minuten von selbst. -->
+    <p class="korb" id="korbBalken" hidden>
+      <span id="korbText"></span>
+      <button class="knopf leise" type="button" id="korbZurueck">Rückgängig</button>
     </p>
   </main>
 </body>
