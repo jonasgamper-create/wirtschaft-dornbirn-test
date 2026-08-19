@@ -7,6 +7,8 @@ import { apiAdresse, bestelleTakeaway, holeTakeawayKarte } from './haus-api.js?v
 const byId = id => document.getElementById(id);
 const alsPreis = wert => `€ ${Number(wert).toFixed(2).replace('.', ',')}`;
 
+/** Muss mit MAX_PORTIONEN im Dienst uebereinstimmen. */
+const MAX_PORTIONEN = 10;
 const BESTELLSCHLUSS = 13 * 60 + 45;
 const LETZTE_ABHOLUNG = 14 * 60;
 const VORLAUF = 20;
@@ -15,6 +17,8 @@ let karte = [];
 let allergenNamen = {};
 const mengen = new Map();
 let abholung = 'sofort';
+/** Gilt die Bestellung fuer heute oder fuer den naechsten Werktag? */
+let vorbestellung = false;
 
 start();
 
@@ -37,20 +41,31 @@ async function start() {
   const jetzt = new Date();
   const minuten = jetzt.getHours() * 60 + jetzt.getMinutes();
   const werktag = jetzt.getDay() >= 1 && jetzt.getDay() <= 5;
-  if (!werktag || minuten > BESTELLSCHLUSS) {
-    // Nur schauen: Mengenknoepfe und Bestellfelder fallen weg, die Gerichte
-    // mit Preisen und Allergenen bleiben stehen.
-    byId('taForm').dataset.nurschau = '';
-    byId('taLeer').innerHTML = werktag
-      ? 'Das gibt es diese Woche zum Mitnehmen. Für heute ist die Küche durch – die letzte Bestellung geht bis 13:45 Uhr. Morgen ab 11:00 Uhr wieder, oder ruf’ uns an: <a href="tel:+43557220540">+43 (0)5572 20 540</a>'
-      : 'Das gibt es zum Mitnehmen. Bestellen geht Montag bis Freitag zum Mittag – am Wochenende öffnen wir abends für Events.';
-    return;
-  }
+  // Bestellt werden kann immer. Solange die Kueche kocht, fuer heute - sonst
+  // als Vorbestellung fuer den naechsten Werktag. Eine Seite, die abends tot
+  // ist, verliert genau die Gaeste, die dann planen, was sie morgen mitnehmen.
+  vorbestellung = !werktag || minuten > BESTELLSCHLUSS;
 
-  byId('taLeer').hidden = true;
+  byId('taLeer').hidden = !vorbestellung;
+  if (vorbestellung) {
+    byId('taLeer').textContent = `Die Küche ist für heute durch – deine Bestellung geht auf ${naechsterWerktagText(jetzt)}. `
+      + 'Wähl einfach die Abholzeit, wir haben es dann fertig.';
+  }
   byId('taSenden').hidden = false;
   zeigeZeiten(minuten);
   zeigeSumme();
+}
+
+/** "Montag" oder "morgen" - was der Gast auf dem Zettel lesen will. */
+function naechsterWerktagText(jetzt) {
+  const tag = new Date(jetzt);
+  do {
+    tag.setDate(tag.getDate() + 1);
+  } while (tag.getDay() === 0 || tag.getDay() === 6);
+  const morgen = new Date(jetzt);
+  morgen.setDate(morgen.getDate() + 1);
+  const istMorgen = tag.toDateString() === morgen.toDateString();
+  return istMorgen ? 'morgen' : tag.toLocaleDateString('de-AT', { weekday: 'long' });
 }
 
 /**
@@ -90,11 +105,29 @@ function zeigeKarte() {
     const menge = document.createElement('span');
     menge.className = 'ta-menge';
     const weniger = knopf('−', `Eine Portion ${gericht.name} weniger`);
-    const zahl = document.createElement('output');
-    zahl.textContent = '0';
+    // Die Zahl ist tippbar: Knoepfe fuer eine Portion, das Feld fuer die
+    // sechs fuers Buero. Sechsmal Plus druecken ist kein Bedienweg.
+    const zahl = document.createElement('input');
+    zahl.type = 'number';
+    zahl.inputMode = 'numeric';
+    zahl.min = '0';
+    zahl.max = String(MAX_PORTIONEN);
+    zahl.step = '1';
+    zahl.value = '0';
+    zahl.setAttribute('aria-label', `Portionen ${gericht.name} – auch direkt eintippbar`);
     const mehr = knopf('+', `Eine Portion ${gericht.name} mehr`);
     weniger.addEventListener('click', () => aendere(gericht.id, -1, zahl, weniger));
     mehr.addEventListener('click', () => aendere(gericht.id, 1, zahl, weniger));
+    // Waehrend des Tippens nichts ueberschreiben, erst beim Verlassen in die
+    // Grenzen holen - sonst wird aus einer getippten 10 sofort eine 1.
+    zahl.addEventListener('input', () => {
+      const getippt = Math.trunc(Number(zahl.value));
+      if (!Number.isFinite(getippt) || getippt < 0 || getippt > MAX_PORTIONEN) return;
+      mengen.set(gericht.id, getippt);
+      weniger.disabled = getippt === 0;
+      zeigeSumme();
+    });
+    zahl.addEventListener('blur', () => setze(gericht.id, Number(zahl.value), zahl, weniger));
     weniger.disabled = true;
     menge.append(weniger, zahl, mehr);
     zeile.append(name, preis, menge);
@@ -110,10 +143,13 @@ function knopf(text, label) {
   return element;
 }
 
-function aendere(id, schritt, zahl, weniger) {
-  const wert = Math.max(0, Math.min(10, (mengen.get(id) || 0) + schritt));
+const aendere = (id, schritt, zahl, weniger) =>
+  setze(id, (mengen.get(id) || 0) + schritt, zahl, weniger);
+
+function setze(id, wunsch, zahl, weniger) {
+  const wert = Math.max(0, Math.min(MAX_PORTIONEN, Math.trunc(Number(wunsch)) || 0));
   mengen.set(id, wert);
-  zahl.textContent = String(wert);
+  zahl.value = String(wert);
   weniger.disabled = wert === 0;
   zeigeSumme();
 }
@@ -122,16 +158,24 @@ function aendere(id, schritt, zahl, weniger) {
 function zeigeZeiten(minuten) {
   const kasten = byId('taZeiten');
   kasten.textContent = '';
-  const sofort = document.createElement('button');
-  sofort.type = 'button';
-  sofort.setAttribute('role', 'radio');
-  sofort.setAttribute('aria-checked', 'true');
-  sofort.dataset.abholung = 'sofort';
-  sofort.textContent = 'So bald wie möglich';
-  kasten.append(sofort);
+  // "So bald wie moeglich" gibt es nur heute. Bei einer Vorbestellung waere
+  // das eine leere Zusage - morgen frueh steht niemand mit dem Sackerl da.
+  if (!vorbestellung) {
+    const sofort = document.createElement('button');
+    sofort.type = 'button';
+    sofort.setAttribute('role', 'radio');
+    sofort.setAttribute('aria-checked', 'true');
+    sofort.dataset.abholung = 'sofort';
+    sofort.textContent = 'So bald wie möglich';
+    kasten.append(sofort);
+  }
 
-  const fruehestens = Math.ceil((minuten + VORLAUF) / 15) * 15;
-  for (let zeit = Math.max(fruehestens, 12 * 60); zeit <= LETZTE_ABHOLUNG; zeit += 15) {
+  // Vorbestellung: das ganze Fenster ab 11:30 steht offen, die heutige Uhr
+  // spielt keine Rolle mehr.
+  const fruehestens = vorbestellung
+    ? 11 * 60 + 30
+    : Math.max(Math.ceil((minuten + VORLAUF) / 15) * 15, 12 * 60);
+  for (let zeit = fruehestens; zeit <= LETZTE_ABHOLUNG; zeit += 15) {
     const slot = document.createElement('button');
     slot.type = 'button';
     slot.setAttribute('role', 'radio');
@@ -140,7 +184,19 @@ function zeigeZeiten(minuten) {
     slot.textContent = slot.dataset.abholung;
     kasten.append(slot);
   }
-  byId('taZeitInfo').textContent = '„So bald wie möglich“ heißt: fertig in etwa 20–30 Minuten.';
+  // Bei einer Vorbestellung gibt es kein "so bald wie moeglich", also steht
+  // die erste Zeit vorgewaehlt da - sonst haette der Gast nichts gewaehlt und
+  // wuesste nicht, warum der Knopf meckert.
+  if (vorbestellung) {
+    const erster = kasten.querySelector('[data-abholung]');
+    if (erster) {
+      erster.setAttribute('aria-checked', 'true');
+      abholung = erster.dataset.abholung;
+    }
+  }
+  byId('taZeitInfo').textContent = vorbestellung
+    ? 'Wähl die Zeit, zu der du es abholen möchtest.'
+    : '„So bald wie möglich“ heißt: fertig in etwa 20–30 Minuten.';
 
   kasten.addEventListener('click', event => {
     const gewaehlt = event.target.closest('[data-abholung]');

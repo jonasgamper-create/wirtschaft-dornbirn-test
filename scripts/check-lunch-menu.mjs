@@ -43,7 +43,12 @@ if (data.status === 'active' && !(data.days || []).length) {
 }
 if (data.status === 'pause' && !data.pauseNote?.trim()) fail('pauseNote fehlt für den Pausenzustand.');
 
-if (!/data-lunch-menu/.test(index)) fail('Der Menüblock [data-lunch-menu] fehlt auf der Gästeseite.');
+// Die Startseite listet die Gerichte bewusst nicht mehr auf - sie fuehrt zur
+// Karte, statt sie zu wiederholen. Der Weg dorthin muss aber stehen: ohne den
+// PDF-Link fuehrte die Seite ins Leere, und das faellt niemandem auf, weil
+// vorher eine Liste da war.
+if (!/data-lunch-card/.test(index)) fail('Der Link zur Mittagskarte fehlt auf der Gästeseite.');
+if (!/takeaway\.html/.test(index)) fail('Der Weg zum Takeaway fehlt auf der Gästeseite.');
 if (/subject=Tischreservierung/.test(index)) {
   fail('Reservierung per E-Mail wurde entfernt und darf nicht zurueckkommen.');
 }
