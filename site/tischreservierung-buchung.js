@@ -4,7 +4,7 @@
 // wie bisher und leitet auf den offiziellen Anbieter weiter. Erst wenn der
 // Dienst laeuft, wird aus dem Formular eine echte Buchung.
 
-import { apiAdresse, buche, holeAmpel, holeFrei, holeKarteInfo, karteAdresse, meldeMittagskarte } from './haus-api.js?v=ae22f464';
+import { apiAdresse, buche, holeAmpel, holeFrei, holeKarteInfo, holeTakeawayKarte, karteAdresse, meldeMittagskarte } from './haus-api.js?v=ae22f464';
 
 const byId = id => document.getElementById(id);
 start();
@@ -60,6 +60,35 @@ async function start() {
   }
   zeigeKarte();
   setInterval(zeigeKarte, 5 * 60 * 1000);
+
+  // Die Gerichte der Woche, live vom Haus - dieselbe Quelle wie die
+  // Takeaway-Karte. Was der Wirt veroeffentlicht, steht hier im Kasten
+  // "Heute auf dem Teller"; die statische Karte bleibt der Rueckfall.
+  async function zeigeGerichte() {
+    const kasten = document.querySelector('[data-lunch-web]');
+    if (!kasten) return;
+    const antwort = await holeTakeawayKarte();
+    if (!antwort?.ok || !Array.isArray(antwort.gerichte) || !antwort.gerichte.length) return;
+    const male = () => {
+      kasten.textContent = '';
+      for (const gericht of antwort.gerichte) {
+        const zeile = document.createElement('div');
+        zeile.className = 'menu-day gericht';
+        const name = document.createElement('span');
+        name.textContent = gericht.name;
+        const preis = document.createElement('span');
+        preis.className = 'gericht-preis';
+        preis.textContent = `€ ${Number(gericht.preis).toFixed(2).replace('.', ',')}`;
+        zeile.append(name, preis);
+        kasten.append(zeile);
+      }
+    };
+    // Die statische Fassung malt zeitversetzt - deshalb einmal jetzt und
+    // noch einmal kurz danach, damit die Live-Karte stehen bleibt.
+    male();
+    setTimeout(male, 2000);
+  }
+  zeigeGerichte();
 
   // ---- Die Ampel: wie voll ist der Mittag heute ----------------------------
   //
