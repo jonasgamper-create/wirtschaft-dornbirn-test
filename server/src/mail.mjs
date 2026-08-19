@@ -231,8 +231,11 @@ export async function sendeMail(env, paket) {
       body: JSON.stringify(paket)
     });
     if (!antwort.ok) {
-      // Die Antwort kann die Adresse des Gastes enthalten - nur der Status.
-      console.error('Brevo abgelehnt', antwort.status);
+      // Brevos Fehlercode und -meldung nennen die Ursache ("sender not
+      // valid", "invalid parameter") - ohne sie ist ein 400 stumm. Die
+      // Meldung enthaelt keine Gaestedaten; zur Sicherheit gekuerzt.
+      const fehler = await antwort.text().catch(() => '');
+      console.error('Brevo abgelehnt', antwort.status, String(fehler).slice(0, 300));
       return { ok: false, grund: 'abgelehnt' };
     }
     return { ok: true };
