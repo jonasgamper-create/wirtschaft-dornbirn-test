@@ -278,14 +278,12 @@ function verdrahteNeueReservierung() {
 
 function verdrahteLaufkundschaft() {
   byId('laufErgebnis').textContent = '';
-  document.querySelector('.lauf-knoepfe').addEventListener('click', async event => {
-    const knopf = event.target.closest('[data-personen]');
-    if (!knopf) return;
-    const personen = Number(knopf.dataset.personen);
-    knopf.disabled = true;
+
+  async function setze(personen, sperre) {
+    if (sperre) sperre.disabled = true;
     sag('laufErgebnis', 'Einen Moment …');
     const antwort = await sendeLaufkunde(hausToken(), personen);
-    knopf.disabled = false;
+    if (sperre) sperre.disabled = false;
     if (antwort?.ok) {
       sag('laufErgebnis', `${personen} ${personen === 1 ? 'Person' : 'Personen'} an Tisch ${antwort.tisch}`
         + `${antwort.etage ? ` (${antwort.etage})` : ''} – belegt bis ${antwort.bis} Uhr.`, 'gut');
@@ -294,6 +292,23 @@ function verdrahteLaufkundschaft() {
     sag('laufErgebnis', antwort?.grund === 'voll'
       ? 'Gerade ist kein passender Tisch frei. Oben nachsehen, wer bald fertig ist.'
       : 'Das hat nicht geklappt – bitte noch einmal drücken.', 'fehler');
+  }
+
+  document.querySelector('.lauf-knoepfe').addEventListener('click', event => {
+    const knopf = event.target.closest('[data-personen]');
+    if (knopf) setze(Number(knopf.dataset.personen), knopf);
+  });
+
+  // Die grosse Gesellschaft: bis 20 eintippen, derselbe Weg dahinter.
+  byId('laufMehr').addEventListener('submit', event => {
+    event.preventDefault();
+    const feld = byId('laufZahl');
+    const personen = Math.trunc(Number(feld.value));
+    if (!Number.isFinite(personen) || personen < 1 || personen > 20) {
+      return sag('laufErgebnis', 'Bitte eine Zahl von 1 bis 20 eintragen.', 'fehler');
+    }
+    feld.value = '';
+    setze(personen, event.submitter);
   });
 }
 
