@@ -223,15 +223,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* Die Allergen-Legende: nur die Buchstaben, die heute vorkommen. */
 .ta-allergene{margin:12px 0 0;color:#57524a;font-size:13px;line-height:1.65;max-width:76ch}
 .ta-allergene[hidden]{display:none}
-/* Kueche durch: die Karte bleibt lesbar, nur das Bestellen faellt weg.
-   Mengenknoepfe, Abholzeit, Name und Telefon haben ohne Bestellung keinen
-   Sinn - die Gerichte mit Preis und Allergenen sehr wohl. */
-#taForm[data-nurschau] .ta-menge,
-#taForm[data-nurschau] > label,
-#taForm[data-nurschau] > .contact-note{display:none}
-#taForm[data-nurschau] .ta-gericht{grid-template-columns:minmax(0,1fr) auto}
-
 .ta-menge{display:inline-flex;align-items:center;gap:2px;border:1px solid #11110f3d;border-radius:999px;background:#fff;overflow:hidden}
+/* Die Portionszahl ist tippbar - gleiches Schriftbild wie vorher, nur eben
+   ein Feld. Browser-Spinner weg, Plus und Minus stehen ja daneben. */
+.ta-menge input{width:2.6ch;min-height:44px;padding:0;border:0;background:transparent;color:var(--ink);text-align:center;font-size:var(--t-body);font-variant-numeric:tabular-nums;-moz-appearance:textfield;appearance:textfield}
+.ta-menge input::-webkit-outer-spin-button,.ta-menge input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .ta-menge button{min-width:44px;min-height:44px;border:0;background:transparent;color:var(--ink);font-size:20px;line-height:1;cursor:pointer}
 .ta-menge button:disabled{opacity:.3;cursor:default}
 .ta-menge output{min-width:2ch;text-align:center;font-size:var(--t-body);font-variant-numeric:tabular-nums}

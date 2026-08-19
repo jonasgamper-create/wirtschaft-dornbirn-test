@@ -768,12 +768,15 @@
   const weekdayName = date => new Intl.DateTimeFormat('de-AT', { weekday: 'long' }).format(new Date(`${date}T12:00:00`));
 
   function renderLunchMenu(data) {
-    if (!lunchMenu) return;
+    // Der PDF-Link zuerst: er steht auch dort, wo keine Gerichteliste mehr
+    // ist. Haenge er am Vorhandensein der Liste, zeigte die Startseite nach
+    // deren Entfernen dauerhaft auf die Karte der letzten Woche.
     if (lunchCardLink && data.card?.file) {
       lunchCardLink.href = data.card.file;
       lunchCardLink.firstChild.textContent = `${data.card.label || 'Mittagskarte (PDF)'} `;
     }
     lunchCardLink?.toggleAttribute('hidden', !data.card?.file);
+    if (!lunchMenu) return;
     const days = Array.isArray(data.days) ? [...data.days].sort((a, b) => a.date.localeCompare(b.date)) : [];
     if (data.status === 'pause' || !days.length) {
       // Pause und "geoeffnet, aber Karte noch nicht eingetragen" sind zwei Lagen.

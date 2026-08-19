@@ -94,7 +94,51 @@ export const alsPreis = wert => `€ ${Number(wert).toFixed(2).replace('.', ',')
  * und haelt lieber das obere Ende. Ein Wunschtermin muss den Vorlauf lassen
  * und vor Ladenschluss liegen.
  */
-export function abholzeitFuer(jetzt, wunsch = 'sofort') {
+/** Frueheste Abholung an einem Tag, an dem noch nicht gekocht wurde. */
+export const ERSTE_ABHOLUNG = '11:30';
+
+/** Der naechste Tag, an dem gekocht wird. Samstag und Sonntag fallen aus. */
+export function naechsterWerktag(datum) {
+  const tag = new Date(`${datum}T12:00:00Z`);
+  if (Number.isNaN(tag.getTime())) return datum;
+  do {
+    tag.setUTCDate(tag.getUTCDate() + 1);
+  } while (tag.getUTCDay() === 0 || tag.getUTCDay() === 6);
+  return tag.toISOString().slice(0, 10);
+}
+
+/**
+ * Fuer welchen Tag gilt eine Bestellung, die gerade hereinkommt?
+ *
+ * Solange die Kueche kocht, fuer heute. Danach - und am Wochenende - fuer den
+ * naechsten Werktag. Ohne das waere die Seite abends tot, obwohl der Gast
+ * genau dann plant, was er morgen mitnimmt. Die Regel des Hauses bleibt
+ * unangetastet: nach 13:45 kommt nichts mehr in die heutige Kueche.
+ */
+export function bestelltag({ heute, jetzt }) {
+  const wochentag = new Date(`${heute}T12:00:00Z`).getUTCDay();
+  const werktag = wochentag >= 1 && wochentag <= 5;
+  const start = zuMinuten(jetzt);
+  if (werktag && start !== null && start <= zuMinuten(BESTELLSCHLUSS)) {
+    return { datum: heute, vorbestellung: false };
+  }
+  return { datum: naechsterWerktag(heute), vorbestellung: true };
+}
+
+export function abholzeitFuer(jetzt, wunsch = 'sofort', { vorbestellung = false } = {}) {
+  // Vorbestellung: die Uhr von heute sagt nichts ueber morgen. Es zaehlt nur,
+  // dass die Zeit im Abholfenster liegt - "sofort" gibt es dann nicht, also
+  // wird daraus der erste Slot.
+  if (vorbestellung) {
+    const gewuenscht = wunsch === 'sofort' || !wunsch
+      ? zuMinuten(ERSTE_ABHOLUNG)
+      : zuMinuten(String(wunsch));
+    if (gewuenscht === null) return { ok: false, grund: 'zeit' };
+    if (gewuenscht % 15 !== 0) return { ok: false, grund: 'zeit' };
+    if (gewuenscht < zuMinuten(ERSTE_ABHOLUNG)) return { ok: false, grund: 'zu_frueh' };
+    if (gewuenscht > zuMinuten(LETZTE_ABHOLUNG)) return { ok: false, grund: 'schluss' };
+    return { ok: true, zeit: alsZeit(gewuenscht) };
+  }
   const start = zuMinuten(jetzt);
   if (start === null) return { ok: false, grund: 'zeit' };
   if (wunsch === 'sofort') {
@@ -121,11 +165,9 @@ export function pruefeBestellung(roh, { gerichte, heute, jetzt }) {
   const telefon = String(roh?.telefon ?? '').trim().slice(0, 25);
   if (!istTelefon(telefon)) return { ok: false, grund: 'telefon' };
 
-  // Nur werktags, nur solange die Kueche kocht.
-  const wochentag = new Date(`${heute}T12:00:00Z`).getUTCDay();
-  if (wochentag === 0 || wochentag === 6) return { ok: false, grund: 'wochenende' };
-  const start = zuMinuten(jetzt);
-  if (start === null || start > zuMinuten(BESTELLSCHLUSS)) return { ok: false, grund: 'schluss' };
+  // Fuer welchen Tag das gilt, entscheidet die Uhr: heute, solange die Kueche
+  // kocht - sonst der naechste Werktag als Vorbestellung.
+  const tag = bestelltag({ heute, jetzt });
 
   const karte = new Map((gerichte || []).map(gericht => [gericht.id, gericht]));
   if (!karte.size) return { ok: false, grund: 'karte' };
@@ -141,13 +183,23 @@ export function pruefeBestellung(roh, { gerichte, heute, jetzt }) {
   const portionen = posten.reduce((sum, eintrag) => sum + eintrag.menge, 0);
   if (portionen > MAX_PORTIONEN) return { ok: false, grund: 'zu_viel' };
 
-  const abholung = abholzeitFuer(jetzt, roh?.abholung === 'sofort' || !roh?.abholung ? 'sofort' : String(roh.abholung));
+  const abholung = abholzeitFuer(
+    jetzt,
+    roh?.abholung === 'sofort' || !roh?.abholung ? 'sofort' : String(roh.abholung),
+    { vorbestellung: tag.vorbestellung }
+  );
   if (!abholung.ok) return { ok: false, grund: abholung.grund };
 
   const summe = Math.round(posten.reduce((sum, eintrag) => sum + eintrag.preis * eintrag.menge, 0) * 100) / 100;
   return {
     ok: true,
-    bestellung: { name, telefon, posten, summe, date: heute, abholzeit: abholung.zeit }
+    bestellung: {
+      name, telefon, posten, summe,
+      date: tag.datum,
+      abholzeit: abholung.zeit,
+      // Der Wirt muss auf einen Blick sehen, dass das nicht fuer heute ist.
+      vorbestellung: tag.vorbestellung
+    }
   };
 }
 

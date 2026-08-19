@@ -3,7 +3,8 @@
 
 import {
   ALLERGENE, BESTELLSCHLUSS, LETZTE_ABHOLUNG, MAX_PORTIONEN,
-  abholzeitFuer, alsPreis, kuechenzettel, parseKarte, pruefeBestellung, statistik
+  ERSTE_ABHOLUNG, abholzeitFuer, alsPreis, bestelltag, kuechenzettel,
+  naechsterWerktag, parseKarte, pruefeBestellung, statistik
 } from '../server/src/takeaway.mjs';
 
 const errors = [];
@@ -77,15 +78,69 @@ check('Unbekanntes Gericht faellt weg, leere Bestellung raus',
 check('Zu viele Portionen fallen raus',
   pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 8 }, { id: 'g2', menge: 8 }] }, rahmen).grund === 'zu_viel',
   String(MAX_PORTIONEN));
-check('Nach Bestellschluss ist zu',
+// Nach Bestellschluss ist die HEUTIGE Kueche zu - die Bestellung wird
+// angenommen, aber fuer den naechsten Werktag. Frueher fiel sie hier ganz
+// weg; das machte die Seite abends tot, obwohl der Gast genau dann plant.
+const nachSchluss = pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }] },
+  { ...rahmen, jetzt: '13:50' });
+check('Nach Bestellschluss kommt nichts mehr in die heutige Kueche',
+  nachSchluss.ok && nachSchluss.bestellung.date !== heute, `${BESTELLSCHLUSS}: ${JSON.stringify(nachSchluss)}`);
+check('Am Samstag wird fuer den naechsten Werktag bestellt',
   pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }] },
-    { ...rahmen, jetzt: '13:50' }).grund === 'schluss', BESTELLSCHLUSS);
-check('Am Samstag gibt es kein Takeaway',
-  pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }] },
-    { ...rahmen, heute: '2026-08-22' }).grund === 'wochenende');
+    { ...rahmen, heute: '2026-08-22' }).bestellung?.vorbestellung === true);
 check('Ohne Karte keine Bestellung',
   pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }] },
     { ...rahmen, gerichte: [] }).grund === 'karte');
+
+// ---- 3b. Vorbestellen fuer den naechsten Werktag ---------------------------
+// Abends und am Wochenende ist die Seite nicht tot: bestellt wird dann fuer
+// den naechsten Tag, an dem gekocht wird. Die Regel des Hauses bleibt dabei
+// unangetastet - nach 13:45 kommt nichts mehr in die HEUTIGE Kueche.
+
+check('Freitagabend fuehrt auf Montag', naechsterWerktag('2026-08-21') === '2026-08-24',
+  naechsterWerktag('2026-08-21'));
+check('Samstag fuehrt auf Montag', naechsterWerktag('2026-08-22') === '2026-08-24');
+check('Montagabend fuehrt auf Dienstag', naechsterWerktag('2026-08-24') === '2026-08-25');
+
+check('Waehrend der Kueche gilt heute',
+  bestelltag({ heute, jetzt: '12:00' }).vorbestellung === false);
+check('Nach Bestellschluss wird vorbestellt',
+  bestelltag({ heute, jetzt: '13:50' }).vorbestellung === true);
+check('Die Vorbestellung geht auf den naechsten Werktag',
+  bestelltag({ heute: '2026-08-21', jetzt: '19:00' }).datum === '2026-08-24');
+check('Am Wochenende wird immer vorbestellt',
+  bestelltag({ heute: '2026-08-22', jetzt: '10:00' }).vorbestellung === true);
+// Genau um 13:45 ist noch heute - die Grenze gehoert zur Kueche.
+check('Punkt 13:45 zaehlt noch fuer heute',
+  bestelltag({ heute, jetzt: '13:45' }).vorbestellung === false);
+
+// Bei einer Vorbestellung sagt die heutige Uhr nichts ueber morgen.
+check('Vorbestellung nimmt jeden Slot im Fenster',
+  abholzeitFuer('20:00', '11:30', { vorbestellung: true }).zeit === '11:30');
+check('Vorbestellung ohne Wunsch nimmt den ersten Slot',
+  abholzeitFuer('20:00', 'sofort', { vorbestellung: true }).zeit === ERSTE_ABHOLUNG);
+check('Vorbestellung vor der Kueche faellt raus',
+  abholzeitFuer('20:00', '09:00', { vorbestellung: true }).grund === 'zu_frueh');
+check('Vorbestellung nach der letzten Abholung faellt raus',
+  abholzeitFuer('20:00', '15:00', { vorbestellung: true }).grund === 'schluss');
+
+const abends = pruefeBestellung({
+  name: 'Huber', telefon: '+43 660 1234567', posten: [{ id: 'g1', menge: 2 }], abholung: '12:00'
+}, { ...rahmen, heute: '2026-08-21', jetzt: '19:30' });
+check('Abends kommt die Bestellung durch', abends.ok, JSON.stringify(abends));
+check('Sie gilt fuer den naechsten Werktag', abends.bestellung?.date === '2026-08-24',
+  abends.bestellung?.date);
+check('Sie ist als Vorbestellung erkennbar', abends.bestellung?.vorbestellung === true);
+
+// Und die eigentliche Regel: eine Bestellung um 19:30 landet NICHT im
+// heutigen Kuechenzettel - sonst kocht jemand fuer einen Tag, der vorbei ist.
+check('Die Vorbestellung faellt nicht auf heute', abends.bestellung?.date !== '2026-08-21');
+
+const amSamstag = pruefeBestellung({
+  name: 'Huber', telefon: '+43 660 1234567', posten: [{ id: 'g1', menge: 1 }], abholung: '12:00'
+}, { ...rahmen, heute: '2026-08-22', jetzt: '10:00' });
+check('Am Samstag wird auf Montag vorbestellt',
+  amSamstag.ok && amSamstag.bestellung.date === '2026-08-24', JSON.stringify(amSamstag));
 
 // ---- 4. Das Protokoll ------------------------------------------------------
 
