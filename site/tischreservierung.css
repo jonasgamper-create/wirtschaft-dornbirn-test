@@ -60,6 +60,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .menu-day:first-child{padding-top:0;border-top:0}
 .menu-day b{font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#57524a}
 .menu-day span{font-size:var(--t-meta);line-height:1.45}
+/* Live-Gerichte: Name links, Preis rechts - wie auf der gedruckten Karte. */
+.menu-day.gericht{display:flex;justify-content:space-between;gap:12px}
+.menu-day.gericht .gericht-preis{color:#57524a;font-variant-numeric:tabular-nums;white-space:nowrap}
 .menu-card-link{display:inline-flex;align-items:center;min-height:44px;margin-top:6px;color:var(--green);font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase;text-underline-offset:5px}
 
 .section{padding-top:var(--s-section);padding-bottom:var(--s-section);border-top:1px solid #11110f1f}
