@@ -26,7 +26,7 @@ import {
 } from './mail.mjs';
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
 import {
-  BESTELLSCHLUSS, LETZTE_ABHOLUNG, WARTEZEIT_TEXT, parseKarte, pruefeBestellung, statistik
+  ALLERGENE, BESTELLSCHLUSS, LETZTE_ABHOLUNG, WARTEZEIT_TEXT, parseKarte, pruefeBestellung, statistik
 } from './takeaway.mjs';
 
 const HAUS = 'wirtschaft-dornbirn';
@@ -950,11 +950,13 @@ export class Haus extends DurableObject {
 
   // ---- Takeaway ------------------------------------------------------------
 
-  /** Die bestellbare Karte. Oeffentlich: Name und Preis, sonst nichts. */
+  /** Die bestellbare Karte. Oeffentlich: Name, Preis und Allergene. */
   async takeawayKarte() {
     return {
       ok: true,
       gerichte: this.#lies('takeawayKarte', []),
+      // Die Klarnamen zu den Allergen-Codes - eine Quelle fuer alle Seiten.
+      allergenNamen: ALLERGENE,
       schluss: BESTELLSCHLUSS,
       letzteAbholung: LETZTE_ABHOLUNG,
       wartezeit: WARTEZEIT_TEXT

@@ -75,7 +75,9 @@ async function start() {
         const zeile = document.createElement('div');
         zeile.className = 'menu-day gericht';
         const name = document.createElement('span');
-        name.textContent = gericht.name;
+        name.textContent = gericht.allergene?.length
+          ? `${gericht.name} (${gericht.allergene.join(', ')})`
+          : gericht.name;
         const preis = document.createElement('span');
         preis.className = 'gericht-preis';
         preis.textContent = `€ ${Number(gericht.preis).toFixed(2).replace('.', ',')}`;

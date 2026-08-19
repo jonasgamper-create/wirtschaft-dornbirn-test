@@ -71,7 +71,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .form-section{background:var(--cream)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:720px;margin-top:var(--s-block);align-items:start}
 .grid label{display:grid;gap:8px;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase}
-.grid label.wide{grid-column:1/-1}
+/* "wide" gilt fuer jedes Kind der Spaltenordnung - nicht nur fuer Labels.
+   Die Gerichtekarte des Takeaways sass sonst in einer halben Spalte. */
+.grid .wide{grid-column:1/-1}
 .grid input{width:100%;min-height:48px;padding:12px 14px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none}
 /* Das ganze Datumsfeld oeffnet den Kalender, also zeigt es das auch. */
 .grid input[type="date"]{cursor:pointer}
@@ -197,15 +199,19 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .ta-anruf-zeile{margin:24px 0 0}
 .ta-leer{margin:var(--s-block) 0 0;padding:14px 16px;border-left:2px solid var(--green);background:#11110f0a;color:#3c3833;font-size:var(--t-meta);line-height:1.55;max-width:56ch}
 .ta-leer[hidden]{display:none}
-/* Die Karte: pro Zeile links das Gericht, rechts Preis und Menge - dieselbe
-   Ordnung wie auf der gedruckten Karte. */
+/* Die Karte: pro Zeile links das Gericht mit Allergen-Codes, rechts Preis
+   und Menge - dieselbe Ordnung wie auf der gedruckten Karte, mit Luft. */
 .ta-karte{display:grid;gap:0;border:1px solid #11110f24;background:#fff}
-.ta-gericht{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:14px 16px;border-top:1px solid #11110f14}
+.ta-gericht{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px 22px;align-items:center;padding:18px 20px;border-top:1px solid #11110f14}
 .ta-gericht:first-child{border-top:0}
-.ta-gericht-name{font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none}
-.ta-gericht-preis{color:#57524a;font-size:var(--t-meta);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ta-gericht-name{font-size:var(--t-listitem);font-weight:400;letter-spacing:0;text-transform:none;line-height:1.4}
+.ta-gericht-name .ta-codes{margin-left:8px;color:#8f887b;font-size:12px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.ta-gericht-preis{color:var(--ink);font-size:var(--t-body);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* Die Allergen-Legende: nur die Buchstaben, die heute vorkommen. */
+.ta-allergene{margin:12px 0 0;color:#57524a;font-size:13px;line-height:1.65;max-width:76ch}
+.ta-allergene[hidden]{display:none}
 .ta-menge{display:inline-flex;align-items:center;gap:2px;border:1px solid #11110f3d;border-radius:999px;background:#fff;overflow:hidden}
 .ta-menge button{min-width:44px;min-height:44px;border:0;background:transparent;color:var(--ink);font-size:20px;line-height:1;cursor:pointer}
 .ta-menge button:disabled{opacity:.3;cursor:default}
 .ta-menge output{min-width:2ch;text-align:center;font-size:var(--t-body);font-variant-numeric:tabular-nums}
-@media(max-width:560px){.ta-gericht{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name menge" "preis menge"}.ta-gericht-name{grid-area:name}.ta-gericht-preis{grid-area:preis}.ta-menge{grid-area:menge}}
+@media(max-width:560px){.ta-gericht{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name menge" "preis menge";padding:16px}.ta-gericht-name{grid-area:name}.ta-gericht-preis{grid-area:preis}.ta-menge{grid-area:menge}}
