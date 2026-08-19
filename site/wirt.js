@@ -5,11 +5,11 @@
 // zwei Handys nie denselben letzten Tisch erwischen.
 
 import {
-  apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeStand, karteAdresse,
+  apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeKuechenzettel, holeStand, karteAdresse,
   leereTag, legeEinfach, loescheKarte, schluesselAusAdresse, sendeAktion,
   sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
   stelleTagWiederHer
-} from './haus-api.js?v=ae22f464';
+} from './haus-api.js?v=ba7ec801';
 import { buildFloorplan } from './floorplan-layout.mjs?v=8cd1fbb4';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=ec7c8e39';
 
@@ -63,6 +63,59 @@ async function start() {
   verdrahteLaufkundschaft();
   verdrahteTagLeeren();
   verdrahteKarten();
+  verdrahteZettel();
+}
+
+/**
+ * Der Kuechenzettel. Er beantwortet die Frage vor dem Einkauf: wie viel
+ * kochen wir heute? Erst beim Aufklappen geholt - im Mittagslaerm braucht
+ * niemand eine Zahl, nach der er nicht gefragt hat.
+ */
+function verdrahteZettel() {
+  const kasten = byId('zettelKasten');
+  if (!kasten) return;
+
+  async function male() {
+    if (!kasten.open) return;
+    const antwort = await holeKuechenzettel(hausToken(), jetzt().datum);
+    const liste = byId('zettelListe');
+    liste.textContent = '';
+    if (!antwort?.ok) {
+      byId('zettelKopf').textContent = 'Die Zahlen sind gerade nicht erreichbar.';
+      byId('zettelFuss').textContent = '';
+      return;
+    }
+    if (!antwort.zeilen.length) {
+      byId('zettelKopf').textContent = 'Noch keine Gerichte veröffentlicht – trag oben die Karte ein.';
+      byId('zettelFuss').textContent = '';
+      return;
+    }
+    byId('zettelKopf').textContent = `${antwort.erwarteteGaeste} Gäste erwartet, `
+      + `${antwort.bestelltGesamt} Portion(en) schon als Takeaway bestellt.`;
+    for (const zeile of antwort.zeilen) {
+      const eintrag = document.createElement('li');
+      const name = document.createElement('b');
+      name.textContent = zeile.name;
+      const zahl = document.createElement('span');
+      zahl.className = 'zettel-zahl';
+      zahl.textContent = `${zeile.empfohlen}`;
+      const dazu = document.createElement('small');
+      // Was Tatsache ist, steht getrennt von dem, was gerechnet wurde.
+      dazu.textContent = zeile.bestellt
+        ? `davon ${zeile.bestellt} fix bestellt · ${zeile.anteil} % Anteil bisher`
+        : `${zeile.anteil} % Anteil bisher`;
+      eintrag.append(zahl, name, dazu);
+      liste.append(eintrag);
+    }
+    byId('zettelFuss').textContent = antwort.ausErfahrung
+      ? `Verteilung aus ${antwort.grundlage} bisher bestellten Portionen. Ein Richtwert, keine Bestellung.`
+      : 'Noch keine Erfahrungswerte – bis dahin gleichmäßig verteilt. Je mehr Takeaway läuft, desto genauer wird der Zettel.';
+  }
+
+  kasten.addEventListener('toggle', male);
+  // Offen gelassen heisst mitlaufen: kommt eine Bestellung herein, stimmt
+  // die Zahl sonst schon nach zehn Minuten nicht mehr.
+  setInterval(male, 2 * 60 * 1000);
 }
 
 // ---- Neue Buchungen hoerbar machen -----------------------------------------

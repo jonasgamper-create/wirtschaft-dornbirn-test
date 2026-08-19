@@ -155,6 +155,84 @@ export function pruefeBestellung(roh, { gerichte, heute, jetzt }) {
  * Was laeuft gut? Zaehlt je Gericht die verkauften Portionen - das Protokoll
  * fuer den Einkauf: was oft geht, steht naechste Woche wieder auf der Karte.
  */
+/**
+ * Der Kuechenzettel: wie viel wird heute ungefaehr gebraucht?
+ *
+ * Drei Zahlen, die im Haus wirklich vorliegen, statt einer Prognose, die
+ * Genauigkeit vortaeuscht:
+ *
+ *   - schon bestellt: die Takeaway-Portionen des Tages. Das ist eine Tatsache,
+ *     keine Schaetzung, und steht deshalb unveraendert im Zettel.
+ *   - erwartete Gaeste: die Personen aus den Reservierungen des Tages.
+ *   - Verteilung: welcher Anteil der bisherigen Portionen auf welches Gericht
+ *     fiel. Aus der eigenen Vergangenheit gerechnet, nicht geraten.
+ *
+ * Die Empfehlung ist die Summe aus dem Bestellten und dem, was die erwarteten
+ * Gaeste nach bisheriger Verteilung waehlen duerften. Ohne Vergangenheit wird
+ * gleichmaessig verteilt - und der Zettel sagt das dann auch, statt eine
+ * Erfahrung zu behaupten, die es noch nicht gibt.
+ */
+export function kuechenzettel({ gerichte = [], bestellungen = [], parties = [], date, historie = null }) {
+  const heutige = bestellungen.filter(bestellung => bestellung.date === date);
+  const vergangene = Array.isArray(historie)
+    ? historie
+    : bestellungen.filter(bestellung => bestellung.date !== date);
+
+  // Anteile aus der Vergangenheit. Nur Gerichte, die heute auf der Karte
+  // stehen, zaehlen mit: ein Anteil fuer ein Gericht, das es nicht gibt,
+  // verschoebe die Empfehlung aller anderen nach unten.
+  const aufDerKarte = new Set(gerichte.map(gericht => gericht.name));
+  const frueher = new Map();
+  let frueherGesamt = 0;
+  for (const bestellung of vergangene) {
+    for (const posten of bestellung.posten || []) {
+      if (!aufDerKarte.has(posten.name)) continue;
+      frueher.set(posten.name, (frueher.get(posten.name) || 0) + posten.menge);
+      frueherGesamt += posten.menge;
+    }
+  }
+
+  const bestelltJe = new Map();
+  let bestelltGesamt = 0;
+  for (const bestellung of heutige) {
+    for (const posten of bestellung.posten || []) {
+      bestelltJe.set(posten.name, (bestelltJe.get(posten.name) || 0) + posten.menge);
+      bestelltGesamt += posten.menge;
+    }
+  }
+
+  const erwarteteGaeste = parties
+    .filter(party => party.date === date)
+    .reduce((summe, party) => summe + (Number(party.guests) || 0), 0);
+
+  const ausErfahrung = frueherGesamt > 0;
+  const zeilen = gerichte.map(gericht => {
+    const anteil = ausErfahrung
+      ? (frueher.get(gericht.name) || 0) / frueherGesamt
+      : 1 / Math.max(1, gerichte.length);
+    const bestellt = bestelltJe.get(gericht.name) || 0;
+    return {
+      name: gericht.name,
+      bestellt,
+      // Aufgerundet: eine Portion zu wenig steht als "ausverkauft" auf der
+      // Karte, eine zu viel ist das Personalessen.
+      empfohlen: bestellt + Math.ceil(erwarteteGaeste * anteil),
+      anteil: Math.round(anteil * 100)
+    };
+  });
+
+  return {
+    date,
+    erwarteteGaeste,
+    bestelltGesamt,
+    ausErfahrung,
+    // Worauf die Verteilung beruht - ohne diese Zahl ist ein Anteil von 40 %
+    // nicht einzuordnen: aus vier Portionen oder aus vierhundert?
+    grundlage: frueherGesamt,
+    zeilen: zeilen.sort((a, b) => b.empfohlen - a.empfohlen)
+  };
+}
+
 export function statistik(bestellungen) {
   const jeGericht = new Map();
   let gesamt = 0;

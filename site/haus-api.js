@@ -185,6 +185,10 @@ export const sendeTakeawayAktion = (token, befehl) =>
 /** Das Protokoll der letzten 30 Tage - was lief gut. */
 export const holeTakeawayProtokoll = token => ruf('/api/takeaway/protokoll', { token });
 
+/** Der Kuechenzettel eines Tages: wie viel wird ungefaehr gebraucht. */
+export const holeKuechenzettel = (token, datum) =>
+  ruf(`/api/kuechenzettel?datum=${encodeURIComponent(datum)}`, { token });
+
 /** Telefonische Reservierung aus der Wirt-Ansicht: vier Angaben genuegen. */
 export const legeEinfach = (token, reservierung) =>
   ruf('/api/reservierung/einfach', { methode: 'POST', koerper: reservierung, token });
