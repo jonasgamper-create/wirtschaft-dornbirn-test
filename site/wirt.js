@@ -197,7 +197,7 @@ function verdrahteHeuteListe() {
  * Eine Zeile der Tagesliste. Links die Zeit, in der Mitte wer und was,
  * rechts genau ein Knopf - der naechste sinnvolle Schritt und sonst nichts.
  */
-function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, leiseKnopf = false, ton = '', notiz = null, partyId = null }) {
+function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, leiseKnopf = false, ton = '', notiz = null, partyId = null, gast = null }) {
   const li = document.createElement('li');
   if (erledigt) li.dataset.erledigt = '';
   if (ton) li.dataset.ton = ton;
@@ -220,6 +220,18 @@ function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, lei
     wunsch.className = 'wunsch';
     wunsch.textContent = `♡ ${notiz}`;
     wer.append(wunsch);
+  }
+  // Stammgast: nur bei mehr als einem Besuch - beim ersten waere "1. Besuch"
+  // keine Auskunft, sondern Fuellsel. Die Unvertraeglichkeit steht daneben,
+  // weil sie in der Kueche zaehlt, nicht in der Statistik.
+  if (gast && (gast.besuche > 1 || gast.unvertraeglichkeit)) {
+    const kennung = document.createElement('span');
+    kennung.className = 'stammgast';
+    const teile = [];
+    if (gast.besuche > 1) teile.push(`${gast.besuche}. Besuch`);
+    if (gast.unvertraeglichkeit) teile.push(gast.unvertraeglichkeit);
+    kennung.textContent = `★ ${teile.join(' · ')}`;
+    wer.append(kennung);
   }
   li.append(zeitEl, wer);
   if (knopfText) {
@@ -303,14 +315,14 @@ function male() {
 
     if (party.left) {
       erledigte.push(zeile({
-        zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz,
+        zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz, gast: party.gast,
         titel: `${party.name} · ${personen}`,
         info: `fertig um ${party.left} · ${tische}`,
         knopfText: 'Zurück', aktion: 'zurueck', erledigt: true, leiseKnopf: true
       }));
     } else if (party.arrived) {
       eintraege.push(zeile({
-        zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz,
+        zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz, gast: party.gast,
         titel: `${party.name} · ${personen}`,
         info: `im Haus seit ${party.arrived} · ${tische} · frei gegen ${bisText}`,
         knopfText: 'Fertig', aktion: 'abgang', ton: 'da'
@@ -318,7 +330,7 @@ function male() {
     } else {
       const ueberfaellig = zeitVon < nu.zeit && !party.arrived;
       eintraege.push(zeile({
-        zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz,
+        zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz, gast: party.gast,
         titel: `${party.name} · ${personen}`,
         info: `${ueberfaellig ? 'überfällig' : 'erwartet'} · ${tische}`,
         knopfText: 'Da', aktion: 'ankunft', ton: ueberfaellig ? 'spaet' : ''

@@ -12,7 +12,7 @@
   <title>Tischreservierung · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=83acbfe2">
+  <link rel="stylesheet" href="tischreservierung.css?v=68462a56">
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Restaurant","name":"Wirtschaft Dornbirn","legalName":"„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.","url":"https://wirtschaft-dornbirn.at/","telephone":"+43557220540","email":"willkommen@wirtschaft-dornbirn.at","address":{"@type":"PostalAddress","streetAddress":"Bahnhofstraße 24","postalCode":"6850","addressLocality":"Dornbirn","addressRegion":"Vorarlberg","addressCountry":"AT"},"vatID":"ATU36206707","acceptsReservations":"https://wirtschaft-dornbirn.at/tischreservierung.html"}
   </script>
@@ -105,6 +105,22 @@
               <input type="text" name="gastwunsch" id="guestWish" maxlength="120" placeholder="z. B. Fensterplatz, Kinderstuhl, glutenfrei">
             </label>
             <p class="contact-note">Nur für diese Reservierung: Bestätigung – und die Absage, falls wir kurzfristig nicht kochen können. Gelöscht spätestens 30 Tage nach dem Termin.</p>
+            <!-- Wiedererkennen beim nächsten Mal. Freiwillig, nie Bedingung
+                 für die Reservierung - und die Unverträglichkeit hat ihre
+                 eigene Zustimmung, weil sie ein Gesundheitsdatum ist. -->
+            <label class="contact-check merken-check">
+              <input type="checkbox" name="gastmerken" id="guestRemember">
+              <span>Merkt euch das für den nächsten Besuch. Dann müssen wir nicht jedes Mal alles neu sagen. Widerrufen geht jederzeit.</span>
+            </label>
+            <div class="merken-mehr" id="guestRememberMore" hidden>
+              <label class="wunsch-feld">Unverträglichkeit (optional)
+                <input type="text" name="gastunvertraeglichkeit" id="guestIntolerance" maxlength="140" placeholder="z. B. glutenfrei, keine Nüsse">
+              </label>
+              <label class="contact-check">
+                <input type="checkbox" name="gastgesundheit" id="guestHealthConsent">
+                <span>Ja, speichert meine Unverträglichkeit dauerhaft, damit die Küche darauf Rücksicht nehmen kann. Ohne diesen Haken merken wir sie uns nicht.</span>
+              </label>
+            </div>
           </div>
         </form>
         <p class="group-hint">Mehr als 20 Personen? Ruf’ uns an: <a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
@@ -170,6 +186,6 @@
   </footer>
 
   <script src="tischreservierung.js?v=428d54e5" defer></script>
-  <script type="module" src="tischreservierung-buchung.js?v=71c64b97"></script>
+  <script type="module" src="tischreservierung-buchung.js?v=eb2a8c00"></script>
 </body>
 </html>
