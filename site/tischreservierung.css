@@ -133,6 +133,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    Handy sicher zu treffen sein. */
 .group-hint a{display:inline-flex;align-items:center;min-height:44px}
 .submit-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:var(--s-block)}
+/* Dieselbe Falle wie bei .button: display:flex schlaegt das hidden-Attribut.
+   Ohne diese Zeile stand "Bestellung aufgeben" auch dann da, wenn die Kueche
+   durch ist - ein Knopf, der nichts kann. */
+.submit-row[hidden]{display:none}
 .submit-row p{margin:0;max-width:42ch;color:#57524a;font-size:var(--t-meta);line-height:1.5}
 .note{margin-top:var(--s-para);padding:14px 16px;border-left:2px solid var(--green);background:#11110f0a;color:#3c3833;font-size:var(--t-meta);line-height:1.55;max-width:56ch}
 
@@ -219,6 +223,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* Die Allergen-Legende: nur die Buchstaben, die heute vorkommen. */
 .ta-allergene{margin:12px 0 0;color:#57524a;font-size:13px;line-height:1.65;max-width:76ch}
 .ta-allergene[hidden]{display:none}
+/* Kueche durch: die Karte bleibt lesbar, nur das Bestellen faellt weg.
+   Mengenknoepfe, Abholzeit, Name und Telefon haben ohne Bestellung keinen
+   Sinn - die Gerichte mit Preis und Allergenen sehr wohl. */
+#taForm[data-nurschau] .ta-menge,
+#taForm[data-nurschau] > label,
+#taForm[data-nurschau] > .contact-note{display:none}
+#taForm[data-nurschau] .ta-gericht{grid-template-columns:minmax(0,1fr) auto}
+
 .ta-menge{display:inline-flex;align-items:center;gap:2px;border:1px solid #11110f3d;border-radius:999px;background:#fff;overflow:hidden}
 .ta-menge button{min-width:44px;min-height:44px;border:0;background:transparent;color:var(--ink);font-size:20px;line-height:1;cursor:pointer}
 .ta-menge button:disabled{opacity:.3;cursor:default}
