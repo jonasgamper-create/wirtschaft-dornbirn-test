@@ -4,7 +4,7 @@
 // schickt die Nachricht an einen Fremden. Lieber gar keine SMS als eine an
 // die falsche Person - deshalb gibt jede unklare Eingabe null zurueck.
 
-import { SMS_ZEICHEN, fertigText, nummerFuerSms } from '../server/src/sms.mjs';
+import { SMS_ZEICHEN, fertigText, nummerFuerSms, passtInEineSms } from '../server/src/sms.mjs';
 
 const errors = [];
 const check = (name, bedingung, detail = '') => {
@@ -53,6 +53,23 @@ check('Nur der Vorname wird genommen', !langerName.includes('Bartholomäus'), la
 
 const ohneName = fertigText({ nummer: 3, name: '' });
 check('Ohne Namen bleibt der Satz ganz', ohneName.includes('Nr. 3') && !ohneName.includes('  '), ohneName);
+
+// Die unauffaelligste Falle: ein typografischer Gedankenstrich - wie er im
+// ganzen uebrigen Projekt steht - kippt die SMS auf UCS-2. Dann sind nur
+// noch 70 Zeichen je Teil erlaubt, und aus einer Nachricht werden zwei.
+// Das faellt niemandem auf ausser der Rechnung.
+check('Der Text bleibt in einem SMS-Teil', passtInEineSms(text), text);
+check('Auch mit langem Vornamen', passtInEineSms(langerName), langerName);
+check('Auch ohne Namen', passtInEineSms(ohneName), ohneName);
+check('Ein Gedankenstrich wuerde auffallen', !passtInEineSms('Nr. 7 ist fertig – bis gleich'));
+check('Ein typografischer Apostroph ebenso', !passtInEineSms('hol’s dir'));
+check('Umlaute sind dagegen in Ordnung', passtInEineSms('Käsknöpfle für Süßmaul'));
+
+// Kein Gericht im Text: sonst muesste die Nachricht jedes Mal mitwandern,
+// wenn die Karte wechselt - und die wechselt woechentlich.
+const kein = ['Schnitzel', 'Käsknöpfle', 'Suppe', 'Portion'];
+check('Der Text nennt kein Gericht',
+  kein.every(wort => !text.includes(wort)), text);
 
 if (errors.length) {
   console.error(errors.join('\n'));
