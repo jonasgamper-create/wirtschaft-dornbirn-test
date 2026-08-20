@@ -4,7 +4,11 @@
 // schickt die Nachricht an einen Fremden. Lieber gar keine SMS als eine an
 // die falsche Person - deshalb gibt jede unklare Eingabe null zurueck.
 
-import { SMS_ZEICHEN, fertigText, nummerFuerSms, passtInEineSms } from '../server/src/sms.mjs';
+import {
+  SMS_ZEICHEN, bestellungText, erinnerungText, fertigText, nummerFuerSms,
+  passtInEineSms, reservierungText
+} from '../server/src/sms.mjs';
+import { brauchtErinnerung } from '../server/src/haus-logik.mjs';
 
 const errors = [];
 const check = (name, bedingung, detail = '') => {
@@ -71,8 +75,75 @@ const kein = ['Schnitzel', 'Käsknöpfle', 'Suppe', 'Portion'];
 check('Der Text nennt kein Gericht',
   kein.every(wort => !text.includes(wort)), text);
 
+// ---- 3. Die anderen beiden Texte ------------------------------------------
+
+const bestellt = bestellungText({ nummer: 7, zeit: '12:15' });
+check('Bestellbestaetigung nennt Nummer und Zeit',
+  bestellt.includes('Nr. 7') && bestellt.includes('12:15'), bestellt);
+check('Bestellbestaetigung passt in eine SMS', passtInEineSms(bestellt), `${bestellt.length}`);
+check('Vorbestellung sagt es dazu',
+  bestellungText({ nummer: 7, zeit: '12:15', wann: 'am naechsten Werktag' }).includes('naechsten Werktag'));
+check('Vorbestellung passt auch in eine SMS',
+  passtInEineSms(bestellungText({ nummer: 12, zeit: '12:15', wann: 'am naechsten Werktag' })));
+
+const reserviert = reservierungText({ datum: '24.08.', zeit: '12:00', personen: 4 });
+check('Reservierungsbestaetigung ist vollstaendig',
+  reserviert.includes('24.08.') && reserviert.includes('12:00') && reserviert.includes('4 Personen'), reserviert);
+check('Reservierungsbestaetigung passt in eine SMS', passtInEineSms(reserviert), `${reserviert.length}`);
+check('Einzahl bei einer Person',
+  reservierungText({ datum: '24.08.', zeit: '12:00', personen: 1 }).includes('1 Person.'),
+  reservierungText({ datum: '24.08.', zeit: '12:00', personen: 1 }));
+
+const erinnert = erinnerungText({ zeit: '12:00', personen: 2 });
+check('Erinnerung nennt Zeit und Personen',
+  erinnert.includes('12:00') && erinnert.includes('2 Personen'), erinnert);
+check('Erinnerung passt in eine SMS', passtInEineSms(erinnert), `${erinnert.length}`);
+check('Erinnerung bietet den Absageweg an', erinnert.includes('20540'), erinnert);
+
+// ---- 4. Wer bekommt eine Erinnerung ---------------------------------------
+// Eine falsche Bedingung hat hier zwei teure Richtungen: sie schweigt, wenn
+// sie sollte - oder sie schickt bei jedem Lauf des Zeitplans erneut.
+
+const HEUTE = '2026-08-24';
+const gast = (mehr = {}) => ({
+  id: 'p1', date: HEUTE, time: '12:00', guests: 2,
+  kontakt: { email: null, telefon: '+436601234567' },
+  eingegangen: '2026-08-21T10:00:00.000Z', ...mehr
+});
+
+check('Eine Stunde vorher ist faellig',
+  brauchtErinnerung([gast()], { datum: HEUTE, zeit: '11:00' }).length === 1);
+check('Zwei Stunden vorher noch nicht',
+  brauchtErinnerung([gast()], { datum: HEUTE, zeit: '10:00' }).length === 0);
+check('Nach dem Termin nicht mehr',
+  brauchtErinnerung([gast()], { datum: HEUTE, zeit: '12:30' }).length === 0);
+check('Direkt davor nicht mehr - das Fenster ist vorbei',
+  brauchtErinnerung([gast()], { datum: HEUTE, zeit: '11:50' }).length === 0);
+
+// Am selben Tag gebucht: der Gast weiss es noch.
+check('Wer heute fuer heute bucht, bekommt keine Erinnerung',
+  brauchtErinnerung([gast({ eingegangen: `${HEUTE}T09:00:00.000Z` })], { datum: HEUTE, zeit: '11:00' }).length === 0);
+
+// Einmal und nicht mehr.
+check('Schon erinnert heisst nicht noch einmal',
+  brauchtErinnerung([gast({ erinnertUm: '2026-08-24T09:00:00.000Z' })], { datum: HEUTE, zeit: '11:00' }).length === 0);
+
+check('Ohne Telefonnummer keine Erinnerung',
+  brauchtErinnerung([gast({ kontakt: { email: 'a@b.at', telefon: null } })], { datum: HEUTE, zeit: '11:00' }).length === 0);
+check('Stornierte bekommen nichts',
+  brauchtErinnerung([gast({ status: 'storniert' })], { datum: HEUTE, zeit: '11:00' }).length === 0);
+check('Ein anderer Tag zaehlt nicht',
+  brauchtErinnerung([gast({ date: '2026-08-25' })], { datum: HEUTE, zeit: '11:00' }).length === 0);
+
+// Mehrere Gaeste zur selben Zeit bekommen alle ihre Erinnerung.
+const viele = [gast(), gast({ id: 'p2' }), gast({ id: 'p3', time: '13:00' })];
+check('Alle faelligen werden gefunden',
+  brauchtErinnerung(viele, { datum: HEUTE, zeit: '11:00' }).length === 2);
+check('Der spaetere kommt spaeter dran',
+  brauchtErinnerung(viele, { datum: HEUTE, zeit: '12:00' }).map(p => p.id).join() === 'p3');
+
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);
 }
-console.log('SMS-Prüfung OK: Nummernumwandlung, Grenzfälle und Textlänge geprüft.');
+console.log('SMS-Prüfung OK: Nummernumwandlung, alle vier Texte, Kodierung und Erinnerungsfenster geprüft.');

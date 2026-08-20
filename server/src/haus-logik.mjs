@@ -183,6 +183,48 @@ export function freieZeiten({ config, parties, blocked = [], standardEtage = nul
   });
 }
 
+/** Wie lange vor dem Tisch die Erinnerung rausgeht. */
+export const ERINNERUNG_VORLAUF = 60;
+
+/**
+ * Wer heute eine Erinnerung bekommt.
+ *
+ * Drei Bedingungen, und jede hat einen Grund:
+ *
+ * Sie gilt nur fuer Reservierungen, die an einem FRUEHEREN Tag eingegangen
+ * sind. Wer heute frueh fuer heute Mittag bucht, braucht keine Erinnerung an
+ * etwas, das er vor zwei Stunden selbst eingetragen hat.
+ *
+ * Sie geht einmal. `erinnertUm` haelt fest, dass es passiert ist - ohne das
+ * schickt jeder Lauf des Zeitplans eine weitere.
+ *
+ * Und sie geht nur in einem Fenster vor dem Termin, nicht danach. Eine
+ * Erinnerung an einen Tisch, der schon vorbei ist, ist Unsinn; sie zu
+ * verschicken kostet trotzdem.
+ */
+export function brauchtErinnerung(parties, { datum, zeit, vorlauf = ERINNERUNG_VORLAUF, fenster = 20 }) {
+  const alsMinuten = wert => {
+    const treffer = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(String(wert || ''));
+    return treffer ? Number(treffer[1]) * 60 + Number(treffer[2]) : null;
+  };
+  const jetzt = alsMinuten(zeit);
+  if (jetzt === null) return [];
+
+  return (parties || []).filter(party => {
+    if (party.date !== datum) return false;
+    if (party.erinnertUm) return false;
+    if (party.status === 'storniert') return false;
+    if (!party.kontakt?.telefon) return false;
+    // Am selben Tag gebucht: der Gast weiss es noch.
+    const eingegangen = String(party.eingegangen || '').slice(0, 10);
+    if (!eingegangen || eingegangen >= datum) return false;
+    const start = alsMinuten(party.time);
+    if (start === null) return false;
+    const abstand = start - jetzt;
+    return abstand <= vorlauf && abstand > vorlauf - fenster;
+  });
+}
+
 /** Ab so wenigen freien Tischen springt die Ampel auf Orange. */
 export const AMPEL_WENIGE = 3;
 
