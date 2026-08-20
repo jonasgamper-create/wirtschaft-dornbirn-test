@@ -29,7 +29,6 @@
     .sort((a, b) => a.offsetTop - b.offsetTop);
   const reveals = [...document.querySelectorAll('.reveal')];
   const zoomSections = [...document.querySelectorAll('[data-zoom]')];
-  const liveReel = document.querySelector('.live-reel');
   const mobileSelect = document.getElementById('mobileConceptSelect');
   const motionToggle = document.getElementById('motionToggle');
   const themeStatusLabel = document.getElementById('themeStatusLabel');
@@ -266,27 +265,28 @@
     button.addEventListener('click', () => button.closest('dialog')?.close());
   });
 
-  function updateScrollEffects(visualScrollY = smoothedScrollY) {
-    const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-    const globalProgress = Math.max(0, Math.min(1, visualScrollY / max));
-    body.classList.toggle('page-scrolled', visualScrollY > 36);
-    const beforeChapters = scenes.length && visualScrollY < chapterBounds.firstTop - window.innerHeight * .58;
-    const afterChapters = scenes.length && visualScrollY > chapterBounds.lastBottom - window.innerHeight * .12;
-    body.classList.toggle('artifacts-hidden', Boolean(beforeChapters || afterChapters));
+  // Klassen nur schreiben, wenn sie sich aendern. classList.toggle schreibt
+  // sonst in jedem Bild dasselbe Attribut, und jeder Schreibzugriff kostet
+  // eine Stilneuberechnung des ganzen Dokuments.
+  let warGescrollt = null;
+  let warVersteckt = null;
 
-      if (liveReel) {
-        const reelTravel = Math.max(1, liveReel.offsetHeight - window.innerHeight);
-        const reelProgress = Math.max(0, Math.min(1, (visualScrollY - liveReel.offsetTop) / reelTravel));
-        liveReel.style.setProperty('--reel-progress', reelProgress.toFixed(5));
-        liveReel.style.setProperty('--reel-angle', `${(-24 + reelProgress * 328).toFixed(2)}deg`);
-        liveReel.style.setProperty('--reel-energy', Math.sin(reelProgress * Math.PI).toFixed(5));
-        const reelStep = String(Math.min(3, Math.floor(reelProgress * 3) + 1)).padStart(2, '0');
-      const reelCount = liveReel.querySelector('.live-reel-count b');
-      if (reelCount && reelCount.textContent !== reelStep) reelCount.textContent = reelStep;
+  function updateScrollEffects(visualScrollY = smoothedScrollY) {
+    const vh = layout.vh || window.innerHeight;
+    const gescrollt = visualScrollY > 36;
+    if (gescrollt !== warGescrollt) {
+      body.classList.toggle('page-scrolled', gescrollt);
+      warGescrollt = gescrollt;
+    }
+    const beforeChapters = scenes.length && visualScrollY < chapterBounds.firstTop - vh * .58;
+    const afterChapters = scenes.length && visualScrollY > chapterBounds.lastBottom - vh * .12;
+    const versteckt = Boolean(beforeChapters || afterChapters);
+    if (versteckt !== warVersteckt) {
+      body.classList.toggle('artifacts-hidden', versteckt);
+      warVersteckt = versteckt;
     }
 
     if (!body.classList.contains('motion-off') && !reducedPreference.matches) {
-      const vh = layout.vh || window.innerHeight;
       layout.zoom.forEach(({ el: section, top: offset, height, dir: direction }) => {
         const top = offset - visualScrollY;
         const bottom = top + height;
