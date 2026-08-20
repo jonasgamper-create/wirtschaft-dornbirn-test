@@ -453,6 +453,15 @@ html{scroll-padding-top:0}
 /* Die Ticketarten des Abends, so wie der Veranstalter sie fuehrt. Ein
    pauschales "ausverkauft" ueber den ganzen Abend hielte Gaeste von Karten
    ab, die es noch gibt. */
+/* Kurz beantwortete Fragen im Mittagskapitel. Eingeklappt, damit sie den
+   Lesefluss nicht stoeren - der Text steht trotzdem im Dokument und ist
+   damit fuer Suchmaschinen und KI-Antworten lesbar. */
+.lunch-faq{display:grid;gap:0;margin:var(--s-para) 0 0;max-width:56ch}
+.lunch-faq details{border-top:1px solid #11110f1f}
+.lunch-faq details:last-child{border-bottom:1px solid #11110f1f}
+.lunch-faq summary{display:flex;align-items:center;min-height:48px;font-size:var(--t-meta);font-weight:700;cursor:pointer}
+.lunch-faq p{margin:0 0 14px;color:#57524a;font-size:var(--t-meta);line-height:1.55}
+
 .ticket-arten{display:grid;gap:2px;margin:10px 0 0;padding:0;list-style:none}
 .ticket-art{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 12px;padding:8px 0;border-top:1px solid #11110f1a}
 .ticket-art:first-child{border-top:0}

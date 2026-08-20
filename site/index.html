@@ -25,9 +25,12 @@
   <link rel="preload" as="image" href="assets/restaurant.webp" imagesrcset="assets/restaurant-800.webp 900w, assets/restaurant.webp 1920w" imagesizes="100vw" fetchpriority="high">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=00d33074">
+  <link rel="stylesheet" href="styles.css?v=4dfffedf">
   <script type="application/ld+json">
 {"@context": "https://schema.org", "@type": "Restaurant", "@id": "https://wirtschaft-dornbirn.at/#restaurant", "name": "Wirtschaft Dornbirn", "legalName": "„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.", "url": "https://wirtschaft-dornbirn.at/", "description": "Mittagstisch, Konzerte, Comedy und Catering in Dornbirn, Vorarlberg.", "telephone": "+43557220540", "email": "willkommen@wirtschaft-dornbirn.at", "image": "https://wirtschaft-dornbirn.at/assets/restaurant.webp", "priceRange": "€€", "servesCuisine": ["Österreichisch", "Saisonal"], "address": {"@type": "PostalAddress", "streetAddress": "Bahnhofstraße 24", "postalCode": "6850", "addressLocality": "Dornbirn", "addressRegion": "Vorarlberg", "addressCountry": "AT"}, "vatID": "ATU36206707", "areaServed": {"@type": "City", "name": "Dornbirn"}, "acceptsReservations": "https://wirtschaft-dornbirn.at/tischreservierung.html", "specialOpeningHoursSpecification": [{"@type": "OpeningHoursSpecification", "validFrom": "2026-07-24", "validThrough": "2026-08-23", "opens": "00:00", "closes": "00:00", "name": "Sommerpause"}], "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "11:30", "closes": "13:30", "name": "Mittagstisch"}]}
+  </script>
+  <script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Wann gibt es Mittagessen in der Wirtschaft Dornbirn?", "acceptedAnswer": {"@type": "Answer", "text": "Montag bis Freitag von 11:30 bis 13:30 Uhr. An Wochenenden kochen wir mittags nicht; abends öffnet die Wirtschaft Dornbirn ausschließlich für Veranstaltungen."}}, {"@type": "Question", "name": "Kann ich in der Wirtschaft Dornbirn online einen Tisch reservieren?", "acceptedAnswer": {"@type": "Answer", "text": "Ja. Die Tischreservierung gilt für den Mittag und bestätigt sofort, ohne Konto und ohne Anruf. Für Abende gibt es keine Tischreservierung: Dort gilt das Ticket der jeweiligen Veranstaltung."}}, {"@type": "Question", "name": "Gibt es die Mittagsgerichte zum Mitnehmen?", "acceptedAnswer": {"@type": "Answer", "text": "Ja, als Takeaway. Bestellt wird online, abholbereit ist das Essen in etwa 20 bis 30 Minuten. Die letzte Bestellung nehmen wir um 13:45 Uhr an, die letzte Abholung ist um 14:00 Uhr. Bezahlt wird bei der Abholung, bar oder mit Karte."}}, {"@type": "Question", "name": "Wo ist die Wirtschaft Dornbirn?", "acceptedAnswer": {"@type": "Answer", "text": "Bahnhofstraße 24, 6850 Dornbirn in Vorarlberg, wenige Gehminuten vom Bahnhof. Telefonisch erreichbar unter +43 (0)5572 20 540."}}]}
   </script>
 </head>
 <template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#17130f"/><text x="50" y="60" text-anchor="middle" font-family="Georgia,serif" font-size="30" fill="#f3efe6">wd</text></svg></template>
@@ -113,6 +116,30 @@
             <a class="button button-green" data-reserve-cta href="tischreservierung.html">Mittagstisch reservieren</a>
             <a class="button" href="takeaway.html">Takeaway bestellen</a>
           </div>
+          <!-- Kurz beantwortete Fragen. Sie stehen hier fuer Gaeste, die
+               genau das wissen wollen, ohne die Seite zu durchsuchen - und
+               sie sind das, was Suchmaschinen und KI-Antworten woertlich
+               uebernehmen koennen. Jede Antwort steht fuer sich, ohne
+               Vorwissen aus dem uebrigen Text. -->
+          <div class="lunch-faq">
+            <details>
+              <summary>Wann gibt es Mittagessen?</summary>
+              <p>Montag bis Freitag von 11:30 bis 13:30 Uhr. An Wochenenden kochen wir mittags nicht; abends öffnet die Wirtschaft Dornbirn ausschließlich für Veranstaltungen.</p>
+            </details>
+            <details>
+              <summary>Kann ich einen Tisch online reservieren?</summary>
+              <p>Ja. Die Tischreservierung gilt für den Mittag und bestätigt sofort – ohne Konto und ohne Anruf. Für Abende gibt es keine Tischreservierung: Dort gilt das Ticket der jeweiligen Veranstaltung.</p>
+            </details>
+            <details>
+              <summary>Gibt es die Mittagsgerichte zum Mitnehmen?</summary>
+              <p>Ja, als Takeaway. Bestellt wird online, abholbereit ist das Essen in etwa 20 bis 30 Minuten. Die letzte Bestellung nehmen wir um 13:45 Uhr an, die letzte Abholung ist um 14:00 Uhr. Bezahlt wird bei der Abholung, bar oder mit Karte.</p>
+            </details>
+            <details>
+              <summary>Wo ist die Wirtschaft Dornbirn?</summary>
+              <p>Bahnhofstraße 24, 6850 Dornbirn in Vorarlberg, wenige Gehminuten vom Bahnhof. Telefonisch erreichbar unter +43 (0)5572 20 540.</p>
+            </details>
+          </div>
+
           <div class="lunch-subscribe"><p><strong>Wochenkarte abonnieren</strong><span>Jeden Montag um 7:15 Uhr im Postfach – nur wenn es eine neue Karte gibt. Wir schicken zuerst eine Bestätigungsmail, Abmeldung jederzeit mit einem Klick.</span></p><form class="lunch-abo" id="lunchAbo"><label class="lunch-abo-feld" for="lunchAboMail">E-Mail-Adresse<input type="email" id="lunchAboMail" name="email" autocomplete="email" inputmode="email" placeholder="name@beispiel.at" required></label><button class="button button-ghost-dark" type="submit">Abonnieren</button><span class="lunch-abo-status" id="lunchAboStatus" role="status" aria-live="polite"></span></form></div>
         </div>
         <a class="scene-imprint" href="#impressum">Impressum</a>
