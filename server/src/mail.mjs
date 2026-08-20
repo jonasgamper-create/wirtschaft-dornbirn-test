@@ -115,7 +115,32 @@ const langesDatum = tag => new Intl.DateTimeFormat('de-AT', {
 }).format(new Date(`${tag}T12:00:00Z`));
 
 /** Die Bestaetigung. Der Tisch steht - der Link ist nur fuer den Fall der Faelle. */
-export function bestaetigung({ name, tag, zeit, gaeste, tisch, etage, absageLink }) {
+/**
+ * Die naechsten Abende im Haus, unter der Bestaetigung.
+ *
+ * Eine Reservierungsbestaetigung ist eine Transaktionsmail. Ein Hinweis auf
+ * eigene Veranstaltungen ist darin Direktwerbung an einen Bestandskunden -
+ * nach § 174 Abs 4 TKG 2021 zulaessig, aber nur, wenn der Empfaenger sie
+ * jederzeit und kostenlos ablehnen kann. Deshalb steht die Widerspruchszeile
+ * hier nicht als Hoeflichkeit, sondern als Bedingung: ohne sie darf der Block
+ * nicht mit.
+ *
+ * Bewusst knapp: drei Termine, keine Preise, kein Bild. Wer mehr will, klickt.
+ */
+function eventBlock(events, widerspruchLink) {
+  const naechste = (Array.isArray(events) ? events : []).slice(0, 3);
+  if (!naechste.length || !widerspruchLink) return '';
+  const zeilen = naechste.map(event => `<tr><td style="padding:3px 0;">
+    <a href="${escapeHtml(event.url)}" style="color:#11110f;text-decoration:none;font:400 14px/1.5 Helvetica,Arial,sans-serif;">
+      <span style="color:#6a655c;">${escapeHtml(event.datum)}</span> &nbsp;${escapeHtml(event.titel)}</a></td></tr>`).join('');
+  return `<tr><td style="padding:20px 28px 6px;border-top:1px solid #e6e0d4;">
+      <p style="margin:0 0 8px;font:700 11px/1.4 Helvetica,Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#8f887b;">Nächste Abende im Haus</p>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${zeilen}</table>
+      <p style="margin:12px 0 0;font:400 11px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">Diese Hinweise kannst du jederzeit abbestellen: <a href="${escapeHtml(widerspruchLink)}" style="color:#8f887b;">keine Terminhinweise mehr</a>. Deine Reservierung bleibt davon unberührt.</p>
+    </td></tr>`;
+}
+
+export function bestaetigung({ name, tag, zeit, gaeste, tisch, etage, absageLink, events = [], widerspruchLink = '' }) {
   const personen = `${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'}`;
   const html = rahmen('Reservierung bestätigt', [
     kopf('Reserviert', 'Dein Tisch steht.'),
@@ -125,13 +150,20 @@ export function bestaetigung({ name, tag, zeit, gaeste, tisch, etage, absageLink
     zeile('Für', personen),
     tisch ? zeile('Platz', `Tisch ${tisch}${etage ? ` · ${etage}` : ''}`) : '',
     knopf(absageLink, 'Leider absagen', '#8c292b'),
-    `<tr><td style="padding:10px 28px 22px;"><p style="margin:0;font:400 12px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">Der Link gilt nur für diese Reservierung. Ein Anruf tut es genauso.</p></td></tr>`
+    `<tr><td style="padding:10px 28px 8px;"><p style="margin:0;font:400 12px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">Der Link gilt nur für diese Reservierung. Ein Anruf tut es genauso.</p></td></tr>`,
+    eventBlock(events, widerspruchLink)
   ].join(''));
+  const naechste = (Array.isArray(events) ? events : []).slice(0, 3);
+  const terminText = naechste.length && widerspruchLink
+    ? `\nNächste Abende im Haus:\n${naechste.map(e => `${e.datum}  ${e.titel}\n${e.url}`).join('\n')}\n`
+      + `\nKeine Terminhinweise mehr: ${widerspruchLink}\n`
+    : '';
   return {
     betreff: `Tisch reserviert: ${langesDatum(tag)}, ${zeit} Uhr`,
     html,
     text: `Dein Tisch steht.\n\n${name}\n${langesDatum(tag)}, ${zeit} Uhr\n${personen}\n`
       + `${tisch ? `Tisch ${tisch}${etage ? ` (${etage})` : ''}\n` : ''}\nLeider absagen: ${absageLink}\nOder anrufen: +43 5572 20540\n`
+      + terminText
   };
 }
 

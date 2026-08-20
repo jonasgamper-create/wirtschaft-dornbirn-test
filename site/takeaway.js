@@ -67,10 +67,16 @@ function markiereVolleSlots(slots) {
   const nachZeit = new Map(slots.map(slot => [slot.zeit, slot]));
   for (const knopf of document.querySelectorAll('#taZeiten [data-abholung]')) {
     const eintrag = nachZeit.get(knopf.dataset.abholung);
-    const voll = eintrag ? !eintrag.frei : false;
+    const voll = eintrag ? eintrag.lage === 'voll' : false;
+    const eng = eintrag ? eintrag.lage === 'eng' : false;
     knopf.disabled = voll;
     if (voll) knopf.setAttribute('data-voll', ''); else knopf.removeAttribute('data-voll');
-    knopf.title = voll ? 'Zu dieser Zeit ist die Küche schon ausgelastet' : '';
+    // Eng ist waehlbar, sieht aber anders aus: der Gast soll wissen, worauf
+    // er sich einlaesst, bevor er waehlt - nicht erst an der Tuer.
+    if (eng) knopf.setAttribute('data-eng', ''); else knopf.removeAttribute('data-eng');
+    knopf.title = voll
+      ? 'Zu dieser Zeit ist die Küche schon ausgelastet'
+      : (eng ? 'Um diese Zeit ist viel los – es kann etwas länger dauern' : '');
     // Eine bereits gewaehlte, nun volle Zeit wieder abwaehlen.
     if (voll && knopf.getAttribute('aria-checked') === 'true') {
       knopf.setAttribute('aria-checked', 'false');
@@ -297,12 +303,20 @@ byId('taBestellen')?.addEventListener('click', async () => {
     return sag(gruende[antwort?.grund] || 'Das hat nicht geklappt. Bitte ruf’ uns kurz an: +43 (0)5572 20 540.', 'fehler');
   }
 
+  // "heute" stimmt nur, solange die Kueche kocht. Bei einer Vorbestellung
+  // stand hier trotzdem "heute" - eine Bestaetigung, die den falschen Tag
+  // nennt, ist schlimmer als gar keine.
+  const wann = vorbestellung ? naechsterWerktagText(new Date()) : 'heute';
   byId('taDoneNummer').textContent = `Nr. ${antwort.nummer}`;
-  byId('taDoneZeit').textContent = `heute, ca. ${antwort.abholzeit} Uhr`;
+  byId('taDoneZeit').textContent = `${wann}, ca. ${antwort.abholzeit} Uhr`;
   byId('taDoneSumme').textContent = alsPreis(antwort.summe);
   byId('taFertig').hidden = false;
   byId('taFertig').scrollIntoView({ block: 'center', behavior: 'smooth' });
+  // Volle Viertelstunde, aber noch machbar: sagen, dass es dauern kann.
+  const verzug = antwort.eng ? ' Um die Zeit ist viel los – es kann ein paar Minuten länger dauern.' : '';
   sag(antwort.doppelt
-    ? `Diese Bestellung haben wir schon – Nummer ${antwort.nummer}, abholbereit ca. ${antwort.abholzeit} Uhr.`
-    : `Passt, ${name}! Bestellung Nr. ${antwort.nummer}, abholbereit ca. ${antwort.abholzeit} Uhr.`, 'gut');
+    ? `Diese Bestellung haben wir schon – Nummer ${antwort.nummer}, abholbereit ${wann} ca. ${antwort.abholzeit} Uhr.`
+    : `Passt, ${name}! Bestellung Nr. ${antwort.nummer}, abholbereit ${wann} ca. ${antwort.abholzeit} Uhr.${verzug}`,
+  antwort.eng ? 'warnung' : 'gut');
+  await ladeSlots();
 });

@@ -15,6 +15,7 @@ import {
   AUFBEWAHRUNG_TAGE, ampelFuer, freieZeiten, machId, planTaugt, pruefeAnfrage, raeumeAuf, verteile, wendeAktionAn
 } from './haus-logik.mjs';
 import standardPlan from '../../site/data/floorplan.json';
+import eventDaten from '../../site/data/events.json';
 import { shift } from '../../site/table-assignment.mjs';
 import { pruefeKontakt } from './kontakt.mjs';
 import {
@@ -34,6 +35,23 @@ import {
 } from './takeaway.mjs';
 
 const HAUS = 'wirtschaft-dornbirn';
+
+/**
+ * Die naechsten Abende nach einem Datum - fuer den Hinweis in der
+ * Bestaetigung. Abgesagte und pausierte bleiben draussen: ein Termin, den es
+ * nicht gibt, ist in einer Mail schlimmer als kein Termin.
+ */
+function naechsteEvents(abDatum, wieViele = 3) {
+  return (eventDaten?.events || [])
+    .filter(event => event.date >= abDatum && !['cancelled', 'paused'].includes(event.status))
+    .slice(0, wieViele)
+    .map(event => ({
+      datum: new Intl.DateTimeFormat('de-AT', { day: '2-digit', month: '2-digit' })
+        .format(new Date(`${event.date}T12:00:00Z`)),
+      titel: event.title,
+      url: event.officialUrl
+    }));
+}
 /**
  * Notbremse gegen Fluten - keine Kapazitaetsgrenze.
  *
@@ -209,6 +227,15 @@ export class Haus extends DurableObject {
           teil BLOB NOT NULL
         )
       `);
+      // Wer keine Terminhinweise mehr in der Bestaetigung will. Nur ein
+      // Fingerabdruck der Adresse, keine Adresse - die Sperre muss wirken,
+      // ohne dass dafuer jemand gespeichert bleibt.
+      this.ctx.storage.sql.exec(`
+        CREATE TABLE IF NOT EXISTS terminstopp (
+          fingerabdruck TEXT PRIMARY KEY,
+          seit TEXT NOT NULL
+        )
+      `);
       // Gastprofile. Eigene Tabelle, eigener Zweck, eigene Loeschung: sie
       // ueberleben die Reservierung und stehen auf einer Einwilligung, nicht
       // auf dem Vertrag. Der Schluessel ist ein Hash - hier steht keine
@@ -220,6 +247,29 @@ export class Haus extends DurableObject {
         )
       `);
     });
+  }
+
+  // ---- Terminhinweise: Widerspruch -----------------------------------------
+
+  async #willKeineTermine(kontakt) {
+    const abdruck = await schluesselFuer(kontakt);
+    if (!abdruck) return true;
+    return this.ctx.storage.sql
+      .exec('SELECT 1 FROM terminstopp WHERE fingerabdruck = ?', abdruck).toArray().length > 0;
+  }
+
+  /** Der Widerspruch aus der Mail. Der Token identifiziert die Reservierung. */
+  async keineTermine(token) {
+    const party = this.#alle().find(eintrag => eintrag.token && eintrag.token === token);
+    if (!party) return { ok: false };
+    const abdruck = await schluesselFuer(party.kontakt);
+    if (!abdruck) return { ok: false };
+    const schon = await this.#willKeineTermine(party.kontakt);
+    this.ctx.storage.sql.exec(
+      'INSERT INTO terminstopp (fingerabdruck, seit) VALUES (?, ?) ON CONFLICT(fingerabdruck) DO NOTHING',
+      abdruck, new Date().toISOString()
+    );
+    return { ok: true, schon };
   }
 
   // ---- Gastprofile ---------------------------------------------------------
@@ -587,6 +637,9 @@ export class Haus extends DurableObject {
       etage,
       absender
     });
+    // Terminhinweise nur, wenn ihnen nicht widersprochen wurde. Der Block
+    // faellt sonst ersatzlos weg - die Bestaetigung selbst bleibt gleich.
+    const stumm = await this.#willKeineTermine(party.kontakt);
     const inhalt = bestaetigungsMail({
       name: party.name,
       tag: party.date,
@@ -594,7 +647,9 @@ export class Haus extends DurableObject {
       gaeste: party.guests,
       tisch,
       etage,
-      absageLink: `${basis}/absage?t=${party.token}`
+      absageLink: `${basis}/absage?t=${party.token}`,
+      events: stumm ? [] : naechsteEvents(party.date),
+      widerspruchLink: stumm ? '' : `${basis}/termine/aus?t=${party.token}`
     });
     return sendeMail(this.env, brevoPaket({
       absender,
@@ -1108,7 +1163,10 @@ export class Haus extends DurableObject {
     this.#schreib('taFenster', { fenster, anzahl: anzahl + 1 });
     await this.ctx.storage.setAlarm(Date.now() + 24 * 60 * 60 * 1000);
     this.#meldeAenderung();
-    return { ok: true, nummer: bestellung.nummer, abholzeit: bestellung.abholzeit, summe: bestellung.summe };
+    return {
+      ok: true, nummer: bestellung.nummer, abholzeit: bestellung.abholzeit,
+      summe: bestellung.summe, eng: bestellung.eng === true
+    };
   }
 
   /** Abgeholt, zurueckgenommen oder entfernt - die drei Griffe des Wirts. */
@@ -1383,6 +1441,32 @@ export default {
           ergebnis.schon
             ? 'Diese Reservierung war schon abgesagt. Es ist alles in Ordnung.'
             : 'Danke für die Nachricht. Dein Tisch ist wieder frei, und der Termin verschwindet aus deinem Kalender.');
+      }
+
+      // Keine Terminhinweise mehr. Derselbe Weg wie die Absage: erst fragen,
+      // dann handeln - Mailprogramme rufen Links im Hintergrund auf, und ein
+      // Widerspruch, den niemand erklaert hat, waere ein Zufallsergebnis.
+      if (url.pathname === '/termine/aus') {
+        const token = request.method === 'POST'
+          ? await tokenAusKoerper(request)
+          : url.searchParams.get('t') || '';
+        if (request.method === 'GET') {
+          return seite('Keine Terminhinweise mehr',
+            'Sollen wir dir unter deinen Reservierungsbestätigungen keine Veranstaltungshinweise mehr schicken? '
+            + 'Deine Reservierungen und die Bestätigungen selbst bleiben davon unberührt.',
+            { ziel: '/termine/aus', token, text: 'Ja, keine Hinweise mehr' });
+        }
+        if (request.method !== 'POST') return json({ ok: false }, 405, kopf);
+        const ergebnis = await haus.keineTermine(token);
+        if (!ergebnis.ok) {
+          return seite('Das ging nicht',
+            'Diesen Link kennen wir nicht mehr. Ruf uns kurz an, dann tragen wir es von Hand ein: '
+            + '+43 (0)5572 20 540.', null, 404);
+        }
+        return seite('Eingetragen',
+          ergebnis.schon
+            ? 'Du bekommst schon bisher keine Terminhinweise. Es bleibt dabei.'
+            : 'Erledigt. In deinen künftigen Bestätigungen stehen keine Veranstaltungshinweise mehr.');
       }
 
       if (url.pathname === '/newsletter/ja') {

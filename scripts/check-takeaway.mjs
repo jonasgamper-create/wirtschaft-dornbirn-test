@@ -3,9 +3,9 @@
 
 import {
   ALLERGENE, BESTELLSCHLUSS, LETZTE_ABHOLUNG, MAX_PORTIONEN,
-  ERSTE_ABHOLUNG, PORTIONEN_PRO_SLOT, abholzeitFuer, alsPreis, bestelltag,
-  freieSlots, kuechenzettel, naechsterWerktag, parseKarte, portionenImSlot,
-  pruefeBestellung, statistik
+  ERSTE_ABHOLUNG, PORTIONEN_HART, PORTIONEN_PRO_SLOT, abholzeitFuer, alsPreis,
+  bestelltag, freieSlots, kuechenzettel, naechsterWerktag, parseKarte,
+  portionenImSlot, pruefeBestellung, slotLage, statistik
 } from '../server/src/takeaway.mjs';
 
 const errors = [];
@@ -156,31 +156,49 @@ check('Portionen einer Abholzeit werden gezaehlt',
 check('Eine andere Zeit ist davon unberuehrt', portionenImSlot(voll, heute, '12:30') === 0);
 check('Ein anderer Tag ist davon unberuehrt', portionenImSlot(voll, '2026-08-25', '12:15') === 0);
 
+// Die Grenze ist gestuft: bequem, eng, zu. Eine Bestellung abzulehnen,
+// obwohl die Kueche sie mit etwas Verzug noch schafft, waere ein verlorener
+// Gast wegen einer Zahl.
+check('Bis zur bequemen Menge ist frei', slotLage(0, PORTIONEN_PRO_SLOT) === 'frei');
+check('Eine Portion darueber wird eng', slotLage(0, PORTIONEN_PRO_SLOT + 1) === 'eng');
+check('Bis zur harten Grenze bleibt es eng', slotLage(0, PORTIONEN_HART) === 'eng');
+check('Darueber ist zu', slotLage(0, PORTIONEN_HART + 1) === 'voll');
+check('Die harte Grenze liegt ueber der bequemen', PORTIONEN_HART > PORTIONEN_PRO_SLOT);
+
+// Im engen Bereich wird angenommen - mit ehrlichem Hinweis.
+const engBestand = [{ date: heute, abholzeit: '12:15', posten: [{ id: 'g1', name: 'X', preis: 10, menge: PORTIONEN_PRO_SLOT }] }];
+const imEngen = pruefeBestellung({
+  name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 2 }], abholung: '12:15'
+}, { ...rahmen, bestehende: engBestand });
+check('Im engen Bereich wird angenommen', imEngen.ok, JSON.stringify(imEngen));
+check('Und als eng gekennzeichnet', imEngen.bestellung?.eng === true);
+check('Im bequemen Bereich ist nichts eng',
+  pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }], abholung: '12:30' },
+    { ...rahmen, bestehende: engBestand }).bestellung?.eng === false);
+
+// Erst ueber der harten Grenze wird verwiesen.
+const uebervoll = [{ date: heute, abholzeit: '12:15', posten: [{ id: 'g1', name: 'X', preis: 10, menge: PORTIONEN_HART }] }];
 const inVollenSlot = pruefeBestellung({
   name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }], abholung: '12:15'
-}, { ...rahmen, bestehende: voll });
-check('Eine volle Viertelstunde nimmt nichts mehr an',
+}, { ...rahmen, bestehende: uebervoll });
+check('Ueber der harten Grenze nimmt nichts mehr an',
   inVollenSlot.grund === 'slot_voll', JSON.stringify(inVollenSlot));
 check('Der Gast bekommt freie Zeiten genannt',
   Array.isArray(inVollenSlot.frei) && inVollenSlot.frei.length > 0, JSON.stringify(inVollenSlot.frei));
 check('Die genannten Zeiten sind wirklich frei',
   !inVollenSlot.frei.includes('12:15'), JSON.stringify(inVollenSlot.frei));
 
-// Bis zur Grenze wird angenommen - sie ist eine Grenze, keine Sperre.
-const fastVoll = [{ date: heute, abholzeit: '12:15', posten: [{ id: 'g1', name: 'X', preis: 10, menge: PORTIONEN_PRO_SLOT - 2 }] }];
-check('Bis zur Grenze wird angenommen',
-  pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 2 }], abholung: '12:15' },
-    { ...rahmen, bestehende: fastVoll }).ok);
-check('Eine Portion darueber nicht mehr',
-  pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 3 }], abholung: '12:15' },
-    { ...rahmen, bestehende: fastVoll }).grund === 'slot_voll');
-
-// Und die Liste fuer die Gaesteseite: volle Zeiten sind als voll markiert.
-const slots = freieSlots({ bestellungen: voll, datum: heute, portionen: 1, vorbestellung: true });
+// Die Liste fuer die Gaesteseite kennt alle drei Lagen.
+const slots = freieSlots({ bestellungen: uebervoll, datum: heute, portionen: 1, vorbestellung: true });
 const zwoelfFuenfzehn = slots.find(s => s.zeit === '12:15');
-check('Die volle Zeit ist als voll markiert', zwoelfFuenfzehn && zwoelfFuenfzehn.frei === false,
+check('Die uebervolle Zeit ist gesperrt',
+  zwoelfFuenfzehn && zwoelfFuenfzehn.lage === 'voll' && zwoelfFuenfzehn.frei === false,
   JSON.stringify(zwoelfFuenfzehn));
-check('Andere Zeiten bleiben frei', slots.filter(s => s.frei).length > 0);
+const engSlots = freieSlots({ bestellungen: engBestand, datum: heute, portionen: 1, vorbestellung: true });
+const engerSlot = engSlots.find(s => s.zeit === '12:15');
+check('Eine enge Zeit bleibt waehlbar',
+  engerSlot && engerSlot.lage === 'eng' && engerSlot.frei === true, JSON.stringify(engerSlot));
+check('Andere Zeiten bleiben frei', slots.filter(s => s.lage === 'frei').length > 0);
 check('Das Fenster beginnt bei der ersten Abholung', slots[0].zeit === ERSTE_ABHOLUNG, slots[0]?.zeit);
 
 // ---- 4. Das Protokoll ------------------------------------------------------
