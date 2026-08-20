@@ -138,6 +138,16 @@ check('Der Schirm bekommt keine Kontaktdaten',
 // Und erst recht kein Gastprofil: "4. Besuch, glutenfrei" neben einem Namen
 // waere auf einem Schirm, auf den jeder Gast schaut, ein Aushang ueber
 // Menschen, die dem nie zugestimmt haben.
+// Die Kueche steht offen im Betrieb. Sie braucht die Bestellungen und sonst
+// nichts - nicht einmal die Telefonnummer, denn die SMS verschickt der
+// Dienst. Live geprueft: die Rolle liefert weder Reservierungen noch
+// Kontaktdaten.
+check('Die Kueche ist eine eigene Rolle', /rolle === 'kueche'/.test(dienst));
+check('Die Kueche bekommt keine Telefonnummer',
+  /takeaway: this\.#takeawayAlle\(\)\.map\(\(\{ telefon, \.\.\.rest \}\) => rest\)/.test(dienst));
+check('Die Kueche bekommt keine Reservierungen',
+  !/rolle === 'kueche'[\s\S]{0,400}parties:/.test(dienst));
+
 check('Der Schirm bekommt kein Gastprofil',
   /CREATE TABLE IF NOT EXISTS gastprofile/.test(dienst)
   && /gastSchluessel \? fuerDenWirt/.test(dienst));

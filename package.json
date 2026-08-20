@@ -17,7 +17,7 @@
     "check:lunch-menu": "node scripts/check-lunch-menu.mjs",
     "check:floorplan": "node scripts/check-floorplan.mjs",
     "check:assignment": "node scripts/check-table-assignment.mjs",
-    "ci": "npm run build && npm run sync:csp && npm run sync:versions && npm run check:event-data && npm run check:copy && npm run check:optimization && npm run build:tischplan && npm run build:public && npm run check:public && npm run check:privacy && npm run check:interactions && npm run check:lunch-menu && npm run check:floorplan && npm run check:assignment && npm run check:dienst && npm run check:gast && npm run check:mail && npm run check:karte && npm run check:takeaway",
+    "ci": "npm run build && npm run sync:csp && npm run sync:versions && npm run check:event-data && npm run check:copy && npm run check:optimization && npm run build:tischplan && npm run build:public && npm run check:public && npm run check:privacy && npm run check:interactions && npm run check:lunch-menu && npm run check:floorplan && npm run check:assignment && npm run check:dienst && npm run check:gast && npm run check:sms && npm run check:mail && npm run check:karte && npm run check:takeaway",
     "report:decision": "bash scripts/run_pdf_tool.sh scripts/build-decision-pdf.py",
     "report:performance": "bash scripts/run_pdf_tool.sh scripts/build_performance_audit_pdf.py",
     "qa:performance-pdf": "bash scripts/run_pdf_tool.sh scripts/qa_performance_audit_pdf.py",
@@ -30,7 +30,8 @@
     "check:mail": "node scripts/check-mail.mjs",
     "check:karte": "node scripts/check-karte.mjs",
     "check:takeaway": "node scripts/check-takeaway.mjs",
-    "check:gast": "node scripts/check-gast.mjs"
+    "check:gast": "node scripts/check-gast.mjs",
+    "check:sms": "node scripts/check-sms.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.1"

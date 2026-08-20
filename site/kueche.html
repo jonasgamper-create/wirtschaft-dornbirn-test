@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src 'self' data:; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self' https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'; upgrade-insecure-requests">
+  <meta name="theme-color" content="#173e2c">
+  <title>Küche · Wirtschaft Dornbirn</title>
+  <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
+  <link rel="stylesheet" href="wirt.css?v=d256054c">
+  <script type="module" src="kueche.js?v=55ede07e"></script>
+</head>
+<body class="kueche-seite">
+  <!-- Der Bildschirm am Herd: nur die Bestellungen, ein grosser Knopf je
+       Zeile. Keine Reservierungen, keine Gaestekontakte, kein Tischplan -
+       wer am Herd steht, hat mit den Telefonnummern der Mittagsgaeste
+       nichts zu tun. -->
+  <header class="kopf">
+    <p class="kueche-marke">Küche · Wirtschaft Dornbirn</p>
+    <p class="verbindung" id="verbindung"><i aria-hidden="true"></i><span id="verbindungText">Verbinde …</span></p>
+  </header>
+
+  <main>
+    <section class="zahlen" aria-label="Die Küche in Zahlen">
+      <div class="kachel"><b id="zahlOffen">–</b><span>offen</span><small id="subOffen"></small></div>
+      <div class="kachel"><b id="zahlFertig">–</b><span>fertig, wartet</span><small id="subFertig"></small></div>
+      <div class="kachel"><b id="zahlPortionen">–</b><span>Portionen offen</span><small id="subPortionen"></small></div>
+    </section>
+
+    <section aria-labelledby="offenTitel">
+      <h2 id="offenTitel">Zu kochen</h2>
+      <p class="hinweis" id="smsHinweis"></p>
+      <ul class="haus-liste" id="offenListe"></ul>
+    </section>
+
+    <section aria-labelledby="fertigTitel">
+      <h2 id="fertigTitel">Fertig – wartet auf Abholung</h2>
+      <ul class="haus-liste" id="fertigListe"></ul>
+    </section>
+
+    <p class="fuss">
+      Diese Ansicht zeigt nur Abholbestellungen. Tische und Reservierungen laufen
+      getrennt in der Wirt-Ansicht.
+    </p>
+  </main>
+</body>
+</html>

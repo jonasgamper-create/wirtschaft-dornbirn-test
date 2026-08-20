@@ -29,6 +29,7 @@ import {
   escapeHtml, newsletterFrage, sendeMail, termin_uid, wochenkarte as wochenkarteMail
 } from './mail.mjs';
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
+import { fertigText, nummerFuerSms, sendeSms } from './sms.mjs';
 import {
   ALLERGENE, BESTELLSCHLUSS, LETZTE_ABHOLUNG, PORTIONEN_PRO_SLOT, WARTEZEIT_TEXT,
   bestelltag, freieSlots, kuechenzettel, parseKarte, pruefeBestellung, statistik
@@ -249,6 +250,21 @@ export class Haus extends DurableObject {
     });
   }
 
+  /**
+   * "Dein Essen ist fertig" an den Gast. Still: schlaegt sie fehl, bleibt die
+   * Bestellung trotzdem fertig - der Gast steht dann eben ohne Nachricht da,
+   * so wie bisher immer. Eine misslungene SMS darf den Tresen nicht aufhalten.
+   */
+  async #meldeFertig(bestellung) {
+    if (this.#lies('smsAn', false) !== true) return { ok: false, grund: 'aus' };
+    const an = nummerFuerSms(bestellung.telefon);
+    if (!an) return { ok: false, grund: 'nummer' };
+    return sendeSms(this.env, {
+      an,
+      text: fertigText({ nummer: bestellung.nummer, name: bestellung.name })
+    });
+  }
+
   // ---- Terminhinweise: Widerspruch -----------------------------------------
 
   async #willKeineTermine(kontakt) {
@@ -418,7 +434,8 @@ export class Haus extends DurableObject {
     // Der Bildschirm im Eingang bekommt weniger zu sehen als das Cockpit. Das
     // Etikett bleibt am Draht haengen, auch wenn das Objekt zwischendurch
     // schlaeft - sonst waere die Rolle nach dem ersten Schlaf vergessen.
-    const rolle = new URL(request.url).searchParams.get('rolle') === 'schirm' ? 'schirm' : 'haus';
+    const gewuenscht = new URL(request.url).searchParams.get('rolle');
+    const rolle = ['schirm', 'kueche'].includes(gewuenscht) ? gewuenscht : 'haus';
     this.ctx.acceptWebSocket(server, [rolle]);
     server.send(JSON.stringify({ art: 'start', stand: this.#stand(rolle) }));
     return new Response(null, { status: 101, webSocket: client });
@@ -444,6 +461,20 @@ export class Haus extends DurableObject {
    * einem Geraet, auf das jeder Gast schaut, keine Formalie.
    */
   #stand(rolle = 'haus') {
+    // Die Kueche braucht die Bestellungen und sonst nichts. Keine
+    // Reservierungen, keine Gaestekontakte, kein Tischplan - wer am Herd
+    // steht, hat mit den Telefonnummern der Mittagsgaeste nichts zu tun.
+    // Die Telefonnummer der Bestellung bleibt draussen: die SMS verschickt
+    // der Dienst, dafuer muss sie niemand sehen.
+    if (rolle === 'kueche') {
+      return {
+        rolle: 'kueche',
+        takeaway: this.#takeawayAlle().map(({ telefon, ...rest }) => rest),
+        takeawayKarte: this.#lies('takeawayKarte', []),
+        smsAn: this.#lies('smsAn', false) === true,
+        stand: this.#lies('version', 0)
+      };
+    }
     // Der Bildschirm am Eingang bekommt weder Kontaktdaten noch das Profil:
     // dort schaut jeder Gast hin, und "4. Besuch, glutenfrei" neben einem
     // Namen waere genau die Art Aushang, die niemand ueber sich will.
@@ -472,6 +503,9 @@ export class Haus extends DurableObject {
       automatik: this.#lies('automatik', true) !== false,
       // Ob der Gast seine Tischnummer erfaehrt. Standard: nein - sie ist intern.
       tischAnzeigen: this.#lies('tischAnzeigen', false) === true,
+      // Schickt der Dienst eine SMS, wenn das Essen fertig ist? Standard:
+      // nein - sie kostet Geld, das schaltet der Wirt selbst ein.
+      smsAn: this.#lies('smsAn', false) === true,
       // Liegt ein geleerter Tag im Papierkorb, kann die Ansicht Rueckgaengig
       // anbieten - nur die Eckdaten, nie der Inhalt.
       papierkorb: (() => {
@@ -1173,6 +1207,20 @@ export class Haus extends DurableObject {
   async takeawayAktion(befehl) {
     const bestellung = this.#takeawayAlle().find(eintrag => eintrag.id === befehl?.id);
     if (!bestellung) return { ok: false, grund: 'unbekannt' };
+    if (befehl.art === 'fertig') {
+      // Zweimal "fertig" darf keine zweite SMS ausloesen - im Betrieb wird
+      // ein Knopf schneller doppelt gedrueckt, als einem lieb ist.
+      const schonGemeldet = bestellung.status === 'fertig' || bestellung.fertigUm;
+      bestellung.status = 'fertig';
+      bestellung.fertigUm = bestellung.fertigUm || befehl.zeit || null;
+      this.#takeawaySichere(bestellung);
+      this.#meldeAenderung();
+      if (schonGemeldet) return { ok: true, sms: 'schon' };
+      // Die SMS haelt den Betrieb nicht auf: sie geht hinterher raus, und
+      // scheitert sie, bleibt die Bestellung trotzdem fertig.
+      const meldung = await this.#meldeFertig(bestellung);
+      return { ok: true, sms: meldung.grund || 'gesendet' };
+    }
     if (befehl.art === 'abgeholt') {
       bestellung.status = 'abgeholt';
       bestellung.abgeholtUm = befehl.zeit || null;
@@ -1180,6 +1228,8 @@ export class Haus extends DurableObject {
     } else if (befehl.art === 'offen') {
       bestellung.status = 'offen';
       bestellung.abgeholtUm = null;
+      // fertigUm bleibt stehen: die SMS ist raus, sie laesst sich nicht
+      // zuruecknehmen. Wer zurueckstellt, soll deshalb keine zweite ausloesen.
       this.#takeawaySichere(bestellung);
     } else if (befehl.art === 'entfernen') {
       this.ctx.storage.sql.exec('DELETE FROM takeaway WHERE id = ?', befehl.id);
@@ -1233,6 +1283,18 @@ export class Haus extends DurableObject {
       return { ok: true, profil: fuerDenWirt(naechstes), widerrufen: 'gesundheit' };
     }
     return { ok: true, profil: fuerDenWirt(profil) };
+  }
+
+  /**
+   * SMS an- oder abschalten. Ohne eingerichteten Absender bleibt sie aus -
+   * ein Schalter, der nichts bewirkt, waere schlimmer als kein Schalter.
+   */
+  async setzeSms(an) {
+    const eingerichtet = Boolean(this.env?.BREVO_KEY && this.env?.BREVO_SMS_ABSENDER);
+    if (an && !eingerichtet) return { ok: false, grund: 'nicht_eingerichtet' };
+    this.#schreib('smsAn', an === true);
+    this.#meldeAenderung();
+    return { ok: true, an: an === true };
   }
 
   async takeawayProtokoll() {
@@ -1636,6 +1698,14 @@ export default {
       if (url.pathname === '/api/takeaway/protokoll' && request.method === 'GET') {
         if (!darf()) return json({ ok: false }, 401, kopf);
         return json(await haus.takeawayProtokoll(), 200, kopf);
+      }
+
+      // Intern: SMS an- oder abschalten. Sie kostet Geld, also gehoert der
+      // Schalter dem Wirt und keiner Konfigurationsdatei.
+      if (url.pathname === '/api/sms' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.setzeSms(body?.an === true), 200, kopf);
       }
 
       // Intern: der Kuechenzettel. Wie viel wird heute ungefaehr gebraucht.
