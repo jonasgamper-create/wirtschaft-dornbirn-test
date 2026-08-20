@@ -12,7 +12,7 @@
   <title>Takeaway · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=ba8f2aec">
+  <link rel="stylesheet" href="tischreservierung.css?v=74ca79fe">
 </head>
 <body>
   <a class="skip-link" href="#main">Zum Inhalt springen</a>
@@ -28,9 +28,6 @@
         <p class="eyebrow">Takeaway · Mo–Fr zum Mittag</p>
         <h1>Heute auf dem Teller.<br>Für dich zum Mitnehmen.</h1>
         <p class="lead">Frisch gekocht wie am Tisch, bestellt in zwei Minuten – abholbereit in etwa 20–30 Minuten. Letzte Bestellung um 13:45 Uhr.</p>
-        <p class="ta-anruf-zeile">
-          <a class="button" href="tel:+43557220540">Lieber anrufen: +43 (0)5572 20 540</a>
-        </p>
       </div>
       <aside class="ta-truck" aria-hidden="true">
         <!-- Zweilagig wie auf der Startseite: der Wagen, darauf Emma & Eugen
@@ -77,6 +74,7 @@
         </div>
         <p class="booking-result" id="taErgebnis" hidden role="status" aria-live="polite"></p>
 
+
         <div class="booking-done" id="taFertig" hidden>
           <p class="done-kicker">Bestellung angenommen</p>
           <h3>Bis gleich!</h3>
@@ -99,6 +97,16 @@
             </p>
           </div>
         </div>
+
+        <!-- Der Anruf steht bewusst NACH der Bestellstrecke. Oben fing er
+             genau die Gaeste ab, die sonst online bestellt haetten - ein
+             Knopf vor dem Formular ist eine Abzweigung, keine Hilfe. Hier
+             ist er, was er sein soll: der Weg fuer alle, bei denen etwas
+             nicht passt. -->
+        <p class="ta-anruf-zeile">
+          <a class="button" href="tel:+43557220540">Lieber anrufen: +43 (0)5572 20 540</a>
+          <small>Sonderwunsch, große Bestellung oder etwas unklar? Wir sind mittags am Telefon.</small>
+        </p>
       </div>
     </section>
   </main>
