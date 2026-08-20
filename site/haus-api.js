@@ -185,6 +185,10 @@ export const sendeTakeawayAktion = (token, befehl) =>
 /** Das Protokoll der letzten 30 Tage - was lief gut. */
 export const holeTakeawayProtokoll = token => ruf('/api/takeaway/protokoll', { token });
 
+/** SMS an den Gast an- oder abschalten. Sie kostet Geld - der Wirt entscheidet. */
+export const setzeSms = (token, an) =>
+  ruf('/api/sms', { methode: 'POST', koerper: { an }, token });
+
 /** Der Kuechenzettel eines Tages: wie viel wird ungefaehr gebraucht. */
 export const holeKuechenzettel = (token, datum) =>
   ruf(`/api/kuechenzettel?datum=${encodeURIComponent(datum)}`, { token });

@@ -9,8 +9,8 @@
   <meta name="theme-color" content="#173e2c">
   <title>Heute Mittag · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
-  <link rel="stylesheet" href="wirt.css?v=63cae77d">
-  <script type="module" src="wirt.js?v=a12137c3"></script>
+  <link rel="stylesheet" href="wirt.css?v=d256054c">
+  <script type="module" src="wirt.js?v=a079abd6"></script>
 </head>
 <body>
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -110,6 +110,17 @@
         <button class="knopf" type="button" id="taKarteSetzen">Veröffentlichen</button>
       </div>
       <p class="lauf-ergebnis" id="taKarteInfo" role="status" aria-live="polite"></p>
+    </details>
+
+    <details class="werkzeug" id="smsKasten">
+      <summary>Nachricht an den Gast, wenn das Essen fertig ist</summary>
+      <p class="hinweis">Drückt jemand in der Küche auf „Fertig“, bekommt der Gast eine SMS an die Nummer, die er bei der Bestellung angegeben hat. Jede SMS kostet – deshalb entscheidest du, ob sie läuft.</p>
+      <label class="sms-schalter">
+        <input type="checkbox" id="smsAn">
+        <span id="smsLabel">SMS ist aus</span>
+      </label>
+      <p class="lauf-ergebnis" id="smsInfo" role="status" aria-live="polite"></p>
+      <p class="hinweis">Die Küche hat einen eigenen Zugang: <a href="kueche.html" id="kuecheLink">Küchenansicht öffnen</a> – dort stehen nur die Bestellungen, keine Reservierungen und keine Gästekontakte.</p>
     </details>
 
     <details class="werkzeug" id="zettelKasten">

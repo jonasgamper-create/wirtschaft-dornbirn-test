@@ -143,8 +143,19 @@ const kbWirt = await baue({
   kopfErsatz: [/href="gastgeber-tischplan\.html"/, 'href="index.html"']
 });
 
+// Die Kuechenansicht. Sie teilt sich das Stilblatt mit der Wirt-Ansicht -
+// dieselbe Handschrift, andere Auswahl an Inhalten.
+const target5 = path.join(root, 'output/tischplan/wirtschaft-kueche.html');
+const kbKueche = await baue({
+  quelle: 'kueche.html',
+  ziel: target5,
+  code: await buendel('kueche.js'),
+  stil: await stilFuer(['wirt.css'])
+});
+
 console.log(`Einzeldateien geschrieben:`);
 console.log(`  ${path.relative(root, target)} (${kbIntern} KB) - interne Planung`);
 console.log(`  ${path.relative(root, target2)} (${kbKunde} KB) - zum Verschicken an den Kunden`);
 console.log(`  ${path.relative(root, target3)} (${kbScreen} KB) - Bildschirm am Eingang`);
 console.log(`  ${path.relative(root, target4)} (${kbWirt} KB) - einfache Wirt-Ansicht`);
+console.log(`  ${path.relative(root, target5)} (${kbKueche} KB) - Bildschirm in der Kueche`);

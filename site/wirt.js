@@ -8,8 +8,9 @@ import {
   apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeKuechenzettel, holeStand, karteAdresse,
   leereTag, legeEinfach, loescheKarte, schluesselAusAdresse, sendeAktion,
   sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
+  setzeSms,
   stelleTagWiederHer
-} from './haus-api.js?v=ba7ec801';
+} from './haus-api.js?v=1aec1725';
 import { buildFloorplan } from './floorplan-layout.mjs?v=8cd1fbb4';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=ec7c8e39';
 
@@ -64,6 +65,47 @@ async function start() {
   verdrahteTagLeeren();
   verdrahteKarten();
   verdrahteZettel();
+  verdrahteSms();
+}
+
+/**
+ * Der Schalter fuer die Fertig-SMS. Er zeigt immer den Stand des Dienstes,
+ * nicht den letzten Klick: schaltet ein zweites Geraet um, muss man das hier
+ * sehen. Und ohne eingerichteten Absender sagt er, woran es liegt, statt
+ * stumm zurueckzuspringen.
+ */
+function verdrahteSms() {
+  const schalter = byId('smsAn');
+  if (!schalter) return;
+
+  const male = () => {
+    if (schalter.dataset.aendert) return;
+    schalter.checked = stand?.smsAn === true;
+    byId('smsLabel').textContent = schalter.checked
+      ? 'SMS ist an – der Gast wird benachrichtigt'
+      : 'SMS ist aus';
+  };
+  male();
+  setInterval(male, 4000);
+
+  schalter.addEventListener('change', async () => {
+    schalter.dataset.aendert = '1';
+    const gewuenscht = schalter.checked;
+    sag('smsInfo', 'Einen Moment …');
+    const antwort = await setzeSms(hausToken(), gewuenscht);
+    delete schalter.dataset.aendert;
+    if (!antwort?.ok) {
+      schalter.checked = !gewuenscht;
+      male();
+      return sag('smsInfo', antwort?.grund === 'nicht_eingerichtet'
+        ? 'Für SMS fehlt noch das Brevo-Konto (Schlüssel und Absendername). Solange bleibt sie aus.'
+        : 'Das hat nicht geklappt – bitte noch einmal.', 'fehler');
+    }
+    male();
+    sag('smsInfo', antwort.an
+      ? 'SMS läuft. Ab jetzt bekommt der Gast bei „Fertig“ eine Nachricht.'
+      : 'SMS ist aus. „Fertig“ meldet nur intern.', 'gut');
+  });
 }
 
 /**
