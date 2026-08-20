@@ -48,14 +48,39 @@ export function nummerFuerSms(roh, land = '43') {
 }
 
 /**
- * Der Text. Bewusst kurz: eine SMS ueber 160 Zeichen wird geteilt und zweimal
- * berechnet, und der Gast braucht ohnehin nur zwei Angaben - seine Nummer
- * und dass es bereit steht.
+ * Der Text. Drei Regeln stecken darin:
+ *
+ * Erstens nennt er kein Gericht. Sonst muesste die Nachricht jedes Mal
+ * mitwandern, wenn die Karte wechselt - und die wechselt woechentlich.
+ * Nummer und "ist fertig" sind alles, was der Gast braucht.
+ *
+ * Zweitens bleibt er unter 160 Zeichen, auch mit langem Vornamen. Darueber
+ * wird die SMS geteilt und zweimal berechnet.
+ *
+ * Drittens - und das ist die unauffaelligste Falle - benutzt er nur Zeichen
+ * aus dem GSM-7-Satz. Ein einziger typografischer Gedankenstrich, wie er im
+ * ganzen uebrigen Projekt steht, kippt die Nachricht auf UCS-2: dann sind
+ * nur noch 70 Zeichen je Teil erlaubt, und aus einer SMS werden zwei.
+ * Deshalb hier ein schlichter Bindestrich und ein gerader Apostroph.
  */
 export function fertigText({ nummer, name, haus = 'Wirtschaft Dornbirn' }) {
   const wer = String(name || '').trim().split(' ')[0].slice(0, 20);
-  return `${haus}: ${wer ? `${wer}, deine` : 'Deine'} Bestellung Nr. ${nummer} ist abholbereit. Bis gleich!`;
+  const anrede = wer ? `Passt, ${wer}!` : 'Passt!';
+  return `${anrede} Nr. ${nummer} ist fertig - hol's dir, solang's warm ist. ${haus}`;
 }
+
+/**
+ * Zeichen, die eine SMS in einem Teil halten. Alles ausserhalb erzwingt
+ * UCS-2 und damit den doppelten Preis.
+ */
+const GSM7 = new Set(
+  '@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&\'()*+,-./0123456789:;<=>?'
+  + '¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà'
+);
+
+/** Bleibt der Text in einem SMS-Teil? Fuer die Pruefung, nicht fuer den Betrieb. */
+export const passtInEineSms = text =>
+  [...String(text)].every(zeichen => GSM7.has(zeichen)) && String(text).length <= SMS_ZEICHEN;
 
 /**
  * Absenden. Ohne Schluessel oder Absendername passiert schlicht nichts - der
