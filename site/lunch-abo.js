@@ -5,7 +5,7 @@
 // Ohne eingetragenen Dienst faellt das Formular auf den alten Mailweg
 // zurueck, statt still ins Leere zu schicken.
 
-import { apiAdresse, holeTakeawayKarte, meldeMittagskarte } from './haus-api.js?v=1aec1725';
+import { apiAdresse, holeTakeawayKarte, meldeMittagskarte } from './haus-api.js?v=56cfa09d';
 
 // ---- Die Gerichte der Woche, live vom Haus ---------------------------------
 //

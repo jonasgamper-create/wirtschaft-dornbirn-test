@@ -66,3 +66,12 @@ body{margin:0;min-height:100vh;background:var(--paper);color:var(--ink);font-fam
    den letzten Stand - aber er sagt, dass er alt sein koennte. Eine still
    veraltete Anzeige am Eingang schickt Gaeste an falsche Tische. */
 .sc-link{margin:0;padding:10px 24px;background:#8c292b;color:#fff;font-size:15px;font-weight:700;text-align:center}
+
+/* Fertige Abholungen am Eingang, wie die Nummerntafel beim Baecker. Gross
+   genug, um sie im Vorbeigehen zu lesen - der Gast steht nicht davor,
+   sondern kommt zur Tuer herein. */
+.sc-abholung{margin-top:clamp(18px,3vh,34px)}
+.sc-abhol-liste{display:flex;flex-wrap:wrap;gap:10px}
+.sc-abhol{display:flex;align-items:baseline;gap:10px;margin:0;padding:10px 18px;border:1px solid var(--linie,#11110f26);border-radius:12px;background:#fff}
+.sc-abhol b{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:clamp(26px,3.4vw,40px);line-height:1;font-variant-numeric:tabular-nums}
+.sc-abhol span{font-size:clamp(15px,1.6vw,20px)}

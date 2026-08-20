@@ -9,7 +9,7 @@ import { activeLayout, buildFloorplan, seatingPlan, serviceOf } from './floorpla
 import { durationFor, occupiesAt, stamp } from './table-assignment.mjs?v=ec7c8e39';
 import { renderFloorplan } from './floorplan.js?v=bf76e472';
 
-import { bleibVerbunden, hausToken, istOffen } from './haus-api.js?v=1aec1725';
+import { bleibVerbunden, hausToken, istOffen } from './haus-api.js?v=56cfa09d';
 
 const KEY = 'wirtschaft-dornbirn-host-control-v1';
 const SICHT = 'wirtschaft-screen-namen';
@@ -62,6 +62,31 @@ async function start() {
     return name;
   };
 
+  /**
+   * Fertige Abholungen, wie beim Baecker. Der Dienst liefert fuer diesen
+   * Bildschirm nur Nummer und Vorname - keine Gerichte, keine Telefonnummer.
+   * Ist nichts fertig, verschwindet der ganze Abschnitt: eine leere Ueberschrift
+   * am Eingang sieht aus wie ein Fehler.
+   */
+  function zeigeAbholungen(bestellungen) {
+    const kasten = byId('scAbholung');
+    if (!kasten) return;
+    const fertige = Array.isArray(bestellungen) ? bestellungen : [];
+    kasten.hidden = fertige.length === 0;
+    const liste = byId('scAbholListe');
+    liste.textContent = '';
+    for (const bestellung of fertige) {
+      const eintrag = document.createElement('p');
+      eintrag.className = 'sc-abhol';
+      const nummer = document.createElement('b');
+      nummer.textContent = String(bestellung.nummer);
+      const wer = document.createElement('span');
+      wer.textContent = bestellung.vorname || '';
+      eintrag.append(nummer, wer);
+      liste.append(eintrag);
+    }
+  }
+
   function zeichne() {
     const state = lies();
     const plan = state.floorplan || raum;
@@ -96,6 +121,8 @@ async function start() {
       .sort((a, b) => a.name.localeCompare(b.name, 'de'));
 
     const nummer = new Map(built.tables.map(table => [table.id, table]));
+
+    zeigeAbholungen(state.takeaway);
 
     const liste = byId('scList');
     liste.textContent = '';

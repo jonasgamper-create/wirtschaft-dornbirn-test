@@ -12,7 +12,7 @@
   <title>Takeaway · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=c28720ca">
+  <link rel="stylesheet" href="tischreservierung.css?v=ba8f2aec">
 </head>
 <body>
   <a class="skip-link" href="#main">Zum Inhalt springen</a>
@@ -86,6 +86,18 @@
             <div><dt>Summe</dt><dd id="taDoneSumme"></dd></div>
           </dl>
           <p class="done-note">Sag’ am Tresen einfach deine Nummer. Bezahlt wird bei der Abholung – bar oder mit Karte.</p>
+
+          <!-- Der Stand der eigenen Bestellung, live. Er ersetzt keine
+               Nachricht aufs Telefon, aber er beantwortet die Frage, die der
+               Gast in den naechsten zwanzig Minuten hat. -->
+          <div class="ta-status" id="taStatus" data-stufe="offen">
+            <p class="ta-status-lage"><i aria-hidden="true"></i><span id="taStatusText">Deine Bestellung ist in der Küche.</span></p>
+            <p class="ta-status-hinweis" id="taStatusHinweis">Diese Seite aktualisiert sich von selbst – du kannst sie offen lassen.</p>
+            <p class="ta-status-link">
+              <a id="taStatusAdresse" href="#">Diesen Stand später wieder öffnen</a>
+              <small>Lesezeichen setzen oder Adresse sichern – die Seite zeigt nur deine eigene Bestellung.</small>
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -105,6 +117,6 @@
     </div>
   </footer>
 
-  <script type="module" src="takeaway.js?v=4ed373c7"></script>
+  <script type="module" src="takeaway.js?v=72a97c01"></script>
 </body>
 </html>

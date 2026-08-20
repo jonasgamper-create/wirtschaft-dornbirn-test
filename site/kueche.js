@@ -9,7 +9,7 @@
 
 import {
   apiAdresse, bleibVerbunden, hausToken, holeStand, schluesselAusAdresse, sendeTakeawayAktion
-} from './haus-api.js?v=1aec1725';
+} from './haus-api.js?v=56cfa09d';
 
 const byId = id => document.getElementById(id);
 const pad = zahl => String(zahl).padStart(2, '0');
@@ -87,6 +87,20 @@ function zeile(bestellung, fertig) {
   knopf.textContent = fertig ? 'Doch nicht' : 'Fertig';
 
   li.append(zeit, wer, knopf);
+
+  // "Dauert laenger" ist die nuetzlichste Auskunft ueberhaupt: die Abholzeit
+  // kennt der Gast schon, aber nicht, dass sie nicht haelt. Nur bei noch
+  // offenen Bestellungen - was fertig ist, dauert nicht mehr.
+  if (!fertig) {
+    const spaeter = document.createElement('button');
+    spaeter.type = 'button';
+    spaeter.className = 'knopf leise spaeter';
+    spaeter.dataset.aktion = 'spaeter';
+    spaeter.dataset.id = bestellung.id;
+    spaeter.textContent = '+10 Min';
+    spaeter.setAttribute('aria-label', `Abholzeit von Nr. ${bestellung.nummer} um zehn Minuten verschieben`);
+    li.append(spaeter);
+  }
   return li;
 }
 
@@ -132,6 +146,7 @@ function verdrahte() {
     const { aktion, id } = knopf.dataset;
     if (aktion === 'fertig') await sendeTakeawayAktion(hausToken(), { art: 'fertig', id, zeit: jetzt() });
     if (aktion === 'zurueck') await sendeTakeawayAktion(hausToken(), { art: 'offen', id });
+    if (aktion === 'spaeter') await sendeTakeawayAktion(hausToken(), { art: 'spaeter', id, minuten: 10 });
     // Die Antwort kommt ueber den Draht zurueck und malt neu.
   };
   byId('offenListe').addEventListener('click', behandle);

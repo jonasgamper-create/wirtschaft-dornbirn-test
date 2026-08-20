@@ -295,6 +295,48 @@ export class Haus extends DurableObject {
     return { ok: true, gesendet, faellig: faellig.length };
   }
 
+  /**
+   * Was der Bildschirm im Eingang von den Abholungen zeigen darf: die
+   * fertigen von heute, mit Nummer und Vorname. Mehr braucht niemand, um sich
+   * wiederzuerkennen - und mehr hat auf einem Schirm, auf den jeder schaut,
+   * nichts verloren.
+   */
+  #fertigeFuerSchirm() {
+    const heute = jetztImHaus().datum;
+    return this.#takeawayAlle()
+      .filter(bestellung => bestellung.date === heute && bestellung.status === 'fertig')
+      .map(bestellung => ({
+        id: bestellung.id,
+        nummer: bestellung.nummer,
+        vorname: String(bestellung.name || '').trim().split(' ')[0].slice(0, 20),
+        fertigUm: bestellung.fertigUm || null
+      }))
+      .sort((a, b) => a.nummer - b.nummer);
+  }
+
+  /**
+   * Der Stand einer einzelnen Bestellung, fuer die Seite des Gastes. Der
+   * Schluessel ist der Ausweis: ohne ihn keine Auskunft, und mit ihm nur
+   * ueber diese eine Bestellung.
+   */
+  async takeawayStatus(token) {
+    const bestellung = this.#takeawayAlle().find(eintrag => eintrag.token && eintrag.token === token);
+    if (!bestellung) return { ok: false, grund: 'unbekannt' };
+    return {
+      ok: true,
+      nummer: bestellung.nummer,
+      status: bestellung.status,
+      abholzeit: bestellung.abholzeit,
+      date: bestellung.date,
+      vorbestellung: bestellung.vorbestellung === true,
+      // Wurde die Zeit verschoben, steht hier die urspruengliche - sonst
+      // wundert sich der Gast, warum die Zeit eine andere ist als vorhin.
+      verschobenVon: bestellung.verschobenVon || null,
+      posten: (bestellung.posten || []).map(({ name, menge }) => ({ name, menge })),
+      summe: bestellung.summe
+    };
+  }
+
   // ---- Terminhinweise: Widerspruch -----------------------------------------
 
   async #willKeineTermine(kontakt) {
@@ -524,7 +566,13 @@ export class Haus extends DurableObject {
       parties: this.#alle().map(({ token, ...party }) => fuerRolle(party)),
       // Takeaway nur fuer die Wirt-Ansichten. Der Bildschirm am Eingang zeigt
       // Tische - wer sein Essen abholt, steht am Tresen, nicht auf dem Schirm.
-      takeaway: rolle === 'haus' ? this.#takeawayAlle() : [],
+      // Der Wirt sieht alle Bestellungen. Der Bildschirm im Eingang zeigt nur
+      // die fertigen, und von denen nur Nummer und Vorname - kein Nachname,
+      // keine Gerichte, keine Nummer, kein Schluessel. Wer dort abholt, soll
+      // sich wiedererkennen, ohne dass der ganze Raum seine Bestellung liest.
+      takeaway: rolle === 'haus'
+        ? this.#takeawayAlle()
+        : (rolle === 'schirm' ? this.#fertigeFuerSchirm() : []),
       takeawayKarte: this.#lies('takeawayKarte', []),
       takeawayKarteText: rolle === 'haus' ? this.#lies('takeawayKarteText', '') : '',
       blockedTables: this.#lies('blocked', []),
@@ -1230,8 +1278,13 @@ export class Haus extends DurableObject {
     this.#schreib('taZaehler', laufend);
     const bestellung = {
       id: `t-${Date.now().toString(36)}-${String(laufend).padStart(4, '0')}`,
-      // Die Nummer des Tages - sie wird am Tresen gerufen, nicht der Name.
+      // Die Nummer des Tages - sie wird am Tresen gerufen und steht auf dem
+      // Bildschirm im Eingang.
       nummer: heutige.length + 1,
+      // Der Schluessel zur eigenen Statusseite. Er steht in genau einer
+      // Adresse und sonst nirgends - ohne ihn koennte jeder mit einer
+      // geratenen Nummer fremde Bestellungen mitlesen.
+      token: this.#token(),
       ...gecheckt.bestellung,
       status: 'offen',
       eingegangen: new Date().toISOString()
@@ -1251,7 +1304,10 @@ export class Haus extends DurableObject {
 
     return {
       ok: true, nummer: bestellung.nummer, abholzeit: bestellung.abholzeit,
-      summe: bestellung.summe, eng: bestellung.eng === true
+      summe: bestellung.summe, eng: bestellung.eng === true,
+      // Der Schluessel geht genau einmal hinaus: an den Gast, der gerade
+      // bestellt hat. Mit ihm sieht er seinen Stand, sonst niemand.
+      schluessel: bestellung.token
     };
   }
 
@@ -1272,6 +1328,22 @@ export class Haus extends DurableObject {
       // scheitert sie, bleibt die Bestellung trotzdem fertig.
       const meldung = await this.#meldeFertig(bestellung);
       return { ok: true, sms: meldung.grund || 'gesendet' };
+    }
+    if (befehl.art === 'spaeter') {
+      // Die nuetzlichste Nachricht ueberhaupt: die Abholzeit kennt der Gast
+      // schon, aber nicht, dass sie nicht haelt. Die urspruengliche Zeit
+      // bleibt vermerkt - sonst wundert er sich, warum dort etwas anderes
+      // steht als vorhin.
+      const minuten = Math.max(5, Math.min(60, Math.trunc(Number(befehl.minuten) || 10)));
+      const [stunde, minute] = String(bestellung.abholzeit).split(':').map(Number);
+      if (!Number.isFinite(stunde) || !Number.isFinite(minute)) return { ok: false, grund: 'zeit' };
+      const gesamt = stunde * 60 + minute + minuten;
+      if (gesamt >= 24 * 60) return { ok: false, grund: 'zeit' };
+      bestellung.verschobenVon = bestellung.verschobenVon || bestellung.abholzeit;
+      bestellung.abholzeit = `${String(Math.floor(gesamt / 60)).padStart(2, '0')}:${String(gesamt % 60).padStart(2, '0')}`;
+      this.#takeawaySichere(bestellung);
+      this.#meldeAenderung();
+      return { ok: true, abholzeit: bestellung.abholzeit };
     }
     if (befehl.art === 'abgeholt') {
       bestellung.status = 'abgeholt';
@@ -1759,6 +1831,16 @@ export default {
       if (url.pathname === '/api/takeaway/protokoll' && request.method === 'GET') {
         if (!darf()) return json({ ok: false }, 401, kopf);
         return json(await haus.takeawayProtokoll(), 200, kopf);
+      }
+
+      // Oeffentlich mit Schluessel: der Stand der eigenen Bestellung. Kein
+      // Token des Hauses - der Schluessel der Bestellung ist der Ausweis, und
+      // er gibt nur ueber diese eine Bestellung Auskunft.
+      if (url.pathname === '/api/takeaway/status' && request.method === 'GET') {
+        const token = String(url.searchParams.get('t') || '');
+        if (token.length < 8) return json({ ok: false, grund: 'unbekannt' }, 404, kopf);
+        const stand = await haus.takeawayStatus(token);
+        return json(stand, stand.ok ? 200 : 404, kopf);
       }
 
       // Intern: SMS an- oder abschalten. Sie kostet Geld, also gehoert der
