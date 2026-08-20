@@ -29,12 +29,23 @@ import {
 } from './mail.mjs';
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
 import {
-  ALLERGENE, BESTELLSCHLUSS, LETZTE_ABHOLUNG, WARTEZEIT_TEXT, kuechenzettel, parseKarte, pruefeBestellung, statistik
+  ALLERGENE, BESTELLSCHLUSS, LETZTE_ABHOLUNG, PORTIONEN_PRO_SLOT, WARTEZEIT_TEXT,
+  bestelltag, freieSlots, kuechenzettel, parseKarte, pruefeBestellung, statistik
 } from './takeaway.mjs';
 
 const HAUS = 'wirtschaft-dornbirn';
-/** Notbremse gegen Fluten. Ein Haus dieser Groesse bucht das nie aus. */
-const ONLINE_PRO_STUNDE = 40;
+/**
+ * Notbremse gegen Fluten - keine Kapazitaetsgrenze.
+ *
+ * Sie stand auf 40 je Stunde. Im Lasttest mit hundert Gaesten wurden damit
+ * 60 abgewiesen, mit "gerade kommen sehr viele Anfragen" - obwohl das Haus
+ * noch halb leer war. Das ist der falsche Ort fuer eine Grenze: was wirklich
+ * begrenzt, sind Tische, Kuechenlimit und Sitzplatzdeckel, und die pruefen
+ * sich selbst. Hier geht es nur darum, dass niemand den Speicher vollschreibt.
+ *
+ * Zweihundert je Stunde erreicht kein echter Mittag; ein Skript schon.
+ */
+const ONLINE_PRO_STUNDE = 200;
 
 /**
  * Was den Dienst verlaesst, enthaelt kein Geheimnis. Der Token ist der
@@ -1020,10 +1031,22 @@ export class Haus extends DurableObject {
   // ---- Takeaway ------------------------------------------------------------
 
   /** Die bestellbare Karte. Oeffentlich: Name, Preis und Allergene. */
-  async takeawayKarte() {
+  async takeawayKarte(heute = null, jetzt = null) {
+    // Welche Abholzeiten noch Luft haben. Ohne diese Angabe waehlt der Gast
+    // eine volle Zeit und erfaehrt es erst beim Abschicken - dieselbe Huerde,
+    // die bei den Uhrzeiten der Reservierung laengst wegfaellt.
+    const tag = heute ? bestelltag({ heute, jetzt }) : null;
     return {
       ok: true,
       gerichte: this.#lies('takeawayKarte', []),
+      slots: tag
+        ? freieSlots({
+          bestellungen: this.#takeawayAlle(), datum: tag.datum,
+          vorbestellung: tag.vorbestellung, jetzt
+        })
+        : null,
+      vorbestellung: tag?.vorbestellung ?? null,
+      proSlot: PORTIONEN_PRO_SLOT,
       // Die Klarnamen zu den Allergen-Codes - eine Quelle fuer alle Seiten.
       allergenNamen: ALLERGENE,
       schluss: BESTELLSCHLUSS,
@@ -1055,9 +1078,12 @@ export class Haus extends DurableObject {
     if (anzahl >= ONLINE_PRO_STUNDE) return { ok: false, grund: 'zu_viele' };
 
     const gecheckt = pruefeBestellung(roh, {
-      gerichte: this.#lies('takeawayKarte', []), heute, jetzt
+      gerichte: this.#lies('takeawayKarte', []), heute, jetzt,
+      // Die schon angenommenen Bestellungen sind die eigentliche Grenze: die
+      // Kueche schafft nur so viel je Viertelstunde.
+      bestehende: this.#takeawayAlle()
     });
-    if (!gecheckt.ok) return { ok: false, grund: gecheckt.grund };
+    if (!gecheckt.ok) return { ok: false, grund: gecheckt.grund, frei: gecheckt.frei || null };
 
     // Doppelklick: gleicher Name, gleiche Nummer, gleiche Summe am selben Tag
     // ist keine zweite Bestellung.
@@ -1502,7 +1528,8 @@ export default {
 
       // Oeffentlich: die bestellbare Karte - Name und Preis, sonst nichts.
       if (url.pathname === '/api/takeaway/karte' && request.method === 'GET') {
-        return json(await haus.takeawayKarte(), 200, kopf);
+        const uhr = jetztImHaus();
+        return json(await haus.takeawayKarte(uhr.datum, uhr.zeit), 200, kopf);
       }
       // Der Wirt setzt die Karte: die Zeilen aus dem Mittagskarten-PDF.
       if (url.pathname === '/api/takeaway/karte' && request.method === 'POST') {

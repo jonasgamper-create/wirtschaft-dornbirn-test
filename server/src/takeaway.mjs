@@ -18,6 +18,49 @@ export const WARTEZEIT_TEXT = '20–30 Minuten';
 /** Hoechstens so viele Portionen je Bestellung - darueber bitte anrufen. */
 export const MAX_PORTIONEN = 10;
 
+/**
+ * Wie viele Portionen die Kueche in einer Viertelstunde nebenher schafft.
+ *
+ * Ohne diese Grenze nimmt der Dienst beliebig viele Abholungen fuer dieselbe
+ * Zeit an - im Test waren es 36 Portionen um 12:15, waehrend im Haus 96
+ * Plaetze zu bekochen sind. Angenommen ist dann nicht dasselbe wie fertig:
+ * der Gast steht um 12:15 da und wartet eine halbe Stunde.
+ *
+ * Zwoelf ist bewusst knapp gewaehlt. Wer mehr braucht, bekommt die naechste
+ * freie Zeit angeboten - das ist ehrlicher als eine Zusage, die die Kueche
+ * nicht halten kann.
+ */
+export const PORTIONEN_PRO_SLOT = 12;
+
+/** Wie viele Portionen zu einer Abholzeit schon bestellt sind. */
+export function portionenImSlot(bestellungen, datum, zeit) {
+  return (bestellungen || [])
+    .filter(bestellung => bestellung.date === datum && bestellung.abholzeit === zeit)
+    .reduce((summe, bestellung) => summe
+      + (bestellung.posten || []).reduce((n, posten) => n + posten.menge, 0), 0);
+}
+
+/**
+ * Welche Abholzeiten an einem Tag noch Luft haben. Die Gaesteseite graut die
+ * vollen aus - dieselbe Loesung wie bei den Uhrzeiten der Reservierung, und
+ * dieselbe Begruendung: lieber vorher sehen als hinterher abgewiesen werden.
+ */
+export function freieSlots({ bestellungen, datum, portionen = 1, vorbestellung = false, jetzt = null }) {
+  const von = zuMinuten(vorbestellung || !jetzt ? ERSTE_ABHOLUNG : jetzt);
+  const bis = zuMinuten(LETZTE_ABHOLUNG);
+  const erste = vorbestellung || !jetzt
+    ? zuMinuten(ERSTE_ABHOLUNG)
+    : Math.max(Math.ceil((von + WARTEZEIT_MIN) / 15) * 15, zuMinuten(ERSTE_ABHOLUNG));
+
+  const slots = [];
+  for (let zeit = erste; zeit <= bis; zeit += 15) {
+    const alsText = alsZeit(zeit);
+    const belegt = portionenImSlot(bestellungen, datum, alsText);
+    slots.push({ zeit: alsText, frei: belegt + portionen <= PORTIONEN_PRO_SLOT, belegt });
+  }
+  return slots;
+}
+
 const zuMinuten = wert => {
   const treffer = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(String(wert || ''));
   return treffer ? Number(treffer[1]) * 60 + Number(treffer[2]) : null;
@@ -158,7 +201,7 @@ export function abholzeitFuer(jetzt, wunsch = 'sofort', { vorbestellung = false 
  * Eine Bestellung von aussen pruefen - streng, wie jede Eingabe von aussen.
  * `gerichte` ist die veroeffentlichte Karte, `jetzt` die Uhrzeit im Haus.
  */
-export function pruefeBestellung(roh, { gerichte, heute, jetzt }) {
+export function pruefeBestellung(roh, { gerichte, heute, jetzt, bestehende = [] }) {
   const name = String(roh?.name ?? '').trim().replace(/\s+/g, ' ').slice(0, 40);
   if (name.length < 2) return { ok: false, grund: 'name' };
 
@@ -189,6 +232,22 @@ export function pruefeBestellung(roh, { gerichte, heute, jetzt }) {
     { vorbestellung: tag.vorbestellung }
   );
   if (!abholung.ok) return { ok: false, grund: abholung.grund };
+
+  // Die Kueche ist die eigentliche Grenze, nicht der Speicher. Passt die
+  // Bestellung nicht mehr in die Viertelstunde, bekommt der Gast die
+  // naechsten freien Zeiten genannt - eine Zusage, die niemand halten kann,
+  // waere schlimmer als ein "geht erst um 12:30".
+  const schon = portionenImSlot(bestehende, tag.datum, abholung.zeit);
+  if (schon + portionen > PORTIONEN_PRO_SLOT) {
+    return {
+      ok: false,
+      grund: 'slot_voll',
+      frei: freieSlots({
+        bestellungen: bestehende, datum: tag.datum, portionen,
+        vorbestellung: tag.vorbestellung, jetzt
+      }).filter(slot => slot.frei).map(slot => slot.zeit).slice(0, 4)
+    };
+  }
 
   const summe = Math.round(posten.reduce((sum, eintrag) => sum + eintrag.preis * eintrag.menge, 0) * 100) / 100;
   return {

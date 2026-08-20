@@ -3,8 +3,9 @@
 
 import {
   ALLERGENE, BESTELLSCHLUSS, LETZTE_ABHOLUNG, MAX_PORTIONEN,
-  ERSTE_ABHOLUNG, abholzeitFuer, alsPreis, bestelltag, kuechenzettel,
-  naechsterWerktag, parseKarte, pruefeBestellung, statistik
+  ERSTE_ABHOLUNG, PORTIONEN_PRO_SLOT, abholzeitFuer, alsPreis, bestelltag,
+  freieSlots, kuechenzettel, naechsterWerktag, parseKarte, portionenImSlot,
+  pruefeBestellung, statistik
 } from '../server/src/takeaway.mjs';
 
 const errors = [];
@@ -141,6 +142,46 @@ const amSamstag = pruefeBestellung({
 }, { ...rahmen, heute: '2026-08-22', jetzt: '10:00' });
 check('Am Samstag wird auf Montag vorbestellt',
   amSamstag.ok && amSamstag.bestellung.date === '2026-08-24', JSON.stringify(amSamstag));
+
+// ---- 3c. Das Kuechenlimit je Abholzeit -------------------------------------
+// Im Lasttest wurden 36 Portionen fuer dieselbe Viertelstunde angenommen,
+// waehrend im Haus 96 Plaetze zu bekochen sind. Angenommen ist nicht dasselbe
+// wie fertig: der Gast steht dann da und wartet.
+
+const voll = Array.from({ length: 4 }, (_, i) => ({
+  date: heute, abholzeit: '12:15', posten: [{ id: 'g1', name: 'X', preis: 10, menge: 3 }], nr: i
+}));
+check('Portionen einer Abholzeit werden gezaehlt',
+  portionenImSlot(voll, heute, '12:15') === 12, String(portionenImSlot(voll, heute, '12:15')));
+check('Eine andere Zeit ist davon unberuehrt', portionenImSlot(voll, heute, '12:30') === 0);
+check('Ein anderer Tag ist davon unberuehrt', portionenImSlot(voll, '2026-08-25', '12:15') === 0);
+
+const inVollenSlot = pruefeBestellung({
+  name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }], abholung: '12:15'
+}, { ...rahmen, bestehende: voll });
+check('Eine volle Viertelstunde nimmt nichts mehr an',
+  inVollenSlot.grund === 'slot_voll', JSON.stringify(inVollenSlot));
+check('Der Gast bekommt freie Zeiten genannt',
+  Array.isArray(inVollenSlot.frei) && inVollenSlot.frei.length > 0, JSON.stringify(inVollenSlot.frei));
+check('Die genannten Zeiten sind wirklich frei',
+  !inVollenSlot.frei.includes('12:15'), JSON.stringify(inVollenSlot.frei));
+
+// Bis zur Grenze wird angenommen - sie ist eine Grenze, keine Sperre.
+const fastVoll = [{ date: heute, abholzeit: '12:15', posten: [{ id: 'g1', name: 'X', preis: 10, menge: PORTIONEN_PRO_SLOT - 2 }] }];
+check('Bis zur Grenze wird angenommen',
+  pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 2 }], abholung: '12:15' },
+    { ...rahmen, bestehende: fastVoll }).ok);
+check('Eine Portion darueber nicht mehr',
+  pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 3 }], abholung: '12:15' },
+    { ...rahmen, bestehende: fastVoll }).grund === 'slot_voll');
+
+// Und die Liste fuer die Gaesteseite: volle Zeiten sind als voll markiert.
+const slots = freieSlots({ bestellungen: voll, datum: heute, portionen: 1, vorbestellung: true });
+const zwoelfFuenfzehn = slots.find(s => s.zeit === '12:15');
+check('Die volle Zeit ist als voll markiert', zwoelfFuenfzehn && zwoelfFuenfzehn.frei === false,
+  JSON.stringify(zwoelfFuenfzehn));
+check('Andere Zeiten bleiben frei', slots.filter(s => s.frei).length > 0);
+check('Das Fenster beginnt bei der ersten Abholung', slots[0].zeit === ERSTE_ABHOLUNG, slots[0]?.zeit);
 
 // ---- 4. Das Protokoll ------------------------------------------------------
 

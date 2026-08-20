@@ -53,7 +53,37 @@ async function start() {
   }
   byId('taSenden').hidden = false;
   zeigeZeiten(minuten);
+  markiereVolleSlots(antwort.slots);
   zeigeSumme();
+}
+
+/**
+ * Volle Abholzeiten ausgrauen - dieselbe Loesung wie bei den Uhrzeiten der
+ * Reservierung. Sie stehen sichtbar da, aber gesperrt: sie zu verstecken
+ * waere verwirrend, der Gast suchte dann eine Zeit, die es nicht mehr gibt.
+ */
+function markiereVolleSlots(slots) {
+  if (!Array.isArray(slots)) return;
+  const nachZeit = new Map(slots.map(slot => [slot.zeit, slot]));
+  for (const knopf of document.querySelectorAll('#taZeiten [data-abholung]')) {
+    const eintrag = nachZeit.get(knopf.dataset.abholung);
+    const voll = eintrag ? !eintrag.frei : false;
+    knopf.disabled = voll;
+    if (voll) knopf.setAttribute('data-voll', ''); else knopf.removeAttribute('data-voll');
+    knopf.title = voll ? 'Zu dieser Zeit ist die Küche schon ausgelastet' : '';
+    // Eine bereits gewaehlte, nun volle Zeit wieder abwaehlen.
+    if (voll && knopf.getAttribute('aria-checked') === 'true') {
+      knopf.setAttribute('aria-checked', 'false');
+      const ersatz = [...document.querySelectorAll('#taZeiten [data-abholung]:not([data-voll])')][0];
+      if (ersatz) { ersatz.setAttribute('aria-checked', 'true'); abholung = ersatz.dataset.abholung; }
+    }
+  }
+}
+
+/** Die Slot-Belegung neu holen - nach einer Ablehnung und nach dem Bestellen. */
+async function ladeSlots() {
+  const antwort = await holeTakeawayKarte();
+  if (antwort?.ok) markiereVolleSlots(antwort.slots);
 }
 
 /** "Montag" oder "morgen" - was der Gast auf dem Zettel lesen will. */
@@ -254,6 +284,16 @@ byId('taBestellen')?.addEventListener('click', async () => {
       zu_viele: 'Gerade kommen sehr viele Bestellungen. Bitte ruf’ uns kurz an.',
       netz: 'Die Verbindung hat nicht geklappt. Bitte ruf’ uns kurz an: +43 (0)5572 20 540.'
     };
+    // Volle Viertelstunde: die Kueche schafft nur so viel auf einmal. Die
+    // freien Zeiten stehen in der Antwort - sie zu verschweigen hiesse, den
+    // Gast raten zu lassen.
+    if (antwort?.grund === 'slot_voll') {
+      await ladeSlots();
+      const frei = (antwort.frei || []).join(', ');
+      return sag(frei
+        ? `Um ${abholung} Uhr ist die Küche schon ausgelastet. Frei wäre es um ${frei} – wähl’ einfach eine andere Zeit.`
+        : 'Für heute ist die Küche ausgelastet. Ruf’ uns kurz an: +43 (0)5572 20 540.', 'warnung');
+    }
     return sag(gruende[antwort?.grund] || 'Das hat nicht geklappt. Bitte ruf’ uns kurz an: +43 (0)5572 20 540.', 'fehler');
   }
 
