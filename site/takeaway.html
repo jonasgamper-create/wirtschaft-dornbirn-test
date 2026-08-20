@@ -12,9 +12,9 @@
   <title>Takeaway · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=74ca79fe">
+  <link rel="stylesheet" href="tischreservierung.css?v=2f0e634a">
 </head>
-<body>
+<body class="ta-seite">
   <a class="skip-link" href="#main">Zum Inhalt springen</a>
 
   <header class="wrap site-head">
@@ -50,27 +50,50 @@
         <p class="ta-leer" id="taLeer">Die Online-Bestellung ist gerade nicht verfügbar. Ruf’ uns einfach an:
           <a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
 
-        <form class="grid" id="taForm" hidden novalidate>
-          <div class="wide ta-karte" id="taKarte" aria-label="Gerichte zum Mitnehmen"></div>
-          <p class="wide ta-allergene" id="taAllergene" hidden></p>
+        <!-- Zwei Spalten, wo Platz ist: links die Gerichte, rechts Abholzeit
+             und Summe, die beim Blaettern mitgehen. Am Handy gibt es diesen
+             Platz nicht - dort liegt alles untereinander und die Summe wandert
+             in die feste Leiste unten. -->
+        <div class="ta-bestellflaeche">
+          <form class="grid ta-spalte-links" id="taForm" hidden novalidate>
+            <div class="wide ta-karte" id="taKarte" aria-label="Gerichte zum Mitnehmen"></div>
+            <p class="wide ta-allergene" id="taAllergene" hidden></p>
 
-          <label class="wide">Abholung*
-            <span class="slots" role="radiogroup" aria-label="Abholzeit wählen" id="taZeiten"></span>
-            <small class="slot-info" id="taZeitInfo" role="status" aria-live="polite"></small>
-          </label>
+            <label class="wide">Name*
+              <input type="text" id="taName" maxlength="40" autocomplete="family-name" placeholder="z. B. Huber">
+            </label>
+            <label class="wide">Telefon*
+              <input type="tel" id="taTelefon" maxlength="25" autocomplete="tel" inputmode="tel" placeholder="+43 660 1234567">
+            </label>
+            <p class="contact-note wide">Nur für diese Bestellung: Wir rufen an, falls etwas ausgeht. Gelöscht spätestens 30 Tage nach der Abholung.</p>
 
-          <label class="wide">Name*
-            <input type="text" id="taName" maxlength="40" autocomplete="family-name" placeholder="z. B. Huber">
-          </label>
-          <label class="wide">Telefon*
-            <input type="tel" id="taTelefon" maxlength="25" autocomplete="tel" inputmode="tel" placeholder="+43 660 1234567">
-          </label>
-          <p class="contact-note wide">Nur für diese Bestellung: Wir rufen an, falls etwas ausgeht. Gelöscht spätestens 30 Tage nach der Abholung.</p>
-        </form>
+            <!-- Merken ist eine Speicherung auf dem Geraet des Gastes. Auch
+                 wenn nichts davon an den Dienst geht, ist sie nicht technisch
+                 notwendig - also wird sie gefragt und nicht angenommen. Das
+                 Haekchen steht leer da; wer es nicht setzt, tippt wie bisher. -->
+            <label class="wide ta-merken">
+              <input type="checkbox" id="taMerken">
+              <span>Name und Telefon auf diesem Gerät merken, damit ich beim nächsten Mal nicht wieder tippen muss. Die Angaben bleiben im Browser und gehen an niemanden.</span>
+            </label>
 
-        <div class="submit-row" id="taSenden" hidden>
-          <button class="button button-green" id="taBestellen" type="button">Bestellung aufgeben</button>
-          <p id="taSumme"></p>
+            <!-- Steht nur da, wenn wirklich etwas gemerkt ist - und sagt dann
+                 auch, wo es liegt und wie man es wieder loswird. -->
+            <p class="wide ta-gemerkt" id="taGemerkt" hidden>Name und Telefon sind auf diesem Gerät gemerkt.
+              <button type="button" id="taVergiss">Wieder vergessen</button></p>
+          </form>
+
+          <aside class="ta-spalte-rechts" id="taAbschluss" hidden>
+            <div class="ta-zusammenfassung">
+              <p class="ta-feld-titel" id="taZeitTitel">Abholung*</p>
+              <span class="slots" role="radiogroup" aria-labelledby="taZeitTitel" id="taZeiten"></span>
+              <small class="slot-info" id="taZeitInfo" role="status" aria-live="polite"></small>
+            </div>
+
+            <div class="submit-row" id="taSenden" hidden>
+              <p id="taSumme"></p>
+              <button class="button button-green" id="taBestellen" type="button">Bestellung aufgeben</button>
+            </div>
+          </aside>
         </div>
         <p class="booking-result" id="taErgebnis" hidden role="status" aria-live="polite"></p>
 
@@ -125,6 +148,6 @@
     </div>
   </footer>
 
-  <script type="module" src="takeaway.js?v=72a97c01"></script>
+  <script type="module" src="takeaway.js?v=79c48cb9"></script>
 </body>
 </html>

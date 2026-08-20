@@ -96,8 +96,64 @@ async function verfolge(schluessel) {
 }
 const alsPreis = wert => `€ ${Number(wert).toFixed(2).replace('.', ',')}`;
 
+// ---- Name und Telefon auf diesem Geraet ------------------------------------
+//
+// Stammgaeste bestellen woechentlich dasselbe und tippen jedes Mal dieselben
+// zwei Felder. Gemerkt wird erst nach einer gelungenen Bestellung - vorher
+// waere es geraten - und ausschliesslich im Browser des Gastes: nichts davon
+// geht an den Dienst, der bekommt die Angaben ohnehin mit jeder Bestellung.
+// Weil es das Geraet nicht verlaesst, braucht es keine Einwilligung; weil es
+// trotzdem eine Speicherung ist, steht es sichtbar da und laesst sich mit
+// einem Klick loeschen.
+
+const GEMERKT = 'wirtschaft-takeaway-kontakt';
+
+function holeGemerkt() {
+  const zeile = byId('taGemerkt');
+  let daten = null;
+  try { daten = JSON.parse(localStorage.getItem(GEMERKT) || 'null'); } catch { daten = null; }
+  if (!daten?.name || !daten?.telefon) return;
+  byId('taName').value = daten.name;
+  byId('taTelefon').value = daten.telefon;
+  // Wer schon zugestimmt hat, soll das Haekchen gesetzt vorfinden - sonst
+  // waere die naechste Bestellung stillschweigend ein Widerruf.
+  byId('taMerken').checked = true;
+  if (zeile) zeile.hidden = false;
+}
+
+/**
+ * Nach einer gelungenen Bestellung: merken, wenn das Haekchen steht - und
+ * loeschen, wenn es abgewaehlt wurde. Das Abwaehlen ist der Widerruf, und der
+ * muss so einfach sein wie das Zustimmen.
+ */
+function merke(name, telefon) {
+  const zeile = byId('taGemerkt');
+  if (!byId('taMerken')?.checked) {
+    try { localStorage.removeItem(GEMERKT); } catch { /* privater Modus */ }
+    if (zeile) zeile.hidden = true;
+    return;
+  }
+  try { localStorage.setItem(GEMERKT, JSON.stringify({ name, telefon })); } catch { return; }
+  if (zeile) zeile.hidden = false;
+}
+
+byId('taVergiss')?.addEventListener('click', () => {
+  try { localStorage.removeItem(GEMERKT); } catch { /* privater Modus */ }
+  byId('taName').value = '';
+  byId('taTelefon').value = '';
+  byId('taMerken').checked = false;
+  byId('taGemerkt').hidden = true;
+  byId('taName').focus();
+});
+
 /** Muss mit MAX_PORTIONEN im Dienst uebereinstimmen. */
 const MAX_PORTIONEN = 10;
+/**
+ * Ab wie wenigen freien Portionen die Zahl beim Slot steht. Die Grenze selbst
+ * (wie viel die Kueche schafft) steht nur im Dienst - hier steht nur, ab wann
+ * es sich zu sagen lohnt.
+ */
+const REST_SICHTBAR_AB = 6;
 const BESTELLSCHLUSS = 13 * 60 + 45;
 const LETZTE_ABHOLUNG = 14 * 60;
 const VORLAUF = 20;
@@ -120,6 +176,7 @@ async function start() {
   const wieder = new URLSearchParams(location.search).get('bestellung');
   if (wieder) {
     byId('taFertig').hidden = false;
+    document.body.classList.add('ta-abgeschickt');
     byId('taDoneNummer').textContent = '…';
     verfolge(wieder);
   }
@@ -136,6 +193,8 @@ async function start() {
   zeigeKarte();
   zeigeAllergene();
   byId('taForm').hidden = false;
+  byId('taAbschluss').hidden = false;
+  holeGemerkt();
 
   const jetzt = new Date();
   const minuten = jetzt.getHours() * 60 + jetzt.getMinutes();
@@ -176,6 +235,24 @@ function markiereVolleSlots(slots) {
     knopf.title = voll
       ? 'Zu dieser Zeit ist die Küche schon ausgelastet'
       : (eng ? 'Um diese Zeit ist viel los – es kann etwas länger dauern' : '');
+
+    // Wie viel zu dieser Zeit noch geht - aber erst, wenn es knapp wird. Bei
+    // einem ruhigen Mittag stuende sonst ueberall eine Zahl, die nur Druck
+    // macht, wo keiner ist. Knapp heisst: es passt noch, aber nicht mehr oft.
+    const rest = Number.isFinite(eintrag?.rest) ? eintrag.rest : null;
+    let restZeile = knopf.querySelector('.ta-rest');
+    if (!voll && rest !== null && rest > 0 && rest <= REST_SICHTBAR_AB) {
+      if (!restZeile) {
+        restZeile = document.createElement('span');
+        restZeile.className = 'ta-rest';
+        knopf.append(restZeile);
+      }
+      restZeile.textContent = `noch ${rest}`;
+      knopf.setAttribute('aria-label', `${knopf.dataset.abholung} Uhr – noch ${rest} Portionen frei`);
+    } else {
+      restZeile?.remove();
+      knopf.removeAttribute('aria-label');
+    }
     // Eine bereits gewaehlte, nun volle Zeit wieder abwaehlen.
     if (voll && knopf.getAttribute('aria-checked') === 'true') {
       knopf.setAttribute('aria-checked', 'false');
@@ -329,9 +406,15 @@ function zeigeZeiten(minuten) {
       abholung = erster.dataset.abholung;
     }
   }
+  // Vor der Öffnung heisst "so bald wie moeglich" nicht "in zwanzig Minuten",
+  // sondern "sobald die Kueche aufsperrt". Der Dienst rechnet es ohnehin so -
+  // hier steht es, bevor der Gast waehlt, statt erst in der Bestaetigung.
+  const vorDerOeffnung = !vorbestellung && minuten + VORLAUF < 11 * 60 + 30;
   byId('taZeitInfo').textContent = vorbestellung
     ? 'Wähl die Zeit, zu der du es abholen möchtest.'
-    : '„So bald wie möglich“ heißt: fertig in etwa 20–30 Minuten.';
+    : (vorDerOeffnung
+      ? '„So bald wie möglich“ heißt heute: fertig ab 11:30 Uhr, sobald die Küche aufsperrt.'
+      : '„So bald wie möglich“ heißt: fertig in etwa 20–30 Minuten.');
 
   kasten.addEventListener('click', event => {
     const gewaehlt = event.target.closest('[data-abholung]');
@@ -351,9 +434,21 @@ function posten() {
 function zeigeSumme() {
   const summe = karte.reduce((sum, gericht) => sum + gericht.preis * (mengen.get(gericht.id) || 0), 0);
   const portionen = [...mengen.values()].reduce((sum, wert) => sum + wert, 0);
-  byId('taSumme').textContent = portionen
-    ? `${portionen} ${portionen === 1 ? 'Portion' : 'Portionen'} · ${alsPreis(summe)} – bezahlt wird bei der Abholung.`
-    : 'Wähl’ oben deine Gerichte.';
+  const kasten = byId('taSumme');
+  kasten.textContent = '';
+  if (!portionen) { kasten.textContent = 'Wähl’ oben deine Gerichte.'; return; }
+
+  // Am Handy steht diese Zeile in der festen Leiste und wird bei jedem
+  // Blaettern mitgelesen. Dort zaehlt nur, was sich aendert - der Hinweis
+  // aufs Zahlen steht ohnehin ueber der Karte und in der Bestaetigung und
+  // wird deshalb schmalen Schirmen erspart.
+  const zahl = document.createElement('span');
+  zahl.className = 'ta-summe-zahl';
+  zahl.textContent = `${portionen} ${portionen === 1 ? 'Portion' : 'Portionen'} · ${alsPreis(summe)}`;
+  const zusatz = document.createElement('span');
+  zusatz.className = 'ta-summe-zusatz';
+  zusatz.textContent = ' – bezahlt wird bei der Abholung.';
+  kasten.append(zahl, zusatz);
 }
 
 function sag(text, art = 'info') {
@@ -410,6 +505,10 @@ byId('taBestellen')?.addEventListener('click', async () => {
   byId('taDoneZeit').textContent = `${wann}, ca. ${antwort.abholzeit} Uhr`;
   byId('taDoneSumme').textContent = alsPreis(antwort.summe);
   byId('taFertig').hidden = false;
+  // Die feste Leiste am Handy hat ihren Zweck erfuellt. Ab jetzt wuerde sie
+  // nur die Bestaetigung verdecken, also gibt sie ihren Platz wieder her.
+  document.body.classList.add('ta-abgeschickt');
+  merke(name, telefon);
   // Ab hier verfolgt die Seite den Stand: der Gast hat gerade bestellt und
   // sieht in den naechsten zwanzig Minuten, was in der Kueche passiert.
   verfolge(antwort.schluessel);
