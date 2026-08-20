@@ -223,6 +223,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* Die Allergen-Legende: nur die Buchstaben, die heute vorkommen. */
 .ta-allergene{margin:12px 0 0;color:#57524a;font-size:13px;line-height:1.65;max-width:76ch}
 .ta-allergene[hidden]{display:none}
+/* Enge Abholzeit: waehlbar, aber sichtbar voller. Gold ist der Ton, den das
+   CI fuer "Achtung" schon fuehrt - kein neues Signalgelb. */
+.slots button[data-eng]{border-color:#a67f45;background:#c59b5d24}
+.slots button[data-eng]:after{content:" ·";color:#a67f45}
+
 .ta-menge{display:inline-flex;align-items:center;gap:2px;border:1px solid #11110f3d;border-radius:999px;background:#fff;overflow:hidden}
 /* Die Portionszahl ist tippbar - gleiches Schriftbild wie vorher, nur eben
    ein Feld. Browser-Spinner weg, Plus und Minus stehen ja daneben. */

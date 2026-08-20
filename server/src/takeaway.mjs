@@ -19,18 +19,32 @@ export const WARTEZEIT_TEXT = '20–30 Minuten';
 export const MAX_PORTIONEN = 10;
 
 /**
- * Wie viele Portionen die Kueche in einer Viertelstunde nebenher schafft.
+ * Wie viele Portionen die Kueche in einer Viertelstunde bequem schafft.
  *
- * Ohne diese Grenze nimmt der Dienst beliebig viele Abholungen fuer dieselbe
- * Zeit an - im Test waren es 36 Portionen um 12:15, waehrend im Haus 96
- * Plaetze zu bekochen sind. Angenommen ist dann nicht dasselbe wie fertig:
- * der Gast steht um 12:15 da und wartet eine halbe Stunde.
- *
- * Zwoelf ist bewusst knapp gewaehlt. Wer mehr braucht, bekommt die naechste
- * freie Zeit angeboten - das ist ehrlicher als eine Zusage, die die Kueche
- * nicht halten kann.
+ * Bis hierher ist die Zeit ohne Einschraenkung waehlbar. Es ist keine Sperre,
+ * sondern die Grenze der Bequemlichkeit.
  */
 export const PORTIONEN_PRO_SLOT = 12;
+
+/**
+ * Ab hier wird gar nichts mehr angenommen.
+ *
+ * Dazwischen liegt bewusst ein breiter Bereich: eine Bestellung abzulehnen,
+ * obwohl die Kueche sie mit etwas Verzug noch schafft, waere ein verlorener
+ * Gast wegen einer Zahl. In diesem Bereich wird angenommen und ehrlich
+ * gesagt, dass es etwas laenger dauern kann - so wie es der Wirt am Telefon
+ * auch machen wuerde. Erst darueber verweist der Dienst auf eine andere Zeit,
+ * denn irgendwann ist eine Zusage nicht mehr zu halten.
+ */
+export const PORTIONEN_HART = 24;
+
+/** Wie voll eine Abholzeit ist: bequem, eng oder zu. */
+export function slotLage(belegt, dazu = 0) {
+  const summe = belegt + dazu;
+  if (summe <= PORTIONEN_PRO_SLOT) return 'frei';
+  if (summe <= PORTIONEN_HART) return 'eng';
+  return 'voll';
+}
 
 /** Wie viele Portionen zu einer Abholzeit schon bestellt sind. */
 export function portionenImSlot(bestellungen, datum, zeit) {
@@ -56,7 +70,9 @@ export function freieSlots({ bestellungen, datum, portionen = 1, vorbestellung =
   for (let zeit = erste; zeit <= bis; zeit += 15) {
     const alsText = alsZeit(zeit);
     const belegt = portionenImSlot(bestellungen, datum, alsText);
-    slots.push({ zeit: alsText, frei: belegt + portionen <= PORTIONEN_PRO_SLOT, belegt });
+    const lage = slotLage(belegt, portionen);
+    // `frei` heisst waehlbar - eng zaehlt dazu. Nur `voll` ist gesperrt.
+    slots.push({ zeit: alsText, frei: lage !== 'voll', lage, belegt });
   }
   return slots;
 }
@@ -238,14 +254,15 @@ export function pruefeBestellung(roh, { gerichte, heute, jetzt, bestehende = [] 
   // naechsten freien Zeiten genannt - eine Zusage, die niemand halten kann,
   // waere schlimmer als ein "geht erst um 12:30".
   const schon = portionenImSlot(bestehende, tag.datum, abholung.zeit);
-  if (schon + portionen > PORTIONEN_PRO_SLOT) {
+  const lage = slotLage(schon, portionen);
+  if (lage === 'voll') {
     return {
       ok: false,
       grund: 'slot_voll',
       frei: freieSlots({
         bestellungen: bestehende, datum: tag.datum, portionen,
         vorbestellung: tag.vorbestellung, jetzt
-      }).filter(slot => slot.frei).map(slot => slot.zeit).slice(0, 4)
+      }).filter(slot => slot.lage === 'frei').map(slot => slot.zeit).slice(0, 4)
     };
   }
 
@@ -257,7 +274,10 @@ export function pruefeBestellung(roh, { gerichte, heute, jetzt, bestehende = [] 
       date: tag.datum,
       abholzeit: abholung.zeit,
       // Der Wirt muss auf einen Blick sehen, dass das nicht fuer heute ist.
-      vorbestellung: tag.vorbestellung
+      vorbestellung: tag.vorbestellung,
+      // Eng heisst: angenommen, aber es kann laenger dauern. Der Gast erfaehrt
+      // das sofort - und der Wirt sieht es in seiner Liste.
+      eng: lage === 'eng'
     }
   };
 }

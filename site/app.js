@@ -60,22 +60,29 @@
   let themeTransitionTimer = 0;
 
   const fallbackEventData = {
-    version: 1,
-    updatedAt: '2026-08-09T19:35:00+02:00',
+    version: 2,
+    updatedAt: '2026-08-20T08:30:00+02:00',
     maxAgeHours: 48,
     sourceUrl: 'https://wirtschaft-dornbirn.at/event/',
     pause: { label: 'Sommerpause', start: '2026-07-24', end: '2026-08-23', reopen: '2026-08-24' },
     events: [
-      { id: 'event-2026-09-03', date: '2026-09-03', title: 'Genussroute 6850', type: 'Dornbirner Genussabend', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/genussroute-2026/' },
-      { id: 'event-2026-09-22', date: '2026-09-22', title: 'Helden reisen, Gäste speisen!', type: 'Dinner & Bühne', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/' },
-      { id: 'event-2026-09-23', date: '2026-09-23', title: 'Helden reisen, Gäste speisen! – Zusatzabend', type: 'Dinner & Bühne', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/' },
-      { id: 'event-2026-10-14', date: '2026-10-14', title: 'Dinner & Comedy', type: 'Genuss trifft Humor', status: 'waitlist', officialUrl: 'https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/' },
-      { id: 'event-2026-10-15', date: '2026-10-15', title: 'Christof Spörk', type: 'Kabarett in der Wirtschaft', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/spoerk-2026/' },
-      { id: 'event-2026-10-21', date: '2026-10-21', title: 'Maria Neuschmid & Stefan Vögel', type: 'Kabarett in der Wirtschaft', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/neuschmid-voegel-02-2026/' },
-      { id: 'event-2026-10-22', date: '2026-10-22', title: 'Rock4 – A Cappella', type: 'The Music of Queen · A cappella', status: 'waitlist', officialUrl: 'https://wirtschaft-dornbirn.at/event/rock4-2026/' },
-      { id: 'event-2026-10-27', date: '2026-10-27', title: 'Mathias Kellner', type: 'Lieder & Kabarett', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/kellner-2026/' },
-      { id: 'event-2026-11-11', date: '2026-11-11', title: 'Dinner & Comedy', type: 'Genuss trifft Humor', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/dinner-comedy-05-2026/' },
-      { id: 'event-2026-11-18', date: '2026-11-18', title: "Philipp Lingg's Musikzimmer", type: 'Das musikalische Blind Date', status: 'scheduled', officialUrl: 'https://wirtschaft-dornbirn.at/event/philippsmusikzimmer-02-2026/' }
+      { id: "event-2026-09-03", date: "2026-09-03", title: "Genussroute 6850", type: "Dornbirner Genussabend", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/genussroute-2026/", tickets: [{ name: "Sitzplatz", preis: 88, beginn: "18:00", status: "buchbar" }] },
+      { id: "event-2026-09-22", date: "2026-09-22", title: "Helden reisen, Gäste speisen!", type: "Dinner & Bühne", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/", tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 88, beginn: "18:45", status: "buchbar" }] },
+      { id: "event-2026-09-23", date: "2026-09-23", title: "Helden reisen, Gäste speisen! – Zusatzabend", type: "Dinner & Bühne", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/", tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 88, beginn: "18:45", status: "buchbar" }] },
+      { id: "event-2026-10-14", date: "2026-10-14", title: "Dinner & Comedy", type: "Genuss trifft Humor", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/", tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Comedy only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }] },
+      { id: "event-2026-10-15", date: "2026-10-15", title: "Christof Spörk", type: "Kabarett in der Wirtschaft", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/spoerk-2026/", tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Comedy only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }] },
+      { id: "event-2026-10-21", date: "2026-10-21", title: "Maria Neuschmid & Stefan Vögel", type: "Kabarett in der Wirtschaft", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/neuschmid-voegel-02-2026/", tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 78, beginn: "19:00", status: "buchbar" }] },
+      { id: "event-2026-10-22", date: "2026-10-22", title: "Rock4 – A Cappella", type: "The Music of Queen · A cappella", status: "teilweise", officialUrl: "https://wirtschaft-dornbirn.at/event/rock4-2026/", tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 68, beginn: "19:00", status: "ausverkauft" }, { name: "Konzert only (Stehplatz)", preis: 38, beginn: "21:00", status: "buchbar" }] },
+      { id: "event-2026-10-27", date: "2026-10-27", title: "Mathias Kellner", type: "Lieder & Kabarett", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/kellner-2026/", tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Konzert only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }] },
+      { id: "event-2026-11-11", date: "2026-11-11", title: "Dinner & Comedy", type: "Genuss trifft Humor", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/dinner-comedy-05-2026/", tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Comedy only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }] },
+      { id: "event-2026-11-18", date: "2026-11-18", title: "Philipp Lingg's Musikzimmer", type: "Das musikalische Blind Date", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/philippsmusikzimmer-02-2026/", tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Konzert only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }] },
+      { id: "event-2026-11-19", date: "2026-11-19", title: "Hanskaspas Enkel & George Nussbaumer", type: "Dinner & Konzert", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/hanskaspasenkel-2026/", tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Konzert only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }] },
+      { id: "event-2026-11-24", date: "2026-11-24", title: "Notenlos", type: "Dinner & Konzert", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/notenlos-2026/", tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Konzert only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }] },
+      { id: "event-2026-11-26", date: "2026-11-26", title: "Krauthobel Anplakt", type: "Dinner & Konzert", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/krauthobel-2026/", tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 78, beginn: "19:00", status: "buchbar" }, { name: "Konzert only (Stehplatz)", preis: 38, beginn: "21:00", status: "buchbar" }] },
+      { id: "event-2026-12-03", date: "2026-12-03", title: "Rebel Tell", type: "Dinner & Konzert", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/rebeltell-2026/", tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Konzert only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }] },
+      { id: "event-2026-12-10", date: "2026-12-10", title: "The Monroes", type: "Dinner & Konzert", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/themonroes-2026/", tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 78, beginn: "19:00", status: "buchbar" }, { name: "Konzert only (Stehplatz)", preis: 38, beginn: "21:00", status: "buchbar" }] },
+      { id: "event-2026-12-15", date: "2026-12-15", title: "Dinner & Comedy", type: "Genuss trifft Humor", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/dinner-comedy-06-2026/", tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Comedy only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }] },
+      { id: "event-2026-12-16", date: "2026-12-16", title: "Dinner & Comedy", type: "Genuss trifft Humor", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/dinner-comedy-07-2026/", tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Comedy only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }] }
     ]
   };
   let eventData = fallbackEventData;
@@ -92,7 +99,9 @@
     const maxAge = Number(data?.maxAgeHours || 48);
     return Number.isFinite(stamp) && Date.now() - stamp <= maxAge * 60 * 60 * 1000;
   };
-  const eventStatusLabel = status => ({ scheduled: 'Tickets', sold_out: 'Ausverkauft', waitlist: 'Warteliste', cancelled: 'Abgesagt', paused: 'Pausiert' }[status] || 'Details');
+  // "Restkarten" statt "Warteliste", wenn nur eine Kategorie weg ist: es gibt
+  // an dem Abend noch etwas zu holen, und genau das soll der Knopf sagen.
+  const eventStatusLabel = status => ({ scheduled: 'Tickets', teilweise: 'Restkarten', sold_out: 'Ausverkauft', waitlist: 'Warteliste', cancelled: 'Abgesagt', paused: 'Pausiert' }[status] || 'Details');
 
   function syncServiceStatus() {
     const today = new Date();
@@ -673,14 +682,29 @@
     const event = calendarEvents.find(item => item.id === ticketEvent?.value);
     if (!event) { ticketDetail.innerHTML = ''; return; }
     const statusNote = {
+      teilweise: 'Eine Kategorie ist ausverkauft – für sie führt der Veranstalter eine Warteliste. Die übrigen sind buchbar.',
       waitlist: 'Für diesen Abend führt der Veranstalter eine Warteliste.',
-      sold_out: 'Dieser Abend ist ausverkauft.',
+      sold_out: 'Dieser Abend ist ausverkauft. Der Veranstalter führt eine Warteliste.',
       cancelled: 'Dieser Termin wurde abgesagt.'
     }[event.status] || '';
+    // Je Ticketart, so wie es der Veranstalter auch fuehrt. Ein pauschales
+    // "Warteliste" ueber den ganzen Abend haelt Gaeste von Karten ab, die es
+    // noch gibt - das stand hier vorher und war schlicht falsch.
+    const tickets = Array.isArray(event.tickets) ? event.tickets : [];
+    const ticketZeilen = tickets.map(ticket => {
+      const weg = ticket.status === 'ausverkauft';
+      const preis = `${String(ticket.preis).replace('.', ',')} €`;
+      return `<li class="ticket-art${weg ? ' is-weg' : ''}">
+        <span>${escapeHtml(ticket.name)}</span>
+        <b>${escapeHtml(preis)}</b>
+        <small>${weg ? 'ausverkauft · Warteliste' : `buchbar${ticket.beginn ? ` · ab ${escapeHtml(ticket.beginn)}` : ''}`}</small>
+      </li>`;
+    }).join('');
     ticketDetail.innerHTML = `<p class="ticket-detail-date">${escapeHtml(formatEventDate(event.date))} · ${escapeHtml(event.type)}</p>
       <p class="ticket-detail-title">${escapeHtml(event.title)}</p>
       ${statusNote ? `<p class="ticket-detail-status">${escapeHtml(statusNote)}</p>` : ''}
-      <p class="ticket-detail-note">Tarife und Einlasszeiten stehen auf der offiziellen Eventseite.</p>`;
+      ${ticketZeilen ? `<ul class="ticket-arten">${ticketZeilen}</ul>` : ''}
+      <p class="ticket-detail-note">Buchung, Warteliste und Einlasszeiten laufen über die offizielle Eventseite.</p>`;
   }
   ticketEvent?.addEventListener('change', renderTicketDetail);
   renderTicketDetail();

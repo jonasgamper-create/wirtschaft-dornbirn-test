@@ -4,7 +4,12 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const file = path.join(root, 'site', 'data', 'events.json');
-const allowedStatuses = new Set(['scheduled', 'sold_out', 'waitlist', 'cancelled', 'paused']);
+// "teilweise" heisst: eine Kategorie ist ausverkauft, eine andere nicht -
+// der haeufigste Fall im Haus (Dinner voll, Stehplatz frei). Frueher gab es
+// dafuer nur "waitlist" fuer den ganzen Abend, und ein Gast las "Warteliste",
+// obwohl er ein Stehplatzticket bekommen haette.
+const allowedStatuses = new Set(['scheduled', 'teilweise', 'sold_out', 'waitlist', 'cancelled', 'paused']);
+const ticketStatuses = new Set(['buchbar', 'ausverkauft', 'unbekannt']);
 const isoDate = /^\d{4}-\d{2}-\d{2}$/;
 
 const fail = message => {
@@ -48,6 +53,33 @@ for (const [index, event] of events.entries()) {
   if (!allowedStatuses.has(event.status)) fail(`${prefix}.status ist nicht erlaubt: ${event.status}`);
   if (!event.officialUrl || !/^https:\/\/([\w-]+\.)*wirtschaft-dornbirn\.at\//i.test(event.officialUrl)) {
     fail(`${prefix}.officialUrl muss auf die offizielle Domain zeigen.`);
+  }
+
+  // Die Ticketarten sind die eigentliche Wahrheit ueber die Verfuegbarkeit.
+  const tickets = Array.isArray(event.tickets) ? event.tickets : [];
+  if (!tickets.length) fail(`${prefix}.tickets fehlt - ohne Ticketart keine Verfuegbarkeit.`);
+  for (const [t, ticket] of tickets.entries()) {
+    const tp = `${prefix}.tickets[${t}]`;
+    if (!ticket?.name?.trim()) fail(`${tp}.name fehlt.`);
+    if (!Number.isFinite(Number(ticket?.preis)) || Number(ticket.preis) <= 0) fail(`${tp}.preis fehlt oder ist unbrauchbar.`);
+    if (!ticketStatuses.has(ticket?.status)) fail(`${tp}.status ist nicht erlaubt: ${ticket?.status}`);
+  }
+
+  // Der Status des Abends muss zu seinen Ticketarten passen. Ohne diese
+  // Pruefung behauptet die Gaesteseite irgendwann "ausverkauft", waehrend in
+  // den Daten eine buchbare Kategorie steht - genau der Fehler, der hier
+  // schon einmal drin war.
+  const zustaende = tickets.map(ticket => ticket.status);
+  const alleWeg = zustaende.length > 0 && zustaende.every(s => s === 'ausverkauft');
+  const eineWeg = zustaende.some(s => s === 'ausverkauft');
+  if (event.status === 'sold_out' && !alleWeg) {
+    fail(`${prefix}.status ist "sold_out", aber nicht jede Ticketart ist ausverkauft.`);
+  }
+  if (event.status === 'teilweise' && !(eineWeg && !alleWeg)) {
+    fail(`${prefix}.status ist "teilweise", passt aber nicht zu den Ticketarten.`);
+  }
+  if (event.status === 'scheduled' && eineWeg) {
+    fail(`${prefix}.status ist "scheduled", obwohl eine Ticketart ausverkauft ist.`);
   }
 }
 

@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "updatedAt": "2026-08-09T19:35:00+02:00",
+  "version": 2,
+  "updatedAt": "2026-08-20T08:30:00+02:00",
   "maxAgeHours": 48,
   "sourceUrl": "https://wirtschaft-dornbirn.at/event/",
   "pause": {
@@ -12,83 +12,353 @@
   "events": [
     {
       "id": "event-2026-09-03",
-      "title": "Genussroute 6850",
       "date": "2026-09-03",
+      "title": "Genussroute 6850",
       "type": "Dornbirner Genussabend",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/genussroute-2026/"
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/genussroute-2026/",
+      "tickets": [
+        {
+          "name": "Sitzplatz",
+          "preis": 88,
+          "beginn": "18:00",
+          "status": "buchbar"
+        }
+      ]
     },
     {
       "id": "event-2026-09-22",
-      "title": "Helden reisen, Gäste speisen!",
       "date": "2026-09-22",
+      "title": "Helden reisen, Gäste speisen!",
       "type": "Dinner & Bühne",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/"
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Comedy (Sitzplatz)",
+          "preis": 88,
+          "beginn": "18:45",
+          "status": "buchbar"
+        }
+      ]
     },
     {
       "id": "event-2026-09-23",
-      "title": "Helden reisen, Gäste speisen! – Zusatzabend",
       "date": "2026-09-23",
+      "title": "Helden reisen, Gäste speisen! – Zusatzabend",
       "type": "Dinner & Bühne",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/"
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Comedy (Sitzplatz)",
+          "preis": 88,
+          "beginn": "18:45",
+          "status": "buchbar"
+        }
+      ]
     },
     {
       "id": "event-2026-10-14",
-      "title": "Dinner & Comedy",
       "date": "2026-10-14",
+      "title": "Dinner & Comedy",
       "type": "Genuss trifft Humor",
-      "status": "waitlist",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/"
+      "status": "scheduled",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Comedy (Sitzplatz)",
+          "preis": 68,
+          "beginn": "19:00",
+          "status": "buchbar"
+        },
+        {
+          "name": "Comedy only (Stehplatz)",
+          "preis": 28,
+          "beginn": "21:00",
+          "status": "buchbar"
+        }
+      ]
     },
     {
       "id": "event-2026-10-15",
-      "title": "Christof Spörk",
       "date": "2026-10-15",
+      "title": "Christof Spörk",
       "type": "Kabarett in der Wirtschaft",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/spoerk-2026/"
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/spoerk-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Comedy (Sitzplatz)",
+          "preis": 68,
+          "beginn": "19:00",
+          "status": "buchbar"
+        },
+        {
+          "name": "Comedy only (Stehplatz)",
+          "preis": 28,
+          "beginn": "21:00",
+          "status": "buchbar"
+        }
+      ]
     },
     {
       "id": "event-2026-10-21",
-      "title": "Maria Neuschmid & Stefan Vögel",
       "date": "2026-10-21",
+      "title": "Maria Neuschmid & Stefan Vögel",
       "type": "Kabarett in der Wirtschaft",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/neuschmid-voegel-02-2026/"
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/neuschmid-voegel-02-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Comedy (Sitzplatz)",
+          "preis": 78,
+          "beginn": "19:00",
+          "status": "buchbar"
+        }
+      ]
     },
     {
       "id": "event-2026-10-22",
-      "title": "Rock4 – A Cappella",
       "date": "2026-10-22",
+      "title": "Rock4 – A Cappella",
       "type": "The Music of Queen · A cappella",
-      "status": "waitlist",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/rock4-2026/"
+      "status": "teilweise",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/rock4-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Konzert (Sitzplatz)",
+          "preis": 68,
+          "beginn": "19:00",
+          "status": "ausverkauft"
+        },
+        {
+          "name": "Konzert only (Stehplatz)",
+          "preis": 38,
+          "beginn": "21:00",
+          "status": "buchbar"
+        }
+      ]
     },
     {
       "id": "event-2026-10-27",
-      "title": "Mathias Kellner",
       "date": "2026-10-27",
+      "title": "Mathias Kellner",
       "type": "Lieder & Kabarett",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/kellner-2026/"
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/kellner-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Konzert (Sitzplatz)",
+          "preis": 68,
+          "beginn": "19:00",
+          "status": "buchbar"
+        },
+        {
+          "name": "Konzert only (Stehplatz)",
+          "preis": 28,
+          "beginn": "21:00",
+          "status": "buchbar"
+        }
+      ]
     },
     {
       "id": "event-2026-11-11",
-      "title": "Dinner & Comedy",
       "date": "2026-11-11",
+      "title": "Dinner & Comedy",
       "type": "Genuss trifft Humor",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/dinner-comedy-05-2026/"
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/dinner-comedy-05-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Comedy (Sitzplatz)",
+          "preis": 68,
+          "beginn": "19:00",
+          "status": "buchbar"
+        },
+        {
+          "name": "Comedy only (Stehplatz)",
+          "preis": 28,
+          "beginn": "21:00",
+          "status": "buchbar"
+        }
+      ]
     },
     {
       "id": "event-2026-11-18",
-      "title": "Philipp Lingg's Musikzimmer",
       "date": "2026-11-18",
+      "title": "Philipp Lingg's Musikzimmer",
       "type": "Das musikalische Blind Date",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/philippsmusikzimmer-02-2026/"
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/philippsmusikzimmer-02-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Konzert (Sitzplatz)",
+          "preis": 68,
+          "beginn": "19:00",
+          "status": "buchbar"
+        },
+        {
+          "name": "Konzert only (Stehplatz)",
+          "preis": 28,
+          "beginn": "21:00",
+          "status": "buchbar"
+        }
+      ]
+    },
+    {
+      "id": "event-2026-11-19",
+      "date": "2026-11-19",
+      "title": "Hanskaspas Enkel & George Nussbaumer",
+      "type": "Dinner & Konzert",
+      "status": "scheduled",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/hanskaspasenkel-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Konzert (Sitzplatz)",
+          "preis": 68,
+          "beginn": "19:00",
+          "status": "buchbar"
+        },
+        {
+          "name": "Konzert only (Stehplatz)",
+          "preis": 28,
+          "beginn": "21:00",
+          "status": "buchbar"
+        }
+      ]
+    },
+    {
+      "id": "event-2026-11-24",
+      "date": "2026-11-24",
+      "title": "Notenlos",
+      "type": "Dinner & Konzert",
+      "status": "scheduled",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/notenlos-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Konzert (Sitzplatz)",
+          "preis": 68,
+          "beginn": "19:00",
+          "status": "buchbar"
+        },
+        {
+          "name": "Konzert only (Stehplatz)",
+          "preis": 28,
+          "beginn": "21:00",
+          "status": "buchbar"
+        }
+      ]
+    },
+    {
+      "id": "event-2026-11-26",
+      "date": "2026-11-26",
+      "title": "Krauthobel Anplakt",
+      "type": "Dinner & Konzert",
+      "status": "scheduled",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/krauthobel-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Konzert (Sitzplatz)",
+          "preis": 78,
+          "beginn": "19:00",
+          "status": "buchbar"
+        },
+        {
+          "name": "Konzert only (Stehplatz)",
+          "preis": 38,
+          "beginn": "21:00",
+          "status": "buchbar"
+        }
+      ]
+    },
+    {
+      "id": "event-2026-12-03",
+      "date": "2026-12-03",
+      "title": "Rebel Tell",
+      "type": "Dinner & Konzert",
+      "status": "scheduled",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/rebeltell-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Konzert (Sitzplatz)",
+          "preis": 68,
+          "beginn": "19:00",
+          "status": "buchbar"
+        },
+        {
+          "name": "Konzert only (Stehplatz)",
+          "preis": 28,
+          "beginn": "21:00",
+          "status": "buchbar"
+        }
+      ]
+    },
+    {
+      "id": "event-2026-12-10",
+      "date": "2026-12-10",
+      "title": "The Monroes",
+      "type": "Dinner & Konzert",
+      "status": "scheduled",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/themonroes-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Konzert (Sitzplatz)",
+          "preis": 78,
+          "beginn": "19:00",
+          "status": "buchbar"
+        },
+        {
+          "name": "Konzert only (Stehplatz)",
+          "preis": 38,
+          "beginn": "21:00",
+          "status": "buchbar"
+        }
+      ]
+    },
+    {
+      "id": "event-2026-12-15",
+      "date": "2026-12-15",
+      "title": "Dinner & Comedy",
+      "type": "Genuss trifft Humor",
+      "status": "scheduled",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/dinner-comedy-06-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Comedy (Sitzplatz)",
+          "preis": 68,
+          "beginn": "19:00",
+          "status": "buchbar"
+        },
+        {
+          "name": "Comedy only (Stehplatz)",
+          "preis": 28,
+          "beginn": "21:00",
+          "status": "buchbar"
+        }
+      ]
+    },
+    {
+      "id": "event-2026-12-16",
+      "date": "2026-12-16",
+      "title": "Dinner & Comedy",
+      "type": "Genuss trifft Humor",
+      "status": "scheduled",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/dinner-comedy-07-2026/",
+      "tickets": [
+        {
+          "name": "Dinner & Comedy (Sitzplatz)",
+          "preis": 68,
+          "beginn": "19:00",
+          "status": "buchbar"
+        },
+        {
+          "name": "Comedy only (Stehplatz)",
+          "preis": 28,
+          "beginn": "21:00",
+          "status": "buchbar"
+        }
+      ]
     }
   ]
 }

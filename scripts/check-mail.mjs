@@ -161,8 +161,43 @@ for (const datei of ['site/tischreservierung.html', 'site/tischreservierung-buch
   check(`Kein Brevo-Zugang in ${datei}`, !/xkeysib-|api\.brevo\.com/i.test(inhalt));
 }
 
+// ---- Terminhinweise in der Bestaetigung -----------------------------------
+// Direktwerbung an Bestandskunden ist nach § 174 Abs 4 TKG nur zulaessig,
+// wenn sie jederzeit ablehnbar ist. Ohne Widerspruchslink darf der Block
+// deshalb gar nicht erst mitgehen - das ist keine Formsache, sondern die
+// Bedingung, unter der er ueberhaupt stehen darf.
+
+const termine = [
+  { datum: '03.09.', titel: 'Genussroute 6850', url: 'https://wirtschaft-dornbirn.at/event/genussroute-2026/' },
+  { datum: '22.09.', titel: 'Helden reisen', url: 'https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/' }
+];
+const basis = { name: 'Huber', tag: '2026-08-24', zeit: '12:00', gaeste: 2, tisch: '4', etage: null, absageLink: 'https://x.at/absage?t=abc' };
+
+const ohneLink = bestaetigung({ ...basis, events: termine, widerspruchLink: '' });
+check('Ohne Widerspruchslink kein Terminblock',
+  !ohneLink.html.includes('Nächste Abende') && !ohneLink.text.includes('Nächste Abende'));
+
+const ohneTermine = bestaetigung({ ...basis, events: [], widerspruchLink: 'https://x.at/termine/aus?t=abc' });
+check('Ohne Termine kein leerer Block', !ohneTermine.html.includes('Nächste Abende'));
+
+const mitTerminen = bestaetigung({ ...basis, events: termine, widerspruchLink: 'https://x.at/termine/aus?t=abc' });
+check('Mit beidem steht der Block da', mitTerminen.html.includes('Nächste Abende'));
+check('Die Termine stehen drin', mitTerminen.html.includes('Genussroute 6850'));
+check('Der Widerspruchslink steht drin', mitTerminen.html.includes('termine/aus?t=abc'));
+check('Auch die Textfassung traegt den Widerspruch', mitTerminen.text.includes('termine/aus?t=abc'));
+check('Die Bestaetigung selbst bleibt vollstaendig',
+  mitTerminen.html.includes('absage?t=abc') && mitTerminen.text.includes('Huber'));
+// Hoechstens drei - eine Bestaetigung ist kein Programmheft.
+const viele = bestaetigung({
+  ...basis,
+  events: [...termine, ...termine, ...termine],
+  widerspruchLink: 'https://x.at/termine/aus?t=abc'
+});
+check('Hoechstens drei Termine', (viele.html.match(/Genussroute 6850/g) || []).length <= 2,
+  String((viele.html.match(/Genussroute 6850/g) || []).length));
+
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);
 }
-console.log('Mail-Prüfung OK: Kontakt, Kalenderabsage, Brevo-Paket, Einwilligung und Trennung geprüft.');
+console.log('Mail-Prüfung OK: Kontakt, Kalenderabsage, Brevo-Paket, Einwilligung, Terminhinweise und Trennung geprüft.');
