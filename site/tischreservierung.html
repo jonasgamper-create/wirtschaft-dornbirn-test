@@ -49,7 +49,11 @@
       <div class="wrap section" style="border-top:0">
         <p class="eyebrow">Reservierung</p>
         <h2>Für welchen Tag möchtest du reservieren?</h2>
-        <p class="sub" id="bookingLead">Wähl’ Tag, Uhrzeit und Personenzahl. Den letzten Schritt macht das offizielle Reservierungssystem – dort gibst du deine Kontaktdaten ein. Diese Seite fragt keine persönlichen Daten ab und speichert nichts.</p>
+        <!-- Dieser Text muss auch dann stimmen, wenn der Dienst nicht
+             erreichbar ist - und er ist das, was Suchmaschinen lesen: sie
+             fuehren das Skript meist nicht aus. Er nannte frueher ein
+             "offizielles Reservierungssystem", das es nicht mehr gibt. -->
+        <p class="sub" id="bookingLead">Wähl’ Tag, Uhrzeit und Personenzahl. Wir teilen den Tisch direkt ein und bestätigen sofort – ohne Konto und ohne Anruf. Klappt die Verbindung einmal nicht, erreichst du uns jederzeit telefonisch.</p>
         <!-- Die Ampel: wie voll ist der Mittag heute. Sie erscheint nur, wenn
              der Reservierungsdienst laeuft und etwas Ehrliches zu sagen hat. -->
         <p class="ampel" id="ampelStand" role="status" aria-live="polite" hidden>
@@ -128,7 +132,7 @@
         <div class="submit-row">
           <a class="button button-green" id="submitBooking" href="tel:+43557220540">Lieber anrufen: +43 (0)5572 20 540</a>
           <button class="button button-green" id="bookDirect" type="button" hidden>Tisch reservieren</button>
-          <p id="submitHint">Freie Tische und die Bestätigung kommen vom offiziellen Reservierungssystem. Deine Kontaktdaten gibst du dort ein – einmal, nicht zweimal.</p>
+          <p id="submitHint">Gespeichert werden nur Name, Termin, Personenzahl und eine Erreichbarkeit – gelöscht spätestens 30 Tage nach dem Termin.</p>
         </div>
         <!-- Die aktuelle Mittagskarte, direkt vom Haus. Erscheint nur, wenn
              der Dienst laeuft und eine Karte hochgeladen ist - und ist in dem
