@@ -12,7 +12,7 @@
 
 import { DurableObject } from 'cloudflare:workers';
 import {
-  AUFBEWAHRUNG_TAGE, ampelFuer, freieZeiten, machId, planTaugt, pruefeAnfrage, raeumeAuf, verteile, wendeAktionAn
+  AUFBEWAHRUNG_TAGE, ampelFuer, brauchtErinnerung, freieZeiten, machId, planTaugt, pruefeAnfrage, raeumeAuf, verteile, wendeAktionAn
 } from './haus-logik.mjs';
 import standardPlan from '../../site/data/floorplan.json';
 import eventDaten from '../../site/data/events.json';
@@ -29,7 +29,9 @@ import {
   escapeHtml, newsletterFrage, sendeMail, termin_uid, wochenkarte as wochenkarteMail
 } from './mail.mjs';
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
-import { fertigText, nummerFuerSms, sendeSms } from './sms.mjs';
+import {
+  bestellungText, erinnerungText, fertigText, nummerFuerSms, reservierungText, sendeSms
+} from './sms.mjs';
 import {
   ALLERGENE, BESTELLSCHLUSS, LETZTE_ABHOLUNG, PORTIONEN_PRO_SLOT, WARTEZEIT_TEXT,
   bestelltag, freieSlots, kuechenzettel, parseKarte, pruefeBestellung, statistik
@@ -256,13 +258,41 @@ export class Haus extends DurableObject {
    * so wie bisher immer. Eine misslungene SMS darf den Tresen nicht aufhalten.
    */
   async #meldeFertig(bestellung) {
+    return this.#schickeSms(bestellung.telefon,
+      fertigText({ nummer: bestellung.nummer, name: bestellung.name }));
+  }
+
+  /**
+   * Eine SMS verschicken, wenn der Wirt sie eingeschaltet hat. Ein Ort fuer
+   * die Pruefungen: sonst vergisst man sie an der dritten Stelle.
+   */
+  async #schickeSms(telefon, text) {
     if (this.#lies('smsAn', false) !== true) return { ok: false, grund: 'aus' };
-    const an = nummerFuerSms(bestellung.telefon);
+    const an = nummerFuerSms(telefon);
     if (!an) return { ok: false, grund: 'nummer' };
-    return sendeSms(this.env, {
-      an,
-      text: fertigText({ nummer: bestellung.nummer, name: bestellung.name })
-    });
+    return sendeSms(this.env, { an, text });
+  }
+
+  /**
+   * Die Erinnerungen eines Laufs. Rueckgabe ist die Zahl der verschickten
+   * Nachrichten - der Zeitplan laeuft alle Viertelstunde, und ohne diese
+   * Zahl bliebe im Protokoll offen, ob er etwas getan hat.
+   */
+  async erinnere(datum, zeit) {
+    if (this.#lies('smsAn', false) !== true) return { ok: true, gesendet: 0, grund: 'aus' };
+    const faellig = brauchtErinnerung(this.#alle(), { datum, zeit });
+    let gesendet = 0;
+    for (const party of faellig) {
+      const ergebnis = await this.#schickeSms(party.kontakt.telefon,
+        erinnerungText({ zeit: party.time, personen: party.guests }));
+      // Auch ein Fehlschlag wird vermerkt: sonst versucht es der naechste
+      // Lauf wieder, und der uebernaechste, bei einer kaputten Nummer endlos.
+      party.erinnertUm = new Date().toISOString();
+      this.#sichere(party);
+      if (ergebnis.ok) gesendet += 1;
+    }
+    if (faellig.length) this.#meldeAenderung();
+    return { ok: true, gesendet, faellig: faellig.length };
   }
 
   // ---- Terminhinweise: Widerspruch -----------------------------------------
@@ -642,6 +672,19 @@ export class Haus extends DurableObject {
       etage: etageText,
       basis
     }));
+
+    // Eine SMS nur, wenn keine Mailadresse da ist. Sonst traegt die
+    // Bestaetigungsmail dieselbe Auskunft, und die SMS waere ein zweites Mal
+    // dasselbe - auf Kosten des Hauses. Wer nur eine Nummer hinterlaesst,
+    // bekam bisher gar nichts und musste auf einen Anruf warten.
+    if (!party.kontakt?.email && party.kontakt?.telefon) {
+      this.ctx.waitUntil(this.#schickeSms(party.kontakt.telefon, reservierungText({
+        datum: new Intl.DateTimeFormat('de-AT', { day: '2-digit', month: '2-digit' })
+          .format(new Date(`${party.date}T12:00:00Z`)),
+        zeit: party.time,
+        personen: party.guests
+      })));
+    }
 
     return {
       ok: true, angenommen: true, fix: true,
@@ -1197,6 +1240,15 @@ export class Haus extends DurableObject {
     this.#schreib('taFenster', { fenster, anzahl: anzahl + 1 });
     await this.ctx.storage.setAlarm(Date.now() + 24 * 60 * 60 * 1000);
     this.#meldeAenderung();
+    // "Wir haben deine Bestellung." Beim Takeaway ist die Nummer die einzige
+    // Erreichbarkeit - ohne diese SMS haette der Gast nur die Bildschirmseite
+    // als Beleg, und die ist weg, sobald er sie schliesst.
+    this.ctx.waitUntil(this.#schickeSms(bestellung.telefon, bestellungText({
+      nummer: bestellung.nummer,
+      zeit: bestellung.abholzeit,
+      wann: bestellung.vorbestellung ? 'am naechsten Werktag' : 'heute'
+    })));
+
     return {
       ok: true, nummer: bestellung.nummer, abholzeit: bestellung.abholzeit,
       summe: bestellung.summe, eng: bestellung.eng === true
@@ -1435,10 +1487,19 @@ export default {
    */
   async scheduled(event, env, ctx) {
     const uhr = jetztImHaus();
-    if (uhr.zeit !== '07:15') return;
-    const basis = String(env.DIENST_BASIS || '').replace(/\/+$/, '');
-    if (!basis) return;
-    ctx.waitUntil(stub(env).wochenkarteVersand(basis));
+
+    // Die Wochenkarte, montags um 07:15.
+    if (uhr.zeit === '07:15') {
+      const basis = String(env.DIENST_BASIS || '').replace(/\/+$/, '');
+      if (basis) ctx.waitUntil(stub(env).wochenkarteVersand(basis));
+      return;
+    }
+
+    // Erinnerungen an die Tische von heute. Der Zeitplan laeuft im Fenster
+    // vor dem Mittag alle Viertelstunde; welche Reservierung faellig ist,
+    // entscheidet der Dienst selbst - nicht die Uhr des Zeitplans. So macht
+    // ein ausgefallener oder verspaeteter Lauf nichts kaputt.
+    ctx.waitUntil(stub(env).erinnere(uhr.datum, uhr.zeit));
   },
 
   async fetch(request, env) {

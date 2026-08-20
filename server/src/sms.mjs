@@ -70,6 +70,37 @@ export function fertigText({ nummer, name, haus = 'Wirtschaft Dornbirn' }) {
 }
 
 /**
+ * "Wir haben deine Bestellung." Geht sofort nach dem Absenden raus.
+ *
+ * Beim Takeaway ist die Telefonnummer die einzige Erreichbarkeit - eine
+ * Mailadresse wird gar nicht erhoben. Ohne diese SMS haette der Gast nur
+ * die Bildschirmseite als Beleg, und die ist weg, sobald er sie schliesst.
+ */
+export function bestellungText({ nummer, zeit, wann = 'heute', haus = 'Wirtschaft Dornbirn' }) {
+  return `Danke fuer deine Bestellung! Nr. ${nummer}, abholbereit ${wann} ca. ${zeit} Uhr. ${haus}`;
+}
+
+/**
+ * "Dein Tisch steht." Nur wenn keine Mailadresse angegeben wurde - sonst
+ * traegt die Bestaetigungsmail dieselbe Auskunft und die SMS waere ein
+ * zweites Mal dasselbe, auf Kosten des Hauses.
+ */
+export function reservierungText({ datum, zeit, personen, haus = 'Wirtschaft Dornbirn' }) {
+  const wer = `${personen} ${personen === 1 ? 'Person' : 'Personen'}`;
+  return `Tisch reserviert: ${datum}, ${zeit} Uhr, ${wer}. Absagen? Ruf uns an: +43 5572 20540. ${haus}`;
+}
+
+/**
+ * Die Erinnerung am Tag des Besuchs. Sie ist der Grund, warum diese Bausteine
+ * ueberhaupt gebaut wurden: ein vergessener Tisch bleibt leer, und das faellt
+ * erst auf, wenn der Mittag vorbei ist.
+ */
+export function erinnerungText({ zeit, personen, haus = 'Wirtschaft Dornbirn' }) {
+  const wer = `${personen} ${personen === 1 ? 'Person' : 'Personen'}`;
+  return `Heute um ${zeit} Uhr steht dein Tisch fuer ${wer} bereit. Passt es nicht? Kurz anrufen: +43 5572 20540. ${haus}`;
+}
+
+/**
  * Zeichen, die eine SMS in einem Teil halten. Alles ausserhalb erzwingt
  * UCS-2 und damit den doppelten Preis.
  */

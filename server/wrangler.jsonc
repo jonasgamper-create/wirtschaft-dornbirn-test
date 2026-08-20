@@ -14,7 +14,15 @@
   // letzten Versand eine neue Karte hochgeladen wurde. Zwei UTC-Zeitplaene
   // decken Sommer- und Winterzeit ab; im Code entscheidet die Ortszeit
   // (07:15 in Dornbirn), welcher der beiden wirklich feuert.
-  "triggers": { "crons": ["15 5 * * 1", "15 6 * * 1"] },
+  // Zwei Aufgaben, zwei Zeitfenster. Die beiden Montagstermine sind die
+  // Wochenkarte (07:15 Wiener Zeit, im Winter wie im Sommer - deshalb zwei).
+  //
+  // Die Viertelstunden-Laeufe sind die Tischerinnerungen. Sie decken 08:00
+  // bis 12:45 UTC ab, also 10:00 bis 14:45 Wiener Sommerzeit - eine Stunde
+  // vor der ersten Reservierung (11:30) bis nach der letzten (13:30), mit
+  // Rand fuer die Winterzeit. Nur Montag bis Freitag: an Wochenenden gibt es
+  // keinen Mittagstisch, und ein Lauf, der nichts tun kann, ist Verschwendung.
+  "triggers": { "crons": ["15 5 * * 1", "15 6 * * 1", "*/15 8-12 * * 1-5"] },
 
   "durable_objects": {
     "bindings": [{ "name": "HAUS", "class_name": "Haus" }]
