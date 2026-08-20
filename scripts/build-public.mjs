@@ -31,6 +31,11 @@ const excluded = new Set([
   'wirt.html',
   'wirt.js',
   'wirt.css',
+  // Dasselbe fuer den Bildschirm in der Kueche: Werkzeug fuers Haus, nicht
+  // fuer Gaeste. Als Quelldatei ging er ohne sein Stilblatt hinaus - die
+  // Seite kam unformatiert an, weil wirt.css im Gaeste-Build fehlt.
+  'kueche.html',
+  'kueche.js',
   'entwuerfe.html',
   'drafts.css',
   'entwuerfe.css',
@@ -70,7 +75,8 @@ const einzel = [
   ['output/tischplan/wirtschaft-tischplan.html', 'tischplan/index.html'],
   ['output/tischplan/wirtschaft-kundenplan.html', 'tischplan/kunde.html'],
   ['output/tischplan/wirtschaft-screen.html', 'tischplan/screen.html'],
-  ['output/tischplan/wirtschaft-wirt.html', 'tischplan/wirt.html']
+  ['output/tischplan/wirtschaft-wirt.html', 'tischplan/wirt.html'],
+  ['output/tischplan/wirtschaft-kueche.html', 'tischplan/kueche.html']
 ];
 let veroeffentlicht = 0;
 for (const [quelle, ziel] of einzel) {
