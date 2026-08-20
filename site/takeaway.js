@@ -2,9 +2,98 @@
 // sie zeigt den Anrufknopf und sonst nichts - ein Formular, das ins Leere
 // schickt, waere schlimmer als keines.
 
-import { apiAdresse, bestelleTakeaway, holeTakeawayKarte } from './haus-api.js?v=1aec1725';
+import { apiAdresse, bestelleTakeaway, holeBestellStatus, holeTakeawayKarte } from './haus-api.js?v=56cfa09d';
 
 const byId = id => document.getElementById(id);
+
+// ---- Der Stand der eigenen Bestellung --------------------------------------
+//
+// Der Gast hat gerade bestellt, die Seite ist offen - hier steht die Auskunft,
+// die er in den naechsten zwanzig Minuten braucht. Sie ersetzt keine Nachricht
+// aufs Telefon; wer alles schliesst, kommt zur genannten Zeit. Aber wer die
+// Seite offen laesst, sieht es sofort.
+//
+// Gefragt wird alle zwanzig Sekunden. Ein offener Draht waere sparsamer, wuerde
+// aber eine Rolle fuer Gaeste verlangen - und damit eine Tuer, durch die man
+// mehr sieht als die eigene Bestellung. Zwanzig Sekunden reichen fuer eine
+// Kueche, die zwanzig Minuten braucht.
+
+let statusUhr = 0;
+let statusTitelAlt = '';
+
+function statusTon() {
+  try {
+    const kontext = new (window.AudioContext || window.webkitAudioContext)();
+    const oszillator = kontext.createOscillator();
+    const laut = kontext.createGain();
+    oszillator.frequency.value = 880;
+    laut.gain.setValueAtTime(0.0001, kontext.currentTime);
+    laut.gain.exponentialRampToValueAtTime(0.14, kontext.currentTime + 0.02);
+    laut.gain.exponentialRampToValueAtTime(0.0001, kontext.currentTime + 0.4);
+    oszillator.connect(laut).connect(kontext.destination);
+    oszillator.start();
+    oszillator.stop(kontext.currentTime + 0.45);
+  } catch { /* ohne Ton ist die Seite nicht kaputt */ }
+}
+
+function zeigeStatus(stand) {
+  const kasten = byId('taStatus');
+  if (!kasten || !stand?.ok) return;
+  const fertig = stand.status === 'fertig';
+  const abgeholt = stand.status === 'abgeholt';
+  kasten.dataset.stufe = stand.status;
+
+  // Kommt der Gast ueber die Adresse zurueck, ist die Bestaetigung oben leer -
+  // sie wird hier aus dem Stand gefuellt. Die Abholzeit kommt ohnehin von hier
+  // und ist damit auch nach einer Verschiebung die richtige.
+  byId('taDoneNummer').textContent = `Nr. ${stand.nummer}`;
+  byId('taDoneZeit').textContent = `${stand.vorbestellung ? 'am nächsten Werktag' : 'heute'}, ca. ${stand.abholzeit} Uhr`;
+  byId('taDoneSumme').textContent = alsPreis(stand.summe);
+
+  byId('taStatusText').textContent = abgeholt
+    ? 'Abgeholt. Lass es dir schmecken!'
+    : (fertig
+      ? 'Fertig! Dein Essen wartet – wir halten es warm.'
+      : `Deine Bestellung ist in der Küche. Fertig gegen ${stand.abholzeit} Uhr.`);
+
+  // Wurde verschoben, muss das dastehen - sonst wundert sich der Gast, warum
+  // die Zeit eine andere ist als vorhin.
+  byId('taStatusHinweis').textContent = stand.verschobenVon && !fertig && !abgeholt
+    ? `Es dauert etwas länger als gedacht: statt ${stand.verschobenVon} Uhr jetzt ${stand.abholzeit} Uhr. Danke fürs Warten!`
+    : 'Diese Seite aktualisiert sich von selbst – du kannst sie offen lassen.';
+
+  // Liegt die Seite im Hintergrund, faellt der Reiter auf. Der Ton kommt nur,
+  // wenn der Browser ihn erlaubt - erzwingen laesst er sich nicht.
+  if (fertig && !statusTitelAlt) {
+    statusTitelAlt = document.title;
+    document.title = '✓ Fertig! · Wirtschaft Dornbirn';
+    if (document.hidden) statusTon();
+  }
+  if (!fertig && statusTitelAlt) {
+    document.title = statusTitelAlt;
+    statusTitelAlt = '';
+  }
+  if (abgeholt) clearInterval(statusUhr);
+}
+
+async function verfolge(schluessel) {
+  const kasten = byId('taStatus');
+  if (!kasten || !schluessel) return;
+  kasten.hidden = false;
+
+  // Die Adresse zum Wiederfinden. Der Schluessel steht hinter dem Doppelkreuz
+  // nicht - er muss an den Dienst, also gehoert er in die Abfrage. Dafuer
+  // steht er in keinem Verlauf eines fremden Geraets.
+  const adresse = `${location.origin}${location.pathname}?bestellung=${encodeURIComponent(schluessel)}`;
+  const link = byId('taStatusAdresse');
+  if (link) { link.href = adresse; link.textContent = 'Diesen Stand später wieder öffnen'; }
+
+  const hole = async () => zeigeStatus(await holeBestellStatus(schluessel));
+  await hole();
+  clearInterval(statusUhr);
+  statusUhr = setInterval(hole, 20000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) hole(); });
+}
 const alsPreis = wert => `€ ${Number(wert).toFixed(2).replace('.', ',')}`;
 
 /** Muss mit MAX_PORTIONEN im Dienst uebereinstimmen. */
@@ -24,6 +113,16 @@ start();
 
 async function start() {
   if (!(await apiAdresse())) return;
+
+  // Mit Schluessel in der Adresse: der Gast kommt auf seinen Stand zurueck.
+  // Dann steht der Status oben, die Karte darunter - bestellen kann er
+  // trotzdem noch einmal.
+  const wieder = new URLSearchParams(location.search).get('bestellung');
+  if (wieder) {
+    byId('taFertig').hidden = false;
+    byId('taDoneNummer').textContent = '…';
+    verfolge(wieder);
+  }
   const antwort = await holeTakeawayKarte();
   if (!antwort?.ok || !Array.isArray(antwort.gerichte) || !antwort.gerichte.length) return;
 
@@ -311,6 +410,9 @@ byId('taBestellen')?.addEventListener('click', async () => {
   byId('taDoneZeit').textContent = `${wann}, ca. ${antwort.abholzeit} Uhr`;
   byId('taDoneSumme').textContent = alsPreis(antwort.summe);
   byId('taFertig').hidden = false;
+  // Ab hier verfolgt die Seite den Stand: der Gast hat gerade bestellt und
+  // sieht in den naechsten zwanzig Minuten, was in der Kueche passiert.
+  verfolge(antwort.schluessel);
   byId('taFertig').scrollIntoView({ block: 'center', behavior: 'smooth' });
   // Volle Viertelstunde, aber noch machbar: sagen, dass es dauern kann.
   const verzug = antwort.eng ? ' Um die Zeit ist viel los – es kann ein paar Minuten länger dauern.' : '';

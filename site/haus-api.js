@@ -174,6 +174,10 @@ export const holeTakeawayKarte = () => ruf('/api/takeaway/karte');
 export const bestelleTakeaway = bestellung =>
   ruf('/api/takeaway/bestellung', { methode: 'POST', koerper: bestellung });
 
+/** Der Stand der eigenen Bestellung. Der Schluessel ist der Ausweis. */
+export const holeBestellStatus = schluessel =>
+  ruf(`/api/takeaway/status?t=${encodeURIComponent(schluessel)}`);
+
 /** Der Wirt setzt die Karte: die Zeilen aus dem Mittagskarten-PDF. */
 export const sendeTakeawayKarte = (token, text) =>
   ruf('/api/takeaway/karte', { methode: 'POST', koerper: { text }, token });
