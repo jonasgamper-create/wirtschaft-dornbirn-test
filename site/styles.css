@@ -808,13 +808,16 @@ html{scroll-padding-top:0}
    Wird es noch enger (kleine Geraete, grosse Systemschrift), scrollt die
    Zeile in sich - die Seite selbst waechst nie in die Breite. */
 @media(max-width:560px){
-  .final-site{--bar-h:104px}
+  .final-site{--bar-h:110px}
   .final-site .experience-bar{flex-wrap:wrap;height:auto;min-height:var(--bar-h);padding:10px 14px;row-gap:2px}
   /* min-width:0 ist hier die halbe Miete: ohne sie schrumpft ein Flex-Kind
      nie unter seine Inhaltsbreite, und das interne Scrollen griffe nie. */
   .final-site .bar-nav{flex:1 1 100%;width:100%;min-width:0;margin-left:0;justify-content:space-between;gap:10px;overflow-x:auto;scrollbar-width:none}
   .final-site .bar-nav::-webkit-scrollbar{display:none}
-  .final-site .bar-nav a{min-height:38px;font-size:11px;letter-spacing:.05em}
+  /* 44 px ist das Mindestmass fuer ein sicheres Tippziel - darunter trifft
+     man am Telefon daneben. Apple nennt es in seinen Richtlinien, und es ist
+     hier die meistgenutzte Geraeteklasse. */
+  .final-site .bar-nav a{min-height:44px;font-size:11px;letter-spacing:.05em}
   /* Die zwei langen Ziele tragen am Handy ihre Kurzform - vier Volltitel
      passen in keine Handyzeile, und eine Zeile, die scrollt, uebersieht man. */
   .final-site .bar-nav .nav-lang{display:none}
