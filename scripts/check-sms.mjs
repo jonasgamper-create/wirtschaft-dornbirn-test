@@ -44,19 +44,26 @@ check('Absurd lange Nummer faellt raus', nummerFuerSms('+4366012345678901234') =
 
 // ---- 2. Der Text ----------------------------------------------------------
 
-const text = fertigText({ nummer: 7, name: 'Huber' });
-check('Die Nummer steht drin', text.includes('Nr. 7'), text);
+const text = fertigText({ name: 'Huber' });
+check('Der Satz sagt, dass das Essen fertig ist', text.includes('Essen ist fertig'), text);
+// Bewusst ohne Bestellnummer: der Gast weiss, was er bestellt hat, und am
+// Tresen wird er mit Namen begruesst. Die Nummer steht in der Bestaetigung,
+// wo sie als Beleg zaehlt - hier waere sie eine Zahl mehr in einem Satz, der
+// freundlich sein soll.
+check('Die fertig-SMS nennt keine Bestellnummer', !/Nr\.\s*\d/.test(text), text);
 check('Der Name steht drin', text.includes('Huber'), text);
 check('Das Haus nennt sich', text.includes('Wirtschaft Dornbirn'), text);
 // Ueber 160 Zeichen wird die SMS geteilt und doppelt berechnet.
 check('Der Text passt in eine SMS', text.length <= SMS_ZEICHEN, `${text.length} Zeichen: ${text}`);
 
-const langerName = fertigText({ nummer: 12, name: 'Maximiliane Bartholomäus-Fussenegger von und zu Dornbirn' });
+const langerName = fertigText({ name: 'Maximiliane Bartholomäus-Fussenegger von und zu Dornbirn' });
 check('Auch mit langem Namen eine SMS', langerName.length <= SMS_ZEICHEN, `${langerName.length} Zeichen`);
 check('Nur der Vorname wird genommen', !langerName.includes('Bartholomäus'), langerName);
 
-const ohneName = fertigText({ nummer: 3, name: '' });
-check('Ohne Namen bleibt der Satz ganz', ohneName.includes('Nr. 3') && !ohneName.includes('  '), ohneName);
+const ohneName = fertigText({ name: '' });
+check('Ohne Namen bleibt der Satz ganz',
+  ohneName.startsWith('Passt!') && ohneName.includes('Essen ist fertig') && !ohneName.includes('  '),
+  ohneName);
 
 // Die unauffaelligste Falle: ein typografischer Gedankenstrich - wie er im
 // ganzen uebrigen Projekt steht - kippt die SMS auf UCS-2. Dann sind nur
