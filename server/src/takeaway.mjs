@@ -72,7 +72,13 @@ export function freieSlots({ bestellungen, datum, portionen = 1, vorbestellung =
     const belegt = portionenImSlot(bestellungen, datum, alsText);
     const lage = slotLage(belegt, portionen);
     // `frei` heisst waehlbar - eng zaehlt dazu. Nur `voll` ist gesperrt.
-    slots.push({ zeit: alsText, frei: lage !== 'voll', lage, belegt });
+    //
+    // `rest` ist, was zu dieser Zeit noch bestellbar ist. Die Gaesteseite zeigt
+    // die Zahl erst, wenn sie klein wird: eine Restangabe bei leerem Mittag
+    // erzeugt nur Druck, wo keiner ist. Die Grenze steht bewusst nur hier -
+    // eine zweite Kopie im Browser waere die naechste Stelle, die auseinander
+    // laeuft, sobald jemand die Kueche anders einschaetzt.
+    slots.push({ zeit: alsText, frei: lage !== 'voll', lage, belegt, rest: Math.max(0, PORTIONEN_HART - belegt) });
   }
   return slots;
 }
@@ -201,13 +207,22 @@ export function abholzeitFuer(jetzt, wunsch = 'sofort', { vorbestellung = false 
   const start = zuMinuten(jetzt);
   if (start === null) return { ok: false, grund: 'zeit' };
   if (wunsch === 'sofort') {
-    const fertig = Math.ceil((start + 30) / 5) * 5;
+    // Vor der ersten Abholzeit heisst "so bald wie moeglich" nicht "in einer
+    // halben Stunde", sondern "sobald die Kueche aufsperrt". Ohne diese
+    // Untergrenze bekam ein Gast, der um neun auf die Karte schaut, die
+    // Zusage "abholbereit heute ca. 09:30 Uhr" - eine Zeit, zu der niemand
+    // da ist.
+    const fertig = Math.max(Math.ceil((start + 30) / 5) * 5, zuMinuten(ERSTE_ABHOLUNG));
     if (fertig > zuMinuten(LETZTE_ABHOLUNG)) return { ok: false, grund: 'schluss' };
     return { ok: true, zeit: alsZeit(fertig) };
   }
   const gewuenscht = zuMinuten(wunsch);
   if (gewuenscht === null) return { ok: false, grund: 'zeit' };
   if (gewuenscht % 15 !== 0) return { ok: false, grund: 'zeit' };
+  // Dieselbe Untergrenze fuer eine selbst gewaehlte Zeit: wer frueh am Tag
+  // bestellt, haette sonst 10:30 waehlen koennen - die Wartezeit stimmte,
+  // die Oeffnungszeit nicht.
+  if (gewuenscht < zuMinuten(ERSTE_ABHOLUNG)) return { ok: false, grund: 'zu_frueh' };
   if (gewuenscht < start + WARTEZEIT_MIN) return { ok: false, grund: 'zu_frueh' };
   if (gewuenscht > zuMinuten(LETZTE_ABHOLUNG)) return { ok: false, grund: 'schluss' };
   return { ok: true, zeit: alsZeit(gewuenscht) };

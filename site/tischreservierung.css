@@ -205,7 +205,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .ta-truck{display:flex;justify-content:center}
 /* Der Wagen mit Emma & Eugen als Schriftbild auf der Seite - dieselbe
    Komposition wie auf der Startseite, nur ruhig stehend. */
+/* Am Handy steht der Wagen zwischen Ueberschrift und erstem Gericht. Er
+   gehoert dorthin, aber er muss dort nicht gross sein: jede Zeile, die er
+   einnimmt, schiebt das Essen weiter nach unten. Am Laptop steht er neben
+   dem Text und kostet nichts - dort bleibt er wie er war. */
 .ta-truck-bild{position:relative;display:block;width:min(340px,74vw)}
+@media(max-width:900px){.ta-truck-bild{width:min(230px,52vw)}}
 .ta-truck-bild>img{display:block;width:100%;height:auto}
 .ta-truck-mark{position:absolute;left:20%;top:23%;width:34%;height:38%;display:grid;place-items:center;filter:drop-shadow(0 2px 2px #11110f99);pointer-events:none}
 .ta-truck-mark img{display:block;width:100%;height:100%;object-fit:contain}
@@ -214,6 +219,64 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    Umrisses, mit einer Zeile Begruendung darunter. */
 .ta-anruf-zeile{display:grid;gap:8px;justify-items:start;margin:var(--s-block) 0 0;padding-top:var(--s-para);border-top:1px solid #11110f1f}
 .ta-anruf-zeile small{color:#57524a;font-size:var(--t-meta);line-height:1.5;max-width:48ch}
+/* ---- Bestellflaeche: zwei Spalten, wo Platz ist -------------------------- */
+/* Am Laptop stand die Summe rund 1700 Pixel unter der Gerichteliste - wer
+   oben Portionen anklickte, erfuhr den Preis erst nach dem Blaettern. Rechts
+   in einer mitlaufenden Spalte steht sie immer neben der Wahl. */
+.ta-bestellflaeche{display:grid;gap:var(--s-block);align-items:start;margin-top:var(--s-block)}
+.ta-spalte-rechts[hidden]{display:none}
+.ta-zusammenfassung{padding:20px;border:1px solid #11110f24;background:#fff}
+@media(max-width:900px){.ta-zusammenfassung{padding:16px}}
+/* "So bald wie moeglich" ist keine Uhrzeit und passt in kein Drittel der
+   Zeile - der Text brach dort auf drei Zeilen. Er bekommt eine eigene Reihe,
+   was ihn ohnehin richtig einordnet: erst die Frage "gleich oder spaeter",
+   dann die Uhrzeiten. */
+.slots button[data-abholung="sofort"]{flex:1 1 100%}
+.ta-feld-titel{margin:0 0 12px;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.ta-zusammenfassung .slot-info{display:block;margin-top:12px;color:#57524a;font-size:var(--t-meta);line-height:1.5}
+/* Wie viele Portionen zu dieser Zeit noch gehen - nur wenn es knapp wird.
+   Die Zahl kommt vom Dienst, damit die Grenze nicht zweimal im Code steht. */
+.slots button .ta-rest{display:block;margin-top:1px;color:#8a6a33;font-size:11px;font-weight:700;letter-spacing:.04em}
+.slots button[aria-checked="true"] .ta-rest{color:#e8d9bd}
+/* Das Merken-Haekchen: eine Frage, keine Voreinstellung. Deshalb ruhig
+   gesetzt, in Fliesstext statt im Versalienton der uebrigen Feldtitel. */
+.ta-merken{display:grid!important;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;font-size:var(--t-meta)!important;font-weight:400!important;letter-spacing:0!important;text-transform:none!important;line-height:1.5;color:#3c3833;cursor:pointer}
+.ta-merken input{width:22px;height:22px;min-height:0;margin:1px 0 0;accent-color:var(--green);cursor:pointer}
+/* Gemerkte Kontaktdaten: der Hinweis ist nur da, wenn wirklich etwas liegt. */
+.ta-gemerkt{margin:0;color:#57524a;font-size:var(--t-meta);font-weight:400;letter-spacing:0;text-transform:none;line-height:1.5;max-width:56ch}
+.ta-gemerkt[hidden]{display:none}
+.ta-gemerkt button{min-height:44px;padding:0;border:0;background:none;color:var(--wine);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+@media(min-width:901px){
+  .ta-bestellflaeche{grid-template-columns:minmax(0,1fr) 320px;gap:40px}
+  .ta-bestellflaeche .grid{max-width:none;margin-top:0}
+  /* Der Abstand von oben haelt die Spalte unter der festen Kopfzeile frei. */
+  .ta-spalte-rechts{position:sticky;top:24px}
+  .ta-spalte-rechts .submit-row{flex-direction:column;align-items:stretch;gap:12px;margin-top:16px}
+  .ta-spalte-rechts .submit-row .button{width:100%}
+  .ta-spalte-rechts .submit-row p{max-width:none}
+}
+
+/* Am Handy gibt es keine zweite Spalte - dort wird die Summe zur festen
+   Leiste am unteren Rand. Sie beantwortet beim Waehlen die Frage "was kostet
+   das jetzt" und ist zugleich der Weg zum Abschicken.
+   Nach dem Bestellen loest sie sich auf: dann verdeckt sie nur noch die
+   Bestaetigung, die der Gast gerade lesen will. */
+@media(max-width:900px){
+  .ta-seite:not(.ta-abgeschickt) .submit-row{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;margin:0;
+    flex-direction:column;align-items:stretch;gap:8px;
+    padding:10px var(--gutter) calc(10px + env(safe-area-inset-bottom));
+    background:var(--paper);border-top:1px solid #11110f26;box-shadow:0 -6px 18px #11110f14
+  }
+  .ta-seite:not(.ta-abgeschickt) .submit-row p{max-width:none;text-align:center}
+  .ta-seite:not(.ta-abgeschickt) .ta-summe-zusatz{display:none}
+  .ta-seite:not(.ta-abgeschickt) .ta-summe-zahl{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+  .ta-seite .submit-row .button{width:100%;min-height:54px}
+  /* Platz unter dem Fuss, damit die Leiste den letzten Link nicht verdeckt. */
+  .ta-seite:not(.ta-abgeschickt) .site-footer{padding-bottom:150px}
+}
+
 .ta-leer{margin:var(--s-block) 0 0;padding:14px 16px;border-left:2px solid var(--green);background:#11110f0a;color:#3c3833;font-size:var(--t-meta);line-height:1.55;max-width:56ch}
 .ta-leer[hidden]{display:none}
 /* Die Karte: pro Zeile links das Gericht mit Allergen-Codes, rechts Preis

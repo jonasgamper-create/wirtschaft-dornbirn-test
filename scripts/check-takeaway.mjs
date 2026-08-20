@@ -60,6 +60,18 @@ check('Sofort kurz vor Schluss geht noch',
 check('Sofort nach 13:30 laeuft auf die letzte Abholung',
   abholzeitFuer('13:31', 'sofort').grund === 'schluss' || abholzeitFuer('13:31', 'sofort').zeit <= LETZTE_ABHOLUNG);
 
+// Frueh am Tag. Der Gast schaut um neun auf die Karte und drueckt "so bald wie
+// moeglich" - die Kueche sperrt aber erst um 11:30 auf. Ohne Untergrenze stand
+// in der Bestaetigung "abholbereit heute ca. 09:30 Uhr".
+check('Sofort vor der Oeffnung wartet auf die erste Abholzeit',
+  abholzeitFuer('09:00', 'sofort').zeit === ERSTE_ABHOLUNG, JSON.stringify(abholzeitFuer('09:00', 'sofort')));
+check('Sofort mitten in der Nacht wartet ebenfalls',
+  abholzeitFuer('00:50', 'sofort').zeit === ERSTE_ABHOLUNG, JSON.stringify(abholzeitFuer('00:50', 'sofort')));
+check('Wunschzeit vor der Oeffnung faellt raus',
+  abholzeitFuer('09:00', '10:30').grund === 'zu_frueh', JSON.stringify(abholzeitFuer('09:00', '10:30')));
+check('Die erste Abholzeit selbst geht',
+  abholzeitFuer('09:00', ERSTE_ABHOLUNG).zeit === ERSTE_ABHOLUNG);
+
 // ---- 3. Bestellung pruefen -------------------------------------------------
 
 const heute = '2026-08-20'; // Donnerstag

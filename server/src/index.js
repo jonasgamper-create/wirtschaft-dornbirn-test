@@ -1276,11 +1276,24 @@ export class Haus extends DurableObject {
 
     const laufend = (Number(this.#lies('taZaehler', 0)) || 0) + 1;
     this.#schreib('taZaehler', laufend);
+
+    // Die Nummer des Tages kam bisher aus der Laenge der heutigen Liste. Das
+    // stimmt nur, solange nie etwas verschwindet. Entfernt der Wirt eine
+    // Bestellung oder macht er einen Tagesabschluss rueckgaengig, schrumpft
+    // die Liste - und der naechste Gast bekommt eine Nummer, die schon jemand
+    // hat. Am Tresen stehen dann zwei Leute auf denselben Ruf.
+    //
+    // Deshalb ein eigener Tageszaehler: er steigt nur, egal was aus der Liste
+    // verschwindet, und faengt mit einem neuen Datum wieder bei eins an.
+    const tag = this.#lies('taTag', null);
+    const tagesnummer = (tag?.datum === heute ? Number(tag.nummer) || 0 : 0) + 1;
+    this.#schreib('taTag', { datum: heute, nummer: tagesnummer });
+
     const bestellung = {
       id: `t-${Date.now().toString(36)}-${String(laufend).padStart(4, '0')}`,
       // Die Nummer des Tages - sie wird am Tresen gerufen und steht auf dem
       // Bildschirm im Eingang.
-      nummer: heutige.length + 1,
+      nummer: tagesnummer,
       // Der Schluessel zur eigenen Statusseite. Er steht in genau einer
       // Adresse und sonst nirgends - ohne ihn koennte jeder mit einer
       // geratenen Nummer fremde Bestellungen mitlesen.
