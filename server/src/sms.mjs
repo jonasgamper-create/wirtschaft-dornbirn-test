@@ -63,10 +63,14 @@ export function nummerFuerSms(roh, land = '43') {
  * nur noch 70 Zeichen je Teil erlaubt, und aus einer SMS werden zwei.
  * Deshalb hier ein schlichter Bindestrich und ein gerader Apostroph.
  */
-export function fertigText({ nummer, name, haus = 'Wirtschaft Dornbirn' }) {
+export function fertigText({ name, haus = 'Wirtschaft Dornbirn' }) {
   const wer = String(name || '').trim().split(' ')[0].slice(0, 20);
   const anrede = wer ? `Passt, ${wer}!` : 'Passt!';
-  return `${anrede} Nr. ${nummer} ist fertig - hol's dir, solang's warm ist. ${haus}`;
+  // Ohne Bestellnummer: der Gast weiss, was er bestellt hat, und am Tresen
+  // wird er mit Namen begruesst. Die Nummer steht in der Bestaetigung, wo sie
+  // als Beleg zaehlt - hier waere sie nur eine Zahl mehr in einem Satz, der
+  // freundlich sein soll.
+  return `${anrede} Dein Essen ist fertig - wir halten's warm, bis du da bist. ${haus}`;
 }
 
 /**

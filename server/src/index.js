@@ -259,7 +259,7 @@ export class Haus extends DurableObject {
    */
   async #meldeFertig(bestellung) {
     return this.#schickeSms(bestellung.telefon,
-      fertigText({ nummer: bestellung.nummer, name: bestellung.name }));
+      fertigText({ name: bestellung.name }));
   }
 
   /**
