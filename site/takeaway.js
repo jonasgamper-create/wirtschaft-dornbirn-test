@@ -64,12 +64,22 @@ function zeigeStatus(stand) {
   byId('taDoneZeit').textContent = `${stand.vorbestellung ? 'am nächsten Werktag' : 'heute'}, ca. ${stand.abholzeit} Uhr`;
   byId('taDoneSumme').textContent = alsPreis(stand.summe);
 
+  // Die grosse Nummer erscheint erst mit "fertig". Vorher waere sie eine Zahl
+  // ohne Anlass; jetzt ist sie das Einzige, was der Gast am Tresen braucht.
+  const grosseNr = byId('taStatusNr');
+  if (grosseNr) {
+    grosseNr.hidden = !fertig;
+    if (fertig) byId('taStatusNrZahl').textContent = String(stand.nummer);
+  }
+
   // In der Leiste unten steht die Nummer mit: wer sie liest, geht damit an
   // den Tresen, ohne noch einmal nach oben zu scrollen.
+  // Bei "fertig" steht die Nummer gross daneben - sie hier zu wiederholen
+  // fuellte die Zeile mit derselben Angabe und brach sie unschoen um.
   byId('taStatusText').textContent = abgeholt
     ? 'Abgeholt. Lass es dir schmecken!'
     : (fertig
-      ? `Abholbereit – Nr. ${stand.nummer}. Wir halten es warm.`
+      ? 'Abholbereit!'
       : `Nr. ${stand.nummer} ist in der Küche. Fertig gegen ${stand.abholzeit} Uhr.`);
 
   // Der Hinweis beantwortet die Frage, die gerade dran ist - und die aendert
@@ -79,7 +89,7 @@ function zeigeStatus(stand) {
   byId('taStatusHinweis').textContent = abgeholt
     ? 'Danke fürs Kommen – bis zum nächsten Mal.'
     : (fertig
-      ? 'Komm einfach an den Tresen und sag deine Nummer.'
+      ? 'Wir halten es warm. Komm an den Tresen und sag deine Nummer.'
       : (stand.verschobenVon
         ? `Es dauert etwas länger als gedacht: statt ${stand.verschobenVon} Uhr jetzt ${stand.abholzeit} Uhr. Danke fürs Warten!`
         : 'Diese Seite aktualisiert sich von selbst – du kannst sie offen lassen.'));
@@ -94,6 +104,16 @@ function zeigeStatus(stand) {
     // iPhone-Safari kennt navigator.vibrate nicht - dort bleiben Ton,
     // Reitertitel und die gruene Leiste. Deshalb geprueft statt vorausgesetzt.
     try { navigator.vibrate?.([180, 90, 180]); } catch { /* nicht erlaubt */ }
+
+    // Der einmalige Anschub der Leiste. Die Klasse muss hinterher wieder weg,
+    // sonst greift sie beim naechsten Umschlag nicht mehr - eine Animation
+    // startet nicht neu, solange die Klasse schon dransteht.
+    kasten.classList.remove('ta-umschlag');
+    // Ein erzwungenes Neuberechnen dazwischen: ohne das fasst der Browser
+    // Entfernen und Setzen zusammen, und es passiert gar nichts.
+    void kasten.offsetWidth;
+    kasten.classList.add('ta-umschlag');
+    kasten.addEventListener('animationend', () => kasten.classList.remove('ta-umschlag'), { once: true });
   }
   if (!fertig && statusTitelAlt) {
     document.title = statusTitelAlt;
