@@ -149,7 +149,10 @@ function male() {
     ? 'Fertigmelden macht der Wirt am Tresen – hier steht nur, was läuft.'
     : (stand?.smsAn
       ? '„Fertig“ schickt dem Gast eine SMS.'
-      : '„Fertig“ meldet nur hier – der Gast bekommt keine Nachricht.');
+      // Ohne SMS ist "keine Nachricht" die halbe Wahrheit: der Gast sieht es
+      // sehr wohl - auf seiner Bestellseite und am Bildschirm im Eingang.
+      // Wer am Herd steht, soll wissen, dass Fertigmelden etwas bewirkt.
+      : '„Fertig“ zeigt dem Gast seine Nummer – auf seiner Seite und am Bildschirm im Eingang. Keine SMS.');
 
   for (const [liste, eintraege, leerText] of [
     [byId('offenListe'), offen, 'Gerade nichts zu kochen.'],

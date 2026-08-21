@@ -11,7 +11,7 @@
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="screen.css?v=c4ca8e9a">
+  <link rel="stylesheet" href="screen.css?v=d426fc4a">
   <link rel="stylesheet" href="floorplan.css?v=6bccba59">
   <script type="module" src="screen.js?v=0b43eb77"></script>
 </head>
@@ -27,18 +27,22 @@
   <p class="sc-link" id="scLink" role="status" aria-live="polite" hidden></p>
 
   <main class="sc-main">
-    <section aria-labelledby="scTitle">
-      <h1 class="sc-title" id="scTitle">Ihr Tisch</h1>
-      <div class="sc-list" id="scList" aria-live="polite"></div>
-    </section>
-
-    <!-- Fertige Abholungen. Sie stehen hier wie beim Baecker: wer schon im
-         Haus ist, braucht dann gar keine Nachricht aufs Telefon. Nummer und
-         Vorname genuegen zum Wiedererkennen - mehr gibt der Dienst fuer
-         diesen Bildschirm auch gar nicht heraus. -->
+    <!-- Fertige Abholungen stehen oben, weil sie die einzige zeitkritische
+         Auskunft auf diesem Bildschirm sind: ein Tisch wartet, ein Essen wird
+         kalt. Sie sind zugleich die kostenlose Benachrichtigung fuer jeden,
+         der ohnehin schon im Haus steht - ganz ohne Telefon und Browser.
+         Nummer und Vorname genuegen zum Wiedererkennen; mehr gibt der Dienst
+         fuer diesen Bildschirm auch gar nicht heraus. Ist nichts fertig,
+         verschwindet der ganze Abschnitt: eine leere Ueberschrift am Eingang
+         sieht aus wie ein Fehler. -->
     <section class="sc-abholung" id="scAbholung" aria-labelledby="scAbholTitel" hidden>
       <h2 class="sc-title" id="scAbholTitel">Abholbereit</h2>
       <div class="sc-abhol-liste" id="scAbholListe" aria-live="polite"></div>
+    </section>
+
+    <section aria-labelledby="scTitle">
+      <h1 class="sc-title" id="scTitle">Ihr Tisch</h1>
+      <div class="sc-list" id="scList" aria-live="polite"></div>
     </section>
 
     <section class="sc-plan" aria-label="Saalplan">
