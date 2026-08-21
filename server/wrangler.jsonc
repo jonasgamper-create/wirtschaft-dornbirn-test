@@ -47,7 +47,14 @@
     //
     // Zum Zusperren: auf "nein" stellen, `npx wrangler deploy`, danach
     // `bash schluessel.sh`. Der Hausschluessel gilt dann wieder.
-    "OFFEN": "ja"
+    "OFFEN": "ja",
+    // Der oeffentliche Teil des Push-Ausweises. Er ist kein Geheimnis:
+    // er steht ohnehin in jeder Seite, die sich anmeldet. Der private
+    // Teil liegt als Geheimnis daneben (VAPID_PRIVAT).
+    "VAPID_OEFFENTLICH": "BPLEbe0YGZChaS1PY-NtqMLW32AC_PVQ2QTDAYhwnqd6iyQ9V28etINQVmUloVHlLgwQPtiUwCjwnSCtlnvPQTw",
+    // Adresse, unter der der Push-Dienst den Absender erreicht, wenn
+    // etwas schiefgeht. RFC 8292 verlangt sie.
+    "VAPID_KONTAKT": "mailto:willkommen@wirtschaft-dornbirn.at"
   },
 
   // HAUS_TOKEN ist ein Geheimnis und steht nicht in dieser Datei:

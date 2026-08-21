@@ -238,6 +238,21 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    Die Zahl kommt vom Dienst, damit die Grenze nicht zweimal im Code steht. */
 .slots button .ta-rest{display:block;margin-top:1px;color:#8a6a33;font-size:11px;font-weight:700;letter-spacing:.04em}
 .slots button[aria-checked="true"] .ta-rest{color:#e8d9bd}
+/* Die Abholmeldung aufs Geraet. Ein Angebot, kein Hauptweg - deshalb im
+   Umriss statt in Gruen, unter dem Stand statt darueber. Wer sie nicht will,
+   hat die Leiste und den Bildschirm im Eingang. */
+.ta-push{display:grid;gap:10px;justify-items:start;margin:16px 0 0;padding:16px;border:1px solid #11110f24;background:#fff}
+.ta-push[hidden]{display:none}
+.ta-push-frage{margin:0;font-size:var(--t-meta);font-weight:700;line-height:1.4}
+.ta-push .button{width:100%;justify-content:center}
+.ta-push-weg{border-color:#11110f3d;color:#57524a}
+.ta-push-info{color:#57524a;font-size:13px;line-height:1.5}
+.ta-push-info[data-art="gut"]{color:var(--green)}
+.ta-push-info[data-art="fehler"],.ta-push-info[data-art="warnung"]{color:#6b2224}
+/* Am Handy liegt der Stand als feste Leiste unten - das Angebot darf nicht
+   darunter verschwinden. Es bekommt denselben Abstand wie der Fuss. */
+@media(max-width:900px){.ta-push{margin-bottom:8px}}
+
 /* Das Merken-Haekchen: eine Frage, keine Voreinstellung. Deshalb ruhig
    gesetzt, in Fliesstext statt im Versalienton der uebrigen Feldtitel. */
 .ta-merken{display:grid!important;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;font-size:var(--t-meta)!important;font-weight:400!important;letter-spacing:0!important;text-transform:none!important;line-height:1.5;color:#3c3833;cursor:pointer}
