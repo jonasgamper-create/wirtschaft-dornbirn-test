@@ -309,7 +309,8 @@ export class Haus extends DurableObject {
         id: bestellung.id,
         nummer: bestellung.nummer,
         vorname: String(bestellung.name || '').trim().split(' ')[0].slice(0, 20),
-        fertigUm: bestellung.fertigUm || null
+        // Die angezeigte Zeit, nicht der SMS-Merker - siehe takeawayAktion.
+        fertigUm: bestellung.fertigSeit || bestellung.fertigUm || null
       }))
       .sort((a, b) => a.nummer - b.nummer);
   }
@@ -1296,8 +1297,16 @@ export class Haus extends DurableObject {
     //
     // Deshalb ein eigener Tageszaehler: er steigt nur, egal was aus der Liste
     // verschwindet, und faengt mit einem neuen Datum wieder bei eins an.
+    //
+    // Der Zaehler startet nicht bei null, sondern bei der hoechsten Nummer,
+    // die der Tag schon traegt. Sonst gaebe es an genau einem Tag noch einmal
+    // eine doppelte Nummer: an dem, an dem dieser Zaehler eingefuehrt wurde -
+    // die Liste war voll, der Zaehler leer. Dieselbe Zeile repariert den Tag
+    // auch dann, wenn der gespeicherte Wert je verloren geht.
     const tag = this.#lies('taTag', null);
-    const tagesnummer = (tag?.datum === heute ? Number(tag.nummer) || 0 : 0) + 1;
+    const gespeichert = tag?.datum === heute ? Number(tag.nummer) || 0 : 0;
+    const inDerListe = heutige.reduce((groesste, b) => Math.max(groesste, Number(b.nummer) || 0), 0);
+    const tagesnummer = Math.max(gespeichert, inDerListe) + 1;
     this.#schreib('taTag', { datum: heute, nummer: tagesnummer });
 
     const bestellung = {
@@ -1351,6 +1360,11 @@ export class Haus extends DurableObject {
       const schonGemeldet = bestellung.status === 'fertig' || bestellung.fertigUm;
       bestellung.status = 'fertig';
       bestellung.fertigUm = bestellung.fertigUm || befehl.zeit || null;
+      // fertigUm ist der Merker fuer die SMS und bleibt deshalb beim
+      // Zuruecknehmen stehen. Als Uhrzeit taugt es danach nicht mehr: wer
+      // zuruecknimmt und spaeter erneut fertigmeldet, saehe sonst die alte
+      // Zeit von vorhin. Was angezeigt wird, steht deshalb hier.
+      bestellung.fertigSeit = befehl.zeit || bestellung.fertigSeit || null;
       this.#takeawaySichere(bestellung);
       this.#meldeAenderung();
       if (schonGemeldet) return { ok: true, sms: 'schon' };

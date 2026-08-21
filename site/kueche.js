@@ -104,7 +104,7 @@ function zeile(bestellung, fertig) {
     const lage = document.createElement('span');
     lage.className = 'knopf-ersatz';
     lage.textContent = fertig
-      ? `fertig${bestellung.fertigUm ? ` ${bestellung.fertigUm}` : ''}`
+      ? `fertig${bestellung.fertigSeit ? ` ${bestellung.fertigSeit}` : ''}`
       : 'in Arbeit';
     li.append(zeit, wer, lage);
   }

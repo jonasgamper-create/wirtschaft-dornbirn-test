@@ -464,7 +464,7 @@ function male() {
       // koennen muss, wenn der Gast vor ihm steht.
       const istFertig = bestellung.status === 'fertig';
       const lage = istFertig
-        ? `● fertig${bestellung.fertigUm ? ` seit ${bestellung.fertigUm}` : ''}`
+        ? `● fertig${bestellung.fertigSeit ? ` seit ${bestellung.fertigSeit}` : ''}`
         : '○ in der Küche';
       eintraege.push(zeile({
         zeit: bestellung.abholzeit, id: bestellung.id,

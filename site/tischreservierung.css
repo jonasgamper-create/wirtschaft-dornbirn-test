@@ -325,6 +325,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
     padding:12px var(--gutter) calc(12px + env(safe-area-inset-bottom));
     border:0;border-top:1px solid #11110f26;box-shadow:0 -6px 18px #11110f14
   }
+  /* Ohne diese Zeile bliebe die Oberkante grau: die Regel oben setzt border
+     komplett neu und wirft die gruene Farbe des Fertig-Zustands mit weg. */
+  .ta-seite .ta-status[data-stufe="fertig"]:not([hidden]){border-top-color:var(--green)}
   .ta-seite.ta-abgeschickt .site-footer{padding-bottom:130px}
 }
 .ta-status-lage{display:flex;align-items:center;gap:10px;margin:0;font-size:var(--t-meta);font-weight:700}

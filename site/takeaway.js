@@ -60,9 +60,16 @@ function zeigeStatus(stand) {
 
   // Wurde verschoben, muss das dastehen - sonst wundert sich der Gast, warum
   // die Zeit eine andere ist als vorhin.
-  byId('taStatusHinweis').textContent = stand.verschobenVon && !fertig && !abgeholt
-    ? `Es dauert etwas länger als gedacht: statt ${stand.verschobenVon} Uhr jetzt ${stand.abholzeit} Uhr. Danke fürs Warten!`
-    : 'Diese Seite aktualisiert sich von selbst – du kannst sie offen lassen.';
+  // Der Hinweis beantwortet die Frage, die gerade dran ist - und die aendert
+  // sich mit dem Stand. "Aktualisiert sich von selbst" ist nur solange die
+  // richtige Auskunft, wie es noch etwas zu warten gibt.
+  byId('taStatusHinweis').textContent = abgeholt
+    ? 'Danke fürs Kommen – bis zum nächsten Mal.'
+    : (fertig
+      ? 'Komm einfach an den Tresen und sag deine Nummer.'
+      : (stand.verschobenVon
+        ? `Es dauert etwas länger als gedacht: statt ${stand.verschobenVon} Uhr jetzt ${stand.abholzeit} Uhr. Danke fürs Warten!`
+        : 'Diese Seite aktualisiert sich von selbst – du kannst sie offen lassen.'));
 
   // Der Umschlag auf "fertig" passiert genau einmal - hier haengt alles dran,
   // was den Gast erreichen soll, ohne dass er etwas drueckt.
