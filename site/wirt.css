@@ -103,6 +103,13 @@ h2{font-size:24px;margin-bottom:6px}
 
 /* Der SMS-Schalter. Er kostet Geld, also ist er ein bewusster Griff und
    kein Haken im Kleingedruckten. */
+/* Die Zustaendigkeit fuers Fertigmelden: drei Knoepfe, einer davon gedrueckt.
+   Kein Haekchen - es sind drei Faelle, nicht "an oder aus". */
+.fertig-wahl{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.fertig-wahl .knopf[aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green)}
+/* Steht der Knopf woanders, bleibt der Platz nicht leer: die Kueche muss
+   sehen, was fertig ist, auch wenn sie es nicht selbst umschaltet. */
+.knopf-ersatz{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 14px;color:#6d675d;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
 .sms-schalter{display:flex;align-items:center;gap:12px;min-height:48px;margin:0 0 8px;font-size:15px;cursor:pointer}
 .sms-schalter input{width:26px;height:26px;flex:0 0 auto;accent-color:var(--green)}
 

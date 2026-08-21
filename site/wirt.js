@@ -8,9 +8,9 @@ import {
   apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeKuechenzettel, holeStand, karteAdresse,
   leereTag, legeEinfach, loescheKarte, schluesselAusAdresse, sendeAktion,
   sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
-  setzeSms,
+  setzeFertigWer, setzeSms,
   stelleTagWiederHer
-} from './haus-api.js?v=56cfa09d';
+} from './haus-api.js?v=64b16db1';
 import { buildFloorplan } from './floorplan-layout.mjs?v=8cd1fbb4';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=ec7c8e39';
 
@@ -66,6 +66,62 @@ async function start() {
   verdrahteKarten();
   verdrahteZettel();
   verdrahteSms();
+  verdrahteFertigWer();
+}
+
+/**
+ * Meldet der Wirt fertig? Die Einstellung kommt vom Dienst - dieselbe Quelle
+ * wie in der Kueche, damit der Knopf nie an zwei Stellen gleichzeitig steht
+ * oder an keiner. Kein Wert heisst Kueche, so war es vor dem Schalter.
+ */
+const wirtDarfFertig = () => {
+  const wer = stand?.fertigWer || 'kueche';
+  return wer === 'wirt' || wer === 'beide';
+};
+
+/**
+ * Der Schalter fuer die Zustaendigkeit. Drei Knoepfe statt eines Haekchens,
+ * weil es drei Faelle sind und keiner davon "an oder aus" heisst.
+ */
+function verdrahteFertigWer() {
+  const wahl = document.querySelector('.fertig-wahl');
+  if (!wahl) return;
+
+  // Nicht "male" nennen: so heisst schon die Funktion, die die ganze
+  // Tagesliste zeichnet - und die wird hier gebraucht.
+  const zeichne = () => {
+    if (wahl.dataset.aendert) return;
+    const wer = stand?.fertigWer || 'kueche';
+    for (const knopf of wahl.querySelectorAll('[data-wer]')) {
+      knopf.setAttribute('aria-pressed', String(knopf.dataset.wer === wer));
+    }
+  };
+  zeichne();
+  setInterval(zeichne, 4000);
+
+  wahl.addEventListener('click', async event => {
+    const knopf = event.target.closest('[data-wer]');
+    if (!knopf) return;
+    const gewuenscht = knopf.dataset.wer;
+    wahl.dataset.aendert = '1';
+    sag('fertigInfo', 'Einen Moment …');
+    const antwort = await setzeFertigWer(hausToken(), gewuenscht);
+    delete wahl.dataset.aendert;
+    if (!antwort?.ok) {
+      zeichne();
+      return sag('fertigInfo', 'Das hat nicht geklappt – bitte noch einmal.', 'fehler');
+    }
+    // Der Draht bringt den neuen Stand, aber der Knopf soll sofort umspringen -
+    // und die Tagesliste braucht ihn auch, damit "Essen fertig" erscheint.
+    if (stand) stand.fertigWer = gewuenscht;
+    zeichne();
+    male();
+    sag('fertigInfo', {
+      kueche: 'Die Küche meldet fertig. Am Tresen siehst du den Stand, aber ohne Knopf.',
+      wirt: 'Du meldest fertig. Der Küchenbildschirm zeigt nur noch an, was läuft.',
+      beide: 'Küche und Tresen dürfen fertigmelden – wer zuerst drückt, zählt.'
+    }[gewuenscht], 'gut');
+  });
 }
 
 /**
@@ -227,6 +283,7 @@ function verdrahteHeuteListe() {
     if (aktion === 'ankunft') await sendeAktion(hausToken(), { art: 'ankunft', id, zeit: nu.zeit });
     if (aktion === 'abgang') await sendeAktion(hausToken(), { art: 'abgang', id, zeit: nu.zeit });
     if (aktion === 'zurueck') await sendeAktion(hausToken(), { art: 'abgang', id, zeit: null });
+    if (aktion === 'fertig') await sendeTakeawayAktion(hausToken(), { art: 'fertig', id, zeit: nu.zeit, rolle: 'haus' });
     if (aktion === 'abgeholt') await sendeTakeawayAktion(hausToken(), { art: 'abgeholt', id, zeit: nu.zeit });
     if (aktion === 'doch-nicht') await sendeTakeawayAktion(hausToken(), { art: 'offen', id });
     // Die Antwort kommt ueber den Draht zurueck und malt die Liste neu.
@@ -239,7 +296,7 @@ function verdrahteHeuteListe() {
  * Eine Zeile der Tagesliste. Links die Zeit, in der Mitte wer und was,
  * rechts genau ein Knopf - der naechste sinnvolle Schritt und sonst nichts.
  */
-function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, leiseKnopf = false, ton = '', notiz = null, partyId = null, gast = null }) {
+function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, leiseKnopf = false, ton = '', notiz = null, partyId = null, gast = null, zweiterKnopf = null }) {
   const li = document.createElement('li');
   if (erledigt) li.dataset.erledigt = '';
   if (ton) li.dataset.ton = ton;
@@ -276,6 +333,18 @@ function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, lei
     wer.append(kennung);
   }
   li.append(zeitEl, wer);
+  // Ein zweiter Knopf ist die Ausnahme, nicht die Regel: er steht nur beim
+  // Takeaway, wenn der Wirt fertigmeldet. Dann sind es wirklich zwei Schritte -
+  // erst ist das Essen fertig, dann holt es jemand ab.
+  if (zweiterKnopf) {
+    const vor = document.createElement('button');
+    vor.type = 'button';
+    vor.className = 'knopf leise';
+    vor.dataset.aktion = zweiterKnopf.aktion;
+    vor.dataset.id = id;
+    vor.textContent = zweiterKnopf.text;
+    li.append(vor);
+  }
   if (knopfText) {
     const knopf = document.createElement('button');
     knopf.type = 'button';
@@ -390,10 +459,20 @@ function male() {
         knopfText: 'Doch nicht', aktion: 'doch-nicht', erledigt: true, leiseKnopf: true
       }));
     } else {
+      // Der Stand steht immer in der Zeile, egal wer fertigmeldet. Ob das
+      // Essen schon am Tresen liegt, ist die Frage, die der Wirt beantworten
+      // koennen muss, wenn der Gast vor ihm steht.
+      const istFertig = bestellung.status === 'fertig';
+      const lage = istFertig
+        ? `● fertig${bestellung.fertigUm ? ` seit ${bestellung.fertigUm}` : ''}`
+        : '○ in der Küche';
       eintraege.push(zeile({
         zeit: bestellung.abholzeit, id: bestellung.id,
         titel: `Takeaway Nr. ${bestellung.nummer} · ${bestellung.name}`,
-        info: `${essen} · ${summe} · zahlt bei Abholung`,
+        info: `${lage} · ${essen} · ${summe} · zahlt bei Abholung`,
+        // Fertigmelden nur, wenn der Wirt dafuer zustaendig ist - und nur
+        // solange es noch nicht gemeldet ist.
+        zweiterKnopf: wirtDarfFertig() && !istFertig ? { text: 'Essen fertig', aktion: 'fertig' } : null,
         knopfText: 'Abgeholt', aktion: 'abgeholt', ton: 'takeaway'
       }));
     }
