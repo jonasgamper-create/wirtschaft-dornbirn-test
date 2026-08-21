@@ -12,7 +12,7 @@
   <title>Takeaway · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=ba07bf4e">
+  <link rel="stylesheet" href="tischreservierung.css?v=d63bacf3">
   <!-- Nur fuer die Abholmeldung: Auf dem iPhone laesst Apple Push erst zu,
        wenn die Seite zum Home-Bildschirm hinzugefuegt wurde, und dafuer muss
        ein Manifest da sein. Auf Android genuegt seine Anwesenheit. -->
@@ -103,6 +103,14 @@
                  Laptop in der mitlaufenden Spalte. Er aktualisiert sich von
                  selbst; der Gast drueckt nichts. -->
             <div class="ta-status" id="taStatus" data-stufe="offen" hidden>
+              <!-- Die Nummer gross und rechts: wenn der Gast das Telefon
+                   ansieht, soll er sie erfassen, ohne zu lesen. Sie steht
+                   erst da, wenn es etwas zu holen gibt - vorher waere sie
+                   eine Zahl ohne Anlass. Weil sie hier die einzige Stelle
+                   ist, an der die Nummer steht, wird sie auch vorgelesen -
+                   mit einem unsichtbaren "Nummer" davor, damit eine
+                   allein stehende Ziffer nicht raetselhaft klingt. -->
+              <b class="ta-status-nr" id="taStatusNr" hidden><span class="visually-hidden">Nummer </span><span id="taStatusNrZahl"></span></b>
               <p class="ta-status-lage"><i aria-hidden="true"></i><span id="taStatusText">Deine Bestellung ist in der Küche.</span></p>
               <p class="ta-status-hinweis" id="taStatusHinweis">Diese Seite aktualisiert sich von selbst – du kannst sie offen lassen.</p>
             </div>
@@ -179,6 +187,6 @@
     </div>
   </footer>
 
-  <script type="module" src="takeaway.js?v=b523bf3d"></script>
+  <script type="module" src="takeaway.js?v=d7656919"></script>
 </body>
 </html>

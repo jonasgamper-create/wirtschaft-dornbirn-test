@@ -333,8 +333,23 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* Abholbereit ist die eine Nachricht, auf die der Gast wartet - sie darf
    nicht aussehen wie jede andere Zeile. Gruen ist der Ton, den das CI dafuer
    schon fuehrt, kein neues Signal. */
-.ta-status[data-stufe="fertig"]{border-color:var(--green);background:#e8f0ea}
-.ta-status[data-stufe="fertig"] .ta-status-lage{font-size:var(--t-listitem);color:var(--green)}
+/* Fertig ist der Zustand, fuer den es diese Leiste gibt. Sie hoert deshalb
+   auf, ein Hinweis zu sein, und wird die Nachricht: gruen gefuellt, weisse
+   Schrift, die Nummer gross daneben. Wer aufs Telefon schaut, soll das
+   erfassen, ohne zu lesen. */
+.ta-status{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;align-items:center}
+.ta-status[data-stufe="fertig"]{grid-template-columns:minmax(0,1fr) auto;column-gap:16px;border-color:var(--green);background:var(--green);color:#fff}
+.ta-status[data-stufe="fertig"] .ta-status-lage{grid-column:1;grid-row:1;font-size:var(--t-listitem);color:#fff}
+.ta-status[data-stufe="fertig"] .ta-status-hinweis{grid-column:1;grid-row:2;color:#dfe8e1}
+.ta-status[data-stufe="fertig"] .ta-status-link a{color:#fff}
+.ta-status[data-stufe="fertig"] .ta-status-link small{color:#c3d2c7}
+/* Die Nummer: gross, mit Ziffern gleicher Breite, damit sie beim Wechsel
+   nicht springt. Sie steht ueber beide Zeilen rechts. */
+.ta-status-nr{grid-column:2;grid-row:1/3;justify-self:end;font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:clamp(46px,12vw,64px);line-height:.86;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ta-status-nr[hidden]{display:none}
+/* Nur fuer Vorlesegeraete. Dieselbe Regel wie in styles.css - die Takeaway-
+   Seite laedt jenes Stilblatt nicht, braucht sie hier also noch einmal. */
+.visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .ta-status[data-stufe="abgeholt"]{background:#11110f08}
 
 /* Am Handy gehoert der Stand an den unteren Rand: der Gast soll ihn sehen,
@@ -352,8 +367,41 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
   .ta-seite.ta-abgeschickt .site-footer{padding-bottom:130px}
 }
 .ta-status-lage{display:flex;align-items:center;gap:10px;margin:0;font-size:var(--t-meta);font-weight:700}
-.ta-status-lage i{width:10px;height:10px;flex:0 0 10px;border-radius:50%;background:var(--gold)}
-.ta-status[data-stufe="fertig"] .ta-status-lage i{background:var(--green)}
+.ta-status-lage i{width:10px;height:10px;flex:0 0 10px;border-radius:50%;background:var(--gold);position:relative}
+.ta-status[data-stufe="fertig"] .ta-status-lage i{background:#fff}
+.ta-status[data-stufe="abgeholt"] .ta-status-lage i{background:#a29b90}
+
+/* Die Bewegung. Sie hat einen Zweck und deshalb eine Grenze:
+   Der Punkt atmet dauerhaft - das ist das Zeichen, dass hier etwas lebt, und
+   er ist zehn Pixel gross, liegt also ueber keinem Text und ueber keinem
+   Knopf. Die Leiste selbst bewegt sich nur EINMAL, im Moment des Umschlags
+   auf "fertig": das faengt den Blick, ohne danach dauernd zu zappeln.
+   Wer Bewegung abbestellt hat, bekommt denselben Zustand ohne jede
+   Animation - gruen, gross und ruhig ist die Nachricht auch dann. */
+.ta-status-lage i:after{
+  content:"";position:absolute;inset:-5px;border-radius:50%;
+  border:2px solid currentColor;color:inherit;opacity:0
+}
+.ta-status[data-stufe="fertig"] .ta-status-lage i:after{
+  border-color:#fff;animation:ta-atem 2.4s ease-out infinite
+}
+@keyframes ta-atem{
+  0%{transform:scale(.6);opacity:.75}
+  70%{transform:scale(1.35);opacity:0}
+  100%{transform:scale(1.35);opacity:0}
+}
+/* Der einmalige Anschub beim Umschlag. Die Klasse setzt das Skript und nimmt
+   sie danach wieder weg, damit sie beim naechsten Mal erneut greift. */
+.ta-status.ta-umschlag{animation:ta-melden .62s cubic-bezier(.22,1,.36,1) 1}
+@keyframes ta-melden{
+  0%{transform:translateY(14px) scale(.985)}
+  55%{transform:translateY(-3px) scale(1.012)}
+  100%{transform:translateY(0) scale(1)}
+}
+@media(prefers-reduced-motion:reduce){
+  .ta-status[data-stufe="fertig"] .ta-status-lage i:after{animation:none;opacity:0}
+  .ta-status.ta-umschlag{animation:none}
+}
 .ta-status[data-stufe="abgeholt"] .ta-status-lage i{background:#a29b90}
 .ta-status-hinweis{margin:6px 0 0;color:#57524a;font-size:13px;line-height:1.5}
 .ta-status-link{margin:12px 0 0;display:grid;gap:2px}
