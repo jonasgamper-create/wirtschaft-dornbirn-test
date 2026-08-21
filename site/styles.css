@@ -1335,6 +1335,13 @@ html{scroll-padding-top:0}
 .final-site .stage-subscribe>p{display:grid;gap:3px;margin:0}
 .final-site .stage-subscribe strong{font-size:var(--t-listitem);font-weight:700;color:#fff}
 .final-site .stage-subscribe span{font-size:var(--t-meta);line-height:1.5;color:#f3efe6cc}
+/* Der Datenschutz-Link in beiden Abo-Bloecken. Er steht im Fliesstext der
+   Erklaerung, nicht als eigener Knopf: er ist Information, kein Aufruf.
+   Auf den dunklen Flaechen erbt er die helle Textfarbe und wird nur
+   unterstrichen - ein blauer Standardlink saehe hier wie ein Fremdkoerper
+   aus und faellt bei dem Kontrast durch. */
+.abo-datenschutz{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.abo-datenschutz:hover{opacity:.8}
 .final-site .stage-subscribe-form{display:flex;flex-wrap:wrap;gap:8px}
 .final-site .stage-subscribe-form input{
   flex:1 1 220px;min-height:46px;padding:0 16px;border:1px solid #ffffff59;border-radius:999px;

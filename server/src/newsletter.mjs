@@ -11,10 +11,27 @@
 // Ebenso bewusst: eine Anmeldung bei der Reservierung ist nie eine
 // Voraussetzung fuer die Reservierung. Keine Kopplung.
 
-/** Wortlaut der Einwilligung. Wird mitgespeichert - sonst ist der Nachweis wertlos. */
-export const WORTLAUT_VERSION = '2026-08-18';
-export const WORTLAUT = 'Ich möchte die Mittagskarte der Wirtschaft Dornbirn per E-Mail erhalten. '
-  + 'Die Einwilligung kann ich jederzeit über den Abmeldelink in jeder Mail widerrufen.';
+/**
+ * Zwei Listen, zwei Zwecke, zwei Wortlaute. Die Wochenkarte und die
+ * Eventtermine sind getrennte Einwilligungen: wer die Karte will, hat nicht
+ * in Konzertankuendigungen eingewilligt - und umgekehrt. Eine gemeinsame
+ * Liste waere bequem und genau deshalb falsch (Zweckbindung, Art. 5 Abs. 1
+ * lit. b DSGVO). Der Wortlaut wird mitgespeichert - sonst ist der Nachweis
+ * wertlos.
+ */
+export const WORTLAUT_VERSION = '2026-08-21';
+export const LISTEN = {
+  mittagskarte: {
+    wortlaut: 'Ich möchte die Mittagskarte der Wirtschaft Dornbirn per E-Mail erhalten. '
+      + 'Die Einwilligung kann ich jederzeit über den Abmeldelink in jeder Mail widerrufen.'
+  },
+  events: {
+    wortlaut: 'Ich möchte per E-Mail erfahren, wenn die Wirtschaft Dornbirn neue Veranstaltungstermine hat. '
+      + 'Die Einwilligung kann ich jederzeit über den Abmeldelink in jeder Mail widerrufen.'
+  }
+};
+/** Rueckwaertskompatibel: der alte Name meint die Mittagskarte. */
+export const WORTLAUT = LISTEN.mittagskarte.wortlaut;
 
 /** Wie lange eine unbestaetigte Anmeldung aufbewahrt wird. Ohne Klick keine Einwilligung. */
 export const OFFEN_TAGE = 30;
@@ -33,21 +50,26 @@ export function pruefeAnmeldung(roh) {
   // Ohne ausdrueckliches Ja gibt es keine Einwilligung - ein vorausgefuelltes
   // Haekchen oder ein stilles true waere keine.
   if (roh?.einwilligung !== true) return { ok: false, grund: 'einwilligung' };
-  const quelle = ['reservierung', 'seite'].includes(roh?.quelle) ? roh.quelle : 'seite';
-  return { ok: true, anmeldung: { email, quelle } };
+  const quelle = ['reservierung', 'seite', 'events'].includes(roh?.quelle) ? roh.quelle : 'seite';
+  // Unbekannte Listen fallen auf die Mittagskarte zurueck? Nein - sie fallen
+  // durch. Eine Einwilligung fuer einen Zweck, den es nicht gibt, ist keine.
+  const liste = roh?.liste === undefined ? 'mittagskarte' : String(roh.liste);
+  if (!LISTEN[liste]) return { ok: false, grund: 'liste' };
+  return { ok: true, anmeldung: { email, quelle, liste } };
 }
 
 /**
  * Ein neuer Eintrag. Status `offen`: bis zur Bestaetigung ist das keine
  * Einwilligung, sondern nur eine Behauptung.
  */
-export function machEintrag({ email, quelle, token, jetzt }) {
+export function machEintrag({ email, quelle, token, jetzt, liste = 'mittagskarte' }) {
   return {
     email,
     quelle,
+    liste,
     token,
     status: 'offen',
-    wortlaut: WORTLAUT,
+    wortlaut: (LISTEN[liste] || LISTEN.mittagskarte).wortlaut,
     wortlautVersion: WORTLAUT_VERSION,
     angefragtAm: jetzt,
     bestaetigtAm: null
@@ -85,6 +107,15 @@ export function raeumeAufOffene(eintraege, jetzt, tage = OFFEN_TAGE) {
 }
 
 /** Nur bestaetigte Adressen duerfen angeschrieben werden. */
-export const empfaenger = eintraege => eintraege
-  .filter(eintrag => eintrag.status === 'bestaetigt')
-  .map(eintrag => eintrag.email);
+/**
+ * Wer eine Mail dieser Liste bekommt: die ganzen Eintraege, nicht nur die
+ * Adressen. Der Versand braucht neben der Adresse auch den Token fuer den
+ * Abmeldelink - die fruehere Fassung gab nur Adress-Strings zurueck, und der
+ * Montagsversand griff dann auf eintrag.email und eintrag.token eines
+ * Strings zu: die Mail ging an "undefined", der Abmeldelink war leer.
+ * Eintraege ohne Listenfeld stammen von vor der Trennung und sind
+ * Mittagskarte.
+ */
+export const empfaenger = (eintraege, liste = 'mittagskarte') => eintraege
+  .filter(eintrag => eintrag.status === 'bestaetigt'
+    && (eintrag.liste || 'mittagskarte') === liste);

@@ -112,7 +112,47 @@ check('Offene bekommen nichts', empfaenger([eintrag]).length === 0);
 const ja = bestaetige(eintrag, '2026-08-18T10:05:00.000Z');
 check('Bestaetigung setzt den Status', ja.eintrag.status === 'bestaetigt');
 check('Bestaetigung haelt den Zeitpunkt fest', ja.eintrag.bestaetigtAm === '2026-08-18T10:05:00.000Z');
-check('Bestaetigte bekommen die Karte', empfaenger([ja.eintrag])[0] === 'a@b.at');
+// empfaenger liefert ganze Eintraege: der Versand braucht neben der Adresse
+// auch den Token fuer den Abmeldelink. Die fruehere Fassung gab nur Strings
+// zurueck - die Montagsmail ging an "undefined".
+check('Bestaetigte bekommen die Karte - mit Adresse UND Token',
+  empfaenger([ja.eintrag])[0]?.email === 'a@b.at' && empfaenger([ja.eintrag])[0]?.token === 'tok');
+
+// ---- 5b. Zwei Listen, zwei Zwecke ------------------------------------------
+// Wochenkarte und Eventtermine sind getrennte Einwilligungen. Wer die eine
+// hat, hat nicht in die andere eingewilligt.
+
+check('Events-Anmeldung geht durch',
+  pruefeAnmeldung({ email: 'a@b.at', einwilligung: true, liste: 'events' }).ok);
+check('Unbekannte Liste faellt durch - keine Einwilligung fuer nichts',
+  pruefeAnmeldung({ email: 'a@b.at', einwilligung: true, liste: 'werbung' }).grund === 'liste');
+check('Ohne Angabe gilt die Mittagskarte',
+  pruefeAnmeldung({ email: 'a@b.at', einwilligung: true }).anmeldung.liste === 'mittagskarte');
+
+const eventEintrag = bestaetige(
+  machEintrag({ email: 'e@b.at', quelle: 'events', liste: 'events', token: 'tok2', jetzt: '2026-08-21T10:00:00.000Z' }),
+  '2026-08-21T10:05:00.000Z'
+).eintrag;
+check('Der Events-Wortlaut spricht von Terminen, nicht von der Karte',
+  eventEintrag.wortlaut.includes('Veranstaltungstermine') && !eventEintrag.wortlaut.includes('Mittagskarte'));
+check('Die Wochenkarte geht NICHT an die Events-Liste',
+  empfaenger([ja.eintrag, eventEintrag], 'mittagskarte').length === 1
+  && empfaenger([ja.eintrag, eventEintrag], 'mittagskarte')[0].email === 'a@b.at');
+check('Die Events-Liste sieht nur ihre eigenen',
+  empfaenger([ja.eintrag, eventEintrag], 'events').length === 1
+  && empfaenger([ja.eintrag, eventEintrag], 'events')[0].email === 'e@b.at');
+// Alte Eintraege von vor der Trennung tragen kein Listenfeld - sie sind
+// Mittagskarte und duerfen beim Umbau nicht verloren gehen.
+const altEintrag = { email: 'alt@b.at', token: 'tok3', status: 'bestaetigt' };
+check('Eintraege ohne Listenfeld bleiben Mittagskarte',
+  empfaenger([altEintrag], 'mittagskarte').length === 1 && empfaenger([altEintrag], 'events').length === 0);
+
+// Die Bestaetigungsmail muss sagen, wofuer sie fragt.
+const eventFrage = newsletterFrage({ jaLink: 'https://x/ja', wortlaut: eventEintrag.wortlaut, liste: 'events' });
+check('Events-Bestaetigung fragt nach Terminen',
+  eventFrage.text.includes('Veranstaltungstermine') && !eventFrage.text.includes('Mittagskarte'));
+const kartenFrage = newsletterFrage({ jaLink: 'https://x/ja', wortlaut: WORTLAUT });
+check('Karten-Bestaetigung fragt nach der Mittagskarte', kartenFrage.text.includes('Mittagskarte'));
 
 const spaeter = '2026-10-01T10:00:00.000Z';
 check('Unbestaetigtes verfaellt', raeumeAufOffene([eintrag], spaeter).length === 0);

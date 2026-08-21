@@ -896,18 +896,21 @@ export class Haus extends DurableObject {
   async newsletterAnmeldung(roh, basis) {
     const gecheckt = pruefeAnmeldung(roh);
     if (!gecheckt.ok) return { ok: false, grund: gecheckt.grund };
-    const { email, quelle } = gecheckt.anmeldung;
+    const { email, quelle, liste } = gecheckt.anmeldung;
 
     // Wer widerrufen hat, wird nicht wieder angeschrieben - auch nicht, wenn
     // jemand anderes die Adresse eintraegt.
     if (await this.#gesperrt(email)) return { ok: true, gesperrt: true };
 
-    const vorhanden = this.#newsletterEiner('email', email);
+    // Pro Liste nachsehen, nicht pro Adresse: wer die Mittagskarte hat, darf
+    // sich trotzdem fuer die Termine eintragen - das sind zwei Einwilligungen.
+    const vorhanden = this.#newsletterAlle().find(eintrag =>
+      eintrag.email === email && (eintrag.liste || 'mittagskarte') === liste);
     if (vorhanden?.status === 'bestaetigt') return { ok: true, schon: true };
 
     const eintrag = vorhanden
       ? { ...vorhanden, angefragtAm: new Date().toISOString() }
-      : machEintrag({ email, quelle, token: this.#token(), jetzt: new Date().toISOString() });
+      : machEintrag({ email, quelle, liste, token: this.#token(), jetzt: new Date().toISOString() });
     this.#newsletterSichere(eintrag);
 
     this.ctx.waitUntil((async () => {
@@ -915,7 +918,8 @@ export class Haus extends DurableObject {
       if (!absender) return;
       const inhalt = newsletterFrage({
         jaLink: `${basis}/newsletter/ja?t=${eintrag.token}`,
-        wortlaut: eintrag.wortlaut
+        wortlaut: eintrag.wortlaut,
+        liste: eintrag.liste || 'mittagskarte'
       });
       await sendeMail(this.env, brevoPaket({
         absender, an: eintrag.email, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
@@ -953,7 +957,8 @@ export class Haus extends DurableObject {
     return {
       ok: true,
       bestaetigt: alle.filter(eintrag => eintrag.status === 'bestaetigt').length,
-      offen: alle.filter(eintrag => eintrag.status !== 'bestaetigt').length
+      offen: alle.filter(eintrag => eintrag.status !== 'bestaetigt').length,
+      events: alle.filter(eintrag => eintrag.status === 'bestaetigt' && eintrag.liste === 'events').length
     };
   }
 
@@ -1205,7 +1210,7 @@ export class Haus extends DurableObject {
     if (this.#lies('wochenkarteMarke', null) === marke) {
       return { ok: true, versendet: 0, grund: 'unveraendert' };
     }
-    const alle = empfaenger(this.#newsletterAlle());
+    const alle = empfaenger(this.#newsletterAlle(), 'mittagskarte');
     let versendet = 0;
     for (const eintrag of alle) {
       const inhalt = wochenkarteMail({
