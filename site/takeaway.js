@@ -49,6 +49,13 @@ function zeigeStatus(stand) {
   const fertig = stand.status === 'fertig';
   const abgeholt = stand.status === 'abgeholt';
   kasten.dataset.stufe = stand.status;
+  // Der Termin nimmt die Zeit von hier - nach einem "+10 Min" ist die alte
+  // hinfaellig, und ein Kalendereintrag mit der falschen Zeit waere schlimmer
+  // als keiner.
+  letzterStand = stand;
+  // Was schon abgeholt ist, muss nicht mehr vorgemerkt werden.
+  const termin = byId('taTermin')?.closest('.ta-termin');
+  if (termin) termin.hidden = abgeholt;
 
   // Kommt der Gast ueber die Adresse zurueck, ist die Bestaetigung oben leer -
   // sie wird hier aus dem Stand gefuellt. Die Abholzeit kommt ohnehin von hier
@@ -125,6 +132,96 @@ async function verfolge(schluessel) {
   document.addEventListener('visibilitychange', () => { if (!document.hidden) hole(); });
 }
 const alsPreis = wert => `€ ${Number(wert).toFixed(2).replace('.', ',')}`;
+
+// ---- Der Kalendereintrag ---------------------------------------------------
+//
+// Der einzige Weg, der ganz ohne Erlaubnis, ohne Netz und ohne offene Seite
+// funktioniert - und auf jedem Telefon gleich. Er meldet nicht "fertig",
+// sondern holt den Gast zur zugesagten Zeit zurueck. Bei einer Abholzeit, auf
+// die Verlass ist, ist genau das die eigentliche Aufgabe; so arbeitet jede
+// Baeckerei, seit es Baeckereien gibt.
+//
+// Nichts davon geht an den Dienst: die Datei entsteht im Browser.
+
+/** Der aktuelle Stand, damit der Termin die richtige Zeit traegt. */
+let letzterStand = null;
+
+function baueAbholtermin(stand) {
+  // Die Kalendernorm misst Zeilen in BYTES, nicht in Zeichen: "Käsknöpfle"
+  // braucht pro Umlaut zwei. Nach Zeichen zu zaehlen laesst die Zeile ueber
+  // die Grenze rutschen; stumpf nach Bytes zu schneiden zerlegt einen Umlaut
+  // in zwei Haelften und macht Buchstabensalat daraus. Deshalb wird Zeichen
+  // fuer Zeichen gesammelt und dabei die Byte-Laenge mitgezaehlt.
+  const messer = new TextEncoder();
+  const falte = zeile => {
+    const teile = [];
+    let laufend = '';
+    let bytes = 0;
+    let grenze = 75;
+    for (const zeichen of zeile) {
+      const dazu = messer.encode(zeichen).length;
+      if (bytes + dazu > grenze) {
+        teile.push(laufend);
+        // Fortsetzungszeilen beginnen mit einem Leerzeichen, das mitzaehlt.
+        laufend = ' ';
+        bytes = 1;
+        grenze = 75;
+      }
+      laufend += zeichen;
+      bytes += dazu;
+    }
+    if (laufend) teile.push(laufend);
+    return teile.join('\r\n');
+  };
+  const schuetze = text => String(text).replace(/[;,]/g, treffer => `\\${treffer}`);
+
+  const tag = String(stand.date || '').replace(/-/g, '');
+  const [stunde, minute] = String(stand.abholzeit).split(':').map(Number);
+  const bis = stunde * 60 + minute + 15;
+  const alsZeit = gesamt => `${String(Math.floor(gesamt / 60)).padStart(2, '0')}${String(gesamt % 60).padStart(2, '0')}00`;
+  // DTSTAMP ist Pflicht. Fehlt es, lehnen manche Kalender den Termin ab.
+  const jetzt = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+
+  return `${[
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'CALSCALE:GREGORIAN',
+    'PRODID:-//Wirtschaft Dornbirn//Takeaway//DE',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:takeaway-${tag}-${stand.nummer}-${Math.random().toString(36).slice(2, 8)}@wirtschaft-dornbirn.at`,
+    `DTSTAMP:${jetzt}`,
+    `DTSTART:${tag}T${alsZeit(stunde * 60 + minute)}`,
+    `DTEND:${tag}T${alsZeit(bis)}`,
+    'STATUS:CONFIRMED',
+    `SUMMARY:Essen abholen – Wirtschaft Dornbirn (Nr. ${stand.nummer})`,
+    falte(`DESCRIPTION:Deine Takeaway-Bestellung Nr. ${stand.nummer}${schuetze(',')} `
+      + `${(stand.posten || []).map(p => `${p.menge}× ${schuetze(p.name)}`).join(schuetze(', '))}. `
+      + `Bezahlt wird bei der Abholung. Fragen? +43 5572 20540`),
+    falte(`LOCATION:Wirtschaft Dornbirn${schuetze(',')} Bahnhofstraße 24${schuetze(',')} 6850 Dornbirn`),
+    // Zehn Minuten vorher: genug, um loszugehen, ohne zu frueh dazustehen.
+    'BEGIN:VALARM',
+    'TRIGGER:-PT10M',
+    'ACTION:DISPLAY',
+    `DESCRIPTION:Gleich abholen: Nr. ${stand.nummer} in der Wirtschaft Dornbirn`,
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n')}\r\n`;
+}
+
+byId('taTermin')?.addEventListener('click', () => {
+  if (!letzterStand?.abholzeit) return;
+  const blob = new Blob([baueAbholtermin(letzterStand)], { type: 'text/calendar;charset=utf-8' });
+  const adresse = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = adresse;
+  link.download = `wirtschaft-abholung-${letzterStand.date}-nr${letzterStand.nummer}.ics`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(adresse), 1000);
+});
 
 // ---- Abholmeldung aufs Geraet ----------------------------------------------
 //

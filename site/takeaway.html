@@ -12,7 +12,7 @@
   <title>Takeaway · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=4aff8f94">
+  <link rel="stylesheet" href="tischreservierung.css?v=ba07bf4e">
   <!-- Nur fuer die Abholmeldung: Auf dem iPhone laesst Apple Push erst zu,
        wenn die Seite zum Home-Bildschirm hinzugefuegt wurde, und dafuer muss
        ein Manifest da sein. Auf Android genuegt seine Anwesenheit. -->
@@ -132,6 +132,16 @@
           </dl>
           <p class="done-note">Sag’ am Tresen einfach deine Nummer. Bezahlt wird bei der Abholung – bar oder mit Karte.</p>
 
+          <!-- Der Kalendereintrag ist der einzige Weg, der ganz ohne Erlaubnis,
+               ohne Netz und ohne offene Seite funktioniert - auf jedem Telefon
+               gleich. Er meldet nicht "fertig", aber er holt den Gast zur
+               zugesagten Zeit zurueck, und genau das ist bei einer verlaesslichen
+               Zeit die eigentliche Aufgabe. -->
+          <p class="ta-termin">
+            <button class="button" type="button" id="taTermin">Abholung im Kalender vormerken</button>
+            <small>Erinnert dich zehn Minuten vorher – auch wenn du alles schließt.</small>
+          </p>
+
           <!-- Der Link zum Wiederfinden gehoert auf den Beleg, nicht in die
                Live-Leiste: er aendert sich nie und will einmal gesichert
                werden, nicht dauernd gelesen. -->
@@ -169,6 +179,6 @@
     </div>
   </footer>
 
-  <script type="module" src="takeaway.js?v=f28087a4"></script>
+  <script type="module" src="takeaway.js?v=b523bf3d"></script>
 </body>
 </html>

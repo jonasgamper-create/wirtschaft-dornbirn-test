@@ -238,6 +238,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    Die Zahl kommt vom Dienst, damit die Grenze nicht zweimal im Code steht. */
 .slots button .ta-rest{display:block;margin-top:1px;color:#8a6a33;font-size:11px;font-weight:700;letter-spacing:.04em}
 .slots button[aria-checked="true"] .ta-rest{color:#e8d9bd}
+/* Der Kalendereintrag auf dem Beleg: ein ruhiger Umriss, kein Hauptknopf.
+   Er ist die Rueckfallebene fuer alle, die keine Meldung wollen. */
+.ta-termin{display:grid;gap:8px;justify-items:start;margin:var(--s-para) 0 0}
+.ta-termin[hidden]{display:none}
+.ta-termin small{color:#57524a;font-size:13px;line-height:1.5}
+
 /* Die Abholmeldung aufs Geraet. Ein Angebot, kein Hauptweg - deshalb im
    Umriss statt in Gruen, unter dem Stand statt darueber. Wer sie nicht will,
    hat die Leiste und den Bildschirm im Eingang. */
