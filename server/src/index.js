@@ -18,6 +18,7 @@ import standardPlan from '../../site/data/floorplan.json';
 import eventDaten from '../../site/data/events.json';
 import { shift } from '../../site/table-assignment.mjs';
 import { pruefeKontakt } from './kontakt.mjs';
+import { pruefePushAnmeldung, schickePush } from './push.mjs';
 import {
   fuerDenWirt, pruefeWunsch, raeumeAufProfile, schluesselFuer, widerrufe, zaehleBesuch
 } from './gast.mjs';
@@ -334,7 +335,10 @@ export class Haus extends DurableObject {
       // wundert sich der Gast, warum die Zeit eine andere ist als vorhin.
       verschobenVon: bestellung.verschobenVon || null,
       posten: (bestellung.posten || []).map(({ name, menge }) => ({ name, menge })),
-      summe: bestellung.summe
+      summe: bestellung.summe,
+      // Damit die Seite den Knopf richtig zeigt, auch wenn der Gast auf einem
+      // anderen Geraet zurueckkommt. Der Endpunkt selbst geht nie hinaus.
+      pushAn: Boolean(bestellung.push?.endpunkt)
     };
   }
 
@@ -542,7 +546,7 @@ export class Haus extends DurableObject {
     if (rolle === 'kueche') {
       return {
         rolle: 'kueche',
-        takeaway: this.#takeawayAlle().map(({ telefon, ...rest }) => rest),
+        takeaway: this.#takeawayAlle().map(({ telefon, push, ...rest }) => rest),
         takeawayKarte: this.#lies('takeawayKarte', []),
         smsAn: this.#lies('smsAn', false) === true,
         // Wer fertigmeldet, muss auf beiden Bildschirmen dasselbe sein - sonst
@@ -575,8 +579,11 @@ export class Haus extends DurableObject {
       // die fertigen, und von denen nur Nummer und Vorname - kein Nachname,
       // keine Gerichte, keine Nummer, kein Schluessel. Wer dort abholt, soll
       // sich wiedererkennen, ohne dass der ganze Raum seine Bestellung liest.
+      // Die Push-Anmeldung ist eine Geraetekennung des Gastes und hat auf
+      // keinem Bildschirm im Haus etwas verloren - auch nicht beim Wirt. Der
+      // Dienst braucht sie, niemand sonst.
       takeaway: rolle === 'haus'
-        ? this.#takeawayAlle()
+        ? this.#takeawayAlle().map(({ push, ...rest }) => rest)
         : (rolle === 'schirm' ? this.#fertigeFuerSchirm() : []),
       takeawayKarte: this.#lies('takeawayKarte', []),
       takeawayKarteText: rolle === 'haus' ? this.#lies('takeawayKarteText', '') : '',
@@ -1344,6 +1351,55 @@ export class Haus extends DurableObject {
     };
   }
 
+  /**
+   * Der Gast meldet sich fuer Push an. Sein Bestellschluessel ist der Ausweis -
+   * derselbe, mit dem er ohnehin seinen Stand abfragt. Die Anmeldung haengt
+   * damit an genau einer Bestellung und verschwindet mit ihr: keine Liste von
+   * Geraeten, die den Tag ueberdauert, kein Verteiler.
+   */
+  async pushAnmelden(token, roh) {
+    const bestellung = this.#takeawayAlle().find(eintrag => eintrag.token === token);
+    if (!bestellung) return { ok: false, grund: 'unbekannt' };
+    const geprueft = pruefePushAnmeldung(roh);
+    if (!geprueft.ok) return geprueft;
+    bestellung.push = geprueft.anmeldung;
+    this.#takeawaySichere(bestellung);
+    return { ok: true };
+  }
+
+  /** Und wieder abmelden. Muss so einfach sein wie das Anmelden. */
+  async pushAbmelden(token) {
+    const bestellung = this.#takeawayAlle().find(eintrag => eintrag.token === token);
+    if (!bestellung) return { ok: false, grund: 'unbekannt' };
+    delete bestellung.push;
+    this.#takeawaySichere(bestellung);
+    return { ok: true };
+  }
+
+  /**
+   * Anklopfen beim Geraet des Gastes. Ohne Inhalt - was drinsteht, holt sich
+   * der Service Worker selbst; siehe push.mjs.
+   *
+   * Faellt die Anmeldung weg (der Gast hat die Erlaubnis entzogen oder die
+   * Seite vom Home-Bildschirm geworfen), wird sie hier geloescht. Sonst
+   * klopft der Dienst bis zum Ende der Aufbewahrung an eine Tuer, die es
+   * nicht mehr gibt.
+   */
+  async #meldePush(bestellung) {
+    if (!bestellung?.push?.endpunkt) return 'keine';
+    const ergebnis = await schickePush(bestellung.push, {
+      privatSchluessel: this.env?.VAPID_PRIVAT,
+      oeffentlich: this.env?.VAPID_OEFFENTLICH,
+      kontakt: this.env?.VAPID_KONTAKT
+    });
+    if (ergebnis.entfernen) {
+      delete bestellung.push;
+      this.#takeawaySichere(bestellung);
+      return 'weg';
+    }
+    return ergebnis.ok ? 'gesendet' : (ergebnis.grund || 'fehler');
+  }
+
   /** Abgeholt, zurueckgenommen oder entfernt - die drei Griffe des Wirts. */
   async takeawayAktion(befehl) {
     const bestellung = this.#takeawayAlle().find(eintrag => eintrag.id === befehl?.id);
@@ -1370,8 +1426,13 @@ export class Haus extends DurableObject {
       if (schonGemeldet) return { ok: true, sms: 'schon' };
       // Die SMS haelt den Betrieb nicht auf: sie geht hinterher raus, und
       // scheitert sie, bleibt die Bestellung trotzdem fertig.
+      // Push und SMS sind zwei Wege zum selben Gast, keine Alternativen:
+      // Push kostet nichts und erreicht, wer sich angemeldet hat; die SMS
+      // erreicht den Rest, kostet aber. Wer beides hat, bekommt beides -
+      // doppelt Bescheid ist besser als gar nicht.
+      const gedrueckt = await this.#meldePush(bestellung);
       const meldung = await this.#meldeFertig(bestellung);
-      return { ok: true, sms: meldung.grund || 'gesendet' };
+      return { ok: true, sms: meldung.grund || 'gesendet', push: gedrueckt };
     }
     if (befehl.art === 'spaeter') {
       // Die nuetzlichste Nachricht ueberhaupt: die Abholzeit kennt der Gast
@@ -1387,7 +1448,10 @@ export class Haus extends DurableObject {
       bestellung.abholzeit = `${String(Math.floor(gesamt / 60)).padStart(2, '0')}:${String(gesamt % 60).padStart(2, '0')}`;
       this.#takeawaySichere(bestellung);
       this.#meldeAenderung();
-      return { ok: true, abholzeit: bestellung.abholzeit };
+      // Genau hier bricht die Zusage, die der Gast bekommen hat. Wenn ihn je
+      // etwas erreichen soll, dann jetzt - auch wenn er nicht auf der Seite ist.
+      const geschoben = await this.#meldePush(bestellung);
+      return { ok: true, abholzeit: bestellung.abholzeit, push: geschoben };
     }
     if (befehl.art === 'abgeholt') {
       bestellung.status = 'abgeholt';
@@ -1917,6 +1981,31 @@ export default {
         if (!darf()) return json({ ok: false }, 401, kopf);
         const body = await request.json().catch(() => ({}));
         return json(await haus.setzeFertigWer(String(body?.wer || '')), 200, kopf);
+      }
+
+      // Der oeffentliche Teil des VAPID-Schluessels. Er gehoert in jede Seite,
+      // die sich anmelden will - er ist der Absenderausweis, kein Geheimnis.
+      if (url.pathname === '/api/push/schluessel' && request.method === 'GET') {
+        return json({
+          ok: true,
+          schluessel: env.VAPID_OEFFENTLICH || '',
+          moeglich: Boolean(env.VAPID_OEFFENTLICH && env.VAPID_PRIVAT)
+        }, 200, kopf);
+      }
+      // An- und Abmelden. Kein Hausschluessel: der Bestellschluessel des Gastes
+      // ist der Ausweis, genau wie bei seiner Statusabfrage. Er kann damit
+      // ausschliesslich sein eigenes Geraet eintragen.
+      if (url.pathname === '/api/push/anmelden' && request.method === 'POST') {
+        const body = await request.json().catch(() => ({}));
+        const token = String(body?.t || '');
+        if (token.length < 8) return json({ ok: false, grund: 'unbekannt' }, 404, kopf);
+        return json(await haus.pushAnmelden(token, body?.anmeldung), 200, kopf);
+      }
+      if (url.pathname === '/api/push/abmelden' && request.method === 'POST') {
+        const body = await request.json().catch(() => ({}));
+        const token = String(body?.t || '');
+        if (token.length < 8) return json({ ok: false, grund: 'unbekannt' }, 404, kopf);
+        return json(await haus.pushAbmelden(token), 200, kopf);
       }
 
       // Oeffentlich mit Schluessel: der Stand der eigenen Bestellung. Kein

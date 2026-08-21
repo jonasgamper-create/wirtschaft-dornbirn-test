@@ -12,7 +12,11 @@
   <title>Takeaway · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=14b5178f">
+  <link rel="stylesheet" href="tischreservierung.css?v=4aff8f94">
+  <!-- Nur fuer die Abholmeldung: Auf dem iPhone laesst Apple Push erst zu,
+       wenn die Seite zum Home-Bildschirm hinzugefuegt wurde, und dafuer muss
+       ein Manifest da sein. Auf Android genuegt seine Anwesenheit. -->
+  <link rel="manifest" href="abholung.webmanifest?v=0">
 </head>
 <body class="ta-seite">
   <a class="skip-link" href="#main">Zum Inhalt springen</a>
@@ -102,6 +106,17 @@
               <p class="ta-status-lage"><i aria-hidden="true"></i><span id="taStatusText">Deine Bestellung ist in der Küche.</span></p>
               <p class="ta-status-hinweis" id="taStatusHinweis">Diese Seite aktualisiert sich von selbst – du kannst sie offen lassen.</p>
             </div>
+
+            <!-- Das Angebot kommt erst NACH der Bestellung: vorher waere die
+                 Berechtigungsfrage eine Huerde vor dem eigentlichen Zweck der
+                 Seite. Wer nicht mag, hat die Leiste und den Bildschirm im
+                 Eingang - es geht nichts verloren. -->
+            <div class="ta-push" id="taPush" hidden>
+              <p class="ta-push-frage" id="taPushFrage">Bescheid bekommen, wenn’s fertig ist?</p>
+              <button class="button" type="button" id="taPushAn">Ja, benachrichtigen</button>
+              <button class="button ta-push-weg" type="button" id="taPushAus" hidden>Keine Meldung mehr</button>
+              <small class="ta-push-info" id="taPushInfo" role="status" aria-live="polite">Kostenlos und ohne App. Wir schicken nur diese eine Meldung.</small>
+            </div>
           </aside>
         </div>
         <p class="booking-result" id="taErgebnis" hidden role="status" aria-live="polite"></p>
@@ -154,6 +169,6 @@
     </div>
   </footer>
 
-  <script type="module" src="takeaway.js?v=3fed65db"></script>
+  <script type="module" src="takeaway.js?v=f28087a4"></script>
 </body>
 </html>

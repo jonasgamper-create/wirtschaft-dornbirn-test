@@ -2,7 +2,10 @@
 // sie zeigt den Anrufknopf und sonst nichts - ein Formular, das ins Leere
 // schickt, waere schlimmer als keines.
 
-import { apiAdresse, bestelleTakeaway, holeBestellStatus, holeTakeawayKarte } from './haus-api.js?v=64b16db1';
+import {
+  apiAdresse, bestelleTakeaway, holeBestellStatus, holePushSchluessel,
+  holeTakeawayKarte, meldePushAb, meldePushAn
+} from './haus-api.js?v=d0c0af0d';
 
 const byId = id => document.getElementById(id);
 
@@ -20,6 +23,10 @@ const byId = id => document.getElementById(id);
 
 let statusUhr = 0;
 let statusTitelAlt = '';
+/** Der Schluessel der Bestellung, die gerade verfolgt wird. */
+let laufenderSchluessel = null;
+/** Das Push-Angebot wird einmal aufgebaut, nicht bei jeder Abfrage neu. */
+let pushAngebotSteht = false;
 
 function statusTon() {
   try {
@@ -58,11 +65,10 @@ function zeigeStatus(stand) {
       ? `Abholbereit – Nr. ${stand.nummer}. Wir halten es warm.`
       : `Nr. ${stand.nummer} ist in der Küche. Fertig gegen ${stand.abholzeit} Uhr.`);
 
-  // Wurde verschoben, muss das dastehen - sonst wundert sich der Gast, warum
-  // die Zeit eine andere ist als vorhin.
   // Der Hinweis beantwortet die Frage, die gerade dran ist - und die aendert
-  // sich mit dem Stand. "Aktualisiert sich von selbst" ist nur solange die
-  // richtige Auskunft, wie es noch etwas zu warten gibt.
+  // sich mit dem Stand. Wurde verschoben, muss das dastehen, sonst wundert
+  // sich der Gast ueber die neue Zeit. "Aktualisiert sich von selbst" ist nur
+  // solange die richtige Auskunft, wie es noch etwas zu warten gibt.
   byId('taStatusHinweis').textContent = abgeholt
     ? 'Danke fürs Kommen – bis zum nächsten Mal.'
     : (fertig
@@ -87,12 +93,23 @@ function zeigeStatus(stand) {
     statusTitelAlt = '';
   }
   if (abgeholt) clearInterval(statusUhr);
+
+  // Das Angebot haengt am Stand, nicht am Bestellknopf: so steht es auch dann
+  // richtig da, wenn der Gast ueber seinen gemerkten Link zurueckkommt - und
+  // es weiss vom Dienst, ob dieses Geraet schon angemeldet ist.
+  // Ist alles vorbei, ist auch die Frage vorbei.
+  if (abgeholt) byId('taPush').hidden = true;
+  else if (!pushAngebotSteht) {
+    pushAngebotSteht = true;
+    zeigePushAngebot(laufenderSchluessel, stand.pushAn === true);
+  }
 }
 
 async function verfolge(schluessel) {
   const kasten = byId('taStatus');
   if (!kasten || !schluessel) return;
   kasten.hidden = false;
+  laufenderSchluessel = schluessel;
 
   // Die Adresse zum Wiederfinden. Der Schluessel steht hinter dem Doppelkreuz
   // nicht - er muss an den Dienst, also gehoert er in die Abfrage. Dafuer
@@ -108,6 +125,159 @@ async function verfolge(schluessel) {
   document.addEventListener('visibilitychange', () => { if (!document.hidden) hole(); });
 }
 const alsPreis = wert => `€ ${Number(wert).toFixed(2).replace('.', ',')}`;
+
+// ---- Abholmeldung aufs Geraet ----------------------------------------------
+//
+// Die einzige Benachrichtigung, die dauerhaft nichts kostet: der Dienst klopft
+// direkt beim Push-Server des Browsers an, ohne Anbieter dazwischen. Sie ist
+// eine Zugabe, kein Ersatz - wer sie nicht will, hat weiterhin die Leiste auf
+// dieser Seite und den Bildschirm im Eingang.
+//
+// Auf Android genuegt ein Tippen. Auf dem iPhone laesst Apple Push nur zu,
+// wenn die Seite vorher zum Home-Bildschirm gelegt wurde; ohne das gibt es
+// window.PushManager dort gar nicht. Genau daran wird der Fall erkannt - und
+// dann steht dort ehrlich, was zu tun waere, statt eines Knopfes, der nichts
+// tut.
+
+let pushToken = null;
+
+const aufApfel = () => /iPad|iPhone|iPod/.test(navigator.userAgent)
+  || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+
+const pushMoeglich = () => 'serviceWorker' in navigator
+  && 'PushManager' in window
+  && 'Notification' in window;
+
+/** Base64url aus dem Dienst in das Byte-Feld, das subscribe() verlangt. */
+function schluesselAlsBytes(base64url) {
+  const auffuellen = '='.repeat((4 - (base64url.length % 4)) % 4);
+  const roh = atob((base64url + auffuellen).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from([...roh].map(zeichen => zeichen.charCodeAt(0)));
+}
+
+const sagPush = (text, art = '') => {
+  const kasten = byId('taPushInfo');
+  if (!kasten) return;
+  kasten.textContent = text;
+  kasten.dataset.art = art;
+};
+
+function zeigePushKnoepfe(angemeldet) {
+  byId('taPushAn').hidden = angemeldet;
+  byId('taPushAus').hidden = !angemeldet;
+  byId('taPushFrage').textContent = angemeldet
+    ? 'Wir sagen dir Bescheid.'
+    : 'Bescheid bekommen, wenn’s fertig ist?';
+}
+
+/**
+ * Das Angebot einblenden - erst wenn eine Bestellung laeuft. Was dort steht,
+ * haengt davon ab, was das Geraet ueberhaupt kann.
+ */
+async function zeigePushAngebot(token, schonAngemeldet) {
+  const kasten = byId('taPush');
+  if (!kasten) return;
+  pushToken = token;
+
+  if (!pushMoeglich()) {
+    // Auf dem iPhone ist das kein Defekt, sondern Apples Regel - und sie ist
+    // mit zwei Griffen erfuellt. Auf allen anderen Geraeten, die es nicht
+    // koennen, waere der Hinweis nur Rauschen: dort bleibt der Kasten weg.
+    if (!aufApfel()) return;
+    kasten.hidden = false;
+    byId('taPushAn').hidden = true;
+    byId('taPushAus').hidden = true;
+    byId('taPushFrage').textContent = 'Bescheid aufs iPhone?';
+    sagPush('Dafür verlangt Apple einen Zwischenschritt: unten auf „Teilen“ tippen, '
+      + 'dann „Zum Home-Bildschirm“. Öffne diese Seite danach von dort – die Meldung '
+      + 'lässt sich dann mit einem Tippen einschalten. Einmal eingerichtet, gilt es für jede Bestellung.');
+    return;
+  }
+
+  const erlaubnis = Notification.permission;
+  if (erlaubnis === 'denied') {
+    kasten.hidden = false;
+    byId('taPushAn').hidden = true;
+    byId('taPushAus').hidden = true;
+    byId('taPushFrage').textContent = 'Meldungen sind gesperrt.';
+    sagPush('Dein Browser hat Meldungen für diese Seite abgelehnt. Du kannst das in den '
+      + 'Einstellungen des Browsers wieder erlauben – oder du lässt einfach diese Seite offen.');
+    return;
+  }
+
+  const antwort = await holePushSchluessel();
+  if (!antwort?.moeglich) return; // Ohne Schluessel im Dienst kein Angebot.
+
+  kasten.hidden = false;
+  zeigePushKnoepfe(schonAngemeldet === true);
+  if (!schonAngemeldet) sagPush('Kostenlos und ohne App. Wir schicken nur diese eine Meldung.');
+  else sagPush('Du bekommst eine Meldung, sobald dein Essen fertig ist.');
+}
+
+byId('taPushAn')?.addEventListener('click', async () => {
+  const knopf = byId('taPushAn');
+  knopf.disabled = true;
+  sagPush('Einen Moment …');
+  try {
+    // Die Erlaubnis MUSS aus einem echten Tippen kommen - fragt die Seite von
+    // sich aus, lehnen die Browser inzwischen einfach ab.
+    const erlaubnis = await Notification.requestPermission();
+    if (erlaubnis !== 'granted') {
+      knopf.disabled = false;
+      return sagPush('Kein Problem – die Leiste hier unten sagt dir trotzdem Bescheid, '
+        + 'solange die Seite offen ist.', 'warnung');
+    }
+
+    const schluessel = await holePushSchluessel();
+    if (!schluessel?.schluessel) throw new Error('kein Schluessel');
+
+    const worker = await navigator.serviceWorker.register('push-sw.js?v=10a9ac8d');
+    await navigator.serviceWorker.ready;
+    const anmeldung = await worker.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: schluesselAlsBytes(schluessel.schluessel)
+    });
+
+    const gespeichert = await meldePushAn(pushToken, { endpunkt: anmeldung.endpoint });
+    if (!gespeichert?.ok) throw new Error(gespeichert?.grund || 'abgelehnt');
+
+    // Der Worker braucht Schluessel und Dienstadresse, um die Meldung selbst
+    // zu holen - er lebt weiter, wenn diese Seite laengst zu ist.
+    (worker.active || navigator.serviceWorker.controller)?.postMessage({
+      art: 'merke',
+      daten: {
+        token: pushToken,
+        api: await apiAdresse(),
+        seite: `${location.origin}${location.pathname}`,
+        symbol: new URL('assets/icons/favicon-180.png', location.href).href
+      }
+    });
+
+    knopf.disabled = false;
+    zeigePushKnoepfe(true);
+    sagPush('Passt. Du bekommst eine Meldung, sobald dein Essen fertig ist – auch wenn '
+      + 'du diese Seite schließt.', 'gut');
+  } catch {
+    knopf.disabled = false;
+    sagPush('Das hat nicht geklappt. Die Leiste hier unten sagt dir aber trotzdem Bescheid, '
+      + 'solange die Seite offen ist.', 'fehler');
+  }
+});
+
+byId('taPushAus')?.addEventListener('click', async () => {
+  const knopf = byId('taPushAus');
+  knopf.disabled = true;
+  try {
+    const worker = await navigator.serviceWorker.getRegistration();
+    const anmeldung = await worker?.pushManager.getSubscription();
+    await anmeldung?.unsubscribe();
+    (worker?.active || navigator.serviceWorker.controller)?.postMessage({ art: 'vergiss' });
+    await meldePushAb(pushToken);
+  } catch { /* Abmelden darf nie haengen bleiben */ }
+  knopf.disabled = false;
+  zeigePushKnoepfe(false);
+  sagPush('Erledigt – keine Meldung mehr. Die Leiste hier unten bleibt.', 'gut');
+});
 
 // ---- Name und Telefon auf diesem Geraet ------------------------------------
 //

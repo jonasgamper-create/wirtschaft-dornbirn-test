@@ -189,6 +189,21 @@ export const sendeTakeawayAktion = (token, befehl) =>
 /** Das Protokoll der letzten 30 Tage - was lief gut. */
 export const holeTakeawayProtokoll = token => ruf('/api/takeaway/protokoll', { token });
 
+// ---- Abholmeldung aufs Geraet ----------------------------------------------
+//
+// Kein Hausschluessel: der Bestellschluessel des Gastes ist der Ausweis,
+// genau wie bei seiner Statusabfrage. Er kann damit ausschliesslich sein
+// eigenes Geraet eintragen.
+
+/** Der oeffentliche Absenderausweis - er gehoert in die Seite, ist kein Geheimnis. */
+export const holePushSchluessel = () => ruf('/api/push/schluessel');
+
+export const meldePushAn = (token, anmeldung) =>
+  ruf('/api/push/anmelden', { methode: 'POST', koerper: { t: token, anmeldung } });
+
+export const meldePushAb = token =>
+  ruf('/api/push/abmelden', { methode: 'POST', koerper: { t: token } });
+
 /** Wer meldet "Essen fertig": 'kueche', 'wirt' oder 'beide'. */
 export const setzeFertigWer = (token, wer) =>
   ruf('/api/takeaway/fertig-wer', { methode: 'POST', koerper: { wer }, token });

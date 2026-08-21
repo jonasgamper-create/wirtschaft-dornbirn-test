@@ -143,8 +143,16 @@ check('Der Schirm bekommt keine Kontaktdaten',
 // Dienst. Live geprueft: die Rolle liefert weder Reservierungen noch
 // Kontaktdaten.
 check('Die Kueche ist eine eigene Rolle', /rolle === 'kueche'/.test(dienst));
+// Die Telefonnummer muss weg - welche Felder sonst noch wegfallen, ist dem
+// Test egal. Frueher stand hier das genaue Muster der Zerlegung; das brach,
+// sobald ein zweites Feld dazukam, obwohl die Sache selbst in Ordnung war.
 check('Die Kueche bekommt keine Telefonnummer',
-  /takeaway: this\.#takeawayAlle\(\)\.map\(\(\{ telefon, \.\.\.rest \}\) => rest\)/.test(dienst));
+  /takeaway: this\.#takeawayAlle\(\)\.map\(\(\{[^}]*\btelefon\b[^}]*\.\.\.rest \}\) => rest\)/.test(dienst));
+// Die Push-Anmeldung ist eine Geraetekennung des Gastes. Sie geht an keinen
+// Bildschirm im Haus - weder in die Kueche noch zum Wirt.
+check('Kein Bildschirm im Haus bekommt die Push-Anmeldung',
+  /\.map\(\(\{[^}]*\bpush\b[^}]*\.\.\.rest \}\) => rest\)/.test(dienst)
+  && !/takeaway: this\.#takeawayAlle\(\),/.test(dienst));
 check('Die Kueche bekommt keine Reservierungen',
   !/rolle === 'kueche'[\s\S]{0,400}parties:/.test(dienst));
 

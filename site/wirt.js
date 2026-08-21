@@ -10,7 +10,7 @@ import {
   sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
   setzeFertigWer, setzeSms,
   stelleTagWiederHer
-} from './haus-api.js?v=64b16db1';
+} from './haus-api.js?v=d0c0af0d';
 import { buildFloorplan } from './floorplan-layout.mjs?v=8cd1fbb4';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=ec7c8e39';
 
