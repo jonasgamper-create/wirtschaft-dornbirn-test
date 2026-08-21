@@ -172,15 +172,65 @@
 
   
   (() => {
+    // Das Termin-Abo. Frueher stand hier nur ein Dankestext und die Adresse
+    // ging nirgendwohin - ein Formular, das Vertrauen kassiert und nichts
+    // haelt. Jetzt laeuft es ueber denselben Weg wie die Wochenkarte: eigene
+    // Liste, eigener Einwilligungswortlaut, gueltig erst mit dem Klick in
+    // der Bestaetigungsmail.
     const form = document.getElementById('ticketNews');
     if (!form) return;
     const note = document.getElementById('ticketNewsNote');
-    form.addEventListener('submit', e => {
+    const knopf = form.querySelector('button');
+
+    const dienst = (() => {
+      let versprochen = null;
+      return () => {
+        versprochen ||= fetch('data/haus.json?t=' + Date.now(), { cache: 'no-store' })
+          .then(antwort => antwort.json())
+          .then(daten => {
+            const adresse = String(daten?.api || '').trim().replace(/\/+$/, '');
+            return /^https?:\/\//.test(adresse) ? adresse : '';
+          })
+          .catch(() => '');
+        return versprochen;
+      };
+    })();
+
+    form.addEventListener('submit', async e => {
       e.preventDefault();
       const mail = form.email.value.trim();
-      note.textContent = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)
-        ? 'danke — wir melden uns, sobald neue termine feststehen.'
-        : 'bitte eine gültige E-Mail-Adresse eingeben.';
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) {
+        note.textContent = 'Bitte eine gültige E-Mail-Adresse eingeben.';
+        return;
+      }
+      const basis = await dienst();
+      if (!basis) {
+        // Ohne Dienst gibt es kein Abo - dann sagt die Seite das, statt eine
+        // Adresse anzunehmen, die nirgends ankommt.
+        note.textContent = 'Die Anmeldung ist gerade nicht möglich. Versuch es später noch einmal.';
+        return;
+      }
+      knopf.disabled = true;
+      note.textContent = 'Einen Moment …';
+      try {
+        const antwort = await fetch(basis + '/api/newsletter', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ email: mail, quelle: 'events', liste: 'events', einwilligung: true })
+        });
+        const daten = await antwort.json().catch(() => ({}));
+        if (daten?.schon) {
+          note.textContent = 'Diese Adresse ist schon angemeldet – alles gut.';
+        } else if (daten?.ok) {
+          note.textContent = 'Fast geschafft: Wir haben dir eine Bestätigungsmail geschickt. Erst mit dem Klick darin bist du angemeldet.';
+          form.email.value = '';
+        } else {
+          note.textContent = 'Das hat nicht geklappt. Versuch es später noch einmal.';
+        }
+      } catch {
+        note.textContent = 'Das hat nicht geklappt. Versuch es später noch einmal.';
+      }
+      knopf.disabled = false;
     });
   })();
 

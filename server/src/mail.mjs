@@ -200,17 +200,24 @@ export function absage({ name, tag, zeit, gaeste, grund, vomHaus }) {
  * enthaelt keine Werbung, nur die Frage, ob die Anmeldung von dieser Adresse
  * kam. Ohne Klick passiert nichts und der Eintrag verfaellt.
  */
-export function newsletterFrage({ jaLink, wortlaut }) {
+export function newsletterFrage({ jaLink, wortlaut, liste = 'mittagskarte' }) {
+  // Die Frage muss sagen, WOFUER bestaetigt wird - eine Bestaetigung fuer
+  // "irgendwas" waere keine informierte Einwilligung.
+  const wofuer = liste === 'events'
+    ? { ding: 'unsere Veranstaltungstermine', knopf: 'Ja, ich möchte die Termine',
+      zeile: 'die Veranstaltungstermine der Wirtschaft Dornbirn' }
+    : { ding: 'unsere Mittagskarte', knopf: 'Ja, ich möchte die Mittagskarte',
+      zeile: 'die Mittagskarte der Wirtschaft Dornbirn' };
   const html = rahmen('Anmeldung bestätigen', [
     kopf('Noch ein Schritt', 'Hast du dich angemeldet?'),
-    `<tr><td style="padding:12px 28px 4px;"><p style="margin:0;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#4a453d;">Jemand hat diese Adresse für unsere Mittagskarte eingetragen. Warst du das, bestätige es kurz. Wenn nicht, ignorier diese Mail – dann löschen wir den Eintrag von selbst.</p></td></tr>`,
-    knopf(jaLink, 'Ja, ich möchte die Mittagskarte'),
+    `<tr><td style="padding:12px 28px 4px;"><p style="margin:0;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#4a453d;">Jemand hat diese Adresse für ${wofuer.ding} eingetragen. Warst du das, bestätige es kurz. Wenn nicht, ignorier diese Mail – dann löschen wir den Eintrag von selbst.</p></td></tr>`,
+    knopf(jaLink, wofuer.knopf),
     `<tr><td style="padding:14px 28px 22px;"><p style="margin:0;font:400 12px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">${escapeHtml(wortlaut)}</p></td></tr>`
   ].join(''));
   return {
     betreff: 'Bitte bestätige deine Anmeldung',
     html,
-    text: `Jemand hat diese Adresse für die Mittagskarte der Wirtschaft Dornbirn eingetragen.\n\n`
+    text: `Jemand hat diese Adresse für ${wofuer.zeile} eingetragen.\n\n`
       + `Bestätigen: ${jaLink}\n\nWar es nicht, ignorier diese Mail. Der Eintrag verfällt von selbst.\n`
   };
 }

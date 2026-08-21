@@ -128,6 +128,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .field-error{margin:0;color:var(--wine);font-size:var(--t-meta);font-weight:400;letter-spacing:0;text-transform:none}
 .form-alert{margin:16px 0 0;padding:12px 16px;border-left:2px solid var(--wine);background:#8c292b14;color:#6b2224;font-size:var(--t-meta);line-height:1.5;max-width:56ch}
 .required{margin:14px 0 0;color:#57524a;font-size:var(--t-label)}
+/* Die Information bei der Erhebung (Art. 13 DSGVO): ein Satz am Formular,
+   der Link fuehrt zur ausfuehrlichen Erklaerung. */
+.form-datenschutz{margin:10px 0 0;color:#57524a;font-size:var(--t-meta);line-height:1.5;max-width:56ch}
+.form-datenschutz a,.contact-note a{color:inherit;text-decoration:underline;text-underline-offset:3px}
 .group-hint{margin:var(--s-para) 0 0;color:#57524a;font-size:var(--t-meta);line-height:1.55}
 /* Die Telefonnummer ist die Alternative fuer grosse Gruppen und muss am
    Handy sicher zu treffen sein. */
