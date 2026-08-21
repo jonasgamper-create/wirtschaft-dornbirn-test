@@ -2,7 +2,7 @@
 // sie zeigt den Anrufknopf und sonst nichts - ein Formular, das ins Leere
 // schickt, waere schlimmer als keines.
 
-import { apiAdresse, bestelleTakeaway, holeBestellStatus, holeTakeawayKarte } from './haus-api.js?v=56cfa09d';
+import { apiAdresse, bestelleTakeaway, holeBestellStatus, holeTakeawayKarte } from './haus-api.js?v=64b16db1';
 
 const byId = id => document.getElementById(id);
 
@@ -50,24 +50,37 @@ function zeigeStatus(stand) {
   byId('taDoneZeit').textContent = `${stand.vorbestellung ? 'am nächsten Werktag' : 'heute'}, ca. ${stand.abholzeit} Uhr`;
   byId('taDoneSumme').textContent = alsPreis(stand.summe);
 
+  // In der Leiste unten steht die Nummer mit: wer sie liest, geht damit an
+  // den Tresen, ohne noch einmal nach oben zu scrollen.
   byId('taStatusText').textContent = abgeholt
     ? 'Abgeholt. Lass es dir schmecken!'
     : (fertig
-      ? 'Fertig! Dein Essen wartet – wir halten es warm.'
-      : `Deine Bestellung ist in der Küche. Fertig gegen ${stand.abholzeit} Uhr.`);
+      ? `Abholbereit – Nr. ${stand.nummer}. Wir halten es warm.`
+      : `Nr. ${stand.nummer} ist in der Küche. Fertig gegen ${stand.abholzeit} Uhr.`);
 
   // Wurde verschoben, muss das dastehen - sonst wundert sich der Gast, warum
   // die Zeit eine andere ist als vorhin.
-  byId('taStatusHinweis').textContent = stand.verschobenVon && !fertig && !abgeholt
-    ? `Es dauert etwas länger als gedacht: statt ${stand.verschobenVon} Uhr jetzt ${stand.abholzeit} Uhr. Danke fürs Warten!`
-    : 'Diese Seite aktualisiert sich von selbst – du kannst sie offen lassen.';
+  // Der Hinweis beantwortet die Frage, die gerade dran ist - und die aendert
+  // sich mit dem Stand. "Aktualisiert sich von selbst" ist nur solange die
+  // richtige Auskunft, wie es noch etwas zu warten gibt.
+  byId('taStatusHinweis').textContent = abgeholt
+    ? 'Danke fürs Kommen – bis zum nächsten Mal.'
+    : (fertig
+      ? 'Komm einfach an den Tresen und sag deine Nummer.'
+      : (stand.verschobenVon
+        ? `Es dauert etwas länger als gedacht: statt ${stand.verschobenVon} Uhr jetzt ${stand.abholzeit} Uhr. Danke fürs Warten!`
+        : 'Diese Seite aktualisiert sich von selbst – du kannst sie offen lassen.'));
 
-  // Liegt die Seite im Hintergrund, faellt der Reiter auf. Der Ton kommt nur,
-  // wenn der Browser ihn erlaubt - erzwingen laesst er sich nicht.
+  // Der Umschlag auf "fertig" passiert genau einmal - hier haengt alles dran,
+  // was den Gast erreichen soll, ohne dass er etwas drueckt.
   if (fertig && !statusTitelAlt) {
     statusTitelAlt = document.title;
     document.title = '✓ Fertig! · Wirtschaft Dornbirn';
     if (document.hidden) statusTon();
+    // Kurzes Rumpeln in der Hosentasche. Android und Chrome koennen das,
+    // iPhone-Safari kennt navigator.vibrate nicht - dort bleiben Ton,
+    // Reitertitel und die gruene Leiste. Deshalb geprueft statt vorausgesetzt.
+    try { navigator.vibrate?.([180, 90, 180]); } catch { /* nicht erlaubt */ }
   }
   if (!fertig && statusTitelAlt) {
     document.title = statusTitelAlt;

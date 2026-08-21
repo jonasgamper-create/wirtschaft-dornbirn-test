@@ -309,7 +309,8 @@ export class Haus extends DurableObject {
         id: bestellung.id,
         nummer: bestellung.nummer,
         vorname: String(bestellung.name || '').trim().split(' ')[0].slice(0, 20),
-        fertigUm: bestellung.fertigUm || null
+        // Die angezeigte Zeit, nicht der SMS-Merker - siehe takeawayAktion.
+        fertigUm: bestellung.fertigSeit || bestellung.fertigUm || null
       }))
       .sort((a, b) => a.nummer - b.nummer);
   }
@@ -544,6 +545,10 @@ export class Haus extends DurableObject {
         takeaway: this.#takeawayAlle().map(({ telefon, ...rest }) => rest),
         takeawayKarte: this.#lies('takeawayKarte', []),
         smsAn: this.#lies('smsAn', false) === true,
+        // Wer fertigmeldet, muss auf beiden Bildschirmen dasselbe sein - sonst
+        // steht der Knopf zweimal da oder gar nicht. Die Kueche bekommt die
+        // Einstellung deshalb mit, auch wenn sie sie nicht aendern darf.
+        fertigWer: this.#fertigWer(),
         stand: this.#lies('version', 0)
       };
     }
@@ -584,6 +589,13 @@ export class Haus extends DurableObject {
       // Schickt der Dienst eine SMS, wenn das Essen fertig ist? Standard:
       // nein - sie kostet Geld, das schaltet der Wirt selbst ein.
       smsAn: this.#lies('smsAn', false) === true,
+      // Wer meldet "Essen fertig": die Kueche, der Wirt oder beide. Standard
+      // ist die Kueche, weil dort jemand am Bildschirm steht. Der Stand selbst
+      // ist immer auf beiden Seiten sichtbar - die Einstellung entscheidet nur,
+      // wo der Knopf erscheint. Wer nicht zustaendig ist, soll trotzdem sehen,
+      // ob das Essen schon fertig ist; im Unklaren zu lassen waere schlimmer
+      // als ein Knopf zu viel.
+      fertigWer: this.#fertigWer(),
       // Liegt ein geleerter Tag im Papierkorb, kann die Ansicht Rueckgaengig
       // anbieten - nur die Eckdaten, nie der Inhalt.
       papierkorb: (() => {
@@ -1285,8 +1297,16 @@ export class Haus extends DurableObject {
     //
     // Deshalb ein eigener Tageszaehler: er steigt nur, egal was aus der Liste
     // verschwindet, und faengt mit einem neuen Datum wieder bei eins an.
+    //
+    // Der Zaehler startet nicht bei null, sondern bei der hoechsten Nummer,
+    // die der Tag schon traegt. Sonst gaebe es an genau einem Tag noch einmal
+    // eine doppelte Nummer: an dem, an dem dieser Zaehler eingefuehrt wurde -
+    // die Liste war voll, der Zaehler leer. Dieselbe Zeile repariert den Tag
+    // auch dann, wenn der gespeicherte Wert je verloren geht.
     const tag = this.#lies('taTag', null);
-    const tagesnummer = (tag?.datum === heute ? Number(tag.nummer) || 0 : 0) + 1;
+    const gespeichert = tag?.datum === heute ? Number(tag.nummer) || 0 : 0;
+    const inDerListe = heutige.reduce((groesste, b) => Math.max(groesste, Number(b.nummer) || 0), 0);
+    const tagesnummer = Math.max(gespeichert, inDerListe) + 1;
     this.#schreib('taTag', { datum: heute, nummer: tagesnummer });
 
     const bestellung = {
@@ -1329,11 +1349,22 @@ export class Haus extends DurableObject {
     const bestellung = this.#takeawayAlle().find(eintrag => eintrag.id === befehl?.id);
     if (!bestellung) return { ok: false, grund: 'unbekannt' };
     if (befehl.art === 'fertig') {
+      // Zustaendigkeit im Haus: meldet die Kueche fertig, kommt vom Wirt kein
+      // "fertig" durch - und umgekehrt. Faengt den offen stehenden Bildschirm
+      // ab, der den alten Knopf noch zeigt. Siehe #fertigWer.
+      if (!this.#darfFertig(befehl.rolle === 'kueche' ? 'kueche' : 'haus')) {
+        return { ok: false, grund: 'nicht_zustaendig', fertigWer: this.#fertigWer() };
+      }
       // Zweimal "fertig" darf keine zweite SMS ausloesen - im Betrieb wird
       // ein Knopf schneller doppelt gedrueckt, als einem lieb ist.
       const schonGemeldet = bestellung.status === 'fertig' || bestellung.fertigUm;
       bestellung.status = 'fertig';
       bestellung.fertigUm = bestellung.fertigUm || befehl.zeit || null;
+      // fertigUm ist der Merker fuer die SMS und bleibt deshalb beim
+      // Zuruecknehmen stehen. Als Uhrzeit taugt es danach nicht mehr: wer
+      // zuruecknimmt und spaeter erneut fertigmeldet, saehe sonst die alte
+      // Zeit von vorhin. Was angezeigt wird, steht deshalb hier.
+      bestellung.fertigSeit = befehl.zeit || bestellung.fertigSeit || null;
       this.#takeawaySichere(bestellung);
       this.#meldeAenderung();
       if (schonGemeldet) return { ok: true, sms: 'schon' };
@@ -1432,6 +1463,41 @@ export class Haus extends DurableObject {
     this.#schreib('smsAn', an === true);
     this.#meldeAenderung();
     return { ok: true, an: an === true };
+  }
+
+  /**
+   * Wer meldet "Essen fertig": 'kueche', 'wirt' oder 'beide'.
+   *
+   * Ein unbekannter Wert faellt auf die Kueche zurueck.
+   *
+   * Das ist eine Absprache im Haus, keine Sperre: Kueche und Wirt benutzen
+   * denselben Hausschluessel, der Dienst kann sie also nicht auseinander
+   * halten. Die Rolle im Befehl ist eine Angabe des Bildschirms, kein Ausweis.
+   * Geprueft wird sie trotzdem - sie faengt den Fall ab, der im Betrieb
+   * wirklich vorkommt: ein Bildschirm, der noch offen steht und den alten
+   * Knopf zeigt, nachdem der Wirt die Zustaendigkeit umgestellt hat.
+   */
+  #fertigWer() {
+    const wert = this.#lies('fertigWer', 'kueche');
+    return ['kueche', 'wirt', 'beide'].includes(wert) ? wert : 'kueche';
+  }
+
+  /** Darf diese Rolle gerade fertigmelden? */
+  #darfFertig(rolle) {
+    const wer = this.#fertigWer();
+    if (wer === 'beide') return true;
+    // Der Bildschirm am Eingang meldet nie etwas - er zeigt nur an.
+    if (rolle === 'schirm') return false;
+    return wer === 'kueche' ? rolle === 'kueche' : rolle !== 'kueche';
+  }
+
+  async setzeFertigWer(wert) {
+    if (!['kueche', 'wirt', 'beide'].includes(wert)) return { ok: false, grund: 'wert' };
+    this.#schreib('fertigWer', wert);
+    // Beide Bildschirme muessen es sofort erfahren - sonst steht der Knopf
+    // beim einen noch da, waehrend der andere ihn schon hat.
+    this.#meldeAenderung();
+    return { ok: true, fertigWer: wert };
   }
 
   async takeawayProtokoll() {
@@ -1844,6 +1910,13 @@ export default {
       if (url.pathname === '/api/takeaway/protokoll' && request.method === 'GET') {
         if (!darf()) return json({ ok: false }, 401, kopf);
         return json(await haus.takeawayProtokoll(), 200, kopf);
+      }
+      // Wer im Haus fertigmeldet. Umgestellt wird das in der Wirt-Ansicht -
+      // die Kueche bekommt die Einstellung nur mit.
+      if (url.pathname === '/api/takeaway/fertig-wer' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.setzeFertigWer(String(body?.wer || '')), 200, kopf);
       }
 
       // Oeffentlich mit Schluessel: der Stand der eigenen Bestellung. Kein

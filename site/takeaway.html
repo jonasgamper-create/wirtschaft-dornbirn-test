@@ -12,7 +12,7 @@
   <title>Takeaway · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=2f0e634a">
+  <link rel="stylesheet" href="tischreservierung.css?v=14b5178f">
 </head>
 <body class="ta-seite">
   <a class="skip-link" href="#main">Zum Inhalt springen</a>
@@ -93,6 +93,15 @@
               <p id="taSumme"></p>
               <button class="button button-green" id="taBestellen" type="button">Bestellung aufgeben</button>
             </div>
+
+            <!-- Der Stand der eigenen Bestellung, live - und dort, wo der Gast
+                 ihn ohne Suchen sieht: am Handy fest am unteren Rand, am
+                 Laptop in der mitlaufenden Spalte. Er aktualisiert sich von
+                 selbst; der Gast drueckt nichts. -->
+            <div class="ta-status" id="taStatus" data-stufe="offen" hidden>
+              <p class="ta-status-lage"><i aria-hidden="true"></i><span id="taStatusText">Deine Bestellung ist in der Küche.</span></p>
+              <p class="ta-status-hinweis" id="taStatusHinweis">Diese Seite aktualisiert sich von selbst – du kannst sie offen lassen.</p>
+            </div>
           </aside>
         </div>
         <p class="booking-result" id="taErgebnis" hidden role="status" aria-live="polite"></p>
@@ -108,17 +117,14 @@
           </dl>
           <p class="done-note">Sag’ am Tresen einfach deine Nummer. Bezahlt wird bei der Abholung – bar oder mit Karte.</p>
 
-          <!-- Der Stand der eigenen Bestellung, live. Er ersetzt keine
-               Nachricht aufs Telefon, aber er beantwortet die Frage, die der
-               Gast in den naechsten zwanzig Minuten hat. -->
-          <div class="ta-status" id="taStatus" data-stufe="offen">
-            <p class="ta-status-lage"><i aria-hidden="true"></i><span id="taStatusText">Deine Bestellung ist in der Küche.</span></p>
-            <p class="ta-status-hinweis" id="taStatusHinweis">Diese Seite aktualisiert sich von selbst – du kannst sie offen lassen.</p>
-            <p class="ta-status-link">
-              <a id="taStatusAdresse" href="#">Diesen Stand später wieder öffnen</a>
-              <small>Lesezeichen setzen oder Adresse sichern – die Seite zeigt nur deine eigene Bestellung.</small>
-            </p>
-          </div>
+          <!-- Der Link zum Wiederfinden gehoert auf den Beleg, nicht in die
+               Live-Leiste: er aendert sich nie und will einmal gesichert
+               werden, nicht dauernd gelesen. -->
+          <p class="ta-status-link">
+            <a id="taStatusAdresse" href="#">Diesen Stand später wieder öffnen</a>
+            <small>Lesezeichen setzen oder Adresse sichern – die Seite zeigt nur deine eigene Bestellung.</small>
+          </p>
+
         </div>
 
         <!-- Der Anruf steht bewusst NACH der Bestellstrecke. Oben fing er
@@ -148,6 +154,6 @@
     </div>
   </footer>
 
-  <script type="module" src="takeaway.js?v=79c48cb9"></script>
+  <script type="module" src="takeaway.js?v=3fed65db"></script>
 </body>
 </html>

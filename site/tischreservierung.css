@@ -307,7 +307,29 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 /* Der Stand der eigenen Bestellung. Derselbe Punkt wie in der Ampel: gruen
    heisst fertig, Gold heisst noch in Arbeit. */
-.ta-status{margin:18px 0 0;padding-top:16px;border-top:1px solid #11110f1f}
+.ta-status{margin:16px 0 0;padding:16px;border:1px solid #11110f24;background:#fff}
+.ta-status[hidden]{display:none}
+/* Abholbereit ist die eine Nachricht, auf die der Gast wartet - sie darf
+   nicht aussehen wie jede andere Zeile. Gruen ist der Ton, den das CI dafuer
+   schon fuehrt, kein neues Signal. */
+.ta-status[data-stufe="fertig"]{border-color:var(--green);background:#e8f0ea}
+.ta-status[data-stufe="fertig"] .ta-status-lage{font-size:var(--t-listitem);color:var(--green)}
+.ta-status[data-stufe="abgeholt"]{background:#11110f08}
+
+/* Am Handy gehoert der Stand an den unteren Rand: der Gast soll ihn sehen,
+   ohne ihn zu suchen, egal wo er auf der Seite gerade ist. Die Bestellleiste
+   ist zu diesem Zeitpunkt schon aufgeloest - es steht also nie beides fest. */
+@media(max-width:900px){
+  .ta-seite .ta-status:not([hidden]){
+    position:fixed;left:0;right:0;bottom:0;z-index:41;margin:0;
+    padding:12px var(--gutter) calc(12px + env(safe-area-inset-bottom));
+    border:0;border-top:1px solid #11110f26;box-shadow:0 -6px 18px #11110f14
+  }
+  /* Ohne diese Zeile bliebe die Oberkante grau: die Regel oben setzt border
+     komplett neu und wirft die gruene Farbe des Fertig-Zustands mit weg. */
+  .ta-seite .ta-status[data-stufe="fertig"]:not([hidden]){border-top-color:var(--green)}
+  .ta-seite.ta-abgeschickt .site-footer{padding-bottom:130px}
+}
 .ta-status-lage{display:flex;align-items:center;gap:10px;margin:0;font-size:var(--t-meta);font-weight:700}
 .ta-status-lage i{width:10px;height:10px;flex:0 0 10px;border-radius:50%;background:var(--gold)}
 .ta-status[data-stufe="fertig"] .ta-status-lage i{background:var(--green)}

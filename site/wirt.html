@@ -9,8 +9,8 @@
   <meta name="theme-color" content="#173e2c">
   <title>Heute Mittag · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
-  <link rel="stylesheet" href="wirt.css?v=a3df4860">
-  <script type="module" src="wirt.js?v=8f12c2f4"></script>
+  <link rel="stylesheet" href="wirt.css?v=a656b76d">
+  <script type="module" src="wirt.js?v=6ccd5c54"></script>
 </head>
 <body>
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -112,9 +112,20 @@
       <p class="lauf-ergebnis" id="taKarteInfo" role="status" aria-live="polite"></p>
     </details>
 
+    <details class="werkzeug" id="fertigKasten">
+      <summary>Wer meldet, dass das Essen fertig ist?</summary>
+      <p class="hinweis">Beide Bildschirme sehen immer, was fertig ist. Hier stellst du nur ein, wo der Knopf steht – damit im Betrieb klar ist, wessen Griff das ist.</p>
+      <div class="fertig-wahl" role="radiogroup" aria-label="Wer meldet fertig">
+        <button class="knopf leise" type="button" data-wer="kueche" aria-pressed="true">Die Küche</button>
+        <button class="knopf leise" type="button" data-wer="wirt" aria-pressed="false">Der Wirt</button>
+        <button class="knopf leise" type="button" data-wer="beide" aria-pressed="false">Beide</button>
+      </div>
+      <p class="lauf-ergebnis" id="fertigInfo" role="status" aria-live="polite"></p>
+    </details>
+
     <details class="werkzeug" id="smsKasten">
       <summary>Nachricht an den Gast, wenn das Essen fertig ist</summary>
-      <p class="hinweis">Drückt jemand in der Küche auf „Fertig“, bekommt der Gast eine SMS an die Nummer, die er bei der Bestellung angegeben hat. Jede SMS kostet – deshalb entscheidest du, ob sie läuft.</p>
+      <p class="hinweis">Wird eine Bestellung fertiggemeldet, bekommt der Gast eine SMS an die Nummer, die er bei der Bestellung angegeben hat. Jede SMS kostet – deshalb entscheidest du, ob sie läuft.</p>
       <label class="sms-schalter">
         <input type="checkbox" id="smsAn">
         <span id="smsLabel">SMS ist aus</span>

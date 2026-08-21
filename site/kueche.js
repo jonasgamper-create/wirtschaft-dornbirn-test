@@ -9,7 +9,7 @@
 
 import {
   apiAdresse, bleibVerbunden, hausToken, holeStand, schluesselAusAdresse, sendeTakeawayAktion
-} from './haus-api.js?v=56cfa09d';
+} from './haus-api.js?v=64b16db1';
 
 const byId = id => document.getElementById(id);
 const pad = zahl => String(zahl).padStart(2, '0');
@@ -54,6 +54,16 @@ function heutige() {
     .sort((a, b) => String(a.abholzeit).localeCompare(String(b.abholzeit)));
 }
 
+/**
+ * Ist die Kueche gerade fuers Fertigmelden zustaendig? Die Einstellung kommt
+ * vom Dienst, damit hier und beim Wirt nie zwei verschiedene Wahrheiten
+ * stehen. Kein Wert heisst Kueche - so war es, bevor es den Schalter gab.
+ */
+const darfFertig = () => {
+  const wer = stand?.fertigWer || 'kueche';
+  return wer === 'kueche' || wer === 'beide';
+};
+
 function zeile(bestellung, fertig) {
   const li = document.createElement('li');
   if (bestellung.eng) li.dataset.ton = 'spaet';
@@ -79,18 +89,33 @@ function zeile(bestellung, fertig) {
     wer.append(eng);
   }
 
-  const knopf = document.createElement('button');
-  knopf.type = 'button';
-  knopf.className = fertig ? 'knopf leise' : 'knopf';
-  knopf.dataset.aktion = fertig ? 'zurueck' : 'fertig';
-  knopf.dataset.id = bestellung.id;
-  knopf.textContent = fertig ? 'Doch nicht' : 'Fertig';
-
-  li.append(zeit, wer, knopf);
+  // Meldet der Wirt fertig, steht hier kein Knopf - aber sehr wohl der Stand.
+  // Wer am Herd steht, muss wissen, was schon draussen ist, auch wenn er es
+  // nicht selbst umschaltet. Ein leeres Feld waere die schlechtere Antwort.
+  if (darfFertig()) {
+    const knopf = document.createElement('button');
+    knopf.type = 'button';
+    knopf.className = fertig ? 'knopf leise' : 'knopf';
+    knopf.dataset.aktion = fertig ? 'zurueck' : 'fertig';
+    knopf.dataset.id = bestellung.id;
+    knopf.textContent = fertig ? 'Doch nicht' : 'Fertig';
+    li.append(zeit, wer, knopf);
+  } else {
+    const lage = document.createElement('span');
+    lage.className = 'knopf-ersatz';
+    lage.textContent = fertig
+      ? `fertig${bestellung.fertigSeit ? ` ${bestellung.fertigSeit}` : ''}`
+      : 'in Arbeit';
+    li.append(zeit, wer, lage);
+  }
 
   // "Dauert laenger" ist die nuetzlichste Auskunft ueberhaupt: die Abholzeit
   // kennt der Gast schon, aber nicht, dass sie nicht haelt. Nur bei noch
   // offenen Bestellungen - was fertig ist, dauert nicht mehr.
+  //
+  // Das bleibt der Kueche auch dann, wenn der Wirt fertigmeldet: ob es laenger
+  // dauert, weiss nur der Herd. Zustaendig ist der Wirt fuers Melden, nicht
+  // fuers Schaetzen.
   if (!fertig) {
     const spaeter = document.createElement('button');
     spaeter.type = 'button';
@@ -117,10 +142,14 @@ function male() {
   byId('subPortionen').textContent = '';
 
   // Ob der Gast eine Nachricht bekommt, muss am Herd sichtbar sein: sonst
-  // wartet jemand auf einen Anruf, den niemand macht.
-  byId('smsHinweis').textContent = stand?.smsAn
-    ? '„Fertig“ schickt dem Gast eine SMS.'
-    : '„Fertig“ meldet nur hier – der Gast bekommt keine Nachricht.';
+  // wartet jemand auf einen Anruf, den niemand macht. Und wenn der Wirt
+  // fertigmeldet, gehoert genau das hierher - sonst sucht die Kueche einen
+  // Knopf, den es fuer sie nicht gibt.
+  byId('smsHinweis').textContent = !darfFertig()
+    ? 'Fertigmelden macht der Wirt am Tresen – hier steht nur, was läuft.'
+    : (stand?.smsAn
+      ? '„Fertig“ schickt dem Gast eine SMS.'
+      : '„Fertig“ meldet nur hier – der Gast bekommt keine Nachricht.');
 
   for (const [liste, eintraege, leerText] of [
     [byId('offenListe'), offen, 'Gerade nichts zu kochen.'],
@@ -144,7 +173,9 @@ function verdrahte() {
     if (!knopf) return;
     knopf.disabled = true;
     const { aktion, id } = knopf.dataset;
-    if (aktion === 'fertig') await sendeTakeawayAktion(hausToken(), { art: 'fertig', id, zeit: jetzt() });
+    // Die Rolle geht mit: stellt der Wirt waehrenddessen um, laesst der Dienst
+    // ein "fertig" von diesem Bildschirm nicht mehr durch.
+    if (aktion === 'fertig') await sendeTakeawayAktion(hausToken(), { art: 'fertig', id, zeit: jetzt(), rolle: 'kueche' });
     if (aktion === 'zurueck') await sendeTakeawayAktion(hausToken(), { art: 'offen', id });
     if (aktion === 'spaeter') await sendeTakeawayAktion(hausToken(), { art: 'spaeter', id, minuten: 10 });
     // Die Antwort kommt ueber den Draht zurueck und malt neu.
