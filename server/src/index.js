@@ -1465,6 +1465,9 @@ export class Haus extends DurableObject {
         })
         : null,
       vorbestellung: tag?.vorbestellung ?? null,
+      // Fuer welchen Tag gerade bestellt wird. Die Seite nennt ihn beim Namen,
+      // statt selbst zu rechnen - sie kennt weder Feiertage noch Sperren.
+      bestelltag: tag?.datum ?? null,
       proSlot: PORTIONEN_PRO_SLOT,
       // Die Klarnamen zu den Allergen-Codes - eine Quelle fuer alle Seiten.
       allergenNamen: ALLERGENE,
@@ -1576,6 +1579,11 @@ export class Haus extends DurableObject {
 
     return {
       ok: true, nummer: bestellung.nummer, abholzeit: bestellung.abholzeit,
+      // Das ECHTE Abholdatum. Ohne es rechnete die Seite selbst nach - und
+      // zwar ohne Feiertage und ohne gesperrte Tage. Faellt der Montag auf
+      // einen Feiertag, sagte sie "morgen", waehrend der Dienst laengst auf
+      // Dienstag gelegt hatte. Nur eine Stelle darf diese Rechnung machen.
+      date: bestellung.date, vorbestellung: bestellung.vorbestellung === true,
       summe: bestellung.summe, eng: bestellung.eng === true,
       // Der Schluessel geht genau einmal hinaus: an den Gast, der gerade
       // bestellt hat. Mit ihm sieht er seinen Stand, sonst niemand.

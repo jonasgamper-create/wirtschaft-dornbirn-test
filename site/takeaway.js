@@ -61,7 +61,7 @@ function zeigeStatus(stand) {
   // sie wird hier aus dem Stand gefuellt. Die Abholzeit kommt ohnehin von hier
   // und ist damit auch nach einer Verschiebung die richtige.
   byId('taDoneNummer').textContent = `Nr. ${stand.nummer}`;
-  byId('taDoneZeit').textContent = `${stand.vorbestellung ? 'am nächsten Werktag' : 'heute'}, ca. ${stand.abholzeit} Uhr`;
+  byId('taDoneZeit').textContent = `${tagesName(stand.date)}, ca. ${stand.abholzeit} Uhr`;
   byId('taDoneSumme').textContent = alsPreis(stand.summe);
 
   // Die grosse Nummer erscheint erst mit "fertig". Vorher waere sie eine Zahl
@@ -506,8 +506,13 @@ async function start() {
 
   byId('taLeer').hidden = !vorbestellung;
   if (vorbestellung) {
-    byId('taLeer').textContent = `Die Küche ist für heute durch – deine Bestellung geht auf ${naechsterWerktagText(jetzt)}. `
-      + 'Wähl einfach die Abholzeit, wir haben es dann fertig.';
+    // Welcher Tag das ist, weiss der Dienst - er kennt Feiertage und Sperren.
+    const zielTag = antwort.bestelltag || antwort.tag || null;
+    byId('taLeer').textContent = zielTag
+      ? `Die Küche ist für heute durch – deine Bestellung geht auf ${tagesName(zielTag)}. `
+        + 'Wähl einfach die Abholzeit, wir haben es dann fertig.'
+      : 'Die Küche ist für heute durch – deine Bestellung geht auf den nächsten Tag, an dem wir kochen. '
+        + 'Wähl einfach die Abholzeit, wir haben es dann fertig.';
   }
   byId('taSenden').hidden = false;
   zeigeZeiten(minuten);
@@ -568,16 +573,32 @@ async function ladeSlots() {
   if (antwort?.ok) markiereVolleSlots(antwort.slots);
 }
 
-/** "Montag" oder "morgen" - was der Gast auf dem Zettel lesen will. */
-function naechsterWerktagText(jetzt) {
-  const tag = new Date(jetzt);
-  do {
-    tag.setDate(tag.getDate() + 1);
-  } while (tag.getDay() === 0 || tag.getDay() === 6);
-  const morgen = new Date(jetzt);
-  morgen.setDate(morgen.getDate() + 1);
-  const istMorgen = tag.toDateString() === morgen.toDateString();
-  return istMorgen ? 'morgen' : tag.toLocaleDateString('de-AT', { weekday: 'long' });
+/**
+ * Wie ein Abholtag genannt wird. EINE Stelle fuer alle Texte - vorher stand
+ * an einem Beleg "morgen" und zwei Zeilen darunter "am naechsten Werktag"
+ * fuer denselben Tag.
+ *
+ * Gerechnet wird NICHT selbst, sondern das Datum kommt vom Dienst. Die alte
+ * Fassung uebersprang nur Wochenenden: faellt der Montag auf einen Feiertag
+ * oder hat der Wirt ihn zugesperrt, sagte die Seite "morgen", waehrend die
+ * Bestellung laengst auf Dienstag lag.
+ */
+function tagesName(datum, { lang = false } = {}) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(datum || ''))) return lang ? '' : 'demnächst';
+  const zweistellig = zahl => String(zahl).padStart(2, '0');
+  const jetzt = new Date();
+  const heute = `${jetzt.getFullYear()}-${zweistellig(jetzt.getMonth() + 1)}-${zweistellig(jetzt.getDate())}`;
+  const morgenDatum = new Date(jetzt);
+  morgenDatum.setDate(morgenDatum.getDate() + 1);
+  const morgen = `${morgenDatum.getFullYear()}-${zweistellig(morgenDatum.getMonth() + 1)}-${zweistellig(morgenDatum.getDate())}`;
+
+  if (datum === heute) return 'heute';
+  const wochentag = new Date(`${datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'long' });
+  // Morgen wird "morgen" genannt, aber mit dem Wochentag dahinter - so weiss
+  // der Gast auch beim spaeteren Nachlesen, welcher Tag gemeint war.
+  if (datum === morgen) return `morgen (${wochentag})`;
+  const langesDatum = new Date(`${datum}T12:00:00`).toLocaleDateString('de-AT', { day: 'numeric', month: 'long' });
+  return `${wochentag}, ${langesDatum}`;
 }
 
 /**
@@ -800,7 +821,7 @@ byId('taBestellen')?.addEventListener('click', async () => {
   // "heute" stimmt nur, solange die Kueche kocht. Bei einer Vorbestellung
   // stand hier trotzdem "heute" - eine Bestaetigung, die den falschen Tag
   // nennt, ist schlimmer als gar keine.
-  const wann = vorbestellung ? naechsterWerktagText(new Date()) : 'heute';
+  const wann = tagesName(antwort.date);
   byId('taDoneNummer').textContent = `Nr. ${antwort.nummer}`;
   byId('taDoneZeit').textContent = `${wann}, ca. ${antwort.abholzeit} Uhr`;
   byId('taDoneSumme').textContent = alsPreis(antwort.summe);
