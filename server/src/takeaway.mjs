@@ -162,13 +162,21 @@ export const alsPreis = wert => `€ ${Number(wert).toFixed(2).replace('.', ',')
 /** Frueheste Abholung an einem Tag, an dem noch nicht gekocht wurde. */
 export const ERSTE_ABHOLUNG = '11:30';
 
-/** Der naechste Tag, an dem gekocht wird. Samstag und Sonntag fallen aus. */
-export function naechsterWerktag(datum) {
+/**
+ * Der naechste Tag, an dem gekocht wird. Samstag und Sonntag fallen aus -
+ * und alles, was `zu` enthaelt: Feiertage und vom Wirt gesperrte Tage. Die
+ * Menge kommt von aussen, damit diese Datei rein bleibt und der Aufrufer
+ * entscheidet, was "zu" heisst.
+ */
+export function naechsterWerktag(datum, zu = new Set()) {
   const tag = new Date(`${datum}T12:00:00Z`);
   if (Number.isNaN(tag.getTime())) return datum;
+  let schritte = 0;
   do {
     tag.setUTCDate(tag.getUTCDate() + 1);
-  } while (tag.getUTCDay() === 0 || tag.getUTCDay() === 6);
+    schritte += 1;
+  } while (schritte < 60
+    && (tag.getUTCDay() === 0 || tag.getUTCDay() === 6 || zu.has(tag.toISOString().slice(0, 10))));
   return tag.toISOString().slice(0, 10);
 }
 
@@ -180,14 +188,14 @@ export function naechsterWerktag(datum) {
  * genau dann plant, was er morgen mitnimmt. Die Regel des Hauses bleibt
  * unangetastet: nach 13:45 kommt nichts mehr in die heutige Kueche.
  */
-export function bestelltag({ heute, jetzt }) {
+export function bestelltag({ heute, jetzt, zu = new Set() }) {
   const wochentag = new Date(`${heute}T12:00:00Z`).getUTCDay();
-  const werktag = wochentag >= 1 && wochentag <= 5;
+  const werktag = wochentag >= 1 && wochentag <= 5 && !zu.has(heute);
   const start = zuMinuten(jetzt);
   if (werktag && start !== null && start <= zuMinuten(BESTELLSCHLUSS)) {
     return { datum: heute, vorbestellung: false };
   }
-  return { datum: naechsterWerktag(heute), vorbestellung: true };
+  return { datum: naechsterWerktag(heute, zu), vorbestellung: true };
 }
 
 export function abholzeitFuer(jetzt, wunsch = 'sofort', { vorbestellung = false } = {}) {
@@ -232,7 +240,7 @@ export function abholzeitFuer(jetzt, wunsch = 'sofort', { vorbestellung = false 
  * Eine Bestellung von aussen pruefen - streng, wie jede Eingabe von aussen.
  * `gerichte` ist die veroeffentlichte Karte, `jetzt` die Uhrzeit im Haus.
  */
-export function pruefeBestellung(roh, { gerichte, heute, jetzt, bestehende = [] }) {
+export function pruefeBestellung(roh, { gerichte, heute, jetzt, bestehende = [], zu = new Set() }) {
   const name = String(roh?.name ?? '').trim().replace(/\s+/g, ' ').slice(0, 40);
   if (name.length < 2) return { ok: false, grund: 'name' };
 
@@ -241,7 +249,7 @@ export function pruefeBestellung(roh, { gerichte, heute, jetzt, bestehende = [] 
 
   // Fuer welchen Tag das gilt, entscheidet die Uhr: heute, solange die Kueche
   // kocht - sonst der naechste Werktag als Vorbestellung.
-  const tag = bestelltag({ heute, jetzt });
+  const tag = bestelltag({ heute, jetzt, zu });
 
   const karte = new Map((gerichte || []).map(gericht => [gericht.id, gericht]));
   if (!karte.size) return { ok: false, grund: 'karte' };

@@ -161,6 +161,9 @@ export async function istOffen() {
 export const holeFrei = (datum, personen) =>
   ruf(`/api/frei?datum=${encodeURIComponent(datum)}&personen=${encodeURIComponent(personen)}`);
 
+/** Welche Tage der Wirt zugesperrt hat. Oeffentlich - die Seite graut sie aus. */
+export const holeGeschlossen = () => ruf('/api/geschlossen');
+
 /** Die Ampel: wie voll ist der Mittag heute. Oeffentlich, nur Zahlen. */
 export const holeAmpel = datum =>
   ruf(`/api/ampel?datum=${encodeURIComponent(datum)}`);
@@ -246,6 +249,14 @@ export const sendeLaufkunde = (token, personen) =>
   ruf('/api/laufkunde', { methode: 'POST', koerper: { personen }, token });
 
 export const sendePlan = (token, koerper) => ruf('/api/plan', { methode: 'POST', koerper, token });
+
+/** Einen Tag zusperren oder wieder oeffnen - stoppt NEUE Buchungen. */
+export const setzeTagZu = (token, datum, zu) =>
+  ruf('/api/tag/zu', { methode: 'POST', koerper: { datum, zu }, token });
+
+/** Den ganzen Mittag absagen: Mails an alle Gaeste, Anrufliste fuer den Rest. */
+export const sageTagAb = (token, tag, grund) =>
+  ruf('/api/aktion', { methode: 'POST', koerper: { art: 'tagesabsage', tag, grund }, token });
 
 /** Tisch sperren oder freigeben - der eine Handgriff des Alltags. */
 export const sendeTischsperre = (token, id, gesperrt) =>

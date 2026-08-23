@@ -20,6 +20,7 @@ import { shift } from '../../site/table-assignment.mjs';
 import { pruefeKontakt } from './kontakt.mjs';
 import { pruefePushAnmeldung, schickePush } from './push.mjs';
 import { fuerDieGaesteseite, ordneEigeneEvents, pruefeEigenesEvent } from './eigene-events.mjs';
+import { feiertageImJahr, istFeiertag } from '../../site/feiertage.mjs';
 import {
   fuerDenWirt, pruefeWunsch, raeumeAufProfile, schluesselFuer, widerrufe, zaehleBesuch
 } from './gast.mjs';
@@ -632,6 +633,9 @@ export class Haus extends DurableObject {
   async buche(roh, heute, basis = '') {
     const gecheckt = pruefeAnfrage(roh, { heute });
     if (!gecheckt.ok) return { ok: false, grund: gecheckt.grund };
+    // Feiertage und zugesperrte Tage: die Seite zeigt es vorher an, aber die
+    // Seite ist nicht die Grenze - der Dienst ist es.
+    if (this.#tagIstZu(gecheckt.anfrage?.date || roh?.date)) return { ok: false, grund: 'geschlossen' };
 
     // Eine Erreichbarkeit ist Pflicht. Nicht fuer Werbung, sondern damit eine
     // Absage ankommt: sagt das Haus den Mittag ab, muss jeder Gast das
@@ -868,6 +872,56 @@ export class Haus extends DurableObject {
     return { ok: true, reservierung: ohneGeheimnis(storniert) };
   }
 
+  // ---- Geschlossene Tage ---------------------------------------------------
+
+  /**
+   * Welche Tage der Wirt zugesperrt hat - nur Zukunft (heute einschliesslich),
+   * sortiert. Vergangenes faellt beim Lesen weg; eine Liste alter Sperren
+   * schaut niemand mehr an.
+   */
+  /**
+   * Alles, was fuer die Kueche "zu" heisst: vom Wirt gesperrte Tage plus die
+   * Feiertage des laufenden und des naechsten Jahres - Ende Dezember zeigt
+   * die Vorbestellung sonst auf den Neujahrstag.
+   */
+  #zuMenge() {
+    const jahr = Number(jetztImHaus().datum.slice(0, 4));
+    const zu = new Set(this.#geschlossen());
+    for (const tag of feiertageImJahr(jahr)) zu.add(tag);
+    for (const tag of feiertageImJahr(jahr + 1)) zu.add(tag);
+    return zu;
+  }
+
+  #geschlossen() {
+    const heute = jetztImHaus().datum;
+    return [...new Set(this.#lies('geschlosseneTage', []))]
+      .filter(tag => tag >= heute)
+      .sort();
+  }
+
+  /** Ist an diesem Tag zu - vom Wirt gesperrt oder gesetzlicher Feiertag? */
+  #tagIstZu(datum) {
+    return istFeiertag(datum) || this.#geschlossen().includes(String(datum));
+  }
+
+  async geschlosseneTage() {
+    return { ok: true, tage: this.#geschlossen() };
+  }
+
+  /** Einen Tag zusperren oder wieder oeffnen. Sperren stoppt NEUE Buchungen -
+   *  bestehende sagt erst die Tagesabsage ab; das sind zwei Entscheidungen. */
+  async setzeTagZu(datum, zu) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(datum || ''))) return { ok: false, grund: 'datum' };
+    const liste = new Set(this.#geschlossen());
+    if (zu) liste.add(String(datum)); else liste.delete(String(datum));
+    this.#schreib('geschlosseneTage', [...liste].sort());
+    this.#meldeAenderung();
+    const betroffen = zu
+      ? this.#amTag(String(datum)).filter(party => party.status !== 'storniert').length
+      : 0;
+    return { ok: true, tage: [...liste].sort(), reservierungen: betroffen };
+  }
+
   /**
    * Wolfgang sagt einen ganzen Mittag ab. Jeder Gast mit Mailadresse bekommt
    * die Absage samt zurueckgezogenem Termin; wer nur eine Nummer hinterlassen
@@ -875,6 +929,13 @@ export class Haus extends DurableObject {
    * verschwindet nicht, nur weil der Rest automatisch ging.
    */
   async tagAbsage(tag, grund) {
+    // Absagen und offen lassen widerspricht sich: wer den Mittag absagt,
+    // sperrt ihn. Sonst bucht die naechste Person eine Minute spaeter neu.
+    if (/^\d{4}-\d{2}-\d{2}$/.test(String(tag || ''))) {
+      const liste = new Set(this.#geschlossen());
+      liste.add(String(tag));
+      this.#schreib('geschlosseneTage', [...liste].sort());
+    }
     const betroffen = this.#amTag(String(tag || '')).filter(party => party.status !== 'storniert');
     const anrufen = [];
     for (const party of betroffen) {
@@ -1240,7 +1301,7 @@ export class Haus extends DurableObject {
     // Welche Abholzeiten noch Luft haben. Ohne diese Angabe waehlt der Gast
     // eine volle Zeit und erfaehrt es erst beim Abschicken - dieselbe Huerde,
     // die bei den Uhrzeiten der Reservierung laengst wegfaellt.
-    const tag = heute ? bestelltag({ heute, jetzt }) : null;
+    const tag = heute ? bestelltag({ heute, jetzt, zu: this.#zuMenge() }) : null;
     return {
       ok: true,
       gerichte: this.#lies('takeawayKarte', []),
@@ -1283,7 +1344,7 @@ export class Haus extends DurableObject {
     if (anzahl >= ONLINE_PRO_STUNDE) return { ok: false, grund: 'zu_viele' };
 
     const gecheckt = pruefeBestellung(roh, {
-      gerichte: this.#lies('takeawayKarte', []), heute, jetzt,
+      gerichte: this.#lies('takeawayKarte', []), heute, jetzt, zu: this.#zuMenge(),
       // Die schon angenommenen Bestellungen sind die eigentliche Grenze: die
       // Kueche schafft nur so viel je Viertelstunde.
       bestehende: this.#takeawayAlle()
@@ -2085,6 +2146,17 @@ export default {
         if (!darf()) return json({ ok: false }, 401, kopf);
         const body = await request.json().catch(() => ({}));
         return json(await haus.setzeFertigWer(String(body?.wer || '')), 200, kopf);
+      }
+
+      // Geschlossene Tage: lesen darf jeder (die Gaesteseite graut sie aus),
+      // setzen nur das Haus.
+      if (url.pathname === '/api/geschlossen' && request.method === 'GET') {
+        return json(await haus.geschlosseneTage(), 200, kopf);
+      }
+      if (url.pathname === '/api/tag/zu' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.setzeTagZu(body?.datum, body?.zu === true), 200, kopf);
       }
 
       // Eigene Termine: lesen darf jeder (sie stehen ohnehin auf der

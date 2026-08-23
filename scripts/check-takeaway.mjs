@@ -98,6 +98,18 @@ const nachSchluss = pruefeBestellung({ name: 'Huber', telefon: '+436601234567', 
   { ...rahmen, jetzt: '13:50' });
 check('Nach Bestellschluss kommt nichts mehr in die heutige Kueche',
   nachSchluss.ok && nachSchluss.bestellung.date !== heute, `${BESTELLSCHLUSS}: ${JSON.stringify(nachSchluss)}`);
+// Gesperrte Tage (Feiertag oder Wirt): heute zu heisst Vorbestellung auf den
+// naechsten OFFENEN Tag - und der Sprung ueberspringt auch gesperrte Ziele.
+check('Heute zu rollt auf morgen',
+  bestelltag({ heute: '2026-08-25', jetzt: '12:00', zu: new Set(['2026-08-25']) }).datum === '2026-08-26');
+check('Der Sprung ueberspringt gesperrte Ziele',
+  naechsterWerktag('2026-08-24', new Set(['2026-08-25', '2026-08-26'])) === '2026-08-27');
+check('Freitag mit gesperrtem Montag landet am Dienstag',
+  naechsterWerktag('2026-08-21', new Set(['2026-08-24'])) === '2026-08-25');
+check('Bestellung an gesperrtem Heute wird Vorbestellung',
+  pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }] },
+    { ...rahmen, zu: new Set([heute]) }).bestellung?.vorbestellung === true);
+
 check('Am Samstag wird fuer den naechsten Werktag bestellt',
   pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }] },
     { ...rahmen, heute: '2026-08-22' }).bestellung?.vorbestellung === true);

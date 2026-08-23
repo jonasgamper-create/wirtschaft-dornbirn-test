@@ -9,8 +9,8 @@
   <meta name="theme-color" content="#173e2c">
   <title>Heute Mittag · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
-  <link rel="stylesheet" href="wirt.css?v=090c8a66">
-  <script type="module" src="wirt.js?v=1bc6fa72"></script>
+  <link rel="stylesheet" href="wirt.css?v=29e4535c">
+  <script type="module" src="wirt.js?v=b5bff241"></script>
 </head>
 <body>
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -140,6 +140,26 @@
       <p class="lauf-ergebnis" id="bestandInfo" role="status" aria-live="polite"></p>
       <p class="hinweis">Etagen, Tischordnungen und Betriebszeiten stellst du im
         <a href="gastgeber-tischplan.html" id="einrichtenLink">Einrichten</a> ein – genauso einfach wie hier.</p>
+    </details>
+
+    <details class="werkzeug" id="zuKasten">
+      <summary>Zusperren – wenn ein Mittag ausfällt</summary>
+      <p class="hinweis">Ein gesperrter Tag nimmt keine neuen Reservierungen und Bestellungen mehr
+        an; auf der Gästeseite springt das Datum automatisch weiter. Feiertage sind von selbst
+        zu. Bestehende Gäste sagst du mit dem roten Knopf ab – wer eine Mailadresse hinterlassen
+        hat, bekommt die Absage samt zurückgezogenem Kalendertermin, alle anderen stehen danach
+        hier als Anrufliste.</p>
+      <form class="zu-form" id="zuForm">
+        <label>Tag<input type="date" id="zuDatum"></label>
+        <button class="knopf leise" type="submit" id="zuSperren">Tag zusperren</button>
+      </form>
+      <ul class="zu-liste" id="zuListe"></ul>
+      <div class="zu-absage">
+        <button class="knopf warn" type="button" id="zuAbsagen">Mittag absagen und Gäste verständigen</button>
+        <p class="hinweis">Gilt für den oben gewählten Tag. Takeaway-Besteller stehen mit
+          Telefonnummer in der Tagesliste – die ruft man an.</p>
+      </div>
+      <p class="lauf-ergebnis" id="zuInfo" role="status" aria-live="polite"></p>
     </details>
 
     <details class="werkzeug" id="sperreKasten">

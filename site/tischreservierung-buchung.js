@@ -4,7 +4,8 @@
 // wie bisher und leitet auf den offiziellen Anbieter weiter. Erst wenn der
 // Dienst laeuft, wird aus dem Formular eine echte Buchung.
 
-import { apiAdresse, buche, holeAmpel, holeFrei, holeKarteInfo, holeTakeawayKarte, karteAdresse, meldeMittagskarte } from './haus-api.js?v=c3eb22ff';
+import { apiAdresse, buche, holeAmpel, holeFrei, holeGeschlossen, holeKarteInfo, holeTakeawayKarte, karteAdresse, meldeMittagskarte } from './haus-api.js?v=aad7ea75';
+import { istFeiertag, istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 
 const byId = id => document.getElementById(id);
 start();
@@ -195,24 +196,77 @@ async function start() {
       : `Grau hinterlegte Zeiten sind für ${personen} ${personen === 1 ? 'Person' : 'Personen'} schon belegt.`;
   }
 
-  // Mittags kochen wir Montag bis Freitag. Ein Samstag, der erst nach dem
-  // Ausfuellen abgelehnt wird, ist ein verlorener Gast - deshalb sofort sagen.
+  // Mittags kochen wir Montag bis Freitag - und weder an Feiertagen noch an
+  // Tagen, die das Haus zugesperrt hat. Ein Tag, der erst nach dem Ausfuellen
+  // abgelehnt wird, ist ein verlorener Gast - deshalb sofort sagen. Die
+  // Sperrtage kommen vom Dienst; ohne Antwort bleibt nur die Kalenderregel.
   const istWochenende = tag => [0, 6].includes(new Date(`${tag}T12:00:00`).getDay());
-  byId('day')?.addEventListener('change', () => {
+  let geschlosseneTage = [];
+
+  const heuteIso = () => {
+    const jetzt = new Date();
+    const zweistellig = zahl => String(zahl).padStart(2, '0');
+    return `${jetzt.getFullYear()}-${zweistellig(jetzt.getMonth() + 1)}-${zweistellig(jetzt.getDate())}`;
+  };
+
+  /**
+   * Warum das Datum gerade gesprungen ist. Der Hinweis muss den nachladenden
+   * Verfuegbarkeitstext ueberleben - sonst sieht der Gast nur, DASS sich der
+   * Tag geaendert hat, aber nicht warum.
+   */
+  let sprungHinweis = '';
+
+  function pruefeTag() {
     const tag = byId('day').value;
-    if (tag && istWochenende(tag)) {
-      byId('day').value = '';
-      byId('slotInfo').textContent = 'Mittags kochen wir Montag bis Freitag. '
+    if (!tag) return false;
+    if (istWochenende(tag)) {
+      sprungHinweis = 'Mittags kochen wir Montag bis Freitag – hier gleich der nächste Werktag. '
         + 'Am Wochenende gibt es abends Platz über das Eventticket.';
-      return;
+    } else if (istFeiertag(tag)) {
+      sprungHinweis = 'Der gewählte Tag ist ein Feiertag – hier gleich der nächste offene Tag.';
+    } else if (geschlosseneTage.includes(tag)) {
+      sprungHinweis = 'An dem Tag bleibt der Mittag ausnahmsweise zu – hier gleich der nächste offene Tag.';
+    } else {
+      return true;
     }
-    zeigeVerfuegbarkeit();
+    // Der gesperrte Tag springt auf den naechsten offenen - ein geleertes
+    // Feld liesse den Gast raten, was denn nun ginge.
+    byId('day').value = naechsterOffenerTag(tag, geschlosseneTage);
+    return false;
+  }
+
+  byId('day')?.addEventListener('change', async () => {
+    // Auch nach einem Sprung auf den naechsten offenen Tag sollen gleich die
+    // richtigen Zeiten dastehen - pruefen, dann laden, dann den Grund davor.
+    sprungHinweis = '';
+    pruefeTag();
+    await zeigeVerfuegbarkeit();
+    if (sprungHinweis) {
+      byId('slotInfo').textContent = `${sprungHinweis} ${byId('slotInfo').textContent}`;
+      sprungHinweis = '';
+    }
   });
   document.querySelector('#bookingForm')?.addEventListener('click', event => {
     // Personenzahl geaendert: die Verfuegbarkeit haengt daran.
     if (event.target.closest('[data-step]')) setTimeout(zeigeVerfuegbarkeit, 0);
   });
-  if (byId('day')?.value) zeigeVerfuegbarkeit();
+
+  // Der Standardtag: heute, wenn heute offen ist - sonst der naechste offene
+  // Tag. Ein leeres Datumsfeld ist die erste Huerde des Formulars; ein schon
+  // richtiger Vorschlag ist die halbe Reservierung. Vergangenes sperrt `min`.
+  (async () => {
+    const feld = byId('day');
+    if (!feld) return;
+    const heute = heuteIso();
+    feld.min = heute;
+    const antwort = await holeGeschlossen();
+    if (Array.isArray(antwort?.tage)) geschlosseneTage = antwort.tage;
+    if (!feld.value) {
+      feld.value = naechsterOffenerTag(heute, geschlosseneTage);
+    }
+    pruefeTag();
+    zeigeVerfuegbarkeit();
+  })();
 
   /**
    * Die Bestaetigung. Sie ist der Beleg des Gastes - deshalb steht dort alles,
@@ -385,6 +439,7 @@ async function start() {
         vergangen: 'Dieser Tag liegt in der Vergangenheit.',
         zu_weit: 'So weit im Voraus nehmen wir online noch keine Reservierung an.',
         wochenende: 'Mittags kochen wir Montag bis Freitag.',
+        geschlossen: 'An diesem Tag bleibt der Mittag zu – bitte einen anderen Tag wählen.',
         zu_viele: 'Gerade kommen sehr viele Anfragen. Bitte ruf uns kurz an.',
         kontakt: 'Bitte eine E-Mail-Adresse oder eine Telefonnummer angeben.',
         mail: 'Diese E-Mail-Adresse sieht nicht richtig aus. Bitte noch einmal prüfen.',
