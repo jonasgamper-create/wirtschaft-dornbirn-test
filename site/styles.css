@@ -1340,7 +1340,10 @@ html{scroll-padding-top:0}
    Auf den dunklen Flaechen erbt er die helle Textfarbe und wird nur
    unterstrichen - ein blauer Standardlink saehe hier wie ein Fremdkoerper
    aus und faellt bei dem Kontrast durch. */
-.abo-datenschutz{color:inherit;text-decoration:underline;text-underline-offset:3px}
+/* Der Link bleibt eine Textzeile, aber seine Tippflaeche waechst unsichtbar
+   auf gut 44px: Polster nach oben und unten, gleich grosser negativer Rand
+   dagegen - die Zeile rueckt nicht, der Daumen trifft. */
+.abo-datenschutz{color:inherit;text-decoration:underline;text-underline-offset:3px;padding:13px 0;margin:-13px 0}
 .abo-datenschutz:hover{opacity:.8}
 .final-site .stage-subscribe-form{display:flex;flex-wrap:wrap;gap:8px}
 .final-site .stage-subscribe-form input{
