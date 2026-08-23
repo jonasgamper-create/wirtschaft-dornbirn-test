@@ -8,10 +8,10 @@ import {
   apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeKuechenzettel, holeStand, karteAdresse,
   leereTag, legeEinfach, loescheKarte, schluesselAusAdresse, sendeAktion, sendePlan,
   sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
-  holeEigeneEvents, legeEigenesEvent, loescheEigenesEvent, sendeTischsperre,
+  holeEigeneEvents, holeGeschlossen, legeEigenesEvent, loescheEigenesEvent, sageTagAb, sendeTischsperre, setzeTagZu,
   setzeFertigWer,
   stelleTagWiederHer
-} from './haus-api.js?v=c3eb22ff';
+} from './haus-api.js?v=aad7ea75';
 import { buildFloorplan } from './floorplan-layout.mjs?v=8cd1fbb4';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=ec7c8e39';
@@ -70,6 +70,7 @@ async function start() {
   verdrahteFertigWer();
   verdrahteEigeneEvents();
   verdrahteSperren();
+  verdrahteZu();
   verdrahteBestand();
 }
 
@@ -1056,5 +1057,88 @@ function verdrahteBestand() {
     const seats = Number(auswahl.value);
     const schon = zaehleGroessen(level).find(eintrag => eintrag.seats === seats)?.anzahl || 0;
     stelleBestand(level.id, seats, schon + 1);
+  });
+}
+
+
+// ---- Zusperren und Mittag absagen ------------------------------------------
+//
+// Zwei Entscheidungen, bewusst getrennt: Zusperren stoppt NEUE Buchungen.
+// Absagen verstaendigt die BESTEHENDEN Gaeste (und sperrt den Tag mit, das
+// macht der Dienst). Wer nur zusperrt, hat noch niemanden abgesagt - das
+// steht dann als Hinweis dabei.
+
+async function maleZu() {
+  const liste = byId('zuListe');
+  if (!liste) return;
+  const antwort = await holeGeschlossen();
+  liste.textContent = '';
+  const tage = antwort?.tage || [];
+  if (!tage.length) {
+    const leer = document.createElement('li');
+    leer.className = 'leer';
+    leer.textContent = 'Kein Tag gesperrt.';
+    liste.append(leer);
+    return;
+  }
+  for (const tag of tage) {
+    const li = document.createElement('li');
+    const wann = document.createElement('span');
+    wann.textContent = new Date(`${tag}T12:00:00`).toLocaleDateString('de-AT', {
+      weekday: 'long', day: '2-digit', month: 'long'
+    });
+    const auf = document.createElement('button');
+    auf.type = 'button';
+    auf.className = 'knopf leise';
+    auf.textContent = 'Wieder öffnen';
+    auf.addEventListener('click', async () => {
+      auf.disabled = true;
+      const ergebnis = await setzeTagZu(hausToken(), tag, false);
+      if (!ergebnis?.ok) { auf.disabled = false; return sag('zuInfo', 'Das hat nicht geklappt.', 'fehler'); }
+      sag('zuInfo', 'Der Tag ist wieder offen.', 'gut');
+      maleZu();
+    });
+    li.append(wann, auf);
+    liste.append(li);
+  }
+}
+
+function verdrahteZu() {
+  const form = byId('zuForm');
+  if (!form) return;
+  maleZu();
+  const nu = new Date();
+  const zweistellig = zahl => String(zahl).padStart(2, '0');
+  const heute = `${nu.getFullYear()}-${zweistellig(nu.getMonth() + 1)}-${zweistellig(nu.getDate())}`;
+  byId('zuDatum').value = heute;
+  byId('zuDatum').min = heute;
+
+  form.addEventListener('submit', async ereignis => {
+    ereignis.preventDefault();
+    const datum = byId('zuDatum').value;
+    if (!datum) return sag('zuInfo', 'Bitte einen Tag wählen.', 'fehler');
+    const antwort = await setzeTagZu(hausToken(), datum, true);
+    if (!antwort?.ok) return sag('zuInfo', 'Das hat nicht geklappt.', 'fehler');
+    sag('zuInfo', antwort.reservierungen
+      ? `Zugesperrt. Achtung: ${antwort.reservierungen} Reservierung(en) bestehen noch – mit dem roten Knopf absagen.`
+      : 'Zugesperrt. Es lagen keine Reservierungen auf dem Tag.',
+    antwort.reservierungen ? 'fehler' : 'gut');
+    maleZu();
+  });
+
+  byId('zuAbsagen').addEventListener('click', async () => {
+    const datum = byId('zuDatum').value;
+    if (!datum) return sag('zuInfo', 'Bitte oben den Tag wählen.', 'fehler');
+    const knopf = byId('zuAbsagen');
+    knopf.disabled = true;
+    const antwort = await sageTagAb(hausToken(), datum, 'Heute bleibt unser Mittag ausnahmsweise geschlossen.');
+    knopf.disabled = false;
+    if (!antwort?.ok) return sag('zuInfo', 'Das hat nicht geklappt.', 'fehler');
+    const anrufen = antwort.anrufen || [];
+    sag('zuInfo', `Abgesagt und zugesperrt – ${antwort.abgesagt || 0} Reservierung(en). `
+      + (anrufen.length
+        ? `Bitte anrufen: ${anrufen.map(eintrag => `${eintrag.name} (${eintrag.telefon || 'ohne Nummer'}, ${eintrag.zeit})`).join(', ')}.`
+        : 'Alle Gäste mit Mailadresse sind verständigt.'), anrufen.length ? 'fehler' : 'gut');
+    maleZu();
   });
 }
