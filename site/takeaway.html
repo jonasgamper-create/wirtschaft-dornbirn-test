@@ -30,8 +30,12 @@
     <section class="wrap hero" id="hero">
       <div>
         <p class="eyebrow">Takeaway · Mo–Fr zum Mittag</p>
-        <h1>Heute auf dem Teller.<br>Für dich zum Mitnehmen.</h1>
-        <p class="lead">Frisch gekocht wie am Tisch, bestellt in zwei Minuten – abholbereit in etwa 20–30 Minuten. Letzte Bestellung um 13:45 Uhr.</p>
+        <!-- "Heute" gilt nur, solange heute gekocht wird. Am Wochenende, nach
+             Bestellschluss und an gesperrten Tagen setzt das Skript hier den
+             richtigen Tag ein - sonst stuende ueber einer Montagsbestellung
+             "Heute auf dem Teller". -->
+        <h1><span id="taHeroTag">Heute</span> auf dem Teller.<br>Für dich zum Mitnehmen.</h1>
+        <p class="lead" id="taHeroLead">Frisch gekocht wie am Tisch, bestellt in zwei Minuten – abholbereit in etwa 20–30 Minuten. Letzte Bestellung um 13:45 Uhr.</p>
       </div>
       <aside class="ta-truck" aria-hidden="true">
         <!-- Zweilagig wie auf der Startseite: der Wagen, darauf Emma & Eugen
@@ -46,7 +50,7 @@
     <section class="form-section" id="bestellen">
       <div class="wrap section" style="border-top:0">
         <p class="eyebrow">Bestellen</p>
-        <h2>Was darf’s heute sein?</h2>
+        <h2 id="taBestellTitel">Was darf’s heute sein?</h2>
         <p class="sub">Die Gerichte kommen aus der aktuellen Mittagskarte. Bezahlt wird bei der Abholung – bar oder mit Karte.</p>
 
         <!-- Ohne Dienst oder ohne Karte gibt es nichts zu bestellen - dann
@@ -187,6 +191,6 @@
     </div>
   </footer>
 
-  <script type="module" src="takeaway.js?v=f677d19b"></script>
+  <script type="module" src="takeaway.js?v=4780c3dc"></script>
 </body>
 </html>

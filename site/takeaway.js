@@ -500,20 +500,56 @@ async function start() {
   const minuten = jetzt.getHours() * 60 + jetzt.getMinutes();
   const werktag = jetzt.getDay() >= 1 && jetzt.getDay() <= 5;
   // Bestellt werden kann immer. Solange die Kueche kocht, fuer heute - sonst
-  // als Vorbestellung fuer den naechsten Werktag. Eine Seite, die abends tot
-  // ist, verliert genau die Gaeste, die dann planen, was sie morgen mitnehmen.
-  vorbestellung = !werktag || minuten > BESTELLSCHLUSS;
+  // als Vorbestellung fuer den naechsten Tag, an dem gekocht wird. Eine Seite,
+  // die abends tot ist, verliert genau die Gaeste, die dann planen, was sie
+  // morgen mitnehmen.
+  //
+  // Die Entscheidung trifft der DIENST: er kennt Feiertage und zugesperrte
+  // Tage, die Browseruhr nicht. Rechnete die Seite selbst, stuende an einem
+  // Feiertag "heute" da, waehrend die Bestellung auf morgen liefe. Nur wenn
+  // der Dienst nichts sagt, faellt sie auf die eigene Uhr zurueck.
+  vorbestellung = typeof antwort.vorbestellung === 'boolean'
+    ? antwort.vorbestellung
+    : (!werktag || minuten > BESTELLSCHLUSS);
 
   byId('taLeer').hidden = !vorbestellung;
   if (vorbestellung) {
     // Welcher Tag das ist, weiss der Dienst - er kennt Feiertage und Sperren.
-    const zielTag = antwort.bestelltag || antwort.tag || null;
+    const zielTag = antwort.bestelltag || null;
+    // Der Grund ist nicht immer derselbe, und ein falscher Grund faellt auf:
+    // "Die Kueche ist fuer heute durch" stimmt am Sonntag nicht, da hat sie
+    // gar nicht angefangen. Sonntag und Samstag zuerst, dann die Uhr.
+    // Der Grund wird aus der Kalenderlage gelesen - sie ist auch im Browser
+    // eindeutig. Ob ueberhaupt vorbestellt wird, hat der Dienst entschieden.
+    const wochenende = !werktag;
+    const nachSchluss = werktag && minuten > BESTELLSCHLUSS;
+    const grund = wochenende
+      ? 'Am Wochenende kochen wir mittags nicht'
+      : (nachSchluss ? 'Die Küche ist für heute durch' : 'Heute bleibt die Küche zu');
+    // "auf den naechsten Tag, an dem wir kochen" statt nur "auf morgen":
+    // Liegt zwischen heute und dem Zieltag ein Feiertag oder ein zugesperrter
+    // Tag, wuerde ein blosses Datum den Gast raten lassen, warum es nicht
+    // frueher geht. Dieser Satz stimmt in jedem Fall.
     byId('taLeer').textContent = zielTag
-      ? `Die Küche ist für heute durch – deine Bestellung geht auf ${tagesName(zielTag)}. `
-        + 'Wähl einfach die Abholzeit, wir haben es dann fertig.'
-      : 'Die Küche ist für heute durch – deine Bestellung geht auf den nächsten Tag, an dem wir kochen. '
+      ? `${grund} – deine Bestellung geht auf den nächsten Tag, an dem wir kochen: `
+        + `${tagesName(zielTag)}. Wähl einfach die Abholzeit, wir haben es dann fertig.`
+      : `${grund} – deine Bestellung geht auf den nächsten Tag, an dem wir kochen. `
         + 'Wähl einfach die Abholzeit, wir haben es dann fertig.';
   }
+  // Die Ueberschriften nennen denselben Tag wie die Bestellung. Ohne das stand
+  // "Heute auf dem Teller" ueber einer Bestellung fuer naechsten Montag.
+  const bestellTag = antwort.bestelltag || null;
+  if (bestellTag) {
+    const wort = tagesWort(bestellTag);
+    byId('taHeroTag').textContent = grossAnfang(wort);
+    byId('taBestellTitel').textContent = `Was darf’s ${wort} sein?`;
+    // Die 20-30-Minuten-Zusage gilt nur, wenn heute gekocht wird.
+    if (vorbestellung) {
+      byId('taHeroLead').textContent = 'Frisch gekocht wie am Tisch, bestellt in zwei Minuten – '
+        + `abholbereit ${wort} ab 11:30 Uhr. Wähl einfach deine Abholzeit.`;
+    }
+  }
+
   byId('taSenden').hidden = false;
   zeigeZeiten(minuten);
   markiereVolleSlots(antwort.slots);
@@ -583,6 +619,25 @@ async function ladeSlots() {
  * oder hat der Wirt ihn zugesperrt, sagte die Seite "morgen", waehrend die
  * Bestellung laengst auf Dienstag lag.
  */
+/**
+ * Die kurze Form fuer Ueberschriften: "heute", "morgen", "am Montag".
+ * Sie muss sich in einen Satz einfuegen lassen - deshalb keine Datumsangabe.
+ */
+function tagesWort(datum) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(datum || ''))) return 'demnächst';
+  const zweistellig = zahl => String(zahl).padStart(2, '0');
+  const jetzt = new Date();
+  const heute = `${jetzt.getFullYear()}-${zweistellig(jetzt.getMonth() + 1)}-${zweistellig(jetzt.getDate())}`;
+  const morgenDatum = new Date(jetzt);
+  morgenDatum.setDate(morgenDatum.getDate() + 1);
+  const morgen = `${morgenDatum.getFullYear()}-${zweistellig(morgenDatum.getMonth() + 1)}-${zweistellig(morgenDatum.getDate())}`;
+  if (datum === heute) return 'heute';
+  if (datum === morgen) return 'morgen';
+  return `am ${new Date(`${datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'long' })}`;
+}
+
+const grossAnfang = wort => wort.charAt(0).toUpperCase() + wort.slice(1);
+
 function tagesName(datum, { lang = false } = {}) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(datum || ''))) return lang ? '' : 'demnächst';
   const zweistellig = zahl => String(zahl).padStart(2, '0');
