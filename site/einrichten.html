@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src 'self' data:; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self' https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'; upgrade-insecure-requests">
+  <meta name="theme-color" content="#11110f">
+  <title>Einrichten · Wirtschaft Dornbirn</title>
+  <link rel="stylesheet" href="wirt.css?v=090c8a66">
+</head>
+<body class="einrichten-seite">
+  <header class="kopf">
+    <div>
+      <p class="marke">Wirtschaft Dornbirn · Einrichten</p>
+      <h1>Der Raum, in Zahlen</h1>
+    </div>
+    <p class="verbindung" id="verbindung" data-zustand=""><i aria-hidden="true"></i><span id="verbindungText">Verbinde …</span></p>
+  </header>
+
+  <main>
+    <!-- Jede Aenderung hier gilt SOFORT - fuer die Wirt-Ansicht, die Kueche,
+         den Bildschirm und die Ampel auf der Gaesteseite. Es gibt keinen
+         Speichern-Knopf, weil es keinen ungespeicherten Zustand gibt. -->
+    <p class="hinweis einrichten-lead">Alles hier gilt sofort und überall – auch für die Ampel auf
+      der Gästeseite. Sitzt jemand auf einem Tisch, der wegfällt, wird er automatisch umgesetzt
+      und du siehst, wer.</p>
+    <p class="lauf-ergebnis" id="planInfo" role="status" aria-live="polite"></p>
+
+    <section class="werkzeug offen-immer" aria-labelledby="ordnungTitel">
+      <h2 id="ordnungTitel">Tischordnung</h2>
+      <p class="hinweis">Eine Ordnung ist eine komplette Aufstellung – Standard, Konzert,
+        Sommer mit Terrasse. Antippen wechselt sofort.</p>
+      <div class="ordnung-liste" id="ordnungListe"></div>
+      <form class="ordnung-neu" id="ordnungNeu">
+        <label>Neue Ordnung (Kopie der aktiven)
+          <input type="text" id="ordnungName" maxlength="40" placeholder="z. B. Silvester">
+        </label>
+        <button class="knopf leise" type="submit">Anlegen</button>
+      </form>
+    </section>
+
+    <section class="werkzeug offen-immer" aria-labelledby="etagenTitel">
+      <h2 id="etagenTitel">Etagen, Tische, Stühle</h2>
+      <div class="bestand-liste" id="etagenListe"></div>
+      <form class="ordnung-neu" id="etageNeu">
+        <label>Neue Etage
+          <input type="text" id="etageName" maxlength="40" placeholder="z. B. Terrasse">
+        </label>
+        <button class="knopf leise" type="submit">Etage ergänzen</button>
+      </form>
+    </section>
+
+    <section class="werkzeug offen-immer" aria-labelledby="betriebTitel">
+      <h2 id="betriebTitel">Betrieb</h2>
+      <div class="betrieb-zeilen">
+        <label>Sitzdauer
+          <select id="feldDauer">
+            <option value="60">60 Minuten</option>
+            <option value="75">75 Minuten</option>
+            <option value="90">90 Minuten</option>
+            <option value="105">105 Minuten</option>
+            <option value="120">120 Minuten</option>
+          </select>
+        </label>
+        <label>Abräumen danach
+          <select id="feldPuffer">
+            <option value="0">ohne Pause</option>
+            <option value="5">5 Minuten</option>
+            <option value="10">10 Minuten</option>
+            <option value="15">15 Minuten</option>
+            <option value="20">20 Minuten</option>
+          </select>
+        </label>
+        <label>Tischnummern
+          <select id="feldNummern">
+            <option value="pro-etage">Je Etage neu bei 1</option>
+            <option value="fortlaufend">Fortlaufend über alles</option>
+          </select>
+        </label>
+        <label>Online zuerst füllen
+          <select id="feldStandardEtage"></select>
+        </label>
+      </div>
+    </section>
+
+    <section class="werkzeug offen-immer" aria-label="Mehr">
+      <p class="hinweis">Den Raum aufzeichnen (für den Bildschirm im Eingang) und die Auswertung
+        gibt es in der <a href="profi.html" id="profiLink">Profi-Ansicht</a>. Für den Alltag
+        braucht es sie nicht.</p>
+      <p class="hinweis"><a href="wirt.html">← Zurück zur Wirt-Ansicht</a></p>
+    </section>
+  </main>
+  <script type="module" src="einrichten.js?v=33116ae0"></script>
+</body>
+</html>

@@ -140,7 +140,7 @@ const kbWirt = await baue({
   ziel: target4,
   code: await buendel('wirt.js'),
   stil: await stilFuer(['wirt.css']),
-  kopfErsatz: [/href="gastgeber-tischplan\.html"/, 'href="index.html"']
+  kopfErsatz: [/href="gastgeber-tischplan\.html"/g, 'href="index.html"']
 });
 
 // Die Kuechenansicht. Sie teilt sich das Stilblatt mit der Wirt-Ansicht -
@@ -163,6 +163,16 @@ const kbUebersicht = await baue({
   stil: await stilFuer(['wirt.css'])
 });
 
+// Das neue Einrichten: der Raum in Zahlen, live am Dienst. Es ersetzt die
+// grosse Einteilung als Haupteingang unter /tischplan/.
+const target7 = path.join(root, 'output/tischplan/wirtschaft-einrichten.html');
+const kbEinrichten = await baue({
+  quelle: 'einrichten.html',
+  ziel: target7,
+  code: await buendel('einrichten.js'),
+  stil: await stilFuer(['wirt.css'])
+});
+
 console.log(`Einzeldateien geschrieben:`);
 console.log(`  ${path.relative(root, target)} (${kbIntern} KB) - interne Planung`);
 console.log(`  ${path.relative(root, target2)} (${kbKunde} KB) - zum Verschicken an den Kunden`);
@@ -170,3 +180,4 @@ console.log(`  ${path.relative(root, target3)} (${kbScreen} KB) - Bildschirm am 
 console.log(`  ${path.relative(root, target4)} (${kbWirt} KB) - einfache Wirt-Ansicht`);
 console.log(`  ${path.relative(root, target5)} (${kbKueche} KB) - Bildschirm in der Kueche`);
 console.log(`  ${path.relative(root, target6)} (${kbUebersicht} KB) - Uebersicht fuers Haus`);
+console.log(`  ${path.relative(root, target7)} (${kbEinrichten} KB) - Einrichten (Raum in Zahlen)`);

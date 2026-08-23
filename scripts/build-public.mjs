@@ -40,6 +40,8 @@ const excluded = new Set([
   // Einzeldatei unter /tischplan/.
   'uebersicht.html',
   'uebersicht.js',
+  'einrichten.html',
+  'einrichten.js',
   'entwuerfe.html',
   'drafts.css',
   'entwuerfe.css',
@@ -76,7 +78,12 @@ if (process.env.PUBLIC_ENV === 'production' || process.env.VERCEL_ENV === 'produ
 // Sie tragen keinerlei Daten: Belegung und Namen entstehen erst im Browser
 // dessen, der die Seite oeffnet. Die Quelldateien bleiben trotzdem draussen.
 const einzel = [
-  ['output/tischplan/wirtschaft-tischplan.html', 'tischplan/index.html'],
+  // Der Haupteingang unter /tischplan/ ist das neue Einrichten - der Raum in
+  // Zahlen, live am Dienst. Die alte grosse Einteilung bleibt als
+  // Profi-Ansicht erreichbar (Raumkarte, Auswertung), verstellt aber nicht
+  // mehr die Tuer.
+  ['output/tischplan/wirtschaft-einrichten.html', 'tischplan/index.html'],
+  ['output/tischplan/wirtschaft-tischplan.html', 'tischplan/profi.html'],
   ['output/tischplan/wirtschaft-kundenplan.html', 'tischplan/kunde.html'],
   ['output/tischplan/wirtschaft-screen.html', 'tischplan/screen.html'],
   ['output/tischplan/wirtschaft-wirt.html', 'tischplan/wirt.html'],
