@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  AMPEL_WENIGE, ampelFuer, etagenReihenfolge, machId, planTaugt, pruefeAnfrage, raeumeAuf, sitzendeGaeste, verteile, wendeAktionAn
+  AMPEL_WENIGE, ampelFuer, betroffenePartys, etagenReihenfolge, machId, planTaugt, pruefeAnfrage, raeumeAuf, sitzendeGaeste, tischBekannt, verteile, wendeAktionAn
 } from '../server/src/haus-logik.mjs';
 import { buildFloorplan } from '../site/floorplan-layout.mjs';
 
@@ -262,6 +262,34 @@ check('Leerer Koerper wird abgelehnt', !planTaugt(undefined) && !planTaugt(null)
 check('Text statt Plan wird abgelehnt', !planTaugt('kaputt'));
 check('Liste statt Plan wird abgelehnt', !planTaugt([]));
 check('Plan ohne Ordnungen wird abgelehnt', !planTaugt({ layouts: [] }));
+
+// ---- Planaenderung und bestehende Reservierungen ---------------------------
+// Ein neuer Plan darf keine heimatlosen Reservierungen hinterlassen, ohne
+// dass es jemand erfaehrt. Diese Funktion findet, wen es trifft.
+
+const planTische = buildFloorplan(config).tables;
+const ersterTisch = planTische[0];
+const basisParty = {
+  id: 'p1', name: 'Huber', guests: 2, date: '2099-01-10', time: '12:00',
+  tableIds: [ersterTisch.id], left: null
+};
+check('Ein Tisch, den es gibt, ist bekannt', tischBekannt(config, ersterTisch.id));
+check('Ein erfundener Tisch ist unbekannt', !tischBekannt(config, 'gibtsnicht'));
+
+check('Passende Reservierung ist nicht betroffen',
+  betroffenePartys([basisParty], { config, blocked: [], heute: '2099-01-01' }).length === 0);
+check('Gesperrter Tisch macht sie betroffen',
+  betroffenePartys([basisParty], { config, blocked: [ersterTisch.id], heute: '2099-01-01' }).length === 1);
+check('Verschwundener Tisch macht sie betroffen',
+  betroffenePartys([{ ...basisParty, tableIds: ['weg-01'] }], { config, blocked: [], heute: '2099-01-01' }).length === 1);
+check('Zu klein gewordener Tisch macht sie betroffen',
+  betroffenePartys([{ ...basisParty, guests: ersterTisch.seats + 1 }], { config, blocked: [], heute: '2099-01-01' }).length === 1);
+check('Vergangenes bleibt unangetastet',
+  betroffenePartys([{ ...basisParty, date: '2000-01-01', tableIds: ['weg-01'] }], { config, blocked: [], heute: '2099-01-01' }).length === 0);
+check('Wer schon gegangen ist, wird nicht umgesetzt',
+  betroffenePartys([{ ...basisParty, tableIds: ['weg-01'], left: '13:05' }], { config, blocked: [], heute: '2099-01-01' }).length === 0);
+check('Ohne Tisch keine Betroffenheit - da ist nichts zu entwurzeln',
+  betroffenePartys([{ ...basisParty, tableIds: [] }], { config, blocked: [ersterTisch.id], heute: '2099-01-01' }).length === 0);
 
 if (errors.length) {
   console.error(errors.join('\n'));

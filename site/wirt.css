@@ -193,3 +193,13 @@ h2{font-size:24px;margin-bottom:6px}
 .werkzeug-links a{display:grid;gap:3px;padding:14px;border:1px solid #11110f1f;border-radius:10px;background:#fff;color:var(--ink);text-decoration:none;font-weight:700}
 .werkzeug-links a:hover{border-color:var(--green)}
 .werkzeug-links small{color:var(--muted);font-weight:400}
+
+/* ---- Tische sperren -------------------------------------------------------- */
+.sperre-liste{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.sperre{display:grid;gap:1px;justify-items:center;min-width:72px;min-height:56px;padding:8px 10px;border:1px solid #11110f3d;border-radius:10px;background:#fff;color:var(--ink);cursor:pointer}
+.sperre b{font-size:18px;font-variant-numeric:tabular-nums}
+.sperre span{font-size:11px;color:var(--muted)}
+/* Gesperrt sieht gesperrt aus: durchgestrichen und blass - dieselbe Sprache
+   wie die vollen Uhrzeiten auf der Gaesteseite. */
+.sperre.zu{border-style:dashed;background:#11110f08;color:#a29b90;text-decoration:line-through}
+.sperre.zu span{color:#a29b90}

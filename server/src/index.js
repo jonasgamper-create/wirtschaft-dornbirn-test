@@ -12,7 +12,7 @@
 
 import { DurableObject } from 'cloudflare:workers';
 import {
-  AUFBEWAHRUNG_TAGE, ampelFuer, brauchtErinnerung, freieZeiten, machId, planTaugt, pruefeAnfrage, raeumeAuf, verteile, wendeAktionAn
+  AUFBEWAHRUNG_TAGE, ampelFuer, betroffenePartys, brauchtErinnerung, freieZeiten, machId, planTaugt, pruefeAnfrage, raeumeAuf, tischBekannt, verteile, wendeAktionAn
 } from './haus-logik.mjs';
 import standardPlan from '../../site/data/floorplan.json';
 import eventDaten from '../../site/data/events.json';
@@ -1643,8 +1643,67 @@ export class Haus extends DurableObject {
     if (tischAnzeigen !== undefined) this.#schreib('tischAnzeigen', tischAnzeigen === true);
     if (deckel !== undefined) this.#schreib('deckel', deckel);
     if (automatik !== undefined) this.#schreib('automatik', automatik !== false);
+    // Ein neuer Plan kann bestehende Reservierungen entwurzeln: Tisch weg,
+    // Tisch kleiner, Tisch gesperrt. Die werden hier sofort neu gesetzt und
+    // gemeldet - sonst merkt es der Wirt erst, wenn der Gast vor einem Tisch
+    // steht, den es nicht mehr gibt.
+    const umgesetzt = this.#setzeBetroffeneUm();
     this.#meldeAenderung();
-    return { ok: true, stand: this.#stand() };
+    return { ok: true, stand: this.#stand(), umgesetzt };
+  }
+
+  /**
+   * Reservierungen, die der aktuelle Plan nicht mehr traegt, neu zuteilen.
+   * Ohne Pacing: die Gaeste sind laengst zugesagt - eine Auslastungsbremse
+   * darf aus einer Planaenderung keine heimatlosen Reservierungen machen.
+   * Wer trotzdem keinen Platz findet, steht mit leerer Tischliste in der
+   * Wirt-Ansicht und in der Rueckmeldung - von Hand einteilen.
+   */
+  #setzeBetroffeneUm() {
+    const config = this.#plan();
+    const blocked = this.#lies('blocked', []);
+    const heute = jetztImHaus().datum;
+    const alle = this.#alle();
+    const betroffene = betroffenePartys(alle, { config, blocked, heute });
+    const meldungen = [];
+    for (const party of betroffene) {
+      const andere = alle.filter(eintrag => eintrag.id !== party.id);
+      const { result } = verteile(
+        { date: party.date, time: party.time, guests: party.guests },
+        {
+          config,
+          parties: andere,
+          blocked,
+          standardEtage: this.#lies('standardEtage', null),
+          deckel: null,
+          ohnePacing: true
+        }
+      );
+      party.tableIds = result.ok ? result.tableIds : [];
+      this.#sichere(party);
+      meldungen.push({
+        name: party.name, date: party.date, time: party.time,
+        tische: result.ok ? result.tableIds : null
+      });
+    }
+    return meldungen;
+  }
+
+  /**
+   * Ein Tisch faellt aus oder kommt zurueck - der eine Handgriff des Alltags.
+   * Er aendert nur die Sperrliste, nie den Plan selbst; Reservierungen auf
+   * einem gesperrten Tisch werden sofort umgesetzt.
+   */
+  async setzeTischsperre(tischId, gesperrt) {
+    const id = String(tischId || '');
+    if (!id) return { ok: false, grund: 'tisch' };
+    if (!tischBekannt(this.#plan(), id)) return { ok: false, grund: 'unbekannt' };
+    const liste = new Set(this.#lies('blocked', []));
+    if (gesperrt) liste.add(id); else liste.delete(id);
+    this.#schreib('blocked', [...liste]);
+    const umgesetzt = gesperrt ? this.#setzeBetroffeneUm() : [];
+    this.#meldeAenderung();
+    return { ok: true, gesperrt: [...liste], umgesetzt };
   }
 
   async aktion(befehl) {
@@ -1927,6 +1986,12 @@ export default {
       if (url.pathname === '/api/stand' && request.method === 'GET') {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         return json({ ok: true, stand: await haus.stand() }, 200, kopf);
+      }
+
+      if (url.pathname === '/api/tisch/sperre' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.setzeTischsperre(body?.id, body?.gesperrt === true), 200, kopf);
       }
 
       if (url.pathname === '/api/plan' && request.method === 'POST') {

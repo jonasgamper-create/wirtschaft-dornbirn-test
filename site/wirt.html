@@ -9,8 +9,8 @@
   <meta name="theme-color" content="#173e2c">
   <title>Heute Mittag · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
-  <link rel="stylesheet" href="wirt.css?v=298d6f46">
-  <script type="module" src="wirt.js?v=4a662eac"></script>
+  <link rel="stylesheet" href="wirt.css?v=f6742a7a">
+  <script type="module" src="wirt.js?v=44147de6"></script>
 </head>
 <body>
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -124,6 +124,16 @@
       <p class="hinweis">Die Küche hat einen eigenen Zugang: <a href="kueche.html" id="kuecheLink">Küchenansicht öffnen</a> – dort stehen nur die Bestellungen, keine Reservierungen und keine Gästekontakte.</p>
     </details>
 
+
+    <details class="werkzeug" id="sperreKasten">
+      <summary>Tische sperren – wenn einer ausfällt</summary>
+      <p class="hinweis">Gesperrte Tische vergibt der Dienst nicht mehr – weder online noch bei
+        Laufkundschaft. Sitzt schon jemand darauf reserviert, wird er sofort auf einen freien
+        Tisch umgesetzt und du siehst hier, wer. Stühle und Tische selbst änderst du in der
+        <a href="gastgeber-tischplan.html" id="einrichtenLink">großen Einteilung</a> unter „Einrichten“.</p>
+      <div class="sperre-liste" id="sperreListe"></div>
+      <p class="lauf-ergebnis" id="sperreInfo" role="status" aria-live="polite"></p>
+    </details>
 
     <details class="werkzeug" id="eventKasten">
       <summary>Eigene Termine – was im Haus ansteht</summary>

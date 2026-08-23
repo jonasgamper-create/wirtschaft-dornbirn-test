@@ -280,6 +280,30 @@ export function ampelFuer({ config, parties, blocked = [], standardEtage = null,
  * ihn abzulehnen: der Dienst wuerde ab dann jede Onlinebuchung ins Leere
  * zuweisen, und niemand saehe warum.
  */
+/** Gibt es diesen Tisch im aktiven Plan? Fuer die Sperre von aussen. */
+export function tischBekannt(config, tischId) {
+  return buildFloorplan(config).tables.some(table => table.id === String(tischId || ''));
+}
+
+/**
+ * Welche Reservierungen nach einer Planaenderung nicht mehr tragen:
+ * ihr Tisch ist verschwunden, gesperrt oder zu klein geworden. Nur ab heute -
+ * die Vergangenheit ist gegessen, im Wortsinn.
+ */
+export function betroffenePartys(parties, { config, blocked = [], heute }) {
+  const tische = new Map(buildFloorplan(config).tables.map(table => [table.id, table]));
+  const zu = new Set(blocked);
+  return (parties || []).filter(party => {
+    if (!Array.isArray(party.tableIds) || !party.tableIds.length) return false;
+    if (String(party.date || '') < String(heute || '')) return false;
+    if (party.left) return false;
+    const fehlt = party.tableIds.some(id => !tische.has(id));
+    const gesperrt = party.tableIds.some(id => zu.has(id));
+    const plaetze = party.tableIds.reduce((summe, id) => summe + (tische.get(id)?.seats || 0), 0);
+    return fehlt || gesperrt || plaetze < (Number(party.guests) || 0);
+  });
+}
+
 export function planTaugt(config) {
   return Boolean(config)
     && typeof config === 'object'
