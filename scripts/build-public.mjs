@@ -36,6 +36,10 @@ const excluded = new Set([
   // Seite kam unformatiert an, weil wirt.css im Gaeste-Build fehlt.
   'kueche.html',
   'kueche.js',
+  // Die Uebersicht ist Werkzeug fuers Haus - wie Wirt und Kueche nur als
+  // Einzeldatei unter /tischplan/.
+  'uebersicht.html',
+  'uebersicht.js',
   'entwuerfe.html',
   'drafts.css',
   'entwuerfe.css',
@@ -76,7 +80,8 @@ const einzel = [
   ['output/tischplan/wirtschaft-kundenplan.html', 'tischplan/kunde.html'],
   ['output/tischplan/wirtschaft-screen.html', 'tischplan/screen.html'],
   ['output/tischplan/wirtschaft-wirt.html', 'tischplan/wirt.html'],
-  ['output/tischplan/wirtschaft-kueche.html', 'tischplan/kueche.html']
+  ['output/tischplan/wirtschaft-kueche.html', 'tischplan/kueche.html'],
+  ['output/tischplan/wirtschaft-uebersicht.html', 'tischplan/uebersicht.html']
 ];
 let veroeffentlicht = 0;
 for (const [quelle, ziel] of einzel) {

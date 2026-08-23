@@ -24,6 +24,18 @@
         "site"
       ],
       "port": 4322
+    },
+    {
+      "name": "site-4323",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "4323",
+        "--directory",
+        "site"
+      ],
+      "port": 4323
     }
   ]
 }

@@ -588,7 +588,13 @@
     const spotlight = document.getElementById('eventSpotlight');
     const timeline = document.getElementById('eventTimeline');
     const events = calendarEvents;
-    const renderTicketLink = item => `<a class="event-ticket-link event-status-${escapeHtml(item.status)}" href="${escapeHtml(item.officialUrl || eventData.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(eventStatusLabel(item.status))} ↗</a>`;
+    const renderTicketLink = item => {
+      // Ein Termin des Hauses ohne eigenen Link bekommt keinen Ticketknopf:
+      // der wuerde auf das offizielle Programm zeigen, wo er nicht steht.
+      if (item.quelle === 'haus' && !item.officialUrl) return '';
+      const beschriftung = item.quelle === 'haus' ? 'Details' : eventStatusLabel(item.status);
+      return `<a class="event-ticket-link event-status-${escapeHtml(item.status)}" href="${escapeHtml(item.officialUrl || eventData.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(beschriftung)} ↗</a>`;
+    };
     const renderCalendarLink = item => item.status === 'cancelled' ? '' : `<button type="button" data-calendar-event="${escapeHtml(item.id)}">Zum Kalender <span>＋</span></button>`;
     const renderSpotlight = item => `<article data-event-status="${escapeHtml(item.status)}"><time datetime="${escapeHtml(item.date)}"><b>${escapeHtml(item.date.slice(8, 10))}</b><span>${escapeHtml(new Intl.DateTimeFormat('de-AT', { month: 'short' }).format(new Date(`${item.date}T12:00:00`)).replace('.', '').toUpperCase())}</span></time><div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.type)}</small></div>${renderTicketLink(item)}</article>`;
     const renderTimeline = item => `<article data-event-status="${escapeHtml(item.status)}"><time datetime="${escapeHtml(item.date)}"><b>${escapeHtml(item.date.slice(8, 10))}</b><span>${escapeHtml(new Intl.DateTimeFormat('de-AT', { month: 'short' }).format(new Date(`${item.date}T12:00:00`)).replace('.', '').toUpperCase())}</span></time><div><p>${escapeHtml(item.title)}</p><small>${escapeHtml(item.type)}</small></div><div class="event-actions">${renderTicketLink(item)}${renderCalendarLink(item)}</div></article>`;
@@ -730,6 +736,33 @@
   if (requestedDialog && Object.hasOwn(dialogs, requestedDialog)) {
     window.setTimeout(() => openDialog(requestedDialog, null), 220);
   }
+  // Die eigenen Termine des Hauses, vom Wirt in seiner Ansicht angesetzt.
+  // Sie kommen vom Dienst und werden nach Datum zwischen die offiziellen
+  // Abende einsortiert. Scheitert der Abruf, fehlt nur diese Ergaenzung -
+  // die Seite selbst bleibt, wie sie ist.
+  let hausEvents = [];
+  const mischeHausEvents = () => {
+    const eigene = hausEvents.filter(event => !calendarEvents.some(alt => alt.id === event.id));
+    if (!eigene.length) return;
+    calendarEvents = [...calendarEvents.filter(event => event.quelle !== 'haus'), ...hausEvents]
+      .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    renderEventLists();
+  };
+  fetch('data/haus.json', { cache: 'no-store' })
+    .then(antwort => antwort.json())
+    .then(daten => {
+      const basis = String(daten?.api || '').trim().replace(/\/+$/, '');
+      if (!/^https?:\/\//.test(basis)) return;
+      return fetch(`${basis}/api/events`, { cache: 'no-store' })
+        .then(antwort => antwort.json())
+        .then(eigene => {
+          if (!Array.isArray(eigene?.events) || !eigene.events.length) return;
+          hausEvents = eigene.events;
+          mischeHausEvents();
+        });
+    })
+    .catch(() => { /* ohne Dienst einfach ohne Haus-Termine */ });
+
   fetch('data/events.json', { cache: 'no-store' })
     .then(response => {
       if (!response.ok) throw new Error(`Eventdaten konnten nicht geladen werden (${response.status})`);
@@ -740,6 +773,7 @@
       eventData = data;
       calendarEvents = data.events.map(item => ({ ...item }));
       renderEventLists();
+      mischeHausEvents();
       syncOfficialTicketLink();
       syncServiceStatus();
       window.dispatchEvent(new CustomEvent('wirtschaft:eventdata', { detail: { fresh: isFreshEventData(data), count: calendarEvents.length } }));
