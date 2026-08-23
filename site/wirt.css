@@ -222,3 +222,25 @@ h2{font-size:24px;margin-bottom:6px}
 /* Textlinks in Hinweisen und im Fuss: unsichtbar vergroesserte Tippflaeche.
    16 Pixel Zeilenhoehe treffen Finger nicht - 44 schon. */
 .hinweis a,.fuss a,.model-note a{padding:13px 0;margin:-13px 0}
+
+/* ---- Einrichten-Seite ------------------------------------------------------ */
+.einrichten-lead{max-width:56ch}
+.ordnung-liste{display:grid;gap:8px;margin:0 0 14px}
+.ordnung-zeile{display:flex;gap:8px;align-items:stretch}
+.ordnung{flex:1;display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:56px;padding:10px 16px;border:1px solid #11110f3d;border-radius:12px;background:#fff;color:var(--ink);cursor:pointer;text-align:left}
+.ordnung b{font-size:16px}
+.ordnung span{color:var(--muted);font-size:13px;white-space:nowrap}
+.ordnung.aktiv{border-color:var(--green);background:var(--green);color:#fff}
+.ordnung.aktiv span{color:#dfe8e1}
+.ordnung-weg{align-self:center}
+.ordnung-neu{display:flex;align-items:end;gap:10px;margin-top:4px}
+.ordnung-neu label{flex:1;display:grid;gap:5px;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.ordnung-neu input{min-height:46px;padding:10px 12px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none}
+.etage-kopf{display:flex;gap:10px;align-items:center;margin:0 0 6px}
+.etage-kopf input{flex:1;min-height:46px;padding:8px 12px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:16px;font-weight:700}
+.groesse-neu{display:flex;gap:10px;align-items:center;margin-top:10px}
+.groesse-neu select{min-height:46px;padding:8px 10px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:15px}
+.betrieb-zeilen{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.betrieb-zeilen{grid-template-columns:1fr}}
+.betrieb-zeilen label{display:grid;gap:6px;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.betrieb-zeilen select{min-height:52px;padding:8px 12px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none}
