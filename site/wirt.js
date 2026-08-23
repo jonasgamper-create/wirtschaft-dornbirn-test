@@ -11,7 +11,7 @@ import {
   holeEigeneEvents, holeGeschlossen, legeEigenesEvent, loescheEigenesEvent, sageTagAb, sendeTischsperre, setzeTagZu,
   setzeFertigWer,
   stelleTagWiederHer
-} from './haus-api.js?v=aad7ea75';
+} from './haus-api.js?v=c107be2b';
 import { buildFloorplan } from './floorplan-layout.mjs?v=8cd1fbb4';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=ec7c8e39';

@@ -22,7 +22,11 @@
   // vor der ersten Reservierung (11:30) bis nach der letzten (13:30), mit
   // Rand fuer die Winterzeit. Nur Montag bis Freitag: an Wochenenden gibt es
   // keinen Mittagstisch, und ein Lauf, der nichts tun kann, ist Verschwendung.
-  "triggers": { "crons": ["15 5 * * 1", "15 6 * * 1", "*/15 8-12 * * 1-5"] },
+  // Fuenf Zeitplaene (mehr erlaubt die Gratis-Stufe nicht): Wochenkarte
+  // Montag frueh, Erinnerungsfenster am Vormittag, Tageszettel werktags
+  // 08:00 Hauszeit (beide moeglichen UTC-Stunden, die Hausuhr entscheidet),
+  // Wochenbericht Freitag 15:00 Hauszeit.
+  "triggers": { "crons": ["15 5 * * 1", "15 6 * * 1", "*/15 8-12 * * 1-5", "0 6,7 * * 1-5", "0 13,14 * * 5"] },
 
   "durable_objects": {
     "bindings": [{ "name": "HAUS", "class_name": "Haus" }]
@@ -54,7 +58,12 @@
     "VAPID_OEFFENTLICH": "BPLEbe0YGZChaS1PY-NtqMLW32AC_PVQ2QTDAYhwnqd6iyQ9V28etINQVmUloVHlLgwQPtiUwCjwnSCtlnvPQTw",
     // Adresse, unter der der Push-Dienst den Absender erreicht, wenn
     // etwas schiefgeht. RFC 8292 verlangt sie.
-    "VAPID_KONTAKT": "mailto:willkommen@wirtschaft-dornbirn.at"
+    "VAPID_KONTAKT": "mailto:willkommen@wirtschaft-dornbirn.at",
+    // Wohin Tageszettel und Wochenbericht gehen. In der Testumgebung an
+    // Jonas; im echten Betrieb die Adresse des Wirts.
+    "WIRT_MAIL": "jonas.gamper@aon.at",
+    // Die Gaesteseite - fuer Links in Mails (Warteliste).
+    "GAESTE_SEITE": "https://jonasgamper-create.github.io/wirtschaft-dornbirn-test"
   },
 
   // HAUS_TOKEN ist ein Geheimnis und steht nicht in dieser Datei:

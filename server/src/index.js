@@ -29,8 +29,12 @@ import {
 } from './newsletter.mjs';
 import {
   absage as absageMail, baueTermin, bestaetigung as bestaetigungsMail, brevoPaket,
-  escapeHtml, newsletterFrage, sendeMail, termin_uid, wochenkarte as wochenkarteMail
+  escapeHtml, newsletterFrage, sendeMail, tageszettelMail, termin_uid,
+  wartelisteFreiMail, wochenberichtMail, wochenkarte as wochenkarteMail
 } from './mail.mjs';
+import {
+  markiereInformiert, naechsterWartender, nimmAuf, pruefeWartelisteEintrag, raeumeWartelisteAb
+} from './warteliste.mjs';
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
 import {
   bestellungText, erinnerungText, fertigText, nummerFuerSms, reservierungText, sendeSms
@@ -869,7 +873,55 @@ export class Haus extends DurableObject {
     this.#sichere(storniert);
     this.#meldeAenderung();
     this.ctx.waitUntil(this.#schickeAbsage(storniert, { grund: null, vomHaus: false }));
+    // Der freigewordene Platz gehoert als Erstes der Warteliste.
+    this.ctx.waitUntil(this.#wartelisteAnstossen(storniert.date, storniert.guests));
     return { ok: true, reservierung: ohneGeheimnis(storniert) };
+  }
+
+  // ---- Warteliste ----------------------------------------------------------
+
+  /** Der Gast traegt sich ein, wenn der Mittag voll ist. */
+  async wartelisteEintragen(roh) {
+    const geprueft = pruefeWartelisteEintrag(roh);
+    if (!geprueft.ok) return geprueft;
+    const heute = jetztImHaus().datum;
+    if (geprueft.eintrag.datum < heute) return { ok: false, grund: 'datum' };
+    if (this.#tagIstZu(geprueft.eintrag.datum)) return { ok: false, grund: 'geschlossen' };
+    const liste = raeumeWartelisteAb(this.#lies('warteliste', []), heute);
+    const ergebnis = nimmAuf(liste, geprueft.eintrag, new Date().toISOString());
+    if (!ergebnis.ok) return ergebnis;
+    this.#schreib('warteliste', ergebnis.liste);
+    return { ok: true, schon: ergebnis.schon === true };
+  }
+
+  /**
+   * Es ist etwas frei geworden: den Ersten verstaendigen, der passt.
+   * Die Mail reserviert nichts - sie oeffnet die Tuer zum normalen Weg mit
+   * denselben Grenzen. Fehlt die Basisadresse oder der Absender, passiert
+   * still nichts; die Liste bleibt und der naechste Storno stoesst neu an.
+   */
+  async #wartelisteAnstossen(datum, freiePersonen) {
+    const heute = jetztImHaus().datum;
+    const liste = raeumeWartelisteAb(this.#lies('warteliste', []), heute);
+    const dran = naechsterWartender(liste, datum, freiePersonen);
+    if (!dran) { this.#schreib('warteliste', liste); return; }
+    const absender = String(this.env?.BREVO_ABSENDER || '');
+    const seite = String(this.env?.GAESTE_SEITE || '');
+    if (!absender || !seite) return;
+    this.#schreib('warteliste', markiereInformiert(liste, dran, new Date().toISOString()));
+    const inhalt = wartelisteFreiMail({
+      name: dran.name, tag: datum, personen: dran.personen,
+      buchungsLink: `${seite}/tischreservierung.html?tag=${datum}`
+    });
+    this.ctx.waitUntil(sendeMail(this.env, brevoPaket({
+      absender, an: dran.email, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
+    })));
+  }
+
+  /** Nur fuers Haus: wie viele heute und kommend warten. Ohne Adressen. */
+  wartelisteZahl(datum) {
+    return this.#lies('warteliste', []).filter(eintrag =>
+      eintrag.datum === datum && eintrag.status === 'wartet').length;
   }
 
   // ---- Geschlossene Tage ---------------------------------------------------
@@ -1265,6 +1317,90 @@ export class Haus extends DurableObject {
    * wenn seit dem letzten Versand eine neue Karte hochgeladen wurde. Dieselbe
    * Karte zweimal zu schicken waere die schnellste Abmeldung der Welt.
    */
+  /**
+   * Der Tageszettel an den Wirt, werktags am Morgen: der Tag auf einen
+   * Blick, bevor die Tuer aufsperrt - und das Lebenszeichen des Dienstes.
+   */
+  async tageszettel() {
+    const an = String(this.env?.WIRT_MAIL || '');
+    const absender = String(this.env?.BREVO_ABSENDER || '');
+    if (!an || !absender) return { ok: false, grund: 'nicht_eingerichtet' };
+    const heute = jetztImHaus().datum;
+    const parties = this.#amTag(heute).filter(party => party.status !== 'storniert');
+    const vorbestellungen = this.#takeawayAlle().filter(bestellung =>
+      bestellung.date === heute && bestellung.status === 'offen');
+    const inhalt = tageszettelMail({
+      tag: heute,
+      reservierungen: parties.length,
+      personen: parties.reduce((summe, party) => summe + (Number(party.guests) || 0), 0),
+      vorbestellungen: vorbestellungen.length,
+      portionen: vorbestellungen.reduce((summe, bestellung) =>
+        summe + (bestellung.posten || []).reduce((n, posten) => n + posten.menge, 0), 0),
+      karteDa: Boolean(this.#lies('karteStand', null)),
+      warteliste: this.wartelisteZahl(heute),
+      geschlossen: this.#geschlossen().includes(heute)
+    });
+    const ergebnis = await sendeMail(this.env, brevoPaket({
+      absender, an, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
+    }));
+    return { ok: ergebnis.ok === true };
+  }
+
+  /**
+   * Der Wochenbericht am Freitagnachmittag: die Woche in Zahlen, die ohnehin
+   * da sind. Montag bis Freitag der laufenden Woche.
+   */
+  async wochenbericht() {
+    const an = String(this.env?.WIRT_MAIL || '');
+    const absender = String(this.env?.BREVO_ABSENDER || '');
+    if (!an || !absender) return { ok: false, grund: 'nicht_eingerichtet' };
+    const heute = new Date(`${jetztImHaus().datum}T12:00:00Z`);
+    // Zurueck zum Montag dieser Woche.
+    const montag = new Date(heute);
+    montag.setUTCDate(montag.getUTCDate() - ((montag.getUTCDay() + 6) % 7));
+    const tage = [];
+    const tagesnamen = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
+    let gaeste = 0, reservierungen = 0, nichtDa = 0, bestellungen = 0, portionen = 0, umsatz = 0;
+    const alleBestellungen = this.#takeawayAlle();
+    const jeGericht = new Map();
+    let von = '', bis = '';
+    for (let i = 0; i < 5; i += 1) {
+      const tag = new Date(montag);
+      tag.setUTCDate(tag.getUTCDate() + i);
+      const iso = tag.toISOString().slice(0, 10);
+      if (i === 0) von = iso;
+      bis = iso;
+      const parties = this.#amTag(iso).filter(party => party.status !== 'storniert');
+      const heutigeBestellungen = alleBestellungen.filter(bestellung => bestellung.date === iso);
+      const heutigePortionen = heutigeBestellungen.reduce((summe, bestellung) =>
+        summe + (bestellung.posten || []).reduce((n, posten) => n + posten.menge, 0), 0);
+      const tagGaeste = parties.reduce((summe, party) => summe + (Number(party.guests) || 0), 0);
+      tage.push({ name: tagesnamen[i], gaeste: tagGaeste, portionen: heutigePortionen });
+      gaeste += tagGaeste;
+      reservierungen += parties.length;
+      nichtDa += parties.filter(party => party.nichtDa).length;
+      bestellungen += heutigeBestellungen.length;
+      portionen += heutigePortionen;
+      for (const bestellung of heutigeBestellungen) {
+        for (const posten of bestellung.posten || []) {
+          const stand = jeGericht.get(posten.name) || { name: posten.name, portionen: 0 };
+          stand.portionen += posten.menge;
+          jeGericht.set(posten.name, stand);
+          umsatz += posten.preis * posten.menge;
+        }
+      }
+    }
+    const bestseller = [...jeGericht.values()].sort((a, b) => b.portionen - a.portionen).slice(0, 5);
+    const inhalt = wochenberichtMail({
+      von, bis, tage, gaeste, reservierungen, nichtDa, bestellungen, portionen,
+      umsatz: Math.round(umsatz * 100) / 100, bestseller
+    });
+    const ergebnis = await sendeMail(this.env, brevoPaket({
+      absender, an, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
+    }));
+    return { ok: ergebnis.ok === true };
+  }
+
   async wochenkarteVersand(basis) {
     const karte = this.#lies('karteStand', null);
     if (!karte) return { ok: true, versendet: 0, grund: 'keine_karte' };
@@ -1768,10 +1904,18 @@ export class Haus extends DurableObject {
   }
 
   async aktion(befehl) {
+    // Wer da war, bevor er verschwindet: "entfernen" gibt Platz frei, und
+    // der gehoert der Warteliste - aber nur, wenn wirklich etwas wegfiel.
+    const vorher = befehl?.art === 'entfernen'
+      ? this.#alle().find(party => party.id === befehl.id)
+      : null;
     const ergebnis = wendeAktionAn(this.#alle(), befehl);
     if (!ergebnis.ok) return { ok: false, grund: ergebnis.grund };
     this.#ersetzeAlle(ergebnis.parties);
     this.#meldeAenderung();
+    if (vorher && vorher.status !== 'storniert') {
+      this.ctx.waitUntil(this.#wartelisteAnstossen(vorher.date, vorher.guests));
+    }
     return { ok: true, stand: this.#stand() };
   }
 
@@ -1834,7 +1978,14 @@ function jetztImHaus() {
     year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
   }).formatToParts(new Date());
   const wert = art => teile.find(teil => teil.type === art)?.value || '00';
-  return { datum: `${wert('year')}-${wert('month')}-${wert('day')}`, zeit: `${wert('hour')}:${wert('minute')}` };
+  const datum = `${wert('year')}-${wert('month')}-${wert('day')}`;
+  return {
+    datum,
+    zeit: `${wert('hour')}:${wert('minute')}`,
+    // 0 = Sonntag ... 6 = Samstag, aus dem HAUSDATUM gerechnet - nicht aus
+    // der UTC-Uhr, die um Mitternacht einen anderen Tag haben kann.
+    wochentag: new Date(`${datum}T12:00:00Z`).getUTCDay()
+  };
 }
 
 function stub(env) {
@@ -1866,6 +2017,20 @@ export default {
     if (uhr.zeit === '07:15') {
       const basis = String(env.DIENST_BASIS || '').replace(/\/+$/, '');
       if (basis) ctx.waitUntil(stub(env).wochenkarteVersand(basis));
+      return;
+    }
+
+    // Der Tageszettel, werktags um 08:00. Der Zeitplan feuert zur Sicherheit
+    // in beiden moeglichen UTC-Stunden (Sommer- und Winterzeit) - welche die
+    // richtige ist, entscheidet die Hausuhr.
+    if (uhr.zeit === '08:00' && uhr.wochentag >= 1 && uhr.wochentag <= 5) {
+      ctx.waitUntil(stub(env).tageszettel());
+      return;
+    }
+
+    // Der Wochenbericht, freitags um 15:00 - nach dem Mittag, vor dem Einkauf.
+    if (uhr.zeit === '15:00' && uhr.wochentag === 5) {
+      ctx.waitUntil(stub(env).wochenbericht());
       return;
     }
 
@@ -2146,6 +2311,23 @@ export default {
         if (!darf()) return json({ ok: false }, 401, kopf);
         const body = await request.json().catch(() => ({}));
         return json(await haus.setzeFertigWer(String(body?.wer || '')), 200, kopf);
+      }
+
+      // Tageszettel und Wochenbericht von Hand ausloesen - fuer den Test und
+      // fuer den Wirt, der den Zettel jetzt sehen will statt morgen um acht.
+      if (url.pathname === '/api/tageszettel' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        return json(await haus.tageszettel(), 200, kopf);
+      }
+      if (url.pathname === '/api/wochenbericht' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        return json(await haus.wochenbericht(), 200, kopf);
+      }
+
+      // Warteliste: der Gast traegt sich ein, wenn der Mittag voll ist.
+      if (url.pathname === '/api/warteliste' && request.method === 'POST') {
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.wartelisteEintragen(body), 200, kopf);
       }
 
       // Geschlossene Tage: lesen darf jeder (die Gaesteseite graut sie aus),

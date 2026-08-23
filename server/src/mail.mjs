@@ -282,3 +282,79 @@ export async function sendeMail(env, paket) {
     return { ok: false, grund: 'netz' };
   }
 }
+
+/**
+ * Es ist etwas frei geworden: die Meldung an den Ersten auf der Warteliste.
+ * Sie reserviert nichts - sie oeffnet die Tuer. Gebucht wird ueber den
+ * normalen Weg mit denselben Grenzen; wer zoegert, dem kommt der Naechste
+ * zuvor, und genau das steht ehrlich drin.
+ */
+export function wartelisteFreiMail({ name, tag, personen, buchungsLink }) {
+  const html = rahmen('Ein Tisch ist frei geworden', [
+    kopf('Warteliste', 'Es ist etwas frei geworden!'),
+    `<tr><td style="padding:12px 28px 4px;"><p style="margin:0;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#4a453d;">${escapeHtml(name)}, du stehst für ${escapeHtml(langesDatum(tag))} auf unserer Warteliste – und gerade ist Platz für ${personen} ${personen === 1 ? 'Person' : 'Personen'} frei geworden.</p></td></tr>`,
+    knopf(buchungsLink, 'Jetzt reservieren'),
+    `<tr><td style="padding:12px 28px 18px;"><p style="margin:0;font:400 13px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">Der Platz ist nicht reserviert – wer zuerst bucht, hat ihn. Klappt es nicht mehr, bleibt dein Eintrag auf der Liste.</p></td></tr>`
+  ].join(''));
+  return {
+    betreff: `Frei geworden: ${langesDatum(tag)} mittags`,
+    html,
+    text: `${name}, für ${langesDatum(tag)} ist mittags Platz für ${personen} Personen frei geworden.\n\n`
+      + `Jetzt reservieren: ${buchungsLink}\n\nDer Platz ist nicht reserviert – wer zuerst bucht, hat ihn.\n`
+  };
+}
+
+/**
+ * Der Tageszettel: eine Mail an den Wirt, werktags am Morgen. Der Tag auf
+ * einen Blick, bevor die Tuer aufsperrt - und zugleich das Lebenszeichen des
+ * Dienstes: bleibt diese Mail aus, klemmt etwas.
+ */
+export function tageszettelMail({ tag, reservierungen, personen, vorbestellungen, portionen, karteDa, warteliste, geschlossen }) {
+  const zeilen = [
+    kopf('Tageszettel', langesDatum(tag)),
+    zeile('Reservierungen', `${reservierungen} (${personen} Personen)`),
+    zeile('Takeaway-Vorbestellungen', `${vorbestellungen} (${portionen} Portionen)`),
+    zeile('Mittagskarte', karteDa ? 'liegt bereit' : 'FEHLT – bitte hochladen'),
+  ];
+  if (warteliste > 0) zeilen.push(zeile('Warteliste heute', String(warteliste)));
+  if (geschlossen) zeilen.push(zeile('Achtung', 'Dieser Tag ist als GESCHLOSSEN markiert'));
+  zeilen.push(`<tr><td style="padding:14px 28px 18px;"><p style="margin:0;font:400 12px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">Diese Mail kommt werktags um 8 Uhr, solange der Dienst läuft. Bleibt sie aus, bitte nachsehen.</p></td></tr>`);
+  return {
+    betreff: `Tageszettel ${langesDatum(tag)}: ${reservierungen} Reservierungen, ${vorbestellungen} Vorbestellungen${karteDa ? '' : ' – KARTE FEHLT'}`,
+    html: rahmen('Tageszettel', zeilen.join('')),
+    text: `Tageszettel ${langesDatum(tag)}\n\nReservierungen: ${reservierungen} (${personen} Personen)\n`
+      + `Takeaway-Vorbestellungen: ${vorbestellungen} (${portionen} Portionen)\n`
+      + `Mittagskarte: ${karteDa ? 'liegt bereit' : 'FEHLT'}\n`
+      + (warteliste > 0 ? `Warteliste: ${warteliste}\n` : '')
+      + (geschlossen ? 'ACHTUNG: Tag ist als geschlossen markiert\n' : '')
+  };
+}
+
+/**
+ * Der Wochenbericht am Freitagnachmittag: was die Woche gebracht hat, aus
+ * Zahlen, die ohnehin da sind. Die Grundlage fuer Einkauf und Personalplan -
+ * das, wofuer die teuren Werkzeuge ihre Premium-Stufe verlangen.
+ */
+export function wochenberichtMail({ von, bis, tage, gaeste, reservierungen, nichtDa, bestellungen, portionen, umsatz, bestseller }) {
+  const zeilen = [
+    kopf('Wochenbericht', `${langesDatum(von)} – ${langesDatum(bis)}`),
+    zeile('Reservierungen', `${reservierungen} (${gaeste} Gäste)`),
+    zeile('Nicht erschienen', String(nichtDa)),
+    zeile('Takeaway-Bestellungen', `${bestellungen} (${portionen} Portionen, € ${umsatz.toFixed(2).replace('.', ',')})`),
+  ];
+  for (const eintragTag of tage) {
+    zeilen.push(zeile(eintragTag.name, `${eintragTag.gaeste} Gäste · ${eintragTag.portionen} Portionen Takeaway`));
+  }
+  if (bestseller.length) {
+    zeilen.push(`<tr><td style="padding:14px 28px 2px;"><p style="margin:0;font:800 11px/1.4 Helvetica,Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8c292b;">Bestseller</p></td></tr>`);
+    for (const gericht of bestseller) zeilen.push(zeile(gericht.name, `${gericht.portionen} Portionen`));
+  }
+  return {
+    betreff: `Wochenbericht: ${gaeste} Gäste, ${portionen} Portionen Takeaway`,
+    html: rahmen('Wochenbericht', zeilen.join('')),
+    text: `Wochenbericht ${von} bis ${bis}\n\nReservierungen: ${reservierungen} (${gaeste} Gäste)\n`
+      + `Nicht erschienen: ${nichtDa}\nTakeaway: ${bestellungen} Bestellungen, ${portionen} Portionen, € ${umsatz.toFixed(2)}\n`
+      + tage.map(t => `${t.name}: ${t.gaeste} Gäste, ${t.portionen} Portionen`).join('\n')
+      + (bestseller.length ? `\n\nBestseller:\n${bestseller.map(b => `${b.name}: ${b.portionen}`).join('\n')}` : '')
+  };
+}

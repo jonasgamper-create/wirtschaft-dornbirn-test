@@ -4,7 +4,7 @@
 // wie bisher und leitet auf den offiziellen Anbieter weiter. Erst wenn der
 // Dienst laeuft, wird aus dem Formular eine echte Buchung.
 
-import { apiAdresse, buche, holeAmpel, holeFrei, holeGeschlossen, holeKarteInfo, holeTakeawayKarte, karteAdresse, meldeMittagskarte } from './haus-api.js?v=aad7ea75';
+import { apiAdresse, buche, holeAmpel, holeFrei, holeGeschlossen, holeKarteInfo, holeTakeawayKarte, karteAdresse, meldeMittagskarte, trageWartelisteEin } from './haus-api.js?v=c107be2b';
 import { istFeiertag, istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 
 const byId = id => document.getElementById(id);
@@ -194,6 +194,9 @@ async function start() {
     byId('slotInfo').textContent = freie === 0
       ? `Für ${personen} ${personen === 1 ? 'Person' : 'Personen'} ist an diesem Tag mittags leider alles belegt. Ruf uns an, wir schauen was geht: +43 (0)5572 20 540`
       : `Grau hinterlegte Zeiten sind für ${personen} ${personen === 1 ? 'Person' : 'Personen'} schon belegt.`;
+    // Voll ist der Moment der Warteliste - vorher waere sie Laerm.
+    const warteliste = byId('warteliste');
+    if (warteliste) warteliste.hidden = freie !== 0;
   }
 
   // Mittags kochen wir Montag bis Freitag - und weder an Feiertagen noch an
@@ -251,6 +254,37 @@ async function start() {
     if (event.target.closest('[data-step]')) setTimeout(zeigeVerfuegbarkeit, 0);
   });
 
+  // Die Warteliste: eintragen, zuruecklehnen. Die Personenzahl kommt aus dem
+  // Formular - sie entscheidet spaeter, wer bei einem frei gewordenen Tisch
+  // ueberhaupt gemeint sein kann.
+  byId('wlEintragen')?.addEventListener('click', async () => {
+    const knopf = byId('wlEintragen');
+    const status = byId('wlStatus');
+    const eintrag = {
+      name: byId('wlName').value.trim(),
+      email: byId('wlMail').value.trim(),
+      datum: byId('day').value,
+      personen: personenZahl()
+    };
+    if (eintrag.name.length < 2) { status.textContent = 'Bitte den Namen eintragen.'; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eintrag.email)) { status.textContent = 'Bitte eine gültige E-Mail-Adresse eintragen.'; return; }
+    knopf.disabled = true;
+    status.textContent = 'Einen Moment …';
+    const antwort = await trageWartelisteEin(eintrag);
+    knopf.disabled = false;
+    if (antwort?.schon) {
+      status.textContent = 'Du stehst für diesen Tag schon auf der Liste – alles gut.';
+    } else if (antwort?.ok) {
+      status.textContent = `Eingetragen für ${eintrag.personen} ${eintrag.personen === 1 ? 'Person' : 'Personen'}. Wird etwas frei, bekommst du sofort eine Mail.`;
+      byId('wlName').value = '';
+      byId('wlMail').value = '';
+    } else if (antwort?.grund === 'voll') {
+      status.textContent = 'Die Warteliste für diesen Tag ist schon sehr lang – ruf uns lieber an: +43 (0)5572 20 540';
+    } else {
+      status.textContent = 'Das hat nicht geklappt – bitte noch einmal.';
+    }
+  });
+
   // Der Standardtag: heute, wenn heute offen ist - sonst der naechste offene
   // Tag. Ein leeres Datumsfeld ist die erste Huerde des Formulars; ein schon
   // richtiger Vorschlag ist die halbe Reservierung. Vergangenes sperrt `min`.
@@ -261,6 +295,13 @@ async function start() {
     feld.min = heute;
     const antwort = await holeGeschlossen();
     if (Array.isArray(antwort?.tage)) geschlosseneTage = antwort.tage;
+    // Aus der Warteliste-Mail kommt der Gast mit ?tag= - dieser Tag hat
+    // Vorrang vor dem errechneten Standard, wenn er gueltig und offen ist.
+    const gewuenscht = new URLSearchParams(location.search).get('tag');
+    if (gewuenscht && /^\d{4}-\d{2}-\d{2}$/.test(gewuenscht) && gewuenscht >= heute
+      && istOffenerTag(gewuenscht, geschlosseneTage)) {
+      feld.value = gewuenscht;
+    }
     if (!feld.value) {
       feld.value = naechsterOffenerTag(heute, geschlosseneTage);
     }
