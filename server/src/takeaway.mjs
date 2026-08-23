@@ -19,6 +19,16 @@ export const WARTEZEIT_TEXT = '20–30 Minuten';
 export const MAX_PORTIONEN = 10;
 
 /**
+ * Wie weit im Voraus bestellt werden darf. Drei Wochen sind grosszuegig fuer
+ * ein Mittagsgeschaeft; weiter voraus steht die Karte ohnehin nicht fest, und
+ * eine Bestellung auf ein Gericht, das es dann nicht gibt, waere eine leere
+ * Zusage.
+ */
+export const VORAUS_TAGE = 21;
+
+const DATUM = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+
+/**
  * Wie viele Portionen die Kueche in einer Viertelstunde bequem schafft.
  *
  * Bis hierher ist die Zeit ohne Einschraenkung waehlbar. Es ist keine Sperre,
@@ -181,6 +191,35 @@ export function naechsterWerktag(datum, zu = new Set()) {
 }
 
 /**
+ * Darf fuer diesen Tag bestellt werden? Der Gast darf den Abholtag selbst
+ * waehlen - aber nicht jeden: kein Wochenende, kein Feiertag, kein
+ * zugesperrter Tag, nichts Vergangenes und nichts, was zu weit voraus liegt.
+ * Und der heutige Tag nur, solange die Kueche noch annimmt.
+ *
+ * Gibt entweder { ok: true } oder den Grund zurueck - denselben Wortlaut, den
+ * die Gaesteseite in einen Satz verwandelt.
+ */
+export function pruefeWunschtag(datum, { heute, jetzt, zu = new Set() }) {
+  if (!DATUM.test(String(datum || ''))) return { ok: false, grund: 'datum' };
+  if (datum < heute) return { ok: false, grund: 'vergangen' };
+
+  const grenze = new Date(`${heute}T12:00:00Z`);
+  grenze.setUTCDate(grenze.getUTCDate() + VORAUS_TAGE);
+  if (datum > grenze.toISOString().slice(0, 10)) return { ok: false, grund: 'zu_weit' };
+
+  const wochentag = new Date(`${datum}T12:00:00Z`).getUTCDay();
+  if (wochentag === 0 || wochentag === 6) return { ok: false, grund: 'wochenende' };
+  if (zu.has(String(datum))) return { ok: false, grund: 'geschlossen' };
+
+  // Heute geht nur, solange die Kueche noch annimmt.
+  if (datum === heute) {
+    const start = zuMinuten(jetzt);
+    if (start !== null && start > zuMinuten(BESTELLSCHLUSS)) return { ok: false, grund: 'schluss' };
+  }
+  return { ok: true };
+}
+
+/**
  * Fuer welchen Tag gilt eine Bestellung, die gerade hereinkommt?
  *
  * Solange die Kueche kocht, fuer heute. Danach - und am Wochenende - fuer den
@@ -247,9 +286,20 @@ export function pruefeBestellung(roh, { gerichte, heute, jetzt, bestehende = [],
   const telefon = String(roh?.telefon ?? '').trim().slice(0, 25);
   if (!istTelefon(telefon)) return { ok: false, grund: 'telefon' };
 
-  // Fuer welchen Tag das gilt, entscheidet die Uhr: heute, solange die Kueche
-  // kocht - sonst der naechste Werktag als Vorbestellung.
-  const tag = bestelltag({ heute, jetzt, zu });
+  // Fuer welchen Tag das gilt: normalerweise entscheidet die Uhr - heute,
+  // solange die Kueche kocht, sonst der naechste Tag, an dem gekocht wird.
+  // Nennt der Gast einen Wunschtag, gilt der - aber er muss durch dieselbe
+  // Pruefung wie alles andere. Ein Feld, das der Dienst blind uebernimmt,
+  // waere eine Tuer an der Kapazitaets- und Feiertagsgrenze vorbei.
+  const wunsch = String(roh?.datum ?? '').trim();
+  let tag;
+  if (wunsch) {
+    const erlaubt = pruefeWunschtag(wunsch, { heute, jetzt, zu });
+    if (!erlaubt.ok) return { ok: false, grund: erlaubt.grund };
+    tag = { datum: wunsch, vorbestellung: wunsch !== heute };
+  } else {
+    tag = bestelltag({ heute, jetzt, zu });
+  }
 
   const karte = new Map((gerichte || []).map(gericht => [gericht.id, gericht]));
   if (!karte.size) return { ok: false, grund: 'karte' };

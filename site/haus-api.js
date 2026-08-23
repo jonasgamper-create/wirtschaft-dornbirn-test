@@ -175,7 +175,10 @@ export const holeAmpel = datum =>
 // ---- Takeaway --------------------------------------------------------------
 
 /** Die bestellbare Karte: Gerichte und Preise. Oeffentlich. */
-export const holeTakeawayKarte = () => ruf('/api/takeaway/karte');
+// Ohne Datum antwortet der Dienst fuer den Tag, an dem als naechstes gekocht
+// wird. Mit Datum prueft er den Wunschtag und sagt, wenn er nicht geht.
+export const holeTakeawayKarte = (datum = '') =>
+  ruf(`/api/takeaway/karte${datum ? `?datum=${encodeURIComponent(datum)}` : ''}`);
 
 /** Eine Bestellung aufgeben. Braucht keinen Token - sie kommt vom Gast. */
 export const bestelleTakeaway = bestellung =>

@@ -237,6 +237,22 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    dann die Uhrzeiten. */
 .slots button[data-abholung="sofort"]{flex:1 1 100%}
 .ta-feld-titel{margin:0 0 12px;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.ta-feld-titel label{cursor:pointer}
+/* Der Abholtag: ein leeres Datumsfeld in voller Breite. Volle Breite, weil
+   die Flaeche selbst die Einladung ist - ein schmales Feld mit winzigem
+   Kalendersymbol wird auf dem Telefon nicht getroffen. Hoehe und Rahmen
+   kommen von den uebrigen Eingabefeldern, damit hier nichts Neues entsteht. */
+.ta-datum{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.ta-datum input[type="date"]{flex:1 1 190px;min-height:48px;padding:12px 14px;border:1px solid #11110f3d;border-radius:0;background:#fff;color:var(--ink);font:inherit;font-size:16px}
+.ta-datum input[type="date"]:focus-visible{outline:2px solid var(--wine);outline-offset:2px}
+/* Safari zentriert den Platzhalter sonst und macht das leere Feld winzig. */
+.ta-datum input[type="date"]::-webkit-date-and-time-value{text-align:left}
+.ta-datum input[type="date"]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.65}
+.ta-datum-heute{min-height:44px;padding:11px 0;border:0;background:none;color:#57524a;font:inherit;font-size:var(--t-meta);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.ta-datum-heute:hover{color:var(--ink)}
+.ta-datum-heute[hidden]{display:none}
+.ta-zusammenfassung .slot-info[data-art="fehler"]{color:var(--wine);font-weight:700}
+.ta-zusammenfassung .ta-feld-titel+.ta-datum+.slot-info{margin-bottom:20px}
 .ta-zusammenfassung .slot-info{display:block;margin-top:12px;color:#57524a;font-size:var(--t-meta);line-height:1.5}
 /* Wie viele Portionen zu dieser Zeit noch gehen - nur wenn es knapp wird.
    Die Zahl kommt vom Dienst, damit die Grenze nicht zweimal im Code steht. */

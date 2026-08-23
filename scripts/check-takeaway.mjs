@@ -5,7 +5,7 @@ import {
   ALLERGENE, BESTELLSCHLUSS, LETZTE_ABHOLUNG, MAX_PORTIONEN,
   ERSTE_ABHOLUNG, PORTIONEN_HART, PORTIONEN_PRO_SLOT, abholzeitFuer, alsPreis,
   bestelltag, freieSlots, kuechenzettel, naechsterWerktag, parseKarte,
-  portionenImSlot, pruefeBestellung, slotLage, statistik
+  portionenImSlot, pruefeBestellung, pruefeWunschtag, slotLage, statistik, VORAUS_TAGE
 } from '../server/src/takeaway.mjs';
 
 const errors = [];
@@ -116,6 +116,53 @@ check('Am Samstag wird fuer den naechsten Werktag bestellt',
 check('Ohne Karte keine Bestellung',
   pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }] },
     { ...rahmen, gerichte: [] }).grund === 'karte');
+
+// ---- 3a. Der Gast waehlt den Abholtag selbst -------------------------------
+//
+// Das Datumsfeld auf der Gaesteseite ist leer und darf frei gefuellt werden.
+// Genau deshalb muss der Dienst jeden Wunschtag pruefen: ein Feld, das
+// ungeprueft durchgereicht wird, waere die Tuer an Feiertagen, Sperren und
+// Bestellschluss vorbei.
+
+const wunsch = (datum, mehr = {}) => pruefeWunschtag(datum, { heute, jetzt: '11:30', ...mehr });
+check('Ein kommender Werktag geht', wunsch('2026-08-25').ok);
+check('Heute geht, solange die Kueche annimmt', wunsch(heute).ok);
+check('Heute geht nach Bestellschluss nicht mehr',
+  wunsch(heute, { jetzt: '13:50' }).grund === 'schluss');
+check('Gestern geht nicht', wunsch('2026-08-19').grund === 'vergangen');
+check('Samstag geht nicht', wunsch('2026-08-22').grund === 'wochenende');
+check('Sonntag geht nicht', wunsch('2026-08-23').grund === 'wochenende');
+check('Ein gesperrter Tag geht nicht',
+  wunsch('2026-08-25', { zu: new Set(['2026-08-25']) }).grund === 'geschlossen');
+check('Unfug im Feld faellt raus',
+  wunsch('25.08.2026').grund === 'datum' && wunsch('2026-13-01').grund === 'datum');
+// Die Grenze nach vorn: der letzte erlaubte Tag geht noch, der naechste nicht.
+const inTagen = anzahl => {
+  const tag = new Date(`${heute}T12:00:00Z`);
+  tag.setUTCDate(tag.getUTCDate() + anzahl);
+  return tag.toISOString().slice(0, 10);
+};
+check('Der letzte Tag im Vorlauf geht noch',
+  wunsch(inTagen(VORAUS_TAGE - 3)).ok, inTagen(VORAUS_TAGE - 3));
+check('Weiter voraus geht nicht', wunsch(inTagen(VORAUS_TAGE + 1)).grund === 'zu_weit');
+
+const mitWunsch = pruefeBestellung({
+  name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }],
+  abholung: '12:00', datum: '2026-08-26'
+}, rahmen);
+check('Der Wunschtag landet in der Bestellung',
+  mitWunsch.ok && mitWunsch.bestellung.date === '2026-08-26', JSON.stringify(mitWunsch));
+check('Ein kuenftiger Wunschtag ist eine Vorbestellung',
+  mitWunsch.bestellung?.vorbestellung === true);
+check('Ohne Datum entscheidet weiter die Uhr',
+  pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }], datum: '' },
+    rahmen).bestellung?.date === heute);
+check('Ein unmoeglicher Wunschtag wird abgelehnt, nicht stillschweigend verschoben',
+  pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }], datum: '2026-08-22' },
+    rahmen).grund === 'wochenende');
+check('Ein gesperrter Wunschtag wird abgelehnt',
+  pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }], datum: '2026-08-25' },
+    { ...rahmen, zu: new Set(['2026-08-25']) }).grund === 'geschlossen');
 
 // ---- 3b. Vorbestellen fuer den naechsten Werktag ---------------------------
 // Abends und am Wochenende ist die Seite nicht tot: bestellt wird dann fuer

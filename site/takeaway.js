@@ -5,7 +5,7 @@
 import {
   apiAdresse, bestelleTakeaway, holeBestellStatus, holePushSchluessel,
   holeTakeawayKarte, meldePushAb, meldePushAn
-} from './haus-api.js?v=c107be2b';
+} from './haus-api.js?v=752006e7';
 
 const byId = id => document.getElementById(id);
 
@@ -464,6 +464,12 @@ const mengen = new Map();
 let abholung = 'sofort';
 /** Gilt die Bestellung fuer heute oder fuer den naechsten Werktag? */
 let vorbestellung = false;
+/**
+ * Der vom Gast gewaehlte Abholtag. Leer heisst: der Dienst entscheidet - der
+ * naechste Tag, an dem gekocht wird. Das Feld auf der Seite bleibt deshalb
+ * leer, bis jemand wirklich etwas anderes will.
+ */
+let wunschTag = '';
 
 start();
 
@@ -496,6 +502,18 @@ async function start() {
   byId('taAbschluss').hidden = false;
   holeGemerkt();
 
+  richteDatumEin(antwort);
+  uebernimmTag(antwort);
+  zeigeSumme();
+}
+
+/**
+ * Die Antwort des Dienstes auf die Seite bringen: welcher Tag gilt, wie er
+ * heisst, welche Abholzeiten es gibt. EINE Stelle - sie laeuft beim Laden und
+ * nach jedem Wechsel des Abholtags. Zwei Kopien liefen beim ersten Wechsel
+ * auseinander.
+ */
+function uebernimmTag(antwort) {
   const jetzt = new Date();
   const minuten = jetzt.getHours() * 60 + jetzt.getMinutes();
   const werktag = jetzt.getDay() >= 1 && jetzt.getDay() <= 5;
@@ -512,8 +530,11 @@ async function start() {
     ? antwort.vorbestellung
     : (!werktag || minuten > BESTELLSCHLUSS);
 
-  byId('taLeer').hidden = !vorbestellung;
-  if (vorbestellung) {
+  // Der Erklaersatz gilt nur, wenn der Dienst den Tag gewaehlt hat. Hat der
+  // Gast selbst uebermorgen eingetragen, waere "Die Kueche ist fuer heute
+  // durch" keine Erklaerung, sondern eine Belehrung.
+  byId('taLeer').hidden = !vorbestellung || Boolean(wunschTag);
+  if (vorbestellung && !wunschTag) {
     // Welcher Tag das ist, weiss der Dienst - er kennt Feiertage und Sperren.
     const zielTag = antwort.bestelltag || null;
     // Der Grund ist nicht immer derselbe, und ein falscher Grund faellt auf:
@@ -553,7 +574,6 @@ async function start() {
   byId('taSenden').hidden = false;
   zeigeZeiten(minuten);
   markiereVolleSlots(antwort.slots);
-  zeigeSumme();
 }
 
 /**
@@ -605,8 +625,84 @@ function markiereVolleSlots(slots) {
 
 /** Die Slot-Belegung neu holen - nach einer Ablehnung und nach dem Bestellen. */
 async function ladeSlots() {
-  const antwort = await holeTakeawayKarte();
+  const antwort = await holeTakeawayKarte(wunschTag);
   if (antwort?.ok) markiereVolleSlots(antwort.slots);
+}
+
+// ---- Der Abholtag ----------------------------------------------------------
+//
+// Das Feld steht leer da und traegt sich nicht von selbst ein. Was ohne
+// Eintrag gilt, sagt die Zeile darunter: der naechste Tag, an dem gekocht
+// wird. Wer einen anderen Tag will, tippt hinein - und bekommt den Kalender,
+// auf dem Telefon wie am Laptop.
+
+const DATUM_MUSTER = /^\d{4}-\d{2}-\d{2}$/;
+
+const DATUM_GRUENDE = {
+  datum: 'Dieses Datum können wir nicht lesen.',
+  vergangen: 'Dieser Tag ist vorbei – bitte einen kommenden Tag wählen.',
+  zu_weit: 'So weit im Voraus steht die Mittagskarte noch nicht fest. Bitte einen näheren Tag wählen.',
+  wochenende: 'Am Wochenende kochen wir mittags nicht – bitte Montag bis Freitag wählen.',
+  geschlossen: 'An diesem Tag haben wir zu. Bitte einen anderen Tag wählen.',
+  schluss: 'Für heute ist der Bestellschluss (13:45 Uhr) vorbei – bitte einen kommenden Tag wählen.'
+};
+
+function richteDatumEin(antwort) {
+  const feld = byId('taDatum');
+  if (!feld) return;
+  // Grenzen kommen vom Dienst: er kennt Feiertage, Sperren und den
+  // Bestellschluss. Der Browser wuerde hier nur raten.
+  if (DATUM_MUSTER.test(String(antwort.frueheste || ''))) feld.min = antwort.frueheste;
+  if (DATUM_MUSTER.test(String(antwort.spaeteste || ''))) feld.max = antwort.spaeteste;
+  feld.value = '';
+  sagDatum(antwort);
+
+  // Der Kalender soll aufgehen, wenn man das Feld antippt - nicht nur beim
+  // winzigen Symbol am Rand. Auf dem Telefon macht das der Browser von selbst,
+  // am Laptop nicht ueberall; `showPicker` ist genau dafuer da und wird still
+  // uebergangen, wo es sie nicht gibt.
+  const oeffne = () => { try { feld.showPicker?.(); } catch { /* Browser mag nicht - dann tippt man eben */ } };
+  feld.addEventListener('click', oeffne);
+  feld.addEventListener('focus', oeffne);
+
+  feld.addEventListener('change', () => waehleTag(feld.value));
+  byId('taDatumZurueck')?.addEventListener('click', () => { feld.value = ''; waehleTag(''); });
+}
+
+/** Was unter dem Feld steht: welcher Tag jetzt gilt - und warum. */
+function sagDatum(antwort, fehler = '') {
+  const gilt = antwort?.bestelltag ? tagesName(antwort.bestelltag) : null;
+  byId('taDatumInfo').textContent = fehler
+    ? `${fehler}${gilt ? ` Es gilt weiter ${gilt}.` : ''}`
+    : (wunschTag
+      ? `Deine Bestellung läuft auf ${gilt || tagesName(wunschTag)}.`
+      : `Ohne Eintrag kochen wir es für ${gilt || 'den nächsten Kochtag'} – tipp hinein, wenn du einen anderen Tag möchtest.`);
+  byId('taDatumInfo').dataset.art = fehler ? 'fehler' : '';
+  const zurueck = byId('taDatumZurueck');
+  if (zurueck) zurueck.hidden = !wunschTag;
+}
+
+/**
+ * Einen Abholtag waehlen - oder das Feld wieder leeren. Geprueft wird beim
+ * Dienst, nicht hier: er kennt die Feiertage und die Sperren des Wirts. Geht
+ * der Tag nicht, bleibt der bisherige gueltig und die Seite sagt, warum.
+ */
+async function waehleTag(wert) {
+  const gewuenscht = DATUM_MUSTER.test(String(wert || '')) ? wert : '';
+  const antwort = await holeTakeawayKarte(gewuenscht);
+  if (!antwort?.ok) {
+    byId('taDatumInfo').textContent = 'Der Tag ließ sich gerade nicht prüfen. Bitte gleich noch einmal versuchen.';
+    byId('taDatumInfo').dataset.art = 'fehler';
+    return;
+  }
+  if (gewuenscht && antwort.wunschGrund) {
+    byId('taDatum').value = wunschTag;
+    sagDatum(antwort, DATUM_GRUENDE[antwort.wunschGrund] || 'An diesem Tag geht es leider nicht.');
+    return;
+  }
+  wunschTag = gewuenscht;
+  uebernimmTag(antwort);
+  sagDatum(antwort);
 }
 
 /**
@@ -792,6 +888,10 @@ function zeigeZeiten(minuten) {
       ? '„So bald wie möglich“ heißt heute: fertig ab 11:30 Uhr, sobald die Küche aufsperrt.'
       : '„So bald wie möglich“ heißt: fertig in etwa 20–30 Minuten.');
 
+  // Die Zeiten werden bei jedem Wechsel des Abholtags neu aufgebaut - der
+  // Zuhoerer haengt am Kasten und darf nur einmal dran.
+  if (kasten.dataset.hoert) return;
+  kasten.dataset.hoert = '1';
   kasten.addEventListener('click', event => {
     const gewaehlt = event.target.closest('[data-abholung]');
     if (!gewaehlt) return;
@@ -844,7 +944,7 @@ byId('taBestellen')?.addEventListener('click', async () => {
   const knopfSenden = byId('taBestellen');
   knopfSenden.disabled = true;
   sag('Einen Moment, die Bestellung geht in die Küche …');
-  const antwort = await bestelleTakeaway({ name, telefon, posten: posten(), abholung });
+  const antwort = await bestelleTakeaway({ name, telefon, posten: posten(), abholung, datum: wunschTag });
   knopfSenden.disabled = false;
 
   if (!antwort?.ok) {
@@ -856,6 +956,13 @@ byId('taBestellen')?.addEventListener('click', async () => {
       schluss: 'Die letzte Bestellung geht bis 13:45 Uhr. Ruf’ uns an, vielleicht geht noch was: +43 (0)5572 20 540.',
       zu_frueh: 'So schnell schafft es die Küche nicht – wähl’ eine spätere Abholzeit.',
       wochenende: 'Takeaway gibt es Montag bis Freitag zum Mittag.',
+      // Der gewaehlte Abholtag geht nicht mehr - zwischen Waehlen und
+      // Abschicken kann der Wirt zugesperrt oder der Bestellschluss
+      // vorbeigezogen sein.
+      datum: 'Dieses Abholdatum können wir nicht lesen. Bitte noch einmal wählen.',
+      vergangen: 'Der gewählte Abholtag ist vorbei. Bitte einen kommenden Tag wählen.',
+      zu_weit: 'So weit im Voraus nehmen wir noch keine Bestellungen an. Bitte einen näheren Tag wählen.',
+      geschlossen: 'An diesem Tag haben wir zu. Bitte einen anderen Abholtag wählen.',
       karte: 'Die Karte wird gerade gewechselt. Versuch’ es gleich noch einmal.',
       zu_viele: 'Gerade kommen sehr viele Bestellungen. Bitte ruf’ uns kurz an.',
       netz: 'Die Verbindung hat nicht geklappt. Bitte ruf’ uns kurz an: +43 (0)5572 20 540.'
