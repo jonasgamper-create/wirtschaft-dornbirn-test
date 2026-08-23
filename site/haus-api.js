@@ -161,6 +161,10 @@ export async function istOffen() {
 export const holeFrei = (datum, personen) =>
   ruf(`/api/frei?datum=${encodeURIComponent(datum)}&personen=${encodeURIComponent(personen)}`);
 
+/** Der Mittag ist voll: auf die Warteliste. Braucht keinen Token. */
+export const trageWartelisteEin = eintrag =>
+  ruf('/api/warteliste', { methode: 'POST', koerper: eintrag });
+
 /** Welche Tage der Wirt zugesperrt hat. Oeffentlich - die Seite graut sie aus. */
 export const holeGeschlossen = () => ruf('/api/geschlossen');
 

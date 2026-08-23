@@ -37,8 +37,11 @@ if (!/tel:\+43557220540/.test(reservierung)) {
 // und beides zusammen ist die Obergrenze. Anschrift, Geburtsdatum oder ein
 // Konto haben auf dieser Seite nichts verloren; die Grenze steht hier, damit
 // sie nicht beim naechsten Wunsch stillschweigend verschoben wird.
-const mailFelder = (reservierung.match(/type="email"/g) || []).length;
-const telFelder = (reservierung.match(/type="tel"/g) || []).length;
+// Gezaehlt wird im Buchungsformular - die Warteliste ist ein eigener Zweck
+// mit eigenem Feld und darf nicht als Doppelabfrage gelten.
+const ohneWarteliste = reservierung.replace(/<div class="warteliste"[\s\S]*?<\/div>/, '');
+const mailFelder = (ohneWarteliste.match(/type="email"/g) || []).length;
+const telFelder = (ohneWarteliste.match(/type="tel"/g) || []).length;
 if (mailFelder > 1 || telFelder > 1) {
   errors.push('site/tischreservierung.html: Eine Erreichbarkeit genügt – je ein Feld für Mail und Telefon');
 }
