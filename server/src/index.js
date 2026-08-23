@@ -677,6 +677,23 @@ export class Haus extends DurableObject {
       })
       : { result: { ok: false, reason: 'von_hand' }, floorplan: null };
 
+    // Die Weiche, die vorher fehlte: "kein Ergebnis" hat zwei voellig
+    // verschiedene Bedeutungen. Ist die Automatik AUS, ist das gewollt -
+    // Wolfgang teilt von Hand ein, die Anfrage wird angenommen. Ist die
+    // Automatik AN, heisst kein Ergebnis: es ist wirklich voll (Taktgrenze
+    // oder kein Tisch). Dann muss die Antwort NEIN sein - eine gespeicherte
+    // Zusage ohne Tisch waere ein Versprechen, das die Kueche nicht halten
+    // kann. Genau dieser Fall rutschte bisher als "angenommen" durch; die
+    // Gaesteseite verdeckte es, weil sie volle Zeiten ausgraut - aber die
+    // Seite ist nicht die Grenze, der Dienst ist es.
+    if (automatik && !result.ok) {
+      return {
+        ok: false,
+        grund: 'voll',
+        alternativen: (result.alternatives || []).map(entry => entry.startsAt.slice(11))
+      };
+    }
+
     const nummer = (Number(this.#lies('zaehler', 0)) || 0) + 1;
     this.#schreib('zaehler', nummer);
     const id = machId(Date.parse(`${anfrage.date}T${anfrage.time}:00Z`), nummer);
@@ -1513,11 +1530,23 @@ export class Haus extends DurableObject {
     // eine doppelte Nummer: an dem, an dem dieser Zaehler eingefuehrt wurde -
     // die Liste war voll, der Zaehler leer. Dieselbe Zeile repariert den Tag
     // auch dann, wenn der gespeicherte Wert je verloren geht.
-    const tag = this.#lies('taTag', null);
-    const gespeichert = tag?.datum === heute ? Number(tag.nummer) || 0 : 0;
-    const inDerListe = heutige.reduce((groesste, b) => Math.max(groesste, Number(b.nummer) || 0), 0);
-    const tagesnummer = Math.max(gespeichert, inDerListe) + 1;
-    this.#schreib('taTag', { datum: heute, nummer: tagesnummer });
+    //
+    // Und: gezaehlt wird je ABHOLTAG, nicht je Bestelltag. Die Nummer wird am
+    // Tresen des Abholtags gerufen - zwei Vorbestellungen fuer Montag, am
+    // Samstag und am Sonntag aufgegeben, bekaemen sonst beide die Eins. Die
+    // Generalprobe hat genau diesen Fall gefunden.
+    const abholtag = gecheckt.bestellung.date;
+    const zaehlerJeTag = this.#lies('taNummern', {});
+    const inDerListe = this.#takeawayAlle()
+      .filter(eintrag => eintrag.date === abholtag)
+      .reduce((groesste, b) => Math.max(groesste, Number(b.nummer) || 0), 0);
+    const tagesnummer = Math.max(Number(zaehlerJeTag[abholtag]) || 0, inDerListe) + 1;
+    zaehlerJeTag[abholtag] = tagesnummer;
+    // Vergangene Tage fallen aus dem Zaehler, sonst waechst er ewig.
+    for (const alterTag of Object.keys(zaehlerJeTag)) {
+      if (alterTag < heute) delete zaehlerJeTag[alterTag];
+    }
+    this.#schreib('taNummern', zaehlerJeTag);
 
     const bestellung = {
       id: `t-${Date.now().toString(36)}-${String(laufend).padStart(4, '0')}`,
