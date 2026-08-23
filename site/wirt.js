@@ -6,13 +6,14 @@
 
 import {
   apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeKuechenzettel, holeStand, karteAdresse,
-  leereTag, legeEinfach, loescheKarte, schluesselAusAdresse, sendeAktion,
+  leereTag, legeEinfach, loescheKarte, schluesselAusAdresse, sendeAktion, sendePlan,
   sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
   holeEigeneEvents, legeEigenesEvent, loescheEigenesEvent, sendeTischsperre,
   setzeFertigWer,
   stelleTagWiederHer
 } from './haus-api.js?v=c3eb22ff';
 import { buildFloorplan } from './floorplan-layout.mjs?v=8cd1fbb4';
+import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=ec7c8e39';
 
 const byId = id => document.getElementById(id);
@@ -69,6 +70,7 @@ async function start() {
   verdrahteFertigWer();
   verdrahteEigeneEvents();
   verdrahteSperren();
+  verdrahteBestand();
 }
 
 /**
@@ -324,6 +326,7 @@ function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, lei
 function male() {
   if (!stand?.floorplan) return;
   maleSperren();
+  maleBestand();
   const plan = buildFloorplan(stand.floorplan);
   const policy = stand.floorplan.policy || {};
   const nu = jetzt();
@@ -931,5 +934,127 @@ function verdrahteSperren() {
       sag('sperreInfo', sperren ? 'Tisch ist gesperrt.' : 'Tisch ist wieder frei.');
     }
     // Der neue Stand kommt ueber den Draht; die Liste malt dann von selbst.
+  });
+}
+
+
+// ---- Tische & Stuehle ueber Anzahlen ---------------------------------------
+//
+// "Fuenf Zweiertische, acht Vierertische" - die Sicht, in der ein Wirt seinen
+// Raum beschreibt. Jeder Klick veroeffentlicht sofort einen neuen Plan; die
+// Umsetzung entwurzelter Reservierungen macht der Dienst und meldet sie.
+
+/** Waehrend ein Klick unterwegs ist, nimmt der Kasten keinen zweiten an. */
+let bestandLaeuft = false;
+
+function aktiveOrdnung() {
+  const config = stand?.floorplan;
+  const layouts = config?.layouts || [];
+  return layouts.find(layout => layout.id === config?.activeLayout) || layouts[0] || null;
+}
+
+function maleBestand() {
+  const kasten = byId('bestandListe');
+  if (!kasten) return;
+  const layout = aktiveOrdnung();
+  if (!layout) return;
+  kasten.textContent = '';
+  for (const level of [...layout.levels].sort((a, b) => (a.order || 0) - (b.order || 0))) {
+    const block = document.createElement('div');
+    block.className = 'bestand-etage';
+    const titel = document.createElement('h4');
+    titel.textContent = level.name;
+    block.append(titel);
+    const groessen = zaehleGroessen(level);
+    if (!groessen.length) {
+      const leer = document.createElement('p');
+      leer.className = 'bestand-leer';
+      leer.textContent = 'Noch keine Tische – unten eine Größe ergänzen.';
+      block.append(leer);
+    }
+    for (const { seats, anzahl } of groessen) {
+      const zeile = document.createElement('div');
+      zeile.className = 'bestand-zeile';
+      const name = document.createElement('span');
+      name.textContent = `${seats}er-Tische`;
+      const weniger = document.createElement('button');
+      weniger.type = 'button';
+      weniger.textContent = '−';
+      weniger.setAttribute('aria-label', `Einen ${seats}er-Tisch in ${level.name} weniger`);
+      weniger.dataset.level = level.id;
+      weniger.dataset.seats = String(seats);
+      weniger.dataset.soll = String(anzahl - 1);
+      const zahl = document.createElement('b');
+      zahl.textContent = String(anzahl);
+      const mehr = document.createElement('button');
+      mehr.type = 'button';
+      mehr.textContent = '+';
+      mehr.setAttribute('aria-label', `Ein ${seats}er-Tisch in ${level.name} mehr`);
+      mehr.dataset.level = level.id;
+      mehr.dataset.seats = String(seats);
+      mehr.dataset.soll = String(anzahl + 1);
+      zeile.append(name, weniger, zahl, mehr);
+      block.append(zeile);
+    }
+    kasten.append(block);
+  }
+}
+
+async function stelleBestand(levelId, seats, soll) {
+  if (bestandLaeuft) return;
+  const layout = aktiveOrdnung();
+  const level = layout?.levels.find(eintrag => eintrag.id === levelId);
+  if (!level) return;
+  const tables = setzeAnzahl(level, seats, soll);
+  if (!tables) return;
+  const neu = planMitTischen(stand.floorplan, layout.id, levelId, tables);
+  if (!neu) return;
+  bestandLaeuft = true;
+  sag('bestandInfo', 'Einen Moment …');
+  const antwort = await sendePlan(hausToken(), { floorplan: neu });
+  bestandLaeuft = false;
+  if (!antwort?.ok) return sag('bestandInfo', 'Das hat nicht geklappt - bitte noch einmal.', 'fehler');
+  if (antwort.stand) { stand = antwort.stand; male(); }
+  const bewegt = antwort.umgesetzt || [];
+  const ohne = bewegt.filter(eintrag => !eintrag.tische);
+  if (ohne.length) {
+    sag('bestandInfo', `Übernommen. ${ohne.map(e => `${e.name} (${e.time})`).join(', ')} `
+      + 'hat keinen freien Tisch mehr - bitte von Hand einteilen.', 'fehler');
+  } else if (bewegt.length) {
+    sag('bestandInfo', `Übernommen. Umgesetzt: ${bewegt.map(e => `${e.name} (${e.time})`).join(', ')}.`);
+  } else {
+    sag('bestandInfo', 'Übernommen - gilt sofort, auch für die Ampel auf der Gästeseite.');
+  }
+}
+
+function verdrahteBestand() {
+  const kasten = byId('bestandListe');
+  if (!kasten) return;
+  kasten.addEventListener('click', ereignis => {
+    const knopf = ereignis.target.closest('button[data-level]');
+    if (!knopf) return;
+    stelleBestand(knopf.dataset.level, Number(knopf.dataset.seats), Number(knopf.dataset.soll));
+  });
+
+  // Neue Groesse: einmal ergaenzen legt den ersten Tisch an, danach zaehlt
+  // man mit plus und minus weiter.
+  const auswahl = byId('bestandGroesse');
+  for (let seats = 1; seats <= 12; seats += 1) {
+    const option = document.createElement('option');
+    option.value = String(seats);
+    option.textContent = `${seats} Plätze`;
+    if (seats === 2) option.selected = true;
+    auswahl.append(option);
+  }
+  byId('bestandNeu').addEventListener('submit', ereignis => {
+    ereignis.preventDefault();
+    const layout = aktiveOrdnung();
+    if (!layout) return;
+    // In die erste Etage; verschieben und feiner ordnen geht in der grossen
+    // Einteilung. Fuer "wir haben jetzt auch Sechsertische" reicht das.
+    const level = [...layout.levels].sort((a, b) => (a.order || 0) - (b.order || 0))[0];
+    const seats = Number(auswahl.value);
+    const schon = zaehleGroessen(level).find(eintrag => eintrag.seats === seats)?.anzahl || 0;
+    stelleBestand(level.id, seats, schon + 1);
   });
 }

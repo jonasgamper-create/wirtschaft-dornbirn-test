@@ -8,6 +8,7 @@ import {
   AMPEL_WENIGE, ampelFuer, betroffenePartys, etagenReihenfolge, machId, planTaugt, pruefeAnfrage, raeumeAuf, sitzendeGaeste, tischBekannt, verteile, wendeAktionAn
 } from '../server/src/haus-logik.mjs';
 import { buildFloorplan } from '../site/floorplan-layout.mjs';
+import { planMitTischen, setzeAnzahl, zaehleGroessen } from '../site/tisch-anzahlen.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const config = JSON.parse(await readFile(path.join(root, 'site/data/floorplan.json'), 'utf8'));
@@ -260,6 +261,36 @@ check('Mit Kombigrenze 10 sitzen zwanzig an zehn Tischen',
 check('Ein echter Plan wird angenommen', planTaugt(config));
 check('Leerer Koerper wird abgelehnt', !planTaugt(undefined) && !planTaugt(null) && !planTaugt({}));
 check('Text statt Plan wird abgelehnt', !planTaugt('kaputt'));
+// ---- Tische ueber Anzahlen -------------------------------------------------
+// "5 Zweiertische, 8 Vierertische" - die einfache Sicht des Wirts.
+
+const probeEtage = { id: 'eg', name: 'Gaststube', order: 1, tables: [
+  { id: 'eg-t01', seats: 2, col: 1, row: 1 },
+  { id: 'eg-t02', seats: 2, col: null, row: null },
+  { id: 'eg-t03', seats: 4, col: null, row: null }
+] };
+check('Zaehlen fasst nach Groesse zusammen',
+  JSON.stringify(zaehleGroessen(probeEtage)) === '[{"seats":2,"anzahl":2},{"seats":4,"anzahl":1}]');
+check('Aufstocken ergaenzt neue Tische mit frischen Kennungen',
+  (() => { const t = setzeAnzahl(probeEtage, 2, 4); return t.length === 5
+    && t.filter(x => x.seats === 2).length === 4
+    && new Set(t.map(x => x.id)).size === 5; })());
+check('Verkleinern nimmt die juengsten zuerst - platzierte bleiben',
+  (() => { const t = setzeAnzahl(probeEtage, 2, 1); return t.length === 2
+    && t.some(x => x.id === 'eg-t01') && !t.some(x => x.id === 'eg-t02'); })());
+check('Null ist erlaubt - eine Groesse darf ganz verschwinden',
+  setzeAnzahl(probeEtage, 4, 0).every(x => x.seats !== 4));
+check('Neue Groesse entsteht aus dem Nichts',
+  setzeAnzahl(probeEtage, 6, 2).filter(x => x.seats === 6).length === 2);
+check('Unsinnige Groesse wird abgelehnt', setzeAnzahl(probeEtage, 0, 3) === null);
+check('Die Eingabe bleibt unberuehrt', probeEtage.tables.length === 3);
+check('planMitTischen aendert nur die eine Etage',
+  (() => { const neu = planMitTischen(config, config.layouts[0].id, config.layouts[0].levels[0].id, []);
+    return neu.layouts[0].levels[0].tables.length === 0
+      && neu.layouts[0].levels[1].tables.length === config.layouts[0].levels[1].tables.length
+      && config.layouts[0].levels[0].tables.length > 0; })());
+check('Unbekannte Etage ergibt null', planMitTischen(config, 'standard', 'gibtsnicht', []) === null);
+
 check('Liste statt Plan wird abgelehnt', !planTaugt([]));
 check('Plan ohne Ordnungen wird abgelehnt', !planTaugt({ layouts: [] }));
 

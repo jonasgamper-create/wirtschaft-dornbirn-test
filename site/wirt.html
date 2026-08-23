@@ -9,8 +9,8 @@
   <meta name="theme-color" content="#173e2c">
   <title>Heute Mittag · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
-  <link rel="stylesheet" href="wirt.css?v=f6742a7a">
-  <script type="module" src="wirt.js?v=44147de6"></script>
+  <link rel="stylesheet" href="wirt.css?v=6c5a52da">
+  <script type="module" src="wirt.js?v=1bc6fa72"></script>
 </head>
 <body>
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -125,12 +125,28 @@
     </details>
 
 
+    <details class="werkzeug" id="bestandKasten">
+      <summary>Tische &amp; Stühle – was das Haus hat</summary>
+      <p class="hinweis">So einfach wie am Telefon: „Wir haben fünf Zweiertische und acht
+        Vierertische.“ Zahl rauf, Zahl runter – gilt sofort, überall. Sitzt jemand auf einem
+        Tisch, der wegfällt, wird er automatisch umgesetzt und du siehst hier, wer.</p>
+      <div class="bestand-liste" id="bestandListe"></div>
+      <form class="bestand-neu" id="bestandNeu">
+        <label>Neue Tischgröße
+          <select id="bestandGroesse"></select>
+        </label>
+        <button class="knopf leise" type="submit">Größe ergänzen</button>
+      </form>
+      <p class="lauf-ergebnis" id="bestandInfo" role="status" aria-live="polite"></p>
+      <p class="hinweis">Etagen, Tischordnungen und die Karte zum Verschieben gibt es weiter in
+        der <a href="gastgeber-tischplan.html" id="einrichtenLink">großen Einteilung</a> unter „Einrichten“.</p>
+    </details>
+
     <details class="werkzeug" id="sperreKasten">
       <summary>Tische sperren – wenn einer ausfällt</summary>
       <p class="hinweis">Gesperrte Tische vergibt der Dienst nicht mehr – weder online noch bei
         Laufkundschaft. Sitzt schon jemand darauf reserviert, wird er sofort auf einen freien
-        Tisch umgesetzt und du siehst hier, wer. Stühle und Tische selbst änderst du in der
-        <a href="gastgeber-tischplan.html" id="einrichtenLink">großen Einteilung</a> unter „Einrichten“.</p>
+        Tisch umgesetzt und du siehst hier, wer.</p>
       <div class="sperre-liste" id="sperreListe"></div>
       <p class="lauf-ergebnis" id="sperreInfo" role="status" aria-live="polite"></p>
     </details>
