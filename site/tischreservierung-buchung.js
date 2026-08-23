@@ -132,14 +132,6 @@ async function start() {
   // ohne Profil gaebe es nichts, worin sie stehen koennte. Und wer den Haken
   // wieder wegnimmt, soll nicht eine Angabe stehen lassen, von der er glaubt,
   // sie sei gespeichert.
-  byId('guestRemember')?.addEventListener('change', event => {
-    const mehr = byId('guestRememberMore');
-    if (!mehr) return;
-    mehr.hidden = !event.target.checked;
-    if (event.target.checked) return;
-    byId('guestIntolerance').value = '';
-    byId('guestHealthConsent').checked = false;
-  });
 
   const sag = (text, art = 'info') => {
     ergebnis.hidden = false;
@@ -379,12 +371,7 @@ async function start() {
       name: wer, date: tag, time: zeit, guests: gaeste,
       wunsch: byId('guestWish')?.value.trim() || null,
       // Zwei getrennte Zustimmungen: merken, und - eigens - die
-      // Unvertraeglichkeit. Der Dienst prueft das noch einmal selbst.
-      profil: {
-        merken: byId('guestRemember')?.checked === true,
-        unvertraeglichkeit: byId('guestIntolerance')?.value.trim() || '',
-        gesundheit: byId('guestHealthConsent')?.checked === true
-      },
+      // Unvertraeglichkeit. Der Dienst prueft das noch einmal selbst.,
       kontakt: { email: wohin || null, telefon: anruf || null }
     });
     knopf.disabled = false;
