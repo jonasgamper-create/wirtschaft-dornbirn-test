@@ -671,7 +671,11 @@ function richteDatumEin(antwort) {
 
 /** Was unter dem Feld steht: welcher Tag jetzt gilt - und warum. */
 function sagDatum(antwort, fehler = '') {
-  const gilt = antwort?.bestelltag ? tagesName(antwort.bestelltag) : null;
+  // Was nach einer Ablehnung weiter gilt, ist der zuletzt gueltige Tag - nicht
+  // der Standardtag aus der Antwort. Sonst stand nach einem Fehlgriff "Es gilt
+  // weiter morgen", waehrend im Feld noch der gewaehlte Mittwoch stand.
+  const gueltig = fehler ? (wunschTag || antwort?.bestelltag) : antwort?.bestelltag;
+  const gilt = gueltig ? tagesName(gueltig) : null;
   byId('taDatumInfo').textContent = fehler
     ? `${fehler}${gilt ? ` Es gilt weiter ${gilt}.` : ''}`
     : (wunschTag
