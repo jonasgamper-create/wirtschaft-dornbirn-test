@@ -481,6 +481,7 @@ async function start() {
         zu_weit: 'So weit im Voraus nehmen wir online noch keine Reservierung an.',
         wochenende: 'Mittags kochen wir Montag bis Freitag.',
         geschlossen: 'An diesem Tag bleibt der Mittag zu – bitte einen anderen Tag wählen.',
+        voll: 'Um diese Zeit ist mittags leider alles belegt – wähl eine andere Zeit oder trag dich unten auf die Warteliste ein.',
         zu_viele: 'Gerade kommen sehr viele Anfragen. Bitte ruf uns kurz an.',
         kontakt: 'Bitte eine E-Mail-Adresse oder eine Telefonnummer angeben.',
         mail: 'Diese E-Mail-Adresse sieht nicht richtig aus. Bitte noch einmal prüfen.',

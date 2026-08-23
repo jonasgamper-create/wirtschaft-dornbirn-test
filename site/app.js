@@ -748,6 +748,15 @@
       .sort((a, b) => String(a.date).localeCompare(String(b.date)));
     renderEventLists();
   };
+  // Das Kalender-Abo zeigt auf DIESE Herkunft - fest auf die echte Domain
+  // verdrahtet war es ein totes Abo, solange die Datei dort nicht liegt.
+  // webcal:// ist http(s) mit anderem Schema; die Adresse entsteht deshalb
+  // zur Laufzeit aus der eigenen.
+  const abo = document.getElementById('calendarSubscribe');
+  if (abo) {
+    abo.href = `webcal://${location.host}${location.pathname.replace(/[^/]*$/, '')}wirtschaft-events.ics`;
+  }
+
   fetch('data/haus.json', { cache: 'no-store' })
     .then(antwort => antwort.json())
     .then(daten => {
