@@ -8,10 +8,10 @@ import {
   apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeKuechenzettel, holeStand, karteAdresse,
   leereTag, legeEinfach, loescheKarte, schluesselAusAdresse, sendeAktion,
   sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
-  holeEigeneEvents, legeEigenesEvent, loescheEigenesEvent,
+  holeEigeneEvents, legeEigenesEvent, loescheEigenesEvent, sendeTischsperre,
   setzeFertigWer,
   stelleTagWiederHer
-} from './haus-api.js?v=3348d0da';
+} from './haus-api.js?v=c3eb22ff';
 import { buildFloorplan } from './floorplan-layout.mjs?v=8cd1fbb4';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=ec7c8e39';
 
@@ -68,6 +68,7 @@ async function start() {
   verdrahteZettel();
   verdrahteFertigWer();
   verdrahteEigeneEvents();
+  verdrahteSperren();
 }
 
 /**
@@ -322,6 +323,7 @@ function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, lei
 /** Alles neu malen: die eine Wahrheit ist der Stand des Dienstes. */
 function male() {
   if (!stand?.floorplan) return;
+  maleSperren();
   const plan = buildFloorplan(stand.floorplan);
   const policy = stand.floorplan.policy || {};
   const nu = jetzt();
@@ -875,5 +877,59 @@ function verdrahteEigeneEvents() {
     sag('eventInfo', `„${antwort.event.titel}“ steht ab sofort auf der Startseite.`, 'gut');
     form.reset();
     maleEigeneEvents();
+  });
+}
+
+
+// ---- Tische sperren --------------------------------------------------------
+//
+// Der eine Handgriff des Alltags: Tisch 4 ist kaputt, Tisch 4 ist wieder da.
+// Die Liste malt sich aus dem Stand - dieselbe Quelle wie ueberall, also
+// stimmt sie auch, wenn ein zweites Geraet sperrt.
+
+function maleSperren() {
+  const kasten = byId('sperreListe');
+  if (!kasten || !stand?.floorplan) return;
+  const plan = buildFloorplan(stand.floorplan);
+  const zu = new Set(stand.blockedTables || []);
+  kasten.textContent = '';
+  for (const table of plan.tables) {
+    const knopf = document.createElement('button');
+    knopf.type = 'button';
+    knopf.className = zu.has(table.id) ? 'sperre zu' : 'sperre';
+    knopf.dataset.tisch = table.id;
+    knopf.setAttribute('aria-pressed', String(zu.has(table.id)));
+    const nummer = document.createElement('b');
+    nummer.textContent = String(table.number ?? table.id);
+    const meta = document.createElement('span');
+    meta.textContent = `${table.seats}P · ${table.levelName || ''}`;
+    knopf.append(nummer, meta);
+    kasten.append(knopf);
+  }
+}
+
+function verdrahteSperren() {
+  const kasten = byId('sperreListe');
+  if (!kasten) return;
+  kasten.addEventListener('click', async ereignis => {
+    const knopf = ereignis.target.closest('[data-tisch]');
+    if (!knopf) return;
+    knopf.disabled = true;
+    const sperren = knopf.getAttribute('aria-pressed') !== 'true';
+    const antwort = await sendeTischsperre(hausToken(), knopf.dataset.tisch, sperren);
+    knopf.disabled = false;
+    if (!antwort?.ok) return sag('sperreInfo', 'Das hat nicht geklappt - bitte noch einmal.', 'fehler');
+    // Wer umgesetzt wurde, steht hier - und wer keinen Platz fand, erst recht.
+    const bewegt = antwort.umgesetzt || [];
+    const ohne = bewegt.filter(eintrag => !eintrag.tische);
+    if (ohne.length) {
+      sag('sperreInfo', `Gesperrt. ${ohne.map(e => `${e.name} (${e.time})`).join(', ')} `
+        + 'hat keinen freien Tisch mehr - bitte von Hand einteilen.', 'fehler');
+    } else if (bewegt.length) {
+      sag('sperreInfo', `Gesperrt. Umgesetzt: ${bewegt.map(e => `${e.name} (${e.time})`).join(', ')}.`);
+    } else {
+      sag('sperreInfo', sperren ? 'Tisch ist gesperrt.' : 'Tisch ist wieder frei.');
+    }
+    // Der neue Stand kommt ueber den Draht; die Liste malt dann von selbst.
   });
 }

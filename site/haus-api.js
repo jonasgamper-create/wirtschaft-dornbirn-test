@@ -247,6 +247,10 @@ export const sendeLaufkunde = (token, personen) =>
 
 export const sendePlan = (token, koerper) => ruf('/api/plan', { methode: 'POST', koerper, token });
 
+/** Tisch sperren oder freigeben - der eine Handgriff des Alltags. */
+export const sendeTischsperre = (token, id, gesperrt) =>
+  ruf('/api/tisch/sperre', { methode: 'POST', koerper: { id, gesperrt }, token });
+
 export const sendeAktion = (token, befehl) => ruf('/api/aktion', { methode: 'POST', koerper: befehl, token });
 
 export const sendeReservierung = (token, reservierung) =>
