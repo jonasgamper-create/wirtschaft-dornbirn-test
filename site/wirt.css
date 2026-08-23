@@ -164,3 +164,32 @@ h2{font-size:24px;margin-bottom:6px}
    Handlung, und im Mittag darf nichts mit dem grossen Knopf verwechselt
    werden. */
 .kueche-seite .haus-liste .knopf.spaeter{min-height:56px;padding:0 14px;font-size:12px}
+
+/* ---- Eigene Termine -------------------------------------------------------- */
+.event-liste{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px}
+.event-liste li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid #11110f1f;border-radius:10px;background:#fff}
+.event-liste li.leer{border-style:dashed;color:#8f887b;grid-template-columns:1fr}
+.event-wann{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.event-was{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.event-form{display:grid;gap:10px}
+.event-form label{display:grid;gap:5px;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.event-form input{min-height:46px;padding:10px 12px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none}
+.event-form-zeile{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.event-form-zeile{grid-template-columns:1fr}}
+
+/* ---- Uebersichtsseite ------------------------------------------------------ */
+.uebersicht-seite .zahlen{grid-template-columns:repeat(4,1fr)}
+@media(max-width:700px){.uebersicht-seite .zahlen{grid-template-columns:1fr 1fr}}
+.uebersicht-seite .marke{margin:0;color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.uebersicht-seite h1{margin:2px 0 0;font-size:clamp(22px,3vw,30px);letter-spacing:-.02em}
+/* Kein Zuklappen auf einer Seite, die nur zum Anschauen da ist. */
+.werkzeug.offen-immer h2{margin:0 0 12px;font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.aufgaben-liste{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.aufgaben-liste li{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 14px;border:1px solid #c59b5d66;border-radius:10px;background:#c59b5d14}
+.aufgaben-liste li.leer{border-color:#11110f1f;background:#fff;color:#8f887b;border-style:dashed}
+.aufgaben-liste a{white-space:nowrap;font-weight:700}
+.werkzeug-links{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.werkzeug-links{grid-template-columns:1fr}}
+.werkzeug-links a{display:grid;gap:3px;padding:14px;border:1px solid #11110f1f;border-radius:10px;background:#fff;color:var(--ink);text-decoration:none;font-weight:700}
+.werkzeug-links a:hover{border-color:var(--green)}
+.werkzeug-links small{color:var(--muted);font-weight:400}

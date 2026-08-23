@@ -9,7 +9,7 @@
 
 import {
   apiAdresse, bleibVerbunden, hausToken, holeStand, schluesselAusAdresse, sendeTakeawayAktion
-} from './haus-api.js?v=d0c0af0d';
+} from './haus-api.js?v=3348d0da';
 
 const byId = id => document.getElementById(id);
 const pad = zahl => String(zahl).padStart(2, '0');
@@ -147,12 +147,10 @@ function male() {
   // Knopf, den es fuer sie nicht gibt.
   byId('smsHinweis').textContent = !darfFertig()
     ? 'Fertigmelden macht der Wirt am Tresen – hier steht nur, was läuft.'
-    : (stand?.smsAn
-      ? '„Fertig“ schickt dem Gast eine SMS.'
-      // Ohne SMS ist "keine Nachricht" die halbe Wahrheit: der Gast sieht es
-      // sehr wohl - auf seiner Bestellseite und am Bildschirm im Eingang.
-      // Wer am Herd steht, soll wissen, dass Fertigmelden etwas bewirkt.
-      : '„Fertig“ zeigt dem Gast seine Nummer – auf seiner Seite und am Bildschirm im Eingang. Keine SMS.');
+    // Der Gast sieht das Fertigmelden auf seiner Bestellseite, als Meldung
+    // auf dem Sperrbildschirm (wenn er sie erlaubt hat) und am Bildschirm im
+    // Eingang. Wer am Herd steht, soll wissen, dass der Knopf etwas bewirkt.
+    : '„Fertig“ zeigt dem Gast seine Nummer – auf seiner Seite und am Bildschirm im Eingang.';
 
   for (const [liste, eintraege, leerText] of [
     [byId('offenListe'), offen, 'Gerade nichts zu kochen.'],

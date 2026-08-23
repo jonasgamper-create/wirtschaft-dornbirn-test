@@ -8,9 +8,10 @@ import {
   apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeKuechenzettel, holeStand, karteAdresse,
   leereTag, legeEinfach, loescheKarte, schluesselAusAdresse, sendeAktion,
   sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
-  setzeFertigWer, setzeSms,
+  holeEigeneEvents, legeEigenesEvent, loescheEigenesEvent,
+  setzeFertigWer,
   stelleTagWiederHer
-} from './haus-api.js?v=d0c0af0d';
+} from './haus-api.js?v=3348d0da';
 import { buildFloorplan } from './floorplan-layout.mjs?v=8cd1fbb4';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=ec7c8e39';
 
@@ -65,8 +66,8 @@ async function start() {
   verdrahteTagLeeren();
   verdrahteKarten();
   verdrahteZettel();
-  verdrahteSms();
   verdrahteFertigWer();
+  verdrahteEigeneEvents();
 }
 
 /**
@@ -124,45 +125,6 @@ function verdrahteFertigWer() {
   });
 }
 
-/**
- * Der Schalter fuer die Fertig-SMS. Er zeigt immer den Stand des Dienstes,
- * nicht den letzten Klick: schaltet ein zweites Geraet um, muss man das hier
- * sehen. Und ohne eingerichteten Absender sagt er, woran es liegt, statt
- * stumm zurueckzuspringen.
- */
-function verdrahteSms() {
-  const schalter = byId('smsAn');
-  if (!schalter) return;
-
-  const male = () => {
-    if (schalter.dataset.aendert) return;
-    schalter.checked = stand?.smsAn === true;
-    byId('smsLabel').textContent = schalter.checked
-      ? 'SMS ist an – der Gast wird benachrichtigt'
-      : 'SMS ist aus';
-  };
-  male();
-  setInterval(male, 4000);
-
-  schalter.addEventListener('change', async () => {
-    schalter.dataset.aendert = '1';
-    const gewuenscht = schalter.checked;
-    sag('smsInfo', 'Einen Moment …');
-    const antwort = await setzeSms(hausToken(), gewuenscht);
-    delete schalter.dataset.aendert;
-    if (!antwort?.ok) {
-      schalter.checked = !gewuenscht;
-      male();
-      return sag('smsInfo', antwort?.grund === 'nicht_eingerichtet'
-        ? 'Für SMS fehlt noch das Brevo-Konto (Schlüssel und Absendername). Solange bleibt sie aus.'
-        : 'Das hat nicht geklappt – bitte noch einmal.', 'fehler');
-    }
-    male();
-    sag('smsInfo', antwort.an
-      ? 'SMS läuft. Ab jetzt bekommt der Gast bei „Fertig“ eine Nachricht.'
-      : 'SMS ist aus. „Fertig“ meldet nur intern.', 'gut');
-  });
-}
 
 /**
  * Der Kuechenzettel. Er beantwortet die Frage vor dem Einkauf: wie viel
@@ -835,4 +797,83 @@ async function zeigeKarte() {
   byId('karteStand').textContent = Number.isNaN(von.getTime())
     ? 'Eine Karte ist hinterlegt.'
     : `Aktuelle Karte vom ${von.toLocaleDateString('de-AT', { weekday: 'long', day: 'numeric', month: 'long' })}.`;
+}
+
+
+// ---- Eigene Termine --------------------------------------------------------
+//
+// Der Wirt setzt an, die Startseite zeigt. Die Liste hier ist dieselbe, die
+// der Gast sieht - nach Datum sortiert, Vergangenes weg. Loeschen ist ein
+// Klick, denn ein falscher Termin auf der Gaesteseite ist schlimmer als ein
+// fehlender.
+
+async function maleEigeneEvents() {
+  const liste = byId('eventListe');
+  if (!liste) return;
+  const antwort = await holeEigeneEvents();
+  liste.textContent = '';
+  const events = antwort?.events || [];
+  if (!events.length) {
+    const leer = document.createElement('li');
+    leer.className = 'leer';
+    leer.textContent = 'Noch nichts angesetzt.';
+    liste.append(leer);
+    return;
+  }
+  for (const event of events) {
+    const li = document.createElement('li');
+    const wann = document.createElement('span');
+    wann.className = 'event-wann';
+    const datum = new Date(`${event.date}T12:00:00`);
+    wann.textContent = datum.toLocaleDateString('de-AT', { weekday: 'short', day: '2-digit', month: 'short' })
+      + (event.beginn ? ` · ${event.beginn}` : '');
+    const was = document.createElement('span');
+    was.className = 'event-was';
+    was.textContent = event.title + (event.type && event.type !== 'Termin im Haus' ? ` – ${event.type}` : '');
+    const weg = document.createElement('button');
+    weg.type = 'button';
+    weg.className = 'knopf leise';
+    weg.textContent = 'Entfernen';
+    weg.addEventListener('click', async () => {
+      weg.disabled = true;
+      const geloescht = await loescheEigenesEvent(hausToken(), event.id);
+      if (!geloescht?.ok) { weg.disabled = false; return sag('eventInfo', 'Löschen hat nicht geklappt.', 'fehler'); }
+      sag('eventInfo', `„${event.title}“ ist entfernt.`);
+      maleEigeneEvents();
+    });
+    li.append(wann, was, weg);
+    liste.append(li);
+  }
+}
+
+function verdrahteEigeneEvents() {
+  const form = byId('eventForm');
+  if (!form) return;
+  maleEigeneEvents();
+  form.addEventListener('submit', async ereignis => {
+    ereignis.preventDefault();
+    const event = {
+      titel: byId('eventTitel').value.trim(),
+      datum: byId('eventDatum').value,
+      zeit: byId('eventZeit').value,
+      untertitel: byId('eventUntertitel').value.trim(),
+      link: byId('eventLink').value.trim()
+    };
+    sag('eventInfo', 'Einen Moment …');
+    const antwort = await legeEigenesEvent(hausToken(), event);
+    if (!antwort?.ok) {
+      const gruende = {
+        titel: 'Der Titel braucht mindestens drei Zeichen.',
+        datum: 'Bitte ein Datum wählen.',
+        vergangen: 'Das Datum liegt in der Vergangenheit.',
+        zeit: 'Die Uhrzeit sieht nicht richtig aus.',
+        link: 'Der Link muss mit https:// beginnen.',
+        token: 'Kein Zugang - bitte den Einrichtungslink neu öffnen.'
+      };
+      return sag('eventInfo', gruende[antwort?.grund] || 'Das hat nicht geklappt.', 'fehler');
+    }
+    sag('eventInfo', `„${antwort.event.titel}“ steht ab sofort auf der Startseite.`, 'gut');
+    form.reset();
+    maleEigeneEvents();
+  });
 }

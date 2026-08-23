@@ -9,8 +9,8 @@
   <meta name="theme-color" content="#173e2c">
   <title>Heute Mittag · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
-  <link rel="stylesheet" href="wirt.css?v=a656b76d">
-  <script type="module" src="wirt.js?v=1cbb5d10"></script>
+  <link rel="stylesheet" href="wirt.css?v=298d6f46">
+  <script type="module" src="wirt.js?v=4a662eac"></script>
 </head>
 <body>
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -121,17 +121,27 @@
         <button class="knopf leise" type="button" data-wer="beide" aria-pressed="false">Beide</button>
       </div>
       <p class="lauf-ergebnis" id="fertigInfo" role="status" aria-live="polite"></p>
+      <p class="hinweis">Die Küche hat einen eigenen Zugang: <a href="kueche.html" id="kuecheLink">Küchenansicht öffnen</a> – dort stehen nur die Bestellungen, keine Reservierungen und keine Gästekontakte.</p>
     </details>
 
-    <details class="werkzeug" id="smsKasten">
-      <summary>Nachricht an den Gast, wenn das Essen fertig ist</summary>
-      <p class="hinweis">Wird eine Bestellung fertiggemeldet, bekommt der Gast eine SMS an die Nummer, die er bei der Bestellung angegeben hat. Jede SMS kostet – deshalb entscheidest du, ob sie läuft.</p>
-      <label class="sms-schalter">
-        <input type="checkbox" id="smsAn">
-        <span id="smsLabel">SMS ist aus</span>
-      </label>
-      <p class="lauf-ergebnis" id="smsInfo" role="status" aria-live="polite"></p>
-      <p class="hinweis">Die Küche hat einen eigenen Zugang: <a href="kueche.html" id="kuecheLink">Küchenansicht öffnen</a> – dort stehen nur die Bestellungen, keine Reservierungen und keine Gästekontakte.</p>
+
+    <details class="werkzeug" id="eventKasten">
+      <summary>Eigene Termine – was im Haus ansteht</summary>
+      <p class="hinweis">Für Zusatzabende, Stammtische und alles, was nicht über das offizielle
+        Ticketprogramm läuft. Die Termine erscheinen auf der Startseite, nach Datum sortiert –
+        Vergangenes räumt sich von selbst weg.</p>
+      <ul class="event-liste" id="eventListe"></ul>
+      <form class="event-form" id="eventForm">
+        <label>Titel*<input type="text" id="eventTitel" maxlength="80" placeholder="z. B. Weinabend mit Winzer"></label>
+        <div class="event-form-zeile">
+          <label>Datum*<input type="date" id="eventDatum"></label>
+          <label>Uhrzeit<input type="time" id="eventZeit"></label>
+        </div>
+        <label>Untertitel<input type="text" id="eventUntertitel" maxlength="120" placeholder="z. B. Donnerstag · begrenzte Plätze"></label>
+        <label>Link (freiwillig)<input type="url" id="eventLink" maxlength="300" placeholder="https://…"></label>
+        <button class="knopf" type="submit">Termin anlegen</button>
+      </form>
+      <p class="lauf-ergebnis" id="eventInfo" role="status" aria-live="polite"></p>
     </details>
 
     <details class="werkzeug" id="zettelKasten">

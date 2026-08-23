@@ -19,6 +19,7 @@ import eventDaten from '../../site/data/events.json';
 import { shift } from '../../site/table-assignment.mjs';
 import { pruefeKontakt } from './kontakt.mjs';
 import { pruefePushAnmeldung, schickePush } from './push.mjs';
+import { fuerDieGaesteseite, ordneEigeneEvents, pruefeEigenesEvent } from './eigene-events.mjs';
 import {
   fuerDenWirt, pruefeWunsch, raeumeAufProfile, schluesselFuer, widerrufe, zaehleBesuch
 } from './gast.mjs';
@@ -1405,6 +1406,39 @@ export class Haus extends DurableObject {
     return ergebnis.ok ? 'gesendet' : (ergebnis.grund || 'fehler');
   }
 
+  // ---- Eigene Termine des Hauses -------------------------------------------
+
+  /** Oeffentlich: die eigenen Termine in der Form der Gaesteseite. */
+  async eigeneEvents() {
+    const heute = jetztImHaus().datum;
+    const liste = ordneEigeneEvents(this.#lies('wirtEvents', []), heute);
+    return { ok: true, events: liste.map(fuerDieGaesteseite) };
+  }
+
+  /** Der Wirt legt einen Termin an. Die Liste haelt sich selbst sortiert. */
+  async eigenesEventAnlegen(roh) {
+    const geprueft = pruefeEigenesEvent(roh);
+    if (!geprueft.ok) return geprueft;
+    const heute = jetztImHaus().datum;
+    // Gestern anlegen ergibt einen Termin, der beim naechsten Schreiben
+    // wortlos verschwindet - besser gleich ehrlich ablehnen.
+    if (geprueft.event.datum < heute) return { ok: false, grund: 'vergangen' };
+    const event = { id: `we-${Date.now().toString(36)}-${Math.trunc(Math.random() * 1e6).toString(36)}`, ...geprueft.event };
+    const liste = ordneEigeneEvents([...this.#lies('wirtEvents', []), event], heute);
+    this.#schreib('wirtEvents', liste);
+    this.#meldeAenderung();
+    return { ok: true, event, anzahl: liste.length };
+  }
+
+  async eigenesEventEntfernen(id) {
+    const vorher = this.#lies('wirtEvents', []);
+    const nachher = vorher.filter(event => event.id !== String(id || ''));
+    if (nachher.length === vorher.length) return { ok: false, grund: 'unbekannt' };
+    this.#schreib('wirtEvents', ordneEigeneEvents(nachher, jetztImHaus().datum));
+    this.#meldeAenderung();
+    return { ok: true };
+  }
+
   /** Abgeholt, zurueckgenommen oder entfernt - die drei Griffe des Wirts. */
   async takeawayAktion(befehl) {
     const bestellung = this.#takeawayAlle().find(eintrag => eintrag.id === befehl?.id);
@@ -1986,6 +2020,22 @@ export default {
         if (!darf()) return json({ ok: false }, 401, kopf);
         const body = await request.json().catch(() => ({}));
         return json(await haus.setzeFertigWer(String(body?.wer || '')), 200, kopf);
+      }
+
+      // Eigene Termine: lesen darf jeder (sie stehen ohnehin auf der
+      // Gaesteseite), schreiben nur das Haus.
+      if (url.pathname === '/api/events' && request.method === 'GET') {
+        return json(await haus.eigeneEvents(), 200, kopf);
+      }
+      if (url.pathname === '/api/events' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.eigenesEventAnlegen(body), 200, kopf);
+      }
+      if (url.pathname === '/api/events/entfernen' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.eigenesEventEntfernen(body?.id), 200, kopf);
       }
 
       // Der oeffentliche Teil des VAPID-Schluessels. Er gehoert in jede Seite,

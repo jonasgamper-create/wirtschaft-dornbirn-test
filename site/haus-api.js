@@ -204,6 +204,20 @@ export const meldePushAn = (token, anmeldung) =>
 export const meldePushAb = token =>
   ruf('/api/push/abmelden', { methode: 'POST', koerper: { t: token } });
 
+// ---- Eigene Termine des Hauses ---------------------------------------------
+
+/** Oeffentlich: was das Haus selbst angesetzt hat, sortiert nach Datum. */
+export const holeEigeneEvents = () => ruf('/api/events');
+
+export const legeEigenesEvent = (token, event) =>
+  ruf('/api/events', { methode: 'POST', koerper: event, token });
+
+export const loescheEigenesEvent = (token, id) =>
+  ruf('/api/events/entfernen', { methode: 'POST', koerper: { id }, token });
+
+/** Nur fuers Haus: wie viele Mail-Einwilligungen bestehen. Ohne Adressen. */
+export const holeNewsletterZahlen = token => ruf('/api/newsletter/zahlen', { token });
+
 /** Wer meldet "Essen fertig": 'kueche', 'wirt' oder 'beide'. */
 export const setzeFertigWer = (token, wer) =>
   ruf('/api/takeaway/fertig-wer', { methode: 'POST', koerper: { wer }, token });

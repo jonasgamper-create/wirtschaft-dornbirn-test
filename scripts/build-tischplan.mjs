@@ -153,9 +153,20 @@ const kbKueche = await baue({
   stil: await stilFuer(['wirt.css'])
 });
 
+// Die Uebersicht fuers Haus: der Tag in Zahlen plus die faelligen
+// Handgriffe. Teilt sich das Stilblatt mit der Wirt-Ansicht.
+const target6 = path.join(root, 'output/tischplan/wirtschaft-uebersicht.html');
+const kbUebersicht = await baue({
+  quelle: 'uebersicht.html',
+  ziel: target6,
+  code: await buendel('uebersicht.js'),
+  stil: await stilFuer(['wirt.css'])
+});
+
 console.log(`Einzeldateien geschrieben:`);
 console.log(`  ${path.relative(root, target)} (${kbIntern} KB) - interne Planung`);
 console.log(`  ${path.relative(root, target2)} (${kbKunde} KB) - zum Verschicken an den Kunden`);
 console.log(`  ${path.relative(root, target3)} (${kbScreen} KB) - Bildschirm am Eingang`);
 console.log(`  ${path.relative(root, target4)} (${kbWirt} KB) - einfache Wirt-Ansicht`);
 console.log(`  ${path.relative(root, target5)} (${kbKueche} KB) - Bildschirm in der Kueche`);
+console.log(`  ${path.relative(root, target6)} (${kbUebersicht} KB) - Uebersicht fuers Haus`);
