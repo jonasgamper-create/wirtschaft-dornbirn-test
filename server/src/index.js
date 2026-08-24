@@ -1123,7 +1123,17 @@ export class Haus extends DurableObject {
   /** Oeffentlich: gibt es eine Karte, und von wann ist sie? Keine Inhalte. */
   async karteInfo() {
     const info = this.#lies('karteStand', null);
-    return { ok: true, da: Boolean(info), ...(info || {}) };
+    // "Da" heisst: die Datei ist auch wirklich abrufbar. Der Stand allein ist
+    // nur ein Merker. Lag er da, waehrend die Stuecke fehlten - ein halber
+    // Upload, ein Umzug des Speichers -, zeigte die Gaesteseite einen Link
+    // zur Mittagskarte, der 404 liefert. Genau dieser Fall stand live an:
+    // "da: true, 67 KB" und daneben ein PDF-Link ins Leere. Ein Zaehler
+    // kostet nichts und macht die Auskunft wahr.
+    const zeilen = info
+      ? this.ctx.storage.sql.exec('SELECT COUNT(*) AS anzahl FROM mittagskarte').toArray()
+      : [];
+    const da = Boolean(info) && Number(zeilen[0]?.anzahl || 0) > 0;
+    return { ok: true, da, ...(da ? info : {}) };
   }
 
   /** Die Datei selbst, zusammengesetzt. null, wenn keine da ist. */

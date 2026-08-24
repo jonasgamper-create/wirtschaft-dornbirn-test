@@ -1,20 +1,56 @@
 {
   "version": 2,
-  "updatedAt": "2026-08-09T20:10:00+02:00",
-  "status": "pause",
+  "updatedAt": "2026-08-24T08:00:00+02:00",
+  "status": "active",
   "serviceWindow": "Montag bis Freitag · 11:30–13:30",
   "reservationUrl": "tischreservierung.html",
   "sourceUrl": "https://wirtschaft-dornbirn.at/",
-  "pauseNote": "Sommerpause bis 23. August. Ab Montag, 24. August kochen wir wieder mittags.",
+  "pauseNote": "Zurzeit kochen wir wieder mittags – Montag bis Freitag, 11:30–13:30.",
   "card": {
-    "file": "downloads/mittagskarte/2026-07-24_mittagskarte-sommerpause.pdf",
+    "file": "",
     "label": "Aktuelle Mittagskarte (PDF)",
     "sourceUrl": "https://wirtschaft-dornbirn.at/wp-content/uploads/2026/07/mittagskarte_sommerurlaub_2026.pdf",
     "fetchedAt": "2026-08-09"
   },
-  "days": [],
+  "days": [
+    {
+      "date": "2026-08-24",
+      "dishes": [
+        {
+          "title": "Käsknöpfle mit Röstzwiebeln und Apfelmus",
+          "price": "€ 12,90"
+        },
+        {
+          "title": "Wiener Schnitzel vom Schwein mit Kartoffel-Gurken-Salat",
+          "price": "€ 15,90"
+        },
+        {
+          "title": "Zwiebelrostbraten mit Butterspätzle",
+          "price": "€ 18,90"
+        }
+      ]
+    },
+    {
+      "date": "2026-08-25",
+      "dishes": [
+        {
+          "title": "Vorarlberger Riebel mit Apfelmus",
+          "price": "€ 9,50"
+        },
+        {
+          "title": "Frittatensuppe",
+          "price": "€ 5,20"
+        },
+        {
+          "title": "Gemischter Blattsalat mit Kernöl",
+          "price": "€ 6,60"
+        }
+      ]
+    }
+  ],
   "pause": {
     "label": "Sommerpause",
-    "reopen": "2026-08-24"
+    "reopen": "2026-08-24",
+    "vorbei": true
   }
 }

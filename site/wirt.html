@@ -9,10 +9,10 @@
   <meta name="theme-color" content="#173e2c">
   <title>Heute Mittag · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
-  <link rel="stylesheet" href="wirt.css?v=29e4535c">
+  <link rel="stylesheet" href="wirt.css?v=92278008">
   <script type="module" src="wirt.js?v=c776d906"></script>
 </head>
-<body>
+<body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
        drei Zahlen oben, darunter EINE chronologische Liste des Tages -
        Reservierungen und Abholungen gemischt, je Zeile ein grosser
@@ -64,6 +64,11 @@
       </details>
     </section>
 
+    <!-- Am Telefon ist das eine lange Rolle - richtig so, der Daumen wischt.
+         Am Laptop steht dieser Block neben der Tagesliste, statt darunter:
+         wer die Laufkundschaft eintippt, will den Tag dabei sehen. Der
+         Behaelter existiert nur, damit das Raster keine Zeilen zaehlen muss. -->
+    <div class="wirt-werkzeuge">
     <section class="laufkunde" aria-labelledby="laufTitel">
       <h2 id="laufTitel">Gäste stehen da?</h2>
       <p class="hinweis">Zahl drücken – der Tisch wird automatisch vergeben, auch online ist er dann belegt.</p>
@@ -201,6 +206,7 @@
       Tische werden nach der Essenszeit von selbst wieder frei. Etagen, Ordnungen und Betrieb:
       <a href="gastgeber-tischplan.html" id="cockpitLink">Einrichten</a>.
     </p>
+    </div>
 
     <!-- Das Aktionsblatt: Zeile antippen, Blatt geht auf. Tisch aendern zeigt
          nur passende freie Tische - die Automatik schlaegt vor, der Wirt hat

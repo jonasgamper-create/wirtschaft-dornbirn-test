@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-mJ/w5kznxxV8LdJbMRx8xE3VYqlpUYnUFmelMs6B5gw='; script-src 'sha256-CjrkVVP92+jkp/mu/fhBm8vCmLvF2zh9Q4yqSSMceyE='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-e9IP8q6taDTHcc+irAeuiE8aM6ZGmLttPeKBWuIDlbM='; script-src 'sha256-CjrkVVP92+jkp/mu/fhBm8vCmLvF2zh9Q4yqSSMceyE='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="theme-color" content="#11110f">
   <title>Einrichten · Wirtschaft Dornbirn</title>
   <style>
@@ -267,6 +267,63 @@ h2{font-size:24px;margin-bottom:6px}
    Umsortierung. Wein ist der Ton des Hauses fuer "Achtung". */
 .knopf.warn{background:var(--wine);border-color:var(--wine);color:#fff}
 .zu-absage{display:grid;gap:8px;margin:0 0 8px}
+
+/* ---- Laptop und Bildschirm ------------------------------------------------
+ *
+ * Handy zuerst bleibt richtig: der Wirt hat im Betrieb das Telefon in der
+ * Hand. Aber dieselben Seiten liegen auch auf dem Laptop im Buero und auf
+ * dem Bildschirm in der Kueche - dort stand die Telefonspalte mitten in
+ * einer leeren Flaeche, gemessen 680 von 1280 Pixel, und der Rest des
+ * Bildschirms trug nichts bei. Wer die Werkzeuge sehen wollte, scrollte an
+ * der Tagesliste vorbei, obwohl daneben Platz war.
+ *
+ * Ab 1040 Pixel wird die Rolle deshalb zu einer Flaeche: was zusammen
+ * gebraucht wird, steht nebeneinander. Nichts wird neu erfunden - dieselben
+ * Kacheln, dieselben Abstaende, dieselben Farben, nur anders angeordnet.
+ * Unterhalb der Grenze bleibt alles, wie es am Telefon war.
+ */
+@media(min-width:1040px){
+  main{width:min(1120px,100%)}
+
+  /* Das Cockpit ist eine Uebersicht - also darf es auch wie eine aussehen:
+     die vier Zahlen ueber die volle Breite, darunter zwei Spalten. */
+  .uebersicht-seite main{display:grid;grid-template-columns:1.05fr .95fr;column-gap:46px;align-items:start}
+  .uebersicht-seite main>.zahlen{grid-column:1/-1}
+  .uebersicht-seite main>p.fuss{grid-column:1/-1}
+
+  /* Der Tag links, die Werkzeuge rechts. Die Tagesliste ist das Herz der
+     Seite und bekommt die breitere Spalte; Laufkundschaft und Werkzeuge
+     stehen daneben, ohne dass jemand daran vorbeiscrollen muss.
+     Die rechte Spalte ist ein eigener Behaelter im HTML - mit Zeilenspannen
+     im Raster rutschten die Kaesten auseinander, sobald die Tagesliste
+     laenger wurde als sie. */
+  .wirt-seite main{display:grid;grid-template-columns:1.35fr 1fr;column-gap:46px;align-items:start}
+  .wirt-seite main>.vorzeile,
+  .wirt-seite main>.zahlen,
+  .wirt-seite main>.korb{grid-column:1/-1}
+  .wirt-seite .wirt-werkzeuge>section:first-child{border-top:0}
+  /* Die Laufkundschaft ist der groesste Knopf der Seite und bleibt es auch
+     hier - nur nicht breiter als noetig, sonst wird aus dem Knopf ein Band. */
+  .wirt-seite .lauf-knoepfe{max-width:none}
+
+  /* Die Kueche: zu kochen links, fertig rechts. Auf einem Bildschirm an der
+     Wand ist das der ganze Sinn - beide Listen ohne Scrollen im Blick. */
+  .kueche-seite main{display:grid;grid-template-columns:1fr 1fr;column-gap:40px;align-items:start}
+  .kueche-seite main>.zahlen{grid-column:1/-1}
+  .kueche-seite main>p.fuss{grid-column:1/-1}
+
+  /* Einrichten bleibt eine Spalte: ein Formular, das ueber die ganze Breite
+     laeuft, liest sich schlechter, nicht besser. Nur etwas mehr Luft. */
+  .einrichten-seite main{width:min(860px,100%)}
+}
+
+/* Ganz breite Bildschirme: mehr Spalten fuer die Zahlen, nicht mehr Breite
+   fuer den Text. Eine Zeile Text, die ueber 1400 Pixel laeuft, verliert das
+   Auge am Rand. */
+@media(min-width:1400px){
+  main{width:min(1240px,100%)}
+  .wirt-seite main{grid-template-columns:1.4fr 1fr}
+}
 
   </style>
 </head>
