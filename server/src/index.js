@@ -41,7 +41,8 @@ import {
 } from './sms.mjs';
 import {
   ALLERGENE, BESTELLSCHLUSS, LETZTE_ABHOLUNG, PORTIONEN_PRO_SLOT, WARTEZEIT_TEXT,
-  bestelltag, freieSlots, kuechenzettel, parseKarte, pruefeBestellung, statistik
+  bestelltag, freieSlots, kuechenzettel, parseKarte, pruefeBestellung, pruefeWunschtag,
+  statistik, VORAUS_TAGE
 } from './takeaway.mjs';
 
 const HAUS = 'wirtschaft-dornbirn';
@@ -1122,7 +1123,17 @@ export class Haus extends DurableObject {
   /** Oeffentlich: gibt es eine Karte, und von wann ist sie? Keine Inhalte. */
   async karteInfo() {
     const info = this.#lies('karteStand', null);
-    return { ok: true, da: Boolean(info), ...(info || {}) };
+    // "Da" heisst: die Datei ist auch wirklich abrufbar. Der Stand allein ist
+    // nur ein Merker. Lag er da, waehrend die Stuecke fehlten - ein halber
+    // Upload, ein Umzug des Speichers -, zeigte die Gaesteseite einen Link
+    // zur Mittagskarte, der 404 liefert. Genau dieser Fall stand live an:
+    // "da: true, 67 KB" und daneben ein PDF-Link ins Leere. Ein Zaehler
+    // kostet nichts und macht die Auskunft wahr.
+    const zeilen = info
+      ? this.ctx.storage.sql.exec('SELECT COUNT(*) AS anzahl FROM mittagskarte').toArray()
+      : [];
+    const da = Boolean(info) && Number(zeilen[0]?.anzahl || 0) > 0;
+    return { ok: true, da, ...(da ? info : {}) };
   }
 
   /** Die Datei selbst, zusammengesetzt. null, wenn keine da ist. */
@@ -1450,13 +1461,29 @@ export class Haus extends DurableObject {
   // ---- Takeaway ------------------------------------------------------------
 
   /** Die bestellbare Karte. Oeffentlich: Name, Preis und Allergene. */
-  async takeawayKarte(heute = null, jetzt = null) {
+  async takeawayKarte(heute = null, jetzt = null, wunsch = '') {
     // Welche Abholzeiten noch Luft haben. Ohne diese Angabe waehlt der Gast
     // eine volle Zeit und erfaehrt es erst beim Abschicken - dieselbe Huerde,
     // die bei den Uhrzeiten der Reservierung laengst wegfaellt.
-    const tag = heute ? bestelltag({ heute, jetzt, zu: this.#zuMenge() }) : null;
+    //
+    // Nennt der Gast einen Wunschtag, gilt der - aber die Antwort sagt auch,
+    // wenn er nicht geht, und warum. Die Seite kennt weder Feiertage noch die
+    // Sperren des Wirts; sie fragt hier nach, statt selbst zu raten.
+    const zu = this.#zuMenge();
+    let tag = heute ? bestelltag({ heute, jetzt, zu }) : null;
+    let wunschGrund = null;
+    if (heute && wunsch) {
+      const erlaubt = pruefeWunschtag(wunsch, { heute, jetzt, zu });
+      if (erlaubt.ok) tag = { datum: wunsch, vorbestellung: wunsch !== heute };
+      else wunschGrund = erlaubt.grund;
+    }
     return {
       ok: true,
+      // Was der Wunschtag beantwortet hat: null heisst "geht".
+      wunschGrund,
+      // Die Grenzen fuer das Datumsfeld - eine Quelle, nicht zwei.
+      frueheste: tag?.datum ?? null,
+      spaeteste: heute ? this.#spaetesterTag(heute) : null,
       gerichte: this.#lies('takeawayKarte', []),
       slots: tag
         ? freieSlots({
@@ -1475,6 +1502,13 @@ export class Haus extends DurableObject {
       letzteAbholung: LETZTE_ABHOLUNG,
       wartezeit: WARTEZEIT_TEXT
     };
+  }
+
+  /** Wie weit voraus bestellt werden darf - als Datum fuer das Eingabefeld. */
+  #spaetesterTag(heute) {
+    const grenze = new Date(`${heute}T12:00:00Z`);
+    grenze.setUTCDate(grenze.getUTCDate() + VORAUS_TAGE);
+    return grenze.toISOString().slice(0, 10);
   }
 
   /**
@@ -2318,7 +2352,7 @@ export default {
       // Oeffentlich: die bestellbare Karte - Name und Preis, sonst nichts.
       if (url.pathname === '/api/takeaway/karte' && request.method === 'GET') {
         const uhr = jetztImHaus();
-        return json(await haus.takeawayKarte(uhr.datum, uhr.zeit), 200, kopf);
+        return json(await haus.takeawayKarte(uhr.datum, uhr.zeit, String(url.searchParams.get('datum') || '').slice(0, 10)), 200, kopf);
       }
       // Der Wirt setzt die Karte: die Zeilen aus dem Mittagskarten-PDF.
       if (url.pathname === '/api/takeaway/karte' && request.method === 'POST') {

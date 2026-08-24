@@ -12,7 +12,7 @@
   <title>Takeaway · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-700-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=aa7f45b2">
+  <link rel="stylesheet" href="tischreservierung.css?v=3c747048">
   <!-- Nur fuer die Abholmeldung: Auf dem iPhone laesst Apple Push erst zu,
        wenn die Seite zum Home-Bildschirm hinzugefuegt wurde, und dafuer muss
        ein Manifest da sein. Auf Android genuegt seine Anwesenheit. -->
@@ -92,6 +92,20 @@
 
           <aside class="ta-spalte-rechts" id="taAbschluss" hidden>
             <div class="ta-zusammenfassung">
+              <!-- Der Abholtag steht bewusst LEER da. Ein vorausgefuelltes Feld
+                   liest sich wie eine Entscheidung, die schon gefallen ist -
+                   dann tippt niemand mehr darauf, und wer fuer uebermorgen
+                   bestellen will, findet den Weg nicht. Leer mit Platzhalter
+                   fragt sichtbar nach. Wer nichts eintraegt, bekommt trotzdem
+                   den Tag, an dem als naechstes gekocht wird; er steht als
+                   Hinweis darunter, damit die Leere nicht raetselhaft ist. -->
+              <p class="ta-feld-titel"><label for="taDatum">Abholtag</label></p>
+              <span class="ta-datum">
+                <input type="date" id="taDatum" name="taDatum" autocomplete="off">
+                <button class="ta-datum-heute" type="button" id="taDatumZurueck" hidden>Auf den nächsten Kochtag zurücksetzen</button>
+              </span>
+              <small class="slot-info" id="taDatumInfo" role="status" aria-live="polite"></small>
+
               <p class="ta-feld-titel" id="taZeitTitel">Abholung*</p>
               <span class="slots" role="radiogroup" aria-labelledby="taZeitTitel" id="taZeiten"></span>
               <small class="slot-info" id="taZeitInfo" role="status" aria-live="polite"></small>
@@ -191,6 +205,6 @@
     </div>
   </footer>
 
-  <script type="module" src="takeaway.js?v=4780c3dc"></script>
+  <script type="module" src="takeaway.js?v=a2244c17"></script>
 </body>
 </html>

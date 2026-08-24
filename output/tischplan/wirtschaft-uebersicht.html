@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-mJ/w5kznxxV8LdJbMRx8xE3VYqlpUYnUFmelMs6B5gw='; script-src 'sha256-14X4goCqyK46z0aEe6Ph3FGSIYOIXEkD1opyDvywT+U='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-e9IP8q6taDTHcc+irAeuiE8aM6ZGmLttPeKBWuIDlbM='; script-src 'sha256-fLNdMaNenMSrn7e99FZiCu+l98sl8lOTfbQGdb2rX0s='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#11110f">
   <title>Übersicht · Wirtschaft Dornbirn</title>
@@ -268,6 +268,63 @@ h2{font-size:24px;margin-bottom:6px}
 .knopf.warn{background:var(--wine);border-color:var(--wine);color:#fff}
 .zu-absage{display:grid;gap:8px;margin:0 0 8px}
 
+/* ---- Laptop und Bildschirm ------------------------------------------------
+ *
+ * Handy zuerst bleibt richtig: der Wirt hat im Betrieb das Telefon in der
+ * Hand. Aber dieselben Seiten liegen auch auf dem Laptop im Buero und auf
+ * dem Bildschirm in der Kueche - dort stand die Telefonspalte mitten in
+ * einer leeren Flaeche, gemessen 680 von 1280 Pixel, und der Rest des
+ * Bildschirms trug nichts bei. Wer die Werkzeuge sehen wollte, scrollte an
+ * der Tagesliste vorbei, obwohl daneben Platz war.
+ *
+ * Ab 1040 Pixel wird die Rolle deshalb zu einer Flaeche: was zusammen
+ * gebraucht wird, steht nebeneinander. Nichts wird neu erfunden - dieselben
+ * Kacheln, dieselben Abstaende, dieselben Farben, nur anders angeordnet.
+ * Unterhalb der Grenze bleibt alles, wie es am Telefon war.
+ */
+@media(min-width:1040px){
+  main{width:min(1120px,100%)}
+
+  /* Das Cockpit ist eine Uebersicht - also darf es auch wie eine aussehen:
+     die vier Zahlen ueber die volle Breite, darunter zwei Spalten. */
+  .uebersicht-seite main{display:grid;grid-template-columns:1.05fr .95fr;column-gap:46px;align-items:start}
+  .uebersicht-seite main>.zahlen{grid-column:1/-1}
+  .uebersicht-seite main>p.fuss{grid-column:1/-1}
+
+  /* Der Tag links, die Werkzeuge rechts. Die Tagesliste ist das Herz der
+     Seite und bekommt die breitere Spalte; Laufkundschaft und Werkzeuge
+     stehen daneben, ohne dass jemand daran vorbeiscrollen muss.
+     Die rechte Spalte ist ein eigener Behaelter im HTML - mit Zeilenspannen
+     im Raster rutschten die Kaesten auseinander, sobald die Tagesliste
+     laenger wurde als sie. */
+  .wirt-seite main{display:grid;grid-template-columns:1.35fr 1fr;column-gap:46px;align-items:start}
+  .wirt-seite main>.vorzeile,
+  .wirt-seite main>.zahlen,
+  .wirt-seite main>.korb{grid-column:1/-1}
+  .wirt-seite .wirt-werkzeuge>section:first-child{border-top:0}
+  /* Die Laufkundschaft ist der groesste Knopf der Seite und bleibt es auch
+     hier - nur nicht breiter als noetig, sonst wird aus dem Knopf ein Band. */
+  .wirt-seite .lauf-knoepfe{max-width:none}
+
+  /* Die Kueche: zu kochen links, fertig rechts. Auf einem Bildschirm an der
+     Wand ist das der ganze Sinn - beide Listen ohne Scrollen im Blick. */
+  .kueche-seite main{display:grid;grid-template-columns:1fr 1fr;column-gap:40px;align-items:start}
+  .kueche-seite main>.zahlen{grid-column:1/-1}
+  .kueche-seite main>p.fuss{grid-column:1/-1}
+
+  /* Einrichten bleibt eine Spalte: ein Formular, das ueber die ganze Breite
+     laeuft, liest sich schlechter, nicht besser. Nur etwas mehr Luft. */
+  .einrichten-seite main{width:min(860px,100%)}
+}
+
+/* Ganz breite Bildschirme: mehr Spalten fuer die Zahlen, nicht mehr Breite
+   fuer den Text. Eine Zeile Text, die ueber 1400 Pixel laeuft, verliert das
+   Auge am Rand. */
+@media(min-width:1400px){
+  main{width:min(1240px,100%)}
+  .wirt-seite main{grid-template-columns:1.4fr 1fr}
+}
+
   </style>
 </head>
 <body class="uebersicht-seite">
@@ -316,7 +373,7 @@ h2{font-size:24px;margin-bottom:6px}
 window.WIRTSCHAFT_FLOORPLAN={"version":2,"updatedAt":"2026-08-13T10:00:00+02:00","status":"beispiel","numbering":{"start":1,"mode":"pro-etage"},"activeLayout":"standard","layouts":[{"id":"standard","name":"Standard","levels":[{"id":"eg","name":"Gaststube","order":1,"tables":[{"id":"eg-t01","seats":8,"col":null,"row":null},{"id":"eg-t02","seats":6,"col":null,"row":null},{"id":"eg-t03","seats":6,"col":null,"row":null},{"id":"eg-t04","seats":4,"col":null,"row":null},{"id":"eg-t05","seats":4,"col":null,"row":null},{"id":"eg-t06","seats":4,"col":null,"row":null},{"id":"eg-t07","seats":4,"col":null,"row":null},{"id":"eg-t08","seats":4,"col":null,"row":null},{"id":"eg-t09","seats":3,"col":null,"row":null},{"id":"eg-t10","seats":3,"col":null,"row":null},{"id":"eg-t11","seats":2,"col":null,"row":null},{"id":"eg-t12","seats":2,"col":null,"row":null},{"id":"eg-t13","seats":2,"col":null,"row":null},{"id":"eg-t14","seats":2,"col":null,"row":null},{"id":"eg-t15","seats":2,"col":null,"row":null},{"id":"eg-t16","seats":2,"col":null,"row":null}]},{"id":"og","name":"Saal","order":2,"tables":[{"id":"og-t01","seats":10,"col":null,"row":null},{"id":"og-t02","seats":6,"col":null,"row":null},{"id":"og-t03","seats":4,"col":null,"row":null},{"id":"og-t04","seats":4,"col":null,"row":null},{"id":"og-t05","seats":4,"col":null,"row":null},{"id":"og-t06","seats":4,"col":null,"row":null},{"id":"og-t07","seats":2,"col":null,"row":null},{"id":"og-t08","seats":2,"col":null,"row":null},{"id":"og-t09","seats":2,"col":null,"row":null}]}],"combos":[{"id":"eg-combo-01","tables":["eg-t11","eg-t12"],"minGuests":3}]},{"id":"konzert","name":"Konzert","levels":[{"id":"eg","name":"Gaststube","order":1,"tables":[]},{"id":"og","name":"Saal","order":2,"tables":[]}],"combos":[]}],"policy":{"durations":[{"upTo":20,"minutes":90}],"bufferMinutes":15,"slotMinutes":15,"maxCoversPerSlot":10,"levelOrder":["eg","og"]},"menu":[{"id":"burger","name":"Burger"},{"id":"schnitzel","name":"Schnitzel"},{"id":"kaesknoepfle","name":"Käsknöpfle"}],"note":"Beispielkonfiguration. Echte Tische, Etagen und Ordnungen traegt der Gastgeber im Tischplan ein; erst danach status auf \"bestaetigt\" setzen."};
 window.WIRTSCHAFT_HAUS={"api":"https://wirtschaft-reservierung.jonas-gamper.workers.dev"};
 (() => {
-  // site/haus-api.js?v=c107be2b
+  // site/haus-api.js?v=752006e7
   var KONFIG = "data/haus.json";
   var TOKEN_SCHLUESSEL = "wirtschaft-haus-token";
   var gemerkt = null;
