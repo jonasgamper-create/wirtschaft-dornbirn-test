@@ -36,3 +36,29 @@ body{text-transform:lowercase}
 .brand img{filter:invert(1) brightness(1.55)}
 .brand .partner-logo{width:54px;height:auto;filter:none}
 footer img{background:transparent;padding:0;filter:invert(1) brightness(1.55)}
+
+/* ===== locations-matrix: sparten, wege, kulturhaus-kontakt ===== */
+.sparte-label{margin:64px 0 14px;color:var(--gold);font-size:12.5px;font-weight:700;letter-spacing:.17em;text-transform:lowercase}
+.sparte-label:first-of-type{margin-top:70px}
+.possibility-grid.privat{grid-template-columns:repeat(2,1fr)}
+.possibility-grid article{min-height:0}
+.wege{display:grid;gap:2px;margin-top:auto;padding-top:22px}
+.possibility-grid .wege button,.possibility-grid .wege a{align-self:stretch;margin-top:0;padding:13px 0;border:0;border-bottom:1px solid currentColor;background:none;color:#fff;text-align:left;text-decoration:none;font-size:12.5px;font-weight:700;letter-spacing:.1em;text-transform:lowercase;cursor:pointer}
+.possibility-grid .wege .weg-kulturhaus{color:#cfa964}
+.possibility-grid .wege button:hover,.possibility-grid .wege a:hover{color:var(--gold)}
+.kulturhaus-kontakt{display:grid;gap:14px;margin-top:16px;padding:34px;border:1px solid #ffffff22;background:#1d1915}
+.kulturhaus-kontakt .eyebrow{margin:0;color:var(--gold);font-size:12.5px;font-weight:700;letter-spacing:.17em;text-transform:lowercase}
+.kulturhaus-kontakt h3{margin:0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:clamp(26px,3vw,36px);font-weight:600;line-height:1.05}
+.kulturhaus-kontakt>p{max-width:760px;margin:0;color:#c8c2b8;font-size:16px;line-height:1.6}
+.kh-daten{color:#e6e2da!important}
+.kh-daten a{text-underline-offset:4px}
+.kh-wege{display:flex;gap:11px;flex-wrap:wrap;margin-top:8px}
+.kh-wege .button.ghost{border-color:#ffffff66}
+@media(max-width:640px){.possibility-grid.privat{grid-template-columns:1fr}.kulturhaus-kontakt{padding:22px}}
+
+/* locations mit echten bildern */
+.location-grid .location-photo{position:relative;overflow:hidden;color:#fff;padding:0;border:1px solid #17130f20}
+.location-photo>img{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover}
+.location-photo:after{content:"";position:absolute;z-index:1;inset:0;background:linear-gradient(0deg,#17130ff5 0%,#17130fdd 42%,#17130f9c 72%,#17130f70 100%)}
+.location-photo>div{position:relative;z-index:2;display:flex;flex-direction:column;height:100%;padding:28px}
+.location-photo small{color:#e7c985}
