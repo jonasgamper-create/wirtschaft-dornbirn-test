@@ -54,6 +54,12 @@ for (const [index, event] of events.entries()) {
   if (!event.officialUrl || !/^https:\/\/([\w-]+\.)*wirtschaft-dornbirn\.at\//i.test(event.officialUrl)) {
     fail(`${prefix}.officialUrl muss auf die offizielle Domain zeigen.`);
   }
+  // Der direkte Buchungsweg: gebucht wird ohne Zwischenseite beim
+  // Ticketanbieter. Das Feld ist freiwillig, aber wenn es da ist, muss es
+  // wirklich dorthin zeigen - ein Tippfehler wuerde Gaeste ins Leere schicken.
+  if (event.ticketUrl && !/^https:\/\/(www\.)?ticketist\.io\//i.test(event.ticketUrl)) {
+    fail(`${prefix}.ticketUrl muss auf ticketist.io zeigen.`);
+  }
 
   // Die Ticketarten sind die eigentliche Wahrheit ueber die Verfuegbarkeit.
   const tickets = Array.isArray(event.tickets) ? event.tickets : [];

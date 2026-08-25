@@ -51,7 +51,7 @@
         <p class="kachel-typ">${escapeHtml(wochentag)} · ${escapeHtml(event.type)}</p>
         <ul class="ticketzeilen">${zeilen}</ul>
         <div class="kachel-aktionen">
-          <a class="button light" href="${escapeHtml(event.officialUrl)}" target="_blank" rel="noopener noreferrer">${ausverkauft ? 'Ausverkauft · Details ↗' : 'Tickets ↗'}</a>
+          <a class="button light" href="${escapeHtml(event.ticketUrl || event.officialUrl)}" target="_blank" rel="noopener noreferrer">${ausverkauft ? 'Ausverkauft · Details ↗' : 'Tickets ↗'}</a>
         </div>
       </div>
     </article>`;
