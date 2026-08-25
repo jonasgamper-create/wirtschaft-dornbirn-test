@@ -1486,7 +1486,7 @@ body{text-transform:lowercase}
 /* ===== news-chip: klein, unter der leiste rechts =====
    der hinweis haengt am kopf (top:100% folgt der echten hoehe), schwebt aber
    unter der leiste - die oeffnungszeiten behalten oben rechts ihren platz. */
-.bar-news{position:absolute;top:100%;right:24px;margin-top:10px;display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:0 11px;border:1px solid #c59b5d59;border-radius:999px;background:#11110fd9;color:#f3efe6;text-decoration:none;font-size:10.5px;letter-spacing:.05em;white-space:nowrap}
+.bar-news{position:absolute;top:100%;right:24px;margin-top:6px;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 14px;border:1px solid #c59b5d59;border-radius:999px;background:#11110fd9;color:#f3efe6;text-decoration:none;font-size:10.5px;letter-spacing:.05em;white-space:nowrap}
 .bar-news span{color:var(--gold);font-weight:700;letter-spacing:.13em;text-transform:lowercase}
 .bar-news b{font-weight:600;max-width:280px;overflow:hidden;text-overflow:ellipsis}
 .bar-news:hover{background:#c59b5d33}
