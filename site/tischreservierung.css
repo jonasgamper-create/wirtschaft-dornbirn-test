@@ -452,3 +452,7 @@ body{text-transform:lowercase}
 .brand-row{display:flex;align-items:center;gap:16px}
 .brand-row .partner-logo{width:58px;height:auto}
 .site-head .back-link{color:#f3efe6}
+
+/* fusszeile: beide haeuser - emma & eugen behaelt sein weisses logo */
+.site-footer .partner-block img{width:130px;height:auto;filter:none}
+.site-footer .partner-block a{display:block}

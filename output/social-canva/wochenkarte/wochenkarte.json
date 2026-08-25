@@ -1,0 +1,25 @@
+{
+  "erzeugtAus": "site/data/lunch-menu.json",
+  "stand": "2026-08-24T08:00:00+02:00",
+  "fenster": "Montag bis Freitag · 11:30–13:30",
+  "tage": [
+    {
+      "tag": "montag",
+      "datum": "24.08.",
+      "gerichte": [
+        "käsknöpfle mit röstzwiebeln und apfelmus · € 12,90",
+        "wiener schnitzel vom schwein mit kartoffel-gurken-salat · € 15,90",
+        "zwiebelrostbraten mit butterspätzle · € 18,90"
+      ]
+    },
+    {
+      "tag": "dienstag",
+      "datum": "25.08.",
+      "gerichte": [
+        "vorarlberger riebel mit apfelmus · € 9,50",
+        "frittatensuppe · € 5,20",
+        "gemischter blattsalat mit kernöl · € 6,60"
+      ]
+    }
+  ]
+}
