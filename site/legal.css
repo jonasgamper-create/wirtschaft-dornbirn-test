@@ -237,3 +237,11 @@ a:not([class]),.footer-links a,footer a{display:inline-flex;align-items:center}
 @media(max-width:900px){a:not([class]),.footer-links a,footer a,button{min-height:44px}}
 .legal-tap-fix{display:none}
 
+
+/* beide haeuser auch auf den rechtsseiten: schwarzer kopf, weisse logos */
+.top{position:relative}
+.top::before{content:"";position:absolute;z-index:-1;inset:-14px calc(50% - 50vw);background:#11110f}
+.brand-row{display:flex;align-items:center;gap:16px}
+.brand-row img{filter:invert(1) brightness(1.55)}
+.brand-row .partner-logo{width:54px;height:auto;filter:none}
+.top>a:last-child{color:#f3efe6}

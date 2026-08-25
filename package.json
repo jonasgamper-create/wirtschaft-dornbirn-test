@@ -36,7 +36,8 @@
     "check:warteliste": "node scripts/check-warteliste.mjs",
     "check:gast": "node scripts/check-gast.mjs",
     "check:sms": "node scripts/check-sms.mjs",
-    "sync:eventmedien": "node scripts/sync-event-medien.mjs"
+    "sync:eventmedien": "node scripts/sync-event-medien.mjs",
+    "social:wochenkarte": "node scripts/build-wochenkarte-story.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.1"
