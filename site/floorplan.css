@@ -38,7 +38,7 @@
 .fp-svg [data-kind="buehne"] .fp-element-shape{fill:#8c292b14;stroke:#8c292b59}
 .fp-svg [data-kind="bar"] .fp-element-shape{fill:#c59b5d24;stroke:#c59b5d80}
 .fp-svg [data-kind="terrasse"] .fp-element-shape{fill:#2446351a;stroke:#24463559;stroke-dasharray:.3 .2}
-.fp-svg .fp-element-label{fill:#57524a;font-family:var(--sans,Inter,system-ui,sans-serif);font-size:.62px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;text-anchor:middle;dominant-baseline:central}
+.fp-svg .fp-element-label{fill:#57524a;font-family:var(--sans,Inter,system-ui,sans-serif);font-size:.62px;font-weight:700;letter-spacing:.09em;text-transform:lowercase;text-anchor:middle;dominant-baseline:central}
 .fp-svg [data-state="picked"] .fp-chair{fill:var(--green,#244635);opacity:.55}
 .fp-svg [data-state="busy"] .fp-chair{fill:#11110f38}
 .fp-svg [data-state="blocked"] .fp-chair{fill:#8c292b40}
@@ -69,7 +69,7 @@
 .fp-svg [data-state="late"] .fp-num,.fp-svg [data-state="late"] .fp-name{fill:var(--ink,#11110f)}
 .fp-svg [data-state="late"] .fp-seats{fill:#3c2f18}
 .fp-svg [data-state="late"] .fp-chair{fill:#a67f4599}
-.fp-svg .fp-mark{fill:#57524a;font-family:var(--sans,Inter,system-ui,sans-serif);font-size:.85px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.fp-svg .fp-mark{fill:#57524a;font-family:var(--sans,Inter,system-ui,sans-serif);font-size:.85px;font-weight:700;letter-spacing:.09em;text-transform:lowercase}
 
 .fp-list{display:grid;gap:6px;margin:0;padding:0;list-style:none}
 .fp-list li{display:flex;align-items:center;min-height:32px;color:#57524a;font-size:var(--t-meta,14.5px);line-height:1.45}
@@ -79,7 +79,7 @@
 .fp-list button[disabled]{background:var(--cream,#ead9bc);color:#57524a;cursor:not-allowed}
 .fp-list button:focus-visible,.fp-levels button:focus-visible{outline:3px solid var(--gold,#c59b5d);outline-offset:3px}
 
-.fp-legend{display:flex;flex-wrap:wrap;gap:14px;margin:0;color:#57524a;font-size:var(--t-label,12.5px);letter-spacing:.06em;text-transform:uppercase}
+.fp-legend{display:flex;flex-wrap:wrap;gap:14px;margin:0;color:#57524a;font-size:var(--t-label,12.5px);letter-spacing:.06em;text-transform:lowercase}
 .fp-legend span{display:inline-flex;align-items:center;gap:6px}
 .fp-legend i{width:12px;height:12px;border:1px solid #11110f40;background:#fff}
 .fp-legend i.busy{background:var(--cream,#ead9bc)}
@@ -109,7 +109,7 @@
 .welcome p.fp-intro{max-width:64ch;margin-top:14px;color:var(--muted,#6d675f);font-size:13px;font-weight:400;letter-spacing:0;line-height:1.6;text-transform:none}
 .fp-levels-editor{display:grid;gap:10px;margin-bottom:16px}
 .fp-level-row{display:flex;flex-wrap:wrap;align-items:end;gap:12px}
-.fp-level-row label{display:grid;gap:6px;font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.fp-level-row label{display:grid;gap:6px;font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.09em;text-transform:lowercase}
 .fp-level-row input{min-height:44px;padding:8px 12px;border:1px solid #11110f3d;border-radius:8px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:var(--t-body,17.5px);letter-spacing:0;text-transform:none}
 .fp-level-name input{min-width:200px}
 .fp-sizes{display:flex;flex-wrap:wrap;gap:8px}
@@ -175,10 +175,10 @@
 .fp-chair-chip button{min-width:34px;min-height:34px;border:1px solid var(--line,#11110f26);border-radius:99px;background:transparent;color:inherit;font:inherit;font-size:12px;cursor:pointer}
 .fp-chair-chip button:disabled{opacity:.35;cursor:not-allowed}
 
-.fp-subhead{margin:26px 0 12px;font-family:Georgia,serif;font-size:21px;font-weight:400}
+.fp-subhead{margin:26px 0 12px;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:21px;font-weight:600}
 .fp-subhead:first-of-type{margin-top:0}
 .fp-seat-form{margin-top:16px}
-.fp-selected{margin:0 0 12px;font-family:Georgia,serif;font-size:20px}
+.fp-selected{margin:0 0 12px;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:20px}
 .fp-selected small{display:block;margin-top:4px;font-family:inherit;font-size:11px;color:var(--muted,#6d675f)}
 
 @media(max-width:900px){
@@ -229,11 +229,11 @@
 .kp-table{padding:12px 14px;border:1px solid var(--line,#11110f26);border-radius:10px;background:#fff}
 .kp-table b{display:block;margin-bottom:8px;font-size:13px}
 .kp-seats{display:flex;flex-wrap:wrap;gap:10px}
-.kp-seats label{display:grid;gap:5px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted,#6d675f)}
+.kp-seats label{display:grid;gap:5px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:lowercase;color:var(--muted,#6d675f)}
 .kp-seats input{width:150px;min-height:44px;padding:0 10px;border:1px solid var(--line,#11110f26);border-radius:7px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:13px;letter-spacing:0;text-transform:none}
 .kp-print-head{display:none}
 @media print{
-  .kp-print-head{display:block;margin:0 0 14px;font-family:Georgia,serif;font-size:22px;font-weight:400}
+  .kp-print-head{display:block;margin:0 0 14px;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:22px;font-weight:600}
   .kp-names,.welcome,.fp-result{display:none!important}
 }
 
@@ -246,7 +246,7 @@
 .fp-sticky{position:sticky;top:0;z-index:30;background:var(--paper,#f3efe6)}
 .fp-bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin:0;padding:10px 0;border-bottom:1px solid var(--line,#11110f26)}
 .fp-bar-when{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin:0}
-.fp-bar-field{display:grid;gap:4px;font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted,#6d675f)}
+.fp-bar-field{display:grid;gap:4px;font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.09em;text-transform:lowercase;color:var(--muted,#6d675f)}
 .fp-bar-field input{min-height:44px;padding:0 10px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:14px;letter-spacing:0;font-variant-numeric:tabular-nums}
 .fp-bar-go{min-height:44px;padding:0 16px;border:1px solid var(--ink,#11110f);border-radius:8px;background:var(--ink,#11110f);color:#fff;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 
@@ -302,7 +302,7 @@
 .fp-flow b{grid-column:2;font-size:15px}
 .fp-flow span{grid-column:2;color:#57524a;font-size:13.5px;line-height:1.55}
 .fp-flow em{font-style:normal;font-weight:700;color:var(--green,#244635)}
-.fp-flow i{grid-row:1;grid-column:3;padding:3px 10px;border-radius:999px;background:#11110f0a;color:var(--muted,#6d675f);font-style:normal;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.fp-flow i{grid-row:1;grid-column:3;padding:3px 10px;border-radius:999px;background:#11110f0a;color:var(--muted,#6d675f);font-style:normal;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:lowercase;white-space:nowrap}
 
 .fp-colorkey{display:grid;gap:8px;margin:0 0 26px;padding:0;list-style:none}
 .fp-colorkey li{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:12px;font-size:13.5px}
@@ -336,7 +336,7 @@
 /* Zusammenklappbare Bereiche: Einrichtung fasst man einmal an, im Betrieb ist
    sie nur Weg. Aussehen aus den vorhandenen Komponenten, keine neuen Formen. */
 .fp-fold{margin-top:20px;border-top:1px solid var(--line,#11110f26)}
-.fp-fold > summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:10px 0;color:var(--ink,#11110f);font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;list-style:none}
+.fp-fold > summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:10px 0;color:var(--ink,#11110f);font-size:var(--t-label,12.5px);font-weight:700;letter-spacing:.09em;text-transform:lowercase;cursor:pointer;list-style:none}
 .fp-fold > summary::-webkit-details-marker{display:none}
 .fp-fold > summary::before{content:"+";display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:1px solid #11110f3d;border-radius:50%;font-size:14px;line-height:1}
 .fp-fold[open] > summary::before{content:"–"}
@@ -400,7 +400,7 @@
 /* Sicherung: der Knopf sieht aus wie die anderen, das Dateifeld liegt darunter. */
 .fp-restore{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;
   border:1px solid var(--line,#11110f26);border-radius:8px;font-size:11px;font-weight:700;
-  letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+  letter-spacing:.08em;text-transform:lowercase;cursor:pointer}
 .fp-restore input{position:absolute;width:1px;height:1px;opacity:0}
 
 /* Gaestehistorie. Ein Hinweis fuer den Service, kein Urteil - deshalb klein
@@ -429,7 +429,7 @@
 
 /* Massfelder am Raumelement: Zahl und Einheit nebeneinander, damit klar ist,
    dass hier Meter stehen und keine Rasterkaestchen. */
-.fp-mass{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted,#6d675f)}
+.fp-mass{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:lowercase;color:var(--muted,#6d675f)}
 .fp-mass input{width:64px;min-height:44px;padding:0 8px;border:1px solid var(--line,#11110f26);border-radius:8px;background:#fff;font:inherit;font-size:13px;font-variant-numeric:tabular-nums;text-align:center}
 .fp-mass small{font-size:11px;text-transform:none}
 
@@ -483,7 +483,7 @@
 
 .fp-einstellungen{display:grid;gap:8px;margin:0;padding:0;list-style:none}
 .fp-einstellungen li{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line,#11110f14);font-size:14px}
-.fp-einstellungen b{color:var(--muted,#6d675f);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.fp-einstellungen b{color:var(--muted,#6d675f);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:lowercase}
 @media(max-width:760px){
   .fp-kachel b{font-size:28px}
   .fp-einstellungen li{grid-template-columns:1fr}
