@@ -25,7 +25,7 @@
   <link rel="preload" as="image" href="assets/restaurant.webp" imagesrcset="assets/restaurant-800.webp 900w, assets/restaurant.webp 1920w" imagesizes="100vw" fetchpriority="high">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-600-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=8f249774">
+  <link rel="stylesheet" href="styles.css?v=d56a8925">
   <script type="application/ld+json">
 {"@context": "https://schema.org", "@type": "Restaurant", "@id": "https://wirtschaft-dornbirn.at/#restaurant", "name": "Wirtschaft Dornbirn", "legalName": "„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.", "url": "https://wirtschaft-dornbirn.at/", "description": "Mittagstisch, Konzerte, Comedy und Catering in Dornbirn, Vorarlberg.", "telephone": "+43557220540", "email": "willkommen@wirtschaft-dornbirn.at", "image": "https://wirtschaft-dornbirn.at/assets/restaurant.webp", "priceRange": "€€", "servesCuisine": ["Österreichisch", "Saisonal"], "address": {"@type": "PostalAddress", "streetAddress": "Bahnhofstraße 24", "postalCode": "6850", "addressLocality": "Dornbirn", "addressRegion": "Vorarlberg", "addressCountry": "AT"}, "vatID": "ATU36206707", "areaServed": {"@type": "City", "name": "Dornbirn"}, "acceptsReservations": "https://wirtschaft-dornbirn.at/tischreservierung.html", "specialOpeningHoursSpecification": [{"@type": "OpeningHoursSpecification", "validFrom": "2026-07-24", "validThrough": "2026-08-23", "opens": "00:00", "closes": "00:00", "name": "Sommerpause"}], "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "11:30", "closes": "13:30", "name": "Mittagstisch"}]}
   </script>
@@ -46,8 +46,8 @@
       <div class="nav-drop" data-comment-anchor="50a6574b06-a">
         <button type="button" id="navMittag" aria-expanded="false" aria-controls="navMittagMenu">Mittag <span class="drop-pfeil" aria-hidden="true">▾</span></button>
         <div class="nav-drop-menu" id="navMittagMenu" hidden>
-          <a href="https://tischreservierung.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Mittagstisch</a>
-          <a href="https://lieferservice.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Takeaway</a>
+          <button type="button" data-haus="https://tischreservierung.wirtschaft-dornbirn.at/" data-haus-titel="Mittagstisch reservieren">Mittagstisch</button>
+          <button type="button" data-haus="https://lieferservice.wirtschaft-dornbirn.at/" data-haus-titel="Takeaway bestellen">Takeaway</button>
         </div>
       </div>
       <a href="feste-catering.html">Locations</a>
@@ -92,24 +92,13 @@
           <p>Abends öffnen wir für Events: Dinner, Konzert oder Comedy. Datum wählen, Platz sichern, zämmahocka.</p>
           <div class="scene-actions"><a class="button button-warm" href="events.html">Alle Termine &amp; Tickets</a></div>
         </div>
+        <div class="event-spotlight" id="eventSpotlight" aria-label="Die nächsten drei Abende">
+          <a href="events.html">Alle Termine ansehen →</a>
+        </div>
         <a class="scene-imprint" href="#impressum">Impressum</a>
       </div>
     </section>
 
-    <section class="abend-strip" aria-labelledby="abendTitle">
-      <div class="abend-kopf"><p class="eyebrow">So schaut ein Abend bei uns aus</p><h2 id="abendTitle">Bilder statt Versprechen.</h2></div>
-      <div class="abend-galerie">
-        <img src="assets/abend-01.webp" srcset="assets/abend-01-800.webp 800w, assets/abend-01.webp 1200w" sizes="(max-width:900px) 50vw, 25vw" width="1200" height="750" loading="lazy" decoding="async" alt="Konzertabend mit Buehnenbild und vollem Saal">
-        <img src="assets/abend-02.webp" srcset="assets/abend-02-800.webp 800w, assets/abend-02.webp 1200w" sizes="(max-width:900px) 50vw, 25vw" width="1200" height="750" loading="lazy" decoding="async" alt="Saenger nah an der Buehnenkante">
-        <img src="assets/abend-03.webp" srcset="assets/abend-03-800.webp 800w, assets/abend-03.webp 1200w" sizes="(max-width:900px) 50vw, 25vw" width="1200" height="750" loading="lazy" decoding="async" alt="Duo in rotem Licht auf der Buehne">
-        <img src="assets/abend-04.webp" srcset="assets/abend-04-800.webp 800w, assets/abend-04.webp 1200w" sizes="(max-width:900px) 50vw, 25vw" width="1200" height="750" loading="lazy" decoding="async" alt="Tanzendes Publikum vor der Buehne">
-        <figure class="abend-video" id="hoerprobe" hidden>
-          <video controls preload="metadata" playsinline width="1200" height="750" src="assets/hoerprobe.mp4"></video>
-          <figcaption>Hörprobe · so klingt ein Abend bei uns</figcaption>
-        </figure>
-      </div>
-      <p class="abend-hinweis">Tickets &amp; Zahlung laufen direkt über den Veranstalter – nicht über die Wirtschaft. Der Ticketknopf führt euch immer zum offiziellen Anbieter.</p>
-    </section>
 
     <section class="concept-scene final-chapter chapter-lunch light" id="concept-03" data-variant="c" data-concept="03" data-theme="lunch" data-theme-label="Mittag" data-theme-mood="Frisch · saisonal" data-zoom="in" aria-labelledby="title-03">
       <img class="scene-media parallax-media zoom-media" src="assets/food.webp" srcset="assets/food-800.webp 700w, assets/food.webp 900w" sizes="(max-width:900px) 100vw, 60vw" width="900" height="600" loading="lazy" decoding="async" alt="Gericht aus der Küche der Wirtschaft Dornbirn">
@@ -209,6 +198,7 @@
         <p>Die Bestellung läuft persönlich über uns. Wir melden uns mit den Zahlungsdaten und schicken den Gutschein zum Drucken oder per Post.</p>
       </div>
     </section>
+
     <section class="insta-strip" id="instagram" aria-labelledby="instaTitle">
       <div class="insta-kopf"><div><p class="eyebrow">@wirtschaft_dornbirn</p><h2 id="instaTitle">Zuletzt bei uns.</h2></div>
         <a class="button button-ghost-dark" href="https://www.instagram.com/wirtschaft_dornbirn/" target="_blank" rel="noopener noreferrer">Auf Instagram folgen ↗</a></div>
@@ -225,6 +215,15 @@
       </div>
       <p class="insta-note">Die Bilder liegen auf unserem Server – beim Ansehen fließt nichts an Instagram. Erst der Klick führt zum jeweiligen Beitrag.</p>
     </section>
+
+    <dialog class="haus-dialog" id="hausDialog" aria-label="Buchung">
+      <div class="haus-dialog-kopf">
+        <p><span id="hausDialogTitel"></span> · läuft über unseren Buchungsdienst</p>
+        <div><a id="hausDialogExtern" href="https://tischreservierung.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Im neuen Fenster ↗</a>
+        <button type="button" id="hausDialogZu" aria-label="Schließen">×</button></div>
+      </div>
+      <iframe id="hausDialogFrame" title="Buchung" loading="lazy"></iframe>
+    </dialog>
   </main>
 
 
@@ -282,7 +281,7 @@
 
 
   <noscript><p class="noscript">Für die Eventübersicht ist JavaScript erforderlich. Die offiziellen Reservierungs- und Ticketlinks bleiben ohne JavaScript erreichbar.</p></noscript>
-  <script src="app.js?v=3d7d3fb5" defer></script>
+  <script src="app.js?v=95c1a952" defer></script>
   <script type="module" src="lunch-abo.js?v=f0ddd3e4"></script>
   <script src="truck-motion.js?v=1fd8e5e9" defer></script>
   <script src="prefetch.js?v=b7ede3be" defer></script>
