@@ -51,13 +51,37 @@
         <p class="kachel-typ">${escapeHtml(wochentag)} · ${escapeHtml(event.type)}</p>
         <ul class="ticketzeilen">${zeilen}</ul>
         <div class="kachel-aktionen">
-          <a class="button light" href="${escapeHtml(event.ticketUrl || event.officialUrl)}" target="_blank" rel="noopener noreferrer">${ausverkauft ? 'Ausverkauft · Details ↗' : 'Tickets ↗'}</a>
+          ${event.ticketUrl && !ausverkauft
+            ? `<button class="button light" type="button" data-buchen="${escapeHtml(event.ticketUrl)}" data-titel="${escapeHtml(event.title)}">Tickets buchen</button>`
+            : `<a class="button light" href="${escapeHtml(event.ticketUrl || event.officialUrl)}" target="_blank" rel="noopener noreferrer">${ausverkauft ? 'Ausverkauft · Details ↗' : 'Tickets ↗'}</a>`}
         </div>
       </div>
     </article>`;
   }
 
+  // Buchung im Haus: der Klick oeffnet Ticketist als Overlay. Der Gast
+  // bleibt auf unserer Seite; Buchung und Zahlung laufen beim Anbieter.
+  const dialog = document.getElementById('ticketDialog');
+  const frame = document.getElementById('ticketDialogFrame');
+  const dialogTitel = document.getElementById('ticketDialogTitel');
+  const dialogExtern = document.getElementById('ticketDialogExtern');
+  function oeffneBuchung(url, titel) {
+    if (!dialog || !frame) { window.open(url, '_blank', 'noopener'); return; }
+    dialogTitel.textContent = titel;
+    dialogExtern.href = url;
+    frame.src = url;
+    dialog.showModal();
+  }
+  if (dialog) {
+    document.getElementById('ticketDialogZu').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('close', () => { frame.src = 'about:blank'; });
+    dialog.addEventListener('click', e => { if (e.target === dialog) dialog.close(); });
+  }
+
   function verdrahte() {
+    grid.querySelectorAll('[data-buchen]').forEach(knopf => {
+      knopf.addEventListener('click', () => oeffneBuchung(knopf.dataset.buchen, knopf.dataset.titel));
+    });
     // Bilder: fehlt das Eventbild, springt ein Abendfoto ein.
     grid.querySelectorAll('.kachel-medien img').forEach(img => {
       img.addEventListener('error', () => {

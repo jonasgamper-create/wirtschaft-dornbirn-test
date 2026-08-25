@@ -6,15 +6,15 @@
   <meta name="description" content="Termine & Tickets der Wirtschaft Dornbirn: Dinner & Konzert, Comedy und besondere Abende – alle kommenden Events mit Hörprobe und direktem Ticketlink.">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src 'self' data:; media-src 'self'; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self' https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'self'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src https://www.ticketist.io; img-src 'self' data:; media-src 'self'; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self' https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'self'; upgrade-insecure-requests">
   <meta name="theme-color" content="#17130f">
   <title>Termine &amp; Tickets · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="icon" href="assets/icons/favicon-512.png" sizes="512x512" type="image/png">
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
   <link rel="stylesheet" href="feste-catering.css?v=9806054e">
-  <link rel="stylesheet" href="events.css?v=007a13c1">
-  <script src="events.js?v=7a246b78" defer></script>
+  <link rel="stylesheet" href="events.css?v=1a411288">
+  <script src="events.js?v=e4bef690" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#content">Zum Inhalt springen</a>
@@ -50,6 +50,15 @@
         <p class="events-abo-note" id="ticketNewsNote" role="status" aria-live="polite"></p>
       </form>
     </section>
+
+    <dialog class="ticket-dialog" id="ticketDialog" aria-label="Ticketbuchung">
+      <div class="ticket-dialog-kopf">
+        <p><span id="ticketDialogTitel"></span> · Buchung &amp; Zahlung laufen direkt bei Ticketist</p>
+        <div><a id="ticketDialogExtern" href="#" target="_blank" rel="noopener noreferrer">Im neuen Fenster ↗</a>
+        <button type="button" id="ticketDialogZu" aria-label="Buchung schließen">×</button></div>
+      </div>
+      <iframe id="ticketDialogFrame" title="Ticketbuchung bei Ticketist" loading="lazy"></iframe>
+    </dialog>
   </main>
 
   <footer><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"><p>Wirtschaft Dornbirn · Bahnhofstraße&nbsp;24 · 6850 Dornbirn</p><nav class="footer-links" aria-label="Navigation im Seitenfuß"><a href="index.html">Zur Website</a><a href="agentur.html">Agentur</a><a href="impressum.html">Impressum</a><a href="datenschutz-sicherheit.html">Datenschutz</a></nav><p>Tickets über offizielle Anbieter · keine Zahlung auf dieser Seite.</p></footer>
