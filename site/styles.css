@@ -1511,3 +1511,9 @@ body{text-transform:lowercase}
 @media(max-width:560px){
   .final-site .bar-nav{flex-wrap:wrap;gap:4px 16px;padding-bottom:6px}
 }
+
+/* hoerprobe: die kachel erscheint erst, wenn assets/hoerprobe.mp4 wirklich
+   daliegt - eine leere flaeche mit fehlerbild waere schlimmer als keine. */
+.abend-video{grid-column:1/-1;margin:0}
+.abend-video video{width:100%;height:auto;display:block;background:#000}
+.abend-video figcaption{margin-top:10px;color:var(--gold);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:lowercase}

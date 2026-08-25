@@ -585,6 +585,16 @@
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
 
+
+  // Hoerprobe: die Kachel zeigt sich nur, wenn die Datei wirklich daliegt.
+  // Wolfgang legt spaeter assets/hoerprobe.mp4 ab - mehr braucht es nicht.
+  const hoerprobe = document.getElementById('hoerprobe');
+  if (hoerprobe) {
+    const video = hoerprobe.querySelector('video');
+    video.addEventListener('loadedmetadata', () => { hoerprobe.hidden = false; });
+    video.addEventListener('error', () => { hoerprobe.hidden = true; });
+  }
+
   // Der kleine Neu-Hinweis im Kopf: immer das naechste, das wirklich ansteht.
   // Er pflegt sich selbst aus den Eventdaten - ein veralteter Hinweis waere
   // schlimmer als keiner.
