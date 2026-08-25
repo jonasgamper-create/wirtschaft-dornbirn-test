@@ -993,6 +993,31 @@ export class Haus extends DurableObject {
   }
 
   /**
+   * Das Mittagsfenster, wie es auf der Gaesteseite steht. Leitplanken statt
+   * Freitext: Viertelstunden-Raster, zwischen 10:00 und 16:00, mindestens
+   * eine Stunde - ein Vertipper wie 01:30 soll nie den Mittag "sperren".
+   */
+  async oeffnung() {
+    const roh = this.#lies('oeffnungszeiten', null);
+    return { ok: true, von: roh?.von || '11:30', bis: roh?.bis || '13:30' };
+  }
+
+  async setzeOeffnung(von, bis) {
+    const zuMinuten = wert => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(wert || ''))
+      ? Number(String(wert).slice(0, 2)) * 60 + Number(String(wert).slice(3, 5))
+      : null;
+    const start = zuMinuten(von);
+    const ende = zuMinuten(bis);
+    if (start === null || ende === null) return { ok: false, grund: 'format' };
+    if (start % 15 || ende % 15) return { ok: false, grund: 'raster' };
+    if (start < 600 || ende > 960) return { ok: false, grund: 'rahmen' };
+    if (ende - start < 60) return { ok: false, grund: 'zu-kurz' };
+    this.#schreib('oeffnungszeiten', { von: String(von), bis: String(bis) });
+    this.#meldeAenderung();
+    return { ok: true, von: String(von), bis: String(bis) };
+  }
+
+  /**
    * Wolfgang sagt einen ganzen Mittag ab. Jeder Gast mit Mailadresse bekommt
    * die Absage samt zurueckgezogenem Termin; wer nur eine Nummer hinterlassen
    * hat, steht in der Anrufliste. Diese Liste ist der ehrliche Teil: sie
@@ -2410,6 +2435,19 @@ export default {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         const body = await request.json().catch(() => ({}));
         return json(await haus.setzeTagZu(body?.datum, body?.zu === true), 200, kopf);
+      }
+
+      // Oeffnungszeiten: lesen darf jeder (die Gaesteseite zeigt sie an),
+      // setzen nur das Haus. Sie steuern die Anzeige - die Buchung selbst
+      // laeuft ueber die verlinkte Reservierungsseite.
+      if (url.pathname === '/api/oeffnung' && request.method === 'GET') {
+        return json(await haus.oeffnung(), 200, kopf);
+      }
+      if (url.pathname === '/api/oeffnung' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        const ergebnis = await haus.setzeOeffnung(body?.von, body?.bis);
+        return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
       }
 
       // Eigene Termine: lesen darf jeder (sie stehen ohnehin auf der

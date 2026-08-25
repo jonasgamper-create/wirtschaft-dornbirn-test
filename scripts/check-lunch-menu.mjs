@@ -48,7 +48,9 @@ if (data.status === 'pause' && !data.pauseNote?.trim()) fail('pauseNote fehlt f�
 // PDF-Link fuehrte die Seite ins Leere, und das faellt niemandem auf, weil
 // vorher eine Liste da war.
 if (!/data-lunch-card/.test(index)) fail('Der Link zur Mittagskarte fehlt auf der Gästeseite.');
-if (!/takeaway\.html/.test(index)) fail('Der Weg zum Takeaway fehlt auf der Gästeseite.');
+// Entscheidung vom 25.08.2026: Takeaway laeuft ueber die Subseite der
+// bestehenden Webseite (lieferservice.*) statt ueber das eigene Werkzeug.
+if (!/lieferservice\.wirtschaft-dornbirn\.at/.test(index)) fail('Der Weg zum Takeaway fehlt auf der Gästeseite.');
 if (/subject=Tischreservierung/.test(index)) {
   fail('Reservierung per E-Mail wurde entfernt und darf nicht zurueckkommen.');
 }

@@ -585,6 +585,16 @@
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
 
+
+  // Hoerprobe: die Kachel zeigt sich nur, wenn die Datei wirklich daliegt.
+  // Wolfgang legt spaeter assets/hoerprobe.mp4 ab - mehr braucht es nicht.
+  const hoerprobe = document.getElementById('hoerprobe');
+  if (hoerprobe) {
+    const video = hoerprobe.querySelector('video');
+    video.addEventListener('loadedmetadata', () => { hoerprobe.hidden = false; });
+    video.addEventListener('error', () => { hoerprobe.hidden = true; });
+  }
+
   // Der kleine Neu-Hinweis im Kopf: immer das naechste, das wirklich ansteht.
   // Er pflegt sich selbst aus den Eventdaten - ein veralteter Hinweis waere
   // schlimmer als keiner.
@@ -778,6 +788,19 @@
     .then(daten => {
       const basis = String(daten?.api || '').trim().replace(/\/+$/, '');
       if (!/^https?:\/\//.test(basis)) return;
+      // Das Mittagsfenster kommt vom Dienst: stellt der Wirt es um, steht es
+      // hier ohne neuen Seitenaufbau richtig. Ohne Dienst bleibt der Text
+      // aus dem HTML stehen - der stimmt als Vorgabe.
+      fetch(`${basis}/api/oeffnung`, { cache: 'no-store' })
+        .then(antwort => antwort.json())
+        .then(zeiten => {
+          if (!zeiten?.ok || !zeiten.von || !zeiten.bis) return;
+          const anzeige = document.querySelector('[data-opening-hours] time');
+          if (!anzeige) return;
+          anzeige.textContent = `Mo–Fr ${zeiten.von}–${zeiten.bis}`;
+          anzeige.setAttribute('datetime', `Mo-Fr ${zeiten.von}-${zeiten.bis}`);
+        })
+        .catch(() => { /* Anzeige behaelt die Vorgabe */ });
       return fetch(`${basis}/api/events`, { cache: 'no-store' })
         .then(antwort => antwort.json())
         .then(eigene => {

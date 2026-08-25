@@ -10,7 +10,7 @@
   <title>Heute Mittag · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
   <link rel="stylesheet" href="wirt.css?v=6f3201ea">
-  <script type="module" src="wirt.js?v=c776d906"></script>
+  <script type="module" src="wirt.js?v=c08dc56e"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -145,6 +145,19 @@
       <p class="lauf-ergebnis" id="bestandInfo" role="status" aria-live="polite"></p>
       <p class="hinweis">Etagen, Tischordnungen und Betriebszeiten stellst du im
         <a href="gastgeber-tischplan.html" id="einrichtenLink">Einrichten</a> ein – genauso einfach wie hier.</p>
+    </details>
+
+    <details class="werkzeug" id="oeffnungKasten">
+      <summary>Öffnungszeiten – was auf der Webseite steht</summary>
+      <p class="hinweis">Das Mittagsfenster, wie es Gäste auf der Webseite sehen (Mo–Fr).
+        Viertelstunden zwischen 10:00 und 16:00, mindestens eine Stunde – gilt sofort
+        nach dem Speichern.</p>
+      <form class="zu-form" id="oeffnungForm">
+        <label>Von<input type="time" id="oeffnungVon" step="900" min="10:00" max="15:00" required></label>
+        <label>Bis<input type="time" id="oeffnungBis" step="900" min="11:00" max="16:00" required></label>
+        <button class="knopf leise" type="submit">Speichern</button>
+      </form>
+      <p class="lauf-ergebnis" id="oeffnungInfo" role="status" aria-live="polite"></p>
     </details>
 
     <details class="werkzeug" id="zuKasten">

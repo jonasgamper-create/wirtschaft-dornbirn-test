@@ -41,10 +41,13 @@ const eventIds = new Set(events.events.map(event => event.id));
 for (const match of main.matchAll(/data-calendar-event="([^"]+)"/g)) {
   if (!eventIds.has(match[1])) fail(`Kalenderaktion verweist auf unbekanntes Event ${match[1]}`);
 }
-// Der externe Reservierungsanbieter ist entfernt - reserviert wird auf der
-// eigenen Seite. Die anderen Pfade bleiben Pflicht.
+// Entscheidung vom 25.08.2026: Reservierung und Takeaway laufen ueber die
+// Subseiten der bestehenden Webseite - die eigenen Werkzeuge bleiben im
+// Repo, werden aber nicht mehr verlinkt. Pflicht sind jetzt die externen
+// Ziele; fehlten sie, stuende der Gast ohne Buchungsweg da.
 for (const required of [
-  'tischreservierung.html',
+  'https://tischreservierung.wirtschaft-dornbirn.at/',
+  'https://lieferservice.wirtschaft-dornbirn.at/',
   'https://wirtschaft-dornbirn.at/event/',
   'feste-catering.html'
 ]) {

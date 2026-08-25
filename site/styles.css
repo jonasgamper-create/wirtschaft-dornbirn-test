@@ -1483,11 +1483,37 @@ body{text-transform:lowercase}
 .insta-note{max-width:720px;margin:22px 0 0;color:#c9c4bb;font-size:13.5px;line-height:1.6}
 @media(max-width:640px){.insta-strip{padding:70px 16px}.insta-grid{gap:5px}}
 
-/* ===== news-chip im kopf: das naechste, das ansteht ===== */
-.bar-news{display:inline-flex;align-items:center;gap:9px;min-height:38px;margin-left:14px;padding:0 14px;border:1px solid #c59b5d59;border-radius:999px;background:#c59b5d1a;color:#f3efe6;text-decoration:none;font-size:11.5px;letter-spacing:.06em;white-space:nowrap}
-.bar-news span{color:var(--gold);font-weight:700;letter-spacing:.14em;text-transform:lowercase}
-.bar-news b{font-weight:600}
+/* ===== news-chip: ganz oben rechts, klein =====
+   der hinweis haengt als letztes element aussen rechts im kopf; am handy
+   schwebt er als kleine notiz unter der leiste - immer sichtbar, nie laut. */
+.bar-news{display:inline-flex;align-items:center;gap:7px;min-height:30px;margin-left:auto;padding:0 11px;border:1px solid #c59b5d59;border-radius:999px;background:#c59b5d1a;color:#f3efe6;text-decoration:none;font-size:10.5px;letter-spacing:.05em;white-space:nowrap;flex-shrink:0}
+.bar-news span{color:var(--gold);font-weight:700;letter-spacing:.13em;text-transform:lowercase}
+.bar-news b{font-weight:600;max-width:230px;overflow:hidden;text-overflow:ellipsis}
 .bar-news:hover{background:#c59b5d33}
 .bar-news:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-@media(max-width:1100px){.bar-news b{max-width:200px;overflow:hidden;text-overflow:ellipsis}}
-@media(max-width:900px){.bar-news{display:none}}
+/* die oeffnungszeiten daneben duerfen nicht mehr gequetscht im wort brechen */
+.experience-bar p.bar-hours{flex-shrink:0;margin-left:14px}
+.bar-news + *,.bar-hours ~ .bar-news{margin-left:14px}
+/* sechs ziele plus zeiten plus chip: unter 1460px tragen die zwei langen
+   ziele ihre kurzform, damit rechts nichts aus dem blatt laeuft. */
+@media(max-width:1460px){
+  .final-site .bar-nav .nav-lang{display:none}
+  .final-site .bar-nav .nav-kurz{display:inline}
+  .experience-bar{gap:18px}
+  .bar-news b{max-width:170px}
+}
+@media(max-width:1240px){.bar-news b{max-width:150px}}
+@media(max-width:900px){
+  .experience-bar .bar-news,.bar-hours ~ .bar-news{order:99;margin:2px 0 10px auto;background:#11110fd9;border-color:#c59b5d66}
+  .bar-news b{max-width:52vw}
+}
+/* sechs ziele am handy: die zeile darf umbrechen, nichts wird abgeschnitten */
+@media(max-width:560px){
+  .final-site .bar-nav{flex-wrap:wrap;gap:4px 16px;padding-bottom:6px}
+}
+
+/* hoerprobe: die kachel erscheint erst, wenn assets/hoerprobe.mp4 wirklich
+   daliegt - eine leere flaeche mit fehlerbild waere schlimmer als keine. */
+.abend-video{grid-column:1/-1;margin:0}
+.abend-video video{width:100%;height:auto;display:block;background:#000}
+.abend-video figcaption{margin-top:10px;color:var(--gold);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:lowercase}
