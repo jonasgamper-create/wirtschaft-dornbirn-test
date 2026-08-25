@@ -587,6 +587,28 @@
 
 
 
+
+  // Mittagstisch und Takeaway oeffnen als Overlay: der Gast bleibt auf der
+  // Startseite, gebucht wird beim jeweiligen Dienst. Nach dem Schliessen ist
+  // das Fenster wieder weg - es bleibt nichts stehen.
+  const hausDialog = document.getElementById('hausDialog');
+  if (hausDialog) {
+    const rahmen = document.getElementById('hausDialogFrame');
+    const titel = document.getElementById('hausDialogTitel');
+    const extern = document.getElementById('hausDialogExtern');
+    document.querySelectorAll('[data-haus]').forEach(knopf => {
+      knopf.addEventListener('click', () => {
+        titel.textContent = knopf.dataset.hausTitel;
+        extern.href = knopf.dataset.haus;
+        rahmen.src = knopf.dataset.haus;
+        hausDialog.showModal();
+      });
+    });
+    document.getElementById('hausDialogZu').addEventListener('click', () => hausDialog.close());
+    hausDialog.addEventListener('close', () => { rahmen.src = 'about:blank'; });
+    hausDialog.addEventListener('click', e => { if (e.target === hausDialog) hausDialog.close(); });
+  }
+
   // Mittag-Aufklappmenue: ein Ziel in der Leiste, zwei Wege dahinter.
   // Klick oeffnet (auch am Handy), Maus darf am Desktop schweben,
   // Escape und ein Klick daneben schliessen.
@@ -596,8 +618,7 @@
     const menue = navDrop.querySelector('.nav-drop-menu');
     const setze = offen => { knopf.setAttribute('aria-expanded', String(offen)); menue.hidden = !offen; };
     knopf.addEventListener('click', () => setze(menue.hidden));
-    navDrop.addEventListener('mouseenter', () => { if (matchMedia('(hover: hover)').matches) setze(true); });
-    navDrop.addEventListener('mouseleave', () => { if (matchMedia('(hover: hover)').matches) setze(false); });
+    menue.querySelectorAll('button, a').forEach(el => el.addEventListener('click', () => setze(false)));
     document.addEventListener('click', e => { if (!navDrop.contains(e.target)) setze(false); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') setze(false); });
   }
@@ -643,7 +664,12 @@
     if (spotlight) spotlight.querySelectorAll('article').forEach(article => article.remove());
     if (spotlight) {
       const link = spotlight.querySelector(':scope > a');
-      events.slice(0, 3).forEach(item => link?.insertAdjacentHTML('beforebegin', renderSpotlight(item)));
+      const heute = new Date();
+      heute.setHours(0, 0, 0, 0);
+      events
+        .filter(item => item.status !== 'cancelled' && new Date(`${item.date}T23:59:00`) >= heute)
+        .slice(0, 3)
+        .forEach(item => link?.insertAdjacentHTML('beforebegin', renderSpotlight(item)));
     }
     if (timeline) timeline.innerHTML = events.map(renderTimeline).join('');
     const select = document.getElementById('ticketEvent');

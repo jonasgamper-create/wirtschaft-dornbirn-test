@@ -245,3 +245,20 @@ a:not([class]),.footer-links a,footer a{display:inline-flex;align-items:center}
 .brand-row img{filter:invert(1) brightness(1.55)}
 .brand-row .partner-logo{width:54px;height:auto;filter:none}
 .top>a:last-child{color:#f3efe6}
+
+/* fusszeile der rechtsseiten: drei feste spalten statt gequetschter reihe -
+   haus, partner, rechtliches, jeweils untereinander lesbar */
+footer {
+  display: grid;
+  grid-template-columns: 1.2fr 1.2fr auto;
+  align-items: start;
+  gap: 26px 44px;
+  padding: 46px clamp(20px, 5vw, 80px) 40px;
+  line-height: 1.65;
+}
+footer > span { display: block }
+footer nav { justify-content: flex-start; gap: 14px 22px }
+footer nav a { min-height: 44px }
+@media (max-width: 860px) {
+  footer { grid-template-columns: 1fr; gap: 18px }
+}
