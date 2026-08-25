@@ -14,7 +14,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const site = path.join(root, 'site');
 
 // Nur die Seiten, die den Dienst wirklich ansprechen.
-const SEITEN = ['screen.html', 'gastgeber-tischplan.html'];
+const SEITEN = ['screen.html', 'gastgeber-tischplan.html', 'events.html'];
 
 const konfig = JSON.parse(await readFile(path.join(site, 'data', 'haus.json'), 'utf8'));
 const adresse = String(konfig.api || '').trim().replace(/\/+$/, '');

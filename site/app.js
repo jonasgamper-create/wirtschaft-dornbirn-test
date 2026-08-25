@@ -586,6 +586,22 @@
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
 
 
+
+  // Mittag-Aufklappmenue: ein Ziel in der Leiste, zwei Wege dahinter.
+  // Klick oeffnet (auch am Handy), Maus darf am Desktop schweben,
+  // Escape und ein Klick daneben schliessen.
+  const navDrop = document.querySelector('.nav-drop');
+  if (navDrop) {
+    const knopf = navDrop.querySelector('button');
+    const menue = navDrop.querySelector('.nav-drop-menu');
+    const setze = offen => { knopf.setAttribute('aria-expanded', String(offen)); menue.hidden = !offen; };
+    knopf.addEventListener('click', () => setze(menue.hidden));
+    navDrop.addEventListener('mouseenter', () => { if (matchMedia('(hover: hover)').matches) setze(true); });
+    navDrop.addEventListener('mouseleave', () => { if (matchMedia('(hover: hover)').matches) setze(false); });
+    document.addEventListener('click', e => { if (!navDrop.contains(e.target)) setze(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') setze(false); });
+  }
+
   // Hoerprobe: die Kachel zeigt sich nur, wenn die Datei wirklich daliegt.
   // Wolfgang legt spaeter assets/hoerprobe.mp4 ab - mehr braucht es nicht.
   const hoerprobe = document.getElementById('hoerprobe');

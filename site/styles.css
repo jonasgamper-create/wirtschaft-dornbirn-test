@@ -1483,30 +1483,35 @@ body{text-transform:lowercase}
 .insta-note{max-width:720px;margin:22px 0 0;color:#c9c4bb;font-size:13.5px;line-height:1.6}
 @media(max-width:640px){.insta-strip{padding:70px 16px}.insta-grid{gap:5px}}
 
-/* ===== news-chip: ganz oben rechts, klein =====
-   der hinweis haengt als letztes element aussen rechts im kopf; am handy
-   schwebt er als kleine notiz unter der leiste - immer sichtbar, nie laut. */
-.bar-news{display:inline-flex;align-items:center;gap:7px;min-height:30px;margin-left:auto;padding:0 11px;border:1px solid #c59b5d59;border-radius:999px;background:#c59b5d1a;color:#f3efe6;text-decoration:none;font-size:10.5px;letter-spacing:.05em;white-space:nowrap;flex-shrink:0}
+/* ===== news-chip: klein, unter der leiste rechts =====
+   der hinweis haengt am kopf (top:100% folgt der echten hoehe), schwebt aber
+   unter der leiste - die oeffnungszeiten behalten oben rechts ihren platz. */
+.bar-news{position:absolute;top:100%;right:24px;margin-top:10px;display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:0 11px;border:1px solid #c59b5d59;border-radius:999px;background:#11110fd9;color:#f3efe6;text-decoration:none;font-size:10.5px;letter-spacing:.05em;white-space:nowrap}
 .bar-news span{color:var(--gold);font-weight:700;letter-spacing:.13em;text-transform:lowercase}
-.bar-news b{font-weight:600;max-width:230px;overflow:hidden;text-overflow:ellipsis}
+.bar-news b{font-weight:600;max-width:280px;overflow:hidden;text-overflow:ellipsis}
 .bar-news:hover{background:#c59b5d33}
 .bar-news:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-/* die oeffnungszeiten daneben duerfen nicht mehr gequetscht im wort brechen */
-.experience-bar p.bar-hours{flex-shrink:0;margin-left:14px}
-.bar-news + *,.bar-hours ~ .bar-news{margin-left:14px}
-/* sechs ziele plus zeiten plus chip: unter 1460px tragen die zwei langen
-   ziele ihre kurzform, damit rechts nichts aus dem blatt laeuft. */
+.experience-bar p.bar-hours{flex-shrink:0;margin-left:auto}
 @media(max-width:1460px){
   .final-site .bar-nav .nav-lang{display:none}
   .final-site .bar-nav .nav-kurz{display:inline}
   .experience-bar{gap:18px}
-  .bar-news b{max-width:170px}
 }
-@media(max-width:1240px){.bar-news b{max-width:150px}}
 @media(max-width:900px){
-  .experience-bar .bar-news,.bar-hours ~ .bar-news{order:99;margin:2px 0 10px auto;background:#11110fd9;border-color:#c59b5d66}
+  .bar-news{right:12px}
   .bar-news b{max-width:52vw}
 }
+
+/* ===== mittag-aufklappmenue in der leiste ===== */
+.nav-drop{position:relative;display:flex;align-items:center}
+.nav-drop>button{display:flex;align-items:center;gap:6px;min-height:44px;padding:0;border:0;background:none;color:#f3efe6;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase;cursor:pointer;white-space:nowrap}
+.nav-drop .drop-pfeil{font-size:9px;transition:transform .2s}
+.nav-drop>button[aria-expanded="true"] .drop-pfeil{transform:rotate(180deg)}
+.nav-drop-menu{position:absolute;z-index:720;top:calc(100% + 6px);left:50%;transform:translateX(-50%);display:grid;min-width:170px;padding:8px;border:1px solid #ffffff26;background:#11110ff7;box-shadow:0 18px 50px #11110f88}
+.nav-drop-menu a{display:flex;align-items:center;min-height:42px;padding:0 14px;color:#f3efe6;text-decoration:none;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase;white-space:nowrap}
+.nav-drop-menu a:hover{background:#c59b5d26;color:var(--gold)}
+@media(max-width:560px){.nav-drop-menu{left:0;transform:none}}
+
 /* sechs ziele am handy: die zeile darf umbrechen, nichts wird abgeschnitten */
 @media(max-width:560px){
   .final-site .bar-nav{flex-wrap:wrap;gap:4px 16px;padding-bottom:6px}
