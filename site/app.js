@@ -619,6 +619,15 @@
     const setze = offen => { knopf.setAttribute('aria-expanded', String(offen)); menue.hidden = !offen; };
     knopf.addEventListener('click', () => setze(menue.hidden));
     menue.querySelectorAll('button, a').forEach(el => el.addEventListener('click', () => setze(false)));
+    // Wegfahren schliesst - aber nur, wenn es vorher per Klick geoeffnet wurde.
+    let verlassen = 0;
+    navDrop.addEventListener('mouseleave', () => {
+      clearTimeout(verlassen);
+      verlassen = setTimeout(() => setze(false), 260);
+    });
+    navDrop.addEventListener('mouseenter', () => clearTimeout(verlassen));
+    // Beim Scrollen ebenfalls schliessen: wer weitergeht, braucht es nicht mehr.
+    addEventListener('scroll', () => { if (!menue.hidden) setze(false); }, { passive: true });
     document.addEventListener('click', e => { if (!navDrop.contains(e.target)) setze(false); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') setze(false); });
   }
