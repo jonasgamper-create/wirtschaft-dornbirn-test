@@ -1461,10 +1461,11 @@ body{text-transform:lowercase}
 .prototype-note{border-top-color:#ffffff26}
 .final-site .site-footer[data-variant="d"]{
   grid-template-columns:1.25fr 1.25fr .9fr 1fr;gap:34px 44px;align-items:start;
-  width:min(var(--content),calc(100% - 150px));margin-left:auto;margin-right:auto;
-  padding-left:0;padding-right:0}
-@media(max-width:1100px){.final-site .site-footer[data-variant="d"]{grid-template-columns:1fr 1fr;gap:30px 34px}}
-@media(max-width:640px){.final-site .site-footer[data-variant="d"]{grid-template-columns:1fr;width:calc(100% - 40px)}}
+  width:100%;margin:0;
+  padding-left:max(75px,calc((100% - var(--content))/2));
+  padding-right:max(75px,calc((100% - var(--content))/2))}
+@media(max-width:1100px){.final-site .site-footer[data-variant="d"]{grid-template-columns:1fr 1fr;gap:30px 34px;padding-left:23px;padding-right:23px}}
+@media(max-width:640px){.final-site .site-footer[data-variant="d"]{grid-template-columns:1fr;padding-left:23px;padding-right:23px}}
 
 /* ===== abend-galerie: bilder statt versprechen ===== */
 .abend-strip{padding:12vh max(7vw,70px);background:var(--ink);color:#fff}
@@ -1478,7 +1479,7 @@ body{text-transform:lowercase}
 /* ===== instagram: kompakter streifen im seitenabschluss =====
    kein eigenes kapitel mehr - eine reihe kacheln zwischen gutscheinen und
    fusszeile, auf derselben blattkante wie alles andere. */
-.insta-strip{background:var(--ink);color:#fff;padding:54px 0 46px}
+.insta-strip{background:var(--ink);color:#fff;padding:46px 0 54px}
 .insta-strip>*{width:min(var(--content),calc(100% - 150px));margin-left:auto;margin-right:auto}
 .insta-zeile{display:flex;justify-content:space-between;align-items:center;gap:20px;
   padding-top:26px;border-top:1px solid rgba(243,239,230,.18)}
@@ -1576,8 +1577,7 @@ body{text-transform:lowercase}
 .insta-strip>*{width:min(var(--content),calc(100% - 150px));margin-left:auto;margin-right:auto}
 .insta-kopf h2{font-size:clamp(28px,3.2vw,46px)}
 .insta-grid{gap:8px;margin-top:32px;max-width:none;width:min(920px,100%)}
-.insta-kopf{align-items:center}
-.insta-note{max-width:62ch}
+
 .insta-note{font-size:12.5px;margin-top:18px}
 @media(max-width:900px){
   .insta-strip>*{width:calc(100% - 40px)}
