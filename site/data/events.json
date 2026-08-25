@@ -24,7 +24,8 @@
           "beginn": "18:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/genussroute"
     },
     {
       "id": "event-2026-09-22",
@@ -40,7 +41,8 @@
           "beginn": "18:45",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/comedynacht-05-2026-1"
     },
     {
       "id": "event-2026-09-23",
@@ -56,7 +58,8 @@
           "beginn": "18:45",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/comedynacht-06-2026-1"
     },
     {
       "id": "event-2026-10-14",
@@ -78,7 +81,8 @@
           "beginn": "21:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-04-2026"
     },
     {
       "id": "event-2026-10-15",
@@ -100,7 +104,8 @@
           "beginn": "21:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/spoerk-2026"
     },
     {
       "id": "event-2026-10-21",
@@ -116,7 +121,8 @@
           "beginn": "19:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/neuschmid-voegel-02-2026"
     },
     {
       "id": "event-2026-10-22",
@@ -138,7 +144,8 @@
           "beginn": "21:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/rock4-2026-only"
     },
     {
       "id": "event-2026-10-27",
@@ -160,7 +167,8 @@
           "beginn": "21:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/kellner-2026"
     },
     {
       "id": "event-2026-11-11",
@@ -182,7 +190,8 @@
           "beginn": "21:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-05-2026"
     },
     {
       "id": "event-2026-11-18",
@@ -204,7 +213,8 @@
           "beginn": "21:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/philippsmusikzimmer-02-2026"
     },
     {
       "id": "event-2026-11-19",
@@ -226,7 +236,8 @@
           "beginn": "21:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/hanskaspasenkel-2026"
     },
     {
       "id": "event-2026-11-24",
@@ -248,7 +259,8 @@
           "beginn": "21:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/notenlos-2026"
     },
     {
       "id": "event-2026-11-26",
@@ -270,7 +282,8 @@
           "beginn": "21:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/krauthobel-2026"
     },
     {
       "id": "event-2026-12-03",
@@ -292,7 +305,8 @@
           "beginn": "21:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/rebeltell-2026"
     },
     {
       "id": "event-2026-12-10",
@@ -314,7 +328,8 @@
           "beginn": "21:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/themonroes-2026"
     },
     {
       "id": "event-2026-12-15",
@@ -336,7 +351,8 @@
           "beginn": "21:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-06-2026"
     },
     {
       "id": "event-2026-12-16",
@@ -358,7 +374,8 @@
           "beginn": "21:00",
           "status": "buchbar"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-07-2026"
     }
   ]
 }

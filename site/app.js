@@ -635,7 +635,7 @@
       // der wuerde auf das offizielle Programm zeigen, wo er nicht steht.
       if (item.quelle === 'haus' && !item.officialUrl) return '';
       const beschriftung = item.quelle === 'haus' ? 'Details' : eventStatusLabel(item.status);
-      return `<a class="event-ticket-link event-status-${escapeHtml(item.status)}" href="${escapeHtml(item.officialUrl || eventData.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(beschriftung)} ↗</a>`;
+      return `<a class="event-ticket-link event-status-${escapeHtml(item.status)}" href="${escapeHtml(item.ticketUrl || item.officialUrl || eventData.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(beschriftung)} ↗</a>`;
     };
     const renderCalendarLink = item => item.status === 'cancelled' ? '' : `<button type="button" data-calendar-event="${escapeHtml(item.id)}">Zum Kalender <span>＋</span></button>`;
     const renderSpotlight = item => `<article data-event-status="${escapeHtml(item.status)}"><time datetime="${escapeHtml(item.date)}"><b>${escapeHtml(item.date.slice(8, 10))}</b><span>${escapeHtml(new Intl.DateTimeFormat('de-AT', { month: 'short' }).format(new Date(`${item.date}T12:00:00`)).replace('.', '').toUpperCase())}</span></time><div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.type)}</small></div>${renderTicketLink(item)}</article>`;
