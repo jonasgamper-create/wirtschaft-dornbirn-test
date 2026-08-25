@@ -584,6 +584,22 @@
   bookingDate?.addEventListener('change', updateAvailability);
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+
+  // Der kleine Neu-Hinweis im Kopf: immer das naechste, das wirklich ansteht.
+  // Er pflegt sich selbst aus den Eventdaten - ein veralteter Hinweis waere
+  // schlimmer als keiner.
+  function syncBarNews() {
+    const chip = document.getElementById('barNews');
+    const text = document.getElementById('barNewsText');
+    if (!chip || !text) return;
+    const heute = new Date();
+    heute.setHours(0, 0, 0, 0);
+    const kommend = calendarEvents.find(item => item.status !== 'cancelled' && new Date(`${item.date}T12:00:00`) >= heute);
+    if (!kommend) return;
+    text.textContent = `${kommend.title} · ${formatEventDate(kommend.date)}`;
+    chip.hidden = false;
+  }
+
   function renderEventLists() {
     const spotlight = document.getElementById('eventSpotlight');
     const timeline = document.getElementById('eventTimeline');
@@ -785,6 +801,7 @@
       mischeHausEvents();
       syncOfficialTicketLink();
       syncServiceStatus();
+      syncBarNews();
       window.dispatchEvent(new CustomEvent('wirtschaft:eventdata', { detail: { fresh: isFreshEventData(data), count: calendarEvents.length } }));
     })
     .catch(error => {

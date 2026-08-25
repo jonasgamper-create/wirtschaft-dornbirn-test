@@ -25,7 +25,7 @@
   <link rel="preload" as="image" href="assets/restaurant.webp" imagesrcset="assets/restaurant-800.webp 900w, assets/restaurant.webp 1920w" imagesizes="100vw" fetchpriority="high">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-600-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=8095b261">
+  <link rel="stylesheet" href="styles.css?v=579ba2e0">
   <script type="application/ld+json">
 {"@context": "https://schema.org", "@type": "Restaurant", "@id": "https://wirtschaft-dornbirn.at/#restaurant", "name": "Wirtschaft Dornbirn", "legalName": "„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.", "url": "https://wirtschaft-dornbirn.at/", "description": "Mittagstisch, Konzerte, Comedy und Catering in Dornbirn, Vorarlberg.", "telephone": "+43557220540", "email": "willkommen@wirtschaft-dornbirn.at", "image": "https://wirtschaft-dornbirn.at/assets/restaurant.webp", "priceRange": "€€", "servesCuisine": ["Österreichisch", "Saisonal"], "address": {"@type": "PostalAddress", "streetAddress": "Bahnhofstraße 24", "postalCode": "6850", "addressLocality": "Dornbirn", "addressRegion": "Vorarlberg", "addressCountry": "AT"}, "vatID": "ATU36206707", "areaServed": {"@type": "City", "name": "Dornbirn"}, "acceptsReservations": "https://wirtschaft-dornbirn.at/tischreservierung.html", "specialOpeningHoursSpecification": [{"@type": "OpeningHoursSpecification", "validFrom": "2026-07-24", "validThrough": "2026-08-23", "opens": "00:00", "closes": "00:00", "name": "Sommerpause"}], "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "11:30", "closes": "13:30", "name": "Mittagstisch"}]}
   </script>
@@ -46,12 +46,14 @@
       <a href="tischreservierung.html" data-comment-anchor="50a6574b06-a"><span class="nav-lang">Mittagstisch</span><span class="nav-kurz">Mittag</span></a>
       <a href="takeaway.html">Takeaway</a>
       <a href="feste-catering.html">Locations</a>
+      <a href="agentur.html">Agentur</a>
       <a class="nav-vouchers" href="#go-gutscheine" data-comment-anchor="bf265492b6-a">Gutscheine</a>
     </nav>
     <p class="bar-hours" data-opening-hours>
       <span>Mittagstisch</span>
       <time datetime="Mo-Fr 11:30-13:30">Mo–Fr 11:30–13:30</time>
     </p>
+    <a class="bar-news" id="barNews" href="#go-concept-04" hidden><span>Neu</span><b id="barNewsText"></b></a>
   </header>
 
 
@@ -103,6 +105,17 @@
         </div>
         <a class="scene-imprint" href="#impressum">Impressum</a>
       </div>
+    </section>
+
+    <section class="abend-strip" aria-labelledby="abendTitle">
+      <div class="abend-kopf"><p class="eyebrow">So schaut ein Abend bei uns aus</p><h2 id="abendTitle">Bilder statt Versprechen.</h2></div>
+      <div class="abend-galerie">
+        <img src="assets/abend-01.webp" width="1200" height="750" loading="lazy" decoding="async" alt="Konzertabend mit Buehnenbild und vollem Saal">
+        <img src="assets/abend-02.webp" width="1200" height="750" loading="lazy" decoding="async" alt="Saenger nah an der Buehnenkante">
+        <img src="assets/abend-03.webp" width="1200" height="750" loading="lazy" decoding="async" alt="Duo in rotem Licht auf der Buehne">
+        <img src="assets/abend-04.webp" width="1200" height="750" loading="lazy" decoding="async" alt="Tanzendes Publikum vor der Buehne">
+      </div>
+      <p class="abend-hinweis">Tickets &amp; Zahlung laufen direkt über den Veranstalter – nicht über die Wirtschaft. Der Ticketknopf führt euch immer zum offiziellen Anbieter.</p>
     </section>
 
     <section class="catering-scene" id="foodtruck" data-variant="a" aria-labelledby="truckTitle">
@@ -203,14 +216,31 @@
         <p>Die Bestellung läuft persönlich über uns. Wir melden uns mit den Zahlungsdaten und schicken den Gutschein zum Drucken oder per Post.</p>
       </div>
     </section>
+    <section class="insta-strip" id="instagram" aria-labelledby="instaTitle">
+      <div class="insta-kopf"><div><p class="eyebrow">@wirtschaft_dornbirn</p><h2 id="instaTitle">Zuletzt bei uns.</h2></div>
+        <a class="button button-ghost-dark" href="https://www.instagram.com/wirtschaft_dornbirn/" target="_blank" rel="noopener noreferrer">Auf Instagram folgen ↗</a></div>
+      <div class="insta-grid">
+        <a href="https://www.instagram.com/wirtschaft_dornbirn/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-01.webp" width="600" height="600" loading="lazy" decoding="async" alt="Showabend auf der Buehne"></a>
+        <a href="https://www.instagram.com/wirtschaft_dornbirn/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-02.webp" width="600" height="600" loading="lazy" decoding="async" alt="A-cappella-Gruppe im Scheinwerferlicht"></a>
+        <a href="https://www.instagram.com/wirtschaft_dornbirn/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-03.webp" width="600" height="600" loading="lazy" decoding="async" alt="Publikum feiert vor der Buehne"></a>
+        <a href="https://www.instagram.com/wirtschaft_dornbirn/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-04.webp" width="600" height="600" loading="lazy" decoding="async" alt="Voller Saal beim Konzert"></a>
+        <a href="https://www.instagram.com/wirtschaft_dornbirn/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-05.webp" width="600" height="600" loading="lazy" decoding="async" alt="Saenger im roten Licht"></a>
+        <a href="https://www.instagram.com/wirtschaft_dornbirn/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-06.webp" width="600" height="600" loading="lazy" decoding="async" alt="Konzertmoment von der Seite"></a>
+        <a href="https://www.instagram.com/wirtschaft_dornbirn/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-07.webp" width="600" height="600" loading="lazy" decoding="async" alt="Buehne im blauen Licht"></a>
+        <a href="https://www.instagram.com/wirtschaft_dornbirn/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-08.webp" width="600" height="600" loading="lazy" decoding="async" alt="Band beim Auftritt"></a>
+        <a href="https://www.instagram.com/wirtschaft_dornbirn/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-09.webp" width="600" height="600" loading="lazy" decoding="async" alt="Gaeste beim Abend in der Wirtschaft"></a>
+      </div>
+      <p class="insta-note">Die Bilder liegen auf unserem Server – beim Ansehen fließt nichts an Instagram. Erst der Klick führt zum Profil.</p>
+    </section>
   </main>
+
 
   <footer class="site-footer" id="impressum" data-variant="d">
     <div><img src="assets/wirtschaft-logo.png" width="300" height="69" loading="lazy" decoding="async" alt="Wirtschaft Dornbirn"><p>Wolfgang Preuß · Bahnhofstraße 24 · 6850 Dornbirn</p><a href="tel:+43557220540">+43 (0)5572 20 540</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a></div>
     <div class="partner-block"><img src="assets/emma-eugen-logo.png" width="480" height="339" loading="lazy" decoding="async" alt="Emma &amp; Eugen"><p>Emma &amp; Eugen · Essen, Trinken &amp; Livemusik auf Achse</p><a href="tel:+436642306587">+43 664 230 65 87</a><a href="mailto:Uri@eugen.family">Uri@eugen.family</a><a href="https://www.emmaundeugen.family" target="_blank" rel="noopener noreferrer">www.emmaundeugen.family ↗</a></div>
     <div><a data-route href="https://www.google.com/maps/dir/?api=1&destination=Bahnhofstra%C3%9Fe+24%2C+6850+Dornbirn%2C+%C3%96sterreich" target="_blank" rel="noopener noreferrer">Route öffnen ↗</a></div>
     <div><p>UID ATU 36206707 · FN 329272 z</p><p>Firmenbuchgericht: Landesgericht Feldkirch</p></div>
-    <div class="footer-links"><a href="feste-catering.html">Feste &amp; Catering</a><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a><a href="impressum.html">Impressum</a><a href="tischreservierung.html">Tischreservierung</a></div>
+    <div class="footer-links"><a href="agentur.html">Agentur</a><a href="feste-catering.html">Feste &amp; Catering</a><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a><a href="impressum.html">Impressum</a><a href="tischreservierung.html">Tischreservierung</a></div>
     <p class="prototype-note">Öffentliche Testumgebung · Reservierung und Tickets über offizielle Anbieter</p>
   </footer>
 
@@ -259,7 +289,7 @@
 
 
   <noscript><p class="noscript">Für die Eventübersicht ist JavaScript erforderlich. Die offiziellen Reservierungs- und Ticketlinks bleiben ohne JavaScript erreichbar.</p></noscript>
-  <script src="app.js?v=4693df46" defer></script>
+  <script src="app.js?v=9410fe6e" defer></script>
   <script type="module" src="lunch-abo.js?v=76b2560c"></script>
   <script src="truck-motion.js?v=1fd8e5e9" defer></script>
   <script src="prefetch.js?v=b7ede3be" defer></script>

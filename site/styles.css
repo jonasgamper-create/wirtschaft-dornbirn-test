@@ -1459,3 +1459,35 @@ body{text-transform:lowercase}
 .site-footer[data-variant="d"]{grid-template-columns:1.15fr 1.15fr 1fr 1fr 1fr}
 @media(max-width:1100px){.site-footer[data-variant="d"]{grid-template-columns:1fr 1fr}}
 @media(max-width:640px){.site-footer[data-variant="d"]{grid-template-columns:1fr}}
+
+/* ===== abend-galerie: bilder statt versprechen ===== */
+.abend-strip{padding:12vh max(7vw,70px);background:var(--ink);color:#fff}
+.abend-kopf .eyebrow{color:var(--gold)}
+.abend-kopf h2{max-width:900px;margin:0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:clamp(38px,4.6vw,72px);font-weight:600;line-height:.95;letter-spacing:-.015em}
+.abend-galerie{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:44px}
+.abend-galerie img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;display:block}
+.abend-hinweis{max-width:720px;margin:26px 0 0;padding-top:16px;border-top:1px solid #ffffff26;color:#c9c4bb;font-size:13.5px;line-height:1.6}
+@media(max-width:900px){.abend-strip{padding:80px 24px}.abend-galerie{grid-template-columns:1fr 1fr}}
+
+/* ===== instagram: statisches gitter, kein tracking ===== */
+.insta-strip{padding:12vh max(7vw,70px);background:var(--ink);color:#fff}
+.insta-kopf{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.insta-kopf .eyebrow{color:var(--gold)}
+.insta-kopf h2{margin:0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:clamp(38px,4.6vw,72px);font-weight:600;line-height:.95;letter-spacing:-.015em}
+.insta-kopf .button{color:#fff;border-color:#ffffff66}
+.insta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:44px}
+.insta-grid a{display:block;overflow:hidden}
+.insta-grid img{width:100%;height:100%;aspect-ratio:1/1;object-fit:cover;display:block;transition:transform .35s var(--ease)}
+.insta-grid a:hover img{transform:scale(1.04)}
+.insta-grid a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.insta-note{max-width:720px;margin:22px 0 0;color:#c9c4bb;font-size:13.5px;line-height:1.6}
+@media(max-width:640px){.insta-strip{padding:70px 16px}.insta-grid{gap:5px}}
+
+/* ===== news-chip im kopf: das naechste, das ansteht ===== */
+.bar-news{display:inline-flex;align-items:center;gap:9px;min-height:38px;margin-left:14px;padding:0 14px;border:1px solid #c59b5d59;border-radius:999px;background:#c59b5d1a;color:#f3efe6;text-decoration:none;font-size:11.5px;letter-spacing:.06em;white-space:nowrap}
+.bar-news span{color:var(--gold);font-weight:700;letter-spacing:.14em;text-transform:lowercase}
+.bar-news b{font-weight:600}
+.bar-news:hover{background:#c59b5d33}
+.bar-news:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media(max-width:1100px){.bar-news b{max-width:200px;overflow:hidden;text-overflow:ellipsis}}
+@media(max-width:900px){.bar-news{display:none}}
