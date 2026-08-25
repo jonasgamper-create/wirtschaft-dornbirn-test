@@ -25,7 +25,7 @@
   <link rel="preload" as="image" href="assets/restaurant.webp" imagesrcset="assets/restaurant-800.webp 900w, assets/restaurant.webp 1920w" imagesizes="100vw" fetchpriority="high">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-600-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=6c7b3e0e">
+  <link rel="stylesheet" href="styles.css?v=8095b261">
   <script type="application/ld+json">
 {"@context": "https://schema.org", "@type": "Restaurant", "@id": "https://wirtschaft-dornbirn.at/#restaurant", "name": "Wirtschaft Dornbirn", "legalName": "„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.", "url": "https://wirtschaft-dornbirn.at/", "description": "Mittagstisch, Konzerte, Comedy und Catering in Dornbirn, Vorarlberg.", "telephone": "+43557220540", "email": "willkommen@wirtschaft-dornbirn.at", "image": "https://wirtschaft-dornbirn.at/assets/restaurant.webp", "priceRange": "€€", "servesCuisine": ["Österreichisch", "Saisonal"], "address": {"@type": "PostalAddress", "streetAddress": "Bahnhofstraße 24", "postalCode": "6850", "addressLocality": "Dornbirn", "addressRegion": "Vorarlberg", "addressCountry": "AT"}, "vatID": "ATU36206707", "areaServed": {"@type": "City", "name": "Dornbirn"}, "acceptsReservations": "https://wirtschaft-dornbirn.at/tischreservierung.html", "specialOpeningHoursSpecification": [{"@type": "OpeningHoursSpecification", "validFrom": "2026-07-24", "validThrough": "2026-08-23", "opens": "00:00", "closes": "00:00", "name": "Sommerpause"}], "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "11:30", "closes": "13:30", "name": "Mittagstisch"}]}
   </script>
@@ -43,8 +43,9 @@
     <span class="partner-brand"><img src="assets/emma-eugen-logo.png" width="480" height="339" alt="Emma &amp; Eugen – Essen, Trinken &amp; Livemusik auf Achse"></span>
     <nav class="bar-nav" aria-label="Direkte Wege">
       <a href="#go-concept-04"><span class="nav-lang">Tickets &amp; Events</span><span class="nav-kurz">Events</span></a>
-      <a href="#go-concept-03" data-comment-anchor="50a6574b06-a"><span class="nav-lang">Mittagstisch</span><span class="nav-kurz">Mittag</span></a>
+      <a href="tischreservierung.html" data-comment-anchor="50a6574b06-a"><span class="nav-lang">Mittagstisch</span><span class="nav-kurz">Mittag</span></a>
       <a href="takeaway.html">Takeaway</a>
+      <a href="feste-catering.html">Locations</a>
       <a class="nav-vouchers" href="#go-gutscheine" data-comment-anchor="bf265492b6-a">Gutscheine</a>
     </nav>
     <p class="bar-hours" data-opening-hours>
@@ -104,6 +105,14 @@
       </div>
     </section>
 
+    <section class="catering-scene" id="foodtruck" data-variant="a" aria-labelledby="truckTitle">
+      <div class="catering-truck-lane" aria-hidden="true"><div class="catering-truck-vehicle" data-catering-truck><img class="catering-truck-closed" src="assets/eugen-truck-closed.webp" width="1200" height="683" loading="lazy" decoding="async" alt=""><span class="catering-truck-mark"><img src="assets/emma-eugen.webp" width="900" height="636" loading="lazy" decoding="async" alt=""></span></div></div>
+      <div class="catering-scene-copy"><span class="jump-anchor" id="go-foodtruck" aria-hidden="true"></span><p class="eyebrow">Catering &amp; Livebühne auf Achse</p><h2 id="truckTitle"><span class="name">Emma</span> &amp; <span class="name">Eugen</span><br><em>kommen zu euch.</em></h2><p>Catering für Firmenfest, Hochzeit oder Wunschort – mit dem Foodtruck direkt aus der Wirtschaft, in ganz Vorarlberg.</p></div>
+      <div class="catering-scene-right">
+        <aside class="catering-options" aria-labelledby="cateringOptionsTitle"><p class="eyebrow">Was möglich ist</p><h3 id="cateringOptionsTitle">Euer Anlass.<br>Unser Wagen.</h3><ul><li>Firmenfest &amp; Kulturhaus</li><li>Hochzeit &amp; Geburtstag</li><li>Foodtruck allein oder mit Live-Bühne</li><li>Vor Ort in Vorarlberg</li></ul><a class="button button-dark" href="feste-catering.html?occasion=Foodtruck%20%26%20mobile%20B%C3%BChne">Anfrage stellen ↗</a></aside>
+      </div>
+    </section>
+
     <section class="concept-scene final-chapter chapter-lunch light" id="concept-03" data-variant="c" data-concept="03" data-theme="lunch" data-theme-label="Mittag" data-theme-mood="Frisch · saisonal" data-zoom="in" aria-labelledby="title-03">
       <img class="scene-media parallax-media zoom-media" src="assets/food.webp" srcset="assets/food-800.webp 700w, assets/food.webp 900w" sizes="(max-width:900px) 100vw, 60vw" width="900" height="600" loading="lazy" decoding="async" alt="Gericht aus der Küche der Wirtschaft Dornbirn">
       <div class="media-shade"></div>
@@ -144,14 +153,6 @@
           <div class="lunch-subscribe"><p><strong>Wochenkarte abonnieren</strong><span>Jeden Montag um 7:15 Uhr im Postfach – nur wenn es eine neue Karte gibt. Wir schicken zuerst eine Bestätigungsmail, Abmeldung jederzeit mit einem Klick. <a class="abo-datenschutz" href="datenschutz-sicherheit.html#mittagskarte">Wie wir mit deiner Adresse umgehen</a></span></p><form class="lunch-abo" id="lunchAbo"><label class="lunch-abo-feld" for="lunchAboMail">E-Mail-Adresse<input type="email" id="lunchAboMail" name="email" autocomplete="email" inputmode="email" placeholder="name@beispiel.at" required></label><button class="button button-ghost-dark" type="submit">Abonnieren</button><span class="lunch-abo-status" id="lunchAboStatus" role="status" aria-live="polite"></span></form></div>
         </div>
         <a class="scene-imprint" href="#impressum">Impressum</a>
-      </div>
-    </section>
-
-    <section class="catering-scene" id="foodtruck" data-variant="a" aria-labelledby="truckTitle">
-      <div class="catering-truck-lane" aria-hidden="true"><div class="catering-truck-vehicle" data-catering-truck><img class="catering-truck-closed" src="assets/eugen-truck-closed.webp" width="1200" height="683" loading="lazy" decoding="async" alt=""><span class="catering-truck-mark"><img src="assets/emma-eugen.webp" width="900" height="636" loading="lazy" decoding="async" alt=""></span></div></div>
-      <div class="catering-scene-copy"><span class="jump-anchor" id="go-foodtruck" aria-hidden="true"></span><p class="eyebrow">Catering &amp; Livebühne auf Achse</p><h2 id="truckTitle"><span class="name">Emma</span> &amp; <span class="name">Eugen</span><br><em>kommen zu euch.</em></h2><p>Catering für Firmenfest, Hochzeit oder Wunschort – mit dem Foodtruck direkt aus der Wirtschaft, in ganz Vorarlberg.</p></div>
-      <div class="catering-scene-right">
-        <aside class="catering-options" aria-labelledby="cateringOptionsTitle"><p class="eyebrow">Was möglich ist</p><h3 id="cateringOptionsTitle">Euer Anlass.<br>Unser Wagen.</h3><ul><li>Firmenfest &amp; Kulturhaus</li><li>Hochzeit &amp; Geburtstag</li><li>Foodtruck allein oder mit Live-Bühne</li><li>Vor Ort in Vorarlberg</li></ul><a class="button button-dark" href="feste-catering.html?occasion=Foodtruck%20%26%20mobile%20B%C3%BChne">Anfrage stellen ↗</a></aside>
       </div>
     </section>
 

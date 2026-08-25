@@ -440,11 +440,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .ta-status-link a{font-size:13.5px}
 .ta-status-link small{color:#8f887b;font-size:12px;line-height:1.45}
 
-/* ===== ci-fundament emma & eugen: kleinschreibung als handschrift =====
-   ueberschriften laufen klein. eigennamen behalten ihre grossschreibung
-   ueber <span class="name">. */
-h1,h2,h3{text-transform:lowercase}
-h1 .name,h2 .name,h3 .name{text-transform:none}
+/* ===== ci emma & eugen: kompromisslose kleinschreibung =====
+   die ganze seite laeuft klein - auch eigennamen, wie im wirtschaft-logo.
+   ausgenommen sind nur impressum und datenschutz (legal.css). */
+body{text-transform:lowercase}
 
 /* schwarzer markenkopf mit beiden logos (gilt auch fuer takeaway) */
 .site-head{position:relative;padding-top:14px;padding-bottom:14px}

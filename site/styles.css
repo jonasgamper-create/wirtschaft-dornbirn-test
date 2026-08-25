@@ -1437,11 +1437,10 @@ a{text-decoration-thickness:from-font;text-underline-offset:.18em}
 
 .final-site .experience-bar>p.bar-hours span{display:block}
 
-/* ===== ci-fundament emma & eugen: kleinschreibung als handschrift =====
-   ueberschriften laufen klein. eigennamen behalten ihre grossschreibung
-   ueber <span class="name">. */
-h1,h2,h3{text-transform:lowercase}
-h1 .name,h2 .name,h3 .name{text-transform:none}
+/* ===== ci emma & eugen: kompromisslose kleinschreibung =====
+   die ganze seite laeuft klein - auch eigennamen, wie im wirtschaft-logo.
+   ausgenommen sind nur impressum und datenschutz (legal.css). */
+body{text-transform:lowercase}
 
 /* schwarzer markenkopf: beide haeuser, beide logos weiss auf ink */
 .master-brand,.final-bar .master-brand{width:auto;padding:0;border-radius:0;background:transparent}

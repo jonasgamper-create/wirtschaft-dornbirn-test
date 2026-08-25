@@ -26,11 +26,10 @@
   .header-cta{padding:0 12px;font-size:11px;letter-spacing:.05em}
 }
 
-/* ===== ci-fundament emma & eugen: kleinschreibung als handschrift =====
-   ueberschriften laufen klein. eigennamen behalten ihre grossschreibung
-   ueber <span class="name">. */
-h1,h2,h3{text-transform:lowercase}
-h1 .name,h2 .name,h3 .name{text-transform:none}
+/* ===== ci emma & eugen: kompromisslose kleinschreibung =====
+   die ganze seite laeuft klein - auch eigennamen, wie im wirtschaft-logo.
+   ausgenommen sind nur impressum und datenschutz (legal.css). */
+body{text-transform:lowercase}
 
 /* beide logos weiss auf dem dunklen kopf */
 .brand{background:transparent;padding:0;gap:14px;align-items:center}

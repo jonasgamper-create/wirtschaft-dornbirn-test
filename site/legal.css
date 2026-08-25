@@ -1,3 +1,6 @@
+@font-face{font-family:Montserrat;font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/montserrat-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:Montserrat;font-style:normal;font-weight:600;font-display:swap;src:url("assets/fonts/montserrat-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:Montserrat;font-style:normal;font-weight:700;font-display:swap;src:url("assets/fonts/montserrat-latin-700-normal.woff2") format("woff2")}
 :root {
   --ink: #17130f;
   --paper: #eee8dc;
@@ -16,7 +19,7 @@ body {
   margin: 0;
   color: var(--ink);
   background: var(--paper);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Montserrat, "Helvetica Neue", Arial, sans-serif;
 }
 
 a { color: inherit; text-underline-offset: 3px; }
@@ -234,8 +237,3 @@ a:not([class]),.footer-links a,footer a{display:inline-flex;align-items:center}
 @media(max-width:900px){a:not([class]),.footer-links a,footer a,button{min-height:44px}}
 .legal-tap-fix{display:none}
 
-/* ===== ci-fundament emma & eugen: kleinschreibung als handschrift =====
-   ueberschriften laufen klein. eigennamen behalten ihre grossschreibung
-   ueber <span class="name">. */
-h1,h2,h3{text-transform:lowercase}
-h1 .name,h2 .name,h3 .name{text-transform:none}
