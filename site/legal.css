@@ -83,7 +83,7 @@ a:focus-visible {
 h1 {
   max-width: 960px;
   margin: 0;
-  font-family: Georgia, serif;
+  font-family: Montserrat, "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(52px, 9vw, 118px);
   font-weight: 400;
   letter-spacing: -.065em;
@@ -114,7 +114,7 @@ h1 em { color: var(--wine); font-weight: 400; }
 
 .summary article:last-child { border-right: 0; }
 .summary span { color: var(--wine); font-size: 12px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
-.summary strong { display: block; margin-top: 55px; font-family: Georgia, serif; font-size: 27px; font-weight: 400; }
+.summary strong { display: block; margin-top: 55px; font-family: Montserrat, "Helvetica Neue", Arial, sans-serif; font-size: 27px; font-weight: 400; }
 .summary p { margin: 9px 0 0; font-size: 13px; line-height: 1.55; }
 
 .toc {
@@ -154,7 +154,7 @@ h1 em { color: var(--wine); font-weight: 400; }
 
 .legal-card.wide { grid-column: 1 / -1; }
 .legal-card.notice { border-left: 4px solid var(--gold); background: #fffaf0; }
-.legal-card h2 { margin: 0 0 20px; font-family: Georgia, serif; font-size: clamp(28px, 4vw, 42px); font-weight: 400; letter-spacing: -.035em; }
+.legal-card h2 { margin: 0 0 20px; font-family: Montserrat, "Helvetica Neue", Arial, sans-serif; font-size: clamp(28px, 4vw, 42px); font-weight: 400; letter-spacing: -.035em; }
 .legal-card h3 { margin: 28px 0 8px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
 .legal-card p,
 .legal-card li,
@@ -233,3 +233,9 @@ a,button{min-height:28px}
 a:not([class]),.footer-links a,footer a{display:inline-flex;align-items:center}
 @media(max-width:900px){a:not([class]),.footer-links a,footer a,button{min-height:44px}}
 .legal-tap-fix{display:none}
+
+/* ===== ci-fundament emma & eugen: kleinschreibung als handschrift =====
+   ueberschriften laufen klein. eigennamen behalten ihre grossschreibung
+   ueber <span class="name">. */
+h1,h2,h3{text-transform:lowercase}
+h1 .name,h2 .name,h3 .name{text-transform:none}

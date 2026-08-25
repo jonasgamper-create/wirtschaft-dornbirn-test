@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-e9IP8q6taDTHcc+irAeuiE8aM6ZGmLttPeKBWuIDlbM='; script-src 'sha256-fLNdMaNenMSrn7e99FZiCu+l98sl8lOTfbQGdb2rX0s='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-NXsnKeVVOIifdpWKldSBSF4KLaONugknNdskkKnFJSI='; script-src 'sha256-fLNdMaNenMSrn7e99FZiCu+l98sl8lOTfbQGdb2rX0s='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#11110f">
   <title>Übersicht · Wirtschaft Dornbirn</title>
@@ -14,7 +14,7 @@
 :root{
   --ink:#11110f;--paper:#f3efe6;--cream:#ead9bc;--wine:#8c292b;--green:#244635;--gold:#c59b5d;
   --muted:#57524a;--linie:#11110f26;
-  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   color-scheme:light
 }
 *{box-sizing:border-box}
@@ -33,17 +33,17 @@ button:focus-visible,a:focus-visible,label:focus-within{outline:3px solid var(--
 main{width:min(680px,100%);margin:0 auto;padding:0 max(18px,4vw) 64px}
 section{padding:26px 0;border-top:1px solid var(--linie)}
 section:first-child{border-top:0}
-h1,h2{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:0}
+h1,h2{font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-weight:400;margin:0}
 h2{font-size:24px;margin-bottom:6px}
-.vorzeile{margin:0 0 8px;color:var(--green);font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.vorzeile{margin:0 0 8px;color:var(--green);font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:lowercase}
 .hinweis{margin:0 0 14px;color:var(--muted);font-size:14.5px}
 
 /* Die drei Zahlen des Mittags: erwartet, im Haus, frei. Sie sind das Erste,
    was man sieht - und meistens das Einzige, was man wissen muss. */
 .zahlen{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:18px 0 22px}
 .kachel{display:grid;gap:2px;padding:16px 14px;border:1px solid var(--linie);border-radius:12px;background:#fff}
-.kachel b{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:clamp(30px,8vw,44px);line-height:1;font-variant-numeric:tabular-nums}
-.kachel span{color:var(--muted);font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.kachel b{font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-weight:400;font-size:clamp(30px,8vw,44px);line-height:1;font-variant-numeric:tabular-nums}
+.kachel span{color:var(--muted);font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:lowercase}
 .kachel small{color:var(--muted);font-size:12.5px;min-height:1.2em}
 
 /* Rueckgaengig statt Warndialog: der Balken erscheint nach dem Leeren. */
@@ -55,7 +55,7 @@ h2{font-size:24px;margin-bottom:6px}
 
 /* Telefonische Reservierung: vier Felder, fertig. */
 .neu-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px;padding:14px;border:1px solid var(--linie);border-radius:12px;background:#fff}
-.neu-form label{display:grid;gap:5px;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.neu-form label{display:grid;gap:5px;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:lowercase;color:var(--muted)}
 .neu-form input{min-height:48px;padding:8px 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;color:var(--ink);font-size:17px;font-weight:400;letter-spacing:0;text-transform:none}
 .neu-form .neu-knoepfe{grid-column:1/-1;display:flex;gap:10px}
 .neu-form[hidden]{display:none}
@@ -88,7 +88,7 @@ h2{font-size:24px;margin-bottom:6px}
 .haus-liste .wer span{color:var(--muted);font-size:13px}
 .haus-liste .leer{border-style:dashed;background:transparent;color:var(--muted);justify-content:flex-start;font-size:14.5px}
 
-.knopf{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border:1px solid var(--green);border-radius:999px;background:var(--green);color:#fff;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;cursor:pointer}
+.knopf{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border:1px solid var(--green);border-radius:999px;background:var(--green);color:#fff;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:lowercase;text-decoration:none;cursor:pointer}
 .knopf.leise{background:transparent;color:var(--ink);border-color:var(--linie)}
 /* [hidden] verliert gegen display:inline-flex der Klassenregel - dieselbe
    Falle wie beim Anrufknopf der Gaesteseite. Einmal explizit, nie wieder raten. */
@@ -98,7 +98,7 @@ h2{font-size:24px;margin-bottom:6px}
 /* Eingeklappte Werkzeuge: Karte und Takeaway-Karte brauchen den Platz nur,
    wenn man sie wirklich in der Hand hat. */
 .werkzeug{padding:16px 0;border-top:1px solid var(--linie)}
-.werkzeug summary{min-height:44px;display:flex;align-items:center;font-family:Georgia,"Times New Roman",serif;font-size:20px;cursor:pointer}
+.werkzeug summary{min-height:44px;display:flex;align-items:center;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:20px;cursor:pointer}
 .werkzeug[open] summary{margin-bottom:10px}
 .werkzeug textarea{width:100%;min-height:120px;margin:0 0 10px;padding:10px 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;font:inherit;font-size:14.5px;line-height:1.5;resize:vertical}
 
@@ -108,7 +108,7 @@ h2{font-size:24px;margin-bottom:6px}
 .zettel-liste{display:grid;gap:2px;margin:0 0 12px;padding:0;list-style:none}
 .zettel-liste li{display:grid;grid-template-columns:3.2rem minmax(0,1fr);align-items:baseline;gap:2px 12px;padding:9px 0;border-top:1px solid var(--linie)}
 .zettel-liste li:first-child{border-top:0}
-.zettel-liste .zettel-zahl{grid-row:span 2;font-family:Georgia,"Times New Roman",serif;font-size:27px;line-height:1;font-variant-numeric:tabular-nums}
+.zettel-liste .zettel-zahl{grid-row:span 2;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:27px;line-height:1;font-variant-numeric:tabular-nums}
 .zettel-liste b{font-size:15px;font-weight:700;line-height:1.35}
 .zettel-liste small{color:var(--muted);font-size:12.5px;line-height:1.4}
 
@@ -120,13 +120,13 @@ h2{font-size:24px;margin-bottom:6px}
 .fertig-wahl .knopf[aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green)}
 /* Steht der Knopf woanders, bleibt der Platz nicht leer: die Kueche muss
    sehen, was fertig ist, auch wenn sie es nicht selbst umschaltet. */
-.knopf-ersatz{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 14px;color:#6d675d;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.knopf-ersatz{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 14px;color:#6d675d;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:lowercase;white-space:nowrap}
 .sms-schalter{display:flex;align-items:center;gap:12px;min-height:48px;margin:0 0 8px;font-size:15px;cursor:pointer}
 .sms-schalter input{width:26px;height:26px;flex:0 0 auto;accent-color:var(--green)}
 
 /* Die Kuechenansicht teilt das Stilblatt der Wirt-Ansicht, hat aber keinen
    Logo-Kopf - am Herd zaehlt die Liste, nicht die Marke. */
-.kueche-marke{margin:0;color:var(--green);font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.kueche-marke{margin:0;color:var(--green);font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:lowercase}
 .kueche-seite .haus-liste li{padding:14px 16px}
 .kueche-seite .haus-liste .wer b{font-size:17px}
 .kueche-seite .haus-liste .knopf{min-height:56px;padding:0 24px;font-size:13.5px}
@@ -161,7 +161,7 @@ h2{font-size:24px;margin-bottom:6px}
 .blatt-kopf span{display:block;margin-top:2px;color:var(--muted);font-size:13.5px}
 .blatt-notiz{margin:10px 0 0;padding:10px 12px;border-left:2px solid var(--gold,#c59b5d);background:#c59b5d1c;color:#5b451d;font-size:14px}
 .blatt-teil{margin-top:16px}
-.blatt-teil h3{margin:0 0 8px;font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.blatt-teil h3{margin:0 0 8px;font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:lowercase;color:var(--muted)}
 .blatt-tische{display:flex;flex-wrap:wrap;gap:8px}
 .blatt-tische button{min-height:46px;padding:0 14px;border:1px solid var(--linie);border-radius:999px;background:#fff;color:var(--ink);font:inherit;font-size:14.5px;cursor:pointer}
 .blatt-tische button:hover{border-color:var(--green)}
@@ -183,7 +183,7 @@ h2{font-size:24px;margin-bottom:6px}
 .event-wann{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
 .event-was{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .event-form{display:grid;gap:10px}
-.event-form label{display:grid;gap:5px;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.event-form label{display:grid;gap:5px;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:lowercase}
 .event-form input{min-height:46px;padding:10px 12px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none}
 .event-form-zeile{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:560px){.event-form-zeile{grid-template-columns:1fr}}
@@ -191,10 +191,10 @@ h2{font-size:24px;margin-bottom:6px}
 /* ---- Uebersichtsseite ------------------------------------------------------ */
 .uebersicht-seite .zahlen{grid-template-columns:repeat(4,1fr)}
 @media(max-width:700px){.uebersicht-seite .zahlen{grid-template-columns:1fr 1fr}}
-.uebersicht-seite .marke{margin:0;color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.uebersicht-seite .marke{margin:0;color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:lowercase}
 .uebersicht-seite h1{margin:2px 0 0;font-size:clamp(22px,3vw,30px);letter-spacing:-.02em}
 /* Kein Zuklappen auf einer Seite, die nur zum Anschauen da ist. */
-.werkzeug.offen-immer h2{margin:0 0 12px;font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.werkzeug.offen-immer h2{margin:0 0 12px;font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:lowercase}
 .aufgaben-liste{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .aufgaben-liste li{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 14px;border:1px solid #c59b5d66;border-radius:10px;background:#c59b5d14}
 .aufgaben-liste li.leer{border-color:#11110f1f;background:#fff;color:#8f887b;border-style:dashed}
@@ -217,7 +217,7 @@ h2{font-size:24px;margin-bottom:6px}
 
 /* ---- Tische & Stuehle ueber Anzahlen --------------------------------------- */
 .bestand-liste{display:grid;gap:14px;margin:0 0 14px}
-.bestand-etage h4{margin:0 0 8px;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.bestand-etage h4{margin:0 0 8px;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:lowercase;color:var(--muted)}
 .bestand-leer{margin:0;color:#8f887b;font-size:14px}
 .bestand-zeile{display:grid;grid-template-columns:minmax(0,1fr) 52px 56px 52px;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #11110f14}
 .bestand-zeile span{font-size:16px}
@@ -226,7 +226,7 @@ h2{font-size:24px;margin-bottom:6px}
 .bestand-zeile button{min-height:52px;border:1px solid #11110f3d;border-radius:10px;background:#fff;color:var(--ink);font-size:22px;line-height:1;cursor:pointer}
 .bestand-zeile button:active{background:#11110f0a}
 .bestand-neu{display:flex;align-items:end;gap:10px;margin:4px 0 10px}
-.bestand-neu label{display:grid;gap:5px;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.bestand-neu label{display:grid;gap:5px;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:lowercase}
 .bestand-neu select{min-height:46px;padding:8px 10px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:16px}
 
 
@@ -245,7 +245,7 @@ h2{font-size:24px;margin-bottom:6px}
 .ordnung.aktiv span{color:#dfe8e1}
 .ordnung-weg{align-self:center}
 .ordnung-neu{display:flex;align-items:end;gap:10px;margin-top:4px}
-.ordnung-neu label{flex:1;display:grid;gap:5px;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.ordnung-neu label{flex:1;display:grid;gap:5px;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:lowercase}
 .ordnung-neu input{min-height:46px;padding:10px 12px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none}
 .etage-kopf{display:flex;gap:10px;align-items:center;margin:0 0 6px}
 .etage-kopf input{flex:1;min-height:46px;padding:8px 12px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:16px;font-weight:700}
@@ -253,12 +253,12 @@ h2{font-size:24px;margin-bottom:6px}
 .groesse-neu select{min-height:46px;padding:8px 10px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:15px}
 .betrieb-zeilen{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:560px){.betrieb-zeilen{grid-template-columns:1fr}}
-.betrieb-zeilen label{display:grid;gap:6px;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.betrieb-zeilen label{display:grid;gap:6px;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:lowercase}
 .betrieb-zeilen select{min-height:52px;padding:8px 12px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none}
 
 /* ---- Zusperren ------------------------------------------------------------- */
 .zu-form{display:flex;align-items:end;gap:10px;margin:0 0 12px}
-.zu-form label{display:grid;gap:5px;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.zu-form label{display:grid;gap:5px;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:lowercase}
 .zu-form input{min-height:46px;padding:8px 12px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:16px}
 .zu-liste{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:8px}
 .zu-liste li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border:1px dashed #11110f3d;border-radius:10px;background:#11110f05;color:#57524a}

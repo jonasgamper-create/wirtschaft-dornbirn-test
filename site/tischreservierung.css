@@ -1,10 +1,10 @@
-@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/inter-latin-400-normal.woff2") format("woff2")}
-@font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url("assets/fonts/inter-latin-600-normal.woff2") format("woff2")}
-@font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:swap;src:url("assets/fonts/inter-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:Montserrat;font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/montserrat-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:Montserrat;font-style:normal;font-weight:600;font-display:swap;src:url("assets/fonts/montserrat-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:Montserrat;font-style:normal;font-weight:700;font-display:swap;src:url("assets/fonts/montserrat-latin-700-normal.woff2") format("woff2")}
 :root{
   --ink:#11110f;--paper:#f3efe6;--cream:#ead9bc;--wine:#8c292b;--green:#244635;--gold:#c59b5d;
   --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  --serif:Georgia,"Times New Roman",serif;
+  --serif:Montserrat,"Helvetica Neue",Arial,sans-serif;
   --t-label:12.5px;--t-meta:14.5px;--t-listitem:18px;--t-body:17.5px;
   --content:1060px;--gutter:clamp(20px,6vw,132px);
   --s-section:clamp(56px,7vw,96px);--s-block:32px;--s-para:18px;
@@ -31,11 +31,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* 44 px Tapziel auch fuer das Logo - es ist ein Link zur Startseite. */
 .site-head>a{display:inline-flex;align-items:center;min-height:44px}
 .site-head img{display:block;width:170px;height:auto}
-.back-link{display:inline-flex;align-items:center;min-height:44px;color:var(--ink);font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase;text-decoration:none;text-underline-offset:5px}
+.back-link{display:inline-flex;align-items:center;min-height:44px;color:var(--ink);font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase;text-decoration:none;text-underline-offset:5px}
 .back-link:hover{text-decoration:underline}
 
-.eyebrow{margin:0 0 var(--s-para);color:var(--green);font-size:var(--t-label);font-weight:700;letter-spacing:.16em;text-transform:uppercase}
-.button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 20px;border:1px solid currentColor;border-radius:999px;background:transparent;text-decoration:none;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase;transition:transform .18s ease-out;cursor:pointer}
+.eyebrow{margin:0 0 var(--s-para);color:var(--green);font-size:var(--t-label);font-weight:700;letter-spacing:.16em;text-transform:lowercase}
+.button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 20px;border:1px solid currentColor;border-radius:999px;background:transparent;text-decoration:none;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase;transition:transform .18s ease-out;cursor:pointer}
 .button:hover{transform:translateY(-3px)}
 .button:active{transform:scale(.975)}
 .button-green{background:var(--green);color:#fff;border-color:var(--green)}
@@ -53,24 +53,24 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 .menu-card{position:relative;width:100%;padding:18px 16px 16px;background:#fff;border:1px solid #11110f26}
 .menu-card:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--green)}
-.menu-card-kicker{margin:0 0 10px;color:var(--green);font-size:var(--t-label);font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.menu-card-kicker{margin:0 0 10px;color:var(--green);font-size:var(--t-label);font-weight:700;letter-spacing:.14em;text-transform:lowercase}
 .menu-card-body{display:grid;gap:10px}
 .menu-card-note{margin:0;color:#57524a;font-size:var(--t-meta);line-height:1.5}
 .menu-day{display:grid;gap:3px;padding-top:9px;border-top:1px solid #11110f1a}
 .menu-day:first-child{padding-top:0;border-top:0}
-.menu-day b{font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#57524a}
+.menu-day b{font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase;color:#57524a}
 .menu-day span{font-size:var(--t-meta);line-height:1.45}
 /* Live-Gerichte: Name links, Preis rechts - wie auf der gedruckten Karte. */
 .menu-day.gericht{display:flex;justify-content:space-between;gap:12px}
 .menu-day.gericht .gericht-preis{color:#57524a;font-variant-numeric:tabular-nums;white-space:nowrap}
-.menu-card-link{display:inline-flex;align-items:center;min-height:44px;margin-top:6px;color:var(--green);font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase;text-underline-offset:5px}
+.menu-card-link{display:inline-flex;align-items:center;min-height:44px;margin-top:6px;color:var(--green);font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase;text-underline-offset:5px}
 
 .section{padding-top:var(--s-section);padding-bottom:var(--s-section);border-top:1px solid #11110f1f}
 .section h2{font-size:clamp(30px,3.4vw,46px);line-height:1.06;letter-spacing:-.03em;max-width:22ch}
 .section .sub{max-width:52ch;margin:var(--s-para) 0 0;color:#57524a;font-size:var(--t-meta);line-height:1.55}
 .form-section{background:var(--cream)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:720px;margin-top:var(--s-block);align-items:start}
-.grid label{display:grid;gap:8px;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.grid label{display:grid;gap:8px;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase}
 /* "wide" gilt fuer jedes Kind der Spaltenordnung - nicht nur fuer Labels.
    Die Gerichtekarte des Takeaways sass sonst in einer halben Spalte. */
 .grid .wide{grid-column:1/-1}
@@ -97,9 +97,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    war. Zwei Wege zum selben Ziel sind einer zu viel. */
 .button[hidden],.contact-field[hidden]{display:none}
 .contact-field{display:grid;gap:12px;grid-column:1/-1;padding:18px;border:1px solid #11110f24;border-radius:8px;background:#ffffff5c}
-.contact-field label{display:grid;gap:8px;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.contact-field label{display:grid;gap:8px;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase}
 .contact-field input[type="email"],.contact-field input[type="tel"]{width:100%;min-height:48px;padding:12px 14px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none}
-.contact-lead{margin:0;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.contact-lead{margin:0;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase}
 .contact-lead span{display:block;margin-top:4px;color:#57524a;font-weight:400;letter-spacing:0;text-transform:none;font-size:var(--t-meta)}
 .contact-note{margin:0;color:#57524a;font-size:var(--t-meta);line-height:1.5;max-width:56ch}
 .contact-field .contact-check{display:flex;align-items:flex-start;gap:10px;padding-top:12px;border-top:1px solid #11110f1a;font-weight:400;letter-spacing:0;text-transform:none}
@@ -116,7 +116,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .contact-field .wunsch-feld{grid-column:1/-1}
 .contact-field .wunsch-feld input{width:100%;min-height:48px;padding:12px 14px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none}
 .lunch-live{margin-top:var(--s-block);padding:22px 24px;border:1px solid #11110f24;background:#ffffff5c;max-width:720px}
-.lunch-live-kicker{margin:0 0 6px;color:var(--green);font-size:var(--t-label);font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.lunch-live-kicker{margin:0 0 6px;color:var(--green);font-size:var(--t-label);font-weight:700;letter-spacing:.14em;text-transform:lowercase}
 .lunch-live h3{margin:0 0 8px;font-size:clamp(24px,3vw,30px);line-height:1.1}
 .lunch-live-note{margin:0 0 16px;color:#57524a;font-size:var(--t-meta);line-height:1.5;max-width:52ch}
 .lunch-live-stand{display:block;margin-top:12px;color:#57524a;font-size:var(--t-label);letter-spacing:0;text-transform:none}
@@ -148,7 +148,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .site-footer img{width:155px;height:auto;margin-bottom:16px}
 .site-footer p{margin:5px 0}
 .site-footer a{display:flex;align-items:center;min-height:28px;padding:3px 0;color:var(--ink);text-decoration:underline;text-underline-offset:4px}
-.prototype-note{grid-column:1/-1;margin-top:var(--s-block)!important;padding-top:var(--s-block);border-top:1px solid #11110f26;color:#57524a;font-size:var(--t-label);letter-spacing:.1em;text-transform:uppercase}
+.prototype-note{grid-column:1/-1;margin-top:var(--s-block)!important;padding-top:var(--s-block);border-top:1px solid #11110f26;color:#57524a;font-size:var(--t-label);letter-spacing:.1em;text-transform:lowercase}
 
 @media(max-width:760px){
   .site-footer{grid-template-columns:1fr}
@@ -190,11 +190,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* Der Beleg des Gastes. Ruhig und klar - er wird gelesen, wenn jemand gerade
    erleichtert ist, nicht ueberflogen. */
 .booking-done{margin:22px 0 0;padding:22px 24px;border:1px solid var(--green,#244635);border-radius:14px;background:#e8f0ea;max-width:56ch}
-.booking-done .done-kicker{margin:0;color:var(--green,#244635);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.booking-done .done-kicker{margin:0;color:var(--green,#244635);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:lowercase}
 .booking-done h3{margin:6px 0 16px;font-size:24px;font-weight:400}
 .booking-done dl{display:grid;gap:10px;margin:0 0 18px}
 .booking-done dl div{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;align-items:baseline}
-.booking-done dt{color:var(--muted,#6d675f);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.booking-done dt{color:var(--muted,#6d675f);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:lowercase}
 .booking-done dd{margin:0;font-size:16px;font-weight:700}
 .booking-done .done-note{margin:16px 0 0;color:#3c3833;font-size:13.5px;line-height:1.55}
 @media(max-width:560px){.booking-done dl div{grid-template-columns:1fr;gap:2px}}
@@ -236,7 +236,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    was ihn ohnehin richtig einordnet: erst die Frage "gleich oder spaeter",
    dann die Uhrzeiten. */
 .slots button[data-abholung="sofort"]{flex:1 1 100%}
-.ta-feld-titel{margin:0 0 12px;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.ta-feld-titel{margin:0 0 12px;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase}
 .ta-feld-titel label{cursor:pointer}
 /* Der Abholtag: ein leeres Datumsfeld in voller Breite. Volle Breite, weil
    die Flaeche selbst die Einladung ist - ein schmales Feld mit winzigem
@@ -377,7 +377,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .ta-status[data-stufe="fertig"] .ta-status-link small{color:#c3d2c7}
 /* Die Nummer: gross, mit Ziffern gleicher Breite, damit sie beim Wechsel
    nicht springt. Sie steht ueber beide Zeilen rechts. */
-.ta-status-nr{grid-column:2;grid-row:1/3;justify-self:end;font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:clamp(46px,12vw,64px);line-height:.86;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ta-status-nr{grid-column:2;grid-row:1/3;justify-self:end;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-weight:400;font-size:clamp(46px,12vw,64px);line-height:.86;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .ta-status-nr[hidden]{display:none}
 /* Nur fuer Vorlesegeraete. Dieselbe Regel wie in styles.css - die Takeaway-
    Seite laedt jenes Stilblatt nicht, braucht sie hier also noch einmal. */
@@ -439,3 +439,17 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .ta-status-link{margin:12px 0 0;display:grid;gap:2px}
 .ta-status-link a{font-size:13.5px}
 .ta-status-link small{color:#8f887b;font-size:12px;line-height:1.45}
+
+/* ===== ci-fundament emma & eugen: kleinschreibung als handschrift =====
+   ueberschriften laufen klein. eigennamen behalten ihre grossschreibung
+   ueber <span class="name">. */
+h1,h2,h3{text-transform:lowercase}
+h1 .name,h2 .name,h3 .name{text-transform:none}
+
+/* schwarzer markenkopf mit beiden logos (gilt auch fuer takeaway) */
+.site-head{position:relative;padding-top:14px;padding-bottom:14px}
+.site-head::before{content:"";position:absolute;z-index:-1;inset:0 calc(50% - 50vw);background:#11110f}
+.site-head>a[aria-label] img,.brand-row>a img{filter:invert(1) brightness(1.55)}
+.brand-row{display:flex;align-items:center;gap:16px}
+.brand-row .partner-logo{width:58px;height:auto}
+.site-head .back-link{color:#f3efe6}

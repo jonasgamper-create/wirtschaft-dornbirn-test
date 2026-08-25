@@ -1,0 +1,11 @@
+Montserrat
+Copyright 2011 The Montserrat Project Authors
+(https://github.com/JulietaUla/Montserrat)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is available with a FAQ at: https://openfontlicense.org
+
+Die Dateien montserrat-latin-*.woff2 sind lateinische Subsets der
+Originalschnitte Light (300), Regular (400), Medium (500), SemiBold (600),
+Bold (700) und Black (900), erzeugt mit fonttools/pyftsubset.
+Selbst gehostet - es erfolgt keine Anfrage an Dritt-Server.
