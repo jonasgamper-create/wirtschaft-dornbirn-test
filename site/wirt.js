@@ -8,10 +8,10 @@ import {
   apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeKuechenzettel, holeStand, karteAdresse,
   leereTag, legeEinfach, loescheKarte, schluesselAusAdresse, sendeAktion, sendePlan,
   sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
-  holeEigeneEvents, holeGeschlossen, legeEigenesEvent, loescheEigenesEvent, sageTagAb, sendeTischsperre, setzeTagZu,
+  holeEigeneEvents, holeGeschlossen, holeOeffnung, legeEigenesEvent, loescheEigenesEvent, sageTagAb, sendeTischsperre, setzeOeffnung, setzeTagZu,
   setzeFertigWer,
   stelleTagWiederHer
-} from './haus-api.js?v=752006e7';
+} from './haus-api.js?v=92aa5302';
 import { buildFloorplan } from './floorplan-layout.mjs?v=8cd1fbb4';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=ec7c8e39';
@@ -71,6 +71,7 @@ async function start() {
   verdrahteEigeneEvents();
   verdrahteSperren();
   verdrahteZu();
+  verdrahteOeffnung();
   verdrahteBestand();
 }
 
@@ -1101,6 +1102,33 @@ async function maleZu() {
     li.append(wann, auf);
     liste.append(li);
   }
+}
+
+// Die Oeffnungszeiten-Karte: zwei Zeiten, ein Speichern. Der Dienst haelt
+// die Leitplanken (Raster, Rahmen, Mindestdauer) - hier wird nur gemeldet,
+// was er dazu sagt.
+async function verdrahteOeffnung() {
+  const form = byId('oeffnungForm');
+  if (!form) return;
+  const stand = await holeOeffnung();
+  if (stand?.ok) {
+    byId('oeffnungVon').value = stand.von;
+    byId('oeffnungBis').value = stand.bis;
+  }
+  form.addEventListener('submit', async ereignis => {
+    ereignis.preventDefault();
+    const antwort = await setzeOeffnung(hausToken(), byId('oeffnungVon').value, byId('oeffnungBis').value);
+    if (!antwort?.ok) {
+      const gruende = {
+        raster: 'Bitte volle Viertelstunden wählen (z. B. 11:15).',
+        rahmen: 'Das Fenster muss zwischen 10:00 und 16:00 liegen.',
+        'zu-kurz': 'Mindestens eine Stunde – sonst wäre der Mittag keiner.',
+        format: 'Bitte beide Zeiten angeben.'
+      };
+      return sag('oeffnungInfo', gruende[antwort?.grund] || 'Das hat nicht geklappt.', 'fehler');
+    }
+    sag('oeffnungInfo', `Gespeichert: Mo–Fr ${antwort.von}–${antwort.bis}. Steht ab sofort so auf der Webseite.`, 'gut');
+  });
 }
 
 function verdrahteZu() {

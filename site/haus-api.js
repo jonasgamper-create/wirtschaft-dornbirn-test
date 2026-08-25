@@ -261,6 +261,11 @@ export const sendePlan = (token, koerper) => ruf('/api/plan', { methode: 'POST',
 export const setzeTagZu = (token, datum, zu) =>
   ruf('/api/tag/zu', { methode: 'POST', koerper: { datum, zu }, token });
 
+/** Das Mittagsfenster, wie es auf der Gaesteseite steht. Lesen darf jeder. */
+export const holeOeffnung = () => ruf('/api/oeffnung');
+export const setzeOeffnung = (token, von, bis) =>
+  ruf('/api/oeffnung', { methode: 'POST', koerper: { von, bis }, token });
+
 /** Den ganzen Mittag absagen: Mails an alle Gaeste, Anrufliste fuer den Rest. */
 export const sageTagAb = (token, tag, grund) =>
   ruf('/api/aktion', { methode: 'POST', koerper: { art: 'tagesabsage', tag, grund }, token });
