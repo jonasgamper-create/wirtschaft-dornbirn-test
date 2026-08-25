@@ -25,7 +25,7 @@
   <link rel="preload" as="image" href="assets/restaurant.webp" imagesrcset="assets/restaurant-800.webp 900w, assets/restaurant.webp 1920w" imagesizes="100vw" fetchpriority="high">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-600-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=ee6ab56a">
+  <link rel="stylesheet" href="styles.css?v=1c12d851">
   <script type="application/ld+json">
 {"@context": "https://schema.org", "@type": "Restaurant", "@id": "https://wirtschaft-dornbirn.at/#restaurant", "name": "Wirtschaft Dornbirn", "legalName": "„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.", "url": "https://wirtschaft-dornbirn.at/", "description": "Mittagstisch, Konzerte, Comedy und Catering in Dornbirn, Vorarlberg.", "telephone": "+43557220540", "email": "willkommen@wirtschaft-dornbirn.at", "image": "https://wirtschaft-dornbirn.at/assets/restaurant.webp", "priceRange": "€€", "servesCuisine": ["Österreichisch", "Saisonal"], "address": {"@type": "PostalAddress", "streetAddress": "Bahnhofstraße 24", "postalCode": "6850", "addressLocality": "Dornbirn", "addressRegion": "Vorarlberg", "addressCountry": "AT"}, "vatID": "ATU36206707", "areaServed": {"@type": "City", "name": "Dornbirn"}, "acceptsReservations": "https://wirtschaft-dornbirn.at/tischreservierung.html", "specialOpeningHoursSpecification": [{"@type": "OpeningHoursSpecification", "validFrom": "2026-07-24", "validThrough": "2026-08-23", "opens": "00:00", "closes": "00:00", "name": "Sommerpause"}], "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "11:30", "closes": "13:30", "name": "Mittagstisch"}]}
   </script>
@@ -42,9 +42,14 @@
     </a>
     <span class="partner-brand"><img src="assets/emma-eugen-logo.png" width="480" height="339" alt="Emma &amp; Eugen – Essen, Trinken &amp; Livemusik auf Achse"></span>
     <nav class="bar-nav" aria-label="Direkte Wege">
-      <a href="#go-concept-04"><span class="nav-lang">Tickets &amp; Events</span><span class="nav-kurz">Events</span></a>
-      <a href="https://tischreservierung.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer" data-comment-anchor="50a6574b06-a"><span class="nav-lang">Mittagstisch</span><span class="nav-kurz">Mittag</span></a>
-      <a href="https://lieferservice.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Takeaway</a>
+      <a href="events.html"><span class="nav-lang">Tickets &amp; Events</span><span class="nav-kurz">Events</span></a>
+      <div class="nav-drop" data-comment-anchor="50a6574b06-a">
+        <button type="button" id="navMittag" aria-expanded="false" aria-controls="navMittagMenu">Mittag <span class="drop-pfeil" aria-hidden="true">▾</span></button>
+        <div class="nav-drop-menu" id="navMittagMenu" hidden>
+          <a href="https://tischreservierung.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Mittagstisch</a>
+          <a href="https://lieferservice.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Takeaway</a>
+        </div>
+      </div>
       <a href="feste-catering.html">Locations</a>
       <a href="agentur.html">Agentur</a>
       <a class="nav-vouchers" href="#go-gutscheine" data-comment-anchor="bf265492b6-a">Gutscheine</a>
@@ -72,7 +77,7 @@
         <h1 id="prologueTitle">Wo <span class="name">Dornbirn</span><br>zämmahockt.</h1>
         <p>Restaurant und Livebühne in Dornbirn: mittags frisch gekocht, abends Konzert und Comedy. Bahnhofstraße 24.</p>
         <div class="prologue-actions">
-          <a class="button button-light" href="#go-concept-04">Termine &amp; Tickets</a>
+          <a class="button button-light" href="events.html">Termine &amp; Tickets</a>
         </div>
         <p class="hero-second"><a href="#go-concept-03">Mittagstisch</a></p>
       </div>
@@ -86,22 +91,7 @@
           <span class="jump-anchor" id="go-concept-04" aria-hidden="true"></span><p class="eyebrow">Abends in Dornbirn · Programm</p>
           <h2 id="title-04">Euer Abend<br>steht schon.</h2>
           <p>Abends öffnen wir für Events: Dinner, Konzert oder Comedy. Datum wählen, Platz sichern, zämmahocka.</p>
-          <div class="scene-actions"><button class="button button-warm" type="button" data-open="tickets">Termine &amp; Tickets</button></div>
-        </div>
-        <div class="event-spotlight" id="eventSpotlight" aria-label="Nächste Events">
-          <article><time datetime="2026-09-03"><b>03</b><span>SEP</span></time><div><strong>Genussroute 6850</strong><small>Donnerstag · Dornbirner Genussabend</small></div><a class="event-ticket-link" href="https://wirtschaft-dornbirn.at/event/genussroute-2026/" target="_blank" rel="noopener noreferrer">Tickets ↗</a></article>
-          <article><time datetime="2026-09-22"><b>22</b><span>SEP</span></time><div><strong>Helden reisen, Gäste speisen!</strong><small>Dienstag · Dinner &amp; Bühne</small></div><a class="event-ticket-link" href="https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/" target="_blank" rel="noopener noreferrer">Tickets ↗</a></article>
-          <article><time datetime="2026-09-23"><b>23</b><span>SEP</span></time><div><strong>Helden reisen, Gäste speisen!</strong><small>Mittwoch · Zusatzabend</small></div><a class="event-ticket-link" href="https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/" target="_blank" rel="noopener noreferrer">Tickets ↗</a></article>
-          <a href="https://wirtschaft-dornbirn.at/event/" target="_blank" rel="noopener noreferrer">Gesamtes offizielles Programm ↗</a>
-          <div class="stage-subscribe">
-            <p><strong>Keinen Abend verpassen</strong><span>Wir schicken neue Termine, sobald sie feststehen. Zuerst kommt eine Bestätigungsmail – erst mit dem Klick darin bist du angemeldet. Abmeldung jederzeit mit einem Klick. <a class="abo-datenschutz" href="datenschutz-sicherheit.html#mittagskarte">Wie wir mit deiner Adresse umgehen</a></span></p>
-            <form class="stage-subscribe-form" id="ticketNews" novalidate>
-              <label class="visually-hidden" for="ticketNewsMail">E-Mail-Adresse</label>
-              <input id="ticketNewsMail" type="email" name="email" inputmode="email" autocomplete="email" placeholder="E-Mail-Adresse" required>
-              <button type="submit">Eintragen</button>
-            </form>
-            <p class="stage-subscribe-note" id="ticketNewsNote" role="status"></p>
-          </div>
+          <div class="scene-actions"><a class="button button-warm" href="events.html">Alle Termine &amp; Tickets</a></div>
         </div>
         <a class="scene-imprint" href="#impressum">Impressum</a>
       </div>
@@ -293,7 +283,7 @@
 
 
   <noscript><p class="noscript">Für die Eventübersicht ist JavaScript erforderlich. Die offiziellen Reservierungs- und Ticketlinks bleiben ohne JavaScript erreichbar.</p></noscript>
-  <script src="app.js?v=a1677c41" defer></script>
+  <script src="app.js?v=90c3abe9" defer></script>
   <script type="module" src="lunch-abo.js?v=f0ddd3e4"></script>
   <script src="truck-motion.js?v=1fd8e5e9" defer></script>
   <script src="prefetch.js?v=b7ede3be" defer></script>
