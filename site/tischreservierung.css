@@ -527,3 +527,14 @@ body{text-transform:lowercase}
   .site-footer[data-variant] .partner-block > img,
   .site-footer .partner-block > img{max-width:94px}
 }
+
+
+/* ===== grosse ueberschriften duerfen auf schmalen schirmen trennen =====
+   woerter wie "gastgebergedanke" oder "moeglichkeiten" sind bei 48 px
+   schriftgrad breiter als eine handyspalte. ohne trennung ragen sie hinaus
+   und safari zoomt die ganze seite heraus. lang="de" im kopf sorgt dafuer,
+   dass an sinnvollen stellen getrennt wird. */
+h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:break-word;hyphens:auto}
+@media(max-width:700px){
+  h1,h2,h3{hyphens:auto;overflow-wrap:break-word}
+}
