@@ -832,6 +832,12 @@ html{scroll-padding-top:0}
      nie unter seine Inhaltsbreite, und das interne Scrollen griffe nie. */
   .final-site .bar-nav{flex:1 1 100%;width:100%;min-width:0;margin-left:0;justify-content:space-between;gap:10px;overflow-x:auto;scrollbar-width:none}
   .final-site .bar-nav::-webkit-scrollbar{display:none}
+/* Solange das Mittag-Menue offen ist, darf die Leiste nicht abschneiden:
+   overflow-x:auto (fuers seitliche Wischen auf ganz schmalen Geraeten)
+   erzwingt auch vertikales Clipping - der Aufklapper ragt unter die Leiste
+   und war auf dem Telefon unsichtbar UND unklickbar. Der Knopf meldete
+   "offen", es passierte sichtbar nichts. */
+.bar-nav:has(.nav-drop-menu:not([hidden])){overflow:visible}
   /* 44 px ist das Mindestmass fuer ein sicheres Tippziel - darunter trifft
      man am Telefon daneben. Apple nennt es in seinen Richtlinien, und es ist
      hier die meistgenutzte Geraeteklasse. */
