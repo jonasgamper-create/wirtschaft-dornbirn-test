@@ -1586,3 +1586,8 @@ body{text-transform:lowercase}
   .insta-strip{padding:60px 0}
   .insta-strip>*{width:calc(100% - 46px)}
 }
+
+/* echte einsatzfotos im foodtruck-kapitel: zwei hochformate, ruhig gesetzt */
+.catering-fotos{display:flex;gap:12px;margin-top:26px}
+.catering-fotos img{width:220px;height:auto;aspect-ratio:3/4;object-fit:cover;border:1px solid rgba(243,239,230,.16)}
+@media(max-width:900px){.catering-fotos img{width:44vw;max-width:220px}}
