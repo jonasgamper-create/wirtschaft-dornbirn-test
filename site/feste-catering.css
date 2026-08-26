@@ -116,3 +116,10 @@ footer .partner-block a{display:block;font-weight:400;text-transform:none}
   .insta-strip>*{width:calc(100% - 46px)}
   .site-footer{grid-template-columns:1fr;padding-left:23px;padding-right:23px}
 }
+
+
+/* ===== iphone: platz fuer die browserleiste am unteren rand =====
+   viewport-fit=cover steht im kopf, also kennt die seite die sichere zone.
+   ohne diesen rueckhalt verschwindet das letzte feld unter safari. */
+body{padding-bottom:env(safe-area-inset-bottom,0px)}
+.site-footer{padding-bottom:calc(46px + env(safe-area-inset-bottom,0px))}

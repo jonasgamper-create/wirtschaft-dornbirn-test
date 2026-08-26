@@ -86,7 +86,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .stepper-zahl{display:flex;align-items:center;justify-content:center;gap:7px}
 .stepper-zahl input{width:2.4ch;min-height:0;padding:0;border:0;background:transparent;text-align:right;font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums;-moz-appearance:textfield;appearance:textfield}
 .stepper-zahl input::-webkit-outer-spin-button,.stepper-zahl input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.stepper-zahl span{font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none}
+.stepper-zahl span{font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:lowercase}
 @media(min-width:761px){.stepper{max-width:320px}}
 .slots{display:flex;flex-wrap:wrap;gap:8px}
 .slots button{min-height:48px;padding:0 16px;border:1px solid #11110f3d;border-radius:999px;background:#fff;color:var(--ink);font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none;cursor:pointer;font-variant-numeric:tabular-nums}
@@ -100,9 +100,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .contact-field label{display:grid;gap:8px;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase}
 .contact-field input[type="email"],.contact-field input[type="tel"]{width:100%;min-height:48px;padding:12px 14px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none}
 .contact-lead{margin:0;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase}
-.contact-lead span{display:block;margin-top:4px;color:#57524a;font-weight:400;letter-spacing:0;text-transform:none;font-size:var(--t-meta)}
+.contact-lead span{display:block;margin-top:4px;color:#57524a;font-weight:400;letter-spacing:0;text-transform:lowercase;font-size:var(--t-meta)}
 .contact-note{margin:0;color:#57524a;font-size:var(--t-meta);line-height:1.5;max-width:56ch}
-.contact-field .contact-check{display:flex;align-items:flex-start;gap:10px;padding-top:12px;border-top:1px solid #11110f1a;font-weight:400;letter-spacing:0;text-transform:none}
+.contact-field .contact-check{display:flex;align-items:flex-start;gap:10px;padding-top:12px;border-top:1px solid #11110f1a;font-weight:400;letter-spacing:0;text-transform:lowercase}
 .contact-field .contact-check input{width:22px;height:22px;min-height:0;margin-top:2px;flex:0 0 auto;accent-color:var(--green)}
 .contact-field .contact-check span{font-size:var(--t-meta);line-height:1.5;max-width:52ch}
 .contact-field.invalid input[type="email"],.contact-field.invalid input[type="tel"]{border-color:var(--wine)}
@@ -119,13 +119,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .lunch-live-kicker{margin:0 0 6px;color:var(--green);font-size:var(--t-label);font-weight:700;letter-spacing:.14em;text-transform:lowercase}
 .lunch-live h3{margin:0 0 8px;font-size:clamp(24px,3vw,30px);line-height:1.1}
 .lunch-live-note{margin:0 0 16px;color:#57524a;font-size:var(--t-meta);line-height:1.5;max-width:52ch}
-.lunch-live-stand{display:block;margin-top:12px;color:#57524a;font-size:var(--t-label);letter-spacing:0;text-transform:none}
+.lunch-live-stand{display:block;margin-top:12px;color:#57524a;font-size:var(--t-label);letter-spacing:0;text-transform:lowercase}
 .done-newsletter{margin-top:16px;padding-top:14px;border-top:1px solid #11110f1a}
-.done-newsletter .contact-check{display:flex;align-items:flex-start;gap:10px;font-weight:400;letter-spacing:0;text-transform:none}
+.done-newsletter .contact-check{display:flex;align-items:flex-start;gap:10px;font-weight:400;letter-spacing:0;text-transform:lowercase}
 .done-newsletter .contact-check input{width:22px;height:22px;min-height:0;margin-top:2px;flex:0 0 auto;accent-color:var(--green)}
 .done-newsletter .contact-check span{font-size:var(--t-meta);line-height:1.5;max-width:52ch}
 @media(min-width:761px){.contact-field{grid-template-columns:1fr 1fr}.contact-lead,.contact-note,.contact-field .contact-check{grid-column:1/-1}}
-.field-error{margin:0;color:var(--wine);font-size:var(--t-meta);font-weight:400;letter-spacing:0;text-transform:none}
+.field-error{margin:0;color:var(--wine);font-size:var(--t-meta);font-weight:400;letter-spacing:0;text-transform:lowercase}
 .form-alert{margin:16px 0 0;padding:12px 16px;border-left:2px solid var(--wine);background:#8c292b14;color:#6b2224;font-size:var(--t-meta);line-height:1.5;max-width:56ch}
 .required{margin:14px 0 0;color:#57524a;font-size:var(--t-label)}
 /* Die Information bei der Erhebung (Art. 13 DSGVO): ein Satz am Formular,
@@ -185,7 +185,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
    verwirrend - der Gast sucht dann eine Zeit, die es nicht mehr gibt. */
 .slots button[data-voll]{border-style:dashed;background:#11110f08;color:#a29b90;cursor:not-allowed;text-decoration:line-through}
 .slots button[data-pruefe]{opacity:.55}
-.slot-info{display:block;margin-top:10px;color:var(--muted,#6d675f);font-size:13.5px;font-weight:400;letter-spacing:0;line-height:1.5;text-transform:none}
+.slot-info{display:block;margin-top:10px;color:var(--muted,#6d675f);font-size:13.5px;font-weight:400;letter-spacing:0;line-height:1.5;text-transform:lowercase}
 
 /* Der Beleg des Gastes. Ruhig und klar - er wird gelesen, wenn jemand gerade
    erleichtert ist, nicht ueberflogen. */
@@ -263,12 +263,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .warteliste{margin-top:14px;padding:16px;border:1px solid #11110f24;background:#fff}
 .warteliste[hidden]{display:none}
 .warteliste-titel{margin:0 0 6px;font-size:var(--t-meta);font-weight:700}
-.warteliste-text{margin:0 0 12px;color:#57524a;font-size:13.5px;line-height:1.55;max-width:56ch;font-weight:400;letter-spacing:0;text-transform:none}
+.warteliste-text{margin:0 0 12px;color:#57524a;font-size:13.5px;line-height:1.55;max-width:56ch;font-weight:400;letter-spacing:0;text-transform:lowercase}
 .warteliste-text a{color:inherit;text-decoration:underline;text-underline-offset:3px;padding:13px 0;margin:-13px 0}
 .warteliste-felder{display:grid;grid-template-columns:1fr 1.4fr auto;gap:8px}
 @media(max-width:640px){.warteliste-felder{grid-template-columns:1fr}}
 .warteliste-felder input{min-height:48px;padding:10px 12px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none}
-.warteliste-status{margin:10px 0 0;color:#57524a;font-size:13.5px;line-height:1.5;font-weight:400;letter-spacing:0;text-transform:none}
+.warteliste-status{margin:10px 0 0;color:#57524a;font-size:13.5px;line-height:1.5;font-weight:400;letter-spacing:0;text-transform:lowercase}
 
 /* Der Kalendereintrag auf dem Beleg: ein ruhiger Umriss, kein Hauptknopf.
    Er ist die Rueckfallebene fuer alle, die keine Meldung wollen. */
@@ -293,10 +293,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 /* Das Merken-Haekchen: eine Frage, keine Voreinstellung. Deshalb ruhig
    gesetzt, in Fliesstext statt im Versalienton der uebrigen Feldtitel. */
-.ta-merken{display:grid!important;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;font-size:var(--t-meta)!important;font-weight:400!important;letter-spacing:0!important;text-transform:none!important;line-height:1.5;color:#3c3833;cursor:pointer}
+.ta-merken{display:grid!important;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;font-size:var(--t-meta)!important;font-weight:400!important;letter-spacing:0!important;text-transform:lowercase!important;line-height:1.5;color:#3c3833;cursor:pointer}
 .ta-merken input{width:26px;height:26px;min-height:0;margin:0;accent-color:var(--green);cursor:pointer}
 /* Gemerkte Kontaktdaten: der Hinweis ist nur da, wenn wirklich etwas liegt. */
-.ta-gemerkt{margin:0;color:#57524a;font-size:var(--t-meta);font-weight:400;letter-spacing:0;text-transform:none;line-height:1.5;max-width:56ch}
+.ta-gemerkt{margin:0;color:#57524a;font-size:var(--t-meta);font-weight:400;letter-spacing:0;text-transform:lowercase;line-height:1.5;max-width:56ch}
 .ta-gemerkt[hidden]{display:none}
 .ta-gemerkt button{min-height:44px;padding:0;border:0;background:none;color:var(--wine);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 
@@ -494,3 +494,14 @@ body{text-transform:lowercase}
 @media(max-width:1100px){.site-footer{grid-template-columns:1fr 1fr;gap:30px 34px;padding-left:24px;padding-right:24px}}
 @media(max-width:900px){.insta-strip>*{width:calc(100% - 92px)}.insta-band{grid-template-columns:repeat(3,1fr);gap:6px}}
 @media(max-width:640px){.insta-strip>*{width:calc(100% - 46px)}.site-footer{grid-template-columns:1fr;padding-left:23px;padding-right:23px}}
+
+
+/* ===== handy: jedes tippziel mindestens 44 px =====
+   die drei letzten ausreisser: das kaestchen der einwilligung, der
+   datenschutz-link im fliesstext und ein knopf ohne beschriftung. */
+.contact-check input[type="checkbox"],.consent input[type="checkbox"],
+.ta-merken input[type="checkbox"],label input[type="checkbox"]{
+  width:26px;height:26px;flex:0 0 26px;margin:9px 0}
+.contact-check,.consent,.ta-merken{min-height:44px;align-items:center}
+.contact-lead a,.contact-check a,.abo-datenschutz,.contact-note a,.ta-merken a{
+  display:inline-flex;align-items:center;min-height:44px}
