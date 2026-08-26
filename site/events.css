@@ -87,7 +87,7 @@ main{padding-bottom:80px}
   .kachel-zeile{flex-direction:column;align-items:flex-start;gap:7px;min-width:0}
   .kachel-zeile time{display:flex;flex-direction:row;align-items:baseline;gap:6px}
   .kachel-zeile time b{font-size:21px}
-  .kachel-zeile h2{min-width:0;overflow-wrap:break-word;hyphens:auto;font-size:17px}
+  .kachel-zeile h2{min-width:0;overflow-wrap:break-word;hyphens:manual;-webkit-hyphens:manual;font-size:17px}
   .kachel-inhalt{padding:14px 13px 16px}
   .event-kachel{min-width:0}
   .events-grid{min-width:0}
@@ -102,9 +102,15 @@ main{padding-bottom:80px}
    schriftgrad breiter als eine handyspalte. ohne trennung ragen sie hinaus
    und safari zoomt die ganze seite heraus. lang="de" im kopf sorgt dafuer,
    dass an sinnvollen stellen getrennt wird. */
-h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:break-word;hyphens:auto}
+/* Keine automatische Silbentrennung in Ueberschriften: "frisch ge-kocht"
+   und "kom-men zu euch" zerlegten die grossen Zeilen sichtbar. Woerter
+   bleiben ganz und rutschen als ganzes in die naechste Zeile.
+   overflow-wrap bleibt als Notbremse fuer den Fall, dass ein einzelnes
+   Wort breiter ist als seine Spalte - dann bricht es lieber, als den
+   Rand zu sprengen und das Telefon zum Herauszoomen zu zwingen. */
+h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:break-word;hyphens:manual;-webkit-hyphens:manual}
 @media(max-width:700px){
-  h1,h2,h3{hyphens:auto;overflow-wrap:break-word}
+  h1,h2,h3{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:break-word}
 }
 
 
