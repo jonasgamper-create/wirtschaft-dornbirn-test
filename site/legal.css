@@ -262,3 +262,14 @@ footer nav a { min-height: 44px }
 @media (max-width: 860px) {
   footer { grid-template-columns: 1fr; gap: 18px }
 }
+
+
+/* ===== grosse ueberschriften duerfen auf schmalen schirmen trennen =====
+   woerter wie "gastgebergedanke" oder "moeglichkeiten" sind bei 48 px
+   schriftgrad breiter als eine handyspalte. ohne trennung ragen sie hinaus
+   und safari zoomt die ganze seite heraus. lang="de" im kopf sorgt dafuer,
+   dass an sinnvollen stellen getrennt wird. */
+h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:break-word;hyphens:auto}
+@media(max-width:700px){
+  h1,h2,h3{hyphens:auto;overflow-wrap:break-word}
+}

@@ -73,3 +73,46 @@ main{padding-bottom:80px}
 #ticketDialogZu{width:38px;height:38px;border:1px solid #ffffff33;border-radius:50%;background:transparent;color:#f3efe6;font-size:20px;cursor:pointer}
 #ticketDialogZu:hover{border-color:#c59b5d;color:#c59b5d}
 #ticketDialogFrame{flex:1;width:100%;border:0;background:#fff}
+
+
+/* ===== handy: die kachel darf nicht breiter werden als ihre spalte =====
+   "19:00 uhr · € 68 · buchbar" stand auf nowrap und sprengte die 173-px-
+   spalte um 63 px. safari zoomt dann die ganze seite heraus. am handy
+   stehen name und angaben untereinander - das liest sich ohnehin besser. */
+@media(max-width:900px){
+  .ticketzeilen li{flex-direction:column;gap:3px;align-items:flex-start}
+  .ticketzeilen .tz-detail{white-space:normal}
+  /* am handy steht das datum ueber dem titel statt daneben - so bekommt
+     der name die volle kachelbreite und muss nicht im wort brechen. */
+  .kachel-zeile{flex-direction:column;align-items:flex-start;gap:7px;min-width:0}
+  .kachel-zeile time{display:flex;flex-direction:row;align-items:baseline;gap:6px}
+  .kachel-zeile time b{font-size:21px}
+  .kachel-zeile h2{min-width:0;overflow-wrap:break-word;hyphens:auto;font-size:17px}
+  .kachel-inhalt{padding:14px 13px 16px}
+  .event-kachel{min-width:0}
+  .events-grid{min-width:0}
+}
+/* versteckte beschriftungen duerfen die breite nie mitbestimmen */
+.visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;margin:-1px;padding:0;border:0}
+
+
+/* ===== grosse ueberschriften duerfen auf schmalen schirmen trennen =====
+   woerter wie "gastgebergedanke" oder "moeglichkeiten" sind bei 48 px
+   schriftgrad breiter als eine handyspalte. ohne trennung ragen sie hinaus
+   und safari zoomt die ganze seite heraus. lang="de" im kopf sorgt dafuer,
+   dass an sinnvollen stellen getrennt wird. */
+h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:break-word;hyphens:auto}
+@media(max-width:700px){
+  h1,h2,h3{hyphens:auto;overflow-wrap:break-word}
+}
+
+
+/* ===== schmale iphones: abo-feld unter die eingabe =====
+   feld plus knopf nebeneinander sprengten bei 375 px die breite. */
+@media(max-width:560px){
+  .events-abo-form{grid-template-columns:1fr}
+  .events-abo-form input{min-width:0;width:100%}
+  .events-abo-form button{width:100%}
+  .events-abo{padding:20px 18px}
+}
