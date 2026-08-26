@@ -180,7 +180,12 @@ async function start() {
     let freie = 0;
     for (const knopf of zeitKnoepfe()) {
       const eintrag = nachZeit.get(knopf.dataset.time);
-      const voll = eintrag ? !eintrag.frei : false;
+      // Kennt der Dienst eine Zeit gar nicht, bietet das Haus sie an diesem Tag
+      // nicht an - dann darf sie auch nicht waehlbar sein. Vorher blieben
+      // 13:15 und 13:30 offen, obwohl die Kueche nur bis 13:00 annimmt: der
+      // Gast fuellte alles aus und bekam erst beim Absenden eine Absage.
+      // Genau der verlorene Gast, den wir weiter unten vermeiden wollen.
+      const voll = eintrag ? !eintrag.frei : true;
       knopf.disabled = voll;
       knopf.title = voll ? 'Um diese Zeit ist für diese Personenzahl nichts mehr frei' : '';
       if (voll) knopf.setAttribute('data-voll', '');
@@ -191,12 +196,21 @@ async function start() {
         byId('time').value = '';
       }
     }
-    byId('slotInfo').textContent = freie === 0
+    // Zwei verschiedene Nachrichten: an einem Tag ohne angebotene Zeiten ist
+    // nichts "belegt" - da nimmt die Kueche ueberhaupt keine Reservierung an.
+    // Das eine ist Pech, das andere eine Oeffnungszeit; wer das verwechselt,
+    // laesst Gaeste vergeblich anrufen.
+    const keineZeitenAngeboten = antwort.zeiten.length === 0;
+    byId('slotInfo').textContent = keineZeitenAngeboten
+      ? 'An diesem Tag nehmen wir mittags keine Reservierung an. Wähl bitte einen anderen Tag.'
+      : freie === 0
       ? `Für ${personen} ${personen === 1 ? 'Person' : 'Personen'} ist an diesem Tag mittags leider alles belegt. Ruf uns an, wir schauen was geht: +43 (0)5572 20 540`
       : `Grau hinterlegte Zeiten sind für ${personen} ${personen === 1 ? 'Person' : 'Personen'} schon belegt.`;
     // Voll ist der Moment der Warteliste - vorher waere sie Laerm.
+    // ...und an einem Tag ohne Mittagsbetrieb auch keine Warteliste: warten
+    // kann man nur auf einen Tisch, den es an dem Tag ueberhaupt gibt.
     const warteliste = byId('warteliste');
-    if (warteliste) warteliste.hidden = freie !== 0;
+    if (warteliste) warteliste.hidden = freie !== 0 || keineZeitenAngeboten;
   }
 
   // Mittags kochen wir Montag bis Freitag - und weder an Feiertagen noch an
