@@ -42,16 +42,18 @@ for (const match of main.matchAll(/data-calendar-event="([^"]+)"/g)) {
   if (!eventIds.has(match[1])) fail(`Kalenderaktion verweist auf unbekanntes Event ${match[1]}`);
 }
 // Entscheidung vom 25.08.2026: Reservierung und Takeaway laufen ueber die
-// Subseiten der bestehenden Webseite - die eigenen Werkzeuge bleiben im
-// Repo, werden aber nicht mehr verlinkt. Pflicht sind jetzt die externen
-// Ziele; fehlten sie, stuende der Gast ohne Buchungsweg da.
+// Entscheidung vom 26.08.: Die Buchung laeuft im Haus - Mittagstisch und
+// Takeaway oeffnen die EIGENEN Strecken als Overlay auf der Startseite,
+// die alten Subseiten sind abgeloest. Pflicht sind die eigenen Ziele;
+// fehlten sie, stuende der Gast ohne Buchungsweg da.
 for (const required of [
-  'https://tischreservierung.wirtschaft-dornbirn.at/',
-  'https://lieferservice.wirtschaft-dornbirn.at/',
+  'tischreservierung.html',
+  'takeaway.html',
   'https://wirtschaft-dornbirn.at/event/',
   'feste-catering.html'
 ]) {
-  if (!main.includes(`href="${required}"`) && !html['site/feste-catering.html'].includes(`href="${required}"`)) fail(`Pfad fehlt: ${required}`);
+  const traegtZiel = quelle => quelle.includes(`href="${required}"`) || quelle.includes(`data-haus="${required}`);
+  if (!traegtZiel(main) && !traegtZiel(html['site/feste-catering.html'])) fail(`Pfad fehlt: ${required}`);
 }
 
 

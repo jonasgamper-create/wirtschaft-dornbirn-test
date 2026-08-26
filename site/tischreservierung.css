@@ -456,3 +456,8 @@ body{text-transform:lowercase}
 /* fusszeile: beide haeuser - emma & eugen behaelt sein weisses logo */
 .site-footer .partner-block img{width:130px;height:auto;filter:none}
 .site-footer .partner-block a{display:block}
+
+
+/* eingebettet im overlay der startseite: nur die buchungsstrecke */
+html.eingebettet .site-head,html.eingebettet .site-footer{display:none}
+html.eingebettet body{padding-top:6px}

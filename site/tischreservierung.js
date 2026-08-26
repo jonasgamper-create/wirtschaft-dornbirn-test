@@ -1,3 +1,8 @@
+// Im Overlay der Startseite zaehlt nur das Formular: Kopf und Fuss der
+// Seite bleiben draussen, die Felder wirken wie Teil der Startseite.
+if (new URLSearchParams(window.location.search).has('eingebettet')) {
+  document.documentElement.classList.add('eingebettet');
+}
 (() => {
   'use strict';
 

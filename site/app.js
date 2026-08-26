@@ -598,8 +598,12 @@
     const extern = document.getElementById('hausDialogExtern');
     document.querySelectorAll('[data-haus]').forEach(knopf => {
       knopf.addEventListener('click', () => {
+        // Robust gegen Doppelklick: ein offener Dialog wird erst geschlossen,
+        // sonst wirft showModal - und das close-Ereignis darf das frische
+        // Ziel nicht wieder auf about:blank setzen.
+        if (hausDialog.open) hausDialog.close();
         titel.textContent = knopf.dataset.hausTitel;
-        extern.href = knopf.dataset.haus;
+        extern.href = knopf.dataset.haus.split('?')[0];
         rahmen.src = knopf.dataset.haus;
         hausDialog.showModal();
       });
