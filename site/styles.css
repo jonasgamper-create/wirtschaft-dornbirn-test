@@ -1522,7 +1522,7 @@ body{text-transform:lowercase}
 
 /* ===== mittag-aufklappmenue in der leiste ===== */
 .nav-drop{position:relative;display:flex;align-items:center}
-.nav-drop>button{display:flex;align-items:center;gap:6px;min-height:44px;padding:0;border:0;background:none;color:#f3efe6;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase;cursor:pointer;white-space:nowrap}
+.nav-drop>button{display:flex;align-items:center;gap:5px;min-height:44px;padding:0;border:0;background:none;color:#f3efe6;font:700 var(--t-label)/1 var(--sans,Montserrat);letter-spacing:.09em;text-transform:lowercase;cursor:pointer;white-space:nowrap}
 .nav-drop .drop-pfeil{font-size:9px;transition:transform .2s}
 .nav-drop>button[aria-expanded="true"] .drop-pfeil{transform:rotate(180deg)}
 .nav-drop-menu[hidden]{display:none}
@@ -1573,3 +1573,23 @@ body{text-transform:lowercase}
 .catering-fotos{display:flex;gap:12px;margin-top:26px}
 .catering-fotos img{width:220px;height:auto;aspect-ratio:3/4;object-fit:cover;border:1px solid rgba(243,239,230,.16)}
 @media(max-width:900px){.catering-fotos img{width:44vw;max-width:220px}}
+
+
+/* ===== handy: kopfleiste kompakt =====
+   die fuenf ziele brauchten zwei Pixel mehr als da waren und brachen um.
+   engere abstaende halten sie in einer zeile; der neu-chip tritt zurueck,
+   weil die naechsten drei termine direkt darunter stehen. */
+@media(max-width:620px){
+  .final-site .bar-nav{gap:4px 13px}
+  .final-site .experience-bar{padding:8px 14px;gap:5px 8px}
+  .final-site .bar-news{display:none}
+  .final-site .bar-hours{font-size:11px}
+  /* das e&e-zeichen ist hoeher als breit - auf dem handy bestimmt es sonst
+     allein die hoehe der leiste. beide marken auf gleiche hoehe bringen. */
+  .final-site .partner-brand img{width:50px}
+  .final-site .master-brand img{width:132px}
+}
+@media(max-width:380px){
+  .final-site .bar-nav{gap:4px 10px}
+  .final-site .bar-nav a,.final-site .nav-drop>button{font-size:11.5px}
+}
