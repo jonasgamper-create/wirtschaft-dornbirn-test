@@ -11,6 +11,7 @@
 // hier kein Engpass - es geht um wenige Anfragen je Minute, nicht um Millionen.
 
 import { DurableObject } from 'cloudflare:workers';
+import { holeAltFrei, bucheAlt, holeAltKarte } from './altsystem.mjs';
 import {
   AUFBEWAHRUNG_TAGE, ampelFuer, betroffenePartys, brauchtErinnerung, freieZeiten, machId, planTaugt, pruefeAnfrage, raeumeAuf, tischBekannt, verteile, wendeAktionAn
 } from './haus-logik.mjs';
@@ -2170,6 +2171,16 @@ export default {
 
       if (url.pathname === '/api/reservierung' && request.method === 'POST') {
         const roh = await request.json().catch(() => ({}));
+        if (env.ALT_RESERVIERUNG) {
+          // Die Buchung landet dort, wo der Betrieb sie liest. Der eigene
+          // Dienst bucht in diesem Modus nicht mit - eine Wahrheit genuegt.
+          try {
+            const ergebnis = await bucheAlt(env, roh);
+            return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
+          } catch (fehler) {
+            return json({ ok: false, grund: 'altsystem', detail: String(fehler.message || fehler) }, 502, kopf);
+          }
+        }
         const ergebnis = await haus.buche(roh, heute, url.origin);
         return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
       }
@@ -2552,6 +2563,12 @@ export default {
         const personen = Math.max(1, Math.min(24, Number(url.searchParams.get('personen')) || 2));
         const geprueft = pruefeAnfrage({ name: 'xx', date: datum, time: '12:00', guests: personen }, { heute });
         if (!geprueft.ok) return json({ ok: false, grund: geprueft.grund }, 400, kopf);
+        // Brueckenbetrieb: ist das Altsystem konfiguriert, zaehlen dessen
+        // Tage und Zeiten - die Oberflaeche merkt keinen Unterschied.
+        if (env.ALT_RESERVIERUNG) {
+          try { return json(await holeAltFrei(env, datum), 200, kopf); }
+          catch (fehler) { return json({ ok: false, grund: 'altsystem', detail: String(fehler.message || fehler) }, 502, kopf); }
+        }
         return json(await haus.frei(datum, personen), 200, kopf);
       }
 
