@@ -51,7 +51,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 @media(max-width:520px){.experience-actions .primary-action{font-size:0;width:42px;padding:0}.experience-actions .primary-action:after{content:"T";font-size:12px}.prologue-copy{width:calc(100% - 40px);margin:0 20px 12vh}.prologue h1{font-size:50px}.prologue-copy>p:not(.eyebrow){font-size:16.5px;line-height:1.6}.scroll-cue{display:none}.scene-shell{width:calc(100% - 32px)}.scene-copy{margin-bottom:12vh}.scene-copy h2{font-size:44px}.scene-number{font-size:84px}.party-sizes button{width:46px;height:46px}.scene-imprint{bottom:14px}.decision-copy h2{font-size:46px}.site-footer{font-size:12px}.dialog-frame h2{font-size:38px}.ticket-summary{flex-wrap:wrap}.ticket-summary>p{width:100%;margin-left:0}.menu-list article{grid-template-columns:30px 1fr}.menu-list article b{grid-column:2}}
 
 /* Curated live direction: Emma & Eugen / table / lunch / stage / host */
-.final-site{--bar-h:68px;background:#11110f}.final-bar{background:#11110fe8;border-color:#ffffff24}.final-bar .master-brand{background:#f3efe6}.final-rail{gap:7px}.final-rail a{background:#11110fd9}.final-rail a:hover{width:126px}.final-rail a[aria-current="true"]{width:35px}
+/* 78 statt 68: seit beide Marken gleich gewichtet oben stehen, ist das
+   Zeichen von emma & eugen 64 px hoch - in einer 68er-Leiste sass es ohne
+   Luft. Alles andere rechnet mit --bar-h und rueckt automatisch mit. */
+.final-site{--bar-h:78px;background:#11110f}.final-bar{background:#11110fe8;border-color:#ffffff24}.final-bar .master-brand{background:#f3efe6}.final-rail{gap:7px}.final-rail a{background:#11110fd9}.final-rail a:hover{width:126px}.final-rail a[aria-current="true"]{width:35px}
 .final-prologue{min-height:100svh;background:#11110f}.final-prologue .prologue-media{animation:none;transform:translate3d(0,var(--parallax,0),0) scale(var(--zoom,1.075));will-change:transform}.final-prologue .prologue-shade{background:linear-gradient(90deg,#11110ff7 0%,#11110fcf 48%,#11110f5e 76%,#11110f9c 100%)}.final-prologue .prologue-shade:after{background:linear-gradient(0deg,#11110ff2,transparent 58%)}.final-prologue .prologue-copy{position:relative;z-index:2;width:min(820px,calc(100% - 64px));margin-left:max(8vw,84px)}.final-prologue h1{font-size:clamp(54px,7.25vw,112px);line-height:.91;letter-spacing:-.052em}.hero-family-mark{position:absolute;z-index:1;right:5vw;bottom:-6vh;width:min(42vw,650px);height:auto;object-fit:contain;filter:none;opacity:.96;transform:translate3d(0,var(--family-shift,0),0);will-change:transform}.trust-line{display:flex;gap:18px!important;flex-wrap:wrap;margin:22px 0 0!important;font-size:11.5px!important;font-weight:750;letter-spacing:.1em;text-transform:lowercase;color:#e7ddca!important}.trust-line span{display:flex;align-items:center;gap:8px}.trust-line span:before{content:"";width:5px;height:5px;border-radius:50%;background:#d6b772}
 .final-chapter{--scene-zoom:1.055;min-height:100svh}.final-chapter .zoom-media{transform:translate3d(0,var(--parallax,0),0) scale(var(--scene-zoom,1.055));will-change:transform;transition:filter .7s var(--ease)}.final-chapter .scene-number{top:11vh;right:4vw;color:#ffffff13;font-size:clamp(130px,20vw,330px);font-weight:700}.final-chapter .scene-shell{width:min(var(--content),calc(100% - 150px))}.final-copy{width:min(760px,72%)}.final-copy h2{font-size:clamp(58px,7vw,108px);line-height:.88}.final-copy>p:not(.eyebrow){max-width:660px;font-size:17px}.final-chapter .family-white-nav{padding:9px 14px;background:#0b0a08a8;border:1px solid #ffffff2e;border-radius:8px}.final-chapter .family-white-logo{width:94px!important;max-height:62px;object-fit:contain;filter:none!important}.final-chapter .family-housemark{width:102px!important;height:auto;margin-left:12px;padding:5px 7px;border-radius:4px;background:#f3efe6;object-fit:contain;filter:none!important}.final-chapter .family-white-nav>div{margin-left:auto}.chapter-note{position:absolute;right:0;bottom:10vh;margin:0;padding:8px 12px;border:1px solid #ffffff38;border-radius:99px;font-size:11.5px;letter-spacing:.12em;text-transform:lowercase;color:#eee2d1}
 .chapter-story .media-shade{background:linear-gradient(90deg,#11110ff2 0%,#11110fbd 55%,#11110f4d 100%)}.chapter-story .scene-media{filter:saturate(.75) sepia(.08)}.chapter-story .scene-copy{margin-bottom:10vh}.chapter-table .media-shade{background:linear-gradient(0deg,#130f0ee8 0%,#130f0e38 60%,#130f0e9b 100%)}.chapter-table .final-copy{width:min(880px,90%)}.chapter-table .scene-copy>p:not(.eyebrow){margin-left:auto;margin-right:auto}.chapter-table .scene-actions{justify-content:center}.chapter-table .party-sizes{margin:26px auto}.chapter-lunch{background:#ead9bc;color:#11110f}.chapter-lunch .scene-media{left:44%;width:56%}.chapter-lunch .media-shade{background:linear-gradient(90deg,#f3efe6 0%,#f3efe6 37%,#f3efe6b8 57%,#11110f21 100%)}.chapter-lunch .scene-nav button,.chapter-lunch .scene-imprint{color:#11110f}.chapter-lunch .scene-nav{border-color:#11110f21}.chapter-lunch .lunch-card{width:min(660px,58%);padding:32px 36px;background:#f3efe6e8;border:1px solid #11110f18;border-radius:3px;box-shadow:0 30px 80px #2d1a0e15}.day-signal{position:absolute;right:0;bottom:10vh;display:grid;min-width:230px;padding:22px;background:#244635;color:#fff}.day-signal span,.day-signal small{text-transform:lowercase;letter-spacing:.11em;font-size:11.5px}.day-signal strong{margin:5px 0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:28px;font-weight:600}.chapter-stage .media-shade{background:linear-gradient(90deg,#120f0dec 0%,#120f0db2 52%,#120f0e48 100%)}.chapter-stage .scene-media{filter:saturate(.78) contrast(1.05)}.stage-copy{width:min(780px,70%)}.next-event{position:absolute;right:0;bottom:9vh;display:grid;width:min(390px,38vw);margin:0;padding:22px;border:1px solid #ffffff2f;background:#11110ff2;}.next-event div{display:flex;justify-content:space-between;gap:15px;padding:9px 0;border-top:1px solid #ffffff20}.next-event div:first-child{border:0}.next-event dt{max-width:170px;color:#d5cfc6;font-size:11.5px;letter-spacing:.08em;text-transform:lowercase}.next-event dd{margin:0;text-align:right;font-size:12px;font-weight:750}.chapter-host .media-shade{background:linear-gradient(0deg,#17110ff0 0%,#17110f78 62%,#17110fbd 100%)}.chapter-host .scene-media{filter:saturate(.7) contrast(1.04)}.host-copy{width:min(900px,90%)}.host-copy>p:not(.eyebrow){margin-left:auto;margin-right:auto}.host-copy .scene-actions{justify-content:center}.host-copy a{text-decoration-thickness:1px;text-underline-offset:4px}.final-decision{background:#e8dece}.final-decision .decision-copy{max-width:920px}.final-decision .decision-grid button{transition:transform .3s var(--ease),background .3s,color .3s}.final-decision .decision-grid button:hover{transform:translateY(-7px);background:#11110f;color:#fff}
@@ -1445,10 +1448,10 @@ body{text-transform:lowercase}
 /* schwarzer markenkopf: beide haeuser, beide logos weiss auf ink */
 .master-brand,.final-bar .master-brand{width:auto;padding:0;border-radius:0;background:transparent}
 .bar-nav a{text-transform:lowercase}
-.master-brand img{width:148px;filter:invert(1) brightness(1.55)}
+/* Die Groesse beider Marken steht gebuendelt am Dateiende - hier nur noch,
+   was den Schriftzug auf dunklem Grund weiss werden laesst. */
+.master-brand img{filter:invert(1) brightness(1.55)}
 .partner-brand{display:flex;align-items:center}
-.partner-brand img{width:72px;height:auto}
-@media(max-width:900px){.partner-brand img{width:56px}.master-brand img{width:124px}}
 
 /* fusszeile auf ink: wirtschaft wie bis dato, daneben emma & eugen */
 .site-footer,.final-site .site-footer{background:var(--ink);color:#d8d4cb}
@@ -1549,10 +1552,6 @@ body{text-transform:lowercase}
   font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase;white-space:nowrap}
 .nav-drop-menu button:hover{background:rgba(197,155,93,.16);color:var(--gold)}
 
-/* ===== beide logos oben links eine spur groesser ===== */
-.master-brand img{width:178px}
-.partner-brand img{width:88px}
-@media(max-width:900px){.master-brand img{width:142px}.partner-brand img{width:68px}}
 
 /* ===== instagram unten: kleiner und ruhiger ===== */
 .insta-strip{padding:9vh 0 8vh}
@@ -1584,10 +1583,6 @@ body{text-transform:lowercase}
   .final-site .experience-bar{padding:8px 14px;gap:5px 8px}
   .final-site .bar-news{display:none}
   .final-site .bar-hours{font-size:11px}
-  /* das e&e-zeichen ist hoeher als breit - auf dem handy bestimmt es sonst
-     allein die hoehe der leiste. beide marken auf gleiche hoehe bringen. */
-  .final-site .partner-brand img{width:50px}
-  .final-site .master-brand img{width:132px}
 }
 @media(max-width:380px){
   .final-site .bar-nav{gap:4px 10px}
@@ -1626,3 +1621,72 @@ h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:break-word;hyphens:auto}
 @media(max-width:700px){
   h1,h2,h3{hyphens:auto;overflow-wrap:break-word}
 }
+
+
+/* ===== die beiden marken, ueberall gleich gewichtet =====
+   Ausgangslage: der wirtschaft-Schriftzug ist ein langes Rechteck (4,3:1),
+   das Zeichen von emma & eugen ist kompakt (1,8:1). Gleiche Breite laesst das
+   Zeichen winzig wirken, gleiche Hoehe laesst den Schriftzug erschlagen. Wir
+   geben deshalb dem Zeichen mehr Hoehe und dem Schriftzug mehr Breite, bis
+   beide ungefaehr dieselbe Flaeche bedecken - so lesen sie sich als zwei
+   gleichwertige Haeuser und nicht als Marke plus Fussnote.
+
+   Die Bilddatei von emma & eugen war bis zum 26.08. auf 240x169 gesetzt,
+   enthielt aber nur 202x112 Zeichen - ein Drittel der Hoehe war leerer Rand.
+   Sie ist jetzt auf den Inhalt beschnitten, damit die Hoehenangaben hier
+   wirklich die sichtbare Marke meinen. */
+
+/* Kein Schrumpfen im Flex-Kopf: ohne das hat die Zeile beide Logos schmaler
+   gequetscht, sobald Navigation daneben stand - der Schriftzug lag dann bei
+   62 statt 139 px Breite und war sichtbar verzerrt. */
+.master-brand,.partner-brand,.brand,.brand-row,.site-head > a{flex-shrink:0}
+
+/* --- kopfzeile --- */
+.master-brand img,
+.brand img:first-of-type,
+.brand-row > a img,
+.site-head > a img{height:44px;width:auto;max-width:none;flex-shrink:0}
+.partner-brand img,
+.brand .partner-logo,
+.brand-row .partner-logo{height:64px;width:auto;max-width:none;flex-shrink:0}
+@media(max-width:900px){
+  .master-brand img,
+  .brand img:first-of-type,
+  .brand-row > a img,
+  .site-head > a img{height:36px}
+  .partner-brand img,
+  .brand .partner-logo,
+  .brand-row .partner-logo{height:52px}
+}
+@media(max-width:430px){
+  .master-brand img,
+  .brand img:first-of-type,
+  .brand-row > a img,
+  .site-head > a img{height:32px}
+  .partner-brand img,
+  .brand .partner-logo,
+  .brand-row .partner-logo{height:46px}
+}
+
+/* --- fusszeile ---
+   Eine gemeinsame Zone von 68 px: das Zeichen fuellt sie in der Hoehe, der
+   Schriftzug in der Breite. Beide sitzen mittig in derselben Zone, damit die
+   Textspalten darunter auf einer Linie beginnen. */
+.site-footer[data-variant] > div > img,
+.site-footer > div > img{height:68px;width:auto;max-width:196px;object-fit:contain;object-position:left center}
+.site-footer[data-variant] .partner-block > img,
+.site-footer .partner-block > img{max-width:130px}
+@media(max-width:640px){
+  .site-footer[data-variant] > div > img,
+  .site-footer > div > img{height:58px;max-width:168px}
+  .site-footer[data-variant] .partner-block > img,
+  .site-footer .partner-block > img{max-width:112px}
+}
+
+/* ===== datumsfelder: so breit wie ihr inhalt, nicht wie ihre spalte =====
+   Ein Datum braucht rund zwoelf Zeichen. Ueber die volle Spaltenbreite
+   gezogen wirkte das Feld auf dem Telefon wie ein leerer Kasten und drueckte
+   die Zeile an den Rand. Die Hoehe bleibt, damit der Daumen trifft; nur die
+   Breite ist gedeckelt. Steht in jeder Stilvorlage, weil Datumsfelder auf
+   mehreren Seiten vorkommen - Reservierung, Takeaway und Anfrage. */
+input[type="date"]{max-width:15rem;box-sizing:border-box}

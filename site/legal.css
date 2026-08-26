@@ -273,3 +273,72 @@ h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:break-word;hyphens:auto}
 @media(max-width:700px){
   h1,h2,h3{hyphens:auto;overflow-wrap:break-word}
 }
+
+
+/* ===== die beiden marken, ueberall gleich gewichtet =====
+   Ausgangslage: der wirtschaft-Schriftzug ist ein langes Rechteck (4,3:1),
+   das Zeichen von emma & eugen ist kompakt (1,8:1). Gleiche Breite laesst das
+   Zeichen winzig wirken, gleiche Hoehe laesst den Schriftzug erschlagen. Wir
+   geben deshalb dem Zeichen mehr Hoehe und dem Schriftzug mehr Breite, bis
+   beide ungefaehr dieselbe Flaeche bedecken - so lesen sie sich als zwei
+   gleichwertige Haeuser und nicht als Marke plus Fussnote.
+
+   Die Bilddatei von emma & eugen war bis zum 26.08. auf 240x169 gesetzt,
+   enthielt aber nur 202x112 Zeichen - ein Drittel der Hoehe war leerer Rand.
+   Sie ist jetzt auf den Inhalt beschnitten, damit die Hoehenangaben hier
+   wirklich die sichtbare Marke meinen. */
+
+/* Kein Schrumpfen im Flex-Kopf: ohne das hat die Zeile beide Logos schmaler
+   gequetscht, sobald Navigation daneben stand - der Schriftzug lag dann bei
+   62 statt 139 px Breite und war sichtbar verzerrt. */
+.master-brand,.partner-brand,.brand,.brand-row,.site-head > a{flex-shrink:0}
+
+/* --- kopfzeile --- */
+.master-brand img,
+.brand img:first-of-type,
+.brand-row > a img,
+.site-head > a img{height:44px;width:auto;max-width:none;flex-shrink:0}
+.partner-brand img,
+.brand .partner-logo,
+.brand-row .partner-logo{height:64px;width:auto;max-width:none;flex-shrink:0}
+@media(max-width:900px){
+  .master-brand img,
+  .brand img:first-of-type,
+  .brand-row > a img,
+  .site-head > a img{height:36px}
+  .partner-brand img,
+  .brand .partner-logo,
+  .brand-row .partner-logo{height:52px}
+}
+@media(max-width:430px){
+  .master-brand img,
+  .brand img:first-of-type,
+  .brand-row > a img,
+  .site-head > a img{height:32px}
+  .partner-brand img,
+  .brand .partner-logo,
+  .brand-row .partner-logo{height:46px}
+}
+
+/* --- fusszeile ---
+   Eine gemeinsame Zone von 68 px: das Zeichen fuellt sie in der Hoehe, der
+   Schriftzug in der Breite. Beide sitzen mittig in derselben Zone, damit die
+   Textspalten darunter auf einer Linie beginnen. */
+.site-footer[data-variant] > div > img,
+.site-footer > div > img{height:68px;width:auto;max-width:196px;object-fit:contain;object-position:left center}
+.site-footer[data-variant] .partner-block > img,
+.site-footer .partner-block > img{max-width:130px}
+@media(max-width:640px){
+  .site-footer[data-variant] > div > img,
+  .site-footer > div > img{height:58px;max-width:168px}
+  .site-footer[data-variant] .partner-block > img,
+  .site-footer .partner-block > img{max-width:112px}
+}
+
+/* ===== datumsfelder: so breit wie ihr inhalt, nicht wie ihre spalte =====
+   Ein Datum braucht rund zwoelf Zeichen. Ueber die volle Spaltenbreite
+   gezogen wirkte das Feld auf dem Telefon wie ein leerer Kasten und drueckte
+   die Zeile an den Rand. Die Hoehe bleibt, damit der Daumen trifft; nur die
+   Breite ist gedeckelt. Steht in jeder Stilvorlage, weil Datumsfelder auf
+   mehreren Seiten vorkommen - Reservierung, Takeaway und Anfrage. */
+input[type="date"]{max-width:15rem;box-sizing:border-box}

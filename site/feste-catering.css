@@ -22,7 +22,6 @@
 /* Und der Kopf: Marke plus "Anfrage starten" passen bei 320 px nur, wenn
    beide etwas abgeben. */
 @media(max-width:400px){
-  .brand{width:108px}
   .header-cta{padding:0 12px;font-size:11px;letter-spacing:.05em}
 }
 
@@ -32,9 +31,12 @@
 body{text-transform:lowercase}
 
 /* beide logos weiss auf dem dunklen kopf */
-.brand{background:transparent;padding:0;gap:14px;align-items:center}
+/* width:auto hebt zwei alte Festbreiten (148/128 px) aus der Zeit auf, als
+   hier nur ein Logo stand - seit beide Marken nebeneinander sitzen, muss die
+   Spalte mit ihnen wachsen, sonst rutschen sie uebereinander. */
+.brand{background:transparent;padding:0;gap:14px;align-items:center;width:auto}
 .brand img{filter:invert(1) brightness(1.55)}
-.brand .partner-logo{width:54px;height:auto;filter:none}
+.brand .partner-logo{filter:none}
 footer img{background:transparent;padding:0;filter:invert(1) brightness(1.55)}
 
 /* ===== locations-matrix: sparten, wege, kulturhaus-kontakt ===== */
@@ -154,20 +156,31 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(max-width:700px){
   .event-header{gap:10px;padding:0 12px}
   .brand{gap:9px}
-  .brand img{width:118px}
-  .brand .partner-logo{width:42px}
   .header-cta{padding:0 12px;font-size:11px;letter-spacing:.06em;white-space:nowrap}
 }
 @media(max-width:430px){
-  .brand img{width:104px}
-  .brand .partner-logo{width:38px}
   .header-cta{padding:0 10px;font-size:10.5px}
 }
 
-/* die marke darf schrumpfen, statt den kopf zu sprengen */
-.brand{min-width:0;flex-shrink:1;overflow:hidden}
-.brand img{max-width:100%;height:auto;flex-shrink:1;min-width:0}
+/* Der Kopf haelt die Geraetebreite ueber die Groesse der Marken, nicht ueber
+   Quetschen: frueher stand hier flex-shrink:1 mit overflow:hidden - beide
+   Logos wurden dann schmalgedrueckt und sichtbar verzerrt. Die Hoehenstufen
+   am Dateiende halten sie klein genug; hier bleibt nur, dass die Kopfzeile
+   selbst nicht ueber ihre Spalte hinauswaechst. */
 .event-header{min-width:0}
+
+/* Auf dem Telefon gibt der Knopf nach, nicht die Marke.
+   "Offizielles Programm" braucht 160 px - zusammen mit beiden Logos passte
+   das auf einem 402er iPhone nicht mehr, und das Grid drueckte die Logos
+   uebereinander. Jetzt faellt das erste Wort weg; der volle Sinn steht im
+   aria-label, damit Screenreader weiter den ganzen Satz vorlesen. */
+/* Der Knopf ist inline-flex, deshalb faellt das Leerzeichen zwischen den
+   beiden Textstuecken weg ("offiziellesprogramm"). gap setzt es zurueck -
+   und verschwindet von selbst, sobald nur noch ein Stueck da ist. */
+.header-cta{gap:.34em}
+@media(max-width:560px){
+  .header-cta .cta-lang{display:none}
+}
 
 
 /* ===== grosse ueberschriften duerfen auf schmalen schirmen trennen =====
@@ -179,3 +192,72 @@ h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:break-word;hyphens:auto}
 @media(max-width:700px){
   h1,h2,h3{hyphens:auto;overflow-wrap:break-word}
 }
+
+
+/* ===== die beiden marken, ueberall gleich gewichtet =====
+   Ausgangslage: der wirtschaft-Schriftzug ist ein langes Rechteck (4,3:1),
+   das Zeichen von emma & eugen ist kompakt (1,8:1). Gleiche Breite laesst das
+   Zeichen winzig wirken, gleiche Hoehe laesst den Schriftzug erschlagen. Wir
+   geben deshalb dem Zeichen mehr Hoehe und dem Schriftzug mehr Breite, bis
+   beide ungefaehr dieselbe Flaeche bedecken - so lesen sie sich als zwei
+   gleichwertige Haeuser und nicht als Marke plus Fussnote.
+
+   Die Bilddatei von emma & eugen war bis zum 26.08. auf 240x169 gesetzt,
+   enthielt aber nur 202x112 Zeichen - ein Drittel der Hoehe war leerer Rand.
+   Sie ist jetzt auf den Inhalt beschnitten, damit die Hoehenangaben hier
+   wirklich die sichtbare Marke meinen. */
+
+/* Kein Schrumpfen im Flex-Kopf: ohne das hat die Zeile beide Logos schmaler
+   gequetscht, sobald Navigation daneben stand - der Schriftzug lag dann bei
+   62 statt 139 px Breite und war sichtbar verzerrt. */
+.master-brand,.partner-brand,.brand,.brand-row,.site-head > a{flex-shrink:0}
+
+/* --- kopfzeile --- */
+.master-brand img,
+.brand img:first-of-type,
+.brand-row > a img,
+.site-head > a img{height:44px;width:auto;max-width:none;flex-shrink:0}
+.partner-brand img,
+.brand .partner-logo,
+.brand-row .partner-logo{height:64px;width:auto;max-width:none;flex-shrink:0}
+@media(max-width:900px){
+  .master-brand img,
+  .brand img:first-of-type,
+  .brand-row > a img,
+  .site-head > a img{height:36px}
+  .partner-brand img,
+  .brand .partner-logo,
+  .brand-row .partner-logo{height:52px}
+}
+@media(max-width:430px){
+  .master-brand img,
+  .brand img:first-of-type,
+  .brand-row > a img,
+  .site-head > a img{height:32px}
+  .partner-brand img,
+  .brand .partner-logo,
+  .brand-row .partner-logo{height:46px}
+}
+
+/* --- fusszeile ---
+   Eine gemeinsame Zone von 68 px: das Zeichen fuellt sie in der Hoehe, der
+   Schriftzug in der Breite. Beide sitzen mittig in derselben Zone, damit die
+   Textspalten darunter auf einer Linie beginnen. */
+.site-footer[data-variant] > div > img,
+.site-footer > div > img{height:68px;width:auto;max-width:196px;object-fit:contain;object-position:left center}
+.site-footer[data-variant] .partner-block > img,
+.site-footer .partner-block > img{max-width:130px}
+@media(max-width:640px){
+  .site-footer[data-variant] > div > img,
+  .site-footer > div > img{height:58px;max-width:168px}
+  .site-footer[data-variant] .partner-block > img,
+  .site-footer .partner-block > img{max-width:112px}
+}
+
+/* ===== datumsfelder: so breit wie ihr inhalt, nicht wie ihre spalte =====
+   Ein Datum braucht rund zwoelf Zeichen. Ueber die volle Spaltenbreite
+   gezogen wirkte das Feld auf dem Telefon wie ein leerer Kasten und drueckte
+   die Zeile an den Rand. Die Hoehe bleibt, damit der Daumen trifft; nur die
+   Breite ist gedeckelt. Steht in jeder Stilvorlage, weil Datumsfelder auf
+   mehreren Seiten vorkommen - Reservierung, Takeaway und Anfrage. */
+input[type="date"]{max-width:15rem;box-sizing:border-box}
