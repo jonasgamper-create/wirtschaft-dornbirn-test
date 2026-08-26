@@ -1580,7 +1580,7 @@ body{text-transform:lowercase}
 
 .insta-note{font-size:12.5px;margin-top:18px}
 @media(max-width:900px){
-  .insta-strip>*{width:calc(100% - 40px)}
+  .insta-strip>*{width:calc(100% - 92px)}
 }
 @media(max-width:640px){
   .insta-strip{padding:60px 0}
