@@ -765,9 +765,17 @@ html{scroll-padding-top:0}
 }
 @media(min-width:1100px){
   .final-site .prologue h1{font-size:clamp(64px,7.4vw,116px)}
+  /* Deckel 84 statt 92: die Textspalte dieser Kapitel bleibt ab 1100 px fast
+     konstant bei rund 390 px, waehrend die Schrift bis 92 px weiterwuchs. Bei
+     etwa 1600 px Fensterbreite brauchte "kommen" dann 403 px und passte nicht
+     mehr - vorher brach es mitten im Wort ("komme / n zu euch"). 84 px
+     laesst dem laengsten Wort seine Zeile, mit rund 3 Prozent Reserve. */
   .final-site .final-copy h2,
-  .final-site .scene-copy h2{font-size:clamp(56px,5.6vw,92px)}
-  .final-site .catering-scene h2{font-size:clamp(56px,5.6vw,92px)}
+  .final-site .scene-copy h2{font-size:clamp(56px,5.6vw,84px)}
+  /* Das Catering-Kapitel steht in einer festen 388-px-Spalte neben dem Bild -
+     schmaler als die uebrigen Kapitel. Sein laengstes Wort ("kommen") braucht
+     4,5 Zeichenbreiten; bei 76 px bleiben rund 12 Prozent Reserve. */
+  .final-site .catering-scene h2{font-size:clamp(52px,5.6vw,76px)}
   .final-site{--t-body:18.5px}
 }
 
@@ -1623,7 +1631,13 @@ body{text-transform:lowercase}
    overflow-wrap bleibt als Notbremse fuer den Fall, dass ein einzelnes
    Wort breiter ist als seine Spalte - dann bricht es lieber, als den
    Rand zu sprengen und das Telefon zum Herauszoomen zu zwingen. */
-h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:break-word;hyphens:manual;-webkit-hyphens:manual}
+/* Ueberschriften brechen NIE mitten im Wort. break-word war als Notbremse
+   gegen Ueberlauf gedacht, hat aber genau den Fehler erzeugt, den es
+   verhindern sollte: "komme / n zu euch." Ein Wort rutscht jetzt immer
+   als Ganzes in die naechste Zeile. Damit dabei nichts ueber den Rand
+   laeuft, ist die Schriftgroesse zusaetzlich an die Spaltenbreite
+   gekoppelt (siehe die cqi-Deckelung weiter unten). */
+h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:normal;word-break:normal;hyphens:manual;-webkit-hyphens:manual}
 @media(max-width:700px){
   h1,h2,h3{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:break-word}
 }

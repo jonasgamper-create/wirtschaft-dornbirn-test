@@ -209,7 +209,13 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
    overflow-wrap bleibt als Notbremse fuer den Fall, dass ein einzelnes
    Wort breiter ist als seine Spalte - dann bricht es lieber, als den
    Rand zu sprengen und das Telefon zum Herauszoomen zu zwingen. */
-h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:break-word;hyphens:manual;-webkit-hyphens:manual}
+/* Ueberschriften brechen NIE mitten im Wort. break-word war als Notbremse
+   gegen Ueberlauf gedacht, hat aber genau den Fehler erzeugt, den es
+   verhindern sollte: "komme / n zu euch." Ein Wort rutscht jetzt immer
+   als Ganzes in die naechste Zeile. Damit dabei nichts ueber den Rand
+   laeuft, ist die Schriftgroesse zusaetzlich an die Spaltenbreite
+   gekoppelt (siehe die cqi-Deckelung weiter unten). */
+h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:normal;word-break:normal;hyphens:manual;-webkit-hyphens:manual}
 @media(max-width:700px){
   h1,h2,h3{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:break-word}
 }
