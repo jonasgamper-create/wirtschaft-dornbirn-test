@@ -393,3 +393,13 @@ a.button,
 .brand-row > a,
 .brand,
 .site-head > a{min-height:44px;display:inline-flex;align-items:center}
+
+/* Telefon und E-Mail in der Fusszeile sind Tapziele wie jeder Knopf: darauf
+   tippt man mit dem Daumen, um anzurufen oder zu schreiben. Sie lagen bei
+   40 px. Im Fliesstext bleiben Links unangetastet - dort wuerde eine
+   Mindesthoehe die Zeilenabstaende auseinanderziehen. */
+.site-footer a{display:inline-flex;align-items:center;min-height:44px}
+/* Ausser im Fliesstext: dort wuerde eine Mindesthoehe die Zeilen
+   auseinanderziehen, und angetippt wird ohnehin das ganze Wort. */
+.site-footer p a,
+.site-footer li a{display:inline;min-height:0}
