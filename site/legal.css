@@ -283,7 +283,10 @@ footer nav a { min-height: 44px }
    gekoppelt (siehe die cqi-Deckelung weiter unten). */
 h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:normal;word-break:normal;hyphens:manual;-webkit-hyphens:manual}
 @media(max-width:700px){
-  h1,h2,h3{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:break-word}
+  /* Auch hier normal, nicht break-word: diese Zeile stand nach der Regel
+     weiter oben und hat sie wieder aufgehoben - deshalb brach "kommen"
+     trotz der Umstellung weiter mitten im Wort. */
+  h1,h2,h3{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal;word-break:normal}
 }
 
 
