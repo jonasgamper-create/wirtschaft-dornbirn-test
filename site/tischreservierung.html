@@ -12,7 +12,7 @@
   <title>Tischreservierung · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-600-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=dad9ed02">
+  <link rel="stylesheet" href="tischreservierung.css?v=067c1e83">
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Restaurant","name":"Wirtschaft Dornbirn","legalName":"„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.","url":"https://wirtschaft-dornbirn.at/","telephone":"+43557220540","email":"willkommen@wirtschaft-dornbirn.at","address":{"@type":"PostalAddress","streetAddress":"Bahnhofstraße 24","postalCode":"6850","addressLocality":"Dornbirn","addressRegion":"Vorarlberg","addressCountry":"AT"},"vatID":"ATU36206707","acceptsReservations":"https://wirtschaft-dornbirn.at/tischreservierung.html"}
   </script>
@@ -87,8 +87,8 @@
                 wer zuerst reserviert, hat den Tisch. Der Eintrag gilt nur für diesen Tag und wird
                 danach gelöscht. <a href="datenschutz-sicherheit.html#anfragen">Wie wir mit deinen Daten umgehen</a></p>
               <div class="warteliste-felder">
-                <input type="text" id="wlName" maxlength="40" autocomplete="family-name" placeholder="Name">
-                <input type="email" id="wlMail" maxlength="120" autocomplete="email" inputmode="email" placeholder="E-Mail-Adresse">
+                <input type="text" id="wlName" maxlength="40" autocomplete="family-name" placeholder="Name" aria-label="Name für die Warteliste">
+                <input type="email" id="wlMail" maxlength="120" autocomplete="email" inputmode="email" placeholder="E-Mail-Adresse" aria-label="E-Mail-Adresse für die Warteliste">
                 <button class="button" type="button" id="wlEintragen">Eintragen</button>
               </div>
               <p class="warteliste-status" id="wlStatus" role="status" aria-live="polite"></p>

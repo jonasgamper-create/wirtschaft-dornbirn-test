@@ -282,3 +282,39 @@ h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:break-word;hyphens:manual;-webkit
    Breite ist gedeckelt. Steht in jeder Stilvorlage, weil Datumsfelder auf
    mehreren Seiten vorkommen - Reservierung, Takeaway und Anfrage. */
 input[type="date"]{max-width:15rem;box-sizing:border-box}
+
+/* ===== bedienbarkeit: eingabefelder und tapziele =====
+   Abnahme vom 26.08. auf der veroeffentlichten Seite, gemessen bei 402 px.
+
+   1) Schrift in Eingabefeldern nie unter 16 px. Safari auf dem iPhone zoomt
+      die GANZE Seite hinein, sobald ein Feld mit kleinerer Schrift den Fokus
+      bekommt - und zoomt danach nicht von selbst zurueck. Genau das war als
+      "zu viel Zoom" sichtbar. Die Felder erbten ihre 12,5 px von der
+      Beschriftung darueber (.form-grid label); die Beschriftung bleibt klein,
+      das Feld nicht.
+   2) Tapziele mindestens 44 px hoch - die Groesse, die Apple und die WCAG
+      als sicher treffbar ansetzen. Mehrere Knoepfe lagen bei 42 px.
+   3) Kreuzchen und Auswahlpunkte sind von Haus aus rund 13 px. Sie werden auf
+      24 px vergroessert, und ihre Beschriftung traegt die 44 px Tapflaeche -
+      angetippt wird ohnehin meist der Text. */
+
+input,select,textarea{font-size:16px}
+/* Kreuzchen und Auswahlpunkte haben keine Textzeile - dort waeren 16 px
+   sinnlos; sie bekommen stattdessen Flaeche. */
+input[type="checkbox"],input[type="radio"]{width:24px;height:24px;flex:0 0 24px;accent-color:var(--wine, #8c292b)}
+label:has(> input[type="checkbox"]),
+label:has(> input[type="radio"]){display:flex;align-items:center;gap:10px;min-height:44px}
+
+button,
+.button,
+a.button,
+[role="button"],
+.header-cta,
+.location-grid button,
+.possibility-grid .wege a{min-height:44px}
+
+/* Der Sprunglink ganz oben und die Logo-Zeile sind ebenfalls Tapziele. */
+.skip-link{min-height:44px;display:inline-flex;align-items:center}
+.brand-row > a,
+.brand,
+.site-head > a{min-height:44px;display:inline-flex;align-items:center}
