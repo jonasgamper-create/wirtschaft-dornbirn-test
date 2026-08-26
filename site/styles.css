@@ -1542,24 +1542,6 @@ body{text-transform:lowercase}
 .abend-video video{width:100%;height:auto;display:block;background:#000}
 .abend-video figcaption{margin-top:10px;color:var(--gold);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:lowercase}
 
-/* ===== buchung im haus: mittagstisch und takeaway als overlay =====
-   der gast bleibt auf der startseite; gebucht wird beim jeweiligen dienst. */
-.haus-dialog{width:min(560px,calc(100% - 20px));height:min(880px,calc(100svh - 20px));padding:0;
-  border:1px solid rgba(243,239,230,.18);background:#141210;color:var(--paper);display:none;flex-direction:column}
-.haus-dialog[open]{display:flex}
-.haus-dialog::backdrop{background:#0b0a09e8}
-.haus-dialog-kopf{display:flex;justify-content:space-between;align-items:center;gap:14px;
-  padding:12px 16px;border-bottom:1px solid rgba(243,239,230,.14)}
-.haus-dialog-kopf p{margin:0;font-size:12px;color:rgba(243,239,230,.66)}
-.haus-dialog-kopf p span{color:var(--paper);font-weight:700}
-.haus-dialog-kopf>div{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.haus-dialog-kopf a{font-size:11.5px;font-weight:700;letter-spacing:.08em;color:var(--gold);
-  text-decoration:none;text-transform:lowercase;white-space:nowrap;min-height:44px;display:flex;align-items:center}
-.haus-dialog-kopf a:hover{text-decoration:underline}
-#hausDialogZu{width:44px;height:44px;border:1px solid rgba(243,239,230,.22);border-radius:50%;
-  background:transparent;color:var(--paper);font-size:20px;cursor:pointer}
-#hausDialogZu:hover{border-color:var(--gold);color:var(--gold)}
-#hausDialogFrame{flex:1;width:100%;border:0;background:#fff}
 
 /* die zwei wege im aufklappmenue sind knoepfe, keine links mehr */
 .nav-drop-menu button{display:flex;align-items:center;width:100%;min-height:44px;padding:0 14px;
