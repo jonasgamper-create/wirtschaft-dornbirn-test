@@ -36,6 +36,10 @@
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Haus"] }],
 
   "vars": {
+    // Brueckenbetrieb: Reservierungen laufen ueber das Altsystem,
+    // bis der Umzug auf die eigene Strecke entschieden ist.
+    "ALT_RESERVIERUNG": "https://tischreservierung.wirtschaft-dornbirn.at",
+    "ALT_TAKEAWAY": "https://lieferservice.wirtschaft-dornbirn.at",
     // Nur diese Herkuenfte duerfen den Dienst im Browser ansprechen.
     // Beim eigenen Domainnamen hier ergaenzen.
     "ALLOWED_ORIGINS": "https://jonasgamper-create.github.io,http://localhost:4321,http://localhost:4322,http://localhost:4323",
