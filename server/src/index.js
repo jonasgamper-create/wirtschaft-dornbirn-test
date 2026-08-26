@@ -2388,6 +2388,25 @@ export default {
       // Oeffentlich: die bestellbare Karte - Name und Preis, sonst nichts.
       if (url.pathname === '/api/takeaway/karte' && request.method === 'GET') {
         const uhr = jetztImHaus();
+        // Brueckenbetrieb: die Karte kommt vom Lieferservice-Altsystem. Der
+        // Dienst uebernimmt sie als seine eigene, sobald sie sich aendert -
+        // so sehen Anzeige, Bestellpruefung und Kuechenzettel dieselbe Karte.
+        // Ist das Altsystem gerade nicht erreichbar, gilt der letzte Stand.
+        if (env.ALT_TAKEAWAY) {
+          try {
+            const altKarte = await holeAltKarte(env);
+            const text = altKarte.gerichte
+              .map(gericht => `${gericht.titel} ${gericht.preis || ''}`.trim())
+              .filter(zeile => /\d,\d{2}/.test(zeile))
+              .join('\n');
+            // Vergleich ueber die Gerichte selbst: nur wenn sich etwas
+            // geaendert hat, wird geschrieben - sonst schriebe jeder Abruf.
+            const stand = await haus.takeawayKarte(uhr.datum, uhr.zeit, '');
+            const alt = (stand.gerichte || []).map(g => `${g.name}|${g.preis}`).join('~');
+            const neu = parseKarte(text).map(g => `${g.name}|${g.preis}`).join('~');
+            if (neu && neu !== alt) await haus.setzeTakeawayKarte(text);
+          } catch { /* letzter Stand gilt */ }
+        }
         return json(await haus.takeawayKarte(uhr.datum, uhr.zeit, String(url.searchParams.get('datum') || '').slice(0, 10)), 200, kopf);
       }
       // Der Wirt setzt die Karte: die Zeilen aus dem Mittagskarten-PDF.
