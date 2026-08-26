@@ -68,3 +68,51 @@ footer .partner-block{display:grid;gap:4px;font-size:12px}
 footer .partner-block img{width:120px;height:auto;padding:0;background:transparent;filter:none}
 footer .partner-block p{margin:2px 0 0}
 footer .partner-block a{display:block;font-weight:400;text-transform:none}
+
+
+/* ===== seitenabschluss wie auf der startseite =====
+   instagram-streifen und beschriftete fusszeile, gleiche kante, gleiche
+   masse - damit jede seite gleich endet. */
+.insta-strip{background:var(--ink);color:#fff;padding:44px 0 8px}
+.insta-strip>*{width:min(1240px,calc(100% - 48px));margin-left:auto;margin-right:auto}
+.insta-zeile{display:flex;justify-content:space-between;align-items:center;gap:20px;
+  padding-top:26px;border-top:1px solid rgba(243,239,230,.18)}
+.insta-titel{margin:0;font:700 13px/1 var(--sans,Montserrat);letter-spacing:.18em;
+  text-transform:lowercase;color:var(--gold)}
+.insta-folgen{display:inline-flex;align-items:center;min-height:44px;
+  font:700 12px/1 Montserrat,"Helvetica Neue",Arial,sans-serif;letter-spacing:.1em;
+  text-transform:lowercase;color:#f3efe6;text-decoration:none;border-bottom:1px solid rgba(243,239,230,.4)}
+.insta-folgen:hover{color:var(--gold);border-color:var(--gold)}
+.insta-band{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:22px}
+.insta-band a{display:block;overflow:hidden}
+.insta-band img{width:100%;height:100%;aspect-ratio:1/1;object-fit:cover;display:block;transition:transform .35s ease}
+.insta-band a:hover img{transform:scale(1.05)}
+.insta-band a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.insta-note{margin:16px auto 0;color:rgba(243,239,230,.5);font-size:11.5px;line-height:1.5}
+
+.site-footer{display:grid;grid-template-columns:1.25fr 1.25fr .9fr 1fr;gap:34px 44px;
+  align-items:start;width:100%;margin:0;padding:26px max(24px,calc((100% - 1240px)/2)) 46px;
+  background:var(--ink);color:#d8d4cb;font-size:13px;line-height:1.6}
+.site-footer img{width:155px;height:auto;margin-bottom:14px;filter:invert(1) brightness(1.55)}
+.site-footer .partner-block img{filter:none;width:150px}
+.site-footer p{margin:5px 0}
+.site-footer a{display:block;min-height:44px;padding:3px 0;color:#d8d4cb;
+  text-decoration:underline;text-underline-offset:4px;text-transform:lowercase;font-weight:400}
+.site-footer .partner-block a{margin-top:2px}
+.site-footer a:hover{color:var(--gold)}
+.fuss-label{font:700 12px/1 Montserrat,"Helvetica Neue",Arial,sans-serif;letter-spacing:.18em;
+  text-transform:lowercase;color:var(--gold);margin:0 0 14px!important}
+.prototype-note{grid-column:1/-1;margin:36px 0 0!important;padding-top:22px;
+  border-top:1px solid rgba(243,239,230,.15);font-size:11.5px;letter-spacing:.1em;
+  text-transform:lowercase;color:rgba(243,239,230,.45)}
+@media(max-width:1100px){
+  .site-footer{grid-template-columns:1fr 1fr;gap:30px 34px;padding-left:24px;padding-right:24px}
+}
+@media(max-width:900px){
+  .insta-strip>*{width:calc(100% - 92px)}
+  .insta-band{grid-template-columns:repeat(3,1fr);gap:6px}
+}
+@media(max-width:640px){
+  .insta-strip>*{width:calc(100% - 46px)}
+  .site-footer{grid-template-columns:1fr;padding-left:23px;padding-right:23px}
+}
