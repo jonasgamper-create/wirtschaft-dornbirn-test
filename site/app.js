@@ -588,30 +588,6 @@
 
 
 
-  // Mittagstisch und Takeaway oeffnen als Overlay: der Gast bleibt auf der
-  // Startseite, gebucht wird beim jeweiligen Dienst. Nach dem Schliessen ist
-  // das Fenster wieder weg - es bleibt nichts stehen.
-  const hausDialog = document.getElementById('hausDialog');
-  if (hausDialog) {
-    const rahmen = document.getElementById('hausDialogFrame');
-    const titel = document.getElementById('hausDialogTitel');
-    const extern = document.getElementById('hausDialogExtern');
-    document.querySelectorAll('[data-haus]').forEach(knopf => {
-      knopf.addEventListener('click', () => {
-        // Robust gegen Doppelklick: ein offener Dialog wird erst geschlossen,
-        // sonst wirft showModal - und das close-Ereignis darf das frische
-        // Ziel nicht wieder auf about:blank setzen.
-        if (hausDialog.open) hausDialog.close();
-        titel.textContent = knopf.dataset.hausTitel;
-        extern.href = knopf.dataset.haus.split('?')[0];
-        rahmen.src = knopf.dataset.haus;
-        hausDialog.showModal();
-      });
-    });
-    document.getElementById('hausDialogZu').addEventListener('click', () => hausDialog.close());
-    hausDialog.addEventListener('close', () => { rahmen.src = 'about:blank'; });
-    hausDialog.addEventListener('click', e => { if (e.target === hausDialog) hausDialog.close(); });
-  }
 
   // Mittag-Aufklappmenue: ein Ziel in der Leiste, zwei Wege dahinter.
   // Klick oeffnet (auch am Handy), Maus darf am Desktop schweben,

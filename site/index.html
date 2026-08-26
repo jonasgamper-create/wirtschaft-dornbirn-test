@@ -25,7 +25,7 @@
   <link rel="preload" as="image" href="assets/restaurant.webp" imagesrcset="assets/restaurant-800.webp 900w, assets/restaurant.webp 1920w" imagesizes="100vw" fetchpriority="high">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-600-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=3be3ff20">
+  <link rel="stylesheet" href="styles.css?v=e82bf43d">
   <script type="application/ld+json">
 {"@context": "https://schema.org", "@type": "Restaurant", "@id": "https://wirtschaft-dornbirn.at/#restaurant", "name": "Wirtschaft Dornbirn", "legalName": "„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.", "url": "https://wirtschaft-dornbirn.at/", "description": "Mittagstisch, Konzerte, Comedy und Catering in Dornbirn, Vorarlberg.", "telephone": "+43557220540", "email": "willkommen@wirtschaft-dornbirn.at", "image": "https://wirtschaft-dornbirn.at/assets/restaurant.webp", "priceRange": "€€", "servesCuisine": ["Österreichisch", "Saisonal"], "address": {"@type": "PostalAddress", "streetAddress": "Bahnhofstraße 24", "postalCode": "6850", "addressLocality": "Dornbirn", "addressRegion": "Vorarlberg", "addressCountry": "AT"}, "vatID": "ATU36206707", "areaServed": {"@type": "City", "name": "Dornbirn"}, "acceptsReservations": "https://wirtschaft-dornbirn.at/tischreservierung.html", "specialOpeningHoursSpecification": [{"@type": "OpeningHoursSpecification", "validFrom": "2026-07-24", "validThrough": "2026-08-23", "opens": "00:00", "closes": "00:00", "name": "Sommerpause"}], "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "11:30", "closes": "13:30", "name": "Mittagstisch"}]}
   </script>
@@ -46,8 +46,8 @@
       <div class="nav-drop" data-comment-anchor="50a6574b06-a">
         <button type="button" id="navMittag" aria-expanded="false" aria-controls="navMittagMenu">Mittag <span class="drop-pfeil" aria-hidden="true">▾</span></button>
         <div class="nav-drop-menu" id="navMittagMenu" hidden>
-          <button type="button" data-haus="tischreservierung.html?eingebettet=1" data-haus-titel="Mittagstisch reservieren">Mittagstisch</button>
-          <button type="button" data-haus="takeaway.html?eingebettet=1" data-haus-titel="Takeaway bestellen">Takeaway</button>
+          <a href="tischreservierung.html">Mittagstisch</a>
+          <a href="takeaway.html">Takeaway</a>
         </div>
       </div>
       <a href="feste-catering.html">Locations</a>
@@ -107,8 +107,8 @@
           <p>Wechselnde Mittagsmenüs im Restaurant an der Bahnhofstraße – saisonal und ohne Schnörkel.</p>
           <a class="lunch-card-link" data-lunch-card href="downloads/mittagskarte/2026-07-24_mittagskarte-sommerpause.pdf" target="_blank" rel="noopener noreferrer">Aktuelle Mittagskarte (PDF) <span aria-hidden="true">↗</span></a>
           <div class="lunch-book">
-            <button class="button button-green" type="button" data-haus="tischreservierung.html?eingebettet=1" data-haus-titel="Mittagstisch reservieren">Mittagstisch reservieren</button>
-            <button class="button" type="button" data-haus="takeaway.html?eingebettet=1" data-haus-titel="Takeaway bestellen">Takeaway bestellen</button>
+            <a class="button button-green" data-reserve-cta href="tischreservierung.html">Mittagstisch reservieren</a>
+            <a class="button" href="takeaway.html">Takeaway bestellen</a>
           </div>
           <!-- Kurz beantwortete Fragen. Sie stehen hier fuer Gaeste, die
                genau das wissen wollen, ohne die Seite zu durchsuchen - und
@@ -199,17 +199,6 @@
         <p>Die Bestellung läuft persönlich über uns. Wir melden uns mit den Zahlungsdaten und schicken den Gutschein zum Drucken oder per Post.</p>
       </div>
     </section>
-
-
-
-    <dialog class="haus-dialog" id="hausDialog" aria-label="Buchung">
-      <div class="haus-dialog-kopf">
-        <p><span id="hausDialogTitel"></span> · läuft über unseren Buchungsdienst</p>
-        <div><a id="hausDialogExtern" href="tischreservierung.html" target="_blank" rel="noopener noreferrer">Im neuen Fenster ↗</a>
-        <button type="button" id="hausDialogZu" aria-label="Schließen">×</button></div>
-      </div>
-      <iframe id="hausDialogFrame" title="Buchung" loading="lazy"></iframe>
-    </dialog>
   </main>
 
 
@@ -238,7 +227,7 @@
     <div class="dialog-frame booking-direct-frame">
       <header><div><p class="eyebrow">Mittagstisch · 11:30–13:30</p><h2 id="reservationTitle">Euer Tisch in <span class="name">Dornbirn</span>.</h2></div><button class="dialog-close" type="button" aria-label="Reservierung schließen">×</button></header>
       <div class="booking-direct-layout"><div><p class="booking-direct-lead">Wählt Datum, Uhrzeit und Personenzahl direkt im Reservierungssystem der Wirtschaft.</p><ul class="booking-direct-list"><li>Aktuelle Tischverfügbarkeit</li><li>Tisch nur zum Mittag – abends gilt das Eventticket</li><li>Änderung und Storno direkt beim Anbieter</li></ul></div><aside class="guest-assurance"><p>Direkt reservieren</p><strong>Ohne Umweg zum Tisch.</strong><p class="microcopy">Die Reservierung wird vollständig beim offiziellen Anbieter verarbeitet. Die Website speichert keine Gästedaten und keine Zahlungsinformationen.</p></aside></div>
-      <footer><button class="button button-dark" type="button" data-haus="tischreservierung.html?eingebettet=1" data-haus-titel="Mittagstisch reservieren">Reservierung öffnen</button><button class="button button-ghost dialog-close" type="button">Zurück</button></footer>
+      <footer><a class="button button-dark" href="tischreservierung.html">Reservierung öffnen</a><button class="button button-ghost dialog-close" type="button">Zurück</button></footer>
     </div>
   </dialog>
 
@@ -272,14 +261,14 @@
   </dialog>
 
   <dialog class="app-dialog" id="storyDialog" aria-labelledby="storyTitle">
-    <form method="dialog" class="dialog-frame story-frame"><header><div><p class="eyebrow">Die Geschichte</p><h2 id="storyTitle"><span class="name">Emma</span>, <span class="name">Eugen</span> und ein Haus voller Leben.</h2></div><button class="dialog-close" type="button" aria-label="Geschichte schließen">×</button></header><div class="story-layout"><img src="assets/emma-eugen.webp" width="900" height="636" loading="lazy" decoding="async" alt="Emma und Eugen"><div><p>Die Großeltern des Besitzers stehen für Gastfreundschaft, Haltung und persönliche Nähe. Genau diese Glaubwürdigkeit wird zur visuellen Klammer der neuen Website.</p><ol><li><b>Damals</b><span>Emma &amp; Eugen prägen die familiäre Herkunft.</span></li><li><b>Heute</b><span>Mittag, Dinner, Konzerte, Comedy und Feiern.</span></li><li><b>Morgen</b><span>Ein durchgängiger digitaler Weg von Inspiration bis Buchung.</span></li></ol></div></div><footer><button class="button button-dark" type="button" data-haus="tischreservierung.html?eingebettet=1" data-haus-titel="Mittagstisch reservieren">Geschichte weiterschreiben</button><span>Authentische Markenstory statt austauschbarer Luxusbehauptung</span></footer></form>
+    <form method="dialog" class="dialog-frame story-frame"><header><div><p class="eyebrow">Die Geschichte</p><h2 id="storyTitle"><span class="name">Emma</span>, <span class="name">Eugen</span> und ein Haus voller Leben.</h2></div><button class="dialog-close" type="button" aria-label="Geschichte schließen">×</button></header><div class="story-layout"><img src="assets/emma-eugen.webp" width="900" height="636" loading="lazy" decoding="async" alt="Emma und Eugen"><div><p>Die Großeltern des Besitzers stehen für Gastfreundschaft, Haltung und persönliche Nähe. Genau diese Glaubwürdigkeit wird zur visuellen Klammer der neuen Website.</p><ol><li><b>Damals</b><span>Emma &amp; Eugen prägen die familiäre Herkunft.</span></li><li><b>Heute</b><span>Mittag, Dinner, Konzerte, Comedy und Feiern.</span></li><li><b>Morgen</b><span>Ein durchgängiger digitaler Weg von Inspiration bis Buchung.</span></li></ol></div></div><footer><a class="button button-dark" href="tischreservierung.html">Geschichte weiterschreiben</a><span>Authentische Markenstory statt austauschbarer Luxusbehauptung</span></footer></form>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 
   <noscript><p class="noscript">Für die Eventübersicht ist JavaScript erforderlich. Die offiziellen Reservierungs- und Ticketlinks bleiben ohne JavaScript erreichbar.</p></noscript>
-  <script src="app.js?v=482e8715" defer></script>
+  <script src="app.js?v=08e13b4e" defer></script>
   <script type="module" src="lunch-abo.js?v=f0ddd3e4"></script>
   <script src="truck-motion.js?v=1fd8e5e9" defer></script>
   <script src="prefetch.js?v=b7ede3be" defer></script>
