@@ -505,3 +505,25 @@ body{text-transform:lowercase}
 .contact-check,.consent,.ta-merken{min-height:44px;align-items:center}
 .contact-lead a,.contact-check a,.abo-datenschutz,.contact-note a,.ta-merken a{
   display:inline-flex;align-items:center;min-height:44px}
+
+
+/* ===== fusszeile: beide marken auf einer linie =====
+   wirtschaft ist breit-flach (300x69), emma & eugen hochkant (480x339).
+   nach breite skaliert standen sie 53 gegen 162 px hoch - die spalten
+   liefen auseinander. jetzt teilen sie sich eine zone fester hoehe. */
+/* Eine aeltere Regel erzwang 230 px Breite - beide Zeichen wurden dadurch
+   gestaucht. Jetzt teilen sie sich eine Zone fester Hoehe und behalten mit
+   object-fit ihr eigenes Seitenverhaeltnis. Die Textbloecke beider Spalten
+   beginnen damit auf derselben Linie. */
+.site-footer[data-variant] > div > img,
+.site-footer > div > img{
+  display:block;width:100%;max-width:200px;height:68px;
+  object-fit:contain;object-position:left center;margin:0 0 22px}
+.site-footer[data-variant] .partner-block > img,
+.site-footer .partner-block > img{max-width:112px}
+@media(max-width:640px){
+  .site-footer[data-variant] > div > img,
+  .site-footer > div > img{height:56px;max-width:168px;margin-bottom:18px}
+  .site-footer[data-variant] .partner-block > img,
+  .site-footer .partner-block > img{max-width:94px}
+}
