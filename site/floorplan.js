@@ -4,7 +4,7 @@
 
 // Version muss zu den anderen Importen passen, sonst laedt der Browser zwei
 // Kopien desselben Moduls.
-import { ELEMENTS, buildFloorplan, chairSlots, seatNamesFor, tableBody } from './floorplan-layout.mjs?v=8cd1fbb4';
+import { ELEMENTS, buildFloorplan, chairSlots, seatNamesFor, tableBody } from './floorplan-layout.mjs?v=7911e18a';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const el = (tag, attrs = {}) => {
@@ -223,6 +223,21 @@ export function renderFloorplan(root, config, options = {}) {
         group.append(seat);
       });
       const body = tableBody(table);
+
+      // Wandbank: statt einzelner Stuehle eine durchgehende Bank auf der
+      // oberen Laengsseite. Sie wird vor der Tischplatte gezeichnet, damit die
+      // Platte davorliegt - so sieht es aus wie im Raum.
+      if (table.form === 'bank') {
+        const laengs = table.dreh === 90;
+        group.append(el('rect', {
+          class: 'fp-bank',
+          x: laengs ? table.col + 0.1 : body.x - 0.15,
+          y: laengs ? body.y - 0.15 : table.row + 0.1,
+          width: laengs ? 0.62 : body.w + 0.3,
+          height: laengs ? body.h + 0.3 : 0.62,
+          rx: 0.14
+        }));
+      }
       // Ein runder Tisch muss rund aussehen, sonst hilft die Form beim Planen
       // nichts. Ein rect mit halber Ecke ist eine Ellipse - kein zweiter
       // Elementtyp noetig.

@@ -90,7 +90,7 @@
         seats,
         // Form und Drehung. Unbekanntes faellt auf den bisherigen Rechtecktisch
         // zurueck, damit aeltere Sicherungen unveraendert weiterlaufen.
-        form: ['laenglich', 'rund', 'tafel', 'theke'].includes(table?.form) ? table.form : 'laenglich',
+        form: ['laenglich', 'rund', 'tafel', 'theke', 'bank'].includes(table?.form) ? table.form : 'laenglich',
         dreh: Number(table?.dreh) === 90 ? 90 : 0,
         col: coord(table?.col, 200),
         row: coord(table?.row, 400),
