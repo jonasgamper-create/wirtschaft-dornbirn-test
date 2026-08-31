@@ -986,47 +986,24 @@
     paint();
   });
 
-  const lunchMenu = document.querySelector('[data-lunch-menu]');
   const lunchCardLink = document.querySelector('[data-lunch-card]');
-  const weekdayName = date => new Intl.DateTimeFormat('de-AT', { weekday: 'long' }).format(new Date(`${date}T12:00:00`));
-  // Datum mitschreiben: ein Wochentag allein laesst offen, WELCHE Woche gemeint ist.
-  const dayLabel = date => new Intl.DateTimeFormat('de-AT', { day: 'numeric', month: 'numeric' }).format(new Date(`${date}T12:00:00`));
 
+  /* Die Startseite zeigt die Gerichte nicht mehr. Sie fuehrt zur Karte,
+     statt sie abzuschreiben - Entscheidung vom 31.08.2026, und die
+     Gerichteliste, die hier frueher gerendert wurde, ist mit ihr
+     gegangen. Bleibt der Renderer stehen, kommt die Uebersicht beim
+     naechsten Container mit data-lunch-menu still zurueck. */
   function renderLunchMenu(data) {
-    // Der PDF-Link zuerst: er steht auch dort, wo keine Gerichteliste mehr
-    // ist. Haenge er am Vorhandensein der Liste, zeigte die Startseite nach
-    // deren Entfernen dauerhaft auf die Karte der letzten Woche.
-    // Ziel ist die druckfertige Ansicht derselben Karte, nicht eine abgelegte
-    // PDF-Datei: eine Datei veraltet, die Ansicht nicht. Legt das Haus doch
-    // eine Datei ab, hat sie Vorrang. Der Weg steht damit immer da.
-    if (lunchCardLink) {
-      lunchCardLink.href = data.card?.file || 'mittagskarte.html';
-      lunchCardLink.firstChild.textContent = `${data.card?.label || 'Mittagskarte als PDF'} `;
+    // Nur eine echte Datei macht den Weg sichtbar. Frueher stand hier
+    // 'mittagskarte.html' als Rueckfall - antwortete der Dienst nicht
+    // rechtzeitig, oeffnete der Gast statt der Karte eine Seite, die die
+    // Karte noch einmal abtippt. Wer auf "Karte als PDF" drueckt, will die
+    // Karte, keine zweite Fassung davon. Ohne Datei bleibt der Weg aus:
+    // gar kein Weg ist ehrlicher als ein Weg, der woandershin fuehrt.
+    if (lunchCardLink && data.card?.file) {
+      lunchCardLink.href = data.card.file;
       lunchCardLink.removeAttribute('hidden');
     }
-    if (!lunchMenu) return;
-    /* EINE Quelle fuer die Wochenkarte: dieselbe Datei, die auch die
-       Bestellseite und die Druckansicht zeigen. Vorher las dieser Block eine
-       datierte Tagesdatei - lief die nicht mit, stand hier "noch nicht
-       eingetragen", waehrend der Link 20px darunter eine volle Karte oeffnete.
-       Zwei Quellen unter einer Ueberschrift widersprechen sich irgendwann
-       immer. Gezeigt wird die erste Gruppe: die Wochengerichte. */
-    const gruppe = (Array.isArray(data.gruppen) ? data.gruppen : [])
-      .find(g => (g.gerichte || []).length);
-    if (!gruppe) {
-      lunchMenu.innerHTML = '<p class="lunch-note">'
-        + escapeHtml('Die Karte für diese Woche ist noch nicht eingetragen. Ruf uns kurz an, dann sagen wir dir, was es gibt.')
-        + '</p>';
-      return;
-    }
-    const alsPreis = wert => '€ ' + Number(wert).toFixed(2).replace('.', ',');
-    const zeilen = gruppe.gerichte.map(gericht =>
-      `<p class="lunch-dish"><span>${escapeHtml(gericht.name)}</span><b>${escapeHtml(alsPreis(gericht.preis))}</b>${gericht.beilage ? `<small>${escapeHtml(gericht.beilage)}</small>` : ''}</p>`
-    ).join('');
-    lunchMenu.innerHTML = `<article class="lunch-day is-today" data-lunch-lead>
-        <h3>${escapeHtml(gruppe.titel)}${gruppe.fenster ? ` <span>${escapeHtml(gruppe.fenster)}</span>` : ''}</h3>
-        ${zeilen}
-      </article>`;
   }
 
   fetch('data/takeaway-karte.json', { cache: 'no-store' })
