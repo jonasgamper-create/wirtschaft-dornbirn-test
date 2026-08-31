@@ -126,9 +126,10 @@
     scrollTo({ top: scrollY + box.top - window.innerHeight * 0.35, behavior: 'smooth' });
   });
 
-  // Mittagskarte und Status aus derselben Quelle wie die Startseite.
-  const lunchWeb = document.querySelector('[data-lunch-web]');
-  const lunchPdf = document.querySelector('[data-lunch-pdf]');
+  // Der Status aus derselben Quelle wie die Startseite. Die Gerichteliste,
+  // die hier frueher mitgeladen wurde, ist mit der Karte im Hero gegangen
+  // (31.08.2026) - ihr Renderer auch, sonst kommt die Uebersicht zurueck,
+  // sobald irgendwo wieder ein data-lunch-web steht.
   const statusName = document.querySelector('[data-status-name]');
   const statusDetail = document.querySelector('[data-status-detail]');
   const dayName = date => new Intl.DateTimeFormat('de-AT', { weekday: 'long' }).format(new Date(`${date}T12:00:00`));
@@ -137,9 +138,6 @@
   fetch('data/lunch-menu.json', { cache: 'no-store' })
     .then(response => { if (!response.ok) throw new Error(String(response.status)); return response.json(); })
     .then(data => {
-      if (lunchPdf && data.card?.file) lunchPdf.href = data.card.file;
-      lunchPdf?.toggleAttribute('hidden', !data.card?.file);
-
       const pause = data.pause || {};
       const paused = data.status === 'pause';
       if (paused && pause.reopen && day) day.min = pause.reopen;
@@ -175,40 +173,4 @@
     })
     .catch(() => {});
 
-  // Die Wochenkarte: dieselbe Datei, die Startseite, Bestellseite und
-  // Druckansicht zeigen. Ohne Preise - die stehen dort, wo bestellt wird.
-  if (lunchWeb) {
-    fetch('data/takeaway-karte.json', { cache: 'no-store' })
-      .then(response => { if (!response.ok) throw new Error(String(response.status)); return response.json(); })
-      .then(data => {
-        const gruppe = (Array.isArray(data.gruppen) ? data.gruppen : [])
-          .find(g => (g.gerichte || []).length);
-        lunchWeb.innerHTML = '';
-        if (!gruppe) {
-          const note = document.createElement('p');
-          note.className = 'menu-card-note';
-          note.textContent = 'Die Karte für diese Woche ist noch nicht eingetragen. Ruf uns kurz an, dann sagen wir dir, was es gibt.';
-          lunchWeb.appendChild(note);
-          return;
-        }
-        const kopf = document.createElement('b');
-        kopf.className = 'menu-card-gruppe';
-        kopf.textContent = gruppe.titel + (gruppe.fenster ? ' · ' + gruppe.fenster : '');
-        lunchWeb.appendChild(kopf);
-        gruppe.gerichte.forEach(gericht => {
-          const row = document.createElement('div');
-          row.className = 'menu-day';
-          const name = document.createElement('span');
-          name.textContent = gericht.name;
-          row.appendChild(name);
-          if (gericht.beilage) {
-            const bei = document.createElement('small');
-            bei.textContent = gericht.beilage;
-            row.appendChild(bei);
-          }
-          lunchWeb.appendChild(row);
-        });
-      })
-      .catch(() => {});
-  }
 })();
