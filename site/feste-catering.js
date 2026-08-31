@@ -107,3 +107,21 @@
     if (!qaMode) window.location.href = mailto;
   });
 })();
+
+
+/* Das Kulturhaus-Fenster: Kontaktdaten zeigen, bevor der Gast die Seite
+   verlaesst. Ohne dialog-Unterstuetzung fuehrt der Weg direkt zur Seite des
+   Kulturhauses - dann ist der Knopf ein Link. */
+(() => {
+  'use strict';
+  const dialog = document.getElementById('khDialog');
+  if (!dialog) return;
+  document.querySelectorAll('[data-kh-dialog]').forEach(knopf => {
+    knopf.addEventListener('click', () => {
+      if (typeof dialog.showModal === 'function') dialog.showModal();
+      else window.open('https://www.kulturhaus-dornbirn.at/', '_blank', 'noopener,noreferrer');
+    });
+  });
+  // Klick auf die Flaeche neben dem Fenster schliesst es.
+  dialog.addEventListener('click', e => { if (e.target === dialog) dialog.close(); });
+})();

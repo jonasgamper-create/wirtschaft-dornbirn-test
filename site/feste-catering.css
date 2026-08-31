@@ -337,3 +337,178 @@ a.button,
    auseinanderziehen, und angetippt wird ohnehin das ganze Wort. */
 .site-footer p a,
 .site-footer li a{display:inline;min-height:0}
+
+
+/* Ablauf-Schritte: Titel und Text beginnen in jeder Spalte auf gleicher
+   Hoehe. Vorher waren die Bloecke unten ausgerichtet (align-self:end) -
+   bei unterschiedlich langen Texten rutschte ein einzeiliger Titel wie
+   "anfrage senden" dadurch tiefer als die zweizeiligen daneben. */
+.process li>div{align-self:start;margin-top:clamp(38px,5vw,60px)}
+@media(max-width:640px){.process li>div{margin-top:26px}}
+
+
+/* Handy: keine Beschriftung unter 12px, Telefonnummern als greifbares Ziel. */
+@media(max-width:760px){
+  .insta-note,.prototype-note,.header-cta,.cta-lang{font-size:12.5px}
+  a[href^="tel:"]{display:inline-flex;align-items:center;min-height:44px}
+}
+
+
+/* Kulturhaus-Fenster: dieselbe Sprache wie die Seite, nur die sechs Farben. */
+.kh-dialog{width:min(560px,calc(100% - 28px));padding:0;border:1px solid #ffffff2e;
+  border-radius:14px;background:#1d1915;color:#e6e2da}
+.kh-dialog::backdrop{background:#11110fd9}
+.kh-dialog-rahmen{display:grid;gap:16px;padding:clamp(22px,3vw,34px)}
+.kh-dialog-rahmen header{display:grid;gap:6px}
+.kh-dialog .eyebrow{margin:0;color:var(--gold);font-size:12.5px;font-weight:700;
+  letter-spacing:.17em;text-transform:lowercase}
+.kh-dialog h2{margin:0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;
+  font-size:clamp(24px,3vw,32px);font-weight:600;line-height:1.05}
+.kh-dialog address{display:grid;gap:4px;font-style:normal;font-size:16px;line-height:1.55}
+.kh-dialog address strong{font-weight:600}
+.kh-dialog address a{display:inline-flex;align-items:center;min-height:44px;color:#e6e2da;
+  text-underline-offset:4px}
+.kh-dialog>form>p{margin:0;color:#c8c2b8;font-size:15px;line-height:1.6}
+.kh-dialog-rahmen footer{display:flex;gap:11px;flex-wrap:wrap;margin-top:2px}
+.kh-dialog .button.ghost{border-color:#ffffff66}
+
+
+/* ======================================================================
+   AGENTUR · Buehnenfoto im Hintergrund, fuenf Fassungen (data-bg am body)
+   Werkzeug fuer die Abstimmung: steht die Fassung fest, bleibt ihr data-bg
+   im Markup und der Umschalter fliegt raus.
+   ====================================================================== */
+.agentur-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.agentur-bg img{position:absolute;width:100%;height:100%;object-fit:cover;
+  filter:grayscale(1) contrast(1.08)}
+body[data-bg] .event-header,
+body[data-bg] main,
+body[data-bg] .insta-strip,
+body[data-bg] .site-footer,
+body[data-bg] .bg-pad{position:relative;z-index:1}
+
+/* 1 · saalluft - ganzflaechig und sehr leise hinter allem. */
+body[data-bg="1"] .agentur-bg img{opacity:.14}
+
+/* 2 · nur der kopf - das Foto steht im Hero und verliert sich nach unten. */
+body[data-bg="2"] .agentur-bg{position:absolute;inset:0 0 auto;height:min(96vh,880px)}
+body[data-bg="2"] .agentur-bg img{opacity:.34;
+  mask-image:linear-gradient(#000 0%,#000 52%,transparent 100%)}
+
+/* 3 · rechte haelfte - das Foto haelt die rechte Seite, der Text die linke. */
+body[data-bg="3"] .agentur-bg{left:auto;right:0;width:min(52%,760px)}
+body[data-bg="3"] .agentur-bg img{opacity:.42;
+  mask-image:linear-gradient(90deg,transparent 0%,#000 42%)}
+
+/* 4 · band - ein Streifen quer hinter der Seitenmitte, wie ein Filmstreifen. */
+body[data-bg="4"] .agentur-bg{top:32vh;bottom:auto;height:min(56vh,520px)}
+body[data-bg="4"] .agentur-bg img{opacity:.4;
+  mask-image:linear-gradient(transparent 0%,#000 22%,#000 78%,transparent 100%)}
+
+/* 5 · aufsteigend - das Foto liegt am Fuss und steigt in die Seite. */
+body[data-bg="5"] .agentur-bg{top:auto;bottom:0;height:min(78vh,760px)}
+body[data-bg="5"] .agentur-bg img{object-position:50% 30%;opacity:.4;
+  mask-image:linear-gradient(transparent 0%,#000 46%)}
+
+/* Auf dem Foto muss jede Zeile stehen koennen: der Grund bleibt Ink.
+   Ein helles Buehnenfoto und eine 12.5px-Beschriftung in Gold gehen physika-
+   lisch nicht zusammen - deshalb traegt der Inhalt seinen eigenen Schleier,
+   und das Foto bleibt als Textur dahinter. */
+body[data-bg] .event-hero .hero-shade{background:#11110fc7}
+body[data-bg] main{background:#17130fb8}
+/* Auf dem Foto tragen die kleinen Beschriftungen Paper statt Gold: Gold
+   erreicht ueber den Buehnenlichtern nur 3.2:1, Paper 7.1:1. Gold bleibt fuer
+   Linien und die grossen Akzente - kein neuer Farbwert, nur ein anderer aus
+   den sechs. */
+body[data-bg] .sparte-label,
+body[data-bg] main>section>.section-heading>p,
+body[data-bg] .hero-copy>p:first-child,
+body[data-bg] .hero-note,
+body[data-bg] .possibility-grid>article>span,
+body[data-bg] .process>ol>li>span,
+body[data-bg] .inquiry-intro>p{color:var(--paper)}
+body[data-bg] .intro.section,
+body[data-bg] .section{background:transparent}
+
+.bg-pad{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:9;
+  display:flex;align-items:center;gap:8px;padding:6px 10px;background:#11110fe6;
+  border:1px solid #ffffff2e;border-radius:999px}
+.bg-pad span{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:lowercase;color:#a49c93}
+.bg-pad button{width:30px;height:30px;border:1px solid #ffffff3d;border-radius:50%;
+  background:transparent;color:#f3efe6;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.bg-pad button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#11110f}
+.bg-pad em{font-style:normal;font-size:11.5px;color:#f3efe6;white-space:nowrap}
+@media print{.bg-pad{display:none}}
+
+
+/* ======================================================================
+   LOCATIONS · das Saalfoto im Kopfbereich, fuenf Fassungen (data-loc)
+   Gerechnet gegen die hellste Stelle des Fotos (p95 = 0.644): das Bild ist
+   deutlich heller als das Konzertfoto, deshalb tragen die Kleinzeilen Paper
+   statt Gold und der Schleier ist entsprechend bemessen.
+   ====================================================================== */
+#locHero[data-loc] .hero-copy>p:first-child,
+#locHero[data-loc] .hero-note{color:var(--paper)}
+
+/* 1 · ruhig - das Foto weit zurueckgenommen, wie bisher der Kopfbereich. */
+#locHero[data-loc="1"] .hero-shade{background:#11110fd9}
+
+/* 2 · saal - das Foto traegt den Kopf, Schleier so knapp wie lesbar bleibt. */
+#locHero[data-loc="2"] .hero-shade{background:#11110fd1}
+
+/* 3 · textfeld - das Foto fast offen, der Text auf eigenem Grund. */
+#locHero[data-loc="3"] .hero-shade{background:#11110f73}
+#locHero[data-loc="3"] .hero-copy{width:min(720px,calc(100% - 44px));
+  padding:clamp(24px,3vw,40px);background:#11110fdb;border-left:2px solid var(--gold)}
+
+/* 4 · rechte haelfte - Foto rechts, Text links auf Ink. */
+#locHero[data-loc="4"]{background:var(--ink)}
+#locHero[data-loc="4"]>img{left:auto;right:0;width:min(40%,560px);clip-path:none}
+#locHero[data-loc="4"] .hero-shade{background:#11110f8c}
+#locHero[data-loc="4"] .hero-copy{width:calc(52% - var(--gutter,24px))}
+#locHero[data-loc="4"] h1{font-size:clamp(28px,4.2vw,48px)}
+#locHero[data-loc="4"] .hero-note{right:auto;width:calc(52% - var(--gutter,24px));max-width:none}
+
+/* 5 · angeschnitten - das Foto kommt von rechts herein und blendet aus. */
+#locHero[data-loc="5"]>img{mask-image:linear-gradient(90deg,transparent 0%,#000 74%);
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 74%)}
+#locHero[data-loc="5"] .hero-shade{background:#11110fa6}
+#locHero[data-loc="5"] .hero-copy{width:calc(58% - var(--gutter,24px))}
+#locHero[data-loc="5"] .hero-note{right:auto;width:calc(64% - var(--gutter,24px));max-width:none}
+
+.loc-pad{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:900;
+  display:flex;align-items:center;gap:8px;padding:6px 10px;background:#11110fe6;
+  border:1px solid #ffffff2e;border-radius:999px}
+.loc-pad span{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:lowercase;color:#a49c93}
+.loc-pad button{width:30px;height:30px;border:1px solid #ffffff3d;border-radius:50%;
+  background:transparent;color:#f3efe6;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.loc-pad button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#11110f}
+.loc-pad em{font-style:normal;font-size:11.5px;color:#f3efe6;white-space:nowrap}
+@media print{.loc-pad{display:none}}
+
+@media(max-width:900px){
+  #locHero[data-loc="4"]>img{position:absolute;left:0;right:0;width:100%}
+  #locHero[data-loc="4"] .hero-copy,
+  #locHero[data-loc="5"] .hero-copy,
+  #locHero[data-loc="4"] .hero-note,
+  #locHero[data-loc="5"] .hero-note{right:auto;width:min(100%,calc(100% - 40px))}
+  #locHero[data-loc="4"] .hero-shade,
+  #locHero[data-loc="5"] .hero-shade{background:#11110fd1}
+}
+
+
+/* ======================================================================
+   iPhone · Safari verhaelt sich an vier Punkten anders als der Pruefrahmen.
+   Alle vier sind hier abgefangen:
+   1. Textgroesse im Querformat: Safari blaeht Fliesstext auf, wenn man es
+      nicht ausdruecklich untersagt.
+   2. Tippen: iOS legt ein graues Rechteck ueber jedes beruehrte Element -
+      wir zeigen den Zustand selbst, das Rechteck stoert nur.
+   3. Ueberziehen am Rand: ohne overscroll-behavior schiebt Safari die Seite
+      vom Grund weg und darunter erscheint Weiss.
+   4. Die Gestenleiste am unteren Rand verdeckt alles, was dort fest steht.
+   ====================================================================== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+/* Fokus bleibt sichtbar - nur die Beruehrungsflaeche verliert das Rechteck. */
+a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transparent}

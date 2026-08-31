@@ -60,12 +60,12 @@
 
   const fallbackEventData = {
     version: 2,
-    updatedAt: '2026-08-20T08:30:00+02:00',
+    updatedAt: '2026-08-27T10:00:00+02:00',
     maxAgeHours: 48,
     sourceUrl: 'https://wirtschaft-dornbirn.at/event/',
     pause: { label: 'Sommerpause', start: '2026-07-24', end: '2026-08-23', reopen: '2026-08-24' },
     events: [
-      { id: "event-2026-09-03", date: "2026-09-03", title: "Genussroute 6850", type: "Dornbirner Genussabend", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/genussroute-2026/", tickets: [{ name: "Sitzplatz", preis: 88, beginn: "18:00", status: "buchbar" }] },
+      { id: "event-2027-05-20", date: "2027-05-20", title: "Genussroute 6850", type: "5 Gastronomen · 6 Live-Bands", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/genussroute-2026/", tickets: [{ name: "Sitzplatz", preis: 88, beginn: "18:00", status: "buchbar" }] },
       { id: "event-2026-09-22", date: "2026-09-22", title: "Helden reisen, Gäste speisen!", type: "Dinner & Bühne", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/", tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 88, beginn: "18:45", status: "buchbar" }] },
       { id: "event-2026-09-23", date: "2026-09-23", title: "Helden reisen, Gäste speisen! – Zusatzabend", type: "Dinner & Bühne", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/", tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 88, beginn: "18:45", status: "buchbar" }] },
       { id: "event-2026-10-14", date: "2026-10-14", title: "Dinner & Comedy", type: "Genuss trifft Humor", status: "scheduled", officialUrl: "https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/", tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Comedy only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }] },
@@ -624,6 +624,13 @@
   // Der kleine Neu-Hinweis im Kopf: immer das naechste, das wirklich ansteht.
   // Er pflegt sich selbst aus den Eventdaten - ein veralteter Hinweis waere
   // schlimmer als keiner.
+  // Welche Termine ein eigenes Bild haben - dieselbe Quelle wie die
+  // Eventuebersicht. Einmal geholt, danach aus dem Versprechen gelesen.
+  const eventBilder = fetch('data/event-medien.json', { cache: 'no-store' })
+    .then(antwort => antwort.json())
+    .then(medien => new Set(medien?.bilder || []))
+    .catch(() => new Set());
+
   function syncBarNews() {
     const chip = document.getElementById('barNews');
     const text = document.getElementById('barNewsText');
@@ -633,8 +640,86 @@
     const kommend = calendarEvents.find(item => item.status !== 'cancelled' && new Date(`${item.date}T12:00:00`) >= heute);
     if (!kommend) return;
     text.textContent = `${kommend.title} · ${formatEventDate(kommend.date)}`;
+    // Das Bild des Termins, klein. Fehlt es, springt ein Abendfoto ein -
+    // dieselbe Regel wie in der Eventuebersicht, damit der Hinweis nie mit
+    // einem leeren Rahmen dasteht.
+    const thumb = document.getElementById('barNewsThumb');
+    if (thumb) {
+      // Erst fragen, dann laden: liegt fuer den Termin kein Bild vor, kommt
+      // direkt das Abendfoto. Ein onerror-Rueckfall wuerde bei jedem Laden
+      // eine fehlschlagende Anfrage feuern - so wie es hier vorher war.
+      eventBilder.then(vorhanden => {
+        thumb.src = vorhanden.has(kommend.id)
+          ? `assets/events/${encodeURIComponent(kommend.id)}.webp`
+          : 'assets/abend-01.webp';
+        thumb.hidden = false;
+      });
+    }
     chip.hidden = false;
   }
+
+  // Der Terminhinweis scrollt mit und nimmt dabei an Praesenz zu: oben liegt
+  // er leise in der Leiste, auf dem Weg zum Terminabschnitt wird er heller.
+  // Ein Wert (--glanz, 0 bis 1) traegt die Stufe; die Farben stehen im CSS.
+  function begleiteBarNews() {
+    const chip = document.getElementById('barNews');
+    const ziel = document.getElementById('concept-04');
+    if (!chip) return;
+    // position:fixed haengt am naechsten transformierten Vorfahren - die
+    // Kopfleiste bewegt sich beim Scrollen, der Hinweis wanderte deshalb mit
+    // ihr aus dem Bild. Am Koerper haengt er am Fenster und bleibt stehen.
+    // Die Tastaturreihenfolge bleibt dort, wo der Hinweis optisch sitzt:
+    // gleich hinter der Kopfleiste, nicht hinter dem Fuss.
+    if (chip.parentElement !== document.body) {
+      const leiste = document.querySelector('.experience-bar');
+      if (leiste && leiste.parentElement === document.body) leiste.after(chip);
+      else document.body.append(chip);
+    }
+    // Die gesetzte Leistenhoehe (--bar-h) beschreibt die Leiste nicht mehr,
+    // sobald die Navigation umbricht - dann ist sie fast doppelt so hoch und
+    // der Hinweis lag dahinter. Deshalb wird die echte Hoehe gemessen.
+    const wurzel = document.documentElement;
+    const leiste = document.querySelector('.experience-bar');
+    const setzeHoehe = () => {
+      if (!leiste) return;
+      chip.style.setProperty('--leiste-h', `${Math.round(leiste.getBoundingClientRect().height)}px`);
+    };
+    setzeHoehe();
+    if (typeof ResizeObserver === 'function' && leiste) new ResizeObserver(setzeHoehe).observe(leiste);
+    let frame = 0;
+    const strecke = () => {
+      if (!ziel) return Math.max(1, window.innerHeight);
+      const oben = ziel.getBoundingClientRect().top + (document.scrollingElement?.scrollTop ?? window.scrollY);
+      return Math.max(1, oben - window.innerHeight * 0.25);
+    };
+    const male = () => {
+      frame = 0;
+      const y = document.scrollingElement?.scrollTop ?? window.scrollY;
+      const stufe = Math.max(0, Math.min(1, y / strecke()));
+      chip.style.setProperty('--glanz', stufe.toFixed(3));
+      setzeHoehe();
+      // Hat der Wagen die Seite rechts verlassen, ist der Hinweis erzaehlt:
+      // dann verblasst er. Scrollt man zurueck, kommt er wieder.
+      // Weg, sobald der Wagen aus dem Kopfbild gefahren ist. Die Fahrt wird
+      // hier NEU gerechnet, nicht aus --truck-opacity gelesen: dieses Property
+      // schreibt truck-motion.js in einer eigenen rAF-Schleife, und wessen
+      // Schleife zuerst laeuft, ist nicht bestimmt - der Hinweis haette sonst
+      // dauerhaft den Wert des vorigen Frames gezeigt (Zustand invertiert).
+      // Gleiche Formel wie dort: progress = scrollTop / (Kopfhoehe * 1.45),
+      // die Ausblendung des Wagens endet bei progress 0.76.
+      const kopf = document.querySelector('.final-prologue');
+      const strecke2 = Math.max(1, (kopf ? kopf.offsetHeight : window.innerHeight) * 1.45);
+      // 1cm = 96/2.54 ≈ 37.8px, hier 4cm ≈ 151.2px.
+      const VORZEITIG = 151.2;
+      chip.toggleAttribute('data-faded', (y + VORZEITIG) / strecke2 >= 0.76);
+    };
+    window.addEventListener('scroll', () => {
+      if (!frame) frame = requestAnimationFrame(male);
+    }, { passive: true });
+    window.addEventListener('resize', male, { passive: true });
+    male();
+  }
+  begleiteBarNews();
 
   function renderEventLists() {
     const spotlight = document.getElementById('eventSpotlight');
@@ -904,43 +989,47 @@
   const lunchMenu = document.querySelector('[data-lunch-menu]');
   const lunchCardLink = document.querySelector('[data-lunch-card]');
   const weekdayName = date => new Intl.DateTimeFormat('de-AT', { weekday: 'long' }).format(new Date(`${date}T12:00:00`));
+  // Datum mitschreiben: ein Wochentag allein laesst offen, WELCHE Woche gemeint ist.
+  const dayLabel = date => new Intl.DateTimeFormat('de-AT', { day: 'numeric', month: 'numeric' }).format(new Date(`${date}T12:00:00`));
 
   function renderLunchMenu(data) {
     // Der PDF-Link zuerst: er steht auch dort, wo keine Gerichteliste mehr
     // ist. Haenge er am Vorhandensein der Liste, zeigte die Startseite nach
     // deren Entfernen dauerhaft auf die Karte der letzten Woche.
-    if (lunchCardLink && data.card?.file) {
-      lunchCardLink.href = data.card.file;
-      lunchCardLink.firstChild.textContent = `${data.card.label || 'Mittagskarte (PDF)'} `;
+    // Ziel ist die druckfertige Ansicht derselben Karte, nicht eine abgelegte
+    // PDF-Datei: eine Datei veraltet, die Ansicht nicht. Legt das Haus doch
+    // eine Datei ab, hat sie Vorrang. Der Weg steht damit immer da.
+    if (lunchCardLink) {
+      lunchCardLink.href = data.card?.file || 'mittagskarte.html';
+      lunchCardLink.firstChild.textContent = `${data.card?.label || 'Mittagskarte als PDF'} `;
+      lunchCardLink.removeAttribute('hidden');
     }
-    lunchCardLink?.toggleAttribute('hidden', !data.card?.file);
     if (!lunchMenu) return;
-    const days = Array.isArray(data.days) ? [...data.days].sort((a, b) => a.date.localeCompare(b.date)) : [];
-    if (data.status === 'pause' || !days.length) {
-      // Pause und "geoeffnet, aber Karte noch nicht eingetragen" sind zwei Lagen.
-      const text = data.status === 'pause'
-        ? (data.pauseNote || 'zurzeit kochen wir nicht mittags.')
-        : 'die karte für diese woche liegt im pdf.';
-      lunchMenu.innerHTML = `<p class="lunch-note">${escapeHtml(text)}</p>`;
+    /* EINE Quelle fuer die Wochenkarte: dieselbe Datei, die auch die
+       Bestellseite und die Druckansicht zeigen. Vorher las dieser Block eine
+       datierte Tagesdatei - lief die nicht mit, stand hier "noch nicht
+       eingetragen", waehrend der Link 20px darunter eine volle Karte oeffnete.
+       Zwei Quellen unter einer Ueberschrift widersprechen sich irgendwann
+       immer. Gezeigt wird die erste Gruppe: die Wochengerichte. */
+    const gruppe = (Array.isArray(data.gruppen) ? data.gruppen : [])
+      .find(g => (g.gerichte || []).length);
+    if (!gruppe) {
+      lunchMenu.innerHTML = '<p class="lunch-note">'
+        + escapeHtml('Die Karte für diese Woche ist noch nicht eingetragen. Ruf uns kurz an, dann sagen wir dir, was es gibt.')
+        + '</p>';
       return;
     }
-    const today = new Date();
-    const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    const upcoming = days.filter(day => day.date >= todayIso);
-    const shown = (upcoming.length ? upcoming : days.slice(-1)).slice(0, 5);
-    lunchMenu.innerHTML = shown.map((day, index) => {
-      const isToday = day.date === todayIso;
-      const dishes = (day.dishes || []).map(dish =>
-        `<p class="lunch-dish"><span>${escapeHtml(dish.title)}</span>${dish.price ? `<b>${escapeHtml(dish.price)}</b>` : ''}${dish.detail ? `<small>${escapeHtml(dish.detail)}</small>` : ''}</p>`
-      ).join('');
-      return `<article class="lunch-day${isToday ? ' is-today' : ''}"${index === 0 ? ' data-lunch-lead' : ''}>
-        <h3>${isToday ? 'Heute' : escapeHtml(weekdayName(day.date))}</h3>
-        ${dishes || '<p class="lunch-dish"><span>Karte folgt</span></p>'}
+    const alsPreis = wert => '€ ' + Number(wert).toFixed(2).replace('.', ',');
+    const zeilen = gruppe.gerichte.map(gericht =>
+      `<p class="lunch-dish"><span>${escapeHtml(gericht.name)}</span><b>${escapeHtml(alsPreis(gericht.preis))}</b>${gericht.beilage ? `<small>${escapeHtml(gericht.beilage)}</small>` : ''}</p>`
+    ).join('');
+    lunchMenu.innerHTML = `<article class="lunch-day is-today" data-lunch-lead>
+        <h3>${escapeHtml(gruppe.titel)}${gruppe.fenster ? ` <span>${escapeHtml(gruppe.fenster)}</span>` : ''}</h3>
+        ${zeilen}
       </article>`;
-    }).join('');
   }
 
-  fetch('data/lunch-menu.json', { cache: 'no-store' })
+  fetch('data/takeaway-karte.json', { cache: 'no-store' })
     .then(response => {
       if (!response.ok) throw new Error(`Mittagskarte konnte nicht geladen werden (${response.status})`);
       return response.json();

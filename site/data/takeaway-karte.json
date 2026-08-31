@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "updatedAt": "2026-08-31T08:00:00+02:00",
+  "quelle": "https://lieferservice.wirtschaft-dornbirn.at/",
+  "hinweis": "Übernommen aus dem offiziellen Lieferservice. Die Wochengerichte ändern sich wöchentlich.",
+  "gruppen": [
+    {
+      "id": "wochengerichte",
+      "titel": "Wochengerichte",
+      "fenster": "11:30 bis 13:00 Uhr",
+      "hinweis": "Diese Gerichte ändern sich wöchentlich.",
+      "gerichte": [
+        { "id": "w1", "name": "Mittagsgericht: Cordon bleu vom Schwein mit Bresaola & Brie gefüllt", "beilage": "Schnittlauchkartoffeln | Salat", "preis": 15.9 },
+        { "id": "w2", "name": "Mittagsgericht: Kalbsleber", "beilage": "Kartoffelrösti | Salat", "preis": 15.9 },
+        { "id": "w3", "name": "Mittagsgericht: Älpler Käshörnle", "beilage": "Schmelzzwiebeln | Speck | Kartoffel-Gurkensalat", "preis": 15.9 },
+        { "id": "w4", "name": "Mittagsgericht: Hausgemachte Lasagne Bolognese", "beilage": "Salat", "preis": 15.9 },
+        { "id": "w5", "name": "Mittagsgericht: Tranchen vom Truthahn", "beilage": "Rahmkartoffeln | Speckbohnen", "preis": 15.9 },
+        { "id": "w6", "name": "Mittagsgericht: Rindsstreifen „süß-sauer“", "beilage": "Basmatireis | Salat", "preis": 15.9 },
+        { "id": "w7", "name": "Vital-Gericht: Lachsschnitte", "beilage": "Mango-Bulgur | Chili-Honigsauce | Minzjoghurt", "preis": 15.9 },
+        { "id": "w8", "name": "Vegi-Gericht: Hausgemachte Maultaschen", "beilage": "Kartoffel-Kürbisfüllung | Nussbutter-Espuma | Brokkoli-Gemüse", "preis": 15.9 }
+      ]
+    },
+    {
+      "id": "a-la-carte",
+      "titel": "À la carte",
+      "fenster": "11:30 bis 13:00 Uhr",
+      "gerichte": [
+        { "id": "c1", "name": "Rindsbouillon mit Brätspätzle", "preis": 5.3 },
+        { "id": "c2", "name": "Rindsbouillon mit Kräuterflädle", "preis": 5.3 },
+        { "id": "c3", "name": "Maiscremesuppe", "beilage": "Erbsen-Falafel | Gewürzpopcorn", "preis": 7.3 },
+        { "id": "c4", "name": "Beilagensalat „Balsamico“", "beilage": "mit Balsamico-Dressing", "preis": 6.5 },
+        { "id": "c5", "name": "Beilagensalat „French“", "beilage": "mit French-Dressing", "preis": 6.5 },
+        { "id": "c6", "name": "Caesar Salat mit Hühnerbrust & Speck", "beilage": "Sonnengetrocknete Tomaten | Parmesandressing | Croutons", "preis": 18.9 },
+        { "id": "c7", "name": "Gebratenes Chilihuhn", "beilage": "Bunter Salat | French-Dressing", "preis": 18.9 },
+        { "id": "c8", "name": "Burger „Eugen“ (double smashed)", "beilage": "Brioche Bun | 2 × 100 g Ländle-Rindfleisch | Cheddar | Eisbergsalat | Chipotle-Mayo | Röstzwiebeln | eingelegte Gurken – dazu Pommes frites", "preis": 18.9 },
+        { "id": "c9", "name": "Burger „Frieda“ (vegan)", "beilage": "Burger Bun | Linsenpatty | karamellisierte Zwiebeln | Rhabarber-Ketchup | Pfifferlinge | Maggikraut | BBQ-Mayo – dazu Pommes frites", "preis": 18.9 },
+        { "id": "c10", "name": "Schnitzel „Wiener Art“ vom Schwein mit Pommes frites", "preis": 19.5 },
+        { "id": "c11", "name": "Schnitzel „Wiener Art“ vom Schwein mit buntem Salat", "preis": 19.5 },
+        { "id": "c12", "name": "Pommes frites", "preis": 5.0 }
+      ]
+    }
+  ]
+}

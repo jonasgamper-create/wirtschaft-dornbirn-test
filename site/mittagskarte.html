@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f3efe6">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/favicon-180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+  <meta name="description" content="Aktuelle Mittagskarte der Wirtschaft Dornbirn zum Ansehen und als PDF speichern.">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Mittagskarte · Wirtschaft Dornbirn</title>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-400-normal.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-600-normal.woff2" crossorigin>
+  <style>
+@font-face{font-family:Montserrat;font-style:normal;font-weight:400;font-display:swap;
+  src:url("assets/fonts/montserrat-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:Montserrat;font-style:normal;font-weight:600;font-display:swap;
+  src:url("assets/fonts/montserrat-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:Montserrat;font-style:normal;font-weight:700;font-display:swap;
+  src:url("assets/fonts/montserrat-latin-700-normal.woff2") format("woff2")}
+:root{
+  --ink:#11110f;--paper:#f3efe6;--cream:#ead9bc;--wine:#8c292b;--green:#244635;--gold:#c59b5d;
+  --sans:Montserrat,"Helvetica Neue",Arial,sans-serif;
+}
+doc-page:not(:defined){visibility:hidden}
+body{margin:0;font-family:var(--sans);color:var(--ink);text-transform:lowercase;
+  -webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.leiste{padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+a{color:var(--wine)}
+a:hover{color:var(--ink)}
+
+/* Die Leiste gehoert zur Bedienung, nicht zur Karte - sie wird nicht gedruckt. */
+.leiste{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;padding:14px clamp(16px,4vw,40px);background:var(--ink);color:var(--paper)}
+.leiste a,.leiste button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;
+  padding:0 18px;border:1px solid var(--paper);border-radius:999px;background:transparent;
+  color:var(--paper);font:inherit;font-size:14.5px;text-decoration:none;text-transform:lowercase;cursor:pointer}
+.leiste button{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+.leiste-wege{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.leiste p{margin:0;font-size:14.5px}
+
+/* Die Karte selbst: ruhig, gedruckt lesbar, ohne Effekte. */
+.kopf{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  padding-bottom:14px;border-bottom:2px solid var(--ink)}
+.kopf img{display:block;width:150px;height:auto}
+.kopf h1{margin:0;font-size:30pt;font-weight:600;line-height:1.05;letter-spacing:-.02em}
+.kopf-meta{margin:0;font-size:10pt;line-height:1.5;text-align:right}
+.gruppe{margin-top:22pt;break-inside:auto}
+.gruppe h2{margin:0 0 2pt;font-size:16pt;font-weight:600;line-height:1.15;
+  border-bottom:1px solid var(--ink);padding-bottom:4pt}
+.gruppe h2 span{font-size:10pt;font-weight:400;white-space:nowrap}
+.gruppe-hinweis{margin:4pt 0 0;font-size:10pt}
+.speise{display:grid;grid-template-columns:1fr auto;gap:2pt 16pt;padding:7pt 0;
+  border-bottom:1px solid #11110f1f;break-inside:avoid}
+.speise b{font-size:11.5pt;font-weight:600;line-height:1.35}
+.speise small{grid-column:1;font-size:10pt;line-height:1.4}
+.speise span{grid-row:1;grid-column:2;font-size:11.5pt;font-weight:600;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.fuss{margin-top:22pt;padding-top:10pt;border-top:1px solid var(--ink);font-size:9.5pt;line-height:1.55}
+.fuss strong{font-weight:600}
+.laden{margin-top:24pt;font-size:11pt}
+@media print{.leiste{display:none}}
+/* Am Handy folgt das Blatt dem Schirm - gedruckt bleibt es Papier. */
+@media screen and (max-width:900px){
+  /* Das Blatt nimmt seine Breite aus --doc-page-w. Am Schirm folgt es dem
+     Fenster; gedruckt gilt wieder Papier (die Druckregeln des Bausteins
+     setzen die Breite selbst). */
+  doc-page{--doc-page-w:calc(100vw - 20px);--doc-page-margin:20px;
+    padding-left:0;padding-right:0}
+  .kopf{gap:12px}
+  .kopf h1{font-size:26pt}
+  .kopf-meta{text-align:left}
+  .kopf img{width:120px}
+  .gruppe h2{font-size:14pt}
+  .speise b{font-size:11pt}
+}
+  </style>
+</head>
+<body>
+  <div class="leiste">
+    <p>Die Karte zeigt immer den aktuellen Stand. „Als PDF speichern“ öffnet den Druckdialog – dort auf „Als PDF speichern“.</p>
+    <span class="leiste-wege">
+      <a href="takeaway.html">← Zur Bestellseite</a>
+      <button type="button" id="drucken">Als PDF speichern</button>
+    </span>
+  </div>
+
+  <doc-page margin="0.7in">
+    <header class="kopf">
+      <img src="assets/logo.png" width="300" height="69" alt="Wirtschaft Dornbirn">
+      <span>
+        <h1>Mittagskarte</h1>
+      </span>
+      <p class="kopf-meta">Bahnhofstraße 24 · 6850 Dornbirn<br>
+        +43 (0)5572 20 540<br>
+        <span id="stand">Stand wird geladen</span></p>
+    </header>
+
+    <div id="karte">
+      <p class="laden">Die Karte wird geladen.</p>
+    </div>
+
+    <p class="fuss"><strong>Bestellung:</strong> lieferservice.wirtschaft-dornbirn.at oder telefonisch unter +43 (0)5572 20 540.
+      Geliefert wird zwischen 11:30 und 13:00 Uhr; die Lieferzeit kann je nach Route bis zu 30 Minuten abweichen.
+      Trotz sorgfältiger Zubereitung können unsere Gerichte Spuren von Allergenen enthalten – Fragen zu Zutaten beantworten wir gerne am Telefon.</p>
+  </doc-page>
+
+  <script src="doc-page.js"></script>
+  <script>
+/* Eine Quelle, zwei Ansichten: dieselbe Datei, aus der die Bestellseite ihre
+   Karte zeichnet, wird hier druckfertig gesetzt. Damit kann die PDF-Ansicht
+   nie einen anderen Stand zeigen als die Seite - genau das war der Grund,
+   keinen Link auf eine abgelegte PDF-Datei zu nehmen. */
+(async () => {
+  const kasten = document.getElementById('karte');
+  const stand = document.getElementById('stand');
+  const alsPreis = wert => '€ ' + Number(wert).toFixed(2).replace('.', ',');
+
+  document.getElementById('drucken').addEventListener('click', () => window.print());
+
+  try {
+    const antwort = await fetch('data/takeaway-karte.json', { cache: 'no-store' });
+    if (!antwort.ok) throw new Error('Datei nicht erreichbar');
+    const daten = await antwort.json();
+    const gruppen = (daten.gruppen || []).filter(g => (g.gerichte || []).length);
+    if (!gruppen.length) throw new Error('Karte leer');
+
+    if (daten.updatedAt) {
+      const tag = new Date(daten.updatedAt);
+      stand.textContent = 'Stand: ' + tag.toLocaleDateString('de-AT', { day: 'numeric', month: 'long', year: 'numeric' });
+    } else {
+      stand.textContent = '';
+    }
+
+    kasten.textContent = '';
+    for (const gruppe of gruppen) {
+      const block = document.createElement('section');
+      block.className = 'gruppe';
+      const titel = document.createElement('h2');
+      titel.textContent = gruppe.titel;
+      if (gruppe.fenster) {
+        const fenster = document.createElement('span');
+        fenster.textContent = gruppe.fenster;
+        titel.append(' ', fenster);
+      }
+      block.append(titel);
+      if (gruppe.hinweis) {
+        const hinweis = document.createElement('p');
+        hinweis.className = 'gruppe-hinweis';
+        hinweis.textContent = gruppe.hinweis;
+        block.append(hinweis);
+      }
+      for (const gericht of gruppe.gerichte) {
+        const zeile = document.createElement('div');
+        zeile.className = 'speise';
+        const name = document.createElement('b');
+        name.textContent = gericht.name;
+        const preis = document.createElement('span');
+        preis.textContent = alsPreis(gericht.preis);
+        zeile.append(name, preis);
+        if (gericht.beilage) {
+          const beilage = document.createElement('small');
+          beilage.textContent = gericht.beilage;
+          zeile.append(beilage);
+        }
+        block.append(zeile);
+      }
+      kasten.append(block);
+    }
+  } catch (fehler) {
+    kasten.innerHTML = '';
+    const satz = document.createElement('p');
+    satz.className = 'laden';
+    satz.textContent = 'Die Karte lässt sich gerade nicht laden. Bitte kurz später erneut versuchen '
+      + 'oder telefonisch bestellen: +43 (0)5572 20 540.';
+    kasten.append(satz);
+    stand.textContent = '';
+  }
+})();
+  </script>
+</body>
+</html>

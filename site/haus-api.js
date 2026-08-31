@@ -328,3 +328,42 @@ export async function bleibVerbunden(token, beiAenderung, beiZustand = () => {},
     try { socket?.close(); } catch { /* egal */ }
   };
 }
+
+
+// ---- Die Karte zum Mitnehmen aus der Datei ---------------------------------
+// Quelle ist data/takeaway-karte.json: die Karte des offiziellen Lieferservice
+// (lieferservice.wirtschaft-dornbirn.at), in zwei Gruppen wie dort -
+// Wochengerichte und A la carte. Zusage an das Haus: diese Karte steht auf der
+// Seite, auch wenn der Bestelldienst nicht laeuft. Bestellt wird dann beim
+// offiziellen Dienst oder telefonisch.
+export async function holeKarteAusDatei() {
+  try {
+    const antwort = await fetch('data/takeaway-karte.json', { cache: 'no-store' });
+    if (!antwort.ok) return { ok: false, grund: 'datei' };
+    const daten = await antwort.json();
+    const gruppen = (Array.isArray(daten.gruppen) ? daten.gruppen : [])
+      .map(gruppe => ({
+        id: gruppe.id,
+        titel: gruppe.titel,
+        fenster: gruppe.fenster || '',
+        hinweis: gruppe.hinweis || '',
+        gerichte: (gruppe.gerichte || [])
+          .filter(g => g.name && Number.isFinite(g.preis))
+          .map(g => ({ id: g.id, name: g.name, beilage: g.beilage || '', preis: g.preis, allergene: g.allergene || [] }))
+      }))
+      .filter(gruppe => gruppe.gerichte.length);
+    if (!gruppen.length) return { ok: false, grund: 'leer' };
+    return {
+      ok: true,
+      nurAnsicht: true,
+      quelle: 'datei',
+      gruppen,
+      gerichte: gruppen.flatMap(gruppe => gruppe.gerichte),
+      allergenNamen: daten.allergenNames || {},
+      karte: daten.card || null,
+      stand: daten.updatedAt || null
+    };
+  } catch {
+    return { ok: false, grund: 'netz' };
+  }
+}

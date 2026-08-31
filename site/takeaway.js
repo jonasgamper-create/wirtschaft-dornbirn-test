@@ -4,8 +4,9 @@
 
 import {
   apiAdresse, bestelleTakeaway, holeBestellStatus, holePushSchluessel,
-  holeTakeawayKarte, meldePushAb, meldePushAn
-} from './haus-api.js?v=92aa5302';
+  holeTakeawayKarte, meldePushAb, meldePushAn,
+  holeKarteAusDatei,
+} from './haus-api.js?v=7abef86d';
 
 const byId = id => document.getElementById(id);
 
@@ -470,11 +471,15 @@ let vorbestellung = false;
  * leer, bis jemand wirklich etwas anderes will.
  */
 let wunschTag = '';
+/** Karte sichtbar, Bestellung aus - wenn die Gerichte aus der Datei kommen. */
+let nurAnsicht = false;
+/** Die Karte in ihren Gruppen (Wochengerichte, A la carte) wie beim Dienst. */
+let gruppen = [];
 
 start();
 
 async function start() {
-  if (!(await apiAdresse())) return;
+  const dienstDa = Boolean(await apiAdresse());
 
   // Mit Schluessel in der Adresse: der Gast kommt auf seinen Stand zurueck.
   // Dann steht der Status oben, die Karte darunter - bestellen kann er
@@ -486,25 +491,65 @@ async function start() {
     byId('taDoneNummer').textContent = '…';
     verfolge(wieder);
   }
-  const antwort = await holeTakeawayKarte();
+  // Erst der Dienst, dann die Datei. Ohne Dienst gibt es keine Bestellung,
+  // aber die Karte steht trotzdem - das ist der Grund, warum jemand die Seite
+  // aufruft.
+  let antwort = dienstDa ? await holeTakeawayKarte() : null;
+  const dienstHatKarte = Boolean(antwort?.ok && Array.isArray(antwort.gerichte) && antwort.gerichte.length);
+  if (!dienstHatKarte) antwort = await holeKarteAusDatei();
   if (!antwort?.ok || !Array.isArray(antwort.gerichte) || !antwort.gerichte.length) return;
 
-  karte = antwort.gerichte;
+  nurAnsicht = Boolean(antwort.nurAnsicht);
+  // Gruppen wie beim offiziellen Dienst. Liefert eine Quelle keine, wird die
+  // ganze Karte als eine Gruppe ohne Titel gezeigt - die Anzeige bleibt gleich.
+  gruppen = Array.isArray(antwort.gruppen) && antwort.gruppen.length
+    ? antwort.gruppen
+    : [{ id: 'alle', titel: '', fenster: '', hinweis: '', gerichte: antwort.gerichte }];
+  karte = gruppen.flatMap(gruppe => gruppe.gerichte.map(g => ({ ...g, gruppe: gruppe.id })));
   allergenNamen = antwort.allergenNamen || {};
 
   // Die Karte wird immer gezeigt - auch wenn die Kueche durch ist. Wer abends
   // oder am Sonntag nachschaut, will wissen, was es gibt; eine Seite, die
   // dann nur "geschlossen" sagt, verschweigt genau das, wofuer man
   // hergekommen ist. Zu ist nur das Bestellen, nicht die Karte.
+  zeigeTage();
   zeigeKarte();
   zeigeAllergene();
+  zeigeKartenLink(antwort.karte);
+  // Das Formular steht immer da - es ist der Bestellweg. Ohne laufenden
+  // Hausdienst wird es beim offiziellen Lieferservice abgeschlossen.
   byId('taForm').hidden = false;
+  byId('taLeer').hidden = !nurAnsicht;
+  document.body.classList.toggle('ta-nur-ansicht', nurAnsicht);
+  document.dispatchEvent(new CustomEvent('ta:bereit', { detail: { nurAnsicht } }));
+  if (nurAnsicht) return; // Abschluss beim offiziellen Dienst.
+
   byId('taAbschluss').hidden = false;
   holeGemerkt();
 
   richteDatumEin(antwort);
   uebernimmTag(antwort);
   zeigeSumme();
+}
+
+/**
+ * Der offizielle Lieferservice. Laeuft er, ist er der Weg zum Bestellen;
+ * laeuft er nicht, steht er grau da - sichtbar, aber nicht klickbar. Ein
+ * verschwundener Knopf laesst den Gast raten, ob es den Weg ueberhaupt gibt.
+ */
+/**
+ * Der Weg zur ganzen Karte als PDF. Liegt keine hinterlegt, verschwindet der
+ * Link - ein Link auf eine alte Karte ist schlechter als keiner.
+ */
+function zeigeKartenLink(karteninfo) {
+  const link = byId('taKartenLink');
+  if (!link) return;
+  // Zielt auf die druckfertige Ansicht DERSELBEN Karte, nicht auf eine
+  // abgelegte PDF-Datei: eine Datei kann veralten, die Ansicht nicht. Legt das
+  // Haus doch eine Datei ab, hat sie Vorrang.
+  link.href = karteninfo?.file || 'mittagskarte.html';
+  link.textContent = karteninfo?.label || 'Mittagskarte ansehen und als PDF speichern';
+  link.hidden = false;
 }
 
 /**
@@ -774,7 +819,31 @@ function zeigeAllergene() {
 function zeigeKarte() {
   const kasten = byId('taKarte');
   kasten.textContent = '';
+  let offeneGruppe = null;
   for (const gericht of karte) {
+    // Gruppenkopf beim Wechsel: Titel, Zeitfenster, Hinweis - wie beim Dienst.
+    if (gericht.gruppe && gericht.gruppe !== offeneGruppe) {
+      offeneGruppe = gericht.gruppe;
+      const gruppe = gruppen.find(g => g.id === offeneGruppe);
+      if (gruppe?.titel) {
+        const kopf = document.createElement('div');
+        kopf.className = 'ta-gruppe';
+        const titel = document.createElement('h3');
+        titel.textContent = gruppe.titel;
+        if (gruppe.fenster) {
+          const fenster = document.createElement('span');
+          fenster.textContent = gruppe.fenster;
+          titel.append(' ', fenster);
+        }
+        kopf.append(titel);
+        if (gruppe.hinweis) {
+          const hinweis = document.createElement('p');
+          hinweis.textContent = gruppe.hinweis;
+          kopf.append(hinweis);
+        }
+        kasten.append(kopf);
+      }
+    }
     const zeile = document.createElement('div');
     zeile.className = 'ta-gericht';
     const name = document.createElement('span');
@@ -786,6 +855,12 @@ function zeigeKarte() {
       codes.textContent = gericht.allergene.join(', ');
       codes.setAttribute('aria-label', `Allergene: ${gericht.allergene.map(code => allergenNamen[code] || code).join(', ')}`);
       name.append(codes);
+    }
+    if (gericht.beilage) {
+      const beilage = document.createElement('small');
+      beilage.className = 'ta-gericht-beilage';
+      beilage.textContent = gericht.beilage;
+      name.append(beilage);
     }
     const preis = document.createElement('span');
     preis.className = 'ta-gericht-preis';
@@ -914,6 +989,21 @@ function posten() {
 function zeigeSumme() {
   const summe = karte.reduce((sum, gericht) => sum + gericht.preis * (mengen.get(gericht.id) || 0), 0);
   const portionen = [...mengen.values()].reduce((sum, wert) => sum + wert, 0);
+  // Die Zeile beim Abschluss und die feste Leiste lesen dieselbe Zahl - der
+  // Bestellweg zum offiziellen Dienst haengt sich hier an, statt die Preise
+  // aus dem Markup zurueckzurechnen.
+  // Die Positionen reisen mit: der Bestellweg schreibt daraus die E-Mail an
+  // das Haus und muss die Preise nicht aus dem Markup zurueckrechnen.
+  document.dispatchEvent(new CustomEvent('ta:summe', {
+    detail: {
+      summe,
+      portionen,
+      positionen: karte
+        .filter(gericht => mengen.get(gericht.id))
+        .map(gericht => ({ id: gericht.id, name: gericht.name, preis: gericht.preis, menge: mengen.get(gericht.id) }))
+    }
+  }));
+
   const kasten = byId('taSumme');
   kasten.textContent = '';
   if (!portionen) { kasten.textContent = 'Wähl’ oben deine Gerichte.'; return; }
@@ -927,7 +1017,7 @@ function zeigeSumme() {
   zahl.textContent = `${portionen} ${portionen === 1 ? 'Portion' : 'Portionen'} · ${alsPreis(summe)}`;
   const zusatz = document.createElement('span');
   zusatz.className = 'ta-summe-zusatz';
-  zusatz.textContent = ' – bezahlt wird bei der Abholung.';
+  zusatz.textContent = ' – bezahlt wird bei Erhalt.';
   kasten.append(zahl, zusatz);
 }
 
@@ -1008,3 +1098,74 @@ byId('taBestellen')?.addEventListener('click', async () => {
   antwort.eng ? 'warnung' : 'gut');
   await ladeSlots();
 });
+
+
+/**
+ * "Fuer welchen Tag moechtest du deine Bestellung aufgeben?" - dieselbe erste
+ * Frage wie beim offiziellen Lieferservice. Montag bis Freitag der Woche, in
+ * der als naechstes gekocht wird; vergangene Tage stehen grau da statt zu
+ * fehlen, damit die Woche als Woche lesbar bleibt. Die Wahl schreibt in das
+ * Abholfeld - es gibt nur EINEN Tag, nicht zwei, die auseinanderlaufen.
+ */
+function zeigeTage() {
+  const streifen = byId('taTage');
+  if (!streifen) return;
+  streifen.textContent = '';
+
+  const zweistellig = zahl => String(zahl).padStart(2, '0');
+  const alsWert = d => `${d.getFullYear()}-${zweistellig(d.getMonth() + 1)}-${zweistellig(d.getDate())}`;
+  const jetzt = new Date();
+  const heute = alsWert(jetzt);
+
+  // Montag der laufenden Woche; am Wochenende der Montag danach.
+  const montag = new Date(jetzt);
+  const wochentag = montag.getDay();
+  if (wochentag === 0) montag.setDate(montag.getDate() + 1);
+  else if (wochentag === 6) montag.setDate(montag.getDate() + 2);
+  else montag.setDate(montag.getDate() - (wochentag - 1));
+
+  const knoepfe = [];
+  for (let i = 0; i < 5; i++) {
+    const tag = new Date(montag);
+    tag.setDate(montag.getDate() + i);
+    const wert = alsWert(tag);
+    const knopf = document.createElement('button');
+    knopf.type = 'button';
+    knopf.className = 'ta-tag';
+    knopf.dataset.wert = wert;
+    knopf.disabled = wert < heute;
+    const name = document.createElement('b');
+    name.textContent = tag.toLocaleDateString('de-AT', { weekday: 'long' });
+    const datum = document.createElement('span');
+    datum.textContent = tag.toLocaleDateString('de-AT', { day: 'numeric', month: 'long' });
+    knopf.append(name, datum);
+    knopf.setAttribute('aria-pressed', 'false');
+    knopf.addEventListener('click', () => setzeTagAusStreifen(wert));
+    streifen.append(knopf);
+    knoepfe.push(knopf);
+  }
+
+  const markiere = wert => knoepfe.forEach(k =>
+    k.setAttribute('aria-pressed', String(k.dataset.wert === wert)));
+
+  setzeTagAusStreifen = wert => {
+    markiere(wert);
+    const feld = byId('taDatum');
+    if (!feld || nurAnsicht || feld.value === wert) return;
+    feld.value = wert;
+    feld.dispatchEvent(new Event('input', { bubbles: true }));
+    feld.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+
+  // Aendert der Gast das Datumsfeld selbst, wandert die Markierung mit.
+  const feld = byId('taDatum');
+  feld?.addEventListener('change', () => markiere(feld.value));
+
+  // Der erste offene Tag steht vorgewaehlt da - ohne Formular ist er die
+  // einzige Stelle, an der ein Tag ueberhaupt festgehalten wird.
+  const ersterOffener = knoepfe.find(k => !k.disabled);
+  markiere(feld?.value || ersterOffener?.dataset.wert || '');
+}
+
+/** Wird von zeigeTage() gesetzt - vorher gibt es keine Tage zu waehlen. */
+let setzeTagAusStreifen = () => {};

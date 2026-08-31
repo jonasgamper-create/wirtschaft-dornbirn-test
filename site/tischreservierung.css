@@ -334,10 +334,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .ta-leer[hidden]{display:none}
 /* Die Karte: pro Zeile links das Gericht mit Allergen-Codes, rechts Preis
    und Menge - dieselbe Ordnung wie auf der gedruckten Karte, mit Luft. */
-.ta-karte{display:grid;gap:0;border:1px solid #11110f24;background:#fff}
+.ta-karte{display:grid;gap:0;background:#fff;
+  margin-left:calc(-1 * var(--gutter));margin-right:calc(-1 * var(--gutter));
+  border-top:1px solid #11110f24;border-bottom:1px solid #11110f24}
+/* Die Zeilen bleiben auf der Rasterkante des uebrigen Inhalts. */
+.ta-karte>.ta-gericht,.ta-karte>.ta-gruppe{padding-left:var(--gutter);padding-right:var(--gutter)}
 .ta-gericht{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px 22px;align-items:center;padding:18px 20px;border-top:1px solid #11110f14}
 .ta-gericht:first-child{border-top:0}
-.ta-gericht-name{font-size:var(--t-listitem);font-weight:400;letter-spacing:0;text-transform:none;line-height:1.4}
+.ta-gericht-name{font-size:var(--t-listitem);font-weight:400;letter-spacing:0;text-transform:lowercase;line-height:1.4}
 .ta-gericht-name .ta-codes{margin-left:8px;color:#8f887b;font-size:12px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
 .ta-gericht-preis{color:var(--ink);font-size:var(--t-body);font-variant-numeric:tabular-nums;white-space:nowrap}
 /* Die Allergen-Legende: nur die Buchstaben, die heute vorkommen. */
@@ -446,7 +450,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 body{text-transform:lowercase}
 
 /* schwarzer markenkopf mit beiden logos (gilt auch fuer takeaway) */
-.site-head{position:relative;padding-top:14px;padding-bottom:14px}
+.site-head{position:relative;isolation:isolate;padding-top:14px;padding-bottom:14px}
 .site-head::before{content:"";position:absolute;z-index:-1;inset:0 calc(50% - 50vw);background:#11110f}
 .site-head>a[aria-label] img,.brand-row>a img{filter:invert(1) brightness(1.55)}
 .brand-row{display:flex;align-items:center;gap:16px}
@@ -669,13 +673,119 @@ a.button,
 .site-footer p a,
 .site-footer li a{display:inline;min-height:0}
 
-/* Der Anruf als Hinweis neben dem Knopf, nicht als zweiter Knopf. Zwei gleich
-   grosse Knoepfe lesen sich wie zwei Empfehlungen - dabei ist der Anruf hier
-   die Ausweichloesung. */
+
+/* Takeaway-Karte ohne Bestellmoeglichkeit: die Gerichte bleiben lesbar, alles
+   was bestellen heisst, verschwindet. Zusage an das Haus: die aktuelle Karte
+   steht auf der Seite - immer, auch ohne laufenden Dienst. */
+.ta-nur-ansicht .ta-spalte-rechts,
+.ta-nur-ansicht #taAbschluss,
+.ta-nur-ansicht .ta-summenleiste{display:none}
+/* Ohne Bestellmoeglichkeit faellt das ganze Formular weg. Die Karte liegt
+   ausserhalb davon, deshalb genuegt EINE Regel - keine Ausnahmeliste, die
+   gegen die !important-Regeln der Felder antreten muss. */
+/* 2 · Ohne Summenspalte gehoert die ganze Breite der Karte - sonst bleiben
+   rechts 360px leer und die Gerichtnamen brechen ohne Not um. */
+.ta-nur-ansicht .ta-bestellflaeche{grid-template-columns:minmax(0,1fr)}
+
+/* Auf Creme traegt der Link Wine - Gold ist die Auszeichnung auf dunklem
+   Grund und erreicht hier nur 1,8:1. Groesse aus der Typoskala. */
+.ta-kartenlink:not([hidden]){display:inline-flex;align-items:center;min-height:44px;margin-top:6px;
+  color:var(--wine);font-size:14.5px;letter-spacing:.02em;text-underline-offset:5px}
+
+
+/* ---- Takeaway: Tagwahl und Kartengruppen ---------------------------------
+   Aufbau wie beim offiziellen Lieferservice: erst der Tag, dann die Karte in
+   zwei Gruppen. Nur Systemfarben, keine Schatten, keine Verlaeufe. */
+.ta-tage-frage{margin:0 0 4px;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;
+  font-size:24px;font-weight:600;line-height:1.15;letter-spacing:-.01em;text-transform:lowercase}
+.ta-tage{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.ta-tag{display:grid;gap:2px;min-height:56px;padding:9px 16px;border:1px solid #11110f33;
+  border-radius:999px;background:transparent;color:#11110f;font:inherit;text-align:left;
+  cursor:pointer;transition:background .18s,border-color .18s,color .18s}
+.ta-tag b{font-size:14.5px;font-weight:700;letter-spacing:.01em;text-transform:lowercase}
+.ta-tag span{font-size:12.5px;color:#57524a;text-transform:lowercase}
+.ta-tag:hover:not(:disabled){border-color:#11110f}
+.ta-tag[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.ta-tag[aria-pressed="true"] span{color:#e4ece7}
+.ta-tag:disabled{border-color:#11110f1f;color:#8d887f;cursor:default}
+.ta-tag:disabled span{color:#8d887f}
+
+.ta-gruppe{margin:26px 0 10px;padding-top:16px;border-top:1px solid #11110f26}
+.ta-gruppe:first-child{margin-top:0;padding-top:0;border-top:0}
+.ta-gruppe h3{margin:0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:24px;
+  font-weight:600;line-height:1.15;letter-spacing:-.01em;text-transform:lowercase}
+.ta-gruppe h3 span{font-size:14.5px;font-weight:400;color:#57524a;white-space:nowrap}
+.ta-gruppe p{margin:4px 0 0;color:#57524a;font-size:14.5px;line-height:1.5}
+.ta-gericht-beilage{display:block;margin-top:3px;color:#57524a;font-size:14.5px;
+  line-height:1.45;font-weight:400;text-transform:lowercase}
+@media(max-width:560px){
+  .ta-tag{flex:1 1 calc(50% - 4px);padding:9px 14px}
+  .ta-gruppe h3 span{display:block;white-space:normal}
+}
+
+
+/* ---- Bestellweg wie beim offiziellen Lieferservice -----------------------*/
+.grid select{width:100%;min-height:48px;padding:12px 14px;border:1px solid #11110f3d;
+  border-radius:8px;background:#fff;font-size:var(--t-body);font-weight:400;letter-spacing:0;
+  text-transform:lowercase;cursor:pointer}
+.ta-mindest{margin:0;padding:12px 14px;border-left:2px solid var(--wine);background:#ffffff70;
+  color:#57524a;font-size:var(--t-meta);line-height:1.5}
+.ta-lieferhinweis{margin:0;color:#57524a;font-size:var(--t-meta);line-height:1.5}
+.ta-zahlung{display:flex;flex-wrap:wrap;gap:8px}
+.ta-zahlung button{min-height:48px;padding:0 18px;border:1px solid #11110f3d;border-radius:999px;
+  background:#fff;color:var(--ink);font:inherit;font-size:var(--t-body);text-transform:lowercase;
+  cursor:pointer}
+.ta-zahlung button[aria-checked="true"]{border-color:var(--green);background:var(--green);color:#fff}
+.ta-pflicht{margin:0;color:#57524a;font-size:var(--t-meta)}
+#taJetzt{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  margin-top:6px;padding-top:20px;border-top:1px solid #11110f26}
+#taGesamt{margin:0;font-size:var(--t-listitem);font-variant-numeric:tabular-nums}
+#taJetztInfo[data-art="warnung"]{color:var(--wine)}
+
+
+/* Rueckweg unter dem Bestellknopf: nur da, wenn er gebraucht wird. */
+.ta-notweg:not([hidden]){display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px}
+
+
+/* Handy: keine Beschriftung unter 12px, Telefonnummern als greifbares Ziel. */
+@media(max-width:760px){
+  .insta-note,.prototype-note,.ta-leer,.slot-info,.contact-note{font-size:12.5px}
+  .menu-card-gruppe{font-size:12.5px}
+  a[href^="tel:"]{display:inline-flex;align-items:center;min-height:44px}
+}
+
+
+/* Die Wochenkarte in der Servietten-Karte: Gruppentitel, dann die Gerichte
+   mit ihrer Beilagenzeile - ohne Preise, wie auf der Startseite. */
+.menu-card-gruppe{display:block;margin:0 0 8px;font-size:12px;font-weight:700;
+  letter-spacing:.12em;text-transform:lowercase;color:#57524a}
+.menu-card-body .menu-day{display:grid;gap:1px;padding:6px 0;border-top:1px solid #11110f14}
+.menu-card-body .menu-day:first-of-type{border-top:0}
+.menu-card-body .menu-day span{font-size:13.5px;line-height:1.35}
+.menu-card-body .menu-day small{font-size:12px;line-height:1.35;color:#6b665e}
+
+
+/* ======================================================================
+   iPhone · Safari verhaelt sich an vier Punkten anders als der Pruefrahmen.
+   Alle vier sind hier abgefangen:
+   1. Textgroesse im Querformat: Safari blaeht Fliesstext auf, wenn man es
+      nicht ausdruecklich untersagt.
+   2. Tippen: iOS legt ein graues Rechteck ueber jedes beruehrte Element -
+      wir zeigen den Zustand selbst, das Rechteck stoert nur.
+   3. Ueberziehen am Rand: ohne overscroll-behavior schiebt Safari die Seite
+      vom Grund weg und darunter erscheint Weiss.
+   4. Die Gestenleiste am unteren Rand verdeckt alles, was dort fest steht.
+   ====================================================================== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+/* Fokus bleibt sichtbar - nur die Beruehrungsflaeche verliert das Rechteck. */
+a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transparent}
+
+
+/* Der Anruf als Hinweis neben dem Knopf, nicht als zweiter Knopf (#106). */
 .call-aside{margin:0;color:#57524a;font-size:var(--t-meta);line-height:1.5;white-space:nowrap}
 .call-aside a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
 .call-aside[hidden]{display:none}
 @media(max-width:760px){
-  /* Am Handy steht der Hinweis unter dem Knopf und darf umbrechen. */
   .call-aside{white-space:normal;text-align:center}
 }
