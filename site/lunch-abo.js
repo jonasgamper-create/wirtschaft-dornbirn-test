@@ -5,7 +5,7 @@
 // Ohne eingetragenen Dienst faellt das Formular auf den alten Mailweg
 // zurueck, statt still ins Leere zu schicken.
 
-import { apiAdresse, holeKarteInfo, holeTakeawayKarte, karteAdresse, meldeMittagskarte } from './haus-api.js?v=7abef86d';
+import { apiAdresse, holeKarteInfo, karteAdresse, meldeMittagskarte } from './haus-api.js?v=7abef86d';
 
 // ---- Die Mittagskarte als PDF, frisch vom Haus -----------------------------
 //
@@ -27,50 +27,11 @@ async function zeigeKartenKnopf() {
 }
 zeigeKartenKnopf();
 
-// ---- Die Gerichte der Woche, live vom Haus ---------------------------------
-//
-// Eine Quelle fuer alles: was der Wirt als Karte veroeffentlicht, steht hier
-// auf der Startseite und ist zugleich im Takeaway bestellbar. Die statische
-// Karte aus dem Repo bleibt der Rueckfall, wenn der Dienst nicht antwortet.
-
-const alsPreis = wert => `€ ${Number(wert).toFixed(2).replace('.', ',')}`;
-
-async function zeigeLiveGerichte() {
-  const kasten = document.querySelector('[data-lunch-menu]');
-  if (!kasten) return;
-  const antwort = await holeTakeawayKarte();
-  if (!antwort?.ok || !Array.isArray(antwort.gerichte) || !antwort.gerichte.length) return;
-
-  const male = () => {
-    if (kasten.dataset.live === '1') return;
-    kasten.dataset.live = '1';
-    kasten.textContent = '';
-    const artikel = document.createElement('article');
-    artikel.className = 'lunch-day is-today';
-    const titel = document.createElement('h3');
-    titel.textContent = 'Diese Woche';
-    artikel.append(titel);
-    for (const gericht of antwort.gerichte) {
-      const zeileEl = document.createElement('p');
-      zeileEl.className = 'lunch-dish';
-      const name = document.createElement('span');
-      name.textContent = gericht.allergene?.length
-        ? `${gericht.name} (${gericht.allergene.join(', ')})`
-        : gericht.name;
-      const preis = document.createElement('b');
-      preis.textContent = alsPreis(gericht.preis);
-      zeileEl.append(name, preis);
-      artikel.append(zeileEl);
-    }
-    kasten.append(artikel);
-  };
-  // Die statische Karte malt zeitversetzt aus lunch-menu.json - deshalb
-  // einmal jetzt und noch zweimal danach, bis die Live-Fassung stehen bleibt.
-  male();
-  setTimeout(() => { delete kasten.dataset.live; male(); }, 1500);
-  setTimeout(() => { delete kasten.dataset.live; male(); }, 4000);
-}
-zeigeLiveGerichte();
+// Die Gerichte der Woche standen hier frueher live auf der Startseite.
+// Sie sind am 31.08.2026 gegangen: die Startseite fuehrt zur Karte, statt
+// sie abzuschreiben. Der Renderer ist mitgegangen - ohne ihn kann die
+// Uebersicht nicht still zurueckkommen, sobald irgendwo wieder ein
+// Container mit data-lunch-menu auftaucht.
 
 const form = document.getElementById('lunchAbo');
 const status = document.getElementById('lunchAboStatus');

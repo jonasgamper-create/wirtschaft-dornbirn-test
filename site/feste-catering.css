@@ -350,7 +350,8 @@ a.button,
 /* Handy: keine Beschriftung unter 12px, Telefonnummern als greifbares Ziel. */
 @media(max-width:760px){
   .insta-note,.prototype-note,.header-cta,.cta-lang{font-size:12.5px}
-  a[href^="tel:"]{display:inline-flex;align-items:center;min-height:44px}
+  a[href^="tel:"],
+  a[href^="mailto:"]{display:inline-flex;align-items:center;min-height:44px}
 }
 
 

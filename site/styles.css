@@ -31,7 +31,7 @@ button,a,input,select{font:inherit}button,a{color:inherit}button{cursor:pointer}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ffcf69;outline-offset:4px}
 .skip-link{position:fixed;z-index:9999;left:16px;top:-60px;background:#fff;color:#11110f;padding:12px 18px;border-radius:4px;transition:top .2s}.skip-link:focus{top:12px}
 
-.experience-bar{position:absolute;z-index:700;top:3px;left:0;right:0;height:var(--bar-h);display:flex;align-items:center;gap:28px;padding:0 24px;border-bottom:1px solid #ffffff1d;background:#11110ff2;}
+.experience-bar{position:absolute;z-index:700;top:0;left:0;right:0;height:var(--bar-h);display:flex;align-items:center;gap:28px;padding:0 24px;border-bottom:1px solid #ffffff1d;background:#11110ff2;}
 .master-brand{display:flex;align-items:center;width:148px;height:44px;padding:7px 10px;border-radius:6px;background:var(--paper)}.master-brand img{width:100%;height:auto}.experience-bar p{margin:0;font-size:12px;letter-spacing:.06em;color:#bdbdb5}.experience-bar p strong{color:#fff}.experience-actions{margin-left:auto;display:flex;gap:9px;align-items:center}.icon-button,.primary-action,.experience-actions select{min-height:38px;border-radius:999px;border:1px solid #ffffff35;background:#ffffff0d;color:#fff;padding:0 15px;font-size:16px;letter-spacing:.08em;text-transform:lowercase}.primary-action{border-color:#fff;background:#fff;color:#11110f;font-weight:750}.mobile-select-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.experience-actions select{display:none}
 .concept-rail{position:fixed;z-index:650;top:50%;left:14px;max-height:calc(100svh - 92px);padding:2px;overflow-y:auto;transform:translateY(-50%);display:grid;gap:4px;scroll-behavior:smooth;scrollbar-width:none}.concept-rail::-webkit-scrollbar{display:none}.concept-rail a{display:flex;align-items:center;gap:10px;width:35px;height:35px;overflow:hidden;border:1px solid #ffffff28;border-radius:999px;background:#11110f99;text-decoration:none;transition:width .35s var(--ease),background .2s,color .2s}.concept-rail a span{display:grid;place-items:center;flex:0 0 33px;font-size:11.5px;font-weight:700}.concept-rail a b{white-space:nowrap;font-size:11px;text-transform:lowercase;letter-spacing:.08em}.concept-rail a:hover{width:120px;background:#fff;color:#11110f}.concept-rail a[aria-current="true"]{width:35px;background:#fff;color:#11110f;box-shadow:0 8px 40px #11110f44}.prologue,.concept-scene{position:relative;min-height:100svh;overflow:hidden;isolation:isolate}.prologue{display:flex;align-items:flex-end;background:#11110f}.prologue-media,.scene-media,.duo-media,.poster-photo{position:absolute;z-index:-4;inset:0;width:100%;height:100%;object-fit:cover}.prologue-media{transform:scale(1.03);animation:slowZoom 16s ease-in-out alternate infinite}.prologue-shade,.media-shade{position:absolute;z-index:-3;inset:0;background:linear-gradient(90deg,#11110fec 0%,#11110f9b 50%,#11110f2b 100%)}.prologue-shade:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#11110ffa,transparent 55%)}
 .prologue-copy{width:min(850px,calc(100% - 64px));margin:0 max(7vw,70px) 9vh}.eyebrow{margin:0 0 18px;font-size:11px;font-weight:700;line-height:1.4;letter-spacing:.18em;text-transform:lowercase}.prologue h1{max-width:850px;margin:0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:clamp(58px,8vw,122px);font-weight:600;line-height:.88;letter-spacing:-.015em}.prologue-copy>p:not(.eyebrow){max-width:650px;margin:28px 0 34px;color:#e2e2de;font-size:18px;line-height:1.6}.prologue-actions,.scene-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 20px;border:1px solid currentColor;border-radius:999px;background:transparent;text-decoration:none;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:lowercase;transition:transform .25s var(--ease),background .25s,color .25s}.button:hover{transform:translateY(-3px)}.button-light{background:#fff;color:#11110f;border-color:#fff}.button-dark{background:#11110f;color:#fff;border-color:#11110f}.button-ghost{color:#fff}.button-warm{background:var(--cream);color:#11110f;border-color:var(--cream)}.button-green{background:var(--green);color:#fff;border-color:var(--green)}.button-orange{background:var(--orange);color:#11110f;border-color:var(--orange)}.button-gold{background:var(--gold);color:#1f1510;border-color:var(--gold)}.button-lime{background:var(--lime);color:#11110f;border-color:var(--lime)}
@@ -1932,11 +1932,10 @@ a.button,
 .final-site .lunch-kopf p:last-child{max-width:34ch}
 
 /* ===== die zwei wege stehen vorn =====
-   Der Satz darueber ist kurz, die Knoepfe sind das Ziel. Die PDF-Karte
-   haengt als leiser Nebenweg in derselben Reihe. */
+   Der Satz darueber ist kurz, die Knoepfe sind das Ziel. Die Karte als PDF
+   stand hier frueher als dritter Link in derselben Reihe - sie ist seit
+   dem 31.08.2026 unten ihr eigener Weg (.lunch-karte-weg). */
 .final-site .lunch-book{align-items:center}
-.final-site .lunch-book .lunch-card-link{margin-left:4px;color:#a8a29a}
-.final-site .lunch-book .lunch-card-link:hover{color:#f3efe6}
 
 /* ===== so lang wie das kapitel darueber, nicht laenger =====
    Fragen und Abo liegen in der Zweiteilung nebeneinander in einer leisen
@@ -2635,6 +2634,7 @@ a.button,
 /* Linke Spalte: Aussage, ein Weg, danach das Leise. */
 .final-site #concept-03[data-variant="n"] .lunch-kopf,
 .final-site #concept-03[data-variant="n"] .lunch-book,
+.final-site #concept-03[data-variant="n"] .lunch-karte-weg,
 .final-site #concept-03[data-variant="n"] .lunch-subscribe{grid-column:1;margin:0;
   width:100%;max-width:min(640px,100%)}
 .final-site #concept-03[data-variant="n"] .lunch-book{display:grid;justify-items:start;gap:var(--s-row)}
@@ -2679,12 +2679,10 @@ a.button,
     padding:var(--s-section) var(--gutter)}
   .final-site #concept-03[data-variant="n"] .lunch-kopf,
   .final-site #concept-03[data-variant="n"] .lunch-book,
-  .final-site #concept-03[data-variant="n"] .lunch-week,
+  .final-site #concept-03[data-variant="n"] .lunch-karte-weg,
   .final-site #concept-03[data-variant="n"] .faq-huelle,
   .final-site #concept-03[data-variant="n"] .lunch-subscribe{
     grid-column:1;grid-row:auto;max-width:none}
-  /* Die Karte gehoert vor die Fragen: was es zu essen gibt, kommt zuerst. */
-  .final-site #concept-03[data-variant="n"] .lunch-week{order:0;padding:22px 20px}
 }
 
 /* hidden muss hidden bleiben.
@@ -2892,8 +2890,12 @@ a.button,
   .final-site .prototype-note,
   .final-site .header-cta,
   .final-site .cta-lang{font-size:12.5px}
-  /* Telefonnummern im Fliesstext: tippbar, nicht nur lesbar. */
-  .final-site a[href^="tel:"]{display:inline-flex;align-items:center;min-height:44px}
+  /* Telefonnummern UND Mailadressen im Fliesstext: tippbar, nicht nur
+     lesbar. Die Mailadressen fehlten hier - im selben Absatz stand die
+     Telefonnummer als 44px hohes Ziel und die Adresse daneben als 20px
+     hohe Zeile. Ein Ziel, zwei Groessen, gleicher Satz. */
+  .final-site a[href^="tel:"],
+  .final-site a[href^="mailto:"]{display:inline-flex;align-items:center;min-height:44px}
 }
 
 
@@ -2965,3 +2967,88 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
 /* Fokus bleibt sichtbar - nur die Beruehrungsflaeche verliert das Rechteck. */
 a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transparent}
+
+
+/* ===== die karte als pdf: ein weg, ganz unten =====
+   Drei Knoepfe nebeneinander lesen sich als drei gleichwertige Angebote.
+   Reservieren und Takeaway sind das Ziel dieses Abschnitts, die Karte ist
+   das Nachschlagen davor. Also steht sie unten und fuer sich, mit Abstand
+   nach oben, damit das Auge sie als eigenen Schritt liest.
+
+   Heller Kasten auf dunklem Grund, Goldkante links: dieselbe Behandlung wie
+   .lunch-note, nur als Weg statt als Hinweis. Keine neuen Farben - Paper,
+   Gold und Green stehen so in den Tokens. */
+.final-site .chapter-lunch .lunch-karte-weg{margin:26px 0 0}
+.final-site .chapter-lunch .lunch-karte-weg .lunch-card-link{
+  display:inline-flex;align-items:center;gap:10px;
+  min-height:48px;padding:0 18px;
+  background:var(--paper);color:var(--green);
+  border:1px solid var(--gold);border-left-width:4px;
+  text-decoration:none;font-size:var(--t-label,13px);font-weight:700;
+  letter-spacing:.09em;text-transform:lowercase;
+  transition:background .2s var(--ease),color .2s var(--ease)}
+.final-site .chapter-lunch .lunch-karte-weg .lunch-card-link:hover{background:#fff;color:var(--ink)}
+.final-site .chapter-lunch .lunch-karte-weg .lunch-card-link span{margin-left:0}
+/* [hidden] gewinnt gegen das inline-flex oben - sonst stuende ein leerer
+   Kasten da, wenn keine Karte hinterlegt ist. */
+.final-site .chapter-lunch .lunch-karte-weg .lunch-card-link[hidden]{display:none}
+@media(max-width:700px){
+  /* Am Handy ueber die volle Breite: ein halber Kasten neben Luft sieht aus
+     wie ein Fehler, und das Tippziel wird groesser. */
+  .final-site .chapter-lunch .lunch-karte-weg .lunch-card-link{display:flex;justify-content:space-between;width:100%}
+}
+
+/* ===== kopfleiste am handy: zwei zeilen statt vier =====
+   Bei 375px stand die Leiste auf 205px - ein Viertel des iPhone-Schirms,
+   bevor der Gast das erste Bild sieht. Drei Ursachen, alle gemessen:
+
+   1. Marken (235px) und Oeffnungszeiten (128px) passten zusammen nicht in
+      die 330px Restbreite und rutschten auf zwei Zeilen. Beide werden hier
+      etwas kleiner, dann teilen sie sich eine.
+   2. Die Navigation brauchte 355px fuer 330px - "gutscheine" fiel auf eine
+      vierte Zeile und stand allein und mittig da.
+   3. Drei fruehere Handy-Regeln (max-width 620, 560, 380) hatten genau das
+      schon geregelt. Eine spaetere, allgemeine .bar-nav-Regel ohne Media
+      Query hat sie alle wieder ueberschrieben - dieselbe Falle wie beim
+      Wortumbruch in #102. Dieser Block steht deshalb ganz am Ende der
+      Datei: was hier steht, kann nichts weiter unten mehr aufheben.
+
+   space-between statt fester Abstand: die fuenf Ziele spannen sich ueber
+   die volle Breite, statt in der Mitte zu kleben. Bricht die Reihe auf
+   einem sehr schmalen Geraet doch um, bleibt sie lesbar - wrap steht. */
+@media(max-width:700px){
+  .final-site .experience-bar{padding-left:14px;padding-right:14px;gap:8px 10px}
+  .final-site .bar-brands{gap:10px}
+  /* Ueber die Hoehe skalieren, nicht ueber die Breite: das Wirtschaft-Logo
+     bekommt seine Groesse von einer Hoehenregel, eine Breite am Kasten lief
+     deshalb ins Leere - das Bild stand 31px ueber seinen Rand hinaus und
+     lag im Emma-&-Eugen-Logo. Beide Marken also ueber die Bildhoehe, der
+     Kasten legt sich darum. */
+  .final-site .bar-brands .master-brand{width:auto;padding:5px 8px}
+  .final-site .bar-brands .master-brand img{height:24px;width:auto}
+  .final-site .bar-brands .partner-brand img{height:28px;width:auto}
+  .final-site .experience-bar>p.bar-hours{order:2;margin-left:auto;text-align:right}
+  .final-site .bar-hours span{font-size:9.5px;letter-spacing:.05em}
+  .final-site .bar-hours time{font-size:12px}
+  .final-site .bar-nav{order:3;flex:1 1 100%;width:100%;flex-wrap:wrap;
+    justify-content:space-between;gap:2px 8px;padding-bottom:0}
+  /* 44px Tippziel bleibt - die Zeile wird schmaler, nicht die Flaeche. */
+  .final-site .bar-nav a,.final-site .nav-drop>button{
+    font-size:11px;letter-spacing:.03em;white-space:nowrap;min-height:44px}
+}
+
+/* Sehr schmale Geraete (iPhone SE der ersten Baureihe, 320px): Marken und
+   Zeiten brauchten zusammen 314px bei 292px Platz und die Zeiten fielen auf
+   eine dritte Zeile. Beide Marken und die Uhrzeit eine Stufe kleiner, dann
+   teilen sie sich wieder eine Zeile. */
+@media(max-width:360px){
+  .final-site .bar-brands{gap:8px}
+  .final-site .bar-brands .master-brand{padding:4px 6px}
+  .final-site .bar-brands .master-brand img{height:20px}
+  .final-site .bar-brands .partner-brand img{height:24px}
+  .final-site .bar-hours span{font-size:9px}
+  .final-site .bar-hours time{font-size:11px}
+  .final-site .experience-bar{padding-left:12px;padding-right:12px}
+  .final-site .bar-nav{gap:2px 4px}
+  .final-site .bar-nav a,.final-site .nav-drop>button{font-size:10.5px;letter-spacing:.02em}
+}
