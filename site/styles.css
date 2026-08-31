@@ -3052,3 +3052,19 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
   .final-site .bar-nav{gap:2px 4px}
   .final-site .bar-nav a,.final-site .nav-drop>button{font-size:10.5px;letter-spacing:.02em}
 }
+
+/* ===== foodtruck-fotos: drei nebeneinander, nicht zwei und ein waisenkind =====
+   Am Desktop zeigt Variante k ein einziges hohes Foto in der rechten Spalte.
+   Unter 1023px klappt sie auf zwei Spalten auf und blendet dabei alle drei
+   Fotos ein - das dritte stand danach allein in einer zweiten Zeile und der
+   Block war 411px hoch, mehr als ein halber iPhone-Schirm fuer eine
+   Bildergalerie.
+
+   Drei Spalten loesen beides auf einmal: die Bilder werden kleiner (bei
+   375px rund 104px statt 161px), stehen nebeneinander und der Block
+   schrumpft auf rund 131px. Das Seitenverhaeltnis 4/5 bleibt, damit die
+   Motive nicht anders beschnitten werden als bisher. */
+@media(max-width:1023px){
+  .final-site #foodtruck[data-variant="k"] .catering-fotos{
+    grid-template-columns:repeat(3,1fr);gap:clamp(6px,1.6vw,12px)}
+}
