@@ -668,3 +668,14 @@ a.button,
    auseinanderziehen, und angetippt wird ohnehin das ganze Wort. */
 .site-footer p a,
 .site-footer li a{display:inline;min-height:0}
+
+/* Der Anruf als Hinweis neben dem Knopf, nicht als zweiter Knopf. Zwei gleich
+   grosse Knoepfe lesen sich wie zwei Empfehlungen - dabei ist der Anruf hier
+   die Ausweichloesung. */
+.call-aside{margin:0;color:#57524a;font-size:var(--t-meta);line-height:1.5;white-space:nowrap}
+.call-aside a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+.call-aside[hidden]{display:none}
+@media(max-width:760px){
+  /* Am Handy steht der Hinweis unter dem Knopf und darf umbrechen. */
+  .call-aside{white-space:normal;text-align:center}
+}

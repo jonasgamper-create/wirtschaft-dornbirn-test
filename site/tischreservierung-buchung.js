@@ -38,6 +38,10 @@ async function start() {
   }
   weiter.hidden = true;
   knopf.hidden = false;
+  // Der Anruf bleibt erreichbar, aber als Hinweis neben dem Knopf - nicht als
+  // zweiter, gleich grosser Knopf. Zwei gleichwertige Knoepfe lesen sich wie
+  // zwei Empfehlungen, und der Anruf ist hier die Ausweichloesung.
+  byId('callAside').hidden = false;
   hinweis.textContent = 'Sofort fix: Du bekommst die Zusage direkt hier – ohne Anruf, ohne Konto. '
     + 'Absagen geht jederzeit über den Link in der Bestätigung.';
 
@@ -334,7 +338,7 @@ async function start() {
    * seinem Telefon, erinnert ihn von selbst und kostet ihn keine einzige
    * zusaetzliche Angabe - keine Mailadresse, keine Telefonnummer.
    */
-  function baueTermin({ wer, tag, zeit, gaeste, tisch, etage }) {
+  function baueTermin({ wer, tag, zeit, gaeste }) {
     // Zeilen ueber 75 Zeichen muessen nach der Kalendernorm umgebrochen
     // werden; Fortsetzungszeilen beginnen mit einem Leerzeichen. Ohne das
     // verschlucken manche Kalender den Rest der Zeile.
@@ -372,7 +376,10 @@ async function start() {
       `DTEND:${oertlich(tag, ende)}`,
       'STATUS:CONFIRMED',
       'SUMMARY:Tisch in der Wirtschaft Dornbirn',
-      falte(`DESCRIPTION:Reserviert auf ${schuetze(wer)}${schuetze(',')} ${personen}${tisch ? `${schuetze(',')} Tisch ${schuetze(tisch)}${etage ? ` (${schuetze(etage)})` : ''}` : ''}. Falls es doch nicht klappt${schuetze(',')} kurz anrufen: +43 5572 20540`),
+      // Ohne Tischnummer: fuer den Gast zaehlt die Zusage, nicht die interne
+      // Nummer. Wo er sitzt, sagt ihm der Service an der Tuer - und bis dahin
+      // kann sich der Tisch ohnehin noch aendern.
+      falte(`DESCRIPTION:Reserviert auf ${schuetze(wer)}${schuetze(',')} ${personen}. Falls es doch nicht klappt${schuetze(',')} kurz anrufen: +43 5572 20540`),
       falte(`LOCATION:Wirtschaft Dornbirn${schuetze(',')} Bahnhofstraße 24${schuetze(',')} 6850 Dornbirn`),
       // Eine Erinnerung eine Stunde vorher - das ist der eigentliche Nutzen
       // gegenueber einer Mail, die im Postfach liegen bleibt.
@@ -388,7 +395,7 @@ async function start() {
   }
 
   function zeigeBestaetigung(daten) {
-    const { wer, tag, zeit, gaeste, tisch, etage, wohin } = daten;
+    const { wer, tag, zeit, gaeste, wohin } = daten;
     const kasten = byId('bookingDone');
     const langesDatum = new Date(`${tag}T12:00:00`).toLocaleDateString('de-AT', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
@@ -398,9 +405,6 @@ async function start() {
     byId('doneWhen').textContent = `${langesDatum}, ${zeit} Uhr`;
     byId('doneWho').textContent = `${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'}`;
     // Ohne Tischnummer faellt die Zeile weg - "Tisch null" waere schlimmer.
-    const tischZeile = byId('doneTable').closest('div');
-    if (tischZeile) tischZeile.hidden = !tisch;
-    byId('doneTable').textContent = tisch ? `Tisch ${tisch}${etage ? ` · ${etage}` : ''}` : '';
     kasten.hidden = false;
     kasten.scrollIntoView({ block: 'center', behavior: 'smooth' });
 
@@ -511,14 +515,11 @@ async function start() {
     if (antwort.fix || antwort.tisch) {
       zeigeVerfuegbarkeit();
       zeigeAmpel();
-      zeigeBestaetigung({ wer, tag, zeit, gaeste, tisch: antwort.tisch, etage: antwort.etage, wohin });
+      zeigeBestaetigung({ wer, tag, zeit, gaeste, wohin });
       // Die Tischnummer erscheint nur, wenn das Haus sie ausdruecklich zeigt -
       // fuer den Gast zaehlt die Zusage, nicht die interne Nummer.
       return sag(`Passt: ${wer}, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'} am ${tag} um ${zeit}. `
-        + (antwort.tisch
-          ? `Tisch ${antwort.tisch}${antwort.etage ? ` im Bereich ${antwort.etage}` : ''}. `
-          : 'Dein Platz ist fix reserviert. ')
-        + 'Wir sehen uns – ein Anruf ist nicht mehr nötig.', 'gut');
+        + 'Dein Platz ist fix reserviert. Wir sehen uns – ein Anruf ist nicht mehr nötig.', 'gut');
     }
     if (antwort.automatik === false) {
       zeigeVerfuegbarkeit();

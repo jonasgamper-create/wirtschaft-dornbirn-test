@@ -12,7 +12,7 @@
   <title>Tischreservierung · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-600-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=9af34a75">
+  <link rel="stylesheet" href="tischreservierung.css?v=1cab5596">
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Restaurant","name":"Wirtschaft Dornbirn","legalName":"„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.","url":"https://wirtschaft-dornbirn.at/","telephone":"+43557220540","email":"willkommen@wirtschaft-dornbirn.at","address":{"@type":"PostalAddress","streetAddress":"Bahnhofstraße 24","postalCode":"6850","addressLocality":"Dornbirn","addressRegion":"Vorarlberg","addressCountry":"AT"},"vatID":"ATU36206707","acceptsReservations":"https://wirtschaft-dornbirn.at/tischreservierung.html"}
   </script>
@@ -133,8 +133,15 @@
           <p class="form-datenschutz">Deine Angaben verwenden wir nur für diese Reservierung.
             <a href="datenschutz-sicherheit.html#anfragen">Wie wir mit deinen Daten umgehen</a></p>
         <div class="submit-row">
-          <a class="button button-green" id="submitBooking" href="tel:+43557220540">Lieber anrufen: +43 (0)5572 20 540</a>
+          <!-- Der Anruf ist die Ausweichloesung, nicht der Hauptweg. Als
+               gleichwertiger Knopf neben "Tisch reservieren" wirkte er wie
+               eine zweite Empfehlung; jetzt steht er als Hinweis daneben.
+               Faellt der Dienst aus, wird er wieder zum Knopf - dann ist er
+               der einzige Weg. -->
           <button class="button button-green" id="bookDirect" type="button" hidden>Tisch reservieren</button>
+          <a class="button button-green" id="submitBooking" href="tel:+43557220540">Lieber anrufen: +43 (0)5572 20 540</a>
+          <p class="call-aside" id="callAside" hidden>Lieber telefonisch?
+            <a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
           <p id="submitHint">Gespeichert werden nur Name, Termin, Personenzahl und eine Erreichbarkeit – gelöscht spätestens 30 Tage nach dem Termin.</p>
         </div>
         <!-- Die aktuelle Mittagskarte, direkt vom Haus. Erscheint nur, wenn
@@ -159,7 +166,6 @@
             <div><dt>Name</dt><dd id="doneName"></dd></div>
             <div><dt>Wann</dt><dd id="doneWhen"></dd></div>
             <div><dt>Für</dt><dd id="doneWho"></dd></div>
-            <div><dt>Platz</dt><dd id="doneTable"></dd></div>
           </dl>
           <a class="button button-green" id="doneCalendar" href="#" download>In den Kalender legen</a>
           <p class="done-hint" id="doneHint" role="status" aria-live="polite"></p>
@@ -204,6 +210,6 @@
   </footer>
 
   <script src="tischreservierung.js?v=428d54e5" defer></script>
-  <script type="module" src="tischreservierung-buchung.js?v=3ac74f02"></script>
+  <script type="module" src="tischreservierung-buchung.js?v=67042b2c"></script>
 </body>
 </html>
