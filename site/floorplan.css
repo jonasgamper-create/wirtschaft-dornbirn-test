@@ -516,3 +516,9 @@
 
 /* Takeaway-Karte im Cockpit: ein Textfeld, eine Zeile je Gericht. */
 #fpTakeawayText{width:100%;max-width:640px;min-height:120px;padding:10px 12px;border:1px solid var(--line,#11110f26);border-radius:8px;font:inherit;font-size:14px;line-height:1.5;background:#fff;resize:vertical}
+
+/* Wandbank: eine durchgehende Sitzflaeche statt einzelner Stuehle. Kraeftiger
+   als ein Stuhl, weil sie Moebel ist und nicht ein Platz. */
+.fp-svg .fp-bank{fill:#11110f2e;stroke:#11110f4d;stroke-width:1;vector-effect:non-scaling-stroke}
+.fp-svg [data-state="busy"] .fp-bank{fill:#11110f38}
+.fp-svg [data-state="late"] .fp-bank{fill:#a67f4599}

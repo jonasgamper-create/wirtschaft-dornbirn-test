@@ -13,7 +13,12 @@ export const FORMEN = {
   laenglich: { label: 'Länglich', seiten: 2 },
   rund: { label: 'Rund', seiten: 4 },
   tafel: { label: 'Lange Tafel', seiten: 2 },
-  theke: { label: 'Theke', seiten: 1 }
+  theke: { label: 'Theke', seiten: 1 },
+  // Wandbank: der Tisch steht davor, auf einer Seite sitzt man auf einer
+  // durchgehenden Bank statt auf Stuehlen. In fast jedem Gasthaus die
+  // haeufigste Sitzform an der Wand - und sie sieht anders aus, also muss sie
+  // auch anders gezeichnet werden.
+  bank: { label: 'Wandbank', seiten: 2 }
 };
 
 export const formKinds = () => Object.keys(FORMEN);

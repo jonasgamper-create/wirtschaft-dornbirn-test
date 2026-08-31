@@ -375,7 +375,11 @@ check('Eine Tafel ist laenger als ein normaler Tisch',
 check('Eine Theke ist flacher als ein normaler Tisch',
   footprint(6, { form: 'theke' }).h < footprint(6).h);
 check('Unbekannte Form faellt auf laenglich zurueck', formOf({ form: 'dreieck' }) === 'laenglich');
-check('Es gibt genau vier Formen', Object.keys(FORMEN).length === 4, Object.keys(FORMEN).join(','));
+// Die Zahl selbst ist nicht der Punkt - der Punkt ist, dass jede Form auch
+// gezeichnet und gespeichert werden kann. Deshalb steht sie hier als Liste.
+check('Alle Formen sind bekannt',
+  Object.keys(FORMEN).join(',') === 'laenglich,rund,tafel,theke,bank',
+  Object.keys(FORMEN).join(','));
 
 // Jeder Stuhl muss existieren und innerhalb der Grundflaeche liegen - sonst
 // steht auf der Karte ein Platz irgendwo im Raum.

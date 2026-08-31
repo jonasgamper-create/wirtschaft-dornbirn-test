@@ -12,9 +12,9 @@ import {
   setzeFertigWer,
   stelleTagWiederHer
 } from './haus-api.js?v=92aa5302';
-import { buildFloorplan } from './floorplan-layout.mjs?v=8cd1fbb4';
+import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
-import { durationFor, occupiesAt } from './table-assignment.mjs?v=ec7c8e39';
+import { durationFor, occupiesAt } from './table-assignment.mjs?v=2dead16d';
 
 const byId = id => document.getElementById(id);
 const pad = zahl => String(zahl).padStart(2, '0');
