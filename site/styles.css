@@ -209,6 +209,11 @@ html{scroll-padding-top:0}
 .final-site #concept-05{order:4}
 .final-site #foodtruck{order:5}
 .final-site #feiern{order:6}
+/* Der Instagram-Streifen stand ohne eigenes order und fiel damit auf 0 -
+   also direkt hinter das Willkommen und VOR die Events. Er ist der einzige
+   Abschnitt, der von der Seite wegfuehrt; vor der wichtigsten Conversion
+   war er falsch. Jetzt zuletzt, direkt vor dem Impressum. */
+.final-site #instagram{order:20}
 .final-site #concept-01{display:none!important}
 .final-site .chapter-stage .scene-copy{width:min(500px,42%)}
 .final-site .event-spotlight{position:absolute;z-index:4;right:0;bottom:7vh;display:grid;width:min(520px,46%);gap:0;padding:8px 0;border-top:1px solid #ffffff45;border-bottom:1px solid #ffffff45;background:#11110ff2;box-shadow:0 20px 60px #11110f66;}

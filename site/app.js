@@ -954,8 +954,14 @@
     wert: 'Wertgutschein'
   };
   const voucherBoxes = [...document.querySelectorAll('[data-voucher]')];
+  // Der Bestellknopf ist am 27.08. entfernt worden - der Abschnitt zeigt die
+  // Gutscheine, den Weg zur Bestellung besprechen wir persoenlich. Die
+  // Mengenwaehler bleiben bedienbar, deshalb muss alles hier ohne den Knopf
+  // auskommen: ohne diese Pruefung stiege die Funktion aus und die Waehler
+  // waeren tot.
   const voucherRequest = document.getElementById('voucherRequest');
   function syncVoucherMail() {
+    if (!voucherRequest) return;
     const picked = voucherBoxes
       .filter(box => Number(box.dataset.value) > 0)
       .map(box => `${box.dataset.value} × ${voucherLabels[box.dataset.voucher]}`);
