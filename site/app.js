@@ -637,7 +637,11 @@
     if (!chip || !text) return;
     const heute = new Date();
     heute.setHours(0, 0, 0, 0);
-    const kommend = calendarEvents.find(item => item.status !== 'cancelled' && new Date(`${item.date}T12:00:00`) >= heute);
+    // Der Hinweis wirbt - also nur fuer Termine, die man noch bekommen kann.
+    // Ein ausverkaufter Abend als "Neu" fuehrt Gaeste in eine Sackgasse; der
+    // 03.09. haengt sonst bis zum Termin oben rechts, obwohl es nichts mehr
+    // zu holen gibt.
+    const kommend = calendarEvents.find(item => item.status !== 'cancelled' && item.status !== 'sold_out' && new Date(`${item.date}T12:00:00`) >= heute);
     if (!kommend) return;
     text.textContent = `${kommend.title} · ${formatEventDate(kommend.date)}`;
     // Das Bild des Termins, klein. Fehlt es, springt ein Abendfoto ein -
