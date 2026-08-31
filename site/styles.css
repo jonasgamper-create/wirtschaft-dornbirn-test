@@ -41,7 +41,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .theme-table{--scene-accent:#fff}.theme-table .media-shade{background:linear-gradient(#11110f67,#11110fd8)}.party-sizes{display:flex;justify-content:center;gap:9px;margin:25px 0 0}.party-sizes button{width:52px;height:52px;border:1px solid #fff9;border-radius:50%;background:#11110f33;color:#fff;font-weight:700;transition:background .2s,color .2s,transform .2s}.party-sizes button:hover{background:#fff;color:#11110f;transform:translateY(-4px)}
 .decision-section{min-height:92vh;padding:14vh max(7vw,70px);background:var(--wine);color:#fff}.decision-copy{max-width:1050px}.decision-copy h2{margin:0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:clamp(48px,6vw,94px);font-weight:600;line-height:.95;letter-spacing:-.015em}.decision-copy>p:last-child{max-width:680px;font-size:18px;line-height:1.55}.decision-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:70px}.decision-grid button{min-height:190px;padding:26px;border:1px solid #ffffff3b;border-radius:14px;background:#ffffff0d;color:#fff;text-align:left;transition:background .25s,transform .25s}.decision-grid button:hover{background:#fff;color:#11110f;transform:translateY(-8px)}.decision-grid span{display:block;font-size:11px;font-weight:700}.decision-grid strong{display:block;margin:36px 0 8px;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:27px}.decision-grid small{font-size:13px;opacity:.7}
 .site-footer{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:32px;padding:70px max(7vw,70px) 40px;background:var(--paper);color:#171715;font-size:13px;line-height:1.6}.site-footer img{width:155px;height:auto;margin-bottom:16px}.site-footer p{margin:5px 0}.site-footer a,.site-footer button{display:block;border:0;background:none;padding:3px 0;color:inherit;text-align:left;text-decoration:underline;text-underline-offset:4px}.prototype-note{grid-column:1/-1;margin-top:36px!important;padding-top:22px;border-top:1px solid #11110f22;font-size:11.5px;text-transform:lowercase;letter-spacing:.1em}
-.app-dialog{width:min(1000px,calc(100% - 32px));max-height:calc(100svh - 32px);padding:0;border:0;border-radius:18px;background:var(--paper);color:#11110f;box-shadow:0 30px 120px #11110f99}.app-dialog::backdrop{background:#11110ff2;}.dialog-frame{padding:34px}.dialog-frame>header{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;padding-bottom:25px;border-bottom:1px solid #1515151c}.dialog-frame h2{margin:0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:clamp(36px,5vw,64px);font-weight:600;line-height:1}.dialog-close{display:grid;place-items:center;width:42px;height:42px;flex:0 0 42px;border:1px solid #11110f33;border-radius:50%;background:transparent;font-size:26px}.dialog-frame>footer{display:flex;align-items:center;gap:18px;margin-top:26px;padding-top:22px;border-top:1px solid #1515151c}.dialog-frame>footer span{font-size:11px;color:#535349}.booking-grid{display:grid;grid-template-columns:1.45fr .8fr;gap:34px;padding-top:28px}.booking-fields{display:grid;gap:22px}.booking-fields label,.booking-fields legend{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:lowercase}.booking-fields label{display:grid;gap:9px}.booking-fields input{min-height:48px;padding:0 14px;border:1px solid #11110f33;border-radius:8px;background:#fff;color:#11110f}.booking-fields fieldset{margin:0;padding:0;border:0}.booking-fields legend{margin-bottom:9px}.choice-row{display:flex;gap:8px;flex-wrap:wrap}.choice-row button,.table-options button{min-width:64px;min-height:42px;border:1px solid #11110f33;border-radius:8px;background:#fff;color:#11110f}.choice-row button.selected,.table-options button.selected{background:var(--green);color:#fff;border-color:var(--green)}.table-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.table-options p{grid-column:1/-1;color:#5a5a54}.availability-card{padding:24px;border-radius:12px;background:#183d2c;color:#fff}.availability-card>p:first-child{margin:0 0 8px;font-size:11px;text-transform:lowercase;letter-spacing:.12em}.availability-card>strong{font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:28px}.capacity-bar{height:10px;margin:18px 0 24px;overflow:hidden;border-radius:99px;background:#fff2}.capacity-bar span{display:block;width:64%;height:100%;border-radius:inherit;background:#d8e967;transition:width .35s}.availability-card dl{display:grid;gap:12px}.availability-card dl div{display:flex;justify-content:space-between;gap:12px}.availability-card dt{font-size:12px;color:#d4ded6}.availability-card dd{margin:0;font-weight:700}.microcopy{margin-top:30px;color:#c9d2cc;font-size:11px;line-height:1.5}.form-message{min-height:20px;margin:18px 0 0;color:var(--wine);font-weight:700}.ticket-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-top:28px}.ticket-list button{display:grid;min-height:155px;padding:20px;border:1px solid #11110f22;border-radius:12px;background:#fff;color:#11110f;text-align:left}.ticket-list button.selected{background:var(--wine);color:#fff}.ticket-list span{font-weight:700}.ticket-list b{align-self:end;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:30px}.ticket-list small{margin-top:6px}.ticket-summary{display:flex;align-items:center;gap:18px;margin-top:20px;padding:18px;border-radius:12px;background:#ead9bc}.ticket-summary>p{margin:0 0 0 auto}.stepper{display:flex;align-items:center;gap:16px}.stepper button{width:35px;height:35px;border:1px solid #11110f33;border-radius:50%;background:#fff}.menu-list{display:grid;gap:8px;padding-top:28px}.menu-list article{display:grid;grid-template-columns:45px 1fr auto;gap:18px;align-items:center;padding:18px;border-radius:10px;background:#fff}.menu-list article span{color:var(--wine);font-weight:700}.menu-list article h3,.menu-list article p{margin:0}.menu-list article p{margin-top:4px;color:#575751;font-size:12px}.story-layout{display:grid;grid-template-columns:.9fr 1.2fr;gap:34px;align-items:center;padding-top:28px}.story-layout>img{width:100%;height:auto;filter:invert(1)}.story-layout>div>p{font-size:18px;line-height:1.6}.story-layout ol{display:grid;gap:12px;padding:0;list-style:none}.story-layout li{display:grid;grid-template-columns:65px 1fr;gap:15px;padding-top:12px;border-top:1px solid #11110f22}.story-layout li b{color:var(--wine)}.compact-frame>p{max-width:760px;font-size:17px;line-height:1.65}.toast{position:fixed;z-index:1000;right:20px;bottom:20px;max-width:min(360px,calc(100% - 40px));padding:14px 18px;border-radius:10px;background:#fff;color:#11110f;box-shadow:0 15px 50px #11110f66;opacity:0;transform:translateY(20px);pointer-events:none;transition:.3s}.toast.show{opacity:1;transform:none}.noscript{position:fixed;z-index:999;left:20px;right:20px;bottom:20px;padding:15px;background:#fff;color:#11110f}
+.app-dialog{width:min(1000px,calc(100% - 32px));max-height:calc(100svh - 32px);padding:0;border:0;border-radius:18px;background:var(--paper);color:#11110f;box-shadow:0 30px 120px #11110f99}.app-dialog::backdrop{background:#11110ff2;}.dialog-frame{padding:34px}.dialog-frame>header{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;padding-bottom:25px;border-bottom:1px solid #1515151c}.dialog-frame h2{margin:0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:clamp(36px,5vw,64px);font-weight:600;line-height:1}.dialog-close{display:grid;place-items:center;width:42px;height:42px;flex:0 0 42px;border:1px solid #11110f33;border-radius:50%;background:transparent;font-size:26px}.dialog-frame>footer{display:flex;align-items:center;gap:18px;margin-top:26px;padding-top:22px;border-top:1px solid #1515151c}.dialog-frame>footer span{font-size:11px;color:#535349}.booking-grid{display:grid;grid-template-columns:1.45fr .8fr;gap:34px;padding-top:28px}.booking-fields{display:grid;gap:22px}.booking-fields label,.booking-fields legend{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:lowercase}.booking-fields label{display:grid;gap:9px}.booking-fields input{min-height:48px;padding:0 14px;border:1px solid #11110f33;border-radius:8px;background:#fff;color:#11110f}.booking-fields fieldset{margin:0;padding:0;border:0}.booking-fields legend{margin-bottom:9px}.choice-row{display:flex;gap:8px;flex-wrap:wrap}.choice-row button,.table-options button{min-width:64px;min-height:42px;border:1px solid #11110f33;border-radius:8px;background:#fff;color:#11110f}.choice-row button.selected,.table-options button.selected{background:var(--green);color:#fff;border-color:var(--green)}.table-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.table-options p{grid-column:1/-1;color:#5a5a54}.availability-card{padding:24px;border-radius:12px;background:#183d2c;color:#fff}.availability-card>p:first-child{margin:0 0 8px;font-size:11px;text-transform:lowercase;letter-spacing:.12em}.availability-card>strong{font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:28px}.capacity-bar{height:10px;margin:18px 0 24px;overflow:hidden;border-radius:99px;background:#fff2}.capacity-bar span{display:block;width:64%;height:100%;border-radius:inherit;background:#d8e967;transition:width .35s}.availability-card dl{display:grid;gap:12px}.availability-card dl div{display:flex;justify-content:space-between;gap:12px}.availability-card dt{font-size:12px;color:#d4ded6}.availability-card dd{margin:0;font-weight:700}.microcopy{margin-top:30px;color:#c9d2cc;font-size:11px;line-height:1.5}.form-message{min-height:20px;margin:18px 0 0;color:var(--wine);font-weight:700}.ticket-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-top:28px}.ticket-list button{display:grid;min-height:155px;padding:20px;border:1px solid #11110f22;border-radius:12px;background:#fff;color:#11110f;text-align:left}.ticket-list button.selected{background:var(--wine);color:#fff}.ticket-list span{font-weight:700}.ticket-list b{align-self:end;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:30px}.ticket-list small{margin-top:6px}.ticket-summary{display:flex;align-items:center;gap:18px;margin-top:20px;padding:18px;border-radius:12px;background:#ead9bc}.ticket-summary>p{margin:0 0 0 auto}.stepper{display:flex;align-items:center;gap:16px}.stepper button{width:35px;height:35px;border:1px solid #11110f33;border-radius:50%;background:#fff}.menu-list{display:grid;gap:8px;padding-top:28px}.menu-list article{display:grid;grid-template-columns:45px 1fr auto;gap:18px;align-items:center;padding:18px;border-radius:10px;background:#fff}.menu-list article span{color:var(--wine);font-weight:700}.menu-list article h3,.menu-list article p{margin:0}.menu-list article p{margin-top:4px;color:#575751;font-size:12px}.story-layout{display:grid;grid-template-columns:.9fr 1.2fr;gap:34px;align-items:center;padding-top:28px}.story-layout>img{width:100%;height:auto;filter:invert(1)}.story-layout>div>p{font-size:18px;line-height:1.6}.story-layout ol{display:grid;gap:12px;padding:0;list-style:none}.story-layout li{display:grid;grid-template-columns:65px 1fr;gap:15px;padding-top:12px;border-top:1px solid #11110f22}.story-layout li b{color:var(--wine)}.compact-frame>p{max-width:760px;font-size:17px;line-height:1.65}.toast{position:fixed;z-index:1000;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));max-width:min(360px,calc(100% - 40px));padding:14px 18px;border-radius:10px;background:#fff;color:#11110f;box-shadow:0 15px 50px #11110f66;opacity:0;transform:translateY(20px);pointer-events:none;transition:.3s}.toast.show{opacity:1;transform:none}.noscript{position:fixed;z-index:999;left:20px;right:20px;bottom:20px;padding:15px;background:#fff;color:#11110f}
 @keyframes slowZoom{to{transform:scale(1.1)}}@keyframes scrollCue{0%,100%{transform:scaleY(.35);transform-origin:top;opacity:.4}50%{transform:scaleY(1);opacity:1}}@keyframes blink{50%{opacity:.15}}
 .motion-off *,.motion-off *:before,.motion-off *:after{animation:none!important;scroll-behavior:auto!important;transition-duration:.01ms!important}.motion-off .parallax-media{transform:scale(1.01)!important}.motion-off .reveal{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.prologue-media,.recording span,.scroll-cue i{animation:none}.parallax-media{transform:scale(1.01)!important}.reveal{opacity:1;transform:none;transition:none}.final-site .status-dock{transition:none}}
@@ -1030,7 +1030,7 @@ html{scroll-padding-top:0}
 .final-site .catering-scene{gap:var(--s-section)}
 
 /* Fusszeile. */
-.final-site .site-footer{padding-top:var(--s-section);padding-bottom:var(--s-block);gap:var(--s-block)}
+.final-site .site-footer{padding-top:var(--s-section);padding-bottom:calc(var(--s-block) + 1cm);gap:var(--s-block)}
 .final-site .prototype-note{margin-top:var(--s-block)!important;padding-top:var(--s-block)}
 @media(max-width:900px){
   .final-site{--s-section:clamp(56px,12vw,84px);--s-block:24px;--s-para:16px;--s-row:10px}
@@ -1433,7 +1433,7 @@ a{text-decoration-thickness:from-font;text-underline-offset:.18em}
 
 /* Lesbare Zeilenlaenge: ueber ~75 Zeichen ermuedet der Sprung zur naechsten
    Zeile. Gilt fuer Fliesstext, nicht fuer Ueberschriften. */
-.final-site main p:not(.eyebrow):not([class*="label"]){max-width:68ch}
+.final-site main p:not(.eyebrow):not([class*="label"]):not(.insta-note){max-width:68ch}
 .final-site .lunch-note,.final-site .ticket-detail-note{max-width:60ch}
 
 /* Öffnungszeiten im Kopfbereich: rechts neben den Wegen, ruhig gesetzt.
@@ -1477,11 +1477,11 @@ body{text-transform:lowercase}
 .site-footer .partner-block img{filter:none;width:150px}
 .prototype-note{border-top-color:#ffffff26}
 .final-site .site-footer[data-variant="d"]{
-  grid-template-columns:1.25fr 1.25fr .9fr 1fr;gap:34px 44px;align-items:start;
+  grid-template-columns:1.2fr 1.2fr .8fr .8fr;gap:34px clamp(24px,3vw,44px);align-items:start;
   width:100%;margin:0;
   padding-left:max(75px,calc((100% - var(--content))/2));
   padding-right:max(75px,calc((100% - var(--content))/2))}
-@media(max-width:1100px){.final-site .site-footer[data-variant="d"]{grid-template-columns:1fr 1fr;gap:30px 34px;padding-left:23px;padding-right:23px}}
+@media(max-width:900px){.final-site .site-footer[data-variant="d"]{grid-template-columns:1fr 1fr;gap:30px 34px;padding-left:23px;padding-right:23px}}
 @media(max-width:640px){.final-site .site-footer[data-variant="d"]{grid-template-columns:1fr;padding-left:23px;padding-right:23px}}
 
 /* ===== abend-galerie: bilder statt versprechen ===== */
@@ -1512,7 +1512,7 @@ body{text-transform:lowercase}
   transition:transform .35s var(--ease)}
 .insta-band a:hover img{transform:scale(1.05)}
 .insta-band a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.insta-note{margin:16px auto 0;color:rgba(243,239,230,.5);font-size:11.5px;line-height:1.5}
+.insta-strip>.insta-note{margin-top:16px;max-width:none;padding-right:min(28%,240px);color:rgba(243,239,230,.5);font-size:11.5px;line-height:1.5}
 @media(max-width:900px){
   .insta-strip>*{width:calc(100% - 46px)}
   .insta-band{grid-template-columns:repeat(3,1fr);gap:6px}
@@ -1521,9 +1521,9 @@ body{text-transform:lowercase}
 /* ===== news-chip: klein, unter der leiste rechts =====
    der hinweis haengt am kopf (top:100% folgt der echten hoehe), schwebt aber
    unter der leiste - die oeffnungszeiten behalten oben rechts ihren platz. */
-.bar-news{position:absolute;top:100%;right:24px;margin-top:6px;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 14px;border:1px solid #c59b5d59;border-radius:999px;background:#11110fd9;color:#f3efe6;text-decoration:none;font-size:10.5px;letter-spacing:.05em;white-space:nowrap}
+.bar-news{position:fixed;z-index:701;top:calc(var(--leiste-h,var(--bar-h,78px)) + 8px);right:24px;margin-top:0;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 14px;border:1px solid #c59b5d59;border-radius:999px;background:#11110fd9;color:#f3efe6;text-decoration:none;font-size:10.5px;letter-spacing:.05em;white-space:nowrap}
 .bar-news span{color:var(--gold);font-weight:700;letter-spacing:.13em;text-transform:lowercase}
-.bar-news b{font-weight:600;max-width:280px;overflow:hidden;text-overflow:ellipsis}
+.bar-news b{font-weight:600;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar-news:hover{background:#c59b5d33}
 .bar-news:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .experience-bar p.bar-hours{flex-shrink:0;margin-left:auto}
@@ -1559,13 +1559,11 @@ body{text-transform:lowercase}
 .abend-video video{width:100%;height:auto;display:block;background:#000}
 .abend-video figcaption{margin-top:10px;color:var(--gold);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:lowercase}
 
-
 /* die zwei wege im aufklappmenue sind knoepfe, keine links mehr */
 .nav-drop-menu button{display:flex;align-items:center;width:100%;min-height:44px;padding:0 14px;
   border:0;background:none;color:var(--paper);text-align:left;cursor:pointer;
   font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase;white-space:nowrap}
 .nav-drop-menu button:hover{background:rgba(197,155,93,.16);color:var(--gold)}
-
 
 /* ===== instagram unten: kleiner und ruhiger ===== */
 .insta-strip{padding:9vh 0 8vh}
@@ -1587,7 +1585,6 @@ body{text-transform:lowercase}
 .catering-fotos img{width:220px;height:auto;aspect-ratio:3/4;object-fit:cover;border:1px solid rgba(243,239,230,.16)}
 @media(max-width:900px){.catering-fotos img{width:44vw;max-width:220px}}
 
-
 /* ===== handy: kopfleiste kompakt =====
    die fuenf ziele brauchten zwei Pixel mehr als da waren und brachen um.
    engere abstaende halten sie in einer zeile; der neu-chip tritt zurueck,
@@ -1602,7 +1599,6 @@ body{text-transform:lowercase}
   .final-site .bar-nav{gap:4px 10px}
   .final-site .bar-nav a,.final-site .nav-drop>button{font-size:11.5px}
 }
-
 
 /* ===== fusszeile: beide marken auf einer linie =====
    wirtschaft ist breit-flach (300x69), emma & eugen hochkant (480x339).
@@ -1624,7 +1620,6 @@ body{text-transform:lowercase}
   .site-footer[data-variant] .partner-block > img,
   .site-footer .partner-block > img{max-width:94px}
 }
-
 
 /* ===== grosse ueberschriften duerfen auf schmalen schirmen trennen =====
    woerter wie "gastgebergedanke" oder "moeglichkeiten" sind bei 48 px
@@ -1650,7 +1645,6 @@ h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:normal;word-break:normal;hyphens:
      trotz der Umstellung weiter mitten im Wort. */
   h1,h2,h3{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal;word-break:normal}
 }
-
 
 /* ===== die beiden marken, ueberall gleich gewichtet =====
    Ausgangslage: der wirtschaft-Schriftzug ist ein langes Rechteck (4,3:1),
@@ -1765,3 +1759,1209 @@ a.button,
    auseinanderziehen, und angetippt wird ohnehin das ganze Wort. */
 .site-footer p a,
 .site-footer li a{display:inline;min-height:0}
+
+/* ===== eine kante fuer die ganze seite =====
+   Ausgangslage: die Kopfleiste sass bei 24 px vom Rand, die Textspalte im
+   Bild bei 64, Fusszeile und Galerien bei 70 - drei verschiedene Linien
+   uebereinander. Jetzt rechnet alles mit derselben Groesse: entweder der
+   Randabstand (--gutter) oder die Haelfte des Ueberschusses zur Inhaltsbreite
+   (--content), je nachdem, was groesser ist. Logo, Ueberschrift, Bildreihen
+   und Fusszeile beginnen damit auf einer Linie. */
+.final-site{--edge:max(var(--gutter),calc((100% - var(--content)) / 2))}
+
+.final-site .experience-bar{
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;gap:clamp(18px,2.4vw,40px);
+  padding-left:var(--edge);padding-right:var(--edge)}
+.final-site .bar-brands{display:flex;align-items:center;gap:clamp(14px,1.6vw,24px);min-width:0}
+/* Die fuenf Wege sitzen in der Mitte der Leiste, nicht am Logo geklebt. */
+.final-site .bar-nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px clamp(16px,2vw,30px)}
+.final-site .experience-bar>p.bar-hours{margin:0;justify-self:end;text-align:right}
+.final-site .bar-news{right:var(--edge)}
+
+/* Dieselbe Kante fuer alle Baender, die vorher eigene Werte hatten. */
+.final-site .decision-section,
+.final-site .abend-strip{padding-left:var(--edge);padding-right:var(--edge)}
+.final-site .insta-strip>*{width:min(var(--content),calc(100% - var(--gutter) * 2))}
+.final-site .site-footer,
+.final-site .site-footer[data-variant="d"]{padding-left:var(--edge);padding-right:var(--edge)}
+
+@media(max-width:900px){
+  .final-site .experience-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:8px clamp(12px,3vw,22px)}
+  .final-site .bar-nav{order:3;flex-basis:100%;justify-content:center}
+  .final-site .experience-bar>p.bar-hours{order:2;margin-left:auto}
+}
+
+/* ===== die fragen sollen als fragen auffallen =====
+   Vorher standen vier Zeilen mit dünnen Trennlinien unter den Knöpfen -
+   niemand erkannte darin einen Fragenblock. Jetzt trägt er eine eigene
+   Überschrift mit Anzahl, die erste Frage steht offen da, und jede Zeile
+   hat ein Zeichen zum Auf- und Zuklappen. */
+.final-site .faq-kopf{display:flex;align-items:center;gap:10px;margin:var(--s-block) 0 6px;
+  color:var(--gold);font-size:var(--t-label);font-weight:700;letter-spacing:.16em;text-transform:lowercase}
+.final-site .faq-kopf span{display:inline-flex;align-items:center;justify-content:center;
+  min-width:20px;height:20px;padding:0 5px;border:1px solid currentColor;border-radius:999px;
+  font-size:10.5px;font-variant-numeric:tabular-nums}
+.final-site .lunch-faq{margin-top:0;border-top:1px solid #ffffff2e}
+.final-site .lunch-faq details{border-top:0;border-bottom:1px solid #ffffff2e}
+.final-site .lunch-faq details:last-child{border-bottom:1px solid #ffffff2e}
+.final-site .lunch-faq summary{justify-content:space-between;gap:14px;list-style:none}
+.final-site .lunch-faq summary::-webkit-details-marker{display:none}
+.final-site .lunch-faq summary:after{content:"+";flex:0 0 auto;color:var(--gold);
+  font-size:17px;font-weight:400;line-height:1;transition:transform .2s}
+.final-site .lunch-faq details[open] summary:after{content:"–";transform:none}
+.final-site .lunch-faq summary:hover{color:var(--gold)}
+
+/* Abo-Block: kurz und knapp unter den Fragen, damit beides in einen Blick passt. */
+.final-site .lunch-subscribe{margin-top:var(--s-row);padding-top:var(--s-row);border-top:0}
+.final-site .lunch-subscribe p{max-width:26ch}
+
+/* Auf hellem Grund bleiben die Linien dunkel. */
+.final-site .chapter-lunch:not([data-variant="c"]) .lunch-faq,
+.final-site .chapter-lunch:not([data-variant="c"]) .lunch-faq details{border-color:#11110f26}
+
+/* Einwilligung gehoert ans Feld, nicht in den Fliesstext: eine Zeile unter
+   dem Formular nennt Bestaetigungsmail, Zweck und Nichtweitergabe - das
+   Kurzversprechen oben bleibt kurz, die Information bleibt vollstaendig. */
+.final-site .lunch-abo-hinweis{flex-basis:100%;margin-top:2px;color:#a8a29a;font-size:12px;line-height:1.45;letter-spacing:0;text-transform:inherit}
+/* Ersetzt durch die Klassenregel weiter unten - eine Buchstabenliste im
+   Selektor vergisst jede neue Fassung. */
+
+/* ===== mittag: fuenf layouts, direkt auf der seite umschaltbar =====
+   Der Umschalter sitzt unten rechts in der Sektion, klein und ruhig: zwei
+   Pfeile, fuenf Ziffern, der Name des Layouts. Er ist ein Werkzeug fuer die
+   Entscheidung - sobald ein Layout steht, fliegt er raus und die Ziffer
+   wandert fest ins data-variant der Sektion. */
+.final-site .layout-slides{position:absolute;z-index:6;right:var(--edge);bottom:clamp(18px,3vh,34px);
+  display:flex;align-items:center;gap:10px;padding:7px 10px;
+  border:1px solid #ffffff2e;border-radius:999px;background:#11110fd9;backdrop-filter:blur(6px)}
+.final-site .layout-pfeil,.final-site .layout-punkt{display:inline-flex;align-items:center;justify-content:center;
+  min-width:32px;min-height:32px;padding:0;border:0;border-radius:999px;background:transparent;
+  color:#c9c4bb;font:700 13px/1 Montserrat,"Helvetica Neue",Arial,sans-serif;cursor:pointer;
+  transition:background .18s var(--ease),color .18s var(--ease)}
+
+@media(max-width:700px){
+
+}
+@media(prefers-reduced-motion:reduce){.final-site .layout-punkt,.final-site .layout-pfeil{transition:none}}
+
+/* ---- Layout F · Zweiteilung: das Foto bekommt seine eigene Haelfte ----
+   Der Grund fuer die ganze Runde: im Vollbild lag das Essen halb hinter der
+   Textspalte. Hier hoert der Text an der Kante auf und das Bild beginnt. */
+/* Kein Raster mehr fuer die Zweiteilung: das Foto haengt absolut in der
+   rechten Haelfte, der Text laeuft normal im Fluss. Als Rasterzelle hat das
+   Bild mit height:100% die Zeilenhoehe an sich selbst gebunden - die Zeile
+   blieb bei Schirmhoehe stehen und der Text lief unten heraus. */
+.final-site #concept-03[data-variant="f"]{display:block;position:relative;overflow:hidden}
+.final-site #concept-03[data-variant="f"] .scene-media{position:absolute;top:0;bottom:0;left:50%;right:0;
+  width:50%;height:100%;object-fit:cover;object-position:50% 50%;transform:none!important}
+.final-site #concept-03[data-variant="f"] .media-shade,
+.final-site #concept-03[data-variant="f"] .spotlight,
+.final-site #concept-03[data-variant="f"]:after{display:none}
+.final-site #concept-03[data-variant="f"] .scene-shell{position:relative;z-index:2;
+  width:50%;max-width:none;margin:0;height:auto;min-height:auto;
+  padding:calc(var(--bar-h) + var(--s-section)) clamp(28px,4vw,64px) var(--s-section) var(--edge);
+  background:var(--ink)}
+.final-site #concept-03[data-variant="f"] .lunch-card{width:100%;max-width:none;background:transparent;box-shadow:none;padding-left:0;padding-right:0;color:#f3efe6}
+.final-site #concept-03[data-variant="f"] .eyebrow{color:var(--gold)}
+.final-site #concept-03[data-variant="f"] .faq-kopf{color:#8f8880}
+.final-site #concept-03[data-variant="f"] .lunch-faq,
+.final-site #concept-03[data-variant="f"] .lunch-faq details{border-color:#ffffff2e}
+.final-site #concept-03[data-variant="f"] .lunch-faq p,
+.final-site #concept-03[data-variant="f"] .lunch-abo-feld,
+.final-site #concept-03[data-variant="f"] .lunch-subscribe span{color:#c9c4bb}
+.final-site #concept-03[data-variant="f"] .lunch-card-link,
+.final-site #concept-03[data-variant="f"] .lunch-faq summary,
+.final-site #concept-03[data-variant="f"] .lunch-subscribe strong{color:#f3efe6}
+.final-site #concept-03[data-variant="f"] .lunch-note{background:#ffffff14;color:#f3efe6;border-left-color:var(--gold)}
+.final-site #concept-03[data-variant="f"] .button-ghost-dark{border-color:#f3efe6;color:#f3efe6}
+.final-site #concept-03[data-variant="f"] .button-ghost-dark:hover{background:#f3efe6;color:#11110f}
+
+@media(max-width:900px){
+  .final-site #concept-03[data-variant="f"] .scene-media{position:relative;left:auto;right:auto;top:auto;bottom:auto;
+    width:100%;height:42svh}
+  .final-site #concept-03[data-variant="f"] .scene-shell{width:100%;padding:var(--s-section) var(--gutter)}
+}
+
+/* ===== kopfleiste zwischen 901 und 1140 px =====
+   Das Dreispaltenraster gab der Navigation in diesem Band nur rund 313 px -
+   fuenf Ziele brauchen mehr, also brach "gutscheine" aus der Leiste heraus
+   und lag auf dem Bild. Der Ausweichzustand (Navigation in eigener Zeile)
+   beginnt deshalb schon bei 1140 px, und die Leiste darf mitwachsen. */
+@media(max-width:1140px){
+  .final-site .experience-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;
+    gap:6px clamp(12px,2.4vw,22px);height:auto;min-height:var(--bar-h);padding-top:8px;padding-bottom:8px}
+  .final-site .bar-nav{order:3;flex-basis:100%;justify-content:center}
+  .final-site .experience-bar>p.bar-hours{order:2;margin-left:auto}
+}
+
+/* ===== mittag kuerzer: eine schirmhoehe, wie oben auf der startseite =====
+   Der Abschnitt lief ueber zwei Bildschirme, weil jeder Block seinen grossen
+   Abstand behielt. In der Zweiteilung gelten deshalb engere Stufen; die
+   Fragen und das Abo ruecken zusammen, ohne sich zu beruehren. */
+/* min-height:0 hat den Abschnitt in der Flex-Spalte des Hauptbereichs unter
+   seinen Inhalt schrumpfen lassen - Fragen und Abo lagen abgeschnitten
+   darunter. Er ist jetzt so hoch wie sein Inhalt, nur mit engeren Stufen. */
+.final-site #concept-03[data-variant="f"]{--s-section:clamp(26px,4vh,52px);--s-block:clamp(14px,1.8vh,22px);--s-para:clamp(10px,1.4vh,16px);--s-row:10px;
+  min-height:auto;height:auto;flex:0 0 auto}
+.final-site #concept-03[data-variant="f"] .scene-shell{height:auto;min-height:0;
+  padding-top:calc(var(--bar-h) + var(--s-section));padding-bottom:var(--s-section)}
+.final-site #concept-03[data-variant="f"] .lunch-card{margin-bottom:0}
+.final-site #concept-03[data-variant="f"] .final-copy h2{font-size:clamp(34px,3.4vw,50px)}
+.final-site #concept-03[data-variant="f"] .final-copy>p:not(.eyebrow){margin:var(--s-para) 0 0}
+.final-site #concept-03[data-variant="f"] .lunch-faq summary{min-height:40px}
+.final-site #concept-03[data-variant="f"] .lunch-subscribe{margin-top:var(--s-block);padding-top:var(--s-block);border-top:1px solid #ffffff1f}
+
+/* ===== die fragen treten zurueck =====
+   Sie sollen findbar sein, nicht laut: die Ueberschrift ohne Gold und ohne
+   Ring, die Zeilen leichter, das Pluszeichen nur angedeutet. Wer sie
+   braucht, findet sie; wer nicht, liest darueber hinweg. */
+.final-site .faq-kopf{color:#8f8880;font-size:11px;letter-spacing:.14em;margin-bottom:2px}
+.final-site .faq-kopf span{min-width:0;height:auto;padding:0;border:0;border-radius:0;font-size:11px}
+.final-site .faq-kopf span:before{content:"· "}
+.final-site .lunch-faq summary{font-weight:600;font-size:13.5px}
+.final-site .lunch-faq summary:after{color:#8f8880;font-size:15px}
+.final-site .lunch-faq details[open] summary{color:#f3efe6}
+.final-site .chapter-lunch:not([data-variant="c"]):not([data-variant="f"]) .lunch-faq details[open] summary{color:#11110f}
+
+/* ===== fuenf textfassungen, eine sichtbar =====
+   Alle fuenf stehen im Dokument; data-copy an der Sektion entscheidet,
+   welche gezeigt wird. So bleibt jede Fassung im Quelltext bearbeitbar,
+   und der Umschalter braucht kein Nachladen. */
+.final-site .lunch-kopf{display:grid;gap:var(--s-para)}
+.final-site .lunch-kopf p:last-child{max-width:34ch}
+
+/* ===== die zwei wege stehen vorn =====
+   Der Satz darueber ist kurz, die Knoepfe sind das Ziel. Die PDF-Karte
+   haengt als leiser Nebenweg in derselben Reihe. */
+.final-site .lunch-book{align-items:center}
+.final-site .lunch-book .lunch-card-link{margin-left:4px;color:#a8a29a}
+.final-site .lunch-book .lunch-card-link:hover{color:#f3efe6}
+
+/* ===== so lang wie das kapitel darueber, nicht laenger =====
+   Fragen und Abo liegen in der Zweiteilung nebeneinander in einer leisen
+   Fusszeile - das spart die zwei Bildschirmdrittel, die den Abschnitt
+   vorher so lang gemacht haben. */
+.final-site #concept-03[data-variant="f"] .lunch-card{display:grid;grid-template-columns:1fr;gap:var(--s-block)}
+.final-site #concept-03[data-variant="f"] .lunch-faq,
+.final-site #concept-03[data-variant="f"] .lunch-subscribe{margin:0}
+.final-site #concept-03[data-variant="f"] .faq-kopf{margin:0}
+.final-site #concept-03[data-variant="f"] .lunch-subscribe{padding-top:0;border-top:0}
+@media(min-width:1200px){
+  .final-site #concept-03[data-variant="f"] .lunch-card{grid-template-columns:1fr 1fr;align-items:start}
+  .final-site #concept-03[data-variant="f"] .lunch-kopf,
+  .final-site #concept-03[data-variant="f"] .lunch-book{grid-column:1/-1}
+  .final-site #concept-03[data-variant="f"] .faq-kopf{grid-column:1;align-self:end}
+  .final-site #concept-03[data-variant="f"] .lunch-faq{grid-column:1;grid-row:4}
+  .final-site #concept-03[data-variant="f"] .lunch-subscribe{grid-column:2;grid-row:3/5;align-content:start;
+    padding-left:clamp(20px,2vw,32px);border-left:1px solid #ffffff1f}
+}
+
+/* Der Text-Umschalter sitzt links neben dem Layout-Umschalter. */
+
+@media(max-width:700px){
+
+}
+
+/* ===== die fragen als eine zeile zum aufklappen =====
+   Vier offene Zeilen mit Ueberschrift machten den Abschnitt lang und
+   unruhig. Jetzt liegt alles in einer Huelle: eine ruhige Zeile, die sich
+   auf Wunsch oeffnet. Fuenf Fassungen stehen zum Vergleich bereit. */
+.final-site .faq-huelle{margin:0}
+.final-site .faq-huelle>summary{display:flex;align-items:center;gap:8px;min-height:40px;
+  color:#8f8880;font-size:11.5px;font-weight:700;letter-spacing:.13em;cursor:pointer;list-style:none}
+.final-site .faq-huelle>summary::-webkit-details-marker{display:none}
+.final-site .faq-zahl:before{content:"· "}
+.final-site .faq-pfeil{margin-left:auto;font-style:normal;font-size:14px;font-weight:400;line-height:1}
+.final-site .faq-huelle[open]>summary .faq-pfeil:after{content:""}
+.final-site .faq-huelle[open]>summary{color:#c9c4bb}
+.final-site .faq-huelle[open] .faq-pfeil{visibility:hidden}
+.final-site .faq-huelle .lunch-faq{margin-top:4px}
+.final-site .faq-huelle .lunch-faq summary{min-height:36px;font-size:13px}
+.final-site .faq-huelle .lunch-faq p{margin-bottom:10px;font-size:13px}
+
+/* 2 · Dropdown ueber die ganze Spalte, mit Linie darueber und darunter. */
+.final-site #concept-03[data-faq="2"] .faq-huelle{border-top:1px solid #ffffff1f;border-bottom:1px solid #ffffff1f}
+.final-site #concept-03[data-faq="2"] .faq-huelle>summary{min-height:46px;font-size:12.5px}
+
+/* 3 · Offen, aber eng: vier Zeilen a 32 Pixel, Ueberschrift klein. */
+.final-site #concept-03[data-faq="3"] .faq-huelle .lunch-faq summary{min-height:32px;font-size:12.5px}
+.final-site #concept-03[data-faq="3"] .faq-huelle .lunch-faq p{font-size:12.5px;line-height:1.5;margin-bottom:8px}
+.final-site #concept-03[data-faq="3"] .faq-huelle>summary{min-height:26px;font-size:10.5px}
+
+/* 4 · Kurzfragen: die vier Fragen liegen als kleine Zeilen nebeneinander. */
+.final-site #concept-03[data-faq="4"] .faq-huelle .lunch-faq{display:flex;flex-wrap:wrap;gap:6px 8px;border:0}
+.final-site #concept-03[data-faq="4"] .faq-huelle .lunch-faq details{border:1px solid #ffffff26;border-radius:999px;padding:0 12px}
+.final-site #concept-03[data-faq="4"] .faq-huelle .lunch-faq details[open]{flex-basis:100%;border-radius:12px;padding:4px 14px 2px}
+.final-site #concept-03[data-faq="4"] .faq-huelle .lunch-faq summary{min-height:34px;font-size:12px}
+.final-site #concept-03[data-faq="4"] .faq-huelle .lunch-faq summary:after{display:none}
+
+/* 5 · Fussnote: zwei Spalten, ganz leise, nur fuer die, die suchen. */
+.final-site #concept-03[data-faq="5"] .faq-huelle>summary{display:none}
+.final-site #concept-03[data-faq="5"] .faq-huelle .lunch-faq{display:grid;grid-template-columns:1fr 1fr;gap:0 clamp(18px,2vw,30px);border-top:1px solid #ffffff14}
+.final-site #concept-03[data-faq="5"] .faq-huelle .lunch-faq summary{min-height:30px;font-size:11.5px;font-weight:600;color:#a8a29a}
+.final-site #concept-03[data-faq="5"] .faq-huelle .lunch-faq p{font-size:12px;line-height:1.5}
+@media(max-width:700px){.final-site #concept-03[data-faq="5"] .faq-huelle .lunch-faq{grid-template-columns:1fr}}
+
+/* Drei Umschalter nebeneinander: Layout rechts, Text und Fragen links. */
+
+@media(max-width:900px){
+
+}
+
+/* ===== das foto: unscharfe kueche weg, flaeche kleiner =====
+   Die obere Bildhaelfte zeigte nur die unscharfe Kueche - sie ist aus der
+   Datei geschnitten (900x816 statt 900x1200). Die rechte Spalte nimmt
+   ausserdem 42 statt 50 Prozent, damit das Bild ruhiger sitzt und der Text
+   mehr Raum bekommt. */
+.final-site #concept-03[data-variant="f"] .scene-media{left:58%;width:42%;object-position:76% 68%}
+.final-site #concept-03[data-variant="f"] .scene-shell{width:58%}
+@media(max-width:900px){
+  .final-site #concept-03[data-variant="f"] .scene-media{left:auto;width:100%;height:34svh;object-position:50% 60%}
+  .final-site #concept-03[data-variant="f"] .scene-shell{width:100%}
+}
+
+/* ===== das foto atmet mit dem scrollen =====
+   Eine langsame, an den Scrollstand gekoppelte Fahrt: das Bild kommt leicht
+   vergroessert und hoeher gesetzt herein und laeuft waehrend des Abschnitts
+   auf seine Ruhelage zu. Kein Zeitgeber, keine Schleife - die Bewegung
+   gehoert dem Finger des Gastes. Wo view() fehlt (Safari), steht das Bild
+   ruhig und minimal vergroessert, damit die Kanten sauber bleiben. */
+@keyframes mittagFahrt{
+  from{transform:scale(1.12) translate3d(0,-1.6%,0)}
+  to{transform:scale(1.015) translate3d(0,1.4%,0)}
+}
+.final-site #concept-03[data-variant="f"] .scene-media{
+  transform:scale(1.03)!important;
+  will-change:transform;backface-visibility:hidden;
+  image-rendering:auto;filter:saturate(1.04) contrast(1.02)}
+@supports (animation-timeline: view()){
+  .final-site #concept-03[data-variant="f"] .scene-media{
+    transform:none!important;
+    animation:mittagFahrt linear both;
+    animation-timeline:view();
+    animation-range:entry 0% exit 100%}
+}
+@media(prefers-reduced-motion:reduce){
+  .final-site #concept-03[data-variant="f"] .scene-media{animation:none!important;transform:scale(1.01)!important}
+}
+
+/* ===== catering: die einsatzfotos duerfen wirken =====
+   220 Pixel breite Hochformate mit hellem Rahmen sahen aus wie Briefmarken
+   auf Papier. Jetzt fuellen sie ihre Spalte, teilen sich ein Format (4:5),
+   haben keinen Rahmen mehr und heben sich beim Zeigen leicht heran. Das
+   dritte Motiv erscheint nur in den Fassungen, die es brauchen. */
+.catering-fotos{display:grid;grid-template-columns:1fr 1fr;gap:clamp(8px,1vw,14px);margin-top:var(--s-block)}
+.catering-fotos img{width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border:0;
+  transition:transform .5s var(--ease),filter .5s var(--ease);will-change:transform}
+.catering-fotos a:hover img,.catering-fotos img:hover{transform:scale(1.02)}
+.catering-fotos .foto-dritt{display:none}
+@media(max-width:900px){.catering-fotos img{width:100%;max-width:none}}
+
+/* ---- F · Bildspalte: zwei Motive hoch rechts, Karte darunter ---- */
+.final-site #foodtruck[data-variant="f"]{grid-template-columns:minmax(320px,1fr) minmax(300px,460px)}
+.final-site #foodtruck[data-variant="f"] .catering-fotos{grid-template-columns:1fr 1fr;margin-top:var(--s-block)}
+.final-site #foodtruck[data-variant="f"] .catering-fotos img{aspect-ratio:3/4}
+
+/* ---- G · Bildband ueber die ganze Breite unter dem Text ---- */
+.final-site #foodtruck[data-variant="g"]{grid-template-columns:minmax(0,1fr) minmax(300px,440px);grid-auto-rows:min-content}
+.final-site #foodtruck[data-variant="g"] .catering-fotos{grid-column:1/-1;grid-template-columns:1fr 1fr;margin-top:var(--s-section)}
+.final-site #foodtruck[data-variant="g"] .catering-fotos img{aspect-ratio:16/9}
+.final-site #foodtruck[data-variant="g"] .catering-scene-copy{max-width:640px}
+
+/* ---- H · Angeschnitten: ein Motiv laeuft bis an die Blattkante ---- */
+.final-site #foodtruck[data-variant="h"]{position:relative;grid-template-columns:minmax(300px,42%) minmax(320px,1fr);
+  padding-left:0;align-items:center}
+.final-site #foodtruck[data-variant="h"] .catering-scene-copy{order:2;padding-right:var(--edge);max-width:620px}
+.final-site #foodtruck[data-variant="h"] .catering-scene-right{order:3;padding-right:var(--edge)}
+.final-site #foodtruck[data-variant="h"] .catering-fotos{order:1;grid-template-columns:1fr;margin:0;align-self:stretch}
+.final-site #foodtruck[data-variant="h"] .catering-fotos img:last-of-type{display:none}
+.final-site #foodtruck[data-variant="h"] .catering-fotos img{height:100%;min-height:clamp(360px,54vh,560px);aspect-ratio:auto}
+
+/* ---- I · Karte auf Bild: das Motiv traegt den Anfragekasten ---- */
+.final-site #foodtruck[data-variant="i"]{grid-template-columns:minmax(320px,1fr) minmax(320px,520px)}
+.final-site #foodtruck[data-variant="i"] .catering-scene-right{position:relative;isolation:isolate;padding:clamp(20px,3vw,40px);
+  background-image:linear-gradient(#11110fb3,#11110fd9),url("assets/foodtruck-halle-800.webp");
+  background-size:cover;background-position:50% 42%}
+.final-site #foodtruck[data-variant="i"] .catering-options{background:transparent;border:1px solid #ffffff3d;box-shadow:none;color:#f3efe6}
+.final-site #foodtruck[data-variant="i"] .catering-options .eyebrow{color:var(--gold)}
+.final-site #foodtruck[data-variant="i"] .catering-options li{color:#e6e2da}
+.final-site #foodtruck[data-variant="i"] .catering-options li:before{color:var(--gold)}
+.final-site #foodtruck[data-variant="i"] .catering-options .button-dark{background:var(--paper);color:#11110f;border-color:var(--paper)}
+.final-site #foodtruck[data-variant="i"] .catering-fotos{display:none}
+
+/* ---- J · Galerie zu dritt: drei Motive, ein Rhythmus ---- */
+.final-site #foodtruck[data-variant="j"]{grid-template-columns:1fr;gap:var(--s-block)}
+.final-site #foodtruck[data-variant="j"] .catering-fotos{grid-template-columns:repeat(3,1fr);margin-top:var(--s-block)}
+.final-site #foodtruck[data-variant="j"] .catering-fotos img{aspect-ratio:4/5}
+.final-site #foodtruck[data-variant="j"] .catering-fotos .foto-dritt{display:block}
+.final-site #foodtruck[data-variant="j"] .catering-options{max-width:none}
+
+@media(max-width:900px){
+  .final-site #foodtruck[data-variant="h"]{grid-template-columns:1fr;padding-left:var(--gutter)}
+  .final-site #foodtruck[data-variant="h"] .catering-scene-copy,
+  .final-site #foodtruck[data-variant="h"] .catering-scene-right{padding-right:0}
+  .final-site #foodtruck[data-variant="h"] .catering-fotos img{min-height:38svh}
+  .final-site #foodtruck[data-variant="g"] .catering-fotos,
+  .final-site #foodtruck[data-variant="j"] .catering-fotos{grid-template-columns:1fr 1fr}
+  .final-site #foodtruck[data-variant="j"] .catering-fotos .foto-dritt{grid-column:1/-1}
+
+}
+
+/* ===== fassung 6 (karte auf bild): massstab und lage =====
+   Der Wagen fuhr in dieser Fassung zu tief - seine Fahrspur haengt am
+   unteren Rand und die Sektion ist hier hoeher als sonst. Die Spur rueckt
+   nach oben, der Wagen wird etwas kleiner, und die Bildkarte bekommt einen
+   ruhigeren Ausschnitt samt fester Mindesthoehe, damit sie neben der
+   Textspalte nicht kippt. Die Fahrt selbst bleibt unveraendert. */
+.final-site #foodtruck[data-variant="i"] .catering-truck-lane{bottom:auto;top:calc(46% + 3cm);height:36%}
+.final-site #foodtruck[data-variant="i"] .catering-truck-vehicle{top:38%;width:min(360px,32vw)}
+.final-site #foodtruck[data-variant="i"]{align-items:center;padding-bottom:clamp(64px,9vw,120px)}
+.final-site #foodtruck[data-variant="i"] .catering-scene-right{
+  min-height:clamp(380px,52vh,540px);display:grid;align-content:center;
+  background-position:62% 46%;background-size:cover}
+.final-site #foodtruck[data-variant="i"] .catering-options{padding:clamp(22px,2.4vw,32px);backdrop-filter:blur(2px)}
+.final-site #foodtruck[data-variant="i"] .catering-scene-copy{align-self:center}
+@media(max-width:900px){
+  .final-site #foodtruck[data-variant="i"] .catering-truck-lane{position:relative;top:auto;height:186px;margin-top:10px}
+  .final-site #foodtruck[data-variant="i"] .catering-truck-vehicle{top:50%;width:min(320px,74vw)}
+  .final-site #foodtruck[data-variant="i"] .catering-scene-right{min-height:340px}
+}
+
+/* Der Catering-Abschnitt beginnt drei Zentimeter hoeher: der Kopfabstand
+   wird um genau dieses Mass gekuerzt, nach unten bleibt alles wie gehabt. */
+.final-site .catering-scene{padding-top:max(24px,calc(clamp(72px,10vw,140px) - 3cm))}
+@media(max-width:900px){.final-site .catering-scene{padding-top:max(20px,calc(76px - 3cm))}}
+
+/* ===== fassung 6 als hauptfassung: kino statt kasten =====
+   Was gute Catering-Auftritte gemeinsam haben: ein Bild, das den Einsatz
+   zeigt statt ihn zu behaupten; eine einzige klare Handlung; und Bewegung,
+   die zur Geschichte gehoert (hier: der Wagen, der ins Bild faehrt). Das
+   setzt diese Fassung um -
+   1) die Bildflaeche laeuft bis an die Blattkante, statt als Kaestchen im
+      Papier zu schwimmen. Ein Vollbild wirkt teuer, ein gerahmtes Foto
+      wirkt wie eine Anzeige.
+   2) das Bild bewegt sich langsam mit dem Scrollen (an view() gekoppelt,
+      kein Zeitgeber) - dieselbe Sprache wie das Mittagsfoto.
+   3) der Anfragekasten liegt als ruhige Glasflaeche darauf, mit einer
+      goldenen Haarlinie oben statt eines Rahmens ringsum.
+   4) eine Handlung, nicht zwei: "anfrage stellen" ist der einzige Knopf,
+      hell auf dunkel, mit klarer Tapflaeche. */
+.final-site #foodtruck[data-variant="i"]{grid-template-columns:minmax(320px,1fr) minmax(360px,46%);
+  padding-right:0;column-gap:clamp(24px,4vw,64px);overflow:hidden}
+.final-site #foodtruck[data-variant="i"] .catering-scene-right{
+  position:relative;isolation:isolate;overflow:hidden;
+  min-height:clamp(420px,58vh,620px);padding:clamp(24px,3vw,44px);
+  display:grid;align-content:center;background-image:none}
+.final-site #foodtruck[data-variant="i"] .catering-scene-right:before{
+  content:"";position:absolute;z-index:-2;inset:0;
+  background:url("assets/foodtruck-halle.webp") 50% 50%/cover no-repeat;
+  transform:scale(1.06);will-change:transform}
+.final-site #foodtruck[data-variant="i"] .catering-scene-right:after{
+  content:"";position:absolute;z-index:-1;inset:0;
+  background:linear-gradient(100deg,#11110ff2 0%,#11110fc7 42%,#11110f8c 100%)}
+@supports (animation-timeline: view()){
+  @keyframes truckBildFahrt{from{transform:scale(1.12) translate3d(0,-1.2%,0)}to{transform:scale(1.02) translate3d(0,1.2%,0)}}
+  .final-site #foodtruck[data-variant="i"] .catering-scene-right:before{
+    animation:truckBildFahrt linear both;animation-timeline:view();animation-range:entry 0% exit 100%}
+}
+@media(prefers-reduced-motion:reduce){
+  .final-site #foodtruck[data-variant="i"] .catering-scene-right:before{animation:none!important;transform:scale(1.02)}
+}
+.final-site #foodtruck[data-variant="i"] .catering-options{
+  position:relative;background:#11110f4d;border:0;border-top:1px solid var(--gold);
+  box-shadow:none;backdrop-filter:blur(7px);padding:clamp(22px,2.4vw,32px) clamp(20px,2.2vw,30px)}
+.final-site #foodtruck[data-variant="i"] .catering-options h3{color:#f3efe6}
+.final-site #foodtruck[data-variant="i"] .catering-options li{transition:color .25s var(--ease)}
+.final-site #foodtruck[data-variant="i"] .catering-options li:hover{color:#fff}
+.final-site #foodtruck[data-variant="i"] .catering-options .button-dark{
+  justify-self:start;min-height:52px;padding-inline:clamp(22px,2.4vw,32px);
+  background:var(--paper);color:#11110f;border-color:var(--paper);font-weight:700}
+.final-site #foodtruck[data-variant="i"] .catering-options .button-dark:hover{background:var(--gold);border-color:var(--gold);color:#11110f}
+/* Die Textspalte behaelt ihre Kante zum Blattrand. */
+.final-site #foodtruck[data-variant="i"] .catering-scene-copy{align-self:center;max-width:600px}
+
+@media(max-width:900px){
+  .final-site #foodtruck[data-variant="i"]{grid-template-columns:1fr;padding-right:var(--gutter)}
+  .final-site #foodtruck[data-variant="i"] .catering-scene-right{min-height:360px}
+}
+
+/* ===== die drei umschalter stehen in einer zeile im fluss =====
+   Absolut positioniert lagen sie zwischen 901 und 1139 px uebereinander und
+   ueber der Einwilligungszeile des Abos. Als gemeinsame Leiste unter der
+   Karte koennen sie prinzipiell nichts mehr verdecken - und wenn ein Layout
+   feststeht, faellt genau ein Element weg. */
+.final-site .layout-leiste{display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+  margin-top:var(--s-block);padding-top:var(--s-block);border-top:1px solid #ffffff14}
+.final-site .layout-leiste .layout-slides,
+.final-site .layout-leiste .layout-slides-text,
+
+@media(max-width:700px){
+  .final-site .layout-leiste .layout-slides-text,
+
+}
+
+/* ============================================================
+   STRUKTUR: eine Ordnung fuer die ganze Seite
+   Jeder Abschnitt folgt demselben Bauplan - gleiche Kante, gleicher
+   Atem nach oben und unten, gleiche Reihenfolge im Kopf (Kicker,
+   Aussage, Satz, Handlung) und eine Groessenskala je Ebene. Vorher
+   hatte fast jeder Abschnitt eigene Werte; das liest sich als Unruhe,
+   auch wenn man es nicht benennen kann.
+   ============================================================ */
+
+/* 1 · Kante: alle Baender rechnen mit derselben Groesse. */
+.final-site .catering-scene,
+.final-site .voucher-scene,
+.final-site .decision-section,
+.final-site .abend-strip{padding-left:var(--edge);padding-right:var(--edge)}
+
+/* 2 · Atem: gleiche Stufe oben und unten, ueberall. */
+.final-site .catering-scene,
+.final-site .voucher-scene,
+.final-site .abend-strip,
+.final-site .insta-strip{padding-top:max(8px,calc(var(--s-section) - 2cm));
+  padding-bottom:max(8px,calc(var(--s-section) - 2cm))}
+.final-site .catering-scene{padding-top:max(24px,calc(var(--s-section) - 3cm))}
+
+/* 3 · Kopf eines Abschnitts: Kicker, Aussage, Satz - immer dieselbe
+      Reihenfolge und derselbe Abstand zueinander. */
+.final-site .eyebrow{margin:0 0 var(--s-para)}
+.final-site main>section>h2,
+.final-site .scene-copy h2,
+.final-site .catering-scene-copy h2,
+.final-site .abend-kopf h2{margin:0}
+.final-site main>section>p:not(.eyebrow):not(.insta-note):not(.insta-titel),
+.final-site .scene-copy>p:not(.eyebrow),
+.final-site .catering-scene-copy>p:not(.eyebrow){margin:var(--s-para) 0 0}
+
+/* 4 · Groessenskala je Ebene: eine Zeile pro Ebene, nicht eine pro
+      Abschnitt. Der Mittagsabschnitt behaelt seine kleinere Fassung,
+      weil dort Text und Bild nebeneinander stehen. */
+.final-site .chapter-stage .final-copy h2,
+.final-site .catering-scene-copy h2,
+.final-site .voucher-scene h2,
+.final-site .abend-kopf h2{font-size:clamp(40px,5.2vw,82px);line-height:.92;letter-spacing:-.015em}
+.final-site .catering-options h3,
+.final-site .voucher-card h3,
+.final-site .guest-assurance h3{font-size:clamp(20px,2vw,25px);line-height:1.12}
+
+/* 5 · Trennlinien und Fusszeilen eines Abschnitts liegen auf derselben
+      Stufe wie ueberall sonst. */
+.final-site .insta-zeile,
+.final-site .events-hinweis,
+.final-site .abend-hinweis{padding-top:var(--s-block)}
+
+/* ============================================================
+   EINE SENKRECHTE FÜR DIE GANZE SEITE
+   Das Mittagsbild begann bei 58 Prozent, das Catering-Bild bei rund 54 -
+   zwei Kanten, die sich fast, aber eben nicht treffen. Beide Abschnitte
+   rechnen jetzt mit derselben Groesse: --split ist die Breite der
+   Textspalte, alles rechts davon gehoert dem Bild und laeuft bis an den
+   Blattrand. Damit liegt die Bildkante auf einer Linie durch die ganze
+   Seite, und die Textspalten beginnen alle auf der Inhaltskante.
+   ============================================================ */
+.final-site{--split:58%}
+
+/* Mittag */
+.final-site #concept-03[data-variant="f"] .scene-shell{width:var(--split)}
+.final-site #concept-03[data-variant="f"] .scene-media{left:var(--split);width:calc(100% - var(--split));right:0}
+
+/* Catering, Fassung 6 - dieselbe Teilung, dieselbe Blattkante links */
+.final-site #foodtruck[data-variant="i"]{grid-template-columns:var(--split) calc(100% - var(--split));
+  column-gap:0;padding-left:0;padding-right:0;
+  /* Gleich viel Luft ueber und unter der Bildflaeche: die allgemeine
+     Regel kuerzt oben um drei Zentimeter, hier stehen beide Seiten
+     wieder auf derselben Stufe, damit die Flaeche mittig sitzt. */
+  padding-top:var(--s-section);padding-bottom:var(--s-section);align-items:center}
+.final-site #foodtruck[data-variant="i"] .catering-scene-copy{
+  padding-left:var(--edge);padding-right:clamp(24px,4vw,64px);max-width:none}
+.final-site #foodtruck[data-variant="i"] .catering-scene-right{margin:0}
+.final-site #foodtruck[data-variant="i"] .catering-truck-lane{left:0;right:calc(100% - var(--split))}
+
+@media(max-width:900px){
+  .final-site #concept-03[data-variant="f"] .scene-shell,
+  .final-site #foodtruck[data-variant="i"]{width:auto}
+  .final-site #foodtruck[data-variant="i"]{grid-template-columns:1fr;padding-left:var(--gutter);padding-right:var(--gutter)}
+  .final-site #foodtruck[data-variant="i"] .catering-scene-copy{padding-left:0;padding-right:0}
+  .final-site #foodtruck[data-variant="i"] .catering-truck-lane{right:0}
+}
+
+/* ===== grund hell oder dunkel: die klasse entscheidet =====
+   Vier Runden lang stand hier eine Liste von Variantenbuchstaben, und jede
+   neue Fassung hat einen Text in der falschen Farbe erwischt - zuletzt die
+   Einwilligungszeile des Abos mit 3,3:1. Die Sektion traegt jetzt .on-ink
+   oder .on-paper, und die Farben haengen daran. */
+.final-site .chapter-lunch.on-ink .lunch-abo-hinweis{color:#a8a29a}
+.final-site .chapter-lunch.on-ink .lunch-faq p,
+.final-site .chapter-lunch.on-ink .lunch-abo-feld,
+.final-site .chapter-lunch.on-ink .lunch-subscribe span{color:#c9c4bb}
+.final-site .chapter-lunch.on-ink .lunch-card-link,
+.final-site .chapter-lunch.on-ink .lunch-faq summary,
+.final-site .chapter-lunch.on-ink .lunch-subscribe strong{color:#f3efe6}
+.final-site .chapter-lunch.on-paper .lunch-abo-hinweis{color:#5b5750}
+.final-site .chapter-lunch.on-paper .lunch-faq p,
+.final-site .chapter-lunch.on-paper .lunch-abo-feld,
+.final-site .chapter-lunch.on-paper .lunch-subscribe span{color:#57524a}
+.final-site .chapter-lunch.on-paper .lunch-card-link,
+.final-site .chapter-lunch.on-paper .lunch-faq summary,
+.final-site .chapter-lunch.on-paper .lunch-subscribe strong{color:#11110f}
+
+/* Die Huelle der Fragen gehoert zur selben Ordnung: auf Papier dunkel,
+   auf Ink hell. Sie war die letzte Stelle, die noch grundton-neutral
+   gesetzt war - und damit auf hellen Fassungen bei 1,5:1. */
+.final-site .chapter-lunch.on-paper .faq-kopf,
+.final-site .chapter-lunch.on-paper .faq-huelle>summary{color:#57524a}
+.final-site .chapter-lunch.on-paper .faq-huelle[open]>summary{color:#11110f}
+.final-site .chapter-lunch.on-paper .faq-pfeil{color:#57524a}
+.final-site .chapter-lunch.on-ink .faq-kopf,
+.final-site .chapter-lunch.on-ink .faq-huelle>summary{color:#a8a29a}
+.final-site .chapter-lunch.on-ink .faq-huelle[open]>summary{color:#e6e2da}
+
+/* ===== catering auf ink =====
+   Der Abschnitt stand als einzige Szene zwischen Buehne und Mittag auf Paper
+   und hat die Folge dunkler Kapitel aufgebrochen. Er traegt jetzt .on-ink wie
+   das Mittagskapitel; die Textfarben haengen an der Klasse, nicht am
+   Variantenbuchstaben. */
+.final-site .catering-scene.on-ink{background:var(--ink);color:var(--paper)}
+.final-site .catering-scene.on-ink .catering-scene-copy .eyebrow{color:var(--gold)}
+.final-site .catering-scene.on-ink .catering-scene-copy h2,
+.final-site .catering-scene.on-ink .catering-scene-copy>p:not(.eyebrow){color:var(--paper)}
+/* Der zweite Teil der Aussage bleibt gedaempft, aber lesbar. */
+.final-site .catering-scene.on-ink .catering-scene-copy h2 em{color:var(--paper);opacity:.62}
+/* Auf Ink bleibt die Abdunklung: der Kasten liegt in Fassung 6 auf dem Foto,
+   nicht auf dem Sektionsgrund - ohne Schleier sinkt der Kontrast der Liste. */
+.final-site .catering-scene.on-ink .catering-options{border:1px solid #f3efe62b}
+/* Die Fahrspur des Wagens bleibt unberuehrt - nur ihr Grund ist dunkel. */
+
+/* ======================================================================
+   Neue Anordnungen fuer den Catering-Abschnitt (K, L, M)
+   ----------------------------------------------------------------------
+   Fassung 6 (I) legt eine Karte auf ein Foto auf einen dunklen Grund -
+   drei Ebenen fuer eine Aussage. Die drei neuen Fassungen nehmen je eine
+   Ebene heraus und geben dem Wagen einen eigenen Streifen, damit er nicht
+   mehr hinter Inhalten durchfaehrt.
+   Die Textspalte wird per display:contents aufgeloest, damit Kicker,
+   Zeile, Text, Fotos und Anfragekasten frei im Sektionsraster liegen -
+   ohne Aenderung am Markup, die Fassungen A bis J bleiben unberuehrt.
+   ====================================================================== */
+.final-site #foodtruck[data-variant="k"] .catering-scene-copy,
+.final-site #foodtruck[data-variant="l"] .catering-scene-copy,
+.final-site #foodtruck[data-variant="m"] .catering-scene-copy{display:contents}
+.final-site #foodtruck[data-variant="k"] .catering-scene-copy>*,
+.final-site #foodtruck[data-variant="l"] .catering-scene-copy>*,
+.final-site #foodtruck[data-variant="m"] .catering-scene-copy>*{position:relative;z-index:4}
+
+/* Eigener Streifen fuer die Fahrt: der Wagen kreuzt unter dem Inhalt
+   durch, nicht dahinter. */
+.final-site #foodtruck[data-variant="k"],
+.final-site #foodtruck[data-variant="l"],
+.final-site #foodtruck[data-variant="m"]{align-items:start;
+  padding-bottom:clamp(132px,17vh,200px)}
+.final-site #foodtruck[data-variant="k"] .catering-truck-lane,
+.final-site #foodtruck[data-variant="l"] .catering-truck-lane,
+.final-site #foodtruck[data-variant="m"] .catering-truck-lane{top:auto;bottom:0;
+  height:clamp(120px,15vh,184px)}
+.final-site #foodtruck[data-variant="k"] .catering-truck-vehicle,
+.final-site #foodtruck[data-variant="l"] .catering-truck-vehicle,
+.final-site #foodtruck[data-variant="m"] .catering-truck-vehicle{top:50%;
+  width:min(340px,30vw)}
+
+/* Kasten ohne Kasten: auf Ink genuegt eine Haarlinie. */
+.final-site #foodtruck[data-variant="k"] .catering-options,
+.final-site #foodtruck[data-variant="l"] .catering-options{background:transparent;
+  border:0;border-top:1px solid var(--gold);box-shadow:none;backdrop-filter:none;
+  padding:var(--s-block) 0 0;color:var(--paper)}
+.final-site #foodtruck[data-variant="k"] .catering-options .eyebrow,
+.final-site #foodtruck[data-variant="l"] .catering-options .eyebrow,
+.final-site #foodtruck[data-variant="m"] .catering-options .eyebrow{color:var(--gold)}
+.final-site #foodtruck[data-variant="k"] .catering-options h3,
+.final-site #foodtruck[data-variant="l"] .catering-options h3,
+.final-site #foodtruck[data-variant="m"] .catering-options h3{color:var(--paper)}
+.final-site #foodtruck[data-variant="k"] .catering-options li,
+.final-site #foodtruck[data-variant="l"] .catering-options li,
+.final-site #foodtruck[data-variant="m"] .catering-options li{color:#e6e2da}
+.final-site #foodtruck[data-variant="k"] .catering-options li:before,
+.final-site #foodtruck[data-variant="l"] .catering-options li:before,
+.final-site #foodtruck[data-variant="m"] .catering-options li:before{color:var(--gold)}
+.final-site #foodtruck[data-variant="k"] .catering-options .button-dark,
+.final-site #foodtruck[data-variant="l"] .catering-options .button-dark,
+.final-site #foodtruck[data-variant="m"] .catering-options .button-dark{background:var(--paper);
+  color:#11110f;border-color:var(--paper)}
+
+/* ---- K · Achse: alles auf der linken Rasterkante, ein Motiv laeuft
+        ueber die rechte Blattkante hinaus ---- */
+.final-site #foodtruck[data-variant="k"]{grid-template-columns:minmax(0,1fr) minmax(320px,40%);
+  column-gap:clamp(36px,5vw,84px);row-gap:0;padding-right:0}
+.final-site #foodtruck[data-variant="k"] .catering-scene-copy>.eyebrow,
+.final-site #foodtruck[data-variant="k"] .catering-scene-copy>h2,
+.final-site #foodtruck[data-variant="k"] .catering-scene-copy>p:not(.eyebrow){grid-column:1;max-width:52ch}
+.final-site #foodtruck[data-variant="k"] .catering-scene-right{grid-column:1;
+  margin-top:var(--s-block)}
+.final-site #foodtruck[data-variant="k"] .catering-fotos{grid-column:2;grid-row:1/span 6;
+  grid-template-columns:1fr;margin:0;align-self:stretch}
+.final-site #foodtruck[data-variant="k"] .catering-fotos img{height:100%;
+  min-height:clamp(400px,58vh,620px);aspect-ratio:auto}
+.final-site #foodtruck[data-variant="k"] .catering-fotos img:not(:first-of-type){display:none}
+
+/* ---- L · Zweiklang: die Zeile ueber die ganze Breite, darunter ein
+        Bildpaar links und der Weg zur Anfrage rechts auf einer Linie ---- */
+.final-site #foodtruck[data-variant="l"]{grid-template-columns:minmax(0,1fr) minmax(300px,420px);
+  column-gap:clamp(36px,5vw,84px);row-gap:var(--s-block)}
+.final-site #foodtruck[data-variant="l"] .catering-scene-copy>.eyebrow,
+.final-site #foodtruck[data-variant="l"] .catering-scene-copy>h2{grid-column:1/-1}
+.final-site #foodtruck[data-variant="l"] .catering-scene-copy>h2{max-width:18ch}
+.final-site #foodtruck[data-variant="l"] .catering-scene-copy>p:not(.eyebrow){grid-column:1;
+  max-width:52ch;margin-top:0}
+.final-site #foodtruck[data-variant="l"] .catering-fotos{grid-column:1;
+  grid-template-columns:1fr 1fr;margin-top:0}
+.final-site #foodtruck[data-variant="l"] .catering-fotos img{aspect-ratio:16/10}
+.final-site #foodtruck[data-variant="l"] .catering-scene-right{grid-column:2;
+  grid-row:3/span 2;align-self:end}
+
+/* ---- M · Bandbreite: Zeile oben, darunter ein durchlaufendes Band aus
+        zwei Motiven und dem Anfragefeld in gleicher Hoehe ---- */
+.final-site #foodtruck[data-variant="m"]{grid-template-columns:repeat(3,minmax(0,1fr));
+  column-gap:clamp(10px,1.2vw,18px);row-gap:var(--s-block)}
+.final-site #foodtruck[data-variant="m"] .catering-scene-copy>.eyebrow,
+.final-site #foodtruck[data-variant="m"] .catering-scene-copy>h2{grid-column:1/-1}
+.final-site #foodtruck[data-variant="m"] .catering-scene-copy>p:not(.eyebrow){grid-column:1/3;
+  max-width:56ch;margin-top:0}
+.final-site #foodtruck[data-variant="m"] .catering-fotos{grid-column:1/3;
+  grid-template-columns:1fr 1fr;margin-top:0}
+.final-site #foodtruck[data-variant="m"] .catering-fotos img{aspect-ratio:4/5}
+.final-site #foodtruck[data-variant="m"] .catering-scene-right{grid-column:3;grid-row:4;
+  align-self:stretch}
+.final-site #foodtruck[data-variant="m"] .catering-options{height:100%;
+  grid-template-columns:1fr;align-content:center;background:#f3efe60f;
+  border:1px solid #f3efe62b;box-shadow:none;backdrop-filter:none;
+  padding:clamp(22px,2.2vw,30px);color:var(--paper)}
+
+@media(max-width:1023px){
+  .final-site #foodtruck[data-variant="k"],
+  .final-site #foodtruck[data-variant="l"],
+  .final-site #foodtruck[data-variant="m"]{height:auto;min-height:0;overflow:visible;
+    content-visibility:visible;contain-intrinsic-size:auto;grid-template-columns:1fr;
+    padding-right:var(--gutter);padding-bottom:24px}
+  .final-site #foodtruck[data-variant="k"] .catering-scene-copy>*,
+  .final-site #foodtruck[data-variant="l"] .catering-scene-copy>*,
+  .final-site #foodtruck[data-variant="m"] .catering-scene-copy>*,
+  .final-site #foodtruck[data-variant="k"] .catering-scene-right,
+  .final-site #foodtruck[data-variant="l"] .catering-scene-right,
+  .final-site #foodtruck[data-variant="m"] .catering-scene-right{grid-column:1;grid-row:auto}
+  .final-site #foodtruck[data-variant="k"] .catering-fotos{grid-row:auto;
+    grid-template-columns:1fr 1fr;margin-top:var(--s-block)}
+  .final-site #foodtruck[data-variant="k"] .catering-fotos img{min-height:0;aspect-ratio:4/5}
+  .final-site #foodtruck[data-variant="k"] .catering-fotos img:not(:first-of-type){display:block}
+  .final-site #foodtruck[data-variant="m"] .catering-fotos{grid-template-columns:1fr 1fr}
+  .final-site #foodtruck[data-variant="k"] .catering-truck-lane,
+  .final-site #foodtruck[data-variant="l"] .catering-truck-lane,
+  .final-site #foodtruck[data-variant="m"] .catering-truck-lane{position:relative;
+    top:auto;bottom:auto;height:186px;margin-top:12px}
+  .final-site #foodtruck[data-variant="k"] .catering-truck-vehicle,
+  .final-site #foodtruck[data-variant="l"] .catering-truck-vehicle,
+  .final-site #foodtruck[data-variant="m"] .catering-truck-vehicle{width:min(320px,74vw)}
+}
+
+/* ======================================================================
+   MITTAG · fuenf neue Anordnungen (G bis K)
+   ----------------------------------------------------------------------
+   Die bisherige Zweiteilung stapelte Kopf, beide Wege, die Fragen und das
+   Abo in EINER schmalen Spalte - vier ungleiche Bloecke untereinander, die
+   optisch nichts verbindet. Die fuenf neuen Fassungen loesen die Karte auf
+   (display:contents) und legen die Bloecke direkt in das Raster der Szene:
+   so bekommt jeder Block eine eigene Zone statt einer Position in einer
+   Liste. Markup und Texte bleiben unberuehrt; f bleibt als Rueckfall im
+   Stylesheet stehen.
+   ====================================================================== */
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]){
+  --s-section:clamp(26px,4vh,52px);--s-block:clamp(14px,1.9vh,24px);
+  --s-para:clamp(10px,1.4vh,16px);--s-row:10px;
+  min-height:auto;height:auto;flex:0 0 auto}
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .scene-shell{
+  display:grid;align-content:start;height:auto;min-height:0;
+  column-gap:clamp(28px,4vw,72px);row-gap:var(--s-block)}
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-card{
+  display:contents}
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-kopf{margin:0}
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-book,
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-subscribe,
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-faq{margin-top:0}
+
+/* Grundhelligkeit: alle fuenf stehen auf Ink, damit Mittag zwischen Buehne
+   und Catering nicht aus der Kapitelfolge faellt. */
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-card{
+  background:transparent;box-shadow:none;padding:0;color:#f3efe6}
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .eyebrow{color:var(--gold)}
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) h2{color:#fff}
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-kopf>p:not(.eyebrow){color:#e6e2da}
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .faq-kopf{color:#a49c93}
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-faq,
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-faq details{border-color:#ffffff2e}
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-faq p,
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-abo-feld,
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-abo-hinweis,
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-subscribe span{color:#c9c4bb}
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-card-link,
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-faq summary,
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-subscribe strong{color:#f3efe6}
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .button-ghost-dark{border-color:#f3efe6;color:#f3efe6}
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .button-ghost-dark:hover{background:#f3efe6;color:#11110f}
+.final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .media-shade{
+  background:linear-gradient(90deg,#11110ff5 0%,#11110fe0 58%,#11110f8f 100%)}
+
+/* ---- G · Kopfzeile und zwei Wege
+        Die Aussage laeuft ueber die ganze Breite, darunter liegen die zwei
+        Wege als gleichrangiges Paar auf einer Linie - nicht als Knopfreihe.
+        Fragen und Abo teilen sich die Fusszeile. ---- */
+.final-site #concept-03[data-variant="g"] .scene-shell{grid-template-columns:repeat(2,minmax(0,1fr))}
+.final-site #concept-03[data-variant="g"] .lunch-kopf{grid-column:1/-1;max-width:34ch}
+.final-site #concept-03[data-variant="g"] .lunch-book{grid-column:1/-1;display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr)) auto;align-items:center;gap:var(--s-row) clamp(16px,2vw,26px);
+  padding-top:var(--s-block);border-top:1px solid #ffffff2e}
+.final-site #concept-03[data-variant="g"] .lunch-book .button{width:100%}
+.final-site #concept-03[data-variant="g"] .faq-huelle{grid-column:1}
+.final-site #concept-03[data-variant="g"] .lunch-subscribe{grid-column:2;align-content:start;
+  padding-top:0;border-top:0}
+
+/* ---- H · Randspalte
+        Text auf der linken Rasterkante, die beiden Wege stehen rechts als
+        eigenes Feld auf Augenhoehe der Zeile. Fragen und Abo darunter
+        ueber die ganze Breite. ---- */
+.final-site #concept-03[data-variant="h"] .scene-shell{grid-template-columns:minmax(0,1fr) minmax(272px,340px)}
+.final-site #concept-03[data-variant="h"] .lunch-kopf{grid-column:1;max-width:30ch}
+.final-site #concept-03[data-variant="h"] .lunch-book{grid-column:2;grid-row:1;flex-direction:column;
+  align-items:stretch;gap:var(--s-row);margin:0;padding:clamp(20px,2vw,26px);border:1px solid #ffffff2e}
+.final-site #concept-03[data-variant="h"] .lunch-book .button{width:100%}
+.final-site #concept-03[data-variant="h"] .faq-huelle{grid-column:1/-1;padding-top:var(--s-block);
+  border-top:1px solid #ffffff2e}
+.final-site #concept-03[data-variant="h"] .lunch-faq{max-width:none;grid-template-columns:1fr 1fr;
+  column-gap:clamp(28px,4vw,64px)}
+.final-site #concept-03[data-variant="h"] .lunch-subscribe{grid-column:1/-1;padding-top:0;border-top:0}
+
+/* ---- I · Zeile
+        Kopf oben, darunter eine durchgehende Zeile: Zeit, reservieren,
+        abholen, Karte. Die Fragen liegen zweispaltig darunter, das Abo
+        schliesst als letzte Zeile ab. ---- */
+.final-site #concept-03[data-variant="i"] .scene-shell{grid-template-columns:minmax(0,1fr)}
+.final-site #concept-03[data-variant="i"] .lunch-kopf{max-width:32ch}
+.final-site #concept-03[data-variant="i"] .lunch-book{display:flex;align-items:center;justify-content:flex-start;
+  gap:var(--s-row) clamp(14px,2vw,28px);padding:var(--s-block) 0;
+  border-top:1px solid #ffffff2e;border-bottom:1px solid #ffffff2e}
+.final-site #concept-03[data-variant="i"] .lunch-faq{max-width:none;grid-template-columns:1fr 1fr;
+  column-gap:clamp(28px,4vw,64px)}
+.final-site #concept-03[data-variant="i"] .lunch-subscribe{padding-top:var(--s-block);border-top:1px solid #ffffff2e}
+
+/* ---- J · Bild als Band
+        Das Motiv liegt als breites Band oben, der Inhalt darunter auf dem
+        Raster: Aussage links, die beiden Wege rechts auf gleicher Grundlinie.
+        Kein halbierter Schirm mehr. ---- */
+.final-site #concept-03[data-variant="j"]{display:block;position:relative;overflow:hidden;background:var(--ink)}
+.final-site #concept-03[data-variant="j"] .scene-media{position:relative;left:auto;right:auto;top:auto;bottom:auto;
+  width:100%;height:clamp(200px,30svh,340px);object-fit:cover;object-position:50% 55%;transform:none!important}
+.final-site #concept-03[data-variant="j"] .media-shade,
+.final-site #concept-03[data-variant="j"] .spotlight,
+.final-site #concept-03[data-variant="j"]:after{display:none}
+.final-site #concept-03[data-variant="j"] .scene-shell{grid-template-columns:minmax(0,1fr) minmax(272px,360px);
+  padding-top:var(--s-section)}
+.final-site #concept-03[data-variant="j"] .lunch-kopf{grid-column:1;max-width:30ch}
+.final-site #concept-03[data-variant="j"] .lunch-book{grid-column:2;grid-row:1;align-self:end;
+  flex-direction:column;align-items:stretch;gap:var(--s-row);margin:0}
+.final-site #concept-03[data-variant="j"] .lunch-book .button{width:100%}
+.final-site #concept-03[data-variant="j"] .faq-huelle{grid-column:1/-1;padding-top:var(--s-block);
+  border-top:1px solid #ffffff2e}
+.final-site #concept-03[data-variant="j"] .lunch-faq{max-width:none;grid-template-columns:1fr 1fr;
+  column-gap:clamp(28px,4vw,64px)}
+.final-site #concept-03[data-variant="j"] .lunch-subscribe{grid-column:1/-1;padding-top:0;border-top:0}
+
+/* ---- K · Fragen als Spalte
+        Links die Aussage und der Weg zum Tisch, rechts die Fragen als
+        eigene, ruhige Spalte. Das Abo schliesst links unten ab, damit die
+        linke Kante die ganze Hoehe traegt. ---- */
+.final-site #concept-03[data-variant="k"] .scene-shell{grid-template-columns:minmax(0,1fr) minmax(300px,420px)}
+.final-site #concept-03[data-variant="k"] .lunch-kopf{grid-column:1;max-width:26ch}
+.final-site #concept-03[data-variant="k"] .lunch-book{grid-column:1;flex-direction:column;align-items:flex-start;
+  gap:var(--s-row);margin:0}
+.final-site #concept-03[data-variant="k"] .faq-huelle{grid-column:2;grid-row:1/span 3;margin:0;
+  padding-left:clamp(20px,2vw,30px);border-left:1px solid #ffffff2e}
+.final-site #concept-03[data-variant="k"] .lunch-faq{max-width:none}
+.final-site #concept-03[data-variant="k"] .lunch-subscribe{grid-column:1;align-self:end;
+  padding-top:var(--s-block);border-top:1px solid #ffffff2e}
+
+@media(max-width:900px){
+  .final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .scene-shell{
+    grid-template-columns:1fr;padding:var(--s-section) var(--gutter)}
+  .final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-kopf,
+  .final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-book,
+  .final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .faq-huelle,
+  .final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-subscribe{
+    grid-column:1!important;grid-row:auto!important;max-width:none}
+  .final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-book{
+    display:flex;flex-direction:column;align-items:stretch;grid-template-columns:none}
+  .final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .lunch-faq{
+    grid-template-columns:1fr}
+  .final-site #concept-03[data-variant="k"] .faq-huelle{padding-left:0;border-left:0;
+    padding-top:var(--s-block);border-top:1px solid #ffffff2e}
+  .final-site #concept-03[data-variant="j"] .scene-media{height:36svh}
+}
+
+/* ======================================================================
+   MITTAG · N "Wochenkarte" — der neue Aufbau
+   ----------------------------------------------------------------------
+   Alle bisherigen Fassungen ordneten dieselben vier Bloecke um: Kopf, zwei
+   Knoepfe, Fragen, Abo. Keine zeigte, was es zu essen gibt - obwohl die
+   Gerichte samt Preisen in data/lunch-menu.json liegen und app.js sie in
+   [data-lunch-menu] rendert. Dieses Element hat im Markup gefehlt.
+   Der Abschnitt hat jetzt eine Mitte: links die Aussage und EIN Weg
+   (Tisch), rechts die Woche als gedruckte Karte auf Papier. Takeaway,
+   Fragen und Abo sind leise Nebenwege, keine gleichrangigen Kloetze.
+   ====================================================================== */
+.final-site #concept-03[data-variant="n"]{
+  --s-section:clamp(28px,4.5vh,58px);--s-block:clamp(15px,2vh,24px);
+  --s-para:clamp(10px,1.4vh,16px);--s-row:10px;
+  min-height:auto;height:auto;flex:0 0 auto;
+  isolation:isolate;background:var(--ink)}
+.final-site #concept-03[data-variant="n"] .scene-media{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.final-site #concept-03[data-variant="n"] .media-shade{
+  background:linear-gradient(90deg,#11110fef 0%,#11110fc9 44%,#11110f52 100%)}
+.final-site #concept-03[data-variant="n"] .scene-shell{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(330px,44%);
+  column-gap:clamp(32px,4vw,80px);row-gap:var(--s-block);
+  align-content:center;height:auto;min-height:0}
+.final-site #concept-03[data-variant="n"] .lunch-card{
+  display:contents}
+
+/* Linke Spalte: Aussage, ein Weg, danach das Leise. */
+.final-site #concept-03[data-variant="n"] .lunch-kopf,
+.final-site #concept-03[data-variant="n"] .lunch-book,
+.final-site #concept-03[data-variant="n"] .lunch-subscribe{grid-column:1;margin:0;
+  width:100%;max-width:min(640px,100%)}
+.final-site #concept-03[data-variant="n"] .lunch-book{display:grid;justify-items:start;gap:var(--s-row)}
+.final-site #concept-03[data-variant="n"] .faq-huelle{grid-column:1;margin:0;
+  padding-top:var(--s-block);border-top:1px solid #ffffff2e}
+.final-site #concept-03[data-variant="n"] .lunch-subscribe{padding-top:0;border-top:0}
+
+/* Nebenweg Takeaway: Text, kein zweiter Knopf - eine Hauptaktion je Abschnitt. */
+.lunch-alt-link{display:inline-flex;align-items:center;min-height:44px;color:#f3efe6;
+  font-size:var(--t-meta);text-underline-offset:5px}
+.lunch-alt-link span{display:inline-block;margin-left:5px;transition:transform .2s}
+.lunch-alt-link:hover span{transform:translate(3px,-3px)}
+
+/* Rechte Spalte: die Woche als gedruckte Karte. Papier statt Ink, damit die
+   Gerichte wie eine Karte auf dem Tisch liegen und nicht wie ein Kasten. */
+.final-site #concept-03[data-variant="n"] .lunch-week{grid-column:2;grid-row:1/span 4;
+  align-self:center;display:grid;align-content:start;gap:var(--s-para);
+  padding:0;background:transparent;color:var(--paper);border-top:2px solid var(--gold)}
+.final-site #concept-03[data-variant="n"] .lunch-week .eyebrow{margin:14px 0 0;color:var(--gold)}
+.final-site #concept-03[data-variant="n"] .lunch-week .lunch-menu{margin:0}
+.final-site #concept-03[data-variant="n"] .lunch-week .lunch-card-link{color:var(--ink);margin:0}
+.final-site #concept-03[data-variant="n"] .lunch-week .lunch-note{color:#c9c4bb;background:#f3efe612;border-left-color:var(--gold)}
+
+/* Farbwerte der linken Spalte auf Ink. */
+.final-site #concept-03[data-variant="n"] .lunch-kopf .eyebrow{color:var(--gold)}
+.final-site #concept-03[data-variant="n"] .lunch-kopf h2{color:#fff}
+.final-site #concept-03[data-variant="n"] .lunch-kopf>p:not(.eyebrow){color:#e6e2da}
+.final-site #concept-03[data-variant="n"] .faq-kopf{color:#a49c93}
+.final-site #concept-03[data-variant="n"] .lunch-faq,
+.final-site #concept-03[data-variant="n"] .lunch-faq details{border-color:#ffffff2e}
+.final-site #concept-03[data-variant="n"] .lunch-faq p,
+.final-site #concept-03[data-variant="n"] .lunch-abo-feld,
+.final-site #concept-03[data-variant="n"] .lunch-abo-hinweis,
+.final-site #concept-03[data-variant="n"] .lunch-subscribe span{color:#c9c4bb}
+.final-site #concept-03[data-variant="n"] .lunch-faq summary,
+.final-site #concept-03[data-variant="n"] .lunch-subscribe strong{color:#f3efe6}
+.final-site #concept-03[data-variant="n"] .button-ghost-dark{border-color:#f3efe6;color:#f3efe6}
+.final-site #concept-03[data-variant="n"] .button-ghost-dark:hover{background:#f3efe6;color:#11110f}
+
+@media(max-width:900px){
+  .final-site #concept-03[data-variant="n"] .scene-shell{grid-template-columns:1fr;
+    padding:var(--s-section) var(--gutter)}
+  .final-site #concept-03[data-variant="n"] .lunch-kopf,
+  .final-site #concept-03[data-variant="n"] .lunch-book,
+  .final-site #concept-03[data-variant="n"] .lunch-week,
+  .final-site #concept-03[data-variant="n"] .faq-huelle,
+  .final-site #concept-03[data-variant="n"] .lunch-subscribe{
+    grid-column:1;grid-row:auto;max-width:none}
+  /* Die Karte gehoert vor die Fragen: was es zu essen gibt, kommt zuerst. */
+  .final-site #concept-03[data-variant="n"] .lunch-week{order:0;padding:22px 20px}
+}
+
+/* hidden muss hidden bleiben.
+   Autorenregeln mit display:inline-flex / inline-block (Tap-Ziele, Links)
+   ueberschreiben die UA-Regel [hidden]{display:none} - der ausgeblendete
+   PDF-Link war deshalb sichtbar und zeigte auf eine 404. Einmal global
+   statt an jeder einzelnen Klasse nachziehen. */
+[hidden]{display:none!important}
+
+/* Beide Wege als Knopf in Beige: gleiche Form, gleiche Farbe, damit sie als
+   Paar lesen. Auf Ink traegt Cream den Text in Ink - kein neuer Farbwert. */
+.final-site .button-beige{background:var(--cream);border:1px solid var(--cream);color:var(--ink)}
+.final-site .button-beige:hover,
+.final-site .button-beige:focus-visible{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+/* Die zwei Knoepfe stehen nebeneinander, solange Platz ist. */
+.final-site #concept-03[data-variant="n"] .lunch-book{display:flex;flex-wrap:wrap;align-items:center;
+  gap:var(--s-row) 12px}
+@media(max-width:520px){
+  .final-site #concept-03[data-variant="n"] .lunch-book{display:grid}
+  .final-site #concept-03[data-variant="n"] .lunch-book .button{width:100%}
+}
+
+/* ======================================================================
+   Der Hinweis auf den naechsten Termin bekommt sein Bild - fuenf Fassungen
+   (data-news="1".."5"). Klein bleibt klein: der Hinweis waechst in keiner
+   Fassung ueber seine 44 px Hoehe hinaus, das Bild ist Beiwerk, nicht
+   Hauptdarsteller. Bewegung nur ueber transform und clip-path.
+   ====================================================================== */
+.bar-news{overflow:hidden}
+.bar-news-thumb{flex:0 0 auto;object-fit:cover;transition:transform .35s cubic-bezier(.2,.7,.2,1),
+  clip-path .35s cubic-bezier(.2,.7,.2,1),filter .35s ease,margin-left .35s cubic-bezier(.2,.7,.2,1)}
+@media(prefers-reduced-motion:reduce){.bar-news-thumb{transition:none}}
+
+/* 1 · Rund und ruhig: ein Bildpunkt, der beim Zeigen naeher kommt. */
+.bar-news[data-news="1"] .bar-news-thumb{width:30px;height:30px;border-radius:50%;
+  border:1px solid #c59b5d59;margin-left:-4px}
+.bar-news[data-news="1"]:hover .bar-news-thumb{transform:scale(1.12)}
+
+/* 2 · Polaroid: leicht schief eingesteckt, richtet sich beim Zeigen auf. */
+.bar-news[data-news="2"] .bar-news-thumb{width:44px;height:30px;margin-left:-6px;
+  border:2px solid var(--paper);transform:rotate(-5deg)}
+.bar-news[data-news="2"]:hover .bar-news-thumb{transform:rotate(0deg) scale(1.04)}
+
+/* 3 · Abriss: das Bild sitzt als Kartenabschnitt links im Hinweis, mit
+        gestanzter Kante wie ein Ticketstummel. */
+.bar-news[data-news="3"]{padding-left:0}
+.bar-news[data-news="3"] .bar-news-thumb{width:52px;height:44px;
+  clip-path:polygon(0 0,100% 0,100% 38%,92% 50%,100% 62%,100% 100%,0 100%)}
+.bar-news[data-news="3"]:hover .bar-news-thumb{transform:translateX(2px)}
+
+/* 4 · Vorhang: das Bild liegt verdeckt und faehrt beim Zeigen heraus. */
+.bar-news[data-news="4"] .bar-news-thumb{width:54px;height:34px;margin-left:-61px;
+  clip-path:inset(0 100% 0 0)}
+.bar-news[data-news="4"]:hover .bar-news-thumb,
+.bar-news[data-news="4"]:focus-visible .bar-news-thumb{margin-left:-7px;clip-path:inset(0 0 0 0)}
+
+/* 5 · Kino: gedaempft im Ruhezustand, beim Zeigen kommt die Farbe. */
+.bar-news[data-news="5"] .bar-news-thumb{width:40px;height:40px;margin-left:-6px;
+  border-radius:50%;filter:saturate(.15)}
+.bar-news[data-news="5"]:hover .bar-news-thumb{filter:saturate(1);transform:scale(1.08)}
+
+/* Umschalter, nur fuer die Abstimmung. */
+.news-pad{position:fixed;left:16px;bottom:16px;z-index:70;display:flex;align-items:center;gap:6px;
+  padding:6px 10px;background:var(--paper);border:1px solid #11110f26;border-radius:999px}
+
+.news-pad button{width:30px;height:30px;border:1px solid #11110f2b;border-radius:50%;background:transparent;
+  color:var(--ink);font-size:12px;font-weight:700;cursor:pointer}
+
+@media print{.news-pad{display:none}}
+
+/* ---- Fuenf auffaelligere Fassungen des Terminhinweises (6 bis 10) ----
+   Lauter heisst hier: das Bild darf tragen, aus der Kapsel ausbrechen oder
+   die Farbe umkehren. Die Hoehe bleibt bei 44 px, damit die Kopfleiste
+   nicht springt; nur Fassung 7 steht bewusst darueber hinaus. */
+
+/* 6 · Buehnenband: das Bild traegt den ganzen Hinweis, der Text liegt darauf. */
+.bar-news[data-news="6"]{position:absolute;padding:0 16px;border-color:#c59b5d;background:var(--ink)}
+.bar-news[data-news="6"] .bar-news-thumb{position:absolute;inset:0;width:100%;height:100%;
+  margin:0;border:0;border-radius:999px;filter:saturate(.8)}
+.bar-news[data-news="6"]:after{content:"";position:absolute;inset:0;border-radius:999px;
+  background:#11110fc4;pointer-events:none}
+.bar-news[data-news="6"] span,.bar-news[data-news="6"] b{position:relative;z-index:2}
+.bar-news[data-news="6"] span{color:var(--gold)}
+.bar-news[data-news="6"] b{color:#fff}
+.bar-news[data-news="6"]:hover .bar-news-thumb{transform:scale(1.08);filter:saturate(1)}
+
+/* 7 · Ueberstand: ein grosser Bildkreis bricht oben aus der Kapsel aus. */
+.bar-news[data-news="7"]{overflow:visible;padding-left:38px;margin-top:14px}
+.bar-news[data-news="7"] .bar-news-thumb{position:absolute;left:-16px;top:-14px;
+  width:62px;height:62px;margin:0;border-radius:50%;border:2px solid var(--gold);background:var(--ink)}
+.bar-news[data-news="7"]:hover .bar-news-thumb{transform:rotate(-6deg) scale(1.06)}
+
+/* 8 · Schraegschnitt: das Bild schneidet diagonal in den Text hinein. */
+.bar-news[data-news="8"]{padding-left:0;border-color:#c59b5d}
+.bar-news[data-news="8"] .bar-news-thumb{width:96px;height:44px;margin:0;
+  clip-path:polygon(0 0,100% 0,62% 100%,0 100%)}
+.bar-news[data-news="8"] span{margin-left:-22px}
+.bar-news[data-news="8"]:hover .bar-news-thumb{clip-path:polygon(0 0,100% 0,86% 100%,0 100%)}
+
+/* 9 · Gold: die Kapsel kehrt die Farbe um, das Bild sitzt als Quadrat rechts. */
+.bar-news[data-news="9"]{padding:0 0 0 16px;background:var(--gold);border-color:var(--gold)}
+.bar-news[data-news="9"] span{color:#11110fbf}
+.bar-news[data-news="9"] b{color:var(--ink)}
+.bar-news[data-news="9"] .bar-news-thumb{order:3;width:52px;height:44px;margin-left:12px;border:0}
+.bar-news[data-news="9"]:hover{background:var(--paper);border-color:var(--paper)}
+.bar-news[data-news="9"]:hover .bar-news-thumb{width:76px}
+
+/* 10 · Aufziehen: aus einem schmalen Streifen wird beim Zeigen das ganze Band. */
+.bar-news[data-news="10"]{padding:0 16px 0 0;border-color:#c59b5d}
+.bar-news[data-news="10"] .bar-news-thumb{width:14px;height:44px;margin:0 14px 0 0;border:0;
+  transition:width .4s cubic-bezier(.2,.7,.2,1),filter .4s ease}
+.bar-news[data-news="10"]:hover .bar-news-thumb,
+.bar-news[data-news="10"]:focus-visible .bar-news-thumb{width:104px}
+@media(prefers-reduced-motion:reduce){
+  .bar-news[data-news="10"] .bar-news-thumb{transition:none}
+}
+
+/* Mitgehen und heller werden: --glanz kommt aus der Scrollposition (app.js),
+   0 oben, 1 am Terminabschnitt. Alle Werte sind Toene der Palette - Gold und
+   Papier mit Deckkraft, keine neue Farbe. */
+.bar-news{--glanz:0;
+  /* Der dunkle Grund bleibt: er traegt den Text ueber dem Foto. Heller wird
+     der Hinweis ueber Deckkraft, Goldkante und Textkontrast - nicht ueber
+     einen aufgehellten Grund, der die Lesbarkeit kostet. */
+  opacity:calc(.8 + var(--glanz) * .2);
+  border-color:rgba(197,155,93,calc(.35 + var(--glanz) * .65));
+  transform:scale(calc(1 + var(--glanz) * .035));
+  transform-origin:100% 0;
+  transition:opacity .25s ease,border-color .25s ease,transform .25s ease}
+.bar-news b{color:rgba(243,239,230,calc(.82 + var(--glanz) * .18))}
+@media(prefers-reduced-motion:reduce){
+  .bar-news{transition:none;transform:none}
+}
+
+/* Ende der Erzaehlung: ist der Wagen rechts aus dem Bild gefahren, verblasst
+   der Hinweis. Kein display:none - er soll beim Hochscrollen zurueckkommen. */
+.bar-news[data-faded]{opacity:0;transform:translateY(-8px) scale(1);pointer-events:none}
+
+/* Kontaktzeilen im Partnerblock: jede auf eigener Zeile. Die Anker sind
+   inline-flex - dadurch standen Telefon und Mail nebeneinander, und ein
+   Aussenabstand an der Mail schob die ganze Zeile nach unten (Telefon lag
+   dann tiefer als links). Als eigene Zeilen stimmt die Hoehe von selbst. */
+.final-site .site-footer .partner-block a{display:flex;width:fit-content}
+
+
+/* ======================================================================
+   WOCHENKARTE · fuenf Uebersichten (data-karte an #concept-03)
+   ----------------------------------------------------------------------
+   Werkzeug fuer die Abstimmung: steht die Fassung fest, bleibt ihr
+   data-karte im Markup und der Umschalter fliegt raus. Nur die sechs
+   Farben, keine Verlaeufe, keine Schatten.
+   ====================================================================== */
+.final-site #concept-03 .lunch-week h3 span{font-size:var(--t-meta);font-weight:400;white-space:nowrap}
+
+/* 1 · papierkarte - die Karte liegt als Papier auf dem dunklen Grund. */
+.final-site #concept-03[data-karte="1"] .lunch-week{background:var(--paper);color:var(--ink)}
+
+
+
+
+/* Die Wochenkarte auf der Startseite ist eine UEBERSICHT, keine Speisekarte:
+   sie sagt, was es diese Woche gibt. Preise stehen dort, wo bestellt wird -
+   auf der Takeaway-Seite und in der Druckansicht. Kompakter gesetzt, damit
+   alle acht Gerichte in einen Blick passen. */
+.final-site #concept-03 .lunch-week{padding:0}
+.final-site #concept-03 .lunch-week .lunch-menu{margin:14px 0 0}
+.final-site #concept-03 .lunch-week .lunch-day{gap:9px;padding-top:0}
+.final-site #concept-03 .lunch-week .lunch-day h3{font-size:11px;letter-spacing:.12em;
+  color:#fff;padding-bottom:8px;border-bottom:1px solid #ffffff2e}
+.final-site #concept-03 .lunch-week .lunch-day h3 span{color:#c9c4bb}
+.final-site #concept-03 .lunch-week .lunch-dish{display:grid;gap:1px;padding:9px 0;
+  border-bottom:1px solid #ffffff1a}
+.final-site #concept-03 .lunch-week .lunch-dish span{font-size:14.5px;line-height:1.35;color:var(--paper)}
+.final-site #concept-03 .lunch-week .lunch-dish small{font-size:12.5px;line-height:1.35;color:#b9b4ab}
+.final-site #concept-03 .lunch-week .lunch-dish b{display:none}
+
+
+/* ======================================================================
+   Handy: hier wird gebucht. Keine Beschriftung unter 12px, jeder Weg ein
+   greifbares Ziel. Am Schreibtisch bleibt die feinere Abstufung.
+   ====================================================================== */
+@media(max-width:760px){
+  .final-site .drop-pfeil{font-size:12px}
+  .final-site .experience-bar .bar-hours,
+  .final-site .experience-bar .bar-hours span,
+  .final-site .event-spotlight article time,
+  .final-site .event-spotlight article a,
+  .final-site .scene-imprint,
+  .final-site #concept-03 .lunch-week .lunch-day h3,
+  .final-site #eventSpotlight article a,
+  .final-site #eventSpotlight > a,
+  .final-site #ticketDialog .dialog-frame footer span,
+  .final-site .guest-assurance p,
+  .final-site .guest-assurance .microcopy,
+  .final-site .ticket-event-picker,
+  .final-site .calendar-selected,
+  .final-site .event-actions button,
+  .final-site .app-dialog footer span,
+  .final-site .app-dialog footer .button-ghost{font-size:12.5px}
+  .final-site .bar-hours,
+  .final-site .bar-news b,
+  .final-site .bar-news span,
+  .final-site .event-ticket-link,
+  .final-site .insta-strip>.insta-note,
+  .final-site .prototype-note,
+  .final-site .header-cta,
+  .final-site .cta-lang{font-size:12.5px}
+  /* Telefonnummern im Fliesstext: tippbar, nicht nur lesbar. */
+  .final-site a[href^="tel:"]{display:inline-flex;align-items:center;min-height:44px}
+}
+
+
+/* ======================================================================
+   KOPFBEREICH · das Konzertfoto, fuenf Fassungen (data-hero an #start)
+   Werkzeug fuer die Abstimmung: steht die Fassung fest, bleibt ihr data-hero
+   im Markup und der Umschalter fliegt raus.
+   ====================================================================== */
+.final-site .prologue-crowd{position:absolute;inset:-190px -114px 0 -76px;
+  width:calc(100% + 190px);height:calc(100% + 190px);
+  object-fit:cover;object-position:50% 82%;background:#11110f;
+  filter:grayscale(1) contrast(1.06);opacity:0}
+.final-site #start[data-hero] .prologue-copy{position:relative;z-index:2}
+/* Auf dem Konzertfoto tragen die Kleinzeilen Paper: Gold erreicht ueber den
+   Buehnenlichtern nur 3.2:1, Paper 7.1:1 - kein neuer Farbwert. */
+.final-site #start[data-hero]:not([data-hero="1"]) .prologue-copy .eyebrow,
+.final-site #start[data-hero]:not([data-hero="1"]) .scroll-cue{color:var(--paper)}
+/* Der Text bleibt wie in Fassung 1: kein eigenes Feld, der Schleier traegt. */
+
+/* 1 · gastraum - wie bisher: das Haus am Tag, ohne Konzertfoto. */
+.final-site #start[data-hero="1"] .prologue-crowd{opacity:0}
+
+/* 2 · konzert - das Konzertfoto traegt den ganzen Kopf, der Gastraum ruht. */
+.final-site #start[data-hero="2"] .prologue-media{opacity:0}
+.final-site #start[data-hero="2"] .prologue-crowd{opacity:1}
+.final-site #start[data-hero="2"] .prologue-shade{background:#11110fbf}
+
+/* 3 · zweiteilung - links der Gastraum, rechts das Konzert, harte Kante. */
+.final-site #start[data-hero="3"] .prologue-crowd{opacity:1;
+  clip-path:inset(0 0 0 52%)}
+.final-site #start[data-hero="3"] .prologue-shade{background:#11110f73}
+
+/* 4 · band unten - das Konzert liegt als Streifen an der Unterkante. */
+.final-site #start[data-hero="4"] .prologue-crowd{opacity:1;
+  clip-path:inset(58% 0 0 0)}
+.final-site #start[data-hero="4"] .prologue-shade{background:#11110f73}
+
+/* 5 · angeschnitten - das Konzert kommt von rechts herein und blendet aus. */
+.final-site #start[data-hero="5"] .prologue-crowd{opacity:1;
+  mask-image:linear-gradient(90deg,transparent 0%,#000 46%);
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 46%)}
+.final-site #start[data-hero="5"] .prologue-shade{background:#11110f73}
+
+.hero-pad{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:900;
+  display:flex;align-items:center;gap:8px;padding:6px 10px;background:#11110fe6;
+  border:1px solid #ffffff2e;border-radius:999px}
+.hero-pad span{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:lowercase;color:#a49c93}
+.hero-pad button{width:30px;height:30px;border:1px solid #ffffff3d;border-radius:50%;
+  background:transparent;color:#f3efe6;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.hero-pad button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#11110f}
+.hero-pad em{font-style:normal;font-size:11.5px;color:#f3efe6;white-space:nowrap}
+@media print{.hero-pad{display:none}}
+
+
+
+
+/* ======================================================================
+   iPhone · Safari verhaelt sich an vier Punkten anders als der Pruefrahmen.
+   Alle vier sind hier abgefangen:
+   1. Textgroesse im Querformat: Safari blaeht Fliesstext auf, wenn man es
+      nicht ausdruecklich untersagt.
+   2. Tippen: iOS legt ein graues Rechteck ueber jedes beruehrte Element -
+      wir zeigen den Zustand selbst, das Rechteck stoert nur.
+   3. Ueberziehen am Rand: ohne overscroll-behavior schiebt Safari die Seite
+      vom Grund weg und darunter erscheint Weiss.
+   4. Die Gestenleiste am unteren Rand verdeckt alles, was dort fest steht.
+   ====================================================================== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+/* Fokus bleibt sichtbar - nur die Beruehrungsflaeche verliert das Rechteck. */
+a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transparent}

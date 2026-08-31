@@ -1,17 +1,24 @@
 {
-  "_hinweis": "Nur fuer die Abholmeldung. Auf dem iPhone laesst Apple Push erst zu, wenn die Seite zum Home-Bildschirm hinzugefuegt wurde - dafuer braucht es dieses Manifest. Auf Android genuegt es, dass es da ist.",
-  "name": "Wirtschaft Dornbirn · Abholung",
-  "short_name": "Abholung",
-  "description": "Der Stand deiner Takeaway-Bestellung: wann sie fertig ist und wann du sie abholen kannst.",
-  "lang": "de-AT",
+  "name": "Wirtschaft Dornbirn · Take-away",
+  "short_name": "Take-away",
+  "description": "Mittagsgerichte bestellen und abholen.",
   "start_url": "takeaway.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#f3efe6",
-  "theme_color": "#11110f",
+  "background_color": "#11110f",
+  "theme_color": "#17130f",
+  "lang": "de-AT",
   "icons": [
-    { "src": "assets/icons/favicon-180.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
-    { "src": "assets/icons/favicon-32.png", "sizes": "32x32", "type": "image/png", "purpose": "any" }
+    {
+      "src": "assets/icons/favicon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
   ]
 }

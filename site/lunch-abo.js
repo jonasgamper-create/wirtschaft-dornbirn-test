@@ -5,7 +5,27 @@
 // Ohne eingetragenen Dienst faellt das Formular auf den alten Mailweg
 // zurueck, statt still ins Leere zu schicken.
 
-import { apiAdresse, holeTakeawayKarte, meldeMittagskarte } from './haus-api.js?v=92aa5302';
+import { apiAdresse, holeKarteInfo, holeTakeawayKarte, karteAdresse, meldeMittagskarte } from './haus-api.js?v=7abef86d';
+
+// ---- Die Mittagskarte als PDF, frisch vom Haus -----------------------------
+//
+// Der Knopf haengt am Dienst, nicht am Repo: laedt Wolfgang auf der
+// Reservierungsseite eine neue Karte hoch, zeigt dieser Knopf ab dem Moment
+// darauf. Antwortet der Dienst nicht, bleibt der Eintrag aus
+// data/lunch-menu.json der Rueckfall (app.js) - und ohne beides bleibt der
+// Knopf aus. Ein Knopf, der auf eine alte Datei zeigt, ist schlimmer als keiner.
+async function zeigeKartenKnopf() {
+  const knopf = document.querySelector('[data-lunch-card]');
+  if (!knopf) return;
+  const info = await holeKarteInfo();
+  if (!info?.ok || info.vorhanden === false) return;
+  const adresse = await karteAdresse();
+  if (!adresse) return;
+  knopf.href = adresse;
+  knopf.hidden = false;
+  if (info.stand) knopf.title = `Stand: ${info.stand}`;
+}
+zeigeKartenKnopf();
 
 // ---- Die Gerichte der Woche, live vom Haus ---------------------------------
 //

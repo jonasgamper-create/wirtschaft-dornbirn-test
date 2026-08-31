@@ -2,10 +2,10 @@
   'use strict';
 
   const events = [
-    { id: 'genussroute-2026', start: '2026-09-03T18:00:00', end: '2026-09-04T01:00:00', title: 'Genussroute 6850', category: 'Genuss & Livemusik', note: '5 Gastgeber · 6 Livebands · 6 Speisegänge', url: 'https://wirtschaft-dornbirn.at/event/genussroute-2026/' },
+    { id: 'genussroute-2026', start: '2027-05-20T18:00:00', end: '2027-05-21T01:00:00', title: 'Genussroute 6850', category: 'Genuss & Livemusik', note: '5 Gastgeber · 6 Livebands · 6 Speisegänge', url: 'https://wirtschaft-dornbirn.at/event/genussroute-2026/' },
     { id: 'comedynacht-05-2026', start: '2026-09-22T18:45:00', end: '2026-09-22T23:00:00', title: 'Helden reisen, Gäste speisen!', category: 'Dinner & Comedy', note: '4 Künstler · 4 Haltestellen', url: 'https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/' },
     { id: 'comedynacht-06-2026', start: '2026-09-23T18:45:00', end: '2026-09-23T23:00:00', title: 'Helden reisen, Gäste speisen!', category: 'Dinner & Comedy', note: 'Zusatzabend · 4 Künstler', url: 'https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/' },
-    { id: 'dinner-comedy-04-2026', start: '2026-10-14T19:00:00', end: '2026-10-14T23:00:00', title: 'Dinner & Comedy', category: 'Comedy', note: 'Dinner: Warteliste · Comedy-Tickets verfügbar', url: 'https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/' },
+    { id: 'dinner-comedy-04-2026', start: '2026-10-14T19:00:00', end: '2026-10-14T23:00:00', title: 'Dinner & Comedy', category: 'Comedy', note: '3 Comedians · Dinner und Comedy buchbar', url: 'https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/' },
     { id: 'spoerk-2026', start: '2026-10-15T19:00:00', end: '2026-10-15T23:00:00', title: 'Christof Spörk', category: 'Dinner & Konzert', note: 'Programm: Maximo Lieder', url: 'https://wirtschaft-dornbirn.at/event/spoerk-2026/' },
     { id: 'neuschmid-voegel-02-2026', start: '2026-10-21T19:00:00', end: '2026-10-21T23:00:00', title: 'Maria Neuschmid & Stefan Vögel', category: 'Dinner & Kabarett', note: 'Schaffa, schaffa, Hüsle baua 3', url: 'https://wirtschaft-dornbirn.at/event/neuschmid-voegel-02-2026/' },
     { id: 'rock4-2026', start: '2026-10-22T19:00:00', end: '2026-10-22T23:00:00', title: 'Rock4 – A Cappella', category: 'Dinner & Konzert', note: 'Dinner: Warteliste · Konzert-Tickets verfügbar', url: 'https://wirtschaft-dornbirn.at/event/rock4-2026/' },

@@ -1,0 +1,39 @@
+{
+  "_hinweis": "Die Beiträge des Instagram-Streifens. Diese Datei ist der hinterlegte Stand: Sie wird gezeigt, solange der Dienst nichts Neueres liefert. Der Dienst (Cloudflare Worker) holt die Beiträge über die Instagram Graph API und antwortet auf /api/instagram im gleichen Format - dann hat er Vorrang und der Streifen aktualisiert sich von selbst. Die Alternativtexte beschreiben, was auf dem Bild STEHT - bei Plakaten also Anlass und Datum, nicht eine erfundene Szene.",
+  "version": 1,
+  "updatedAt": "2026-08-31T06:00:00+02:00",
+  "konto": "wirtschaft_dornbirn",
+  "profil": "https://www.instagram.com/wirtschaft_dornbirn/",
+  "beitraege": [
+    {
+      "bild": "assets/insta/insta-01.webp",
+      "link": "https://www.instagram.com/wirtschaft_dornbirn/p/DcJEdY_z0L5/",
+      "alt": "Programmplakat 6850 Genussroute Dornbirn: ein Abend, fünf Lokale, sechs Genussmomente – Donnerstag, 3. September 2026, 18 bis 1 Uhr, Afterparty ab 22 Uhr im Kulturhaus"
+    },
+    {
+      "bild": "assets/insta/insta-02.webp",
+      "link": "https://www.instagram.com/wirtschaft_dornbirn/reel/Db-ojDSIdZ2/",
+      "alt": "Plakat Gaudi: alle vier Comedians in allen vier Haltestellen, 22. und 23. September 2026 – Falstaff Bregenz, wirtschaft Dornbirn, OXA Hittisau"
+    },
+    {
+      "bild": "assets/insta/insta-03.webp",
+      "link": "https://www.instagram.com/wirtschaft_dornbirn/p/Dbc75hYBTZ_/",
+      "alt": "Plakat Dinner & Comedy am Mittwoch, 16. Dezember 2026, 19 Uhr in der wirtschaft, Bahnhofstraße 24, 6850 Dornbirn"
+    },
+    {
+      "bild": "assets/insta/insta-04.webp",
+      "link": "https://www.instagram.com/wirtschaft_dornbirn/p/Dbc7mCNhbKH/",
+      "alt": "Plakat Dinner & Comedy am Dienstag, 15. Dezember 2026, 19 Uhr in der wirtschaft, Bahnhofstraße 24, 6850 Dornbirn"
+    },
+    {
+      "bild": "assets/insta/insta-05.webp",
+      "link": "https://www.instagram.com/emmaundeugen/p/DbIQnjBKLEC/",
+      "alt": "Plakat 6850 Genussroute Dornbirn am Donnerstag, 3. September 2026, 18 bis 1 Uhr – mit den Bands Falco Luneau, Philipp Lingg, Chilimangaros, Common Ground, Cafe Hildegard und The Swingbugs"
+    },
+    {
+      "bild": "assets/insta/insta-06.webp",
+      "link": "https://www.instagram.com/wirtschaft_dornbirn/p/DbIF--yhklj/",
+      "alt": "Hinweis Sommerpause von Freitag, 24. Juli bis Sonntag, 23. August 2026 – ab Montag, 24. August 2026 wieder geöffnet"
+    }
+  ]
+}

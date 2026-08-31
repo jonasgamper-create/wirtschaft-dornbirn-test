@@ -403,3 +403,20 @@ a.button,
    auseinanderziehen, und angetippt wird ohnehin das ganze Wort. */
 .site-footer p a,
 .site-footer li a{display:inline;min-height:0}
+
+
+/* ======================================================================
+   iPhone · Safari verhaelt sich an vier Punkten anders als der Pruefrahmen.
+   Alle vier sind hier abgefangen:
+   1. Textgroesse im Querformat: Safari blaeht Fliesstext auf, wenn man es
+      nicht ausdruecklich untersagt.
+   2. Tippen: iOS legt ein graues Rechteck ueber jedes beruehrte Element -
+      wir zeigen den Zustand selbst, das Rechteck stoert nur.
+   3. Ueberziehen am Rand: ohne overscroll-behavior schiebt Safari die Seite
+      vom Grund weg und darunter erscheint Weiss.
+   4. Die Gestenleiste am unteren Rand verdeckt alles, was dort fest steht.
+   ====================================================================== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+/* Fokus bleibt sichtbar - nur die Beruehrungsflaeche verliert das Rechteck. */
+a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transparent}

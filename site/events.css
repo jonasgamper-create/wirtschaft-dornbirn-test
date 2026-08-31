@@ -131,3 +131,66 @@ h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:normal;word-break:normal;hyphens:
   .events-abo-form button{width:100%}
   .events-abo{padding:20px 18px}
 }
+
+
+/* ===== eine kante und eine hoehe fuer die terminseite =====
+   Ausgangslage: die Terminseite rechnete mit 1240 px und 24 px Rand, die
+   uebrigen Seiten mit 1060 px Inhaltsbreite und der gemeinsamen Kante
+   (--edge). Nebeneinander gehalten sprangen Logo, Ueberschrift und
+   Kachelrand um bis zu 50 px auseinander. Jetzt gilt hier dieselbe
+   Rechnung wie auf Start-, Mittags- und Rechtsseiten. */
+:root{--content:1060px;--gutter:clamp(20px,6vw,132px);--edge:max(var(--gutter),calc((100% - var(--content)) / 2))}
+.events-kopf,.events-grid-bereich,.events-abo{width:100%;margin:0;padding-left:var(--edge);padding-right:var(--edge)}
+.events-kopf{padding-top:calc(78px + 62px)}
+.events-grid-bereich{padding-top:60px;padding-bottom:30px}
+.events-abo{margin-top:40px}
+
+/* Drei Kacheln statt vier: in der gemeinsamen Inhaltsbreite bleibt so
+   genug Platz fuer zwei Ticketzeilen ohne Umbruch. */
+.events-grid{grid-template-columns:repeat(3,1fr);gap:14px}
+
+/* ===== die kacheln liegen auf einer linie =====
+   Vorher bestimmte die Laenge des Titels, wo die Trennlinie und die
+   Ticketzeilen sassen - bei "helden reisen, gaeste speisen! - zusatzabend"
+   rutschte alles eine Zeile nach unten. Jetzt hat jede Kachel dieselben
+   Zeilen: Bild, Kopf (Platz fuer zwei Titelzeilen), Art, Tickets, Knopf.
+   Der Knopf sitzt in allen Kacheln auf derselben Hoehe. */
+.event-kachel{display:grid;grid-template-rows:auto 1fr}
+.kachel-inhalt{display:grid;grid-template-rows:auto auto 1fr auto;gap:10px}
+.kachel-zeile{align-items:start}
+.kachel-zeile time{padding-top:2px}
+.kachel-zeile h2{display:flex;align-items:flex-start;min-height:2.1em}
+.ticketzeilen{align-content:start;align-self:start;width:100%}
+.kachel-aktionen{align-self:end;margin-top:0}
+
+@media(max-width:1100px){.events-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){
+  .events-kopf{padding-top:calc(62px + 58px)}
+  .events-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .kachel-zeile h2{min-height:0}
+}
+@media(max-width:560px){.events-grid{grid-template-columns:1fr}}
+
+
+/* Handy: keine Beschriftung unter 12px - dort wird gebucht. */
+@media(max-width:760px){
+  .kachel-inhalt .kachel-zeile time span{font-size:12.5px}
+  .ticket-dialog .ticket-dialog-kopf a{font-size:12.5px}
+}
+
+
+/* ======================================================================
+   iPhone · Safari verhaelt sich an vier Punkten anders als der Pruefrahmen.
+   Alle vier sind hier abgefangen:
+   1. Textgroesse im Querformat: Safari blaeht Fliesstext auf, wenn man es
+      nicht ausdruecklich untersagt.
+   2. Tippen: iOS legt ein graues Rechteck ueber jedes beruehrte Element -
+      wir zeigen den Zustand selbst, das Rechteck stoert nur.
+   3. Ueberziehen am Rand: ohne overscroll-behavior schiebt Safari die Seite
+      vom Grund weg und darunter erscheint Weiss.
+   4. Die Gestenleiste am unteren Rand verdeckt alles, was dort fest steht.
+   ====================================================================== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+/* Fokus bleibt sichtbar - nur die Beruehrungsflaeche verliert das Rechteck. */
+a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transparent}

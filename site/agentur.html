@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
+<meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="description" content="Künstleragentur der Wirtschaft Dornbirn: Wolfgang Preuß vermittelt Musik, Comedy und Shows für Hochzeiten, Firmenfeiern und Feste – persönlich ausgewählt.">
   <meta name="robots" content="noindex,nofollow,noarchive">
@@ -13,30 +13,33 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://wirtschaft-dornbirn.at/agentur.html">
   <meta property="og:locale" content="de_AT">
-  <meta property="og:image" content="https://wirtschaft-dornbirn.at/assets/abend-02.webp">
-  <meta property="og:image:alt" content="Sänger auf der Bühne der Wirtschaft Dornbirn">
+  <meta property="og:image" content="https://wirtschaft-dornbirn.at/assets/agentur-buehne.webp">
+  <meta property="og:image:alt" content="Volle Bühne mit Musikern und feierndem Publikum in der Wirtschaft Dornbirn">
   <meta name="twitter:card" content="summary_large_image">
   <title>Agentur · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="icon" href="assets/icons/favicon-512.png" sizes="512x512" type="image/png">
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
-  <link rel="preload" href="assets/abend-02.webp" as="image" type="image/webp" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/agentur-buehne.webp" imagesrcset="assets/agentur-buehne-900.webp 900w, assets/agentur-buehne.webp 1600w" imagesizes="100vw" fetchpriority="high">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-600-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="feste-catering.css?v=6b0516b9">
+  <link rel="stylesheet" href="feste-catering.css?v=58766cf0-09-01c">
   <script src="agentur.js?v=553568b1" defer></script>
 </head>
-<body>
+<body data-bg="4">
   <a class="skip-link" href="#content">Zum Inhalt springen</a>
+  <!-- Das Buehnenfoto liegt hinter der ganzen Seite, nie unter dem Text:
+       schwarzweiss, weit zurueckgenommen, Ink bleibt der Grund. -->
+  <div class="agentur-bg" aria-hidden="true"><img src="assets/agentur-buehne.webp" srcset="assets/agentur-buehne-900.webp 900w, assets/agentur-buehne.webp 1600w" sizes="100vw" width="1600" height="1067" alt="" decoding="async" fetchpriority="low"></div>
   <header class="event-header">
-    <a class="brand" href="index.html" aria-label="Zur Wirtschaft Dornbirn"><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"><img class="partner-logo" src="assets/emma-eugen-logo.png" width="206" height="116" alt="Emma &amp; Eugen"></a>
+    <a class="brand" href="index.html" aria-label="Zur Wirtschaft Dornbirn"><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn" loading="eager" decoding="async"><img class="partner-logo" src="assets/emma-eugen-logo.png" width="206" height="116" alt="Emma &amp; Eugen" loading="eager" decoding="async"></a>
     <nav aria-label="Seitennavigation"><a href="#leistungen">Was wir vermitteln</a><a href="#ablauf">Ablauf</a></nav>
     <a class="header-cta" href="#anfrage" aria-label="Künstler anfragen"><span class="cta-lang">Künstler</span><span>anfragen</span></a>
   </header>
 
   <main id="content">
     <section class="event-hero" aria-labelledby="agenturTitle">
-      <img src="assets/abend-02.webp" srcset="assets/abend-02-800.webp 800w, assets/abend-02.webp 1200w" sizes="(max-width:900px) 50vw, 25vw" width="1200" height="750" alt="Sänger auf der Bühne der Wirtschaft Dornbirn" fetchpriority="high">
+      <img src="assets/agentur-buehne.webp" srcset="assets/agentur-buehne-900.webp 900w, assets/agentur-buehne.webp 1600w" sizes="100vw" width="1600" height="1067" fetchpriority="high" alt="Volle Bühne mit Musikern und feierndem Publikum in der Wirtschaft Dornbirn">
       <div class="hero-shade"></div>
       <div class="hero-copy">
         <p>Künstleragentur · Wolfgang Preuß</p>
@@ -48,7 +51,7 @@
     </section>
 
     <section class="intro section" id="leistungen" aria-labelledby="leistungenTitle">
-      <div class="section-heading"><p>Was wir vermitteln</p><h2 id="leistungenTitle">Von leise bis laut. Von Solo bis Show.</h2></div>
+      <div class="section-heading"><p>Was wir vermitteln</p><h2 id="leistungenTitle">Von leise bis laut.<br>Von Solo bis Show.</h2></div>
       <p class="section-intro">Jeder Künstler auf unserer Liste stand schon auf einer Bühne, die wir kennen. Ihr sagt uns Anlass und Stimmung – wir schlagen vor, wer dazu passt, und kümmern uns um Gage, Technik-Absprache und Ablauf.</p>
       <div class="possibility-grid">
         <article><span>01</span><h3>Konzerte &amp; Bands</h3><p>Vom Jazz-Duo bis zur Partyband – für Feste, Empfänge und Abende, die in Erinnerung bleiben.</p><div class="wege"><button type="button" data-richtung="Musik live / Band">Musik anfragen</button></div></article>
@@ -59,7 +62,7 @@
     </section>
 
     <section class="process section" id="ablauf" aria-labelledby="agenturAblaufTitle">
-      <div class="section-heading"><p>So einfach geht es</p><h2 id="agenturAblaufTitle">Drei Schritte bis zur Bühne.</h2></div>
+      <div class="section-heading"><p>So einfach geht es</p><h2 id="agenturAblaufTitle">Drei Schritte<br>bis zur Bühne.</h2></div>
       <ol>
         <li><span>01</span><div><h3>Anfrage senden</h3><p>Anlass, Datum, Ort und die gewünschte Richtung reichen völlig.</p></div></li>
         <li><span>02</span><div><h3>Vorschläge erhalten</h3><p>Wir melden uns mit zwei, drei passenden Künstlern samt Hörproben und ehrlicher Einschätzung.</p></div></li>
@@ -99,17 +102,18 @@
         <a class="insta-folgen" href="https://www.instagram.com/wirtschaft_dornbirn/" target="_blank" rel="noopener noreferrer">auf instagram folgen ↗</a>
       </div>
       <div class="insta-band">
-        <a href="https://www.instagram.com/wirtschaft_dornbirn/p/DcJEdY_z0L5/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-01.webp" width="600" height="600" loading="lazy" decoding="async" alt="Showabend auf der Buehne"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/reel/Db-ojDSIdZ2/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-02.webp" width="600" height="600" loading="lazy" decoding="async" alt="A-cappella-Gruppe im Scheinwerferlicht"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/p/Dbc75hYBTZ_/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-03.webp" width="600" height="600" loading="lazy" decoding="async" alt="Publikum feiert vor der Buehne"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/p/Dbc7mCNhbKH/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-04.webp" width="600" height="600" loading="lazy" decoding="async" alt="Voller Saal beim Konzert"></a><a href="https://www.instagram.com/emmaundeugen/p/DbIQnjBKLEC/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-05.webp" width="600" height="600" loading="lazy" decoding="async" alt="Saenger im roten Licht"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/p/DbIF--yhklj/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-06.webp" width="600" height="600" loading="lazy" decoding="async" alt="Konzertmoment von der Seite"></a>
+        <a href="https://www.instagram.com/wirtschaft_dornbirn/p/DcJEdY_z0L5/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-01.webp" width="600" height="600" loading="lazy" decoding="async" alt="Programmplakat 6850 Genussroute Dornbirn: ein Abend, fünf Lokale, sechs Genussmomente – Donnerstag, 3. September 2026, 18 bis 1 Uhr, Afterparty ab 22 Uhr im Kulturhaus"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/reel/Db-ojDSIdZ2/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-02.webp" width="600" height="600" loading="lazy" decoding="async" alt="Plakat Gaudi: alle vier Comedians in allen vier Haltestellen, 22. und 23. September 2026 – Falstaff Bregenz, wirtschaft Dornbirn, OXA Hittisau"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/p/Dbc75hYBTZ_/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-03.webp" width="600" height="600" loading="lazy" decoding="async" alt="Plakat Dinner &amp; Comedy am Mittwoch, 16. Dezember 2026, 19 Uhr in der wirtschaft, Bahnhofstraße 24, 6850 Dornbirn"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/p/Dbc7mCNhbKH/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-04.webp" width="600" height="600" loading="lazy" decoding="async" alt="Plakat Dinner &amp; Comedy am Dienstag, 15. Dezember 2026, 19 Uhr in der wirtschaft, Bahnhofstraße 24, 6850 Dornbirn"></a><a href="https://www.instagram.com/emmaundeugen/p/DbIQnjBKLEC/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-05.webp" width="600" height="600" loading="lazy" decoding="async" alt="Plakat 6850 Genussroute Dornbirn am Donnerstag, 3. September 2026, 18 bis 1 Uhr – mit den Bands Falco Luneau, Philipp Lingg, Chilimangaros, Common Ground, Cafe Hildegard und The Swingbugs"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/p/DbIF--yhklj/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-06.webp" width="600" height="600" loading="lazy" decoding="async" alt="Hinweis Sommerpause von Freitag, 24. Juli bis Sonntag, 23. August 2026 – ab Montag, 24. August 2026 wieder geöffnet"></a>
       </div>
       <p class="insta-note">die bilder liegen auf unserem server – beim ansehen fließt nichts an instagram. der klick führt zum jeweiligen beitrag.</p>
     </section>
 
   <footer class="site-footer" id="impressum" data-variant="d">
-    <div><p class="fuss-label">das haus</p><img src="assets/wirtschaft-logo.png" width="300" height="69" loading="lazy" decoding="async" alt="Wirtschaft Dornbirn"><p>Wolfgang Preuß · Bahnhofstraße 24 · 6850 Dornbirn</p><a href="tel:+43557220540">+43 (0)5572 20 540</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a></div>
-    <div class="partner-block"><p class="fuss-label">emma &amp; eugen</p><img src="assets/emma-eugen-logo.png" width="206" height="116" loading="lazy" decoding="async" alt="Emma &amp; Eugen – Essen, Trinken &amp; Livemusik auf Achse"><a href="tel:+436642306587">+43 664 230 65 87</a><a href="mailto:Uri@eugen.family">Uri@eugen.family</a><a href="https://www.emmaundeugen.family" target="_blank" rel="noopener noreferrer">www.emmaundeugen.family ↗</a></div>
-    <div><p class="fuss-label">rechtliches</p><p>UID ATU 36206707 · FN 329272 z</p><p>Firmenbuchgericht: Landesgericht Feldkirch</p><a href="impressum.html">Impressum</a><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a></div>
+    <div><p class="fuss-label">das haus</p><img src="assets/wirtschaft-logo.png" width="300" height="69" loading="lazy" decoding="async" alt="Wirtschaft Dornbirn"><p>Wolfgang Preuß</p><p>Bahnhofstraße 24 · 6850 Dornbirn</p><a href="tel:+43557220540">+43 (0)5572 20 540</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a></div>
+    <div class="partner-block"><p class="fuss-label">emma &amp; eugen</p><img src="assets/emma-eugen-logo.png" width="206" height="116" loading="lazy" decoding="async" alt="Emma &amp; Eugen – Essen, Trinken &amp; Livemusik auf Achse"><p>Wolfgang Preuß</p><p>Bahnhofstraße 24 · 6850 Dornbirn</p><a href="tel:+436642306587">+43 664 230 65 87</a><a href="mailto:Uri@eugen.family">Uri@eugen.family</a><a href="https://www.emmaundeugen.family" target="_blank" rel="noopener noreferrer">www.emmaundeugen.family ↗</a></div>
+    <div><p class="fuss-label">rechtliches</p><p>UID ATU 36206707</p><p>FN 329272 z</p><p>Firmenbuchgericht: Landesgericht Feldkirch</p><a href="impressum.html">Impressum</a><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a></div>
     <div><p class="fuss-label">seiten</p><a href="events.html">Termine &amp; Tickets</a><a href="feste-catering.html">Locations · Feste &amp; Catering</a><a href="index.html">Zur Startseite</a><a data-route href="https://www.google.com/maps/dir/?api=1&destination=Bahnhofstra%C3%9Fe+24%2C+6850+Dornbirn%2C+%C3%96sterreich" target="_blank" rel="noopener noreferrer">Route öffnen ↗</a></div>
     <p class="prototype-note">Öffentliche Testumgebung · Reservierung und Tickets über offizielle Anbieter</p>
   </footer>
+  <script type="module" src="instagram-feed.js?v=da213acd"></script>
 </body>
 </html>

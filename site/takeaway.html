@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
+<meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="description" content="Takeaway der Wirtschaft Dornbirn – Mittagsgerichte zum Mitnehmen, bestellt in zwei Minuten, abholbereit in 20–30 Minuten. Letzte Bestellung 13:45.">
+  <meta name="description" content="Take-away der Wirtschaft Dornbirn – Mittagsgerichte online bestellen und zwischen 11:30 und 13:00 Uhr in der Bahnhofstraße 24 abholen.">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
@@ -12,7 +12,7 @@
   <title>Takeaway · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-600-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="tischreservierung.css?v=1cab5596">
+  <link rel="stylesheet" href="tischreservierung.css?v=83119f37-09-01c">
   <!-- Nur fuer die Abholmeldung: Auf dem iPhone laesst Apple Push erst zu,
        wenn die Seite zum Home-Bildschirm hinzugefuegt wurde, und dafuer muss
        ein Manifest da sein. Auf Android genuegt seine Anwesenheit. -->
@@ -22,7 +22,7 @@
   <a class="skip-link" href="#main">Zum Inhalt springen</a>
 
   <header class="wrap site-head">
-    <div class="brand-row"><a href="index.html" aria-label="Wirtschaft Dornbirn – zur Startseite"><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn"></a><img class="partner-logo" src="assets/emma-eugen-logo.png" width="206" height="116" alt="Emma &amp; Eugen"></div>
+    <div class="brand-row"><a href="index.html" aria-label="Wirtschaft Dornbirn – zur Startseite"><img src="assets/wirtschaft-logo.png" width="300" height="69" alt="Wirtschaft Dornbirn" loading="eager" decoding="async"></a><img class="partner-logo" src="assets/emma-eugen-logo.png" width="206" height="116" alt="Emma &amp; Eugen" loading="eager" decoding="async"></div>
     <a class="back-link" href="index.html">← Zur Startseite</a>
   </header>
 
@@ -35,14 +35,14 @@
              richtigen Tag ein - sonst stuende ueber einer Montagsbestellung
              "Heute auf dem Teller". -->
         <h1><span id="taHeroTag">Heute</span> auf dem Teller.<br>Für dich zum Mitnehmen.</h1>
-        <p class="lead" id="taHeroLead">Frisch gekocht wie am Tisch, bestellt in zwei Minuten – abholbereit in etwa 20–30 Minuten. Letzte Bestellung um 13:45 Uhr.</p>
+        <p class="lead" id="taHeroLead">Frisch gekocht wie am Tisch, bestellt in zwei Minuten – abholbereit zwischen 11:30 und 13:00 Uhr.</p>
       </div>
       <aside class="ta-truck" aria-hidden="true">
         <!-- Zweilagig wie auf der Startseite: der Wagen, darauf Emma & Eugen
              als helles Schriftbild - erst zusammen ist es ihr Truck. -->
         <span class="ta-truck-bild">
-          <img src="assets/eugen-truck-closed.webp" width="1200" height="683" alt="" loading="lazy">
-          <span class="ta-truck-mark"><img src="assets/emma-eugen.webp" width="900" height="636" alt="" loading="lazy"></span>
+          <img src="assets/eugen-truck-closed.webp" width="900" height="512" alt="" loading="lazy">
+          <span class="ta-truck-mark"><img src="assets/emma-eugen.webp" width="400" height="283" alt="" loading="lazy"></span>
         </span>
       </aside>
     </section>
@@ -51,11 +51,11 @@
       <div class="wrap section" style="border-top:0">
         <p class="eyebrow">Bestellen</p>
         <h2 id="taBestellTitel">Was darf’s heute sein?</h2>
-        <p class="sub">Die Gerichte kommen aus der aktuellen Mittagskarte. Bezahlt wird bei der Abholung – bar oder mit Karte.</p>
+        <p class="sub">Die Gerichte kommen aus der aktuellen Mittagskarte. Abgeholt wird zwischen 11:30 und 13:00 Uhr, bezahlt wird bei der Abholung.</p>
 
         <!-- Ohne Dienst oder ohne Karte gibt es nichts zu bestellen - dann
              sagt die Seite das ehrlich und bietet den Anruf an. -->
-        <p class="ta-leer" id="taLeer">Die Online-Bestellung ist gerade nicht verfügbar. Ruf’ uns einfach an:
+        <p class="ta-leer" id="taLeer" hidden>Die Bestellung geht per E-Mail an die Wirtschaft – wir bestätigen sie kurz. Lieber am Telefon?
           <a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
 
         <!-- Zwei Spalten, wo Platz ist: links die Gerichte, rechts Abholzeit
@@ -63,16 +63,39 @@
              Platz nicht - dort liegt alles untereinander und die Summe wandert
              in die feste Leiste unten. -->
         <div class="ta-bestellflaeche">
-          <form class="grid ta-spalte-links" id="taForm" hidden novalidate>
+          <!-- Die Karte liegt AUSSERHALB des Formulars. Sie gilt immer - auch
+               wenn nicht bestellt werden kann; dann wird schlicht das ganze
+               Formular ausgeblendet und es braucht keine CSS-Ausnahmeliste,
+               die sich mit !important-Regeln der Felder streitet. -->
+          <div class="grid ta-spalte-links ta-kartenblock">
+            <!-- Erste Frage wie beim offiziellen Lieferservice: der Tag. Danach
+                 die Karte in denselben zwei Gruppen wie dort. -->
+            <p class="wide ta-tage-frage" id="taTageFrage">Für welchen Tag möchtest du bestellen?</p>
+            <div class="wide ta-tage" id="taTage" role="group" aria-labelledby="taTageFrage"></div>
             <div class="wide ta-karte" id="taKarte" aria-label="Gerichte zum Mitnehmen"></div>
             <p class="wide ta-allergene" id="taAllergene" hidden></p>
+            <!-- Der Weg zur ganzen Karte: dieselbe Datei, die auch die
+                 Startseite zeigt. Ohne hinterlegte Karte bleibt er weg. -->
+            <a class="wide ta-kartenlink" id="taKartenLink" href="mittagskarte.html" target="_blank" rel="noopener noreferrer">Mittagskarte ansehen und als PDF speichern</a>
+          </div>
 
-            <label class="wide">Name*
+          <form class="grid ta-spalte-links" id="taForm" novalidate>
+            <!-- Feldsatz und Reihenfolge 1:1 wie beim offiziellen Lieferservice:
+                 vorname, nachname, telefon, e-mail, strasse, plz/ort, dann
+                 lieferzeit, zahlungsart, newsletter, datenschutz. -->
+            <label class="wide">Vorname*
+              <input type="text" id="taVorname" maxlength="40" autocomplete="given-name" placeholder="z. B. Anna">
+            </label>
+            <label class="wide">Nachname*
               <input type="text" id="taName" maxlength="40" autocomplete="family-name" placeholder="z. B. Huber">
             </label>
-            <label class="wide">Telefon*
+            <label class="wide">Telefonnummer*
               <input type="tel" id="taTelefon" maxlength="25" autocomplete="tel" inputmode="tel" placeholder="+43 660 1234567">
             </label>
+            <label class="wide">E-Mail-Adresse*
+              <input type="email" id="taMail" maxlength="80" autocomplete="email" inputmode="email" placeholder="anna@example.at">
+            </label>
+
             <p class="contact-note wide">Nur für diese Bestellung: Wir rufen an, falls etwas ausgeht. Gelöscht spätestens 30 Tage nach der Abholung. <a href="datenschutz-sicherheit.html#takeaway">Wie wir mit deinen Daten umgehen</a></p>
 
             <!-- Merken ist eine Speicherung auf dem Geraet des Gastes. Auch
@@ -88,6 +111,44 @@
                  auch, wo es liegt und wie man es wieder loswird. -->
             <p class="wide ta-gemerkt" id="taGemerkt" hidden>Name und Telefon sind auf diesem Gerät gemerkt.
               <button type="button" id="taVergiss">Wieder vergessen</button></p>
+
+            <!-- Abholzeit: dasselbe Zeitfenster wie beim offiziellen Dienst.
+                 Laeuft der Hausdienst, traegt er seine echten Zeiten hier ein;
+                 laeuft er nicht, stehen die festen. -->
+            <p class="wide ta-feld-titel" id="taZeitTitel">Wann möchtest du deine Bestellung abholen?*</p>
+            <span class="wide slots" role="radiogroup" aria-labelledby="taZeitTitel" id="taZeiten"></span>
+            <small class="wide slot-info" id="taZeitInfo" role="status" aria-live="polite"></small>
+            <p class="wide ta-lieferhinweis">Abgeholt wird bei uns in der Bahnhofstraße 24. Sag am Tresen einfach deinen Namen.</p>
+
+            <!-- Nur ein Zahlungsweg, weil nur einer wirklich funktioniert:
+                 online bezahlen kann diese Seite nicht, und eine Auswahl, die
+                 ins Leere fuehrt, ist schlimmer als keine. -->
+            <p class="wide ta-feld-titel">Zahlung</p>
+            <p class="wide ta-lieferhinweis">Bezahlt wird bei der Abholung – bar oder mit Karte.</p>
+
+            <label class="wide ta-merken">
+              <input type="checkbox" id="taNewsletter">
+              <span>Newsletter: Wochenkarte und Termine per E-Mail. Abmeldung jederzeit mit einem Klick.</span>
+            </label>
+            <label class="wide ta-merken">
+              <input type="checkbox" id="taDatenschutz">
+              <span><a href="datenschutz-sicherheit.html">Datenschutzerklärung</a> gelesen &amp; akzeptiert*</span>
+            </label>
+            <p class="wide ta-pflicht">* Pflichtfelder</p>
+
+            <!-- Abschluss beim offiziellen Dienst: dieselbe Zeile wie dort,
+                 Gesamtpreis links, Bestellknopf rechts. -->
+            <div class="wide submit-row" id="taJetzt">
+              <p id="taGesamt">Gesamtpreis: € 0,00</p>
+              <button class="button button-green" id="taJetztBestellen" type="button">Bestellung abschicken</button>
+            </div>
+            <p class="wide slot-info" id="taJetztInfo" role="status" aria-live="polite"></p>
+            <!-- Rueckweg, wenn kein Mailprogramm eingerichtet ist: derselbe
+                 Bestelltext zum Kopieren, damit niemand von vorn anfangen muss. -->
+            <div class="wide ta-notweg" id="taNotweg" hidden>
+              <button class="button" type="button" id="taKopieren">Bestelltext kopieren</button>
+              <a class="button" href="tel:+43557220540">Telefonisch bestellen</a>
+            </div>
           </form>
 
           <aside class="ta-spalte-rechts" id="taAbschluss" hidden>
@@ -106,9 +167,6 @@
               </span>
               <small class="slot-info" id="taDatumInfo" role="status" aria-live="polite"></small>
 
-              <p class="ta-feld-titel" id="taZeitTitel">Abholung*</p>
-              <span class="slots" role="radiogroup" aria-labelledby="taZeitTitel" id="taZeiten"></span>
-              <small class="slot-info" id="taZeitInfo" role="status" aria-live="polite"></small>
             </div>
 
             <div class="submit-row" id="taSenden" hidden>
@@ -197,19 +255,21 @@
         <a class="insta-folgen" href="https://www.instagram.com/wirtschaft_dornbirn/" target="_blank" rel="noopener noreferrer">auf instagram folgen ↗</a>
       </div>
       <div class="insta-band">
-        <a href="https://www.instagram.com/wirtschaft_dornbirn/p/DcJEdY_z0L5/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-01.webp" width="600" height="600" loading="lazy" decoding="async" alt="Showabend auf der Buehne"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/reel/Db-ojDSIdZ2/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-02.webp" width="600" height="600" loading="lazy" decoding="async" alt="A-cappella-Gruppe im Scheinwerferlicht"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/p/Dbc75hYBTZ_/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-03.webp" width="600" height="600" loading="lazy" decoding="async" alt="Publikum feiert vor der Buehne"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/p/Dbc7mCNhbKH/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-04.webp" width="600" height="600" loading="lazy" decoding="async" alt="Voller Saal beim Konzert"></a><a href="https://www.instagram.com/emmaundeugen/p/DbIQnjBKLEC/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-05.webp" width="600" height="600" loading="lazy" decoding="async" alt="Saenger im roten Licht"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/p/DbIF--yhklj/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-06.webp" width="600" height="600" loading="lazy" decoding="async" alt="Konzertmoment von der Seite"></a>
+        <a href="https://www.instagram.com/wirtschaft_dornbirn/p/DcJEdY_z0L5/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-01.webp" width="600" height="600" loading="lazy" decoding="async" alt="Programmplakat 6850 Genussroute Dornbirn: ein Abend, fünf Lokale, sechs Genussmomente – Donnerstag, 3. September 2026, 18 bis 1 Uhr, Afterparty ab 22 Uhr im Kulturhaus"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/reel/Db-ojDSIdZ2/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-02.webp" width="600" height="600" loading="lazy" decoding="async" alt="Plakat Gaudi: alle vier Comedians in allen vier Haltestellen, 22. und 23. September 2026 – Falstaff Bregenz, wirtschaft Dornbirn, OXA Hittisau"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/p/Dbc75hYBTZ_/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-03.webp" width="600" height="600" loading="lazy" decoding="async" alt="Plakat Dinner &amp; Comedy am Mittwoch, 16. Dezember 2026, 19 Uhr in der wirtschaft, Bahnhofstraße 24, 6850 Dornbirn"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/p/Dbc7mCNhbKH/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-04.webp" width="600" height="600" loading="lazy" decoding="async" alt="Plakat Dinner &amp; Comedy am Dienstag, 15. Dezember 2026, 19 Uhr in der wirtschaft, Bahnhofstraße 24, 6850 Dornbirn"></a><a href="https://www.instagram.com/emmaundeugen/p/DbIQnjBKLEC/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-05.webp" width="600" height="600" loading="lazy" decoding="async" alt="Plakat 6850 Genussroute Dornbirn am Donnerstag, 3. September 2026, 18 bis 1 Uhr – mit den Bands Falco Luneau, Philipp Lingg, Chilimangaros, Common Ground, Cafe Hildegard und The Swingbugs"></a><a href="https://www.instagram.com/wirtschaft_dornbirn/p/DbIF--yhklj/" target="_blank" rel="noopener noreferrer"><img src="assets/insta/insta-06.webp" width="600" height="600" loading="lazy" decoding="async" alt="Hinweis Sommerpause von Freitag, 24. Juli bis Sonntag, 23. August 2026 – ab Montag, 24. August 2026 wieder geöffnet"></a>
       </div>
       <p class="insta-note">die bilder liegen auf unserem server – beim ansehen fließt nichts an instagram. der klick führt zum jeweiligen beitrag.</p>
     </section>
 
   <footer class="site-footer" id="impressum" data-variant="d">
-    <div><p class="fuss-label">das haus</p><img src="assets/wirtschaft-logo.png" width="300" height="69" loading="lazy" decoding="async" alt="Wirtschaft Dornbirn"><p>Wolfgang Preuß · Bahnhofstraße 24 · 6850 Dornbirn</p><a href="tel:+43557220540">+43 (0)5572 20 540</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a></div>
-    <div class="partner-block"><p class="fuss-label">emma &amp; eugen</p><img src="assets/emma-eugen-logo.png" width="206" height="116" loading="lazy" decoding="async" alt="Emma &amp; Eugen – Essen, Trinken &amp; Livemusik auf Achse"><a href="tel:+436642306587">+43 664 230 65 87</a><a href="mailto:Uri@eugen.family">Uri@eugen.family</a><a href="https://www.emmaundeugen.family" target="_blank" rel="noopener noreferrer">www.emmaundeugen.family ↗</a></div>
-    <div><p class="fuss-label">rechtliches</p><p>UID ATU 36206707 · FN 329272 z</p><p>Firmenbuchgericht: Landesgericht Feldkirch</p><a href="impressum.html">Impressum</a><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a></div>
+    <div><p class="fuss-label">das haus</p><img src="assets/wirtschaft-logo.png" width="300" height="69" loading="lazy" decoding="async" alt="Wirtschaft Dornbirn"><p>Wolfgang Preuß</p><p>Bahnhofstraße 24 · 6850 Dornbirn</p><a href="tel:+43557220540">+43 (0)5572 20 540</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a></div>
+    <div class="partner-block"><p class="fuss-label">emma &amp; eugen</p><img src="assets/emma-eugen-logo.png" width="206" height="116" loading="lazy" decoding="async" alt="Emma &amp; Eugen – Essen, Trinken &amp; Livemusik auf Achse"><p>Wolfgang Preuß</p><p>Bahnhofstraße 24 · 6850 Dornbirn</p><a href="tel:+436642306587">+43 664 230 65 87</a><a href="mailto:Uri@eugen.family">Uri@eugen.family</a><a href="https://www.emmaundeugen.family" target="_blank" rel="noopener noreferrer">www.emmaundeugen.family ↗</a></div>
+    <div><p class="fuss-label">rechtliches</p><p>UID ATU 36206707</p><p>FN 329272 z</p><p>Firmenbuchgericht: Landesgericht Feldkirch</p><a href="impressum.html">Impressum</a><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a></div>
     <div><p class="fuss-label">seiten</p><a href="index.html">Zur Startseite</a><a href="events.html">Termine &amp; Tickets</a><a href="feste-catering.html">Locations · Feste &amp; Catering</a><a href="agentur.html">Agentur</a><a data-route href="https://www.google.com/maps/dir/?api=1&destination=Bahnhofstra%C3%9Fe+24%2C+6850+Dornbirn%2C+%C3%96sterreich" target="_blank" rel="noopener noreferrer">Route öffnen ↗</a></div>
     <p class="prototype-note">Öffentliche Testumgebung · Reservierung und Tickets über offizielle Anbieter</p>
   </footer>
 
-  <script type="module" src="takeaway.js?v=4034c446"></script>
+  <script type="module" src="takeaway.js?v=0fe8c141"></script>
+  <script type="module" src="lieferservice.js?v=022b4d3e"></script>
+  <script type="module" src="instagram-feed.js?v=da213acd"></script>
 </body>
 </html>
