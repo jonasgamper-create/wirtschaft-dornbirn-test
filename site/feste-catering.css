@@ -513,3 +513,15 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
 /* Fokus bleibt sichtbar - nur die Beruehrungsflaeche verliert das Rechteck. */
 a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transparent}
+
+/* ===== anfrageformular am telefon: dieselben inhalte, engerer satz =====
+   Wunsch vom 01.09.: kompakter. Und das Wunschtermin-Feld zieht mit den
+   uebrigen Feldern gleich - die 15rem-Deckelung ist fuer die Buchungsseiten
+   gedacht; hier stehen alle Felder untereinander in voller Breite, und ein
+   einzeln kuerzeres sah aus wie ein Versehen. */
+@media(max-width:560px){
+  .form-grid{gap:10px}
+  .form-grid label{gap:5px;font-size:11px}
+  .form-grid textarea{min-height:96px}
+  .form-grid input[type="date"]{max-width:none;width:100%}
+}
