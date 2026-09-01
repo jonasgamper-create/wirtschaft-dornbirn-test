@@ -33,6 +33,27 @@
       // im Bild ist, und parkt rechts, bevor man ihn liest.
       geo.laneEnd = Math.max(geo.laneStart + 1, sectionTop + cateringSection.offsetHeight * .75 - geo.vh * .5);
       geo.truckVw = cateringTruck.offsetWidth / Math.max(1, window.innerWidth) * 100;
+      // Am Handy ist der Wagen so breit, dass "rechts parken" ihn mitten im
+      // Bild anhalten liesse - dort faehrt er ganz durch und verschwindet
+      // rechts, wie es sich fuer eine Durchfahrt gehoert. Am grossen Schirm
+      // bleibt das Parken, da hat er rechts wirklich Platz.
+      geo.durchfahrt = window.innerWidth < 768;
+      if (geo.durchfahrt) {
+        // Die Fahrt haengt an der ECHTEN Fahrbahn, nicht an der 12%-Annahme
+        // von oben: im heutigen Aufbau liegt die Spur bei rund 78% der
+        // Abschnittshoehe. Mit der alten Formel war die Durchfahrt vorbei,
+        // bevor die Spur ueberhaupt ins Bild kam - uebrig blieb ein leerer
+        // schwarzer Streifen. Jetzt: Start, wenn die Spur unten auftaucht;
+        // Ende, wenn sie im oberen Drittel steht - die ganze Fahrt passiert
+        // vor den Augen des Lesers.
+        const spur = cateringSection.querySelector('.catering-truck-lane');
+        if (spur) {
+          const spurRect = spur.getBoundingClientRect();
+          const spurTop = spurRect.top + scrollTop;
+          geo.laneStart = spurTop - geo.vh;
+          geo.laneEnd = Math.max(geo.laneStart + 1, spurTop + spurRect.height - geo.vh * .35);
+        }
+      }
     }
   }
 
@@ -116,7 +137,7 @@
     const progress = clamp((scrollTop - start) / (end - start));
     const truckVw = geo.truckVw;
     const xStart = -truckVw - 6;
-    const xEnd = Math.max(6, 100 - truckVw - 4);
+    const xEnd = geo.durchfahrt ? 100 + 6 : Math.max(6, 100 - truckVw - 4);
     const x = xStart + smooth(progress) * (xEnd - xStart);
     const opacity = smooth((progress - .01) / .05);
     const open = 0;
