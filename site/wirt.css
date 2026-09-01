@@ -22,7 +22,7 @@ button:focus-visible,a:focus-visible,label:focus-within{outline:3px solid var(--
 main{width:min(680px,100%);margin:0 auto;padding:0 max(18px,4vw) 64px}
 section{padding:26px 0;border-top:1px solid var(--linie)}
 section:first-child{border-top:0}
-h1,h2{font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-weight:400;margin:0}
+h1,h2{font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-weight:400;margin:0}
 h2{font-size:24px;margin-bottom:6px}
 .vorzeile{margin:0 0 8px;color:var(--green);font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:lowercase}
 .hinweis{margin:0 0 14px;color:var(--muted);font-size:14.5px}
@@ -31,7 +31,7 @@ h2{font-size:24px;margin-bottom:6px}
    was man sieht - und meistens das Einzige, was man wissen muss. */
 .zahlen{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:18px 0 22px}
 .kachel{display:grid;gap:2px;padding:16px 14px;border:1px solid var(--linie);border-radius:12px;background:#fff}
-.kachel b{font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-weight:400;font-size:clamp(30px,8vw,44px);line-height:1;font-variant-numeric:tabular-nums}
+.kachel b{font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-weight:400;font-size:clamp(30px,8vw,44px);line-height:1;font-variant-numeric:tabular-nums}
 .kachel span{color:var(--muted);font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:lowercase}
 .kachel small{color:var(--muted);font-size:12.5px;min-height:1.2em}
 
@@ -87,7 +87,7 @@ h2{font-size:24px;margin-bottom:6px}
 /* Eingeklappte Werkzeuge: Karte und Takeaway-Karte brauchen den Platz nur,
    wenn man sie wirklich in der Hand hat. */
 .werkzeug{padding:16px 0;border-top:1px solid var(--linie)}
-.werkzeug summary{min-height:44px;display:flex;align-items:center;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:20px;cursor:pointer}
+.werkzeug summary{min-height:44px;display:flex;align-items:center;font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-size:20px;cursor:pointer}
 .werkzeug[open] summary{margin-bottom:10px}
 .werkzeug textarea{width:100%;min-height:120px;margin:0 0 10px;padding:10px 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;font:inherit;font-size:14.5px;line-height:1.5;resize:vertical}
 
@@ -97,7 +97,7 @@ h2{font-size:24px;margin-bottom:6px}
 .zettel-liste{display:grid;gap:2px;margin:0 0 12px;padding:0;list-style:none}
 .zettel-liste li{display:grid;grid-template-columns:3.2rem minmax(0,1fr);align-items:baseline;gap:2px 12px;padding:9px 0;border-top:1px solid var(--linie)}
 .zettel-liste li:first-child{border-top:0}
-.zettel-liste .zettel-zahl{grid-row:span 2;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:27px;line-height:1;font-variant-numeric:tabular-nums}
+.zettel-liste .zettel-zahl{grid-row:span 2;font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-size:27px;line-height:1;font-variant-numeric:tabular-nums}
 .zettel-liste b{font-size:15px;font-weight:700;line-height:1.35}
 .zettel-liste small{color:var(--muted);font-size:12.5px;line-height:1.4}
 

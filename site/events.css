@@ -3,7 +3,7 @@
 
 .events-kopf{width:min(1240px,calc(100% - 48px));margin:auto;padding:140px 0 20px}
 .events-kopf .eyebrow{margin:0 0 18px;color:var(--gold);font-size:12.5px;font-weight:700;letter-spacing:.17em;text-transform:lowercase}
-.events-kopf h1{margin:0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:clamp(54px,7vw,110px);font-weight:600;line-height:.9;letter-spacing:-.015em}
+.events-kopf h1{margin:0;font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-size:clamp(54px,7vw,110px);font-weight:600;line-height:.9;letter-spacing:-.015em}
 .events-lead{max-width:640px;margin:26px 0 0;color:#d2ccc3;font-size:17.5px;line-height:1.6}
 
 .events-grid-bereich{width:min(1240px,calc(100% - 48px));margin:auto;padding:60px 0 30px}
@@ -23,7 +23,7 @@
 .kachel-zeile time{display:grid;justify-items:center;color:var(--gold)}
 .kachel-zeile time b{font-size:24px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
 .kachel-zeile time span{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:lowercase}
-.kachel-zeile h2{margin:0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:clamp(17px,1.5vw,21px);font-weight:600;line-height:1.05}
+.kachel-zeile h2{margin:0;font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-size:clamp(17px,1.5vw,21px);font-weight:600;line-height:1.05}
 .kachel-typ{margin:0;color:#c8c2b8;font-size:12.5px}
 
 .ticketzeilen{display:grid;gap:6px;margin:4px 0 0;padding:0;list-style:none}
@@ -39,7 +39,7 @@
 .events-hinweis{max-width:720px;margin:30px 0 0;padding-top:16px;border-top:1px solid #ffffff26;color:#c9c4bb;font-size:13.5px;line-height:1.6}
 
 .events-abo{width:min(1240px,calc(100% - 48px));margin:40px auto 0;padding:34px;display:grid;grid-template-columns:1.1fr .9fr;gap:34px;border:1px solid #ffffff22;background:#244635}
-.events-abo h2{margin:0 0 10px;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:clamp(24px,2.6vw,34px);font-weight:600}
+.events-abo h2{margin:0 0 10px;font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-size:clamp(24px,2.6vw,34px);font-weight:600}
 .events-abo p{margin:0;color:#d2ddd6;font-size:14.5px;line-height:1.65}
 .events-abo a{color:inherit}
 .events-abo-form{display:grid;grid-template-columns:1fr auto;gap:10px;align-content:start}

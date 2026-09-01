@@ -1,6 +1,6 @@
-@font-face{font-family:Montserrat;font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/montserrat-latin-400-normal.woff2") format("woff2")}
-@font-face{font-family:Montserrat;font-style:normal;font-weight:600;font-display:swap;src:url("assets/fonts/montserrat-latin-600-normal.woff2") format("woff2")}
-@font-face{font-family:Montserrat;font-style:normal;font-weight:700;font-display:swap;src:url("assets/fonts/montserrat-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:Montserrat;font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/montserrat-latin-400-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Montserrat;font-style:normal;font-weight:600;font-display:swap;src:url("assets/fonts/montserrat-latin-600-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Montserrat;font-style:normal;font-weight:700;font-display:swap;src:url("assets/fonts/montserrat-latin-700-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 :root {
   --ink: #17130f;
   --paper: #eee8dc;
@@ -19,7 +19,7 @@ body {
   margin: 0;
   color: var(--ink);
   background: var(--paper);
-  font-family: Montserrat, "Helvetica Neue", Arial, sans-serif;
+  font-family: Montserrat, -apple-system, system-ui, "Helvetica Neue", Arial, sans-serif;
 }
 
 a { color: inherit; text-underline-offset: 3px; }
@@ -86,7 +86,7 @@ a:focus-visible {
 h1 {
   max-width: 960px;
   margin: 0;
-  font-family: Montserrat, "Helvetica Neue", Arial, sans-serif;
+  font-family: Montserrat, -apple-system, system-ui, "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(52px, 9vw, 118px);
   font-weight: 400;
   letter-spacing: -.065em;
@@ -117,7 +117,7 @@ h1 em { color: var(--wine); font-weight: 400; }
 
 .summary article:last-child { border-right: 0; }
 .summary span { color: var(--wine); font-size: 12px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
-.summary strong { display: block; margin-top: 55px; font-family: Montserrat, "Helvetica Neue", Arial, sans-serif; font-size: 27px; font-weight: 400; }
+.summary strong { display: block; margin-top: 55px; font-family: Montserrat, -apple-system, system-ui, "Helvetica Neue", Arial, sans-serif; font-size: 27px; font-weight: 400; }
 .summary p { margin: 9px 0 0; font-size: 13px; line-height: 1.55; }
 
 .toc {
@@ -157,7 +157,7 @@ h1 em { color: var(--wine); font-weight: 400; }
 
 .legal-card.wide { grid-column: 1 / -1; }
 .legal-card.notice { border-left: 4px solid var(--gold); background: #fffaf0; }
-.legal-card h2 { margin: 0 0 20px; font-family: Montserrat, "Helvetica Neue", Arial, sans-serif; font-size: clamp(28px, 4vw, 42px); font-weight: 400; letter-spacing: -.035em; }
+.legal-card h2 { margin: 0 0 20px; font-family: Montserrat, -apple-system, system-ui, "Helvetica Neue", Arial, sans-serif; font-size: clamp(28px, 4vw, 42px); font-weight: 400; letter-spacing: -.035em; }
 .legal-card h3 { margin: 28px 0 8px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
 .legal-card p,
 .legal-card li,

@@ -63,7 +63,7 @@
 }
 
 .event-calendar-toolbar strong {
-  font-family: Montserrat, "Helvetica Neue", Arial, sans-serif;
+  font-family: Montserrat, -apple-system, system-ui, "Helvetica Neue", Arial, sans-serif;
   font-size: 24px;
   font-weight: 400;
 }
@@ -131,7 +131,7 @@
   align-self: start;
   margin: 0;
   color: #d9b76b;
-  font-family: Montserrat, "Helvetica Neue", Arial, sans-serif;
+  font-family: Montserrat, -apple-system, system-ui, "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(34px, 4vw, 58px);
   font-weight: 400;
   letter-spacing: -.05em;
@@ -173,7 +173,7 @@
 }
 
 .event-calendar-date b {
-  font-family: Montserrat, "Helvetica Neue", Arial, sans-serif;
+  font-family: Montserrat, -apple-system, system-ui, "Helvetica Neue", Arial, sans-serif;
   font-size: 31px;
   font-weight: 400;
   letter-spacing: -.05em;
@@ -206,7 +206,7 @@
 
 .event-calendar-copy h3 {
   margin: 7px 0 6px;
-  font-family: Montserrat, "Helvetica Neue", Arial, sans-serif;
+  font-family: Montserrat, -apple-system, system-ui, "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(24px, 2.6vw, 38px);
   font-weight: 400;
   letter-spacing: -.035em;
@@ -363,7 +363,7 @@
   }
 
   .ticket-mobile-intro strong {
-    font-family: Montserrat, "Helvetica Neue", Arial, sans-serif;
+    font-family: Montserrat, -apple-system, system-ui, "Helvetica Neue", Arial, sans-serif;
     font-size: clamp(45px, 13vw, 62px);
     font-weight: 400;
     letter-spacing: -.06em;

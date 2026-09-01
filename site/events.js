@@ -61,7 +61,7 @@
                falschen. Ein ruhiges Wort sagt alles Noetige. */
             ? `<span class="button light kachel-ausverkauft" aria-disabled="true">Ausverkauft</span>`
             : `<a class="button light" href="${escapeHtml(event.ticketUrl || event.officialUrl)}" target="_blank" rel="noopener noreferrer">Tickets ↗</a>`}
-          <button class="button ghost kachel-kalender" type="button" data-kalender="${escapeHtml(event.id)}" aria-label="${escapeHtml(event.title)} in den Kalender eintragen">＋ Kalender</button>
+          <button class="button ghost kachel-kalender" type="button" data-kalender="${escapeHtml(event.id)}" aria-label="${escapeHtml(event.title)} in den Kalender eintragen">+ Kalender</button>
         </div>
       </div>
     </article>`;

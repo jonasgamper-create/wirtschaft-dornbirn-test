@@ -321,7 +321,22 @@ async function start() {
       feld.value = gewuenscht;
     }
     if (!feld.value) {
-      feld.value = naechsterOffenerTag(heute, geschlosseneTage);
+      // Nicht nur der Kalender zaehlt, auch die Uhr: um 15 Uhr ist "heute"
+      // zwar ein offener Tag, aber jede Uhrzeit darunter schon gestrichen.
+      // Der Gast sah dann als Erstes neun durchgestrichene Zeiten und den
+      // Hinweis, er moege einen anderen Tag waehlen - der Vorschlag soll
+      // aber die halbe Reservierung sein, nicht die erste Huerde. Ist die
+      // letzte Zeit vorbei, beginnt der Vorschlag bei morgen.
+      const zeiten = [...document.querySelectorAll('#timeSlots [data-time]')];
+      const letzte = zeiten.length ? zeiten[zeiten.length - 1].dataset.time : '13:30';
+      const jetzt = new Date();
+      const vorbei = jetzt.getHours() * 60 + jetzt.getMinutes()
+        >= Number(letzte.slice(0, 2)) * 60 + Number(letzte.slice(3, 5));
+      const start = new Date(jetzt);
+      if (vorbei) start.setDate(start.getDate() + 1);
+      const zweistellig = zahl => String(zahl).padStart(2, '0');
+      const startIso = `${start.getFullYear()}-${zweistellig(start.getMonth() + 1)}-${zweistellig(start.getDate())}`;
+      feld.value = naechsterOffenerTag(startIso, geschlosseneTage);
     }
     pruefeTag();
     zeigeVerfuegbarkeit();

@@ -118,7 +118,7 @@
   max-width: 680px;
   margin: 0;
   color: var(--ink);
-  font-family: Montserrat, "Helvetica Neue", Arial, sans-serif;
+  font-family: Montserrat, -apple-system, system-ui, "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(31px, 4.6vw, 62px);
   font-weight: 400;
   letter-spacing: -.055em;
@@ -162,7 +162,7 @@
   display: block;
   max-width: 310px;
   margin: 48px 0 12px;
-  font-family: Montserrat, "Helvetica Neue", Arial, sans-serif;
+  font-family: Montserrat, -apple-system, system-ui, "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(23px, 2.5vw, 34px);
   font-weight: 400;
   letter-spacing: -.035em;
@@ -221,7 +221,7 @@
 
 .guest-benefits h2 {
   margin: 0;
-  font-family: Montserrat, "Helvetica Neue", Arial, sans-serif;
+  font-family: Montserrat, -apple-system, system-ui, "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(37px, 4.8vw, 70px);
   font-weight: 400;
   letter-spacing: -.06em;
@@ -254,7 +254,7 @@
 
 .guest-benefits h3 {
   margin: 58px 0 11px;
-  font-family: Montserrat, "Helvetica Neue", Arial, sans-serif;
+  font-family: Montserrat, -apple-system, system-ui, "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(22px, 2.1vw, 31px);
   font-weight: 400;
   letter-spacing: -.035em;
