@@ -173,6 +173,15 @@ const kbEinrichten = await baue({
   stil: await stilFuer(['wirt.css'])
 });
 
+// Die Monatszahlen: was bestellt und reserviert wurde, anonym gezaehlt.
+const target8 = path.join(root, 'output/tischplan/wirtschaft-zahlen.html');
+const kbZahlen = await baue({
+  quelle: 'zahlen.html',
+  ziel: target8,
+  code: await buendel('zahlen.js'),
+  stil: await stilFuer(['wirt.css'])
+});
+
 console.log(`Einzeldateien geschrieben:`);
 console.log(`  ${path.relative(root, target)} (${kbIntern} KB) - interne Planung`);
 console.log(`  ${path.relative(root, target2)} (${kbKunde} KB) - zum Verschicken an den Kunden`);
@@ -181,3 +190,4 @@ console.log(`  ${path.relative(root, target4)} (${kbWirt} KB) - einfache Wirt-An
 console.log(`  ${path.relative(root, target5)} (${kbKueche} KB) - Bildschirm in der Kueche`);
 console.log(`  ${path.relative(root, target6)} (${kbUebersicht} KB) - Uebersicht fuers Haus`);
 console.log(`  ${path.relative(root, target7)} (${kbEinrichten} KB) - Einrichten (Raum in Zahlen)`);
+console.log(`  ${path.relative(root, target8)} (${kbZahlen} KB) - Monatszahlen`);

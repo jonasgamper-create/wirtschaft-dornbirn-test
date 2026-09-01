@@ -88,6 +88,7 @@ const einzel = [
   ['output/tischplan/wirtschaft-screen.html', 'tischplan/screen.html'],
   ['output/tischplan/wirtschaft-wirt.html', 'tischplan/wirt.html'],
   ['output/tischplan/wirtschaft-kueche.html', 'tischplan/kueche.html'],
+  ['output/tischplan/wirtschaft-zahlen.html', 'tischplan/zahlen.html'],
   ['output/tischplan/wirtschaft-uebersicht.html', 'tischplan/uebersicht.html']
 ];
 let veroeffentlicht = 0;

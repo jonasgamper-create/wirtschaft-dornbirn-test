@@ -251,6 +251,10 @@ export const stelleTagWiederHer = token =>
 
 export const holeStand = token => ruf('/api/stand', { token });
 
+/** Der Monat in Zahlen - anonym gezaehlt, nur mit Hausschluessel lesbar. */
+export const holeZahlen = (monat, token) =>
+  ruf(`/api/zahlen?monat=${encodeURIComponent(monat || '')}`, { token });
+
 /** Laufkundschaft: der Dienst setzt die Gruppe sofort auf einen freien Tisch. */
 export const sendeLaufkunde = (token, personen) =>
   ruf('/api/laufkunde', { methode: 'POST', koerper: { personen }, token });

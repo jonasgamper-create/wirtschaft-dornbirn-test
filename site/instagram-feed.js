@@ -15,7 +15,7 @@
  * etwas Neues da ist. Ein leerer Streifen ist schlimmer als ein Beitrag von
  * gestern.
  */
-import { apiAdresse } from './haus-api.js?v=7abef86d';
+import { apiAdresse } from './haus-api.js?v=a9394c5f';
 
 (() => {
   'use strict';

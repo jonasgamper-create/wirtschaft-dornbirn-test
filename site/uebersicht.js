@@ -6,7 +6,7 @@
 import {
   apiAdresse, bleibVerbunden, hausToken, holeEigeneEvents, holeKarteInfo,
   holeNewsletterZahlen, holeStand, schluesselAusAdresse
-} from './haus-api.js?v=7abef86d';
+} from './haus-api.js?v=a9394c5f';
 
 const byId = id => document.getElementById(id);
 const pad = zahl => String(zahl).padStart(2, '0');
