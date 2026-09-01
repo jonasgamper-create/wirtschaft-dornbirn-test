@@ -194,3 +194,19 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
 /* Fokus bleibt sichtbar - nur die Beruehrungsflaeche verliert das Rechteck. */
 a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transparent}
+
+/* ===== kalender: jeder termin einzeln, oder gleich alle =====
+   Der Kalenderknopf ist der Nebenweg auf der Kachel - halbtransparent und
+   schmaler als "Tickets buchen", damit die Rangordnung stimmt: erst Ticket,
+   dann Erinnerung. */
+.kachel-kalender{background:transparent;color:#a49e93;border-color:#ffffff2e}
+.kachel-kalender:hover{color:#f3efe6;border-color:#ffffff66;background:#ffffff0d}
+
+/* Unter dem Mail-Abo: alle Termine als eine Datei. */
+.events-kalender-alle{grid-column:1/-1;display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:4px;padding-top:18px;border-top:1px solid #ffffff1f}
+.events-kalender-alle p{margin:0}
+.events-kalender-alle .button{min-height:44px}
+@media(max-width:560px){
+  .events-kalender-alle{flex-direction:column;align-items:flex-start;gap:10px}
+  .events-kalender-alle .button{width:100%;justify-content:center}
+}

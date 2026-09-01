@@ -6,6 +6,7 @@
 
   const FALLBACK_BILDER = ['assets/abend-01.webp', 'assets/abend-02.webp', 'assets/abend-03.webp', 'assets/abend-04.webp'];
   let vorhandeneBilder = new Set();
+  let alleEvents = [];
   let vorhandeneVideos = new Set();
   const MONATE = new Intl.DateTimeFormat('de-AT', { month: 'short' });
 
@@ -54,6 +55,7 @@
           ${event.ticketUrl && !ausverkauft
             ? `<button class="button light" type="button" data-buchen="${escapeHtml(event.ticketUrl)}" data-titel="${escapeHtml(event.title)}">Tickets buchen</button>`
             : `<a class="button light" href="${escapeHtml(event.ticketUrl || event.officialUrl)}" target="_blank" rel="noopener noreferrer">${ausverkauft ? 'Ausverkauft · Details ↗' : 'Tickets ↗'}</a>`}
+          <button class="button ghost kachel-kalender" type="button" data-kalender="${escapeHtml(event.id)}" aria-label="${escapeHtml(event.title)} in den Kalender eintragen">＋ Kalender</button>
         </div>
       </div>
     </article>`;
@@ -78,9 +80,43 @@
     dialog.addEventListener('click', e => { if (e.target === dialog) dialog.close(); });
   }
 
+  // Ein Termin als Kalenderdatei, mit echter Uhrzeit: der Abend beginnt zur
+  // ersten Ticketzeit und endet um 23 Uhr - dieselbe Form wie die grosse
+  // Datei wirtschaft-events.ics, damit beide Wege im Kalender gleich aussehen.
+  function terminAlsIcs(event) {
+    const beginn = (event.tickets?.[0]?.beginn || '19:00').padStart(5, '0');
+    const d = event.date.replaceAll('-', '');
+    const stempel = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const schuetze = wert => String(wert).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+    return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+      'PRODID:-//Wirtschaft Dornbirn//Veranstaltungen//DE',
+      'BEGIN:VEVENT',
+      `UID:${event.id}@wirtschaft-dornbirn.at`,
+      `DTSTAMP:${stempel}`,
+      `DTSTART;TZID=Europe/Vienna:${d}T${beginn.replace(':', '')}00`,
+      `DTEND;TZID=Europe/Vienna:${d}T230000`,
+      `SUMMARY:${schuetze(event.title)}`,
+      `DESCRIPTION:${schuetze(`${event.type}. Tickets und Details: wirtschaft-dornbirn.at`)}`,
+      `LOCATION:${schuetze('Wirtschaft Dornbirn, Bahnhofstraße 24, 6850 Dornbirn')}`,
+      'END:VEVENT', 'END:VCALENDAR', ''].join('\r\n');
+  }
+  function ladeIcsHerunter(inhalt, dateiname) {
+    const url = URL.createObjectURL(new Blob([inhalt], { type: 'text/calendar;charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = dateiname; a.hidden = true;
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
   function verdrahte() {
     grid.querySelectorAll('[data-buchen]').forEach(knopf => {
       knopf.addEventListener('click', () => oeffneBuchung(knopf.dataset.buchen, knopf.dataset.titel));
+    });
+    grid.querySelectorAll('[data-kalender]').forEach(knopf => {
+      knopf.addEventListener('click', () => {
+        const event = alleEvents.find(e => e.id === knopf.dataset.kalender);
+        if (event) ladeIcsHerunter(terminAlsIcs(event), `${event.id}.ics`);
+      });
     });
     // Bilder: fehlt das Eventbild, springt ein Abendfoto ein.
     grid.querySelectorAll('.kachel-medien img').forEach(img => {
@@ -126,6 +162,7 @@
         grid.innerHTML = '<p class="events-laden">Gerade steht kein Termin fest – schau bald wieder vorbei oder trag dich unten ein.</p>';
         return;
       }
+      alleEvents = kommende;
       grid.innerHTML = kommende.map((event, index) => kachel(event, index)).join('');
       verdrahte();
     })
