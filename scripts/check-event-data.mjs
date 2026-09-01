@@ -89,5 +89,19 @@ for (const [index, event] of events.entries()) {
   }
 }
 
+// Die grosse Kalenderdatei wird von Hand gepflegt. Ohne diesen Abgleich
+// veraltet sie still: die Seite zeigt einen neuen Termin, der Knopf
+// "Alle Termine in den Kalender" liefert ihn aber nicht mit. Jeder buchbare
+// Termin aus den Daten muss als VEVENT in der Datei stehen.
+const icsPfad = new URL('../site/wirtschaft-events.ics', import.meta.url);
+const ics = await readFile(icsPfad, 'utf8');
+const icsIds = new Set([...ics.matchAll(/UID:(event-[\d-]+)@/g)].map(m => m[1]));
+for (const event of events) {
+  if (event.status === 'cancelled' || event.status === 'sold_out') continue;
+  if (!icsIds.has(event.id)) {
+    fail(`wirtschaft-events.ics: ${event.id} fehlt - der Sammel-Kalender ist veraltet.`);
+  }
+}
+
 if (process.exitCode) process.exit(1);
-console.log(`Eventdaten-Prüfung OK: ${events.length} Events, ${data.updatedAt}, Quelle ${data.sourceUrl}`);
+console.log(`Eventdaten-Prüfung OK: ${events.length} Events, Kalenderdatei deckt alle buchbaren Termine, ${data.updatedAt}`);

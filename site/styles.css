@@ -3083,3 +3083,46 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
   .final-site #foodtruck[data-variant="k"] .catering-fotos{
     grid-template-columns:repeat(3,1fr);gap:clamp(6px,1.6vw,12px)}
 }
+
+/* ===== das wochenabo tritt zurueck =====
+   Wunsch vom 01.09.: kleiner und ruhiger. Vorher stand es mit grosser
+   Serifenzeile und vollem Pillenknopf direkt unter den Hauptwegen und
+   konkurrierte mit ihnen. Jetzt: eine Zeile in Labelgroesse, Feld und
+   Knopf nebeneinander in einer schmalen Reihe, gedaempfte Farben. Das
+   Tapziel bleibt bei 44 px. */
+.final-site .chapter-lunch .lunch-subscribe{margin-top:20px;padding-top:18px;gap:10px 14px}
+.final-site .chapter-lunch .lunch-subscribe strong{
+  font-family:var(--sans);font-size:12.5px;font-weight:700;
+  letter-spacing:.09em;color:#f3efe6d9}
+.final-site .chapter-lunch .lunch-subscribe span{font-size:12px;color:#f3efe694;max-width:none}
+.final-site .chapter-lunch .lunch-abo{gap:8px;align-items:stretch;flex-wrap:wrap}
+.final-site .chapter-lunch .lunch-abo-feld{flex:1 1 180px;min-width:0}
+.final-site .chapter-lunch .lunch-abo .button{flex:0 0 auto;white-space:nowrap}
+/* Status und Hinweis gehoeren unter die Reihe, nicht daneben. */
+.final-site .chapter-lunch .lunch-abo-status,
+.final-site .chapter-lunch .lunch-abo-hinweis{flex-basis:100%;margin:0}
+/* Die sichtbare Label-Zeile "e-mail-adresse" faellt weg - der Platzhalter
+   sagt dasselbe, und fuer Vorleser bleibt das label-Element ja bestehen. */
+.final-site .chapter-lunch .lunch-abo-feld{gap:0;font-size:0}
+.final-site .chapter-lunch .lunch-abo-feld input{
+  min-width:0;width:100%;min-height:44px;padding:9px 12px;
+  border:1px solid #ffffff38;background:#ffffff10;color:#f3efe6;font-size:16px}
+.final-site .chapter-lunch .lunch-abo-feld input::placeholder{color:#f3efe66e}
+.final-site .chapter-lunch .lunch-abo .button{
+  width:auto;min-height:44px;padding:0 16px;
+  border:1px solid #ffffff38;background:transparent;color:#f3efe6c9;
+  font-size:11px;letter-spacing:.06em}
+.final-site .chapter-lunch .lunch-abo .button:hover{border-color:#ffffff7a;color:#fff;transform:none}
+.final-site .chapter-lunch .lunch-abo-hinweis{font-size:11px;color:#f3efe680}
+@media(max-width:520px){
+  .final-site .chapter-lunch .lunch-subscribe .button{width:auto}
+}
+
+/* ===== "emma & eugen kommen zu euch." atmet am handy =====
+   Wunsch vom 01.09.: eine Stufe kleiner. Die Basisregel setzte 40 px bei
+   Zeilenabstand 0.92 - vier gedraengte Zeilen, die Unterlaengen beruehrten
+   die naechste Zeile. Jetzt 34 px mit 1.06: drei ruhige Zeilen, am Rechner
+   aendert sich nichts. */
+@media(max-width:560px){
+  .final-site .catering-scene h2{font-size:clamp(30px,8.6vw,36px);line-height:1.06}
+}
