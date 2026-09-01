@@ -169,7 +169,30 @@ h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:normal;word-break:normal;hyphens:
   .events-grid{grid-template-columns:repeat(2,1fr);gap:10px}
   .kachel-zeile h2{min-height:0}
 }
-@media(max-width:560px){.events-grid{grid-template-columns:1fr}}
+/* ===== handy: zwei kacheln nebeneinander, wie auf der alten seite =====
+   Eine Kachel pro Zeile machte aus 18 Terminen neun Bildschirmmeter - und
+   war nie die Vorgabe. Zwei nebeneinander halbieren den Weg; dafuer wird
+   alles in der Kachel eine Stufe kleiner, ohne dass etwas wegfaellt.
+   Tapziele bleiben bei 44 px. */
+@media(max-width:560px){
+  .events-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .kachel-inhalt{padding:10px 10px 12px;gap:6px}
+  .kachel-zeile{gap:5px}
+  .kachel-zeile time b{font-size:17px}
+  .kachel-zeile time span{font-size:9.5px}
+  .kachel-zeile h2{font-size:13.5px;line-height:1.25}
+  .kachel-typ{font-size:10.5px;line-height:1.4}
+  .ticketzeilen{gap:4px}
+  .ticketzeilen .tz-name{font-size:10.5px}
+  .ticketzeilen .tz-detail{font-size:10.5px;white-space:normal}
+  /* Zwei Knoepfe passen nicht nebeneinander in eine halbe Kachel -
+     untereinander, jeweils volle Breite. */
+  .kachel-aktionen{flex-direction:column;gap:6px;padding-top:10px}
+  .kachel-aktionen .button{width:100%;justify-content:center;min-height:44px;padding:0 8px;font-size:10.5px;letter-spacing:.05em;white-space:nowrap}
+  /* "ausverkauft · details" ist der laengste knopftext - eine spur enger,
+     damit der pfeil nicht allein in die zweite zeile faellt. */
+  .kachel-aktionen a.button{font-size:10px;letter-spacing:.03em}
+}
 
 
 /* Handy: keine Beschriftung unter 12px - dort wird gebucht. */
