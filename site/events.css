@@ -125,7 +125,18 @@ h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:normal;word-break:normal;hyphens:
 
 /* ===== schmale iphones: abo-feld unter die eingabe =====
    feld plus knopf nebeneinander sprengten bei 375 px die breite. */
+/* ===== handy: der kopf macht schneller platz fuer die kacheln =====
+   Wunsch vom 01.09.: Ueberschrift eine Stufe kleiner, Einleitung auf einen
+   Satz, weniger Luft - die ersten Termine sollen schon im ersten Bildschirm
+   auftauchen. Der zweite Einleitungssatz haengt an .lead-lang und faellt nur
+   hier weg; am Rechner bleibt alles. */
 @media(max-width:560px){
+  .events-kopf{padding-top:calc(62px + 34px);padding-bottom:0}
+  .events-kopf h1{font-size:clamp(38px,10.5vw,44px)}
+  .events-lead{margin-top:10px;font-size:14px}
+  .lead-lang{display:none}
+  .events-grid-bereich{padding-top:26px}
+
   .events-abo-form{grid-template-columns:1fr}
   .events-abo-form input{min-width:0;width:100%}
   .events-abo-form button{width:100%}
