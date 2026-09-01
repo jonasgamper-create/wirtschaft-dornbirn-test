@@ -607,7 +607,17 @@
   if (navDrop) {
     const knopf = navDrop.querySelector('button');
     const menue = navDrop.querySelector('.nav-drop-menu');
-    const setze = offen => { knopf.setAttribute('aria-expanded', String(offen)); menue.hidden = !offen; };
+    // Wo die Seite stand, als das Menue aufging: iOS Safari bewegt beim
+    // Tippen seine eigenen Leisten und feuert dabei Scroll-Ereignisse um
+    // wenige Pixel - das Menue ging auf und im selben Moment wieder zu,
+    // der Weg zur Reservierung war am iPhone schlicht nicht erreichbar.
+    // Geschlossen wird deshalb erst, wenn wirklich GESCROLLT wurde.
+    let offenBei = 0;
+    const setze = offen => {
+      knopf.setAttribute('aria-expanded', String(offen));
+      menue.hidden = !offen;
+      if (offen) offenBei = window.scrollY;
+    };
     knopf.addEventListener('click', () => setze(menue.hidden));
     menue.querySelectorAll('button, a').forEach(el => el.addEventListener('click', () => setze(false)));
     // Wegfahren schliesst - aber nur, wenn es vorher per Klick geoeffnet wurde.
@@ -617,8 +627,11 @@
       verlassen = setTimeout(() => setze(false), 260);
     });
     navDrop.addEventListener('mouseenter', () => clearTimeout(verlassen));
-    // Beim Scrollen ebenfalls schliessen: wer weitergeht, braucht es nicht mehr.
-    addEventListener('scroll', () => { if (!menue.hidden) setze(false); }, { passive: true });
+    // Beim Scrollen ebenfalls schliessen: wer weitergeht, braucht es nicht
+    // mehr. Aber erst ab einer echten Strecke, siehe oben.
+    addEventListener('scroll', () => {
+      if (!menue.hidden && Math.abs(window.scrollY - offenBei) > 40) setze(false);
+    }, { passive: true });
     document.addEventListener('click', e => { if (!navDrop.contains(e.target)) setze(false); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') setze(false); });
   }
@@ -747,7 +760,7 @@
       const beschriftung = item.quelle === 'haus' ? 'Details' : eventStatusLabel(item.status);
       return `<a class="event-ticket-link event-status-${escapeHtml(item.status)}" href="${escapeHtml(item.ticketUrl || item.officialUrl || eventData.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(beschriftung)} ↗</a>`;
     };
-    const renderCalendarLink = item => item.status === 'cancelled' ? '' : `<button type="button" data-calendar-event="${escapeHtml(item.id)}">Zum Kalender <span>＋</span></button>`;
+    const renderCalendarLink = item => item.status === 'cancelled' ? '' : `<button type="button" data-calendar-event="${escapeHtml(item.id)}">Zum Kalender <span>+</span></button>`;
     const renderSpotlight = item => `<article data-event-status="${escapeHtml(item.status)}"><time datetime="${escapeHtml(item.date)}"><b>${escapeHtml(item.date.slice(8, 10))}</b><span>${escapeHtml(new Intl.DateTimeFormat('de-AT', { month: 'short' }).format(new Date(`${item.date}T12:00:00`)).replace('.', '').toUpperCase())}</span></time><div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.type)}</small></div>${renderTicketLink(item)}</article>`;
     const renderTimeline = item => `<article data-event-status="${escapeHtml(item.status)}"><time datetime="${escapeHtml(item.date)}"><b>${escapeHtml(item.date.slice(8, 10))}</b><span>${escapeHtml(new Intl.DateTimeFormat('de-AT', { month: 'short' }).format(new Date(`${item.date}T12:00:00`)).replace('.', '').toUpperCase())}</span></time><div><p>${escapeHtml(item.title)}</p><small>${escapeHtml(item.type)}</small></div><div class="event-actions">${renderTicketLink(item)}${renderCalendarLink(item)}</div></article>`;
     if (spotlight) spotlight.querySelectorAll('article').forEach(article => article.remove());

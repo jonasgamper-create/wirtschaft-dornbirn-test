@@ -619,6 +619,7 @@ function uebernimmTag(antwort) {
   byId('taSenden').hidden = false;
   zeigeZeiten(minuten);
   markiereVolleSlots(antwort.slots);
+  richteStreifenNachDienst(antwort.bestelltag || null, vorbestellung && !wunschTag);
 }
 
 /**
@@ -1165,7 +1166,23 @@ function zeigeTage() {
   // einzige Stelle, an der ein Tag ueberhaupt festgehalten wird.
   const ersterOffener = knoepfe.find(k => !k.disabled);
   markiere(feld?.value || ersterOffener?.dataset.wert || '');
+
+  // Der Dienst weiss es besser: sagt er "Vorbestellung, Bestelltag X",
+  // wandert die Markierung auf X und heute wird gesperrt. Vorher stand die
+  // gruene Pille auf "dienstag (heute)", waehrend der Kasten daneben erklaerte,
+  // die Bestellung gehe auf morgen - zwei Aussagen, eine Wahrheit.
+  richteStreifenNachDienst = (bestelltag, vorbestellung) => {
+    if (vorbestellung) {
+      const heuteKnopf = knoepfe.find(k => k.dataset.wert === heute);
+      if (heuteKnopf) heuteKnopf.disabled = true;
+    }
+    if (bestelltag && !feld?.value && knoepfe.some(k => k.dataset.wert === bestelltag)) {
+      markiere(bestelltag);
+    }
+  };
 }
 
 /** Wird von zeigeTage() gesetzt - vorher gibt es keine Tage zu waehlen. */
 let setzeTagAusStreifen = () => {};
+/** Ebenfalls von zeigeTage() gesetzt: Markierung und Sperre nach Dienstlage. */
+let richteStreifenNachDienst = () => {};

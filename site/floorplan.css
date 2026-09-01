@@ -175,10 +175,10 @@
 .fp-chair-chip button{min-width:34px;min-height:34px;border:1px solid var(--line,#11110f26);border-radius:99px;background:transparent;color:inherit;font:inherit;font-size:12px;cursor:pointer}
 .fp-chair-chip button:disabled{opacity:.35;cursor:not-allowed}
 
-.fp-subhead{margin:26px 0 12px;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:21px;font-weight:600}
+.fp-subhead{margin:26px 0 12px;font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-size:21px;font-weight:600}
 .fp-subhead:first-of-type{margin-top:0}
 .fp-seat-form{margin-top:16px}
-.fp-selected{margin:0 0 12px;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:20px}
+.fp-selected{margin:0 0 12px;font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-size:20px}
 .fp-selected small{display:block;margin-top:4px;font-family:inherit;font-size:11px;color:var(--muted,#6d675f)}
 
 @media(max-width:900px){
@@ -233,7 +233,7 @@
 .kp-seats input{width:150px;min-height:44px;padding:0 10px;border:1px solid var(--line,#11110f26);border-radius:7px;background:#fff;color:var(--ink,#11110f);font:inherit;font-size:13px;letter-spacing:0;text-transform:none}
 .kp-print-head{display:none}
 @media print{
-  .kp-print-head{display:block;margin:0 0 14px;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:22px;font-weight:600}
+  .kp-print-head{display:block;margin:0 0 14px;font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-size:22px;font-weight:600}
   .kp-names,.welcome,.fp-result{display:none!important}
 }
 

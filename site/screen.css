@@ -2,15 +2,15 @@
    Georgia fuer Grosses, Inter fuer alles andere. Aus drei Metern lesbar -
    deshalb sind die Groessen bewusst grob und die Elemente wenige. */
 
-@font-face{font-family:Montserrat;font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/montserrat-latin-400-normal.woff2") format("woff2")}
-@font-face{font-family:Montserrat;font-style:normal;font-weight:600;font-display:swap;src:url("assets/fonts/montserrat-latin-600-normal.woff2") format("woff2")}
-@font-face{font-family:Montserrat;font-style:normal;font-weight:700;font-display:swap;src:url("assets/fonts/montserrat-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:Montserrat;font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/montserrat-latin-400-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Montserrat;font-style:normal;font-weight:600;font-display:swap;src:url("assets/fonts/montserrat-latin-600-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Montserrat;font-style:normal;font-weight:700;font-display:swap;src:url("assets/fonts/montserrat-latin-700-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 
 :root{
   --ink:#11110f;--paper:#f3efe6;--cream:#ead9bc;--wine:#8c292b;--green:#244635;--gold:#c59b5d;
   --line:#11110f26;--muted:#57524a;
   --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  --serif:Montserrat,"Helvetica Neue",Arial,sans-serif;
+  --serif:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;
 }
 *{box-sizing:border-box}
 *,*:before,*:after{box-shadow:none!important}
@@ -78,5 +78,5 @@ body{margin:0;min-height:100vh;background:var(--paper);color:var(--ink);font-fam
 .sc-abholung{grid-column:1/-1;margin-bottom:clamp(20px,3.5vh,40px);padding-bottom:clamp(16px,2.5vh,30px);border-bottom:1px solid var(--linie,#11110f26)}
 .sc-abhol-liste{display:flex;flex-wrap:wrap;gap:clamp(10px,1.4vw,18px)}
 .sc-abhol{display:flex;flex-direction:column;align-items:center;gap:2px;margin:0;padding:clamp(10px,1.4vh,18px) clamp(18px,2.2vw,30px);border-radius:14px;background:var(--green,#244635);color:#fff;min-width:clamp(96px,9vw,150px)}
-.sc-abhol b{font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-weight:400;font-size:clamp(52px,6.4vw,104px);line-height:.95;font-variant-numeric:tabular-nums}
+.sc-abhol b{font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-weight:400;font-size:clamp(52px,6.4vw,104px);line-height:.95;font-variant-numeric:tabular-nums}
 .sc-abhol span{font-size:clamp(16px,1.7vw,24px);line-height:1.2;opacity:.9}
