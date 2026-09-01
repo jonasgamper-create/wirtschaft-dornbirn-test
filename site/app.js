@@ -296,10 +296,17 @@
         if (bottom <= 0 || top >= vh) return;
         const travel = Math.max(1, height + vh);
         const progressInSection = Math.max(0, Math.min(1, (vh - top) / travel));
-        const zoom = 1.02 + direction * (progressInSection - .5) * .018;
         section.style.setProperty('--scene-progress', progressInSection.toFixed(4));
-        section.style.setProperty('--scene-zoom', zoom.toFixed(4));
-        section.style.setProperty('--zoom', zoom.toFixed(4));
+        // Auf Beruehr-Geraeten bleibt der Zoom stehen: das staendige
+        // Neuzeichnen der grossen Bildflaechen war der Grund, warum schnelles
+        // Scrollen am Telefon nicht rund lief. Die Einblendungen laufen
+        // weiter (sie haengen an --scene-progress), nur die Bilder atmen
+        // nicht mehr pro Bildschirmzeile.
+        if (!coarsePointer.matches) {
+          const zoom = 1.02 + direction * (progressInSection - .5) * .018;
+          section.style.setProperty('--scene-zoom', zoom.toFixed(4));
+          section.style.setProperty('--zoom', zoom.toFixed(4));
+        }
       });
       layout.scenes.forEach(({ el: scene, top: offset, height, stage, media: parallax }) => {
         const top = offset - visualScrollY;
@@ -320,6 +327,7 @@
             scene.style.setProperty('--video-focus', focusPulse.toFixed(4));
           }
           const normalized = (top + height / 2 - vh / 2) / vh;
+          if (coarsePointer.matches) return;
           parallax.forEach(media => {
             media.style.setProperty('--parallax', `${normalized * -8}px`);
           });

@@ -1597,7 +1597,13 @@ body{text-transform:lowercase}
 @media(max-width:620px){
   .final-site .bar-nav{gap:4px 13px}
   .final-site .experience-bar{padding:8px 14px;gap:5px 8px}
-  .final-site .bar-news{display:none}
+  /* Der Neu-Hinweis lebt auch am Telefon - kleiner, direkt unter der
+     Leiste, und faehrt wie am Rechner beim Scrollen mit (position:fixed
+     aus der Basisregel; das spaetere Ausblenden ueber [data-faded]
+     bleibt). Vorher war er hier schlicht abgeschaltet. */
+  .final-site .bar-news{display:flex;right:10px;top:calc(var(--leiste-h,var(--bar-h,110px)) + 8px);padding:4px 10px;font-size:10px;gap:7px}
+  .final-site .bar-news b{max-width:170px}
+  .final-site .bar-news .bar-news-thumb{width:26px;height:26px}
   .final-site .bar-hours{font-size:11px}
 }
 @media(max-width:380px){
@@ -3140,4 +3146,16 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
   .final-site .bar-hours{margin-left:0;flex:0 0 auto;white-space:nowrap}
   .final-site .bar-nav a,
   .final-site .bar-nav button{white-space:nowrap}
+}
+
+/* ===== das wochenabo am telefon: nur noch feld und knopf =====
+   Wunsch vom 01.09.: viel kleiner, viel ruhiger. Die Zeile "wochenkarte
+   abonnieren" samt Erklaertext faellt am Telefon weg - der Platzhalter im
+   Feld sagt, worum es geht, und die eine Kleinzeile darunter traegt den
+   Pflichtteil (Bestaetigungsmail, Datenschutz). Am Rechner bleibt die
+   ausfuehrlichere Form. */
+@media(max-width:560px){
+  .final-site .chapter-lunch .lunch-subscribe{margin-top:14px;padding-top:14px;gap:6px}
+  .final-site .chapter-lunch .lunch-subscribe p{display:none}
+  .final-site .chapter-lunch .lunch-abo-hinweis{font-size:10px;color:#f3efe66b}
 }

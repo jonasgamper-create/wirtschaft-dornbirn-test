@@ -26,7 +26,12 @@
       const sectionTop = rect.top + scrollTop;
       const laneTop = sectionTop + cateringSection.offsetHeight * .12;
       geo.laneStart = laneTop - geo.vh;
-      geo.laneEnd = Math.max(geo.laneStart + 1, document.documentElement.scrollHeight - geo.vh);
+      // Die Fahrt endet mit dem Abschnitt, nicht am Seitenende. Vorher kroch
+      // der Wagen ueber die ganze restliche Seite - wer beim Anfrage-Knopf
+      // stehen blieb, sah einen halb hereinragenden Truck am linken Rand
+      // stehen. Jetzt faehrt er einmal klar durch, waehrend der Abschnitt
+      // im Bild ist, und parkt rechts, bevor man ihn liest.
+      geo.laneEnd = Math.max(geo.laneStart + 1, sectionTop + cateringSection.offsetHeight * .75 - geo.vh * .5);
       geo.truckVw = cateringTruck.offsetWidth / Math.max(1, window.innerWidth) * 100;
     }
   }
