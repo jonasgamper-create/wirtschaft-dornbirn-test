@@ -713,21 +713,13 @@ html{scroll-padding-top:0}
 /* Abo-Block: eine Zeile Nutzen, ein klarer Knopf. */
 .lunch-subscribe{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
   margin-top:18px;padding-top:16px;border-top:1px solid #11110f26}
-.lunch-subscribe p{display:grid;gap:3px;margin:0;max-width:32ch}
-.lunch-subscribe strong{font-size:var(--t-listitem);font-weight:700}
-.lunch-subscribe span{color:#57524a;font-size:var(--t-meta);line-height:1.5}
 .button-ghost-dark{border-color:#11110f;color:#11110f;background:transparent}
 .button-ghost-dark:hover{background:#11110f;color:#f3efe6}
 /* Das Abo direkt hier: Adresse eintragen, fertig - kein Umweg uebers
    Mailprogramm. Die Bestaetigungsmail bleibt der einzige Weg zur
    Einwilligung. */
 .lunch-abo{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}
-.lunch-abo-feld{display:grid;gap:4px;color:#57524a;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase}
-.lunch-abo-feld input{min-width:230px;min-height:46px;padding:10px 14px;border:1px solid #11110f44;border-radius:8px;background:#fff;color:#11110f;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none}
-.lunch-abo-feld[hidden],.lunch-abo button[hidden]{display:none}
-.lunch-abo-status{flex-basis:100%;color:var(--green);font-size:var(--t-meta);font-weight:700;min-height:0}
-.lunch-abo-status:empty{display:none}
-@media(max-width:520px){.lunch-subscribe{gap:12px}.lunch-subscribe .button{width:100%}.lunch-abo-feld{width:100%}.lunch-abo-feld input{width:100%;min-width:0}}
+@media(max-width:520px){}
 
 /* Restliche Ausreisser auf die Skala ziehen. */
 .final-site .prologue-copy>p.luxury-reveal:not(.eyebrow),
@@ -983,7 +975,6 @@ html{scroll-padding-top:0}
 .final-site .event-spotlight small,.final-site .event-timeline small,
 .final-site .lunch-note,.final-site .lunch-subscribe span,
 .final-site .site-footer,.final-site .site-footer p,.final-site .site-footer a{font-size:var(--t-meta);line-height:1.55}
-.final-site .lunch-subscribe strong{font-size:var(--t-listitem);font-weight:700}
 .final-site .catering-options ul{font-size:var(--t-meta);line-height:1.55}
 .final-site .prototype-note{font-size:var(--t-label);letter-spacing:.1em}
 /* Zahlenblock der Termine: eine Groesse, Georgia wie alle grossen Ziffern. */
@@ -1033,7 +1024,6 @@ html{scroll-padding-top:0}
 .final-site .lunch-menu{margin:var(--s-block) 0 var(--s-para)}
 .final-site .lunch-card-link{margin-top:0}
 .final-site .lunch-book{margin:var(--s-block) 0 0;gap:var(--s-row) 18px}
-.final-site .lunch-subscribe{margin-top:var(--s-block);padding-top:var(--s-block);gap:var(--s-row) 18px}
 
 /* Gutscheine. */
 .final-site .voucher-steps{margin-top:var(--s-block);gap:var(--s-row) 26px}
@@ -1215,7 +1205,6 @@ html{scroll-padding-top:0}
 .final-site #concept-03[data-variant="c"] .lunch-card-link,.final-site #concept-03[data-variant="c"] .lunch-subscribe strong{color:#fff}
 .final-site #concept-03[data-variant="c"] .eyebrow{color:var(--gold)}
 .final-site #concept-03[data-variant="c"] .lunch-party button{border-color:#ffffff59;color:#fff}
-.final-site #concept-03[data-variant="c"] .lunch-subscribe span{color:#f3efe6cc}
 .final-site #concept-03[data-variant="c"] .button-ghost-dark{border-color:#fff;color:#fff}
 
 .final-site #concept-03[data-variant="d"] .lunch-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,300px);gap:var(--s-block) clamp(28px,3vw,48px);align-items:start;width:min(940px,100%)}
@@ -1231,7 +1220,6 @@ html{scroll-padding-top:0}
 
 .final-site #concept-03[data-variant="e"] .scene-shell{justify-content:flex-end;padding-bottom:0}
 .final-site #concept-03[data-variant="e"] .lunch-card{width:100%;max-width:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--s-block) clamp(24px,3vw,44px);align-items:start;padding:var(--s-block) clamp(22px,3vw,34px)}
-.final-site #concept-03[data-variant="e"] .lunch-subscribe{border-top:0;padding-top:0;margin-top:0}
 
 /* ---------- CATERING ---------- */
 .final-site #foodtruck[data-variant="b"]{grid-template-columns:minmax(320px,540px) minmax(320px,1fr)}
@@ -1341,8 +1329,6 @@ html{scroll-padding-top:0}
 .final-site .chapter-lunch .lunch-note{background:#ffffff0f;border-left-color:var(--gold);color:#f3efe6}
 .final-site .chapter-lunch .lunch-card-link,
 .final-site .chapter-lunch .lunch-subscribe strong{color:#fff}
-.final-site .chapter-lunch .lunch-subscribe span{color:#f3efe6cc}
-.final-site .chapter-lunch .lunch-subscribe{border-top:1px solid #ffffff2b}
 .final-site .chapter-lunch .lunch-party button{border-color:#ffffff59;background:transparent;color:#fff}
 .final-site .chapter-lunch .lunch-party button[aria-pressed="true"]{background:#fff;border-color:#fff;color:var(--ink)}
 .final-site .chapter-lunch .button-ghost-dark{border-color:#fff;color:#fff;background:transparent}
@@ -1389,7 +1375,6 @@ html{scroll-padding-top:0}
    auf gut 44px: Polster nach oben und unten, gleich grosser negativer Rand
    dagegen - die Zeile rueckt nicht, der Daumen trifft. */
 .abo-datenschutz{color:inherit;text-decoration:underline;text-underline-offset:3px;padding:13px 0;margin:-13px 0}
-.abo-datenschutz:hover{opacity:.8}
 .final-site .stage-subscribe-form{display:flex;flex-wrap:wrap;gap:8px}
 .final-site .stage-subscribe-form input{
   flex:1 1 220px;min-height:46px;padding:0 16px;border:1px solid #ffffff59;border-radius:999px;
@@ -1846,7 +1831,6 @@ a.button,
 
 /* Abo-Block: kurz und knapp unter den Fragen, damit beides in einen Blick passt. */
 .final-site .lunch-subscribe{margin-top:var(--s-row);padding-top:var(--s-row);border-top:0}
-.final-site .lunch-subscribe p{max-width:26ch}
 
 /* Auf hellem Grund bleiben die Linien dunkel. */
 .final-site .chapter-lunch:not([data-variant="c"]) .lunch-faq,
@@ -1942,7 +1926,6 @@ a.button,
 .final-site #concept-03[data-variant="f"] .final-copy h2{font-size:clamp(34px,3.4vw,50px)}
 .final-site #concept-03[data-variant="f"] .final-copy>p:not(.eyebrow){margin:var(--s-para) 0 0}
 .final-site #concept-03[data-variant="f"] .lunch-faq summary{min-height:40px}
-.final-site #concept-03[data-variant="f"] .lunch-subscribe{margin-top:var(--s-block);padding-top:var(--s-block);border-top:1px solid #ffffff1f}
 
 /* ===== die fragen treten zurueck =====
    Sie sollen findbar sein, nicht laut: die Ueberschrift ohne Gold und ohne
@@ -1977,15 +1960,12 @@ a.button,
 .final-site #concept-03[data-variant="f"] .lunch-faq,
 .final-site #concept-03[data-variant="f"] .lunch-subscribe{margin:0}
 .final-site #concept-03[data-variant="f"] .faq-kopf{margin:0}
-.final-site #concept-03[data-variant="f"] .lunch-subscribe{padding-top:0;border-top:0}
 @media(min-width:1200px){
   .final-site #concept-03[data-variant="f"] .lunch-card{grid-template-columns:1fr 1fr;align-items:start}
   .final-site #concept-03[data-variant="f"] .lunch-kopf,
   .final-site #concept-03[data-variant="f"] .lunch-book{grid-column:1/-1}
   .final-site #concept-03[data-variant="f"] .faq-kopf{grid-column:1;align-self:end}
   .final-site #concept-03[data-variant="f"] .lunch-faq{grid-column:1;grid-row:4}
-  .final-site #concept-03[data-variant="f"] .lunch-subscribe{grid-column:2;grid-row:3/5;align-content:start;
-    padding-left:clamp(20px,2vw,32px);border-left:1px solid #ffffff1f}
 }
 
 /* Der Text-Umschalter sitzt links neben dem Layout-Umschalter. */
@@ -2330,7 +2310,6 @@ a.button,
 .final-site .chapter-lunch.on-ink .lunch-card-link,
 .final-site .chapter-lunch.on-ink .lunch-faq summary,
 .final-site .chapter-lunch.on-ink .lunch-subscribe strong{color:#f3efe6}
-.final-site .chapter-lunch.on-paper .lunch-abo-hinweis{color:#5b5750}
 .final-site .chapter-lunch.on-paper .lunch-faq p,
 .final-site .chapter-lunch.on-paper .lunch-abo-feld,
 .final-site .chapter-lunch.on-paper .lunch-subscribe span{color:#57524a}
@@ -2552,8 +2531,6 @@ a.button,
   padding-top:var(--s-block);border-top:1px solid #ffffff2e}
 .final-site #concept-03[data-variant="g"] .lunch-book .button{width:100%}
 .final-site #concept-03[data-variant="g"] .faq-huelle{grid-column:1}
-.final-site #concept-03[data-variant="g"] .lunch-subscribe{grid-column:2;align-content:start;
-  padding-top:0;border-top:0}
 
 /* ---- H · Randspalte
         Text auf der linken Rasterkante, die beiden Wege stehen rechts als
@@ -2568,7 +2545,6 @@ a.button,
   border-top:1px solid #ffffff2e}
 .final-site #concept-03[data-variant="h"] .lunch-faq{max-width:none;grid-template-columns:1fr 1fr;
   column-gap:clamp(28px,4vw,64px)}
-.final-site #concept-03[data-variant="h"] .lunch-subscribe{grid-column:1/-1;padding-top:0;border-top:0}
 
 /* ---- I · Zeile
         Kopf oben, darunter eine durchgehende Zeile: Zeit, reservieren,
@@ -2581,7 +2557,6 @@ a.button,
   border-top:1px solid #ffffff2e;border-bottom:1px solid #ffffff2e}
 .final-site #concept-03[data-variant="i"] .lunch-faq{max-width:none;grid-template-columns:1fr 1fr;
   column-gap:clamp(28px,4vw,64px)}
-.final-site #concept-03[data-variant="i"] .lunch-subscribe{padding-top:var(--s-block);border-top:1px solid #ffffff2e}
 
 /* ---- J · Bild als Band
         Das Motiv liegt als breites Band oben, der Inhalt darunter auf dem
@@ -2603,7 +2578,6 @@ a.button,
   border-top:1px solid #ffffff2e}
 .final-site #concept-03[data-variant="j"] .lunch-faq{max-width:none;grid-template-columns:1fr 1fr;
   column-gap:clamp(28px,4vw,64px)}
-.final-site #concept-03[data-variant="j"] .lunch-subscribe{grid-column:1/-1;padding-top:0;border-top:0}
 
 /* ---- K · Fragen als Spalte
         Links die Aussage und der Weg zum Tisch, rechts die Fragen als
@@ -2616,8 +2590,6 @@ a.button,
 .final-site #concept-03[data-variant="k"] .faq-huelle{grid-column:2;grid-row:1/span 3;margin:0;
   padding-left:clamp(20px,2vw,30px);border-left:1px solid #ffffff2e}
 .final-site #concept-03[data-variant="k"] .lunch-faq{max-width:none}
-.final-site #concept-03[data-variant="k"] .lunch-subscribe{grid-column:1;align-self:end;
-  padding-top:var(--s-block);border-top:1px solid #ffffff2e}
 
 @media(max-width:900px){
   .final-site #concept-03:is([data-variant="g"],[data-variant="h"],[data-variant="i"],[data-variant="j"],[data-variant="k"]) .scene-shell{
@@ -2672,7 +2644,6 @@ a.button,
 .final-site #concept-03[data-variant="n"] .lunch-book{display:grid;justify-items:start;gap:var(--s-row)}
 .final-site #concept-03[data-variant="n"] .faq-huelle{grid-column:1;margin:0;
   padding-top:var(--s-block);border-top:1px solid #ffffff2e}
-.final-site #concept-03[data-variant="n"] .lunch-subscribe{padding-top:0;border-top:0}
 
 /* Nebenweg Takeaway: Text, kein zweiter Knopf - eine Hauptaktion je Abschnitt. */
 .lunch-alt-link{display:inline-flex;align-items:center;min-height:44px;color:#f3efe6;
@@ -3118,31 +3089,13 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
    Knopf nebeneinander in einer schmalen Reihe, gedaempfte Farben. Das
    Tapziel bleibt bei 44 px. */
 .final-site .chapter-lunch .lunch-subscribe{margin-top:20px;padding-top:18px;gap:10px 14px}
-.final-site .chapter-lunch .lunch-subscribe strong{
-  font-family:var(--sans);font-size:12.5px;font-weight:700;
-  letter-spacing:.09em;color:#f3efe6d9}
-.final-site .chapter-lunch .lunch-subscribe span{font-size:12px;color:#f3efe694;max-width:none}
-.final-site .chapter-lunch .lunch-abo{gap:8px;align-items:stretch;flex-wrap:wrap}
-.final-site .chapter-lunch .lunch-abo-feld{flex:1 1 180px;min-width:0}
-.final-site .chapter-lunch .lunch-abo .button{flex:0 0 auto;white-space:nowrap}
 /* Status und Hinweis gehoeren unter die Reihe, nicht daneben. */
 .final-site .chapter-lunch .lunch-abo-status,
 .final-site .chapter-lunch .lunch-abo-hinweis{flex-basis:100%;margin:0}
 /* Die sichtbare Label-Zeile "e-mail-adresse" faellt weg - der Platzhalter
    sagt dasselbe, und fuer Vorleser bleibt das label-Element ja bestehen. */
 .final-site .chapter-lunch .lunch-abo-feld{gap:0;font-size:0}
-.final-site .chapter-lunch .lunch-abo-feld input{
-  min-width:0;width:100%;min-height:44px;padding:9px 12px;
-  border:1px solid #ffffff38;background:#ffffff10;color:#f3efe6;font-size:16px}
-.final-site .chapter-lunch .lunch-abo-feld input::placeholder{color:#f3efe66e}
-.final-site .chapter-lunch .lunch-abo .button{
-  width:auto;min-height:44px;padding:0 16px;
-  border:1px solid #ffffff38;background:transparent;color:#f3efe6c9;
-  font-size:11px;letter-spacing:.06em}
-.final-site .chapter-lunch .lunch-abo .button:hover{border-color:#ffffff7a;color:#fff;transform:none}
-.final-site .chapter-lunch .lunch-abo-hinweis{font-size:11px;color:#f3efe680}
 @media(max-width:520px){
-  .final-site .chapter-lunch .lunch-subscribe .button{width:auto}
 }
 
 /* ===== "emma & eugen kommen zu euch." atmet am handy =====
@@ -3176,7 +3129,4 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
    Pflichtteil (Bestaetigungsmail, Datenschutz). Am Rechner bleibt die
    ausfuehrlichere Form. */
 @media(max-width:560px){
-  .final-site .chapter-lunch .lunch-subscribe{margin-top:14px;padding-top:14px;gap:6px}
-  .final-site .chapter-lunch .lunch-subscribe p{display:none}
-  .final-site .chapter-lunch .lunch-abo-hinweis{font-size:10px;color:#f3efe66b}
 }
