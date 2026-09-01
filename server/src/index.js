@@ -223,6 +223,19 @@ export class Haus extends DurableObject {
         )
       `);
       this.ctx.storage.sql.exec('CREATE INDEX IF NOT EXISTS ta_tag ON takeaway (tag)');
+      // Was das Haus verkauft, als blosse Zahl: Tag, Art, Name, Menge.
+      // KEINE Personendaten - deshalb darf diese Tabelle bleiben, wenn
+      // Bestellungen und Reservierungen nach 30 Tagen geloescht werden.
+      // Sie ist die Quelle fuer den Monatsblick des Wirts.
+      this.ctx.storage.sql.exec(`
+        CREATE TABLE IF NOT EXISTS zahlen (
+          tag TEXT NOT NULL,
+          art TEXT NOT NULL,
+          name TEXT NOT NULL,
+          menge INTEGER NOT NULL,
+          PRIMARY KEY (tag, art, name)
+        )
+      `);
       // Fingerabdruecke widerrufener Adressen. Keine Adresse, keine Namen -
       // nur die Sperre, damit ein spaeterer Import niemanden zurueckholt.
       this.ctx.storage.sql.exec(`
@@ -403,6 +416,21 @@ export class Haus extends DurableObject {
   #takeawayAlle() {
     return this.ctx.storage.sql.exec('SELECT daten FROM takeaway').toArray()
       .map(row => JSON.parse(row.daten));
+  }
+
+  /**
+   * Ein Strich auf der Zaehlliste: Tag, Art ('gericht', 'bestellungen',
+   * 'reservierungen', 'gaeste', 'laufkunde'), Name (beim Gericht sein Name,
+   * sonst '-'), Menge. Bewusst nur ADDIEREN: Stornos rechnen nicht zurueck -
+   * die Liste zeigt, was bestellt WURDE, nicht was uebrig blieb.
+   */
+  #zaehle(tag, art, name, menge = 1) {
+    const wert = Math.trunc(Number(menge));
+    if (!tag || !Number.isFinite(wert) || wert < 1) return;
+    this.ctx.storage.sql.exec(
+      'INSERT INTO zahlen (tag, art, name, menge) VALUES (?, ?, ?, ?) '
+      + 'ON CONFLICT(tag, art, name) DO UPDATE SET menge = menge + excluded.menge',
+      String(tag), String(art), String(name), wert);
   }
 
   #takeawaySichere(bestellung) {
@@ -738,6 +766,8 @@ export class Haus extends DurableObject {
     }
 
     this.#sichere(party);
+    this.#zaehle(party.date, 'reservierungen', '-', 1);
+    this.#zaehle(party.date, 'gaeste', '-', Number(party.guests) || 0);
     this.#schreib('fenster', { fenster, anzahl: anzahl + 1 });
     // Ein Alarm raeumt spaeter auf - Speicherbegrenzung ist kein Nachgedanke.
     await this.ctx.storage.setAlarm(Date.now() + 24 * 60 * 60 * 1000);
@@ -1245,6 +1275,8 @@ export class Haus extends DurableObject {
       eingegangen: new Date().toISOString()
     };
     this.#sichere(party);
+    this.#zaehle(party.date, 'laufkunde', '-', 1);
+    this.#zaehle(party.date, 'gaeste', '-', guests);
     await this.ctx.storage.setAlarm(Date.now() + 24 * 60 * 60 * 1000);
     this.#meldeAenderung();
 
@@ -1303,6 +1335,8 @@ export class Haus extends DurableObject {
       eingegangen: new Date().toISOString()
     };
     this.#sichere(party);
+    this.#zaehle(party.date, 'reservierungen', '-', 1);
+    this.#zaehle(party.date, 'gaeste', '-', anzahl);
     await this.ctx.storage.setAlarm(Date.now() + 24 * 60 * 60 * 1000);
     this.#meldeAenderung();
     const tisch = result.ok ? floorplan.tables.find(table => table.id === result.tableIds[0]) : null;
@@ -1625,6 +1659,10 @@ export class Haus extends DurableObject {
       eingegangen: new Date().toISOString()
     };
     this.#takeawaySichere(bestellung);
+    this.#zaehle(bestellung.date, 'bestellungen', '-', 1);
+    for (const posten of bestellung.posten || []) {
+      this.#zaehle(bestellung.date, 'gericht', posten.name, posten.menge);
+    }
     this.#schreib('taFenster', { fenster, anzahl: anzahl + 1 });
     await this.ctx.storage.setAlarm(Date.now() + 24 * 60 * 60 * 1000);
     this.#meldeAenderung();
@@ -1811,6 +1849,77 @@ export class Haus extends DurableObject {
    * verraet aber die Auslastung des Hauses - das geht niemanden ausser dem
    * Wirt etwas an.
    */
+  /**
+   * Der Monat in Zahlen, fuer den Wirt: welche Gerichte wie oft bestellt
+   * wurden, wie viele Bestellungen, Reservierungen, Gaeste - je Tag und in
+   * Summe. Alles aus der anonymen Zaehlliste, die die 30-Tage-Loeschung
+   * ueberlebt, weil sie nie einen Namen enthielt.
+   *
+   * Beim allerersten Abruf zaehlt sie nach, was an Bestellungen und
+   * Reservierungen noch im Haus liegt - sonst begaenne der Monatsblick
+   * bei null, obwohl die letzten 30 Tage noch da sind. Ein Flag sorgt
+   * dafuer, dass das genau einmal passiert.
+   */
+  async zahlen(monat) {
+    if (!this.#lies('zahlenGestartet', false)) {
+      for (const bestellung of this.#takeawayAlle()) {
+        this.#zaehle(bestellung.date, 'bestellungen', '-', 1);
+        for (const posten of bestellung.posten || []) {
+          this.#zaehle(bestellung.date, 'gericht', posten.name, posten.menge);
+        }
+      }
+      for (const party of this.#alle()) {
+        const gruppe = party.quelle === 'laufkunde' ? 'laufkunde' : 'reservierungen';
+        this.#zaehle(party.date, gruppe, '-', 1);
+        this.#zaehle(party.date, 'gaeste', '-', Number(party.guests) || 0);
+      }
+      this.#schreib('zahlenGestartet', new Date().toISOString());
+    }
+
+    const gewaehlt = /^\d{4}-(0[1-9]|1[0-2])$/.test(String(monat || ''))
+      ? String(monat)
+      : new Date().toISOString().slice(0, 7);
+    const zeilen = this.ctx.storage.sql
+      .exec('SELECT tag, art, name, menge FROM zahlen WHERE tag LIKE ? ORDER BY tag', `${gewaehlt}-%`)
+      .toArray();
+
+    const gerichte = new Map();
+    const proTag = new Map();
+    const summen = { bestellungen: 0, portionen: 0, reservierungen: 0, laufkunde: 0, gaeste: 0 };
+    for (const zeile of zeilen) {
+      const menge = Number(zeile.menge) || 0;
+      if (zeile.art === 'gericht') {
+        gerichte.set(zeile.name, (gerichte.get(zeile.name) || 0) + menge);
+        summen.portionen += menge;
+      } else if (zeile.art in summen) {
+        summen[zeile.art] += menge;
+      }
+      const tag = proTag.get(zeile.tag) || { bestellungen: 0, gaeste: 0 };
+      if (zeile.art === 'bestellungen') tag.bestellungen += menge;
+      if (zeile.art === 'gaeste') tag.gaeste += menge;
+      proTag.set(zeile.tag, tag);
+    }
+
+    // Welche Monate ueberhaupt Zahlen tragen - fuer die Blaetter-Knoepfe.
+    const monate = this.ctx.storage.sql
+      .exec("SELECT DISTINCT substr(tag, 1, 7) AS monat FROM zahlen ORDER BY monat")
+      .toArray().map(zeile => zeile.monat);
+
+    return {
+      ok: true,
+      monat: gewaehlt,
+      seit: this.#lies('zahlenGestartet', null),
+      summen,
+      gerichte: [...gerichte.entries()]
+        .map(([name, menge]) => ({ name, menge }))
+        .sort((a, b) => b.menge - a.menge),
+      proTag: [...proTag.entries()]
+        .map(([tag, werte]) => ({ tag, ...werte }))
+        .sort((a, b) => a.tag.localeCompare(b.tag)),
+      monate
+    };
+  }
+
   async kuechenzettel(datum) {
     return {
       ok: true,
@@ -2314,6 +2423,13 @@ export default {
       if (url.pathname === '/api/newsletter/zahlen' && request.method === 'GET') {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         return json(await haus.newsletterZahlen(), 200, kopf);
+      }
+
+      // Der Monat in Zahlen. Nur fuer den Wirt: die Zaehlliste verraet
+      // zwar keinen einzigen Gast, aber sehr wohl, wie das Geschaeft laeuft.
+      if (url.pathname === '/api/zahlen' && request.method === 'GET') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        return json(await haus.zahlen(url.searchParams.get('monat')), 200, kopf);
       }
 
       if (url.pathname === '/api/stand' && request.method === 'GET') {

@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-wWkH/9V7Q+UmwNrN6Me5wTEQ2zeVkki6q6F5Ujs2Ue0='; script-src 'sha256-lC3FpDzAC1AcZTJhbYwo39otqzn02yP22UN5iCvxv9s='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-wWkH/9V7Q+UmwNrN6Me5wTEQ2zeVkki6q6F5Ujs2Ue0='; script-src 'sha256-n33CUYeyscbeiJrRJUTTp9DMsJNHcNnZxsyrCB/kuJQ='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#11110f">
-  <title>Übersicht · Wirtschaft Dornbirn</title>
+  <title>Monatszahlen · Wirtschaft Dornbirn</title>
   <style>
 /* Die einfache Wirt-Ansicht. Handy zuerst: grosse Ziffern, grosse Knoepfe,
    nichts zum Suchen. Farben und Schrift aus der bestehenden Wirtschaft-CI. */
@@ -345,46 +345,51 @@ h2{font-size:24px;margin-bottom:6px}
 
   </style>
 </head>
-<body class="uebersicht-seite">
+<body class="uebersicht-seite zahlen-seite">
   <header class="kopf">
     <div>
-      <p class="marke">Wirtschaft Dornbirn · Übersicht</p>
-      <h1 id="heuteTitel">Heute</h1>
+      <p class="marke">Wirtschaft Dornbirn · Monatszahlen</p>
+      <h1 id="monatTitel">–</h1>
     </div>
-    <p class="verbindung" id="verbindung" data-zustand=""><i aria-hidden="true"></i><span id="verbindungText">Verbinde …</span></p>
+    <!-- Blaettern statt Auswahlfeld: Ende des Monats will der Wirt einen
+         Blick zurueck, keinen Kalenderdialog. -->
+    <p class="monat-blaettern">
+      <button type="button" id="monatZurueck" aria-label="Voriger Monat">←</button>
+      <button type="button" id="monatVor" aria-label="Nächster Monat">→</button>
+    </p>
   </header>
 
   <main>
-    <!-- Vier Zahlen, die den Tag beschreiben. Alles Weitere haengt darunter -
-         wer mehr wissen will, oeffnet das passende Werkzeug. -->
-    <section class="zahlen" aria-label="Der Tag in Zahlen">
-      <article class="kachel"><b id="zahlReservierungen">–</b><span>Reservierungen heute</span><small id="subReservierungen"></small></article>
-      <article class="kachel"><b id="zahlTakeaway">–</b><span>Takeaway heute</span><small id="subTakeaway"></small></article>
-      <article class="kachel"><b id="zahlKarte">–</b><span>Mittagskarte</span><small id="subKarte"></small></article>
-      <article class="kachel"><b id="zahlAbos">–</b><span>Mail-Abos</span><small id="subAbos"></small></article>
+    <p class="hinweis" id="zustand">Wird geladen …</p>
+
+    <section class="zahlen" aria-label="Der Monat in Zahlen">
+      <article class="kachel"><b id="zahlBestellungen">–</b><span>Takeaway-Bestellungen</span><small id="subBestellungen"></small></article>
+      <article class="kachel"><b id="zahlReservierungen">–</b><span>Reservierungen</span><small id="subReservierungen"></small></article>
+      <article class="kachel"><b id="zahlGaeste">–</b><span>Gäste gesamt</span><small id="subGaeste"></small></article>
     </section>
 
-    <!-- Was ansteht: keine Verwaltungsliste, sondern die Handgriffe, die
-         gerade wirklich faellig sind. Ist nichts faellig, sagt sie das. -->
-    <section class="werkzeug offen-immer" aria-labelledby="aufgabenTitel">
-      <h2 id="aufgabenTitel">Was ansteht</h2>
-      <ul class="aufgaben-liste" id="aufgabenListe"><li class="leer">Wird geladen …</li></ul>
+    <!-- Das Herzstueck: welche Gerichte wie oft bestellt wurden. Balken
+         statt Tabelle - Ende des Monats zaehlt das Verhaeltnis, nicht die
+         vierte Nachkommastelle. -->
+    <section class="werkzeug offen-immer" aria-labelledby="gerichteTitel">
+      <h2 id="gerichteTitel">Was bestellt wurde</h2>
+      <ol class="gerichte-liste" id="gerichteListe"><li class="leer">Wird geladen …</li></ol>
     </section>
 
-    <section class="werkzeug offen-immer" aria-labelledby="terminTitel">
-      <h2 id="terminTitel">Nächste eigene Termine</h2>
-      <ul class="event-liste" id="terminListe"><li class="leer">Wird geladen …</li></ul>
-      <p class="hinweis">Anlegen und Entfernen geht in der <a href="wirt.html" id="wirtLink">Wirt-Ansicht</a> unter „Eigene Termine“.</p>
+    <section class="werkzeug offen-immer" aria-labelledby="tageTitel">
+      <h2 id="tageTitel">Die Tage des Monats</h2>
+      <ul class="tage-liste" id="tageListe"><li class="leer">Wird geladen …</li></ul>
+      <!-- Ehrlichkeit vor Eindruck: die Liste zaehlt erst ab ihrem ersten
+           Tag. Wer im Oktober auf den August schaut, soll wissen, warum
+           dort wenig steht. -->
+      <p class="hinweis" id="seitHinweis" hidden></p>
     </section>
 
     <section class="werkzeug offen-immer" aria-label="Werkzeuge">
       <h2>Werkzeuge</h2>
       <nav class="werkzeug-links">
-        <a href="wirt.html">Wirt-Ansicht<small>Reservierungen, Takeaway, Karte, Termine</small></a>
-        <a href="kueche.html">Küche<small>Bestellungen und Fertigmelden</small></a>
-        <a href="screen.html">Bildschirm Eingang<small>Tische und Abholbereit</small></a>
-        <a href="index.html">Tischplan<small>Einteilung und Auswertung</small></a>
-        <a href="zahlen.html">Monatszahlen<small>Was bestellt und reserviert wurde</small></a>
+        <a href="uebersicht.html">Übersicht<small>Der heutige Tag</small></a>
+        <a href="wirt.html">Wirt-Ansicht<small>Reservierungen, Takeaway, Karte</small></a>
       </nav>
     </section>
   </main>
@@ -454,192 +459,117 @@ window.WIRTSCHAFT_HAUS={"api":"https://wirtschaft-reservierung.jonas-gamper.work
       return { ok: false, grund: "netz" };
     }
   }
-  var holeKarteInfo = () => ruf("/api/mittagskarte");
-  var holeEigeneEvents = () => ruf("/api/events");
-  var holeNewsletterZahlen = (token) => ruf("/api/newsletter/zahlen", { token });
-  var holeStand = (token) => ruf("/api/stand", { token });
-  async function bleibVerbunden(token, beiAenderung, beiZustand = () => {
-  }, rolle = "haus") {
-    const basis = await apiAdresse();
-    if (!basis || !token) return () => {
-    };
-    let socket = null;
-    let versuch = 0;
-    let beendet = false;
-    let timer = null;
-    const verbinde = () => {
-      if (beendet) return;
-      const adresse = `${basis.replace(/^http/, "ws")}/api/live?token=${encodeURIComponent(token)}&rolle=${encodeURIComponent(rolle)}`;
-      socket = new WebSocket(adresse);
-      socket.addEventListener("open", () => {
-        versuch = 0;
-        beiZustand("verbunden");
-      });
-      socket.addEventListener("message", (ereignis) => {
-        try {
-          const paket = JSON.parse(ereignis.data);
-          if (paket?.stand) beiAenderung(paket.stand, paket.art);
-        } catch {
-        }
-      });
-      const neuVersuchen = () => {
-        if (beendet) return;
-        beiZustand("getrennt");
-        const abstand = Math.min(3e4, 1e3 * 2 ** versuch++);
-        timer = setTimeout(verbinde, abstand);
-      };
-      socket.addEventListener("close", neuVersuchen);
-      socket.addEventListener("error", () => {
-        try {
-          socket.close();
-        } catch {
-        }
-      });
-    };
-    verbinde();
-    return () => {
-      beendet = true;
-      clearTimeout(timer);
-      try {
-        socket?.close();
-      } catch {
-      }
-    };
-  }
+  var holeZahlen = (monat2, token) => ruf(`/api/zahlen?monat=${encodeURIComponent(monat2 || "")}`, { token });
 
-  // site/uebersicht.js
+  // site/zahlen.js
   var byId = (id) => document.getElementById(id);
-  var pad = (zahl) => String(zahl).padStart(2, "0");
-  var heuteIso = () => {
-    const d = /* @__PURE__ */ new Date();
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  var monat = (/* @__PURE__ */ new Date()).toISOString().slice(0, 7);
+  var bekannteMonate = [];
+  var monatsName = (wert) => {
+    const [jahr, nummer] = wert.split("-").map(Number);
+    return new Date(Date.UTC(jahr, nummer - 1, 1)).toLocaleDateString("de-AT", {
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC"
+    });
   };
-  var stand = null;
+  var verschiebe = (wert, schritt) => {
+    const [jahr, nummer] = wert.split("-").map(Number);
+    const datum = new Date(Date.UTC(jahr, nummer - 1 + schritt, 1));
+    return datum.toISOString().slice(0, 7);
+  };
   start();
   async function start() {
     schluesselAusAdresse();
-    byId("heuteTitel").textContent = (/* @__PURE__ */ new Date()).toLocaleDateString("de-AT", {
-      weekday: "long",
-      day: "numeric",
-      month: "long"
+    byId("monatZurueck").addEventListener("click", () => {
+      monat = verschiebe(monat, -1);
+      lade();
+    });
+    byId("monatVor").addEventListener("click", () => {
+      monat = verschiebe(monat, 1);
+      lade();
     });
     if (!await apiAdresse()) {
-      byId("verbindungText").textContent = "Kein Dienst eingetragen";
+      byId("zustand").textContent = "Kein Dienst eingetragen.";
       return;
     }
-    const erster = await holeStand(hausToken());
-    if (erster?.stand) {
-      stand = erster.stand;
-      male();
-    } else if (erster?.grund === "token") {
-      byId("verbindungText").textContent = "Kein Zugang – bitte den Einrichtungslink öffnen";
+    lade();
+  }
+  async function lade() {
+    byId("monatTitel").textContent = monatsName(monat);
+    const antwort = await holeZahlen(monat, hausToken());
+    if (!antwort?.ok) {
+      byId("zustand").textContent = antwort?.grund === "token" ? "Kein Zugang – bitte den Einrichtungslink öffnen." : "Der Dienst antwortet gerade nicht.";
       return;
     }
-    bleibVerbunden(hausToken() || "offen", (neuerStand) => {
-      stand = neuerStand;
-      male();
-    }, (zustand) => {
-      byId("verbindung").dataset.zustand = zustand;
-      byId("verbindungText").textContent = zustand === "verbunden" ? "Live verbunden" : "Getrennt – verbinde neu …";
-    }, "haus");
-    zeigeRanddaten();
+    byId("zustand").hidden = true;
+    bekannteMonate = antwort.monate || [];
+    male(antwort);
   }
-  function male() {
-    const heute = heuteIso();
-    const parties = (stand?.parties || []).filter((party) => party.date === heute && !party.nichtDa);
-    const personen = parties.reduce((summe, party) => summe + (Number(party.guests) || 0), 0);
-    byId("zahlReservierungen").textContent = String(parties.length);
-    byId("subReservierungen").textContent = parties.length ? `${personen} Personen` : "noch frei";
-    const bestellungen = (stand?.takeaway || []).filter((bestellung) => bestellung.date === heute);
-    const offen = bestellungen.filter((bestellung) => bestellung.status === "offen").length;
-    const fertig = bestellungen.filter((bestellung) => bestellung.status === "fertig").length;
-    byId("zahlTakeaway").textContent = String(bestellungen.length);
-    byId("subTakeaway").textContent = bestellungen.length ? `${offen} offen · ${fertig} zum Abholen` : "keine Bestellungen";
-    zeigeAufgaben();
-  }
-  async function zeigeRanddatenEinzeln(hole, male2) {
-    try {
-      male2(await hole());
-    } catch {
-    }
-  }
-  var karteDa = null;
-  function zeigeRanddaten() {
-    zeigeRanddatenEinzeln(holeKarteInfo, (info) => {
-      karteDa = info?.da === true;
-      byId("zahlKarte").textContent = karteDa ? "✓" : "–";
-      byId("subKarte").textContent = karteDa ? info?.stand ? `Stand ${new Date(info.stand).toLocaleDateString("de-AT")}` : "hinterlegt" : "keine Karte hinterlegt";
-      zeigeAufgaben();
-    });
-    zeigeRanddatenEinzeln(() => holeNewsletterZahlen(hausToken()), (zahlen) => {
-      if (!zahlen?.ok) return;
-      const gesamt = Number(zahlen.bestaetigt) || 0;
-      const events = Number(zahlen.events) || 0;
-      byId("zahlAbos").textContent = String(gesamt);
-      byId("subAbos").textContent = `${Math.max(0, gesamt - events)} Karte · ${events} Termine`;
-    });
-    zeigeRanddatenEinzeln(holeEigeneEvents, (antwort) => {
-      const liste = byId("terminListe");
-      liste.textContent = "";
-      const events = antwort?.events || [];
-      if (!events.length) {
-        const leer = document.createElement("li");
-        leer.className = "leer";
-        leer.textContent = "Nichts angesetzt.";
-        liste.append(leer);
-        return;
-      }
-      for (const event of events.slice(0, 6)) {
-        const li = document.createElement("li");
-        const wann = document.createElement("span");
-        wann.className = "event-wann";
-        wann.textContent = (/* @__PURE__ */ new Date(`${event.date}T12:00:00`)).toLocaleDateString("de-AT", {
-          weekday: "short",
-          day: "2-digit",
-          month: "short"
-        }) + (event.beginn ? ` · ${event.beginn}` : "");
-        const was = document.createElement("span");
-        was.className = "event-was";
-        was.textContent = event.title;
-        li.append(wann, was);
-        liste.append(li);
-      }
-    });
-  }
-  function zeigeAufgaben() {
-    const liste = byId("aufgabenListe");
-    if (!liste) return;
-    const aufgaben = [];
-    const wochentag = (/* @__PURE__ */ new Date()).getDay();
-    if (karteDa === false && wochentag >= 1 && wochentag <= 5) {
-      aufgaben.push({ text: "Keine Mittagskarte hinterlegt – Gäste sehen nur die Beispielgerichte.", wohin: "wirt.html", wo: "Karte hochladen" });
-    }
-    const heute = heuteIso();
-    const wartend = (stand?.takeaway || []).filter((bestellung) => bestellung.date === heute && bestellung.status === "fertig");
-    if (wartend.length >= 3) {
-      aufgaben.push({ text: `${wartend.length} fertige Bestellungen warten am Tresen.`, wohin: "kueche.html", wo: "Küche öffnen" });
-    }
-    const unzugeteilt = (stand?.parties || []).filter((party) => party.date === heute && !party.nichtDa && !(party.tableIds || []).length);
-    if (unzugeteilt.length) {
-      aufgaben.push({ text: `${unzugeteilt.length} Reservierung(en) heute ohne Tisch.`, wohin: "wirt.html", wo: "Einteilen" });
-    }
+  function male(daten) {
+    const s = daten.summen || {};
+    byId("zahlBestellungen").textContent = String(s.bestellungen || 0);
+    byId("subBestellungen").textContent = s.portionen ? `${s.portionen} Portionen` : "";
+    byId("zahlReservierungen").textContent = String(s.reservierungen || 0);
+    byId("subReservierungen").textContent = s.laufkunde ? `+ ${s.laufkunde}× Laufkundschaft` : "";
+    byId("zahlGaeste").textContent = String(s.gaeste || 0);
+    byId("subGaeste").textContent = "aus Reservierung und Laufkundschaft";
+    const liste = byId("gerichteListe");
     liste.textContent = "";
-    if (!aufgaben.length) {
+    const gerichte = daten.gerichte || [];
+    if (!gerichte.length) {
       const leer = document.createElement("li");
       leer.className = "leer";
-      leer.textContent = "Nichts fällig – alles läuft.";
+      leer.textContent = "In diesem Monat wurde (noch) nichts bestellt.";
       liste.append(leer);
-      return;
     }
-    for (const aufgabe of aufgaben) {
-      const li = document.createElement("li");
-      const text = document.createElement("span");
-      text.textContent = aufgabe.text;
-      const hin = document.createElement("a");
-      hin.href = aufgabe.wohin;
-      hin.textContent = aufgabe.wo;
-      li.append(text, hin);
-      liste.append(li);
+    const spitze = gerichte[0]?.menge || 1;
+    for (const gericht of gerichte) {
+      const zeile = document.createElement("li");
+      const name = document.createElement("span");
+      name.className = "gericht-name";
+      name.textContent = gericht.name;
+      const balken = document.createElement("i");
+      balken.className = "gericht-balken";
+      balken.style.width = `${Math.max(4, Math.round(gericht.menge / spitze * 100))}%`;
+      const menge = document.createElement("b");
+      menge.textContent = `${gericht.menge}×`;
+      zeile.append(name, balken, menge);
+      liste.append(zeile);
+    }
+    const tage = byId("tageListe");
+    tage.textContent = "";
+    const proTag = (daten.proTag || []).filter((tag) => tag.bestellungen || tag.gaeste);
+    if (!proTag.length) {
+      const leer = document.createElement("li");
+      leer.className = "leer";
+      leer.textContent = "Noch keine Einträge in diesem Monat.";
+      tage.append(leer);
+    }
+    for (const tag of proTag) {
+      const zeile = document.createElement("li");
+      const wann = document.createElement("span");
+      wann.textContent = (/* @__PURE__ */ new Date(`${tag.tag}T12:00:00`)).toLocaleDateString("de-AT", {
+        weekday: "short",
+        day: "numeric",
+        month: "numeric"
+      });
+      const was = document.createElement("small");
+      const teile = [];
+      if (tag.bestellungen) teile.push(`${tag.bestellungen} Takeaway`);
+      if (tag.gaeste) teile.push(`${tag.gaeste} Gäste`);
+      was.textContent = teile.join(" · ");
+      zeile.append(wann, was);
+      tage.append(zeile);
+    }
+    const seit = byId("seitHinweis");
+    if (daten.seit) {
+      seit.hidden = false;
+      seit.textContent = `Gezählt wird seit ${new Date(daten.seit).toLocaleDateString("de-AT", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      })} – ältere Monate bleiben leer.`;
     }
   }
 })();

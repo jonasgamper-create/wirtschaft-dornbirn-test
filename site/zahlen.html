@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src 'self' data:; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self' https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#11110f">
+  <title>Monatszahlen · Wirtschaft Dornbirn</title>
+  <link rel="stylesheet" href="wirt.css?v=b4f3786e">
+</head>
+<body class="uebersicht-seite zahlen-seite">
+  <header class="kopf">
+    <div>
+      <p class="marke">Wirtschaft Dornbirn · Monatszahlen</p>
+      <h1 id="monatTitel">–</h1>
+    </div>
+    <!-- Blaettern statt Auswahlfeld: Ende des Monats will der Wirt einen
+         Blick zurueck, keinen Kalenderdialog. -->
+    <p class="monat-blaettern">
+      <button type="button" id="monatZurueck" aria-label="Voriger Monat">←</button>
+      <button type="button" id="monatVor" aria-label="Nächster Monat">→</button>
+    </p>
+  </header>
+
+  <main>
+    <p class="hinweis" id="zustand">Wird geladen …</p>
+
+    <section class="zahlen" aria-label="Der Monat in Zahlen">
+      <article class="kachel"><b id="zahlBestellungen">–</b><span>Takeaway-Bestellungen</span><small id="subBestellungen"></small></article>
+      <article class="kachel"><b id="zahlReservierungen">–</b><span>Reservierungen</span><small id="subReservierungen"></small></article>
+      <article class="kachel"><b id="zahlGaeste">–</b><span>Gäste gesamt</span><small id="subGaeste"></small></article>
+    </section>
+
+    <!-- Das Herzstueck: welche Gerichte wie oft bestellt wurden. Balken
+         statt Tabelle - Ende des Monats zaehlt das Verhaeltnis, nicht die
+         vierte Nachkommastelle. -->
+    <section class="werkzeug offen-immer" aria-labelledby="gerichteTitel">
+      <h2 id="gerichteTitel">Was bestellt wurde</h2>
+      <ol class="gerichte-liste" id="gerichteListe"><li class="leer">Wird geladen …</li></ol>
+    </section>
+
+    <section class="werkzeug offen-immer" aria-labelledby="tageTitel">
+      <h2 id="tageTitel">Die Tage des Monats</h2>
+      <ul class="tage-liste" id="tageListe"><li class="leer">Wird geladen …</li></ul>
+      <!-- Ehrlichkeit vor Eindruck: die Liste zaehlt erst ab ihrem ersten
+           Tag. Wer im Oktober auf den August schaut, soll wissen, warum
+           dort wenig steht. -->
+      <p class="hinweis" id="seitHinweis" hidden></p>
+    </section>
+
+    <section class="werkzeug offen-immer" aria-label="Werkzeuge">
+      <h2>Werkzeuge</h2>
+      <nav class="werkzeug-links">
+        <a href="uebersicht.html">Übersicht<small>Der heutige Tag</small></a>
+        <a href="wirt.html">Wirt-Ansicht<small>Reservierungen, Takeaway, Karte</small></a>
+      </nav>
+    </section>
+  </main>
+  <script type="module" src="zahlen.js?v=95e63f43"></script>
+</body>
+</html>
