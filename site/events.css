@@ -244,3 +244,6 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
   .events-kalender-alle{flex-direction:column;align-items:flex-start;gap:10px}
   .events-kalender-alle .button{width:100%;justify-content:center}
 }
+
+/* Die ausverkaufte Kachel traegt ein Wort statt eines Links. */
+.kachel-ausverkauft{opacity:.55;cursor:default;pointer-events:none}

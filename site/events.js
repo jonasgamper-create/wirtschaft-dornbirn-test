@@ -54,7 +54,13 @@
         <div class="kachel-aktionen">
           ${event.ticketUrl && !ausverkauft
             ? `<button class="button light" type="button" data-buchen="${escapeHtml(event.ticketUrl)}" data-titel="${escapeHtml(event.title)}">Tickets buchen</button>`
-            : `<a class="button light" href="${escapeHtml(event.ticketUrl || event.officialUrl)}" target="_blank" rel="noopener noreferrer">${ausverkauft ? 'Ausverkauft · Details ↗' : 'Tickets ↗'}</a>`}
+            : ausverkauft
+            /* Kein Link mehr auf der ausverkauften Kachel: die offizielle
+               Seite zeigt dort inzwischen den NAECHSTEN Termin (2027) - ein
+               Gast, der Details zum ausverkauften Abend sucht, laendet beim
+               falschen. Ein ruhiges Wort sagt alles Noetige. */
+            ? `<span class="button light kachel-ausverkauft" aria-disabled="true">Ausverkauft</span>`
+            : `<a class="button light" href="${escapeHtml(event.ticketUrl || event.officialUrl)}" target="_blank" rel="noopener noreferrer">Tickets ↗</a>`}
           <button class="button ghost kachel-kalender" type="button" data-kalender="${escapeHtml(event.id)}" aria-label="${escapeHtml(event.title)} in den Kalender eintragen">＋ Kalender</button>
         </div>
       </div>
