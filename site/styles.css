@@ -3126,3 +3126,18 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
 @media(max-width:560px){
   .final-site .catering-scene h2{font-size:clamp(30px,8.6vw,36px);line-height:1.06}
 }
+
+/* ===== die kopfleiste nutzt die volle breite =====
+   Wunsch vom 01.09.: mit sechs Menuepunkten fiel "gutscheine" am Rechner in
+   eine zweite Zeile. Statt die Punkte zu quetschen, zieht die Leiste in die
+   Breite: die Marken ruecken an den linken Rand, die Mittagszeiten an den
+   rechten, das Menue sitzt mittig dazwischen. Die Marken- und Zeitenbloecke
+   geben ihre autos ab, das Menue bekommt sie auf beiden Seiten - und sein
+   Abstand federt ueber die Fensterbreite, statt fest zu sein. */
+@media(min-width:901px){
+  .final-site .experience-bar{padding:0 clamp(18px,2vw,36px);gap:clamp(14px,1.6vw,28px)}
+  .final-site .bar-nav{margin-left:auto;margin-right:auto;gap:clamp(12px,1.7vw,34px);flex-wrap:nowrap}
+  .final-site .bar-hours{margin-left:0;flex:0 0 auto;white-space:nowrap}
+  .final-site .bar-nav a,
+  .final-site .bar-nav button{white-space:nowrap}
+}
