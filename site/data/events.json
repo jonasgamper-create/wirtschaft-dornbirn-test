@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-08-20T08:30:00+02:00",
+  "updatedAt": "2026-08-27T18:00:00+02:00",
   "maxAgeHours": 48,
   "sourceUrl": "https://wirtschaft-dornbirn.at/event/",
   "pause": {
@@ -15,17 +15,16 @@
       "date": "2026-09-03",
       "title": "Genussroute 6850",
       "type": "Dornbirner Genussabend",
-      "status": "scheduled",
+      "status": "sold_out",
       "officialUrl": "https://wirtschaft-dornbirn.at/event/genussroute-2026/",
       "tickets": [
         {
           "name": "Sitzplatz",
           "preis": 88,
           "beginn": "18:00",
-          "status": "buchbar"
+          "status": "ausverkauft"
         }
-      ],
-      "ticketUrl": "https://www.ticketist.io/events/genussroute"
+      ]
     },
     {
       "id": "event-2026-09-22",
@@ -376,6 +375,23 @@
         }
       ],
       "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-07-2026"
+    },
+    {
+      "id": "event-2027-05-20",
+      "date": "2027-05-20",
+      "title": "Genussroute 6850",
+      "type": "5 Gastronomen · 6 Live-Bands",
+      "status": "scheduled",
+      "officialUrl": "https://wirtschaft-dornbirn.at/event/genussroute-2026/",
+      "tickets": [
+        {
+          "name": "Sitzplatz",
+          "preis": 88,
+          "beginn": "18:00",
+          "status": "buchbar"
+        }
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/genussroute"
     }
   ]
 }

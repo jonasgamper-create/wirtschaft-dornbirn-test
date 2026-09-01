@@ -209,6 +209,11 @@ html{scroll-padding-top:0}
 .final-site #concept-05{order:4}
 .final-site #foodtruck{order:5}
 .final-site #feiern{order:6}
+/* Der Instagram-Streifen stand ohne eigenes order und fiel damit auf 0 -
+   also direkt hinter das Willkommen und VOR die Events. Er ist der einzige
+   Abschnitt, der von der Seite wegfuehrt; vor der wichtigsten Conversion
+   war er falsch. Jetzt zuletzt, direkt vor dem Impressum. */
+.final-site #instagram{order:20}
 .final-site #concept-01{display:none!important}
 .final-site .chapter-stage .scene-copy{width:min(500px,42%)}
 .final-site .event-spotlight{position:absolute;z-index:4;right:0;bottom:7vh;display:grid;width:min(520px,46%);gap:0;padding:8px 0;border-top:1px solid #ffffff45;border-bottom:1px solid #ffffff45;background:#11110ff2;box-shadow:0 20px 60px #11110f66;}
@@ -2979,23 +2984,33 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
    .lunch-note, nur als Weg statt als Hinweis. Keine neuen Farben - Paper,
    Gold und Green stehen so in den Tokens. */
 .final-site .chapter-lunch .lunch-karte-weg{margin:26px 0 0}
+/* Der dritte Weg tritt zurueck. Vorher war er der GROESSTE Knopf des
+   Kapitels - 9938 px2 gegen 9791 fuer "mittagstisch reservieren" - und dazu
+   heller (Paper statt Cream) und mit Goldkante. Damit zog das Nachschlagen
+   mehr Blick als das Reservieren, obwohl es der Nebenweg ist.
+
+   Jetzt: dieselbe Pillenform wie die beiden Hauptknoepfe, damit die Gruppe
+   ruhig wirkt, aber durchscheinend statt gefuellt. Er ist da, wenn man ihn
+   sucht, und nimmt den beiden davor nichts weg. */
 .final-site .chapter-lunch .lunch-karte-weg .lunch-card-link{
   display:inline-flex;align-items:center;gap:10px;
-  min-height:48px;padding:0 18px;
-  background:var(--paper);color:var(--green);
-  border:1px solid var(--gold);border-left-width:4px;
+  min-height:46px;padding:0 20px;border-radius:999px;
+  background:#f3efe614;color:#e7e2d8;
+  border:1px solid #f3efe63d;
   text-decoration:none;font-size:var(--t-label,13px);font-weight:700;
   letter-spacing:.09em;text-transform:lowercase;
-  transition:background .2s var(--ease),color .2s var(--ease)}
-.final-site .chapter-lunch .lunch-karte-weg .lunch-card-link:hover{background:#fff;color:var(--ink)}
+  transition:background .2s var(--ease),color .2s var(--ease),border-color .2s var(--ease)}
+.final-site .chapter-lunch .lunch-karte-weg .lunch-card-link:hover{
+  background:#f3efe626;border-color:#f3efe680;color:#fff}
 .final-site .chapter-lunch .lunch-karte-weg .lunch-card-link span{margin-left:0}
 /* [hidden] gewinnt gegen das inline-flex oben - sonst stuende ein leerer
    Kasten da, wenn keine Karte hinterlegt ist. */
 .final-site .chapter-lunch .lunch-karte-weg .lunch-card-link[hidden]{display:none}
 @media(max-width:700px){
-  /* Am Handy ueber die volle Breite: ein halber Kasten neben Luft sieht aus
-     wie ein Fehler, und das Tippziel wird groesser. */
-  .final-site .chapter-lunch .lunch-karte-weg .lunch-card-link{display:flex;justify-content:space-between;width:100%}
+  /* Am Handy nicht mehr ueber die volle Breite: seit der Knopf durchscheinend
+     ist, wirkt volle Breite wieder wie ein Hauptweg. Er bleibt so breit wie
+     sein Text und reiht sich unter die beiden Hauptknoepfe. */
+  .final-site .chapter-lunch .lunch-karte-weg .lunch-card-link{display:inline-flex;width:auto}
 }
 
 /* ===== kopfleiste am handy: zwei zeilen statt vier =====
