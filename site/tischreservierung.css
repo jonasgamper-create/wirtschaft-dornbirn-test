@@ -808,3 +808,29 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
 .faq-liste summary::after{content:"+";flex:0 0 auto;font-size:22px;font-weight:400;color:#8a6a33;transition:transform .25s ease}
 .faq-liste details[open] summary::after{transform:rotate(45deg)}
 .faq-liste details p{margin:0 0 18px;max-width:58ch;color:#3f3a33;font-size:var(--t-meta);line-height:1.6}
+
+/* ===== handy-ruhe, auch auf den unterseiten =====
+   Dasselbe Schema wie auf der Startseite (01.09.): weniger gleichzeitig,
+   ruhigere Bilder, groessere Tapziele bleiben. Der Inhalt bleibt vollstaendig -
+   er tritt nur leiser auf.
+
+   1. Instagram: drei Bilder in einer Reihe statt sechs in zwei. Der Streifen
+      ist der letzte Abschnitt vor dem Fuss; sechs Kacheln waren dort eine
+      zweite Bilderwand nach dem eigentlichen Inhalt. */
+@media(max-width:700px){
+  .insta-band{grid-template-columns:repeat(3,1fr);gap:6px}
+  .insta-band a:nth-child(n+4){display:none}
+  .insta-note{font-size:11px;opacity:.72}
+  .insta-strip{padding-top:32px}
+}
+
+/* 2. Der Kopf der Buchungsseiten bleibt in einer Zeile.
+      Er brach am Telefon auf zwei um - Marken oben, "zur startseite"
+      darunter - und belegte damit 138 px, mehr als die Leiste der
+      Startseite. Der Rueckweg wird zum kurzen Pfeil-Wort neben den Marken;
+      44 px Tapziel bleiben. */
+@media(max-width:700px){
+  .site-head{flex-wrap:nowrap;gap:12px;padding-top:12px;padding-bottom:12px}
+  .back-link{flex:0 0 auto;font-size:11px;letter-spacing:.05em;white-space:nowrap}
+  .back-link .zurueck-lang{display:none}
+}
