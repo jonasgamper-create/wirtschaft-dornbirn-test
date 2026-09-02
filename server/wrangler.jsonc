@@ -48,13 +48,13 @@
     // Wochenkarten-Versand hat keine Anfrage, aus der er sie lesen koennte.
     "DIENST_BASIS": "https://wirtschaft-reservierung.jonas-gamper.workers.dev",
 
-    // Offener Betrieb: die interne Planung verlangt keinen Hausschluessel.
-    // Jeder, der die Adresse kennt, sieht die Reservierungen mit Namen und
-    // kann einteilen. Bewusste Entscheidung fuer diese Etappe - Bedienbarkeit
-    // zuerst, Absicherung als naechster Schritt.
+    // Zugesperrt: Stand, Einteilung und Verwaltung verlangen den
+    // Hausschluessel. Die Gaestewege - Reservierung, Ampel, freie Zeiten,
+    // Takeaway-Bestellung und Karte - bleiben oeffentlich.
     //
-    // Zum Zusperren: auf "nein" stellen, `npx wrangler deploy`, danach
-    // `bash schluessel.sh`. Der Hausschluessel gilt dann wieder.
+    // Zum Wieder-Oeffnen (nur fuer Testphasen): auf "ja" stellen und
+    // `npx wrangler deploy`. Neuer Schluessel: `bash schluessel.sh` -
+    // eingerichtete Geraete brauchen danach den neuen Link.
     "OFFEN": "nein",
     // Der oeffentliche Teil des Push-Ausweises. Er ist kein Geheimnis:
     // er steht ohnehin in jeder Seite, die sich anmeldet. Der private
