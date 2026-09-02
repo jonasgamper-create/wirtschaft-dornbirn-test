@@ -3130,3 +3130,111 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
    ausfuehrlichere Form. */
 @media(max-width:560px){
 }
+
+/* ===== startseite am telefon: wegweiser statt vollprogramm =====
+   Beschlossen am 01.09. Die Startseite war am Handy 6,3 Bildschirme lang
+   mit 23 Knoepfen - "es ueberwaeltigt mich". Die besten Gastro- und
+   Buehnenseiten zeigen am Telefon pro Abschnitt eine Sache: Bild,
+   Ueberschrift, ein Satz, ein Weg. Die Details bleiben, aber auf ihren
+   Unterseiten - die Eventliste auf events.html, die Locations-Liste und
+   die Fotos auf feste-catering.html, die Karten-PDF auf der
+   Reservierungsseite. Nichts davon geht verloren, es steht nur nicht mehr
+   alles auf einmal da. Am Rechner aendert sich nichts.
+   (Der Gutschein-Abschnitt bleibt auf Wunsch vollstaendig.) */
+@media(max-width:560px){
+  /* events: die drei vorgezogenen termine weichen dem einen weg */
+  .final-site #concept-04 .event-spotlight{display:none}
+  /* mittag: zwei wege bleiben (beides kerngeschaeft), pdf und abo gehen
+     auf die reservierungsseite bzw. an den rechner */
+  .final-site #concept-03 .lunch-karte-weg,
+  .final-site #concept-03 .lunch-subscribe{display:none}
+  /* foodtruck: der geparkte wagen ist das bild; fotos und liste leben auf
+     der locations-seite, der eine knopf bleibt */
+  .final-site #foodtruck .catering-fotos,
+  .final-site #foodtruck .catering-options > .eyebrow,
+  .final-site #foodtruck .catering-options > h3,
+  .final-site #foodtruck .catering-options > ul{display:none}
+  .final-site #foodtruck .catering-options{padding:0;border:0;background:transparent;box-shadow:none;margin-top:18px;display:block}
+  /* instagram: drei bilder in einer ruhigen reihe */
+  .final-site .insta-band a:nth-child(n+4){display:none}
+  .final-site .insta-band{grid-template-columns:repeat(3,1fr)}
+  .final-site .insta-note{font-size:11px;color:#f3efe680}
+  /* bewegung: der kleine truck im kopfbild faellt weg, der catering-truck
+     (der jetzt sauber parkt) bleibt als einziges fahrendes element */
+  .final-site .hero-arrival{display:none}
+}
+@media(max-width:560px){
+  /* Die Kapitel waren am Telefon auf einen vollen Bildschirm festgelegt.
+     Seit sie nur noch Ueberschrift, Satz und Knopf tragen, stuenden sie
+     halb leer - ein Kapitel ist jetzt so hoch wie sein Inhalt, mit
+     ruhigem Atemraum oben und unten. Das Kopfbild behaelt seine volle
+     Hoehe. */
+  .final-site .concept-scene{min-height:auto}
+  .final-site .concept-scene .scene-shell,
+  .final-site .chapter-lunch .scene-shell{min-height:auto;padding-top:clamp(56px,12vh,96px);padding-bottom:clamp(56px,12vh,96px)}
+}
+
+/* ===== handy-ruhe: weniger gleichzeitig, mehr atem =====
+   Rueckmeldung vom 01.09.: die Startseite ueberwaeltigt am Telefon. Gemessen
+   waren es 6,1 Bildschirme, davon 1,5 allein fuer die Gutscheine, dazu vier
+   bildschirmfuellende Fotos und 113 bewegte Elemente. Der Inhalt bleibt -
+   er verteilt sich nur anders und tritt leiser auf.
+
+   1. Gutscheine: am Telefon nur Ueberschrift, ein Satz und der Weg zur
+      eigenen Seite. Auswahl, Mengenzaehler und die fuenf Schritte leben
+      auf gutscheine.html weiter. */
+.voucher-kurz-weg{display:none}
+@media(max-width:700px){
+  .final-site .voucher-scene .voucher-steps,
+  .final-site .voucher-scene .voucher-list,
+  .final-site .voucher-scene .voucher-foot{display:none}
+  .final-site .voucher-scene .voucher-kurz-weg{display:block;margin:22px 0 0}
+  .final-site .voucher-scene{padding-bottom:clamp(40px,9vw,72px)}
+}
+
+/* 2. Die Fotos treten zurueck. Sie bleiben als Atmosphaere, aber der Text
+      steht ruhig davor statt im Wettstreit mit ihnen. */
+@media(max-width:700px){
+  /* .prologue-crowd muss mit: dieses zweite Kopfbild liegt UEBER dem
+     Schleier, nicht darunter - ohne eigene Daempfung stand die Ueberschrift
+     bei Fassung 2 auf ungedaempften Gesichtern und war kaum zu lesen. */
+  .final-site .scene-media,
+  .final-site .prologue-media,
+  .final-site .prologue-crowd,
+  .final-site .zoom-media{filter:saturate(.5) contrast(1.02) brightness(.52)}
+  /* Der Schleier liegt UNTER dem Text und traegt ihn: kraeftiger von unten,
+     damit die Ueberschrift auf ruhigem Grund steht statt auf Gesichtern.
+     Erster Wurf war ein flaches Grau ueber allem - die Schrift verschwand
+     im Bild statt sich davon abzuheben. */
+  .final-site .media-shade,
+  .final-site .prologue-shade{background:linear-gradient(180deg,#11110f66 0%,#11110fa6 42%,#11110feb 100%)}
+}
+
+/* 3. Weniger Bewegung: Texte blenden ruhig ein, statt zu wandern und zu
+      springen. Der Truck faehrt weiter - er gehoert zur Marke. */
+@media(max-width:700px){
+  .final-site .luxury-reveal,
+  .final-site .scene-copy > *,
+  .final-site .final-copy > *{transform:none !important;transition:opacity .4s ease !important}
+  .final-site [style*="--number-shift"]{--number-shift:0px !important}
+}
+
+/* 4. Die Kopfleiste tritt beim Lesen ab (siehe app.js). Der Neu-Hinweis
+      wandert mit ihr nach oben, damit er nicht allein im Bild schwebt. */
+@media(max-width:700px){
+  .final-site .experience-bar{transition:transform .28s ease}
+  .final-site .experience-bar[data-weg]{transform:translateY(-101%)}
+  .final-site .bar-news{transition:transform .28s ease, opacity .25s ease}
+  .final-site .experience-bar[data-weg] ~ .bar-news,
+  .final-site .experience-bar[data-weg] + * .bar-news{transform:translateY(-118px)}
+}
+@media(prefers-reduced-motion:reduce){
+  .final-site .experience-bar,.final-site .bar-news{transition:none}
+}
+
+/* Fassung 2 zeigt das Konzertfoto unter der Ueberschrift. Am Telefon traegt
+   der Schleier dort etwas mehr, damit die Schrift auf ruhigem Grund steht -
+   dezent gestuft statt flach, weil das Foto unten viel Struktur hat. */
+@media(max-width:700px){
+  .final-site #start[data-hero="2"] .prologue-shade{background:linear-gradient(180deg,#11110f99 0%,#11110fcc 50%,#11110fe6 100%)}
+}
