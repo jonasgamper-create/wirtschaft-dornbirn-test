@@ -728,18 +728,15 @@
       setzeHoehe();
       // Hat der Wagen die Seite rechts verlassen, ist der Hinweis erzaehlt:
       // dann verblasst er. Scrollt man zurueck, kommt er wieder.
-      // Weg, sobald der Wagen aus dem Kopfbild gefahren ist. Die Fahrt wird
-      // hier NEU gerechnet, nicht aus --truck-opacity gelesen: dieses Property
-      // schreibt truck-motion.js in einer eigenen rAF-Schleife, und wessen
-      // Schleife zuerst laeuft, ist nicht bestimmt - der Hinweis haette sonst
-      // dauerhaft den Wert des vorigen Frames gezeigt (Zustand invertiert).
-      // Gleiche Formel wie dort: progress = scrollTop / (Kopfhoehe * 1.45),
-      // die Ausblendung des Wagens endet bei progress 0.76.
+      // Der Hinweis verabschiedet sich in der Mitte des Kopfbilds - lange
+      // bevor der naechste Abschnitt heraufkommt. Vorher hing er an der
+      // Truck-Fahrt und verschwand erst bei 812 von 874 Pixeln: der Wechsel
+      // zum Eventkapitel war da praktisch schon im Bild, und der Hinweis
+      // ragte sichtbar hinueber. Jetzt haengt er an der Kopfhoehe selbst,
+      // was auch leichter nachzurechnen ist.
       const kopf = document.querySelector('.final-prologue');
-      const strecke2 = Math.max(1, (kopf ? kopf.offsetHeight : window.innerHeight) * 1.45);
-      // 1cm = 96/2.54 ≈ 37.8px, hier 4cm ≈ 151.2px.
-      const VORZEITIG = 151.2;
-      chip.toggleAttribute('data-faded', (y + VORZEITIG) / strecke2 >= 0.76);
+      const kopfHoehe = Math.max(1, kopf ? kopf.offsetHeight : window.innerHeight);
+      chip.toggleAttribute('data-faded', y >= kopfHoehe * 0.5);
     };
     window.addEventListener('scroll', () => {
       if (!frame) frame = requestAnimationFrame(male);
