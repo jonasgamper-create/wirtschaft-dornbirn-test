@@ -923,7 +923,7 @@ html{scroll-padding-top:0}
 .final-site .bar-nav a:hover:after,.final-site .bar-nav a:focus-visible:after{transform:scaleX(1)}
 .final-site .bar-nav a:hover{text-decoration:none}
 /* Gutscheine schliessen die Leiste rechts ab. */
-.final-site .bar-nav .nav-vouchers{margin-left:0}
+
 
 /* Textlink im Hero: gleiche Sprache wie oben. */
 .final-site .hero-second a{position:relative;text-decoration:none}
