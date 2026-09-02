@@ -778,7 +778,34 @@
     if (select) {
       select.innerHTML = events.map(item => `<option value="${escapeHtml(item.id)}">${escapeHtml(formatEventDate(item.date))} · ${escapeHtml(item.title)}</option>`).join('');
     }
-    document.querySelectorAll('[data-calendar-event]').forEach(button => button.addEventListener('click', () => {
+    // ===== die kopfleiste faehrt am telefon mit =====
+  // Sie ist dort 113 px hoch - 13 Prozent des Bildschirms, dauerhaft belegt.
+  // Beim Runterscrollen tritt sie ab, beim kleinsten Hochwischen ist sie
+  // sofort wieder da. Nichts geht verloren, aber beim Lesen gehoert der
+  // Bildschirm dem Inhalt. Nur auf Beruehr-Geraeten; am Rechner bleibt die
+  // Leiste stehen, dort stoert sie niemanden.
+  (() => {
+    const leiste = document.querySelector('.experience-bar');
+    if (!leiste || !coarsePointer.matches) return;
+    let letzte = window.scrollY;
+    let warten = 0;
+    const pruefe = () => {
+      warten = 0;
+      const jetzt = window.scrollY;
+      const runter = jetzt > letzte;
+      // Die ersten zwei Bildschirmhoehen bleibt sie da: ganz oben will man
+      // sie sehen, und ein kurzer Wisch soll sie nicht gleich wegnehmen.
+      const tief = jetzt > window.innerHeight * 0.9;
+      const genugBewegt = Math.abs(jetzt - letzte) > 6;
+      if (genugBewegt) {
+        leiste.toggleAttribute('data-weg', runter && tief);
+        letzte = jetzt;
+      }
+    };
+    window.addEventListener('scroll', () => { if (!warten) warten = requestAnimationFrame(pruefe); }, { passive: true });
+  })();
+
+  document.querySelectorAll('[data-calendar-event]').forEach(button => button.addEventListener('click', () => {
       const event = calendarEvents.find(item => item.id === button.dataset.calendarEvent);
       if (event) exportCalendar([event], `${event.id}.ics`);
     }));
