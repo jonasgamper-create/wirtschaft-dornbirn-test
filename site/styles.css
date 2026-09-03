@@ -850,7 +850,6 @@ html{scroll-padding-top:0}
    erzwingt auch vertikales Clipping - der Aufklapper ragt unter die Leiste
    und war auf dem Telefon unsichtbar UND unklickbar. Der Knopf meldete
    "offen", es passierte sichtbar nichts. */
-.bar-nav:has(.nav-drop-menu:not([hidden])){overflow:visible}
   /* 44 px ist das Mindestmass fuer ein sicheres Tippziel - darunter trifft
      man am Telefon daneben. Apple nennt es in seinen Richtlinien, und es ist
      hier die meistgenutzte Geraeteklasse. */
@@ -870,28 +869,7 @@ html{scroll-padding-top:0}
 .voucher-scene .eyebrow{color:#fff}
 .voucher-scene h2{margin:0;font-family:var(--serif);font-size:var(--t-section);font-weight:400;line-height:1.06;letter-spacing:-.03em}
 .voucher-scene>p{max-width:52ch;margin:14px 0 0;font-size:var(--t-body);line-height:1.6;color:#fffffff2}
-.voucher-steps{display:flex;flex-wrap:wrap;gap:8px 26px;margin:clamp(26px,3.4vw,40px) 0 0;padding:0;list-style:none}
-.voucher-steps li{display:flex;align-items:baseline;gap:8px;font-size:var(--t-meta);color:#fffffff2}
-.voucher-steps b{font-family:var(--serif);font-size:var(--t-listitem);font-weight:400;color:#ffffffa8}
-.voucher-list{display:grid;gap:0;margin-top:clamp(30px,4vw,46px);border-top:1px solid #ffffff4d}
-.voucher-card{display:grid;grid-template-columns:minmax(260px,0.95fr) minmax(280px,1.15fr) auto;gap:14px clamp(24px,3.5vw,56px);align-items:center;padding:clamp(20px,2.6vw,30px) 0;border-bottom:1px solid #ffffff4d}
-.voucher-card h3{margin:0;font-family:var(--serif);font-size:clamp(23px,2.2vw,29px);font-weight:400;line-height:1.15;letter-spacing:-.02em}
-.voucher-card .worth{display:block;margin-top:5px;font-family:var(--sans);font-size:var(--t-meta);font-weight:400;color:#ffffffcc}
-.voucher-card p{max-width:46ch;margin:0;font-size:var(--t-meta);line-height:1.5;color:#ffffffd9}
-.voucher-count{display:grid;grid-template-columns:46px 54px 46px;align-items:center;justify-self:end;border:1px solid #ffffff66;border-radius:999px;overflow:hidden}
-.voucher-count button{min-height:46px;border:0;background:transparent;color:#fff;font-size:19px;line-height:1;cursor:pointer}
-.voucher-count button:hover:not(:disabled){background:#ffffff26}
-.voucher-count button:disabled{opacity:.35;cursor:default}
-.voucher-count output{text-align:center;font-size:var(--t-listitem);line-height:46px}
-.voucher-count[data-value="0"]{border-color:#ffffff40}
-.voucher-foot{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-top:clamp(26px,3vw,38px)}
-.voucher-foot .button{background:#fff;border-color:#fff;color:var(--ink)}
-.voucher-foot .button:hover{color:var(--ink)}
-.voucher-foot p{margin:0;max-width:42ch;color:#ffffffd9;font-size:var(--t-meta);line-height:1.5}
 @media(max-width:900px){
-  .voucher-card{grid-template-columns:1fr;gap:12px}
-  .voucher-count{justify-self:start}
-  .voucher-foot .button{width:100%}
 }
 
 /* Gutscheine schliessen die Seite ab. */
@@ -937,12 +915,6 @@ html{scroll-padding-top:0}
 .final-site .event-ticket-link:hover{transform:translateX(4px)}
 
 /* Gutscheinzeilen: die Zeile hebt sich, der Zaehler bleibt ruhig. */
-.final-site .voucher-card{transition:background-color .45s var(--e-soft)}
-.final-site .voucher-card:hover{background:#ffffff14}
-.final-site .voucher-count button{transition:background-color .3s var(--e-soft),transform .3s var(--e-out)}
-.final-site .voucher-count button:active:not(:disabled){transform:scale(.9)}
-.final-site .voucher-count output{transition:transform .34s var(--e-out)}
-.final-site .voucher-count.bumped output{transform:translateY(-2px) scale(1.08)}
 
 /* Auftritt der Abschnitte: die Zeilen steigen nacheinander auf. */
 .final-site .reveal>*{opacity:0;transform:translate3d(0,18px,0);transition:opacity .7s var(--e-soft),transform .8s var(--e-out)}
@@ -956,7 +928,6 @@ html{scroll-padding-top:0}
   .final-site .button,.final-site .button:before,.final-site .bar-nav a:after,
   .final-site .hero-second a:after,.final-site .event-ticket-link,
   .final-site .voucher-card,.final-site .voucher-count button,
-  .final-site .voucher-count output,.final-site .reveal>*{transition:none!important;transform:none!important}
   .final-site .reveal>*{opacity:1}
 }
 
@@ -1026,10 +997,6 @@ html{scroll-padding-top:0}
 .final-site .lunch-book{margin:var(--s-block) 0 0;gap:var(--s-row) 18px}
 
 /* Gutscheine. */
-.final-site .voucher-steps{margin-top:var(--s-block);gap:var(--s-row) 26px}
-.final-site .voucher-list{margin-top:var(--s-block)}
-.final-site .voucher-card{padding:var(--s-block) 0;gap:var(--s-row) clamp(24px,3.5vw,56px)}
-.final-site .voucher-card .worth{margin-top:6px}
 
 /* Terminliste: gleiche Zeilenluft wie ueberall. */
 .final-site .event-spotlight article{padding:var(--s-row) 16px;gap:var(--s-row)}
@@ -1310,19 +1277,6 @@ html{scroll-padding-top:0}
 /* 4 · Gutscheine ruhig: Creme statt Gold, ein Akzent, klare Linien. */
 .final-site .voucher-scene .eyebrow{color:var(--green)}
 .final-site .voucher-scene>p{color:var(--ink)}
-.final-site .voucher-list{border-top:1px solid #11110f26}
-.final-site .voucher-card{border-bottom:1px solid #11110f26}
-.final-site .voucher-card:hover{background:#11110f08}
-.final-site .voucher-card .worth{color:#57524a}
-.final-site .voucher-card p{color:#3c3833}
-.final-site .voucher-steps li{color:#3c3833}
-.final-site .voucher-steps b{color:var(--green)}
-.final-site .voucher-count{border-color:#11110f3d}
-.final-site .voucher-count button{color:var(--ink)}
-.final-site .voucher-count button:hover:not(:disabled){background:#11110f0f}
-.final-site .voucher-foot .button{background:var(--ink);border-color:var(--ink);color:#fff}
-.final-site .voucher-foot .button:hover{color:#fff}
-.final-site .voucher-foot p{color:#57524a}
 
 /* 5 · Mittag: dieselbe dunkle Buehne wie der Abend, ein Akzent (Gold). */
 .final-site .chapter-lunch .eyebrow{color:var(--gold)}
@@ -1549,14 +1503,6 @@ body{text-transform:lowercase}
 }
 
 /* ===== mittag-aufklappmenue in der leiste ===== */
-.nav-drop{position:relative;display:flex;align-items:center}
-.nav-drop>button{display:flex;align-items:center;gap:5px;min-height:44px;padding:0;border:0;background:none;color:#f3efe6;font:700 var(--t-label)/1 var(--sans,Montserrat);letter-spacing:.09em;text-transform:lowercase;cursor:pointer;white-space:nowrap}
-.nav-drop .drop-pfeil{font-size:9px;transition:transform .2s}
-.nav-drop>button[aria-expanded="true"] .drop-pfeil{transform:rotate(180deg)}
-.nav-drop-menu[hidden]{display:none}
-.nav-drop-menu{position:absolute;z-index:720;top:calc(100% + 6px);left:50%;transform:translateX(-50%);display:grid;min-width:170px;padding:8px;border:1px solid #ffffff26;background:#11110ff7;box-shadow:0 18px 50px #11110f88}
-.nav-drop-menu a{display:flex;align-items:center;min-height:42px;padding:0 14px;color:#f3efe6;text-decoration:none;font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase;white-space:nowrap}
-.nav-drop-menu a:hover{background:#c59b5d26;color:var(--gold)}
 @media(max-width:560px){.nav-drop-menu{left:0;transform:none}}
 
 /* sechs ziele am handy: die zeile darf umbrechen, nichts wird abgeschnitten */
@@ -1574,7 +1520,6 @@ body{text-transform:lowercase}
 .nav-drop-menu button{display:flex;align-items:center;width:100%;min-height:44px;padding:0 14px;
   border:0;background:none;color:var(--paper);text-align:left;cursor:pointer;
   font-size:var(--t-label);font-weight:700;letter-spacing:.09em;text-transform:lowercase;white-space:nowrap}
-.nav-drop-menu button:hover{background:rgba(197,155,93,.16);color:var(--gold)}
 
 /* ===== instagram unten: kleiner und ruhiger ===== */
 .insta-strip{padding:9vh 0 8vh}
@@ -3180,17 +3125,8 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
    bildschirmfuellende Fotos und 113 bewegte Elemente. Der Inhalt bleibt -
    er verteilt sich nur anders und tritt leiser auf.
 
-   1. Gutscheine: am Telefon nur Ueberschrift, ein Satz und der Weg zur
-      eigenen Seite. Auswahl, Mengenzaehler und die fuenf Schritte leben
-      auf gutscheine.html weiter. */
-.voucher-kurz-weg{display:none}
-@media(max-width:700px){
-  .final-site .voucher-scene .voucher-steps,
-  .final-site .voucher-scene .voucher-list,
-  .final-site .voucher-scene .voucher-foot{display:none}
-  .final-site .voucher-scene .voucher-kurz-weg{display:block;margin:22px 0 0}
-  .final-site .voucher-scene{padding-bottom:clamp(40px,9vw,72px)}
-}
+   1. Gutscheine: Ueberschrift, ein Satz und der Weg in den Shop
+      (seit 01.09. auf jeder Ansicht - der Auswahlteil ist weg). */
 
 /* 2. Die Fotos treten zurueck. Sie bleiben als Atmosphaere, aber der Text
       steht ruhig davor statt im Wettstreit mit ihnen. */
@@ -3238,3 +3174,15 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
 @media(max-width:700px){
   .final-site #start[data-hero="2"] .prologue-shade{background:linear-gradient(180deg,#11110f99 0%,#11110fcc 50%,#11110fe6 100%)}
 }
+
+/* ===== 01.09.: der weg in den gutscheinshop =====
+   Der Auswahlteil ist weg - die Gutscheine leben im eigenen Shop
+   (gutscheine.wirtschaft-dornbirn.at). Hier bleibt die Einladung und ein Weg. */
+.final-site .voucher-weg{margin:26px 0 0}
+
+/* ===== der hinweis oben rechts: ein fester weg ins programm =====
+   Kein wechselnder Termin, kein Bild mehr - ein Knopf in der Farbe von
+   "alle termine & tickets" (cream), damit er als Weg erkennbar ist. */
+.final-site .bar-news{background:var(--cream);color:#11110f;border-color:var(--cream);font-size:11px;letter-spacing:.06em;font-weight:700}
+.final-site .bar-news b{color:#11110f;font-weight:700}
+.final-site .bar-news:hover{background:#e2cda6;border-color:#e2cda6}
