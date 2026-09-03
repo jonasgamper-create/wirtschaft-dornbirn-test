@@ -331,3 +331,29 @@ h2{font-size:24px;margin-bottom:6px}
 .tage-liste li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid #11110f14}
 .tage-liste li span{font-weight:600}
 .zahlen-seite .zahlen{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+
+/* ===== menueplan der woche =====
+   Handy zuerst: Felder untereinander, am Rechner je Gericht eine Reihe.
+   Die Eingaben bleiben Schreibschrift (kein lowercase-Zwang), sonst laese
+   der Wirt seine eigenen Namen anders, als er sie tippt. */
+.plan-form{display:grid;gap:14px;margin-bottom:14px}
+.plan-kopf{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.plan-form label{display:grid;gap:4px;min-width:0;color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:lowercase}
+.plan-form input{min-height:46px;width:100%;padding:8px 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;color:var(--ink);font:inherit;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none}
+.plan-form input::placeholder{color:#a29b90}
+.plan-form fieldset{margin:0;padding:12px;border:1px solid var(--linie);border-radius:10px;display:grid;gap:10px;min-width:0}
+.plan-form legend{padding:0 6px;color:var(--green);font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:lowercase}
+.plan-form fieldset .hinweis{margin:0}
+.plan-liste{display:grid;gap:10px}
+/* Je Gericht zwei Reihen: oben Gericht und Beilagen in voller Breite, darunter
+   Allergene, Preis und der Entfernen-Knopf. Fuenf Spalten nebeneinander
+   passten in die 680 px der Wirt-Ansicht nicht - die Felder waren 60 px
+   schmal, "cordon bleu vom schwein" wurde zu "cordon ble". */
+.plan-gericht{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:8px;align-items:end;padding-bottom:10px;border-bottom:1px dashed var(--linie)}
+.plan-gericht .plan-breit{grid-column:1/-1}
+.plan-gericht:last-child{padding-bottom:0;border-bottom:0}
+.plan-weg{width:46px;min-height:46px;padding:0;border:1px solid var(--linie);border-radius:8px;background:transparent;color:var(--wine);font-size:22px;line-height:1}
+.plan-form .knopf.klein{min-height:44px;padding:0 14px;font-size:13px;justify-self:start}
+@media(max-width:700px){
+  .plan-kopf{grid-template-columns:1fr}
+}

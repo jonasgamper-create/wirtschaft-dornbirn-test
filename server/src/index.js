@@ -45,6 +45,7 @@ import {
   bestelltag, freieSlots, kuechenzettel, parseKarte, pruefeBestellung, pruefeWunschtag,
   statistik, VORAUS_TAGE
 } from './takeaway.mjs';
+import { normalisiereMenueplan, takeawayAusPlan } from './menueplan.mjs';
 
 const HAUS = 'wirtschaft-dornbirn';
 
@@ -583,7 +584,7 @@ export class Haus extends DurableObject {
       return {
         rolle: 'kueche',
         takeaway: this.#takeawayAlle().map(({ telefon, push, ...rest }) => rest),
-        takeawayKarte: this.#lies('takeawayKarte', []),
+        takeawayKarte: this.#takeawayGerichte().gerichte,
         smsAn: this.#lies('smsAn', false) === true,
         // Wer fertigmeldet, muss auf beiden Bildschirmen dasselbe sein - sonst
         // steht der Knopf zweimal da oder gar nicht. Die Kueche bekommt die
@@ -621,8 +622,10 @@ export class Haus extends DurableObject {
       takeaway: rolle === 'haus'
         ? this.#takeawayAlle().map(({ push, ...rest }) => rest)
         : (rolle === 'schirm' ? this.#fertigeFuerSchirm() : []),
-      takeawayKarte: this.#lies('takeawayKarte', []),
+      takeawayKarte: this.#takeawayGerichte().gerichte,
       takeawayKarteText: rolle === 'haus' ? this.#lies('takeawayKarteText', '') : '',
+      // Der Plan selbst nur fuer den Wirt - sein Formular fuellt sich daraus.
+      menueplan: rolle === 'haus' ? this.#lies('menueplan', null) : undefined,
       blockedTables: this.#lies('blocked', []),
       standardEtage: this.#lies('standardEtage', null),
       // Automatik aus heisst: Anfragen kommen an, aber das Haus teilt ein.
@@ -1178,6 +1181,11 @@ export class Haus extends DurableObject {
 
   /** Oeffentlich: gibt es eine Karte, und von wann ist sie? Keine Inhalte. */
   async karteInfo() {
+    // Liegt ein Menueplan vor, IST er die Karte - die Seite mittagskarte.html
+    // setzt ihn druckfertig. Ein daneben noch liegendes PDF waere eine zweite
+    // Wahrheit; es bleibt liegen, wird aber nicht mehr genannt.
+    const plan = this.#lies('menueplan', null);
+    if (plan) return { ok: true, da: true, art: 'plan', stand: plan.stand, pfad: 'mittagskarte.html' };
     const info = this.#lies('karteStand', null);
     // "Da" heisst: die Datei ist auch wirklich abrufbar. Der Stand allein ist
     // nur ein Merker. Lag er da, waehrend die Stuecke fehlten - ein halber
@@ -1189,7 +1197,7 @@ export class Haus extends DurableObject {
       ? this.ctx.storage.sql.exec('SELECT COUNT(*) AS anzahl FROM mittagskarte').toArray()
       : [];
     const da = Boolean(info) && Number(zeilen[0]?.anzahl || 0) > 0;
-    return { ok: true, da, ...(da ? info : {}) };
+    return { ok: true, da, art: 'pdf', ...(da ? info : {}) };
   }
 
   /** Die Datei selbst, zusammengesetzt. null, wenn keine da ist. */
@@ -1200,6 +1208,41 @@ export class Haus extends DurableObject {
       .map(row => row.teil);
     if (!teile.length) return null;
     return zusammen(teile).buffer;
+  }
+
+  // ---- Menueplan der Woche -------------------------------------------------
+  //
+  // Seit 01.09. traegt der Wirt die Gerichte hier ein, nicht mehr als PDF
+  // plus Textliste. Aus dem einen Plan entstehen die Takeaway-Karte, die
+  // Mittagskarte zum Ansehen (mittagskarte.html) und die Faltkarte. Liegt
+  // ein Plan vor, hat er Vorrang vor PDF und Textliste; fehlt er, gilt
+  // weiter das Alte - der Uebergang bricht nichts.
+
+  async menueplan() { return { ok: true, plan: this.#lies('menueplan', null) }; }
+
+  async setzeMenueplan(roh) {
+    const geprueft = normalisiereMenueplan(roh, new Date().toISOString());
+    if (!geprueft.ok) return geprueft;
+    this.#schreib('menueplan', geprueft.plan);
+    this.#meldeAenderung();
+    return { ok: true, plan: geprueft.plan };
+  }
+
+  async menueplanWeg() {
+    this.#schreib('menueplan', null);
+    this.#meldeAenderung();
+    return { ok: true };
+  }
+
+  /**
+   * Was bestellbar ist - aus dem Plan, sonst aus der Textkarte. Mit Abholtag
+   * nur das, was es an dem Tag gibt; ohne Datum alles (Bestellpruefung,
+   * Kuechenzettel: sie muessen jede bestellte Kennung kennen).
+   */
+  #takeawayGerichte(datum = '') {
+    const plan = this.#lies('menueplan', null);
+    if (plan) return takeawayAusPlan(plan, datum);
+    return { gruppen: null, gerichte: this.#lies('takeawayKarte', []) };
   }
 
   // ---- Nur fuer das Haus ---------------------------------------------------
@@ -1490,7 +1533,11 @@ export class Haus extends DurableObject {
   }
 
   async wochenkarteVersand(basis) {
-    const karte = this.#lies('karteStand', null);
+    // Mit Plan geht die Mail auf die gesetzte Karte auf der Webseite, sonst
+    // wie bisher auf das hochgeladene PDF beim Dienst.
+    const plan = this.#lies('menueplan', null);
+    const seite = String(this.env?.GAESTE_SEITE || '').replace(/\/+$/, '');
+    const karte = plan ? { stand: plan.stand } : this.#lies('karteStand', null);
     if (!karte) return { ok: true, versendet: 0, grund: 'keine_karte' };
     const marke = String(karte.stand || JSON.stringify(karte));
     if (this.#lies('wochenkarteMarke', null) === marke) {
@@ -1500,7 +1547,7 @@ export class Haus extends DurableObject {
     let versendet = 0;
     for (const eintrag of alle) {
       const inhalt = wochenkarteMail({
-        karteLink: `${basis}/mittagskarte.pdf`,
+        karteLink: plan && seite ? `${seite}/mittagskarte.html` : `${basis}/mittagskarte.pdf`,
         abmeldeLink: `${basis}/newsletter/weg?t=${eintrag.token}`
       });
       const ergebnis = await sendeMail(this.env, brevoPaket({
@@ -1544,7 +1591,10 @@ export class Haus extends DurableObject {
       // Die Grenzen fuer das Datumsfeld - eine Quelle, nicht zwei.
       frueheste: tag?.datum ?? null,
       spaeteste: heute ? this.#spaetesterTag(heute) : null,
-      gerichte: this.#lies('takeawayKarte', []),
+      ...this.#takeawayGerichte(tag?.datum || ''),
+      // Liegt ein Plan vor, fuehrt der Kartenlink auf die gesetzte Karte
+      // statt auf ein hochgeladenes PDF.
+      karte: this.#lies('menueplan', null) ? { file: 'mittagskarte.html', label: 'Mittagskarte ansehen und als PDF speichern' } : undefined,
       slots: tag
         ? freieSlots({
           bestellungen: this.#takeawayAlle(), datum: tag.datum,
@@ -1594,7 +1644,7 @@ export class Haus extends DurableObject {
     if (anzahl >= ONLINE_PRO_STUNDE) return { ok: false, grund: 'zu_viele' };
 
     const gecheckt = pruefeBestellung(roh, {
-      gerichte: this.#lies('takeawayKarte', []), heute, jetzt, zu: this.#zuMenge(),
+      gerichte: this.#takeawayGerichte().gerichte, heute, jetzt, zu: this.#zuMenge(),
       // Die schon angenommenen Bestellungen sind die eigentliche Grenze: die
       // Kueche schafft nur so viel je Viertelstunde.
       bestehende: this.#takeawayAlle()
@@ -1924,7 +1974,7 @@ export class Haus extends DurableObject {
     return {
       ok: true,
       ...kuechenzettel({
-        gerichte: this.#lies('takeawayKarte', []),
+        gerichte: this.#takeawayGerichte().gerichte,
         bestellungen: this.#takeawayAlle(),
         parties: this.#alle(),
         date: datum
@@ -2412,6 +2462,21 @@ export default {
         return json({ ok: false }, 405, kopf);
       }
 
+      // ---- Der Menueplan der Woche ----------------------------------------
+      // Oeffentlich lesbar - er steht ohnehin auf der Webseite. Schreiben und
+      // entfernen darf nur das Haus.
+      if (url.pathname === '/api/menueplan') {
+        if (request.method === 'GET') return json(await haus.menueplan(), 200, kopf);
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        if (request.method === 'DELETE') return json(await haus.menueplanWeg(), 200, kopf);
+        if (request.method === 'POST') {
+          const roh = await request.json().catch(() => ({}));
+          const ergebnis = await haus.setzeMenueplan(roh);
+          return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
+        }
+        return json({ ok: false }, 405, kopf);
+      }
+
       // Anmeldung zur Mittagskarte. Eigener Weg, eigener Zweck: sie ist nie
       // Voraussetzung fuer eine Reservierung.
       if (url.pathname === '/api/newsletter' && request.method === 'POST') {
@@ -2508,7 +2573,10 @@ export default {
         // Dienst uebernimmt sie als seine eigene, sobald sie sich aendert -
         // so sehen Anzeige, Bestellpruefung und Kuechenzettel dieselbe Karte.
         // Ist das Altsystem gerade nicht erreichbar, gilt der letzte Stand.
-        if (env.ALT_TAKEAWAY) {
+        // Mit Menueplan ist der Plan die Karte - das Altsystem darf sie dann
+        // nicht mehr ueberschreiben, sonst staende nach jedem Abruf wieder
+        // die alte Liste da.
+        if (env.ALT_TAKEAWAY && !(await haus.menueplan()).plan) {
           try {
             const altKarte = await holeAltKarte(env);
             const text = altKarte.gerichte

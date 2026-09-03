@@ -9,8 +9,8 @@
   <meta name="theme-color" content="#173e2c">
   <title>Heute Mittag · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
-  <link rel="stylesheet" href="wirt.css?v=b4f3786e">
-  <script type="module" src="wirt.js?v=bdbb90ca"></script>
+  <link rel="stylesheet" href="wirt.css?v=7d8df9fe">
+  <script type="module" src="wirt.js?v=a45f251b"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -94,8 +94,25 @@
       <p class="lauf-ergebnis" id="laufErgebnis" role="status" aria-live="polite"></p>
     </section>
 
+    <!-- Der Menueplan der Woche: einmal eintragen, dreimal da - Takeaway auf
+         der Webseite, Mittagskarte zum Ansehen und Speichern (PDF), Faltkarte
+         fuer den Tisch. Seit 01.09.; das PDF darunter ist nur noch Uebergang. -->
+    <details class="werkzeug" id="planKasten" open>
+      <summary>Menüplan der Woche</summary>
+      <p class="hinweis">Einmal eintragen, dreimal da: die Gerichte stehen beim Takeaway auf der Webseite, als Mittagskarte zum Ansehen und Speichern (PDF) und als Faltkarte für den Tisch.</p>
+      <div class="plan-form" id="planForm"></div>
+      <div class="karte-knoepfe">
+        <button class="knopf" type="button" id="planSetzen">Veröffentlichen</button>
+        <a class="knopf leise" id="planAnsehen" href="mittagskarte.html" target="_blank" rel="noopener noreferrer">Mittagskarte ansehen</a>
+        <a class="knopf leise" id="planFalten" href="menuekarte-falten.html" target="_blank" rel="noopener noreferrer">Faltkarte drucken</a>
+        <button class="knopf leise" type="button" id="planWeg" hidden>Plan entfernen</button>
+      </div>
+      <p class="lauf-ergebnis" id="planInfo" role="status" aria-live="polite"></p>
+    </details>
+
     <details class="werkzeug">
-      <summary>Mittagskarte (PDF)</summary>
+      <summary>Mittagskarte (PDF) – nur ohne Menüplan</summary>
+      <p class="hinweis">Übergang: Solange kein Menüplan veröffentlicht ist, gilt das hochgeladene PDF. Mit Menüplan wird es nicht mehr gezeigt.</p>
       <p class="hinweis" id="karteStand">Noch keine Karte hochgeladen.</p>
       <div class="karte-knoepfe">
         <label class="knopf">Neues PDF hochladen
@@ -108,7 +125,7 @@
     </details>
 
     <details class="werkzeug">
-      <summary>Gerichte der Woche (Web &amp; Takeaway)</summary>
+      <summary>Gerichte als Textliste – nur ohne Menüplan</summary>
       <p class="hinweis">Eine Karte, zwei Orte: Die Zeilen aus der Mittagskarte einfügen – pro Zeile links das Gericht, dahinter optional die Allergene in Klammern, rechts der Preis. Beispiel: „Käsknöpfle mit Röstzwiebeln (A,C,G) 12,90“. Sie erscheinen sofort auf der Webseite und sind als Takeaway bestellbar. Leeres Feld veröffentlichen nimmt beides von der Seite.</p>
       <textarea id="taKarteText" rows="6" spellcheck="false" aria-label="Takeaway-Karte, eine Zeile je Gericht mit Preis"></textarea>
       <div class="karte-knoepfe">

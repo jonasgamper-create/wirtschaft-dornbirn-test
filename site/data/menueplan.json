@@ -1,0 +1,148 @@
+{
+  "montag": "2026-08-31",
+  "preise": {
+    "mittag": 15.9,
+    "vital": 15.9
+  },
+  "tage": [
+    {
+      "gerichte": [
+        {
+          "name": "cordon bleu vom schwein mit bresaola & brie gefüllt",
+          "beilage": "schnittlauchkartoffeln | salat",
+          "allergene": "a, c, g, l, m"
+        }
+      ]
+    },
+    {
+      "gerichte": [
+        {
+          "name": "kalbsleber",
+          "beilage": "kartoffelrösti | salat",
+          "allergene": "a, f, l, m, n"
+        },
+        {
+          "name": "älpler käshörnle",
+          "beilage": "schmelzzwiebeln | speck | kartoffel-gurkensalat",
+          "allergene": "a, c, g, l, m"
+        }
+      ]
+    },
+    {
+      "gerichte": [
+        {
+          "name": "hausgemachte lasagne bolognese",
+          "beilage": "salat",
+          "allergene": "a, c, g, l, m"
+        }
+      ]
+    },
+    {
+      "gerichte": [
+        {
+          "name": "tranchen vom truthahn",
+          "beilage": "rahmkartoffeln | speckbohnen",
+          "allergene": "c, g, l"
+        }
+      ]
+    },
+    {
+      "gerichte": [
+        {
+          "name": "rindsstreifen „süß-sauer“",
+          "beilage": "basmatireis | salat",
+          "allergene": "f, l, m, n"
+        }
+      ]
+    }
+  ],
+  "vital": [
+    {
+      "titel": "vital",
+      "name": "lachsschnitte | mango-bulgur",
+      "beilage": "chili-honigsauce | minzjoghurt",
+      "allergene": "a, c, l, m"
+    },
+    {
+      "titel": "vegetarisch",
+      "name": "hausgemachte maultaschen | kartoffel-kürbisfüllung",
+      "beilage": "nussbutter-espuma | brokkoli-gemüse",
+      "allergene": "a, c, g"
+    }
+  ],
+  "alacarte": [
+    {
+      "name": "Rindsbouillon mit Brätspätzle",
+      "beilage": "",
+      "allergene": "",
+      "preis": 5.3
+    },
+    {
+      "name": "Rindsbouillon mit Kräuterflädle",
+      "beilage": "",
+      "allergene": "",
+      "preis": 5.3
+    },
+    {
+      "name": "Maiscremesuppe",
+      "beilage": "Erbsen-Falafel | Gewürzpopcorn",
+      "allergene": "",
+      "preis": 7.3
+    },
+    {
+      "name": "Beilagensalat „Balsamico“",
+      "beilage": "mit Balsamico-Dressing",
+      "allergene": "",
+      "preis": 6.5
+    },
+    {
+      "name": "Beilagensalat „French“",
+      "beilage": "mit French-Dressing",
+      "allergene": "",
+      "preis": 6.5
+    },
+    {
+      "name": "Caesar Salat mit Hühnerbrust & Speck",
+      "beilage": "Sonnengetrocknete Tomaten | Parmesandressing | Croutons",
+      "allergene": "",
+      "preis": 18.9
+    },
+    {
+      "name": "Gebratenes Chilihuhn",
+      "beilage": "Bunter Salat | French-Dressing",
+      "allergene": "",
+      "preis": 18.9
+    },
+    {
+      "name": "Burger „Eugen“ (double smashed)",
+      "beilage": "Brioche Bun | 2 × 100 g Ländle-Rindfleisch | Cheddar | Eisbergsalat | Chipotle-Mayo | Röstzwiebeln | eingelegte Gurken – dazu Pommes frites",
+      "allergene": "",
+      "preis": 18.9
+    },
+    {
+      "name": "Burger „Frieda“ (vegan)",
+      "beilage": "Burger Bun | Linsenpatty | karamellisierte Zwiebeln | Rhabarber-Ketchup | Pfifferlinge | Maggikraut | BBQ-Mayo – dazu Pommes frites",
+      "allergene": "",
+      "preis": 18.9
+    },
+    {
+      "name": "Schnitzel „Wiener Art“ vom Schwein mit Pommes frites",
+      "beilage": "",
+      "allergene": "",
+      "preis": 19.5
+    },
+    {
+      "name": "Schnitzel „Wiener Art“ vom Schwein mit buntem Salat",
+      "beilage": "",
+      "allergene": "",
+      "preis": 19.5
+    },
+    {
+      "name": "Pommes frites",
+      "beilage": "",
+      "allergene": "",
+      "preis": 5
+    }
+  ],
+  "stand": "2026-08-31T08:00:00+02:00"
+}

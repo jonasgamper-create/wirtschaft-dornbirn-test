@@ -5,13 +5,15 @@
 // zwei Handys nie denselben letzten Tisch erwischen.
 
 import {
-  apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeKuechenzettel, holeStand, karteAdresse,
+  apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeKuechenzettel, holeMenueplan, holeStand, karteAdresse,
+  loescheMenueplan, sendeMenueplan,
   leereTag, legeEinfach, loescheKarte, schluesselAusAdresse, sendeAktion, sendePlan,
   sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
   holeEigeneEvents, holeGeschlossen, holeOeffnung, legeEigenesEvent, loescheEigenesEvent, sageTagAb, sendeTischsperre, setzeOeffnung, setzeTagZu,
   setzeFertigWer,
   stelleTagWiederHer
-} from './haus-api.js?v=a9394c5f';
+} from './haus-api.js?v=309a63fc';
+import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=8542584c';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=2dead16d';
@@ -66,6 +68,7 @@ async function start() {
   verdrahteLaufkundschaft();
   verdrahteTagLeeren();
   verdrahteKarten();
+  verdrahteMenueplan();
   verdrahteZettel();
   verdrahteFertigWer();
   verdrahteEigeneEvents();
@@ -751,6 +754,78 @@ function verdrahteTagLeeren() {
   });
 }
 
+// ---- Menueplan der Woche ----------------------------------------------------
+//
+// Einmal eintragen, dreimal da: Takeaway auf der Webseite, Mittagskarte zum
+// Ansehen und Speichern, Faltkarte fuer den Tisch. Der Dienst prueft und
+// nennt, was fehlt - das Formular hier rechnet nichts selbst.
+
+const PLAN_GRUENDE = {
+  montag: 'Bitte den Montag der Woche eintragen.',
+  kein_montag: 'Das Datum ist kein Montag – bitte den Montag der Woche wählen.',
+  preis: 'Bitte den Preis der Mittagsgerichte eintragen, zum Beispiel 15,90.',
+  leer: 'Bitte mindestens ein Tagesgericht eintragen.',
+  token: 'Dieses Gerät ist nicht angemeldet.',
+  aus: 'Kein Dienst eingetragen.',
+  netz: 'Keine Verbindung – bitte gleich noch einmal.'
+};
+
+async function verdrahteMenueplan() {
+  const form = byId('planForm');
+  if (!form) return;
+  // Die Karten-Seiten liegen neben der Wirt-Ansicht - oder eine Ebene
+  // hoeher, wenn sie als Einzeldatei unter /tischplan/ laeuft.
+  const wurzel = /\/tischplan\//.test(location.pathname) ? '../' : '';
+  byId('planAnsehen').href = `${wurzel}mittagskarte.html`;
+  byId('planFalten').href = `${wurzel}menuekarte-falten.html`;
+
+  // Vorbefuellen: der Plan vom Dienst. Gibt es keinen, die hinterlegte
+  // Ersatzwoche - so steht A la carte schon da und muss nicht abgetippt werden.
+  let plan = (await holeMenueplan())?.plan || null;
+  byId('planWeg').hidden = !plan;
+  if (!plan) {
+    plan = await fetch(`${wurzel}data/menueplan.json`, { cache: 'no-store' })
+      .then(antwort => (antwort.ok ? antwort.json() : null)).catch(() => null);
+    sag('planInfo', 'Noch kein Plan veröffentlicht – vorbefüllt mit der hinterlegten Woche. Datum und Gerichte anpassen, dann veröffentlichen.');
+  }
+  zeichneMenueplan(form, plan);
+
+  byId('planSetzen').addEventListener('click', async () => {
+    sag('planInfo', 'Wird veröffentlicht …');
+    const antwort = await sendeMenueplan(hausToken(), liesMenueplan(form));
+    if (!antwort?.ok) {
+      return sag('planInfo', PLAN_GRUENDE[antwort?.grund] || 'Das hat nicht geklappt – bitte noch einmal.', 'fehler');
+    }
+    zeichneMenueplan(form, antwort.plan);
+    byId('planWeg').hidden = false;
+    byId('planWeg').textContent = 'Plan entfernen';
+    const tagesgerichte = antwort.plan.tage.reduce((summe, tag) => summe + tag.gerichte.length, 0);
+    sag('planInfo', `Veröffentlicht: ${tagesgerichte} Tagesgericht(e), ${antwort.plan.vital.length} vital, `
+      + `${antwort.plan.alacarte.length} à la carte – Takeaway, Mittagskarte und Faltkarte sind auf dem neuen Stand.`, 'gut');
+    zeigeKarte();
+  });
+
+  // Entfernen in zwei Klicks: der erste fragt, der zweite tut es. Ein
+  // versehentlich geleerter Plan hiesse eine leere Takeaway-Karte.
+  const weg = byId('planWeg');
+  weg.addEventListener('click', async () => {
+    if (!weg.dataset.sicher) {
+      weg.dataset.sicher = '1';
+      weg.textContent = 'Wirklich entfernen?';
+      setTimeout(() => { delete weg.dataset.sicher; weg.textContent = 'Plan entfernen'; }, 6000);
+      return;
+    }
+    delete weg.dataset.sicher;
+    weg.textContent = 'Plan entfernen';
+    const antwort = await loescheMenueplan(hausToken());
+    sag('planInfo', antwort?.ok
+      ? 'Plan entfernt – Takeaway und Mittagskarte fallen auf PDF und Textliste zurück.'
+      : 'Entfernen hat nicht geklappt.', antwort?.ok ? 'gut' : 'fehler');
+    if (antwort?.ok) weg.hidden = true;
+    zeigeKarte();
+  });
+}
+
 // ---- Mittagskarte und Takeaway-Karte ---------------------------------------
 
 function verdrahteKarten() {
@@ -799,7 +874,7 @@ async function zeigeKarte() {
   byId('karteAnsehen').hidden = !da;
   byId('karteWeg').hidden = !da;
   if (!da) { byId('karteStand').textContent = 'Noch keine Karte hochgeladen.'; return; }
-  byId('karteAnsehen').href = await karteAdresse();
+  byId('karteAnsehen').href = await karteAdresse(info);
   const von = new Date(info.stand);
   byId('karteStand').textContent = Number.isNaN(von.getTime())
     ? 'Eine Karte ist hinterlegt.'
