@@ -25,9 +25,9 @@
   <link rel="preload" as="image" href="assets/restaurant.webp" imagesrcset="assets/restaurant-800.webp 900w, assets/restaurant.webp 1500w" imagesizes="100vw" fetchpriority="high">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-600-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=103ad3a5-09-01c">
+  <link rel="stylesheet" href="styles.css?v=7adcdc48-09-01c">
   <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "Restaurant", "@id": "https://wirtschaft-dornbirn.at/#restaurant", "name": "Wirtschaft Dornbirn", "legalName": "„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.", "url": "https://wirtschaft-dornbirn.at/", "description": "Mittagstisch, Konzerte, Comedy und Catering in Dornbirn, Vorarlberg.", "telephone": "+43557220540", "email": "willkommen@wirtschaft-dornbirn.at", "image": "https://wirtschaft-dornbirn.at/assets/restaurant.webp", "priceRange": "€€", "servesCuisine": ["Österreichisch", "Saisonal"], "address": {"@type": "PostalAddress", "streetAddress": "Bahnhofstraße 24", "postalCode": "6850", "addressLocality": "Dornbirn", "addressRegion": "Vorarlberg", "addressCountry": "AT"}, "vatID": "ATU36206707", "areaServed": {"@type": "City", "name": "Dornbirn"}, "acceptsReservations": "https://wirtschaft-dornbirn.at/tischreservierung.html", "specialOpeningHoursSpecification": [{"@type": "OpeningHoursSpecification", "validFrom": "2026-07-24", "validThrough": "2026-08-23", "opens": "00:00", "closes": "00:00", "name": "Sommerpause"}], "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "11:30", "closes": "13:30", "name": "Mittagstisch"}]}
+{"@context": "https://schema.org", "@type": "Restaurant", "@id": "https://wirtschaft-dornbirn.at/#restaurant", "name": "Wirtschaft Dornbirn", "legalName": "„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.", "url": "https://wirtschaft-dornbirn.at/", "description": "Mittagstisch, Konzerte, Comedy und Catering in Dornbirn, Vorarlberg.", "telephone": "+43557220540", "email": "willkommen@wirtschaft-dornbirn.at", "image": "https://wirtschaft-dornbirn.at/assets/restaurant.webp", "priceRange": "€€", "servesCuisine": ["Österreichisch", "Saisonal"], "address": {"@type": "PostalAddress", "streetAddress": "Bahnhofstraße 24", "postalCode": "6850", "addressLocality": "Dornbirn", "addressRegion": "Vorarlberg", "addressCountry": "AT"}, "vatID": "ATU36206707", "areaServed": {"@type": "City", "name": "Dornbirn"}, "acceptsReservations": "https://wirtschaft-dornbirn.at/tischreservierung.html", "specialOpeningHoursSpecification": [{"@type": "OpeningHoursSpecification", "validFrom": "2026-07-24", "validThrough": "2026-08-23", "opens": "00:00", "closes": "00:00", "name": "Sommerpause"}], "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "09:30", "closes": "14:00", "name": "Mittagstisch"}]}
   </script>
 </head>
 <body class="final-site" data-theme="origin">
@@ -41,22 +41,16 @@
     </span>
     <nav class="bar-nav" aria-label="Direkte Wege">
       <a href="events.html"><span class="nav-lang">Tickets &amp; Events</span><span class="nav-kurz">Events</span></a>
-      <div class="nav-drop">
-        <button type="button" id="navMittag" aria-expanded="false" aria-controls="navMittagMenu">Mittag <span class="drop-pfeil" aria-hidden="true">▾</span></button>
-        <div class="nav-drop-menu" id="navMittagMenu" hidden>
-          <a href="tischreservierung.html">Mittagstisch</a>
-          <a href="takeaway.html">Takeaway</a>
-        </div>
-      </div>
+      <a href="tischreservierung.html">Mittagstisch</a>
+      <a href="takeaway.html">Takeaway</a>
       <a href="feste-catering.html">Locations</a>
       <a href="agentur.html">Agentur</a>
-      <a href="sponsoren.html">Sponsoren</a>
     </nav>
     <p class="bar-hours" data-opening-hours>
-      <span>Mittagstisch</span>
-      <time datetime="Mo-Fr 11:30-13:30">Mo–Fr 11:30–13:30</time>
+      <span>Neue Wirtschaftszeiten</span>
+      <time datetime="Mo-Fr 09:30-14:00">Mo–Fr 09:30–14:00</time>
     </p>
-    <a class="bar-news" id="barNews" href="#go-concept-04" data-news="2" hidden><img class="bar-news-thumb" id="barNewsThumb" alt="" width="96" height="64" loading="lazy" decoding="async" hidden><span>Neu</span><b id="barNewsText"></b></a>
+    <a class="bar-news" id="barNews" href="events.html"><b>Unser aktuelles Programm</b></a>
   </header>
 
 
@@ -156,47 +150,8 @@
     <section class="voucher-scene" id="gutscheine" data-variant="a" aria-labelledby="voucherTitle">
       <span class="jump-anchor" id="go-gutscheine" aria-hidden="true"></span><p class="eyebrow">Gutscheine</p>
       <h2 id="voucherTitle">Freude verschenken.</h2>
-      <p>Ein Abend in der Wirtschaft, verpackt in einen Gutschein. Einlösbar für Konzert, Comedy oder ein Essen bei uns in Dornbirn.</p>
-      <p class="voucher-kurz-weg"><a class="button light" href="gutscheine.html">Gutscheine ansehen →</a></p>
-      <ol class="voucher-steps">
-        <li><b>01</b>Gutschein wählen</li>
-        <li><b>02</b>Daten angeben</li>
-        <li><b>03</b>Bezahlen</li>
-        <li><b>04</b>Drucken oder verschicken</li>
-        <li><b>05</b>Freude verschenken</li>
-      </ol>
-      <div class="voucher-list">
-        <article class="voucher-card">
-            <div><h3>„Dinner &amp; Konzert/Comedy“<span class="worth">Veranstaltung nach Wahl · Wert: 68 Euro</span></h3></div>
-            <p>Einlösbar für jede Veranstaltung im Wert von 68 Euro, inklusive einem erlesenen 6-Gänge-„Flying-Dinner“-Menü. Die beschenkte Person wählt Termin und Künstler selbst. Bei einzelnen Terminen kann ein kleiner Aufpreis anfallen.</p>
-          <span class="voucher-count" data-voucher="dinner" data-min="0" data-max="20" data-value="0">
-            <button type="button" data-step="-1" aria-label="Einen Gutschein weniger">−</button>
-            <output aria-live="polite">0</output>
-            <button type="button" data-step="1" aria-label="Einen Gutschein mehr">+</button>
-          </span>
-        </article>
-        <article class="voucher-card">
-            <div><h3>„Konzert/Comedy only“<span class="worth">Veranstaltung nach Wahl · Wert: 28 Euro</span></h3></div>
-            <p>Einlösbar für jede Veranstaltung im Wert von 28 Euro. Die beschenkte Person wählt Termin und Künstler selbst. Bei einzelnen Terminen kann ein kleiner Aufpreis anfallen.</p>
-          <span class="voucher-count" data-voucher="konzert" data-min="0" data-max="20" data-value="0">
-            <button type="button" data-step="-1" aria-label="Einen Gutschein weniger">−</button>
-            <output aria-live="polite">0</output>
-            <button type="button" data-step="1" aria-label="Einen Gutschein mehr">+</button>
-          </span>
-        </article>
-        <article class="voucher-card">
-            <div><h3>Wertgutschein<span class="worth">Betrag frei wählbar</span></h3></div>
-            <p>Wird mit einem frei gewählten Wert ausgestellt. Ob ein feines Abendessen in der „wirtschaft“ oder ein Konzert- und Comedybesuch: einlösbar für alles, was man bei uns bekommen kann.</p>
-          <span class="voucher-count" data-voucher="wert" data-min="0" data-max="20" data-value="0">
-            <button type="button" data-step="-1" aria-label="Einen Gutschein weniger">−</button>
-            <output aria-live="polite">0</output>
-            <button type="button" data-step="1" aria-label="Einen Gutschein mehr">+</button>
-          </span>
-        </article>
-      </div>
-      <div class="voucher-foot">
-        <p>Die Bestellung läuft persönlich über uns: <a href="tel:+43557220540">+43 (0)5572 20 540</a> oder <a href="mailto:willkommen@wirtschaft-dornbirn.at?subject=Gutschein%20bestellen">willkommen@wirtschaft-dornbirn.at</a>. Wir melden uns mit den Zahlungsdaten und schicken den Gutschein zum Drucken oder per Post.</p>
-      </div>
+      <p>Ein Abend in der Wirtschaft, verpackt in einen Gutschein – für Konzert, Comedy oder ein Essen bei uns. Die beschenkte Person sucht sich den Abend selbst aus.</p>
+      <p class="voucher-weg"><a class="button light" href="https://gutscheine.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Gutschein holen →</a></p>
     </section>
 
     <section class="insta-strip" id="instagram" aria-labelledby="instaTitel">
@@ -216,7 +171,7 @@
     <div><p class="fuss-label">das haus</p><img src="assets/wirtschaft-logo.png" width="300" height="69" loading="lazy" decoding="async" alt="Wirtschaft Dornbirn"><p>Wolfgang Preuß</p><p>Bahnhofstraße 24 · 6850 Dornbirn</p><a href="tel:+43557220540">+43 (0)5572 20 540</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a></div>
     <div class="partner-block"><p class="fuss-label">emma &amp; eugen</p><img src="assets/emma-eugen-logo.png" width="206" height="116" loading="lazy" decoding="async" alt="Emma &amp; Eugen – Essen, Trinken &amp; Livemusik auf Achse"><p>Wolfgang Preuß</p><p>Bahnhofstraße 24 · 6850 Dornbirn</p><a href="tel:+436642306587">+43 664 230 65 87</a><a href="mailto:Uri@eugen.family">Uri@eugen.family</a><a href="https://www.emmaundeugen.family" target="_blank" rel="noopener noreferrer">www.emmaundeugen.family ↗</a></div>
     <div><p class="fuss-label">rechtliches</p><p>UID ATU 36206707</p><p>FN 329272 z</p><p>Firmenbuchgericht: Landesgericht Feldkirch</p><a href="impressum.html">Impressum</a><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a></div>
-    <div><p class="fuss-label">seiten</p><a href="events.html">Termine &amp; Tickets</a><a href="feste-catering.html">Locations · Feste &amp; Catering</a><a href="agentur.html">Agentur</a><a href="gutscheine.html">Gutscheine</a><a href="sponsoren.html">Sponsoren</a><a data-route href="https://www.google.com/maps/dir/?api=1&destination=Bahnhofstra%C3%9Fe+24%2C+6850+Dornbirn%2C+%C3%96sterreich" target="_blank" rel="noopener noreferrer">Route öffnen ↗</a></div>
+    <div><p class="fuss-label">seiten</p><a href="events.html">Termine &amp; Tickets</a><a href="feste-catering.html">Locations · Feste &amp; Catering</a><a href="agentur.html">Agentur</a><a href="https://gutscheine.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Gutscheine</a><a data-route href="https://www.google.com/maps/dir/?api=1&destination=Bahnhofstra%C3%9Fe+24%2C+6850+Dornbirn%2C+%C3%96sterreich" target="_blank" rel="noopener noreferrer">Route öffnen ↗</a></div>
     <p class="prototype-note">Öffentliche Testumgebung · Reservierung und Tickets über offizielle Anbieter</p>
   </footer>
 
@@ -268,7 +223,7 @@
 
   <noscript><p class="noscript">Für die Eventübersicht ist JavaScript erforderlich. Die offiziellen Reservierungs- und Ticketlinks bleiben ohne JavaScript erreichbar.</p></noscript>
   <script type="module" src="instagram-feed.js?v=c4a859d8"></script>
-  <script src="app.js?v=0d407fe1" defer></script>
+  <script src="app.js?v=68f7f0f3" defer></script>
   <script type="module" src="lunch-abo.js?v=91847ce8"></script>
   <script src="truck-motion.js?v=71be0661" defer></script>
   <script src="prefetch.js?v=b7ede3be" defer></script>

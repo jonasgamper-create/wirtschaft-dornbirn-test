@@ -601,40 +601,6 @@
 
 
   // Mittag-Aufklappmenue: ein Ziel in der Leiste, zwei Wege dahinter.
-  // Klick oeffnet (auch am Handy), Maus darf am Desktop schweben,
-  // Escape und ein Klick daneben schliessen.
-  const navDrop = document.querySelector('.nav-drop');
-  if (navDrop) {
-    const knopf = navDrop.querySelector('button');
-    const menue = navDrop.querySelector('.nav-drop-menu');
-    // Wo die Seite stand, als das Menue aufging: iOS Safari bewegt beim
-    // Tippen seine eigenen Leisten und feuert dabei Scroll-Ereignisse um
-    // wenige Pixel - das Menue ging auf und im selben Moment wieder zu,
-    // der Weg zur Reservierung war am iPhone schlicht nicht erreichbar.
-    // Geschlossen wird deshalb erst, wenn wirklich GESCROLLT wurde.
-    let offenBei = 0;
-    const setze = offen => {
-      knopf.setAttribute('aria-expanded', String(offen));
-      menue.hidden = !offen;
-      if (offen) offenBei = window.scrollY;
-    };
-    knopf.addEventListener('click', () => setze(menue.hidden));
-    menue.querySelectorAll('button, a').forEach(el => el.addEventListener('click', () => setze(false)));
-    // Wegfahren schliesst - aber nur, wenn es vorher per Klick geoeffnet wurde.
-    let verlassen = 0;
-    navDrop.addEventListener('mouseleave', () => {
-      clearTimeout(verlassen);
-      verlassen = setTimeout(() => setze(false), 260);
-    });
-    navDrop.addEventListener('mouseenter', () => clearTimeout(verlassen));
-    // Beim Scrollen ebenfalls schliessen: wer weitergeht, braucht es nicht
-    // mehr. Aber erst ab einer echten Strecke, siehe oben.
-    addEventListener('scroll', () => {
-      if (!menue.hidden && Math.abs(window.scrollY - offenBei) > 40) setze(false);
-    }, { passive: true });
-    document.addEventListener('click', e => { if (!navDrop.contains(e.target)) setze(false); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') setze(false); });
-  }
 
   // Hoerprobe: die Kachel zeigt sich nur, wenn die Datei wirklich daliegt.
   // Wolfgang legt spaeter assets/hoerprobe.mp4 ab - mehr braucht es nicht.
@@ -645,46 +611,6 @@
     video.addEventListener('error', () => { hoerprobe.hidden = true; });
   }
 
-  // Der kleine Neu-Hinweis im Kopf: immer das naechste, das wirklich ansteht.
-  // Er pflegt sich selbst aus den Eventdaten - ein veralteter Hinweis waere
-  // schlimmer als keiner.
-  // Welche Termine ein eigenes Bild haben - dieselbe Quelle wie die
-  // Eventuebersicht. Einmal geholt, danach aus dem Versprechen gelesen.
-  const eventBilder = fetch('data/event-medien.json', { cache: 'no-store' })
-    .then(antwort => antwort.json())
-    .then(medien => new Set(medien?.bilder || []))
-    .catch(() => new Set());
-
-  function syncBarNews() {
-    const chip = document.getElementById('barNews');
-    const text = document.getElementById('barNewsText');
-    if (!chip || !text) return;
-    const heute = new Date();
-    heute.setHours(0, 0, 0, 0);
-    // Der Hinweis wirbt - also nur fuer Termine, die man noch bekommen kann.
-    // Ein ausverkaufter Abend als "Neu" fuehrt Gaeste in eine Sackgasse; der
-    // 03.09. haengt sonst bis zum Termin oben rechts, obwohl es nichts mehr
-    // zu holen gibt.
-    const kommend = calendarEvents.find(item => item.status !== 'cancelled' && item.status !== 'sold_out' && new Date(`${item.date}T12:00:00`) >= heute);
-    if (!kommend) return;
-    text.textContent = `${kommend.title} · ${formatEventDate(kommend.date)}`;
-    // Das Bild des Termins, klein. Fehlt es, springt ein Abendfoto ein -
-    // dieselbe Regel wie in der Eventuebersicht, damit der Hinweis nie mit
-    // einem leeren Rahmen dasteht.
-    const thumb = document.getElementById('barNewsThumb');
-    if (thumb) {
-      // Erst fragen, dann laden: liegt fuer den Termin kein Bild vor, kommt
-      // direkt das Abendfoto. Ein onerror-Rueckfall wuerde bei jedem Laden
-      // eine fehlschlagende Anfrage feuern - so wie es hier vorher war.
-      eventBilder.then(vorhanden => {
-        thumb.src = vorhanden.has(kommend.id)
-          ? `assets/events/${encodeURIComponent(kommend.id)}.webp`
-          : 'assets/abend-01.webp';
-        thumb.hidden = false;
-      });
-    }
-    chip.hidden = false;
-  }
 
   // Der Terminhinweis scrollt mit und nimmt dabei an Praesenz zu: oben liegt
   // er leise in der Leiste, auf dem Weg zum Terminabschnitt wird er heller.
@@ -956,19 +882,10 @@
     .then(daten => {
       const basis = String(daten?.api || '').trim().replace(/\/+$/, '');
       if (!/^https?:\/\//.test(basis)) return;
-      // Das Mittagsfenster kommt vom Dienst: stellt der Wirt es um, steht es
-      // hier ohne neuen Seitenaufbau richtig. Ohne Dienst bleibt der Text
-      // aus dem HTML stehen - der stimmt als Vorgabe.
-      fetch(`${basis}/api/oeffnung`, { cache: 'no-store' })
-        .then(antwort => antwort.json())
-        .then(zeiten => {
-          if (!zeiten?.ok || !zeiten.von || !zeiten.bis) return;
-          const anzeige = document.querySelector('[data-opening-hours] time');
-          if (!anzeige) return;
-          anzeige.textContent = `Mo–Fr ${zeiten.von}–${zeiten.bis}`;
-          anzeige.setAttribute('datetime', `Mo-Fr ${zeiten.von}-${zeiten.bis}`);
-        })
-        .catch(() => { /* Anzeige behaelt die Vorgabe */ });
+      // Oben rechts stehen seit 01.09. die Wirtschaftszeiten (09:30-14:00),
+      // nicht mehr das Mittagsfenster. Das Fenster vom Dienst (/api/oeffnung,
+      // 11:30-13:30) gilt weiter fuer die Reservierung - hier wuerde es die
+      // Hauszeiten ueberschreiben, deshalb bleibt der Text aus dem HTML.
       return fetch(`${basis}/api/events`, { cache: 'no-store' })
         .then(antwort => antwort.json())
         .then(eigene => {
@@ -992,7 +909,6 @@
       mischeHausEvents();
       syncOfficialTicketLink();
       syncServiceStatus();
-      syncBarNews();
       window.dispatchEvent(new CustomEvent('wirtschaft:eventdata', { detail: { fresh: isFreshEventData(data), count: calendarEvents.length } }));
     })
     .catch(error => {
@@ -1000,49 +916,6 @@
       // stimmen, nur die Aktualisierung ist ausgeblieben.
       window.__APP_ERRORS__.push({ type: 'event-data', message: error.message });
     });
-  const voucherLabels = {
-    dinner: 'Dinner & Konzert/Comedy (68 Euro)',
-    konzert: 'Konzert/Comedy only (28 Euro)',
-    wert: 'Wertgutschein'
-  };
-  const voucherBoxes = [...document.querySelectorAll('[data-voucher]')];
-  // Der Bestellknopf ist am 27.08. entfernt worden - der Abschnitt zeigt die
-  // Gutscheine, den Weg zur Bestellung besprechen wir persoenlich. Die
-  // Mengenwaehler bleiben bedienbar, deshalb muss alles hier ohne den Knopf
-  // auskommen: ohne diese Pruefung stiege die Funktion aus und die Waehler
-  // waeren tot.
-  const voucherRequest = document.getElementById('voucherRequest');
-  function syncVoucherMail() {
-    if (!voucherRequest) return;
-    const picked = voucherBoxes
-      .filter(box => Number(box.dataset.value) > 0)
-      .map(box => `${box.dataset.value} × ${voucherLabels[box.dataset.voucher]}`);
-    const body = ['Guten Tag,', '', picked.length
-      ? 'ich möchte folgende Gutscheine bestellen:'
-      : 'ich möchte einen Gutschein bestellen.', ...picked, '',
-      'Name:', 'Adresse:', '', 'Danke und freundliche Grüße'].join('\n');
-    voucherRequest.href = 'mailto:willkommen@wirtschaft-dornbirn.at?subject='
-      + encodeURIComponent('Gutschein bestellen') + '&body=' + encodeURIComponent(body);
-  }
-  voucherBoxes.forEach(box => {
-    const min = Number(box.dataset.min), max = Number(box.dataset.max);
-    const out = box.querySelector('output');
-    const paint = () => {
-      out.textContent = box.dataset.value;
-      box.querySelector('[data-step="-1"]').disabled = Number(box.dataset.value) <= min;
-      box.querySelector('[data-step="1"]').disabled = Number(box.dataset.value) >= max;
-      syncVoucherMail();
-    };
-    box.addEventListener('click', e => {
-      const step = e.target.closest('[data-step]');
-      if (!step) return;
-      box.dataset.value = String(Math.min(max, Math.max(min, Number(box.dataset.value) + Number(step.dataset.step))));
-      paint();
-      box.classList.add('bumped');
-      window.setTimeout(() => box.classList.remove('bumped'), 180);
-    });
-    paint();
-  });
 
   const lunchCardLink = document.querySelector('[data-lunch-card]');
 
