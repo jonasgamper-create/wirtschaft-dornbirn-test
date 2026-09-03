@@ -6,7 +6,7 @@ import {
   apiAdresse, bestelleTakeaway, holeBestellStatus, holePushSchluessel,
   holeTakeawayKarte, meldePushAb, meldePushAn,
   holeKarteAusDatei,
-} from './haus-api.js?v=a9394c5f';
+} from './haus-api.js?v=309a63fc';
 
 const byId = id => document.getElementById(id);
 
@@ -500,22 +500,12 @@ async function start() {
   if (!antwort?.ok || !Array.isArray(antwort.gerichte) || !antwort.gerichte.length) return;
 
   nurAnsicht = Boolean(antwort.nurAnsicht);
-  // Gruppen wie beim offiziellen Dienst. Liefert eine Quelle keine, wird die
-  // ganze Karte als eine Gruppe ohne Titel gezeigt - die Anzeige bleibt gleich.
-  gruppen = Array.isArray(antwort.gruppen) && antwort.gruppen.length
-    ? antwort.gruppen
-    : [{ id: 'alle', titel: '', fenster: '', hinweis: '', gerichte: antwort.gerichte }];
-  karte = gruppen.flatMap(gruppe => gruppe.gerichte.map(g => ({ ...g, gruppe: gruppe.id })));
-  allergenNamen = antwort.allergenNamen || {};
-
   // Die Karte wird immer gezeigt - auch wenn die Kueche durch ist. Wer abends
   // oder am Sonntag nachschaut, will wissen, was es gibt; eine Seite, die
   // dann nur "geschlossen" sagt, verschweigt genau das, wofuer man
   // hergekommen ist. Zu ist nur das Bestellen, nicht die Karte.
   zeigeTage();
-  zeigeKarte();
-  zeigeAllergene();
-  zeigeKartenLink(antwort.karte);
+  uebernimmKarte(antwort);
   // Das Formular steht immer da - es ist der Bestellweg. Ohne laufenden
   // Hausdienst wird es beim offiziellen Lieferservice abgeschlossen.
   byId('taForm').hidden = false;
@@ -530,6 +520,24 @@ async function start() {
   richteDatumEin(antwort);
   uebernimmTag(antwort);
   zeigeSumme();
+}
+
+/**
+ * Die Karte aus einer Antwort des Dienstes uebernehmen und zeichnen. Beim
+ * Start einmal - und seit dem Menueplan bei jedem Tageswechsel noch einmal:
+ * der Dienst liefert je Abholtag nur das Gericht dieses Tages, dazu Vital
+ * und A la carte. Gruppen wie beim offiziellen Dienst; liefert eine Quelle
+ * keine, wird die ganze Karte als eine Gruppe ohne Titel gezeigt.
+ */
+function uebernimmKarte(antwort) {
+  gruppen = Array.isArray(antwort.gruppen) && antwort.gruppen.length
+    ? antwort.gruppen
+    : [{ id: 'alle', titel: '', fenster: '', hinweis: '', gerichte: antwort.gerichte }];
+  karte = gruppen.flatMap(gruppe => gruppe.gerichte.map(g => ({ ...g, gruppe: gruppe.id })));
+  allergenNamen = antwort.allergenNamen || allergenNamen;
+  zeigeKarte();
+  zeigeAllergene();
+  zeigeKartenLink(antwort.karte);
 }
 
 /**
@@ -752,6 +760,14 @@ async function waehleTag(wert) {
   }
   wunschTag = gewuenscht;
   uebernimmTag(antwort);
+  // Ein anderer Tag, ein anderes Tagesgericht: die Karte kommt vom Dienst
+  // fuer genau diesen Tag. Was fuer den alten Tag gewaehlt war, gibt es am
+  // neuen nicht - die Mengen fangen von vorn an.
+  if (Array.isArray(antwort.gruppen) && antwort.gruppen.length) {
+    mengen.clear();
+    uebernimmKarte(antwort);
+    zeigeSumme();
+  }
   sagDatum(antwort);
 }
 

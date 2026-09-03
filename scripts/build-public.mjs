@@ -31,6 +31,8 @@ const excluded = new Set([
   'wirt.html',
   'wirt.js',
   'wirt.css',
+  // Das Menueplan-Formular gehoert zur Wirt-Ansicht und wird dort eingebuendelt.
+  'wirt-menueplan.mjs',
   // Dasselbe fuer den Bildschirm in der Kueche: Werkzeug fuers Haus, nicht
   // fuer Gaeste. Als Quelldatei ging er ohne sein Stilblatt hinaus - die
   // Seite kam unformatiert an, weil wirt.css im Gaeste-Build fehlt.

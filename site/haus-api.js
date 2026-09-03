@@ -100,11 +100,27 @@ export const buche = anfrage => ruf('/api/reservierung', { methode: 'POST', koer
 export const meldeMittagskarte = (email, quelle = 'seite') =>
   ruf('/api/newsletter', { methode: 'POST', koerper: { email, quelle, einwilligung: true } });
 
-/** Wo die aktuelle Mittagskarte liegt - oder null, wenn kein Dienst da ist. */
-export async function karteAdresse() {
+/**
+ * Wo die aktuelle Mittagskarte liegt - oder null, wenn kein Dienst da ist.
+ * Mit der Auskunft von holeKarteInfo: ist die Karte ein gesetzter Menueplan
+ * (art "plan"), liegt sie als Seite neben dieser hier; sonst als PDF beim
+ * Dienst. Ohne Auskunft wie frueher: das PDF.
+ */
+export async function karteAdresse(info = null) {
+  if (info?.art === 'plan') return info.pfad || 'mittagskarte.html';
   const basis = await apiAdresse();
   return basis ? `${basis}/mittagskarte.pdf` : null;
 }
+
+/** Der Menueplan der Woche - oeffentlich, er steht ohnehin auf der Seite. */
+export const holeMenueplan = () => ruf('/api/menueplan');
+
+/** Der Wirt setzt den Plan; der Dienst prueft und nennt, was nicht passt. */
+export const sendeMenueplan = (token, plan) =>
+  ruf('/api/menueplan', { methode: 'POST', koerper: plan, token });
+
+export const loescheMenueplan = token =>
+  ruf('/api/menueplan', { methode: 'DELETE', token });
 
 /** Gibt es eine Karte, und von wann ist sie? Oeffentlich, ohne Inhalt. */
 export const holeKarteInfo = () => ruf('/api/mittagskarte');

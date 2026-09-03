@@ -4,7 +4,7 @@
 // wie bisher und leitet auf den offiziellen Anbieter weiter. Erst wenn der
 // Dienst laeuft, wird aus dem Formular eine echte Buchung.
 
-import { apiAdresse, buche, holeAmpel, holeFrei, holeGeschlossen, holeKarteInfo, holeTakeawayKarte, karteAdresse, meldeMittagskarte, trageWartelisteEin } from './haus-api.js?v=a9394c5f';
+import { apiAdresse, buche, holeAmpel, holeFrei, holeGeschlossen, holeKarteInfo, holeTakeawayKarte, karteAdresse, meldeMittagskarte, trageWartelisteEin } from './haus-api.js?v=309a63fc';
 import { istFeiertag, istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 
 const byId = id => document.getElementById(id);
@@ -56,7 +56,11 @@ async function start() {
     if (!kasten) return;
     const info = await holeKarteInfo();
     if (!info?.ok || !info.da) { kasten.hidden = true; return; }
-    byId('lunchLiveLink').href = await karteAdresse();
+    const link = byId('lunchLiveLink');
+    link.href = await karteAdresse(info);
+    // Ein gesetzter Plan ist eine Seite (dort: ansehen, als PDF speichern);
+    // ein hochgeladenes PDF oeffnet direkt.
+    link.textContent = info.art === 'plan' ? 'Mittagskarte ansehen' : 'Mittagskarte öffnen (PDF)';
     const stand = new Date(info.stand);
     byId('lunchLiveStand').textContent = Number.isNaN(stand.getTime()) ? '' : `Stand: ${stand.toLocaleDateString('de-AT', {
       weekday: 'long', day: 'numeric', month: 'long'
