@@ -31,7 +31,7 @@ import {
 import {
   absage as absageMail, baueTermin, bestaetigung as bestaetigungsMail, brevoPaket,
   escapeHtml, newsletterFrage, sendeMail, tageszettelMail, termin_uid,
-  wartelisteFreiMail, wochenberichtMail, wochenkarte as wochenkarteMail, bestellBestaetigung, bestellFertigMail, neueBestellungMail } from './mail.mjs';
+  wartelisteFreiMail, wochenberichtMail, wochenkarte as wochenkarteMail, bestellBestaetigung, neueBestellungMail } from './mail.mjs';
 import {
   markiereInformiert, naechsterWartender, nimmAuf, pruefeWartelisteEintrag, raeumeWartelisteAb
 } from './warteliste.mjs';
@@ -320,16 +320,6 @@ export class Haus extends DurableObject {
       arbeiten.push(sendeMail(this.env, brevoPaket({ absender, an: haus, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text })));
     }
     await Promise.allSettled(arbeiten);
-  }
-
-  /** "Dein Essen ist fertig" - per Mail, wenn eine Adresse da ist. Einmal. */
-  async #fertigMail(bestellung) {
-    const absender = String(this.env?.BREVO_ABSENDER || '');
-    if (!absender || !bestellung.email || bestellung.fertigMailUm) return;
-    bestellung.fertigMailUm = new Date().toISOString();
-    this.#takeawaySichere(bestellung);
-    const inhalt = bestellFertigMail({ nummer: bestellung.nummer, name: bestellung.name, zeit: bestellung.fertigUm });
-    await sendeMail(this.env, brevoPaket({ absender, an: bestellung.email, anName: bestellung.name, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text }));
   }
 
   /**
@@ -1917,7 +1907,6 @@ export class Haus extends DurableObject {
       this.#takeawaySichere(bestellung);
       this.#meldeAenderung();
       if (schonGemeldet) return { ok: true, sms: 'schon' };
-      this.ctx.waitUntil(this.#fertigMail(bestellung));
       // Die SMS haelt den Betrieb nicht auf: sie geht hinterher raus, und
       // scheitert sie, bleibt die Bestellung trotzdem fertig.
       // Push und SMS sind zwei Wege zum selben Gast, keine Alternativen:

@@ -359,12 +359,12 @@ export function wochenberichtMail({ von, bis, tage, gaeste, reservierungen, nich
   };
 }
 
-// ---- Takeaway: drei Mails ---------------------------------------------------
+// ---- Takeaway: zwei Mails ---------------------------------------------------
 //
 // Bestellt jemand online, bekommt er sofort den Beleg; das Haus bekommt die
-// Bestellung zusaetzlich zur Wirt-Ansicht als Mail; und ist das Essen
-// fertig, sagt eine dritte Mail Bescheid. SMS war dafuer vorgesehen und ist
-// aus - die Mail ist der Weg, der ohne Guthaben laeuft.
+// Bestellung zusaetzlich zur Wirt-Ansicht als Mail. (Eine dritte Mail bei
+// "fertig" war gebaut und ist auf Wunsch vom 04.09. wieder raus - der Gast
+// weiss seine Abholzeit, das reicht.) SMS war dafuer vorgesehen und ist aus.
 
 const preis = wert => `€ ${Number(wert).toFixed(2).replace('.', ',')}`;
 const postenZeilen = posten => (posten || []).map(p => `${p.menge}× ${p.name}`);
@@ -408,20 +408,5 @@ export function neueBestellungMail({ nummer, name, telefon, tag, zeit, posten, s
     html,
     text: `Neue Takeaway-Bestellung\n\nNr. ${nummer} · ${name}\n${vorbestellung ? langesDatum(tag) : 'heute'}, ${zeit} Uhr${eng ? ' (Slot eng)' : ''}\n\n`
       + `${essen.join('\n')}\nSumme: ${preis(summe)}\nTelefon: ${telefon}\n${wirtLink ? `\n${wirtLink}` : ''}`
-  };
-}
-
-/** An den Gast: "Es ist fertig." */
-export function bestellFertigMail({ nummer, name, zeit }) {
-  const html = rahmen('Dein Essen ist fertig', [
-    kopf(`Nr. ${nummer}`, 'Liegt am Tresen bereit.'),
-    zeile('Name', name),
-    zeile('Wo', 'Bahnhofstraße 24, 6850 Dornbirn'),
-    zeile('Wann', `ab jetzt${zeit ? ` – fertig um ${zeit} Uhr` : ''}`)
-  ].join(''));
-  return {
-    betreff: `Nr. ${nummer} ist fertig – komm vorbei`,
-    html,
-    text: `Dein Essen ist fertig und liegt am Tresen bereit.\n\nNr. ${nummer} · ${name}\nBahnhofstraße 24, 6850 Dornbirn`
   };
 }
