@@ -13,7 +13,8 @@
           "name": "cordon bleu vom schwein mit bresaola & brie gefüllt",
           "beilage": "schnittlauchkartoffeln | salat",
           "allergene": "a, c, g, l, m",
-          "takeaway": true
+          "takeaway": true,
+          "preis": 15.9
         }
       ]
     },
@@ -23,13 +24,15 @@
           "name": "kalbsleber",
           "beilage": "kartoffelrösti | salat",
           "allergene": "a, f, l, m, n",
-          "takeaway": true
+          "takeaway": true,
+          "preis": 15.9
         },
         {
           "name": "älpler käshörnle",
           "beilage": "schmelzzwiebeln | speck | kartoffel-gurkensalat",
           "allergene": "a, c, g, l, m",
-          "takeaway": true
+          "takeaway": true,
+          "preis": 15.9
         }
       ]
     },
@@ -39,7 +42,8 @@
           "name": "hausgemachte lasagne bolognese",
           "beilage": "salat",
           "allergene": "a, c, g, l, m",
-          "takeaway": true
+          "takeaway": true,
+          "preis": 15.9
         }
       ]
     },
@@ -49,7 +53,8 @@
           "name": "tranchen vom truthahn",
           "beilage": "rahmkartoffeln | speckbohnen",
           "allergene": "c, g, l",
-          "takeaway": true
+          "takeaway": true,
+          "preis": 15.9
         }
       ]
     },
@@ -59,7 +64,8 @@
           "name": "rindsstreifen „süß-sauer“",
           "beilage": "basmatireis | salat",
           "allergene": "f, l, m, n",
-          "takeaway": true
+          "takeaway": true,
+          "preis": 15.9
         }
       ]
     }
@@ -70,14 +76,16 @@
       "name": "lachsschnitte",
       "beilage": "mango-bulgur | chili-honigsauce | minzjoghurt",
       "allergene": "a, c, l, m",
-      "takeaway": true
+      "takeaway": true,
+      "preis": 15.9
     },
     {
       "titel": "vegi-gericht",
       "name": "hausgemachte maultaschen",
       "beilage": "kartoffel-kürbisfüllung | nussbutter-espuma | brokkoli-gemüse",
       "allergene": "a, c, g",
-      "takeaway": true
+      "takeaway": true,
+      "preis": 15.9
     }
   ],
   "alacarteFenster": "11:30 bis 13:00 uhr",

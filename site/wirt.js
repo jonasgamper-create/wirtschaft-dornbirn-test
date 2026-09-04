@@ -13,7 +13,7 @@ import {
   setzeFertigWer,
   stelleTagWiederHer
 } from './haus-api.js?v=14d80640';
-import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=aca534d9';
+import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
 import { liesAnsicht, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=df871f29';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
@@ -921,11 +921,20 @@ function zeigePlanStand(plan, entwurf) {
   const tage = plan.tage.flatMap(tag => tag.gerichte);
   const alle = [...tage, ...plan.vital, ...plan.alacarte];
   const mit = alle.filter(gericht => gericht.takeaway !== false).length;
+  // Die Preisspanne der Menues auf einen Blick: "alle 15,90" beruhigt,
+  // "14,90 bis 17,90" sagt, dass es sich zu pruefen lohnt.
+  const menuePreise = [...tage, ...plan.vital].map(g => g.preis).filter(p => typeof p === 'number');
+  const euro = p => p.toFixed(2).replace('.', ',');
+  const spanne = menuePreise.length
+    ? (Math.min(...menuePreise) === Math.max(...menuePreise)
+      ? ` · Menüs alle € ${euro(menuePreise[0])}`
+      : ` · Menüs € ${euro(Math.min(...menuePreise))} bis ${euro(Math.max(...menuePreise))}`)
+    : '';
   const bis = new Date(`${plan.montag}T12:00:00`);
   bis.setDate(bis.getDate() + 4);
   zeile.textContent = `Veröffentlicht für ${kurz(plan.montag)} – `
     + `${bis.toLocaleDateString('de-AT', { day: 'numeric', month: 'long' })} · `
-    + `${alle.length} Gerichte, davon ${mit} zum Mitnehmen.`;
+    + `${alle.length} Gerichte, davon ${mit} zum Mitnehmen${spanne}.`;
   zeile.dataset.art = 'gut';
 }
 
