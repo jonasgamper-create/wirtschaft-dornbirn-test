@@ -4,9 +4,8 @@
 <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#f3efe6">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/favicon-180.png">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
-  <meta name="description" content="Aktuelle Mittagskarte der Wirtschaft Dornbirn zum Ansehen und als PDF speichern.">
+  <meta name="description" content="Die Mittagskarte der Wirtschaft Dornbirn: ein A4-Blatt, in der Mitte gefaltet – zum Ansehen, Speichern und Drucken.">
   <meta name="robots" content="noindex,nofollow">
   <title>Mittagskarte · Wirtschaft Dornbirn</title>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-400-normal.woff2" crossorigin>
@@ -16,126 +15,159 @@
   src:url("assets/fonts/montserrat-latin-400-normal.woff2") format("woff2")}
 @font-face{font-family:Montserrat;font-style:normal;font-weight:600;font-display:swap;
   src:url("assets/fonts/montserrat-latin-600-normal.woff2") format("woff2")}
-@font-face{font-family:Montserrat;font-style:normal;font-weight:700;font-display:swap;
-  src:url("assets/fonts/montserrat-latin-700-normal.woff2") format("woff2")}
 :root{
-  --ink:#11110f;--paper:#f3efe6;--cream:#ead9bc;--wine:#8c292b;--green:#244635;--gold:#c59b5d;
-  --grau:#57524a;
+  --ink:#11110f;--paper:#f3efe6;--gold:#c59b5d;--wine:#8c292b;--grau:#57524a;
   --sans:Montserrat,"Helvetica Neue",Arial,sans-serif;
 }
 doc-page:not(:defined){visibility:hidden}
-body{margin:0;font-family:var(--sans);color:var(--ink);text-transform:lowercase;
-  -webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:var(--sans);color:var(--ink);text-transform:lowercase}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-a{color:var(--wine)}
-a:hover{color:var(--ink)}
 
-/* Die Leiste gehoert zur Bedienung, nicht zur Karte - sie wird nicht gedruckt. */
+/* Bedienung - wird nicht gedruckt. */
 .leiste{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;
-  gap:16px;flex-wrap:wrap;padding:14px clamp(16px,4vw,40px);background:var(--ink);color:var(--paper);
-  padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+  gap:16px;flex-wrap:wrap;padding:14px clamp(16px,4vw,40px);background:var(--ink);color:var(--paper)}
 .leiste a,.leiste button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;
   padding:0 18px;border:1px solid var(--paper);border-radius:999px;background:transparent;
   color:var(--paper);font:inherit;font-size:14.5px;text-decoration:none;text-transform:lowercase;cursor:pointer}
 .leiste button{background:var(--paper);border-color:var(--paper);color:var(--ink)}
 .leiste-wege{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.leiste p{margin:0;font-size:14.5px}
+.leiste p{margin:0;font-size:14.5px;max-width:60ch;line-height:1.4}
+.leiste p[data-art="warnung"]{color:#f0b8b9;font-weight:700}
 
-/* Das Blatt: weiss, ein duenner Rahmen, viel Luft - gegliedert wie die
-   Mittagskarte des Hauses. Wenig Farbe: die Woche in Gold, der Rest in
-   Schwarz und Grau auf Weiss. */
-/* Das Blatt IST A4 hoch: 210 x 297 mm, in Bildpunkten 794 x 1123 bei
-   96 dpi. Am Bildschirm wird es als Ganzes verkleinert, im Layout bleibt es
-   genau ein Blatt. Wer hier auf "als pdf speichern" geht, bekommt exakt
-   das, was er sieht - und wer nur schaut, sieht sofort eine Karte und
-   keine Webseite. */
+/* Ein A4-Blatt quer, in der Mitte gefaltet: jede Seite besteht aus zwei
+   A5-Haelften. Aussen: links die Rueckseite, rechts die Vorderseite. Innen:
+   links der Wochenplan, rechts A la carte. Wenig Farbe - Schwarz, Grau und
+   ein Hauch Gold auf Weiss. */
+/* Die Seite IST das Blatt: 297 x 210 mm, in Bildpunkten 1123 x 794 bei
+   96 dpi. Am Bildschirm wird sie als Ganzes verkleinert (zoom), damit sie
+   ins Fenster passt - im Layout bleibt sie aber genau ein A4-Blatt.
+   Das ist der Unterschied zwischen einer Vorschau und einer Druckvorlage:
+   was hier zu sehen ist, kommt genau so aus dem Drucker. Vorher wuchs die
+   Seite am Bildschirm mit ihrem Inhalt, spaeter passte sie sich der
+   Fensterbreite an - beides zeigte etwas anderes als das Papier.
+   Im Druck setzt doc-page die echte Papiergroesse mit !important; der
+   Zoom gilt nur am Bildschirm. */
+.page{display:grid;grid-template-columns:1fr 1fr;
+  background:#fff;color:var(--ink);font-size:9.5pt;line-height:1.3}
 @media screen{
-  .blatt{width:794px !important;height:1123px !important;box-sizing:border-box;overflow:hidden}
-  .blatt + .blatt{margin-top:20px}
+  .page{width:1123px !important;height:794px !important}
+  /* Der Zoom sitzt auf dem Behaelter, nicht auf dem Blatt: doc-page bringt
+     eigene Raender und Schatten mit, die sonst in voller Groesse stehen
+     bleiben - gemessen ragten sie 270 px aus dem Fenster. Im Layout bleibt
+     das Blatt dabei genau 1123 x 794, die Selbstmessung rechnet also
+     weiter mit echten Blattmassen. */
   doc-page{display:block;zoom:var(--blatt-zoom,1)}
+  /* Unter der 45-Prozent-Grenze passt das Blatt nicht mehr ins Fenster -
+     dann wird seitlich gescrollt, statt es unlesbar klein zu machen. */
   body{overflow-x:auto}
 }
-/* Im Druck bricht jedes Blatt eine Seite um. */
-@media print{
-  .blatt{height:auto;overflow:visible}
-  .blatt + .blatt{break-before:page}
+/* Am Telefon ist die Faltkarte eine Vorschau, keine Arbeitsflaeche: der
+   Hinweis sagt, wo sie hingehoert. */
+@media(max-width:700px){
+  .leiste p::after{content:" Zum Drucken am besten am Rechner öffnen.";opacity:.72}
 }
-.blatt{display:flex;flex-direction:column}
-.blatt-inhalt{flex:1;min-height:0}
-/* Folgeblaetter tragen nur eine schmale Kopfzeile, wie das Original. */
-.blatt-weiter .kopf{padding-bottom:6pt;margin-bottom:10pt}
-.blatt-weiter .kopf img,.blatt-weiter .kopf-meta{display:none}
-.blatt-weiter .kopf h1{font-size:13pt;text-align:left}
-.blatt-weiter .kopf h1 small{display:inline;margin:0 0 0 10pt;font-size:10pt}
-/* Kein Rahmen ums Blatt: die Karte laeuft wie das Original des Hauses auf
-   zwei Seiten, und ein Rahmen, der am Seitenende abreisst, sieht nach
-   Fehler aus. */
-.blatt{padding:13mm 12mm 11mm}
-.kopf{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10pt 16pt;
-  padding-bottom:10pt;margin-bottom:12pt;border-bottom:1.5px solid var(--ink)}
-.kopf img{display:block;width:150px;height:auto}
-.kopf h1{margin:0;font-size:26pt;font-weight:600;letter-spacing:-.02em;line-height:1;text-align:center}
-.kopf h1 small{display:block;margin-top:5pt;color:var(--gold);font-size:11pt;font-weight:600;letter-spacing:.01em}
-.kopf-meta{margin:0;color:var(--grau);font-size:9pt;line-height:1.55;text-align:right;white-space:nowrap}
+/* overflow:hidden ist hier nicht nur Kosmetik: erst damit meldet
+   scrollHeight die wahre Inhaltshoehe, und die Seite kann sich selbst
+   messen (passeAnsBlattAn in mittagskarte.js). Ohne das liefe eine zu
+   lange Karte beim Drucken lautlos ueber den Blattrand. */
+.haelfte{padding:9mm 10mm 8mm;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+/* Kein Stauchen: ohne das druecken die Flex-Kinder ihre Zeilen ineinander,
+   scrollHeight bleibt bei der Blatthoehe stehen - und die Selbstmessung
+   haette einen Ueberlauf nie bemerkt. Jetzt behaelt jeder Teil seine echte
+   Hoehe und meldet, wenn es zu viel wird. */
+.haelfte>*{flex-shrink:0}
+.haelfte + .haelfte{border-left:1px dashed #11110f2e}
+@media print{.haelfte + .haelfte{border-left:0}}
 
-.karte-gruppe{display:flex;align-items:baseline;gap:8pt;margin:0;padding:0 0 4pt;border-bottom:1.5px solid var(--ink);
-  font-size:15pt;font-weight:600;letter-spacing:-.01em}
-.karte-gruppe .karte-fenster{font-size:9.5pt;font-weight:400;color:var(--grau);letter-spacing:0}
-.karte-hinweis{margin:5pt 0 0;color:var(--grau);font-size:9.5pt}
-.gruppe + .gruppe{margin-top:18pt}
+/* Vorderseite */
+.titel{align-items:center;justify-content:center;text-align:center;gap:8mm}
+.titel img{display:block;width:68mm;height:auto}
+.titel h1{margin:0;font-size:30pt;font-weight:400;letter-spacing:.06em;line-height:1}
+.titel .woche{margin:0;color:var(--gold);font-size:12.5pt;font-weight:600;letter-spacing:.02em}
 
-.karte-zeile{display:grid;grid-template-columns:1fr auto;column-gap:14pt;padding:6pt 0;
+/* Rueckseite: zwei Wege, zwei Codes. */
+.rueck{justify-content:space-between;align-items:center;text-align:center}
+.rueck .klein{margin:0;color:var(--grau);font-size:8pt;letter-spacing:.06em}
+.qr-wege{display:grid;gap:11mm;justify-items:center}
+.qr{display:grid;gap:4mm;justify-items:center}
+.qr img{display:block;width:32mm;height:32mm}
+.qr p{margin:0;font-size:9.5pt;font-weight:600;letter-spacing:.02em}
+
+/* Innen: die Gerichte, gegliedert wie die Mittagskarte des Hauses - Titel
+   gross mit Zeitfenster, Linie, Hinweis; je Gericht eine Zeile mit Preis
+   rechts und den Beilagen darunter; duenne Linien dazwischen. */
+.karte-gruppe{display:flex;align-items:baseline;gap:6pt;margin:0;padding:0 0 3.5pt;border-bottom:1.3px solid var(--ink);
+  font-size:1.47em;font-weight:600;letter-spacing:-.01em}
+.karte-gruppe .karte-fenster{font-size:.9em;font-weight:400;color:var(--grau);letter-spacing:0}
+.karte-hinweis{margin:3.5pt 0 0;color:var(--grau);font-size:.9em}
+.karte-zeile{display:grid;grid-template-columns:1fr auto;column-gap:8pt;padding:3.4pt 0;
   border-bottom:1px solid #11110f1f;break-inside:avoid}
-.karte-name{grid-column:1;margin:0;font-size:10.5pt;font-weight:600;line-height:1.3}
-.karte-praefix{font-weight:600}
-.karte-preis{grid-column:2;grid-row:1;font-size:10.5pt;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-.karte-beilage{grid-column:1;margin:1.5pt 0 0;color:var(--grau);font-size:9.5pt;line-height:1.35}
-
-.fuss{margin:18pt 0 0;padding-top:8pt;border-top:1.5px solid var(--ink);color:var(--grau);font-size:9pt;line-height:1.55}
+.karte-name{grid-column:1;margin:0;font-size:1.05em;font-weight:600;line-height:1.25}
+.karte-preis{grid-column:2;grid-row:1;font-size:1.05em;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.karte-beilage{grid-column:1;margin:1pt 0 0;color:var(--grau);font-size:.92em;line-height:1.3}
+.fuss{margin:auto 0 0;padding-top:5pt;border-top:1.3px solid var(--ink);color:var(--grau);font-size:.8em;line-height:1.45}
 .fuss b{color:var(--ink)}
-.legende{margin:8pt 0 0;color:var(--grau);font-size:8pt;line-height:1.5}
-.laden{margin:0;padding:24pt 0;color:var(--grau);font-size:11pt}
+.legende{margin:4pt 0 0;color:var(--grau);font-size:.74em;line-height:1.4}
+.laden{color:var(--grau)}
 
 /* Am Handy nur die Knoepfe: der Satz kostete 60 px, die Knoepfe sind Weg
    genug. Die Leiste war 179 px hoch - ein Fuenftel des Bildschirms. */
 @media(max-width:560px){.leiste p{display:none}.leiste{gap:10px}}
-@media print{
-  .leiste{display:none}
-  body{text-transform:lowercase}
-}
+@media print{.leiste{display:none}}
   </style>
 </head>
 <body>
+  <!-- EINE Karte fuer alles (Wunsch vom 04.09.): ein A4-Blatt, beidseitig,
+       in der Mitte gefaltet - vier Seiten. Dieselbe Seite ist die Karte zum
+       Ansehen fuer Gaeste und die Druckvorlage fuer den Tisch. -->
   <nav class="leiste" aria-label="Bedienung">
-    <p>Die Mittagskarte der Woche – so kommt sie auch an den Tisch.</p>
+    <p id="leisteHinweis">Die Mittagskarte der Woche – ein A4-Blatt, beidseitig gedruckt (an der kurzen Kante wenden) und in der Mitte gefaltet.</p>
     <div class="leiste-wege">
       <a href="tischreservierung.html">Zur Reservierung</a>
       <a href="takeaway.html">Zum Takeaway</a>
-      <button type="button" id="drucken">Als PDF speichern</button>
+      <button type="button" id="drucken">Als PDF speichern / drucken</button>
     </div>
   </nav>
 
-  <!-- Ein Blatt ist die Vorlage; passt der Inhalt nicht darauf, legt
-       mittagskarte.js weitere an und verteilt die Zeilen - genau wie das
-       gedruckte Original des Hauses, das ueber zwei Seiten laeuft. -->
-  <doc-page size="a4" margin="0">
-    <div class="blatt" id="blatt1">
-      <header class="kopf">
+  <doc-page size="a4" orientation="landscape">
+    <!-- Blatt 1, aussen: links die Rueckseite, rechts die Vorderseite. -->
+    <section class="page aussen" id="aussen">
+      <div class="haelfte rueck">
+        <p class="klein">„wirtschaft“ · bahnhofstraße 24 · 6850 dornbirn</p>
+        <div class="qr-wege">
+          <div class="qr">
+            <img src="assets/qr/events.svg" alt="QR-Code: aktuelle Events" width="120" height="120">
+            <p id="qrEventsText">hier geht es zu den aktuellen events</p>
+          </div>
+          <div class="qr">
+            <img src="assets/qr/takeaway.svg" alt="QR-Code: Takeaway" width="120" height="120">
+            <p id="qrTakeawayText">hier geht es zum takeaway</p>
+          </div>
+        </div>
+        <p class="klein">mo–fr 09:30–14:00 · +43 (0)5572 20 540 · wirtschaft-dornbirn.at</p>
+      </div>
+      <div class="haelfte titel">
         <img src="assets/logo.png" width="300" height="69" alt="„wirtschaft“ – cafe restaurant bar">
-        <h1>mittagskarte<small id="wochenText">&nbsp;</small></h1>
-        <p class="kopf-meta">bahnhofstraße 24 · 6850 dornbirn<br>+43 (0)5572 20 540<br><span id="stand"></span></p>
-      </header>
+        <h1>menükarte</h1>
+        <p class="woche" data-woche>&nbsp;</p>
+      </div>
+    </section>
 
-      <div class="blatt-inhalt">
+    <!-- Blatt 2, innen: links die Wochengerichte, rechts A la carte - wie
+         auf der Mittagskarte des Hauses gegliedert. -->
+    <section class="page innen" id="innen">
+      <div class="haelfte links">
         <section class="gruppe" id="woche"><p class="laden">Die Karte wird geladen.</p></section>
+      </div>
+      <div class="haelfte rechts">
         <section class="gruppe" id="alacarte"></section>
         <p class="fuss" id="fuss" hidden></p>
         <p class="legende" id="legende" hidden></p>
       </div>
-    </div>
+    </section>
   </doc-page>
 
-  <script src="doc-page.js?v=28cf32e7"></script>
-  <script type="module" src="mittagskarte.js?v=3988ac4b"></script>
+  <script src="doc-page.js?v=9c301d07"></script>
+  <script type="module" src="mittagskarte.js?v=dbc2face"></script>
 </body>
 </html>
