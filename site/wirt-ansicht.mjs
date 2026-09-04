@@ -9,22 +9,24 @@
 //  2. Die Einstellungen selbst lassen sich nicht ausblenden - sonst gaebe es
 //     keinen Weg zurueck.
 
-const SCHLUESSEL = 'wirtschaft-wirt-ansicht';
+// Version im Schluessel: aendert sich der Standard, verfaellt die alte
+// Einstellung auf jedem Geraet, und alle sehen dieselbe neue Ansicht.
+const SCHLUESSEL = 'wirtschaft-wirt-ansicht-2';
 
 /**
- * Alle Abschnitte in ihrer Grundreihenfolge. `an` ist der Startzustand:
- * das Menue eintragen steht im Vordergrund, daneben der Tag mit allen
- * Reservierungen und Abholungen. Tisch- und Gastzuweisung liegen bewusst
- * aus (Wunsch vom 04.09.) - sie sind Werkzeug, nicht Alltag.
+ * Alle Abschnitte in ihrer Grundreihenfolge. `an` ist der Startzustand.
  */
 export const BLOECKE = [
   // Die Zahlen zuerst: sie laufen ueber beide Spalten und sind die Kopfzeile
   // des Tages. Stuenden sie mittendrin, risse das Raster dort auseinander.
-  { id: 'zahlen', titel: 'Zahlen des Tages', an: true },
+  // Standard seit 04.09. (Wunsch von Jonas, per Screenshot): NUR der
+  // Menueplan. Alles andere ist ausgeblendet und per Haken zuschaltbar -
+  // die Ansicht ist zuerst das Werkzeug fuer die Karte.
   { id: 'planKasten', titel: 'Menüplan der Woche', an: true },
-  { id: 'heute', titel: 'Der Tag – wer reserviert hat und wer abholt', an: true },
-  { id: 'laufkunde', titel: 'Laufkundschaft eintragen', an: true },
-  { id: 'zettelKasten', titel: 'Küchenzettel', an: true },
+  { id: 'zahlen', titel: 'Zahlen des Tages', an: false },
+  { id: 'heute', titel: 'Der Tag – wer reserviert hat und wer abholt', an: false },
+  { id: 'laufkunde', titel: 'Laufkundschaft eintragen', an: false },
+  { id: 'zettelKasten', titel: 'Küchenzettel', an: false },
   { id: 'eventKasten', titel: 'Eigene Termine', an: false },
   { id: 'oeffnungKasten', titel: 'Öffnungszeiten', an: false },
   { id: 'zuKasten', titel: 'Zusperren – wenn ein Mittag ausfällt', an: false },
