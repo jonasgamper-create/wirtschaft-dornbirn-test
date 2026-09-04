@@ -1,12 +1,13 @@
-// Die Faltkarte fuer den Tisch: Vorderseite mit Logo und Woche, innen der
-// Wochenplan und A la carte, hinten zwei QR-Codes. Gesetzt aus demselben
-// Menueplan wie Takeaway und Mittagskarte - eine Quelle, drei Blaetter.
+// Die Faltkarte fuer den Tisch: Vorderseite mit Logo und Woche, innen links
+// die Wochengerichte und rechts A la carte - gegliedert wie die Mittagskarte
+// des Hauses -, hinten zwei QR-Codes. Gesetzt aus demselben Menueplan wie
+// Takeaway und Mittagskarte - eine Quelle, drei Blaetter.
 //
 // Die QR-Texte kommen aus data/qr-ziele.json, die Codes selbst liegen als
 // fertige SVG-Dateien im Repo (scripts/build-qr.mjs) - gedruckt heisst
 // dauerhaft, deshalb haengt hier nichts an einer Bibliothek im Browser.
 
-import { alsPreis, ladePlan, legende, wochenText, zeichneAlacarte, zeichneTage, zeichneVital } from './menuekarte.mjs?v=54febf2a';
+import { ladePlan, legende, wochenText, zeichneAlacarte, zeichneFussnote, zeichneWoche } from './menuekarte.mjs?v=60544c4f';
 
 const byId = id => document.getElementById(id);
 byId('drucken').addEventListener('click', () => window.print());
@@ -20,22 +21,23 @@ fetch('data/qr-ziele.json', { cache: 'no-store' })
   .catch(() => { /* die Texte im HTML stimmen als Vorgabe */ });
 
 (async () => {
-  const { plan } = await ladePlan();
+  const { plan, quelle } = await ladePlan('', { pdfErlaubt: false });
+  if (plan && quelle === 'datei') {
+    // Noch kein Plan veroeffentlicht: die Vorschau zeigt die hinterlegte
+    // Woche, damit man das Blatt sieht - gedruckt werden sollte sie so nicht.
+    const hinweis = document.getElementById('leisteHinweis');
+    if (hinweis) hinweis.textContent = 'Noch kein Menüplan veröffentlicht – das ist die hinterlegte Beispielwoche. Erst in der Wirt-Ansicht veröffentlichen, dann drucken.';
+  }
   if (!plan) {
-    byId('tage').textContent = 'Die Karte lässt sich gerade nicht laden – bitte den Menüplan in der Wirt-Ansicht veröffentlichen.';
+    byId('woche').textContent = 'Die Karte lässt sich gerade nicht laden – bitte den Menüplan in der Wirt-Ansicht veröffentlichen.';
     return;
   }
   const woche = wochenText(plan);
   document.title = `Faltkarte ${woche} · Wirtschaft Dornbirn`;
   document.querySelectorAll('[data-woche]').forEach(el => { el.textContent = woche; });
-  byId('preisMittag').textContent = alsPreis(plan.preise.mittag);
-  zeichneTage(byId('tage'), plan);
-  if (plan.vital.length) {
-    byId('preisVital').textContent = alsPreis(plan.preise.vital);
-    zeichneVital(byId('vitalListe'), plan);
-    byId('vital').hidden = false;
-  }
+  zeichneWoche(byId('woche'), plan);
   zeichneAlacarte(byId('alacarte'), plan);
+  zeichneFussnote(byId('fuss'), plan);
   const text = legende(plan);
   if (text) {
     byId('legende').textContent = `allergene: ${text}`;

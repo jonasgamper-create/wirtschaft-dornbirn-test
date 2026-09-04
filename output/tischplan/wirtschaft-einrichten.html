@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-NL8UEnVUcrUX1DfON66AElUsjTNAv+ahl8UmqlfALTs='; script-src 'sha256-7SVLjyN/GVwOmrq33ZasJ4Xsl7hpuYW+4klhoYbKPvE='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-Aqwn7BK5j7GoCxwdT48Q2orPUtHcxwr9LUr4PC3B5S8='; script-src 'sha256-7SVLjyN/GVwOmrq33ZasJ4Xsl7hpuYW+4klhoYbKPvE='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="theme-color" content="#11110f">
   <title>Einrichten · Wirtschaft Dornbirn</title>
   <style>
@@ -368,6 +368,16 @@ h2{font-size:24px;margin-bottom:6px}
 @media(max-width:700px){
   .plan-kopf{grid-template-columns:1fr}
 }
+
+/* Gliederung wie auf der Karte: die Tage stehen als Ueberschriften IN der
+   Gruppe "wochengerichte", nicht als eigene Kaesten. Zeitfenster und Hinweis
+   stehen im Kopf der Gruppe, die Fussnote hat ein eigenes Textfeld. */
+.plan-kopf-2{grid-template-columns:1fr 2fr}
+.plan-kopf-1{grid-template-columns:1fr}
+.plan-tag{display:grid;gap:10px;padding-top:6px;border-top:1px dashed var(--linie)}
+.plan-tag h3{margin:0;color:var(--ink);font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:lowercase}
+.plan-form textarea{width:100%;min-height:96px;margin:0;padding:10px 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;color:var(--ink);font:inherit;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none;resize:vertical}
+@media(max-width:700px){.plan-kopf-2{grid-template-columns:1fr}}
 
   </style>
 </head>
