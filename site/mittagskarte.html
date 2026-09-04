@@ -60,7 +60,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   body{background:#e9e6df;overflow-x:auto}
   .blaetter{zoom:var(--blatt-zoom,1);padding:20px;width:max-content;margin:0 auto}
   .page{box-shadow:0 6px 28px #11110f24;border-radius:4px}
-  .page+.page{margin-top:20px}
 }
 /* Die vier Haelften: Innenrand, Spalten-Flex (die Rueckseite verteilt
    Adresse, Codes und Fusszeile ueber die Hoehe, die Vorderseite zentriert),
@@ -70,11 +69,24 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .haelfte + .haelfte{border-left:1px dashed #11110f2e}
 @media print{.haelfte + .haelfte{border-left:0}}
 @page{size:297mm 210mm;margin:0}
+/* Der Rahmen um jede Seite: am Bildschirm unsichtbar, im Druck die feste
+   Box, die sicher in den bedruckbaren Bereich passt (siehe unten). */
+.blatt-rahmen{display:block}
+@media screen{.blatt-rahmen+.blatt-rahmen{margin-top:20px}}
 @media print{
   html,body{margin:0;padding:0;background:#fff}
   .blaetter{zoom:1 !important;padding:0;width:auto;margin:0}
-  .page{zoom:.88;margin:0 auto;box-shadow:none;border-radius:0;break-inside:avoid;page-break-inside:avoid}
-  .page+.page{margin-top:0;break-before:page;page-break-before:always}
+  /* Gemessen am iPhone: mit zoom .88 (261 x 185 mm) kamen weiterhin vier
+     Seiten heraus - Safari beachtet zoom im Druck nicht, und der
+     bedruckbare Bereich ist bei iOS-Raendern (12,7 mm) nur 184,6 mm hoch.
+     Deshalb: ein Rahmen mit FESTER Groesse 244 x 173 mm (82 Prozent, ein
+     Millimeter Reserve gegen Rundung) als Layoutbox, darin das Blatt per transform skaliert. Die Layoutbox ist
+     das, was der Drucker umbricht - und 173 mm passen in jeden Rand. Der
+     Rahmen ist zentriert, der Falz bleibt in der Papiermitte. */
+  .blatt-rahmen{width:244mm;height:173mm;overflow:hidden;margin:0 auto;
+    break-inside:avoid;page-break-inside:avoid}
+  .blatt-rahmen+.blatt-rahmen{margin-top:0;break-before:page;page-break-before:always}
+  .page{transform:scale(.82);transform-origin:top left;margin:0;box-shadow:none;border-radius:0}
 }
 
 /* Vorderseite */
@@ -129,7 +141,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
   <div class="blaetter" id="blaetter">
     <!-- Blatt 1, aussen: links die Rueckseite, rechts die Vorderseite. -->
-    <section class="page aussen" id="aussen">
+    <div class="blatt-rahmen"><section class="page aussen" id="aussen">
       <div class="haelfte rueck">
         <p class="klein">„wirtschaft“ · bahnhofstraße 24 · 6850 dornbirn</p>
         <div class="qr-wege">
@@ -149,11 +161,11 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
         <h1>menükarte</h1>
         <p class="woche" data-woche>&nbsp;</p>
       </div>
-    </section>
+    </section></div>
 
     <!-- Blatt 2, innen: links die Wochengerichte, rechts A la carte - wie
          auf der Mittagskarte des Hauses gegliedert. -->
-    <section class="page innen" id="innen">
+    <div class="blatt-rahmen"><section class="page innen" id="innen">
       <div class="haelfte links">
         <section class="gruppe" id="woche"><p class="laden">Die Karte wird geladen.</p></section>
       </div>
@@ -162,7 +174,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
         <p class="fuss" id="fuss" hidden></p>
         <p class="legende" id="legende" hidden></p>
       </div>
-    </section>
+    </section></div>
   </div>
 
   <script type="module" src="mittagskarte.js?v=13e9d25e"></script>
