@@ -54,7 +54,7 @@
  *     <section class="page" id="p1">…one page's design…</section>
  *     <section class="page" id="p2">…</section>
  *   </doc-page>
- *   <script src="doc-page.js?v=a83e7ec6"></script>
+ *   <script src="doc-page.js?v=74237147"></script>
  * How the page box works, concretely: each .page prints as ONE full-bleed
  * sheet at a FIXED physical size — letter by default (set size="a4" for
  * a clearly metric user), the user's chosen paper when they export —
@@ -76,7 +76,7 @@
  *     <h1>Title</h1>
  *     <p>…body…</p>
  *   </doc-page>
- *   <script src="doc-page.js?v=a83e7ec6"></script>
+ *   <script src="doc-page.js?v=74237147"></script>
  * There is no manual page-splitting — the browser's print engine
  * paginates at export. Standard break-hygiene rules (`break-inside:
  * avoid` on figures, code blocks, images and table rows; `orphans/
