@@ -43,4 +43,48 @@ fetch('data/qr-ziele.json', { cache: 'no-store' })
     byId('legende').textContent = `allergene: ${text}`;
     byId('legende').hidden = false;
   }
+  passeAnsBlattAn();
 })();
+
+/**
+ * Die Faltkarte hat eine feste Groesse - was nicht draufpasst, wird beim
+ * Drucken abgeschnitten. Mit der Karte vom 04.09. blieben rechts noch fuenf
+ * Pixel Luft; eine Zeile mehr, und das letzte Gericht waere lautlos
+ * verschwunden.
+ *
+ * Deshalb misst die Seite sich selbst und verkleinert die Schrift in kleinen
+ * Schritten, bis beide Haelften passen - hoechstens bis 80 Prozent, darunter
+ * waere die Karte am Tisch nicht mehr lesbar. Reicht auch das nicht, sagt
+ * die Leiste es, statt still abzuschneiden.
+ */
+function passeAnsBlattAn() {
+  const haelften = [...document.querySelectorAll('#innen .haelfte')];
+  const zuVoll = () => haelften.some(h => h.scrollHeight > h.getBoundingClientRect().height + 1);
+  const innen = document.getElementById('innen');
+  let stufe = 1;
+  const messen = () => {
+    // Bis 72 Prozent darf die Schrift schrumpfen. Das ist auf A5 immer noch
+    // gut lesbar (7 statt 10 pt fuer die Gerichtsnamen) und faengt eine
+    // laengere Woche ab, ohne dass jemand etwas tun muss.
+    // In Punkt rechnen, nicht in em: "0.72em" bezieht sich auf den ELTERN-
+    // wert (16 px vom Koerper), nicht auf die 9,5 pt der Seite - aus einer
+    // gewollten Verkleinerung auf 72 Prozent waeren so 91 Prozent geworden.
+    const AUSGANG = 9.5;
+    while (zuVoll() && stufe > 0.72) {
+      stufe = Math.round((stufe - 0.02) * 100) / 100;
+      innen.style.fontSize = `${(AUSGANG * stufe).toFixed(2)}pt`;
+    }
+    const hinweis = document.getElementById('leisteHinweis');
+    if (zuVoll() && hinweis) {
+      hinweis.textContent = 'Achtung: Die Karte ist zu lang für ein Blatt. Bitte in der Wirt-Ansicht ein paar Gerichte '
+        + 'entfernen – sonst fehlt beim Drucken das Ende.';
+      hinweis.dataset.art = 'warnung';
+    }
+  };
+  // Kein requestAnimationFrame: liegt die Seite im Hintergrund (Vorschau,
+  // zweiter Tab), laeuft die Bildschleife nicht - die Karte bliebe dann
+  // ungemessen und liefe beim Drucken ueber. Schriften abwarten, dann messen.
+  const start = () => setTimeout(messen, 60);
+  if (document.fonts?.ready) document.fonts.ready.then(start);
+  else start();
+}
