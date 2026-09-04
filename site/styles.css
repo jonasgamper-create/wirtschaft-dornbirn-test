@@ -3211,3 +3211,14 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
   .final-site .bar-news b{max-width:44vw;font-size:10px}
   .final-site .bar-news-bilder{width:20px;height:20px;margin-left:-3px;border-radius:5px}
 }
+
+/* ===== 04.09.: die beiden hauptknoepfe gleich breit =====
+   "Mittagstisch reservieren" (223 px) und "Takeaway bestellen" (182 px)
+   standen nebeneinander in verschiedener Groesse - bei zwei gleichrangigen
+   Wegen liest sich das als Rangfolge, die es nicht gibt. Jetzt teilen sie
+   sich denselben Platz. Am Telefon stehen sie ohnehin untereinander und
+   waren dort schon gleich breit. */
+@media(min-width:701px){
+  .final-site .lunch-book{display:flex;flex-wrap:wrap;align-items:stretch}
+  .final-site .lunch-book>.button{flex:0 1 240px;justify-content:center;text-align:center}
+}
