@@ -45,7 +45,7 @@ import {
   bestelltag, freieSlots, kuechenzettel, parseKarte, pruefeBestellung, pruefeWunschtag,
   statistik, VORAUS_TAGE
 } from './takeaway.mjs';
-import { normalisiereMenueplan, takeawayAusPlan } from './menueplan.mjs';
+import { montagDanach, naechsteWoche, normalisiereMenueplan, takeawayAusPlan } from './menueplan.mjs';
 
 const HAUS = 'wirtschaft-dornbirn';
 
@@ -1218,14 +1218,46 @@ export class Haus extends DurableObject {
   // ein Plan vor, hat er Vorrang vor PDF und Textliste; fehlt er, gilt
   // weiter das Alte - der Uebergang bricht nichts.
 
-  async menueplan() { return { ok: true, plan: this.#lies('menueplan', null) }; }
+  async menueplan() {
+    return {
+      ok: true,
+      plan: this.#lies('menueplan', null),
+      // Der Entwurf ist Arbeitsstand des Hauses, keine Gaesteinformation -
+      // die Gaesteseiten lesen ihn nie, sie zeigen den bestaetigten Plan.
+      entwurf: this.#lies('menueplanEntwurf', null)
+    };
+  }
 
   async setzeMenueplan(roh) {
     const geprueft = normalisiereMenueplan(roh, new Date().toISOString());
     if (!geprueft.ok) return geprueft;
     this.#schreib('menueplan', geprueft.plan);
+    // Ein Entwurf, der jetzt bestaetigt wurde, hat seinen Zweck erfuellt.
+    const entwurf = this.#lies('menueplanEntwurf', null);
+    if (entwurf && entwurf.montag <= geprueft.plan.montag) this.#schreib('menueplanEntwurf', null);
     this.#meldeAenderung();
     return { ok: true, plan: geprueft.plan };
+  }
+
+  /**
+   * Freitagabend: den Entwurf fuer die kommende Woche bereitlegen.
+   *
+   * Nur wenn es einen gueltigen Plan gibt, nur wenn dessen Woche wirklich
+   * vorbei ist, und nur einmal - liegt schon ein Entwurf fuer diese Woche,
+   * bleibt er unberuehrt. Sonst wuerde die Arbeit vom Samstag am Sonntag
+   * wieder ueberschrieben.
+   */
+  async legeEntwurfAn(heute) {
+    const plan = this.#lies('menueplan', null);
+    if (!plan) return { ok: true, grund: 'kein_plan' };
+    const zielMontag = montagDanach(heute);
+    if (plan.montag >= zielMontag) return { ok: true, grund: 'schon_aktuell' };
+    const vorhanden = this.#lies('menueplanEntwurf', null);
+    if (vorhanden?.montag === zielMontag) return { ok: true, grund: 'entwurf_liegt_schon' };
+    const entwurf = { ...naechsteWoche(plan, new Date().toISOString()), montag: zielMontag };
+    this.#schreib('menueplanEntwurf', entwurf);
+    this.#meldeAenderung();
+    return { ok: true, entwurf: entwurf.montag };
   }
 
   async menueplanWeg() {
@@ -2285,6 +2317,12 @@ export default {
     }
 
     // Der Wochenbericht, freitags um 15:00 - nach dem Mittag, vor dem Einkauf.
+    // Freitagabend, nach dem Betrieb: den Entwurf fuer die kommende Woche
+    // bereitlegen. Live geht davon nichts - der Wirt bestaetigt ihn.
+    if (uhr.zeit === '20:00' && uhr.wochentag === 5) {
+      ctx.waitUntil(stub(env).legeEntwurfAn(uhr.datum));
+    }
+
     if (uhr.zeit === '15:00' && uhr.wochentag === 5) {
       ctx.waitUntil(stub(env).wochenbericht());
       return;
@@ -2469,6 +2507,12 @@ export default {
         if (request.method === 'GET') return json(await haus.menueplan(), 200, kopf);
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         if (request.method === 'DELETE') return json(await haus.menueplanWeg(), 200, kopf);
+        // Die Woche von Hand vorruecken. Denselben Weg geht der Dienst
+        // Freitagabend von selbst; hier kann der Wirt frueher anfangen oder
+        // nachholen, wenn der Abend einmal ausgefallen ist.
+        if (request.method === 'PUT') {
+          return json(await haus.legeEntwurfAn(jetztImHaus().datum), 200, kopf);
+        }
         if (request.method === 'POST') {
           const roh = await request.json().catch(() => ({}));
           const ergebnis = await haus.setzeMenueplan(roh);

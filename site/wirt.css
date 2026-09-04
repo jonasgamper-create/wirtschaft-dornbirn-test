@@ -436,6 +436,9 @@ h2{font-size:24px;margin-bottom:6px}
   background:#11110f0a;color:var(--muted)}
 .plan-stand[data-art="gut"]{background:#2446351a;color:var(--green);font-weight:700}
 .plan-stand[data-art="offen"]{background:#8c292b14;color:var(--wine);font-weight:700}
+/* Der Entwurf ist weder gut noch schlecht - er ist eine Aufgabe. Gold, wie
+   alles im Haus, was Aufmerksamkeit will, ohne zu alarmieren. */
+.plan-stand[data-art="entwurf"]{background:#c59b5d24;color:#6b4c1d;font-weight:700}
 
 /* Der heutige Tag ist markiert: der Wirt sieht beim Hinschauen, was gerade
    auf dem Teller liegt - ohne im Kalender nachzuzaehlen. */

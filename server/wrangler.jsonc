@@ -26,7 +26,7 @@
   // Montag frueh, Erinnerungsfenster am Vormittag, Tageszettel werktags
   // 08:00 Hauszeit (beide moeglichen UTC-Stunden, die Hausuhr entscheidet),
   // Wochenbericht Freitag 15:00 Hauszeit.
-  "triggers": { "crons": ["15 5 * * 1", "15 6 * * 1", "*/15 8-12 * * 1-5", "0 6,7 * * 1-5", "0 13,14 * * 5"] },
+  "triggers": { "crons": ["15 5 * * 1", "15 6 * * 1", "*/15 8-12 * * 1-5", "0 6,7 * * 1-5", "0 13,14 * * 5", "0 18,19 * * 5"] },
 
   "durable_objects": {
     "bindings": [{ "name": "HAUS", "class_name": "Haus" }]
