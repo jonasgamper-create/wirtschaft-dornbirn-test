@@ -615,6 +615,67 @@
   // Der Terminhinweis scrollt mit und nimmt dabei an Praesenz zu: oben liegt
   // er leise in der Leiste, auf dem Weg zum Terminabschnitt wird er heller.
   // Ein Wert (--glanz, 0 bis 1) traegt die Stufe; die Farben stehen im CSS.
+  /**
+   * Das kleine Bild links in der Programm-Kachel. Es zeigt die Titelbilder
+   * der naechsten Termine und wechselt beim Scrollen - etwa alle drei
+   * Zentimeter eines, weich ueberblendet (Wunsch vom 04.09.).
+   *
+   * Zwei Bilder liegen uebereinander: das sichtbare und das naechste. Fuer
+   * einen Wechsel wird nur die Deckkraft getauscht - ein einzelnes <img>,
+   * dessen src sich aendert, blitzt beim Laden weiss auf.
+   *
+   * Am Telefon laeuft der Wechsel mit: das Bild liegt IN der Kachel, nicht
+   * ueber Text oder Knopf - die Motion-Regel meint bewegte Deko ueber
+   * Tippzielen, nicht ein ueberblendendes Vorschaubild. Nur
+   * prefers-reduced-motion haelt es an.
+   */
+  function begleiteBarNewsBilder(chip) {
+    const kasten = document.getElementById('barNewsBilder');
+    if (!kasten) return () => {};
+    const [a, b] = kasten.querySelectorAll('img');
+    const heute = new Date();
+    heute.setHours(0, 0, 0, 0);
+
+    let bilder = [];
+    let zeigt = 0;
+    let vorne = a;
+
+    fetch('data/event-medien.json', { cache: 'no-store' })
+      .then(antwort => antwort.json())
+      .then(medien => {
+        const hat = new Set(medien?.bilder || []);
+        // Nur kommende Termine, in ihrer Reihenfolge - und nur solche mit
+        // eigenem Bild. Ein Abendfoto als Platzhalter waere hier eine
+        // Behauptung ueber einen Termin, den es so nicht gibt.
+        bilder = calendarEvents
+          .filter(item => item.status !== 'cancelled' && new Date(`${item.date}T12:00:00`) >= heute)
+          .filter(item => hat.has(item.id))
+          .map(item => `assets/events/${encodeURIComponent(item.id)}.webp`);
+        if (!bilder.length) return;
+        a.src = bilder[0];
+        a.classList.add('vorne');
+        kasten.hidden = false;
+        chip.dataset.mitBild = '';
+      })
+      .catch(() => { /* ohne Bilder bleibt die Kachel, wie sie ist */ });
+
+    // Ein Zentimeter Scrollweg je Bild (96 dpi / 2,54). Lebendig, aber die
+    // Ueberblendung dauert laenger als der Wechsel - beim schnellen Scrollen
+    // fliesst es ineinander, statt zu flackern.
+    const STRECKE = 38;
+    return y => {
+      if (bilder.length < 2 || reducedPreference.matches) return;
+      const soll = Math.floor(y / STRECKE) % bilder.length;
+      if (soll === zeigt) return;
+      zeigt = soll;
+      const hinten = vorne === a ? b : a;
+      hinten.src = bilder[soll];
+      hinten.classList.add('vorne');
+      vorne.classList.remove('vorne');
+      vorne = hinten;
+    };
+  }
+
   function begleiteBarNews() {
     const chip = document.getElementById('barNews');
     const ziel = document.getElementById('concept-04');
@@ -640,6 +701,7 @@
     };
     setzeHoehe();
     if (typeof ResizeObserver === 'function' && leiste) new ResizeObserver(setzeHoehe).observe(leiste);
+    const maleBilder = begleiteBarNewsBilder(chip);
     let frame = 0;
     const strecke = () => {
       if (!ziel) return Math.max(1, window.innerHeight);
@@ -651,6 +713,7 @@
       const y = document.scrollingElement?.scrollTop ?? window.scrollY;
       const stufe = Math.max(0, Math.min(1, y / strecke()));
       chip.style.setProperty('--glanz', stufe.toFixed(3));
+      maleBilder(y);
       setzeHoehe();
       // Hat der Wagen die Seite rechts verlassen, ist der Hinweis erzaehlt:
       // dann verblasst er. Scrollt man zurueck, kommt er wieder.

@@ -54,6 +54,11 @@ check('Allergene in Klammern gehen auch', plan.tage[4].gerichte[0].allergene ===
 check('Vital ohne Titel heisst vital-gericht', plan.vital[1].titel === 'vital-gericht');
 check('A la carte ohne Preis faellt weg', plan.alacarte.length === 2 && plan.alacarte[1].name === 'Burger');
 check('Stand wird uebernommen', plan.stand === '2026-08-31T08:00:00Z');
+check('Ohne Angabe ist alles zum Mitnehmen freigegeben',
+  plan.tage[0].gerichte[0].takeaway === true && plan.alacarte[0].takeaway === true);
+check('takeaway:false wird uebernommen',
+  normalisiereMenueplan({ ...roh, alacarte: [{ name: 'Nur im Haus', preis: '9,90', takeaway: false }] })
+    .plan.alacarte[0].takeaway === false);
 check('Fenster, Hinweis, Fussnote kommen als Vorgabe, wenn nicht mitgeschickt',
   plan.fenster === '11:30 bis 13:00 uhr' && plan.hinweis === 'diese gerichte ändern sich wöchentlich.'
   && plan.alacarteFenster === '11:30 bis 13:00 uhr' && plan.fussnote.startsWith('takeaway:'));
@@ -92,6 +97,37 @@ check('Ohne Datum: alle Tage, vital, a la carte', kennungen.join(',') === 'm1-1,
 check('Kennungen sind eindeutig', new Set(kennungen).size === kennungen.length);
 check('Kennung des Tagesgerichts ist am Tag dieselbe wie im Ganzen', montag.gerichte[0].id === 'm1-1');
 check('Leerer Plan: leere Karte', takeawayAusPlan(null).gerichte.length === 0);
+
+// ---- 2b. Der Haken "auch zum mitnehmen" ----------------------------------
+//
+// Der gefaehrlichste Fehler waere eine verrutschte Kennung: nimmt der Wirt
+// einen Haken weg, muessen die anderen Gerichte ihre Kennung BEHALTEN -
+// sonst zeigt eine laufende Bestellung ploetzlich auf ein anderes Gericht.
+
+const halb = normalisiereMenueplan({
+  ...roh,
+  tage: [
+    { gerichte: [{ name: 'Nur im Haus', takeaway: false }] },
+    { gerichte: [{ name: 'Kalbsleber', takeaway: false }, { name: 'Käshörnle', preis: '16,90' }] },
+    { gerichte: [] }, { gerichte: [] },
+    { gerichte: [{ name: 'Rindsstreifen' }] }
+  ],
+  vital: [{ titel: 'vital', name: 'Lachs', takeaway: false }, { titel: 'vegi', name: 'Maultaschen' }],
+  alacarte: [{ name: 'Suppe', preis: '5,30', takeaway: false }, { name: 'Burger', preis: '18,90' }]
+}).plan;
+const halbeKarte = takeawayAusPlan(halb);
+check('Nicht angehakte Gerichte fehlen im Takeaway',
+  !halbeKarte.gerichte.some(g => /Nur im Haus|Kalbsleber|Lachs|Suppe/.test(g.name)),
+  JSON.stringify(halbeKarte.gerichte.map(g => g.name)));
+check('Angehakte Gerichte behalten ihre Kennung trotz Luecke davor',
+  halbeKarte.gerichte.map(g => g.id).join(',') === 'm2-2,m5-1,v2,a2',
+  halbeKarte.gerichte.map(g => g.id).join(','));
+check('Ein Tag ohne freigegebenes Gericht hat keine Gruppe',
+  !halbeKarte.gruppen.some(gruppe => gruppe.id === 'tag-1'));
+check('Montag einzeln abgefragt: keine Tagesgruppe, aber vital und a la carte',
+  takeawayAusPlan(halb, '2026-08-31').gruppen.map(g => g.id).join(',') === 'vital,alacarte');
+check('Die Karte selbst zeigt weiter ALLES - der Haken gilt nur fuers Takeaway',
+  halb.tage[0].gerichte.length === 1 && halb.vital.length === 2 && halb.alacarte.length === 2);
 
 // ---- 3. Woche und Datum --------------------------------------------------
 

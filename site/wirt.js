@@ -13,7 +13,8 @@ import {
   setzeFertigWer,
   stelleTagWiederHer
 } from './haus-api.js?v=309a63fc';
-import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=0d719183';
+import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=aca534d9';
+import { liesAnsicht, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=df871f29';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=2dead16d';
@@ -67,6 +68,7 @@ async function start() {
   verdrahteNeueReservierung();
   verdrahteLaufkundschaft();
   verdrahteTagLeeren();
+  verdrahteAnsicht();
   verdrahteKarten();
   verdrahteMenueplan();
   verdrahteZettel();
@@ -754,6 +756,17 @@ function verdrahteTagLeeren() {
   });
 }
 
+// ---- Welche Abschnitte, in welcher Reihenfolge -------------------------------
+//
+// Die gespeicherte Ansicht gilt SOFORT, noch bevor der Dienst antwortet:
+// sonst blitzen ausgeblendete Kaesten beim Laden kurz auf.
+
+function verdrahteAnsicht() {
+  wendeAn(liesAnsicht());
+  const form = byId('ansichtForm');
+  if (form) zeichneEinstellungen(form);
+}
+
 // ---- Menueplan der Woche ----------------------------------------------------
 //
 // Einmal eintragen, dreimal da: Takeaway auf der Webseite, Mittagskarte zum
@@ -782,6 +795,7 @@ async function verdrahteMenueplan() {
   // Vorbefuellen: der Plan vom Dienst. Gibt es keinen, die hinterlegte
   // Ersatzwoche - so steht A la carte schon da und muss nicht abgetippt werden.
   let plan = (await holeMenueplan())?.plan || null;
+  const veroeffentlicht = Boolean(plan);
   byId('planWeg').hidden = !plan;
   if (!plan) {
     plan = await fetch(`${wurzel}data/menueplan.json`, { cache: 'no-store' })
@@ -789,6 +803,22 @@ async function verdrahteMenueplan() {
     sag('planInfo', 'Noch kein Plan veröffentlicht – vorbefüllt mit der hinterlegten Woche. Datum und Gerichte anpassen, dann veröffentlichen.');
   }
   zeichneMenueplan(form, plan);
+  zeigePlanStand(veroeffentlicht ? plan : null);
+
+  // Ungespeichertes darf nicht still verloren gehen: sobald der Wirt etwas
+  // aendert, faehrt unten eine Leiste mit dem Veroeffentlichen-Knopf mit.
+  // Ohne sie tippt man die Woche ein, scrollt weiter - und die Karte auf der
+  // Webseite steht unveraendert da, ohne dass es irgendwo auffaellt.
+  const merkeAenderung = () => {
+    if (document.body.classList.contains('plan-offen')) return;
+    document.body.classList.add('plan-offen');
+  };
+  form.addEventListener('input', merkeAenderung);
+  form.addEventListener('change', merkeAenderung);
+  form.addEventListener('click', event => {
+    if (event.target.closest('.plan-pfeil, .plan-weg, .knopf.klein')) merkeAenderung();
+  });
+  byId('planLeisteSetzen')?.addEventListener('click', () => byId('planSetzen').click());
 
   byId('planSetzen').addEventListener('click', async () => {
     sag('planInfo', 'Wird veröffentlicht …');
@@ -797,8 +827,10 @@ async function verdrahteMenueplan() {
       return sag('planInfo', PLAN_GRUENDE[antwort?.grund] || 'Das hat nicht geklappt – bitte noch einmal.', 'fehler');
     }
     zeichneMenueplan(form, antwort.plan);
+    document.body.classList.remove('plan-offen');
     byId('planWeg').hidden = false;
     byId('planWeg').textContent = 'Plan entfernen';
+    zeigePlanStand(antwort.plan);
     const tagesgerichte = antwort.plan.tage.reduce((summe, tag) => summe + tag.gerichte.length, 0);
     sag('planInfo', `Veröffentlicht: ${tagesgerichte} Tagesgericht(e), ${antwort.plan.vital.length} vital, `
       + `${antwort.plan.alacarte.length} à la carte – Takeaway, Mittagskarte und Faltkarte sind auf dem neuen Stand.`, 'gut');
@@ -824,6 +856,30 @@ async function verdrahteMenueplan() {
     if (antwort?.ok) weg.hidden = true;
     zeigeKarte();
   });
+}
+
+/**
+ * Der Stand oben im Kasten: fuer welche Woche der Plan gilt und wie viele
+ * Gerichte davon zum Mitnehmen freigegeben sind. Eine Zeile, die beim
+ * Hinschauen die Frage beantwortet "steht die Woche schon?".
+ */
+function zeigePlanStand(plan) {
+  const zeile = byId('planStand');
+  if (!zeile) return;
+  if (!plan) {
+    zeile.textContent = 'Noch nicht veröffentlicht – auf der Webseite steht die vorige Karte.';
+    zeile.dataset.art = 'offen';
+    return;
+  }
+  const tage = plan.tage.flatMap(tag => tag.gerichte);
+  const alle = [...tage, ...plan.vital, ...plan.alacarte];
+  const mit = alle.filter(gericht => gericht.takeaway !== false).length;
+  const bis = new Date(`${plan.montag}T12:00:00`);
+  bis.setDate(bis.getDate() + 4);
+  const kurz = datum => datum.toLocaleDateString('de-AT', { day: 'numeric', month: 'long' });
+  zeile.textContent = `Veröffentlicht für ${kurz(new Date(`${plan.montag}T12:00:00`))} – ${kurz(bis)} · `
+    + `${alle.length} Gerichte, davon ${mit} zum Mitnehmen.`;
+  zeile.dataset.art = 'gut';
 }
 
 // ---- Mittagskarte und Takeaway-Karte ---------------------------------------

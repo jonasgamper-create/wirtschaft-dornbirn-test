@@ -9,8 +9,8 @@
   <meta name="theme-color" content="#173e2c">
   <title>Heute Mittag · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
-  <link rel="stylesheet" href="wirt.css?v=0e44331c">
-  <script type="module" src="wirt.js?v=40996b76"></script>
+  <link rel="stylesheet" href="wirt.css?v=52703815">
+  <script type="module" src="wirt.js?v=bd08208e"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -22,17 +22,22 @@
     <p class="verbindung" id="verbindung"><i aria-hidden="true"></i><span id="verbindungText">Verbinde …</span></p>
   </header>
 
-  <main>
+  <main id="wirtHaupt">
     <p class="vorzeile" id="tagZeile">Heute Mittag</p>
 
+    <!-- Alle Abschnitte liegen als gleichrangige Bloecke in EINEM Behaelter:
+         nur so lassen sie sich frei sortieren und einzeln ausblenden
+         (wirt-ansicht.mjs). Am Laptop wird daraus ein zweispaltiges Raster. -->
+    <div class="wirt-bloecke" id="wirtBloecke">
+
     <!-- Die drei Zahlen, die den Mittag beschreiben. -->
-    <section class="zahlen" aria-label="Der Mittag in Zahlen">
+    <section class="zahlen" data-block="zahlen" aria-label="Der Mittag in Zahlen">
       <div class="kachel"><b id="zahlErwartet">–</b><span>Gruppen erwartet</span><small id="subErwartet"></small></div>
       <div class="kachel"><b id="zahlImHaus">–</b><span>Gäste im Haus</span><small id="subImHaus"></small></div>
       <div class="kachel"><b id="zahlFrei">–</b><span>Tische frei</span><small id="subFrei"></small></div>
     </section>
 
-    <section class="heute" aria-labelledby="heuteTitel">
+    <section class="heute" data-block="heute" aria-labelledby="heuteTitel">
       <div class="zeile-kopf">
         <h2 id="heuteTitel">Der Tag</h2>
         <button class="knopf leise" type="button" id="neuZeigen">+ Reservierung</button>
@@ -64,12 +69,7 @@
       </details>
     </section>
 
-    <!-- Am Telefon ist das eine lange Rolle - richtig so, der Daumen wischt.
-         Am Laptop steht dieser Block neben der Tagesliste, statt darunter:
-         wer die Laufkundschaft eintippt, will den Tag dabei sehen. Der
-         Behaelter existiert nur, damit das Raster keine Zeilen zaehlen muss. -->
-    <div class="wirt-werkzeuge">
-    <section class="laufkunde" aria-labelledby="laufTitel">
+    <section class="laufkunde" data-block="laufkunde" aria-labelledby="laufTitel">
       <h2 id="laufTitel">Gäste stehen da?</h2>
       <p class="hinweis">Zahl drücken – der Tisch wird automatisch vergeben, auch online ist er dann belegt.</p>
       <div class="lauf-knoepfe" role="group" aria-label="Personenzahl der Laufkundschaft">
@@ -97,9 +97,12 @@
     <!-- Der Menueplan der Woche: einmal eintragen, dreimal da - Takeaway auf
          der Webseite, Mittagskarte zum Ansehen und Speichern (PDF), Faltkarte
          fuer den Tisch. Seit 01.09.; das PDF darunter ist nur noch Uebergang. -->
-    <details class="werkzeug" id="planKasten" open>
+    <details class="werkzeug" id="planKasten" data-block="planKasten" open>
       <summary>Menüplan der Woche</summary>
       <p class="hinweis">Einmal eintragen, dreimal da: die Gerichte stehen beim Takeaway auf der Webseite, als Mittagskarte zum Ansehen und Speichern (PDF) und als Faltkarte für den Tisch.</p>
+      <!-- Der Stand beantwortet die erste Frage beim Hinschauen: steht die
+           Woche schon, und was davon ist zum Mitnehmen freigegeben? -->
+      <p class="plan-stand" id="planStand" role="status" aria-live="polite">Wird geladen …</p>
       <div class="plan-form" id="planForm"></div>
       <div class="karte-knoepfe">
         <button class="knopf" type="button" id="planSetzen">Veröffentlichen</button>
@@ -110,7 +113,7 @@
       <p class="lauf-ergebnis" id="planInfo" role="status" aria-live="polite"></p>
     </details>
 
-    <details class="werkzeug">
+    <details class="werkzeug" id="karteKasten" data-block="karteKasten">
       <summary>Mittagskarte (PDF) – nur ohne Menüplan</summary>
       <p class="hinweis">Übergang: Solange kein Menüplan veröffentlicht ist, gilt das hochgeladene PDF. Mit Menüplan wird es nicht mehr gezeigt.</p>
       <p class="hinweis" id="karteStand">Noch keine Karte hochgeladen.</p>
@@ -124,7 +127,7 @@
       <p class="lauf-ergebnis" id="karteInfo" role="status" aria-live="polite"></p>
     </details>
 
-    <details class="werkzeug">
+    <details class="werkzeug" id="textKasten" data-block="textKasten">
       <summary>Gerichte als Textliste – nur ohne Menüplan</summary>
       <p class="hinweis">Eine Karte, zwei Orte: Die Zeilen aus der Mittagskarte einfügen – pro Zeile links das Gericht, dahinter optional die Allergene in Klammern, rechts der Preis. Beispiel: „Käsknöpfle mit Röstzwiebeln (A,C,G) 12,90“. Sie erscheinen sofort auf der Webseite und sind als Takeaway bestellbar. Leeres Feld veröffentlichen nimmt beides von der Seite.</p>
       <textarea id="taKarteText" rows="6" spellcheck="false" aria-label="Takeaway-Karte, eine Zeile je Gericht mit Preis"></textarea>
@@ -134,7 +137,7 @@
       <p class="lauf-ergebnis" id="taKarteInfo" role="status" aria-live="polite"></p>
     </details>
 
-    <details class="werkzeug" id="fertigKasten">
+    <details class="werkzeug" id="fertigKasten" data-block="fertigKasten">
       <summary>Wer meldet, dass das Essen fertig ist?</summary>
       <p class="hinweis">Beide Bildschirme sehen immer, was fertig ist. Hier stellst du nur ein, wo der Knopf steht – damit im Betrieb klar ist, wessen Griff das ist.</p>
       <div class="fertig-wahl" role="radiogroup" aria-label="Wer meldet fertig">
@@ -147,7 +150,7 @@
     </details>
 
 
-    <details class="werkzeug" id="bestandKasten">
+    <details class="werkzeug" id="bestandKasten" data-block="bestandKasten">
       <summary>Tische &amp; Stühle – was das Haus hat</summary>
       <p class="hinweis">So einfach wie am Telefon: „Wir haben fünf Zweiertische und acht
         Vierertische.“ Zahl rauf, Zahl runter – gilt sofort, überall. Sitzt jemand auf einem
@@ -164,7 +167,7 @@
         <a href="gastgeber-tischplan.html" id="einrichtenLink">Einrichten</a> ein – genauso einfach wie hier.</p>
     </details>
 
-    <details class="werkzeug" id="oeffnungKasten">
+    <details class="werkzeug" id="oeffnungKasten" data-block="oeffnungKasten">
       <summary>Öffnungszeiten – was auf der Webseite steht</summary>
       <p class="hinweis">Das Mittagsfenster, wie es Gäste auf der Webseite sehen (Mo–Fr).
         Viertelstunden zwischen 10:00 und 16:00, mindestens eine Stunde – gilt sofort
@@ -177,7 +180,7 @@
       <p class="lauf-ergebnis" id="oeffnungInfo" role="status" aria-live="polite"></p>
     </details>
 
-    <details class="werkzeug" id="zuKasten">
+    <details class="werkzeug" id="zuKasten" data-block="zuKasten">
       <summary>Zusperren – wenn ein Mittag ausfällt</summary>
       <p class="hinweis">Ein gesperrter Tag nimmt keine neuen Reservierungen und Bestellungen mehr
         an; auf der Gästeseite springt das Datum automatisch weiter. Feiertage sind von selbst
@@ -197,7 +200,7 @@
       <p class="lauf-ergebnis" id="zuInfo" role="status" aria-live="polite"></p>
     </details>
 
-    <details class="werkzeug" id="sperreKasten">
+    <details class="werkzeug" id="sperreKasten" data-block="sperreKasten">
       <summary>Tische sperren – wenn einer ausfällt</summary>
       <p class="hinweis">Gesperrte Tische vergibt der Dienst nicht mehr – weder online noch bei
         Laufkundschaft. Sitzt schon jemand darauf reserviert, wird er sofort auf einen freien
@@ -206,7 +209,7 @@
       <p class="lauf-ergebnis" id="sperreInfo" role="status" aria-live="polite"></p>
     </details>
 
-    <details class="werkzeug" id="eventKasten">
+    <details class="werkzeug" id="eventKasten" data-block="eventKasten">
       <summary>Eigene Termine – was im Haus ansteht</summary>
       <p class="hinweis">Für Zusatzabende, Stammtische und alles, was nicht über das offizielle
         Ticketprogramm läuft. Die Termine erscheinen auf der Startseite, nach Datum sortiert –
@@ -225,22 +228,32 @@
       <p class="lauf-ergebnis" id="eventInfo" role="status" aria-live="polite"></p>
     </details>
 
-    <details class="werkzeug" id="zettelKasten">
+    <details class="werkzeug" id="zettelKasten" data-block="zettelKasten">
       <summary>Küchenzettel – wie viel brauchen wir heute?</summary>
       <p class="hinweis" id="zettelKopf">Wird geladen …</p>
       <ul class="zettel-liste" id="zettelListe"></ul>
       <p class="hinweis" id="zettelFuss"></p>
     </details>
 
-    <p class="fuss">
-      Tische werden nach der Essenszeit von selbst wieder frei. Etagen, Ordnungen und Betrieb:
-      <a href="gastgeber-tischplan.html" id="cockpitLink">Einrichten</a>.
-    </p>
-    </div>
 
     <!-- Das Aktionsblatt: Zeile antippen, Blatt geht auf. Tisch aendern zeigt
          nur passende freie Tische - die Automatik schlaegt vor, der Wirt hat
          das letzte Wort. -->
+    <!-- Rueckgaengig statt Warndialog: der Balken steht beim Knopf, der ihn
+         ausgeloest hat, und verschwindet nach zwei Minuten von selbst. -->
+
+    <!-- Die Einstellungen stehen immer zuletzt und lassen sich nicht
+         ausblenden - sonst gaebe es keinen Weg zurueck. -->
+    <details class="werkzeug" id="ansichtKasten" data-block="einstellungen">
+      <summary>Einstellungen – welche Abschnitte, in welcher Reihenfolge</summary>
+      <p class="hinweis">Haken setzen blendet einen Abschnitt ein, die Pfeile verschieben ihn. Gilt für dieses Gerät – am Tresen darf anderes stehen als in der Küche.</p>
+      <div id="ansichtForm"></div>
+    </details>
+    </div>
+    <p class="fuss">
+      Tische werden nach der Essenszeit von selbst wieder frei. Etagen, Ordnungen und Betrieb:
+      <a href="gastgeber-tischplan.html" id="cockpitLink">Einrichten</a>.
+    </p>
     <dialog class="blatt" id="blatt">
       <div class="blatt-kopf">
         <div><b id="blattName"></b><span id="blattInfo"></span></div>
@@ -248,7 +261,7 @@
       </div>
       <p class="blatt-notiz" id="blattNotizZeile" hidden></p>
 
-      <div class="blatt-teil">
+      <div class="blatt-teil blatt-tisch-teil">
         <h3>Tisch ändern</h3>
         <div class="blatt-tische" id="blattTische"></div>
       </div>
@@ -275,12 +288,18 @@
       <button class="knopf rot" type="button" id="tagLeeren">Tag leeren</button>
       <span>Räumt alle heutigen Reservierungen und offenen Abholungen – mit Rückgängig. Morgen bleibt unberührt.</span>
     </p>
-    <!-- Rueckgaengig statt Warndialog: der Balken steht beim Knopf, der ihn
-         ausgeloest hat, und verschwindet nach zwei Minuten von selbst. -->
     <p class="korb" id="korbBalken" hidden>
       <span id="korbText"></span>
       <button class="knopf leise" type="button" id="korbZurueck">Rückgängig</button>
     </p>
   </main>
+
+  <!-- Faehrt mit, sobald am Menueplan etwas geaendert wurde. Ohne sie tippt
+       man die Woche ein, scrollt weiter - und auf der Webseite steht
+       unveraendert die alte Karte. -->
+  <div class="plan-leiste" id="planLeiste">
+    <p><span class="plan-leiste-lang">Änderungen am Menüplan sind noch nicht veröffentlicht.</span><span class="plan-leiste-kurz">Noch nicht veröffentlicht</span></p>
+    <button class="knopf" type="button" id="planLeisteSetzen"><span class="plan-leiste-lang">Jetzt veröffentlichen</span><span class="plan-leiste-kurz">Veröffentlichen</span></button>
+  </div>
 </body>
 </html>

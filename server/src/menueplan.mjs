@@ -56,7 +56,13 @@ function gericht(roh, { preisPflicht = false } = {}) {
   const ergebnis = {
     name,
     beilage: text(roh?.beilage, 220),
-    allergene: alsAllergenText(allergenCodes(roh?.allergene))
+    allergene: alsAllergenText(allergenCodes(roh?.allergene)),
+    // Der Haken "auch zum mitnehmen": er entscheidet allein, was im
+    // Takeaway bestellbar ist. Die Karten zeigen IMMER alles - eine
+    // Speisekarte, auf der Gerichte fehlen, weil sie nicht zum Mitnehmen
+    // sind, waere am Tisch schlicht falsch. Vorgabe ist "ja": so verhaelt
+    // sich ein Plan ohne dieses Feld wie bisher.
+    takeaway: roh?.takeaway !== false
   };
   // Beim Tagesgericht ist der Preis die Ausnahme (sonst gilt der Gruppenpreis).
   if (preis !== null) ergebnis.preis = preis;
@@ -154,35 +160,44 @@ export function takeawayAusPlan(plan, datum = '') {
   const codes = g => allergenCodes(g.allergene);
   const fenster = plan.fenster || '';
 
+  // Nur was der Wirt zum Mitnehmen freigegeben hat. Die Kennungen bleiben
+  // trotzdem am Platz des Gerichts IM PLAN (m2-2 ist immer das zweite
+  // Gericht am Dienstag): nimmt er einen Haken weg, verschieben sich die
+  // Kennungen der anderen nicht - eine laufende Bestellung zeigt sonst
+  // ploetzlich auf ein anderes Gericht.
+  const mit = liste => liste.map((g, n) => ({ g, n })).filter(({ g }) => g.takeaway !== false);
+
   const index = datum ? tagIndex(datum) : -1;
   const tage = datum ? (index >= 0 ? [index] : []) : [0, 1, 2, 3, 4];
   for (const i of tage) {
-    const liste = plan.tage[i]?.gerichte || [];
+    const liste = mit(plan.tage[i]?.gerichte || []);
     if (!liste.length) continue;
     gruppen.push({
       id: `tag-${i + 1}`,
       titel: `wochengericht ${datum ? 'am ' : ''}${WOCHENTAGE[i]}`,
       fenster,
       hinweis: liste.length > 1 ? 'zur wahl' : '',
-      gerichte: liste.map((g, n) => ({
+      gerichte: liste.map(({ g, n }) => ({
         id: `m${i + 1}-${n + 1}`, name: `mittagsgericht: ${g.name}`, beilage: g.beilage,
         preis: g.preis ?? plan.preise.mittag, allergene: codes(g)
       }))
     });
   }
-  if (plan.vital.length) {
+  const vital = mit(plan.vital);
+  if (vital.length) {
     gruppen.push({
       id: 'vital', titel: 'vital & vegi', fenster, hinweis: '',
-      gerichte: plan.vital.map((g, n) => ({
+      gerichte: vital.map(({ g, n }) => ({
         id: `v${n + 1}`, name: `${g.titel}: ${g.name}`, beilage: g.beilage,
         preis: g.preis ?? plan.preise.vital, allergene: codes(g)
       }))
     });
   }
-  if (plan.alacarte.length) {
+  const alacarte = mit(plan.alacarte);
+  if (alacarte.length) {
     gruppen.push({
       id: 'alacarte', titel: 'à la carte', fenster: plan.alacarteFenster || '', hinweis: '',
-      gerichte: plan.alacarte.map((g, n) => ({
+      gerichte: alacarte.map(({ g, n }) => ({
         id: `a${n + 1}`, name: g.name, beilage: g.beilage, preis: g.preis, allergene: codes(g)
       }))
     });

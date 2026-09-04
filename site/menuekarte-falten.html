@@ -32,18 +32,35 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .leiste button{background:var(--paper);border-color:var(--paper);color:var(--ink)}
 .leiste-wege{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .leiste p{margin:0;font-size:14.5px;max-width:60ch;line-height:1.4}
+.leiste p[data-art="warnung"]{color:#f0b8b9;font-weight:700}
 
 /* Ein A4-Blatt quer, in der Mitte gefaltet: jede Seite besteht aus zwei
    A5-Haelften. Aussen: links die Rueckseite, rechts die Vorderseite. Innen:
    links der Wochenplan, rechts A la carte. Wenig Farbe - Schwarz, Grau und
    ein Hauch Gold auf Weiss. */
-.page{display:grid;grid-template-columns:1fr 1fr;background:#fff;color:var(--ink);font-size:9.5pt;line-height:1.3}
-.haelfte{padding:14mm 13mm 12mm;min-width:0;display:flex;flex-direction:column}
+/* Das Seitenverhaeltnis von A4 quer, fest: 297 zu 210. Ohne diese Zeile
+   waechst die Seite am Bildschirm einfach mit ihrem Inhalt (gemessen:
+   979 x 1138 statt 979 x 692) - und was ueber das echte Blatt hinausragt,
+   faellt beim Drucken lautlos weg. Erst mit festem Verhaeltnis zeigt die
+   Vorschau, was wirklich aufs Papier kommt, und die Selbstmessung in
+   menuekarte-falten.js kann greifen. */
+.page{display:grid;grid-template-columns:1fr 1fr;aspect-ratio:297/210;
+  background:#fff;color:var(--ink);font-size:9.5pt;line-height:1.3}
+/* overflow:hidden ist hier nicht nur Kosmetik: erst damit meldet
+   scrollHeight die wahre Inhaltshoehe, und die Seite kann sich selbst
+   messen (passeAnsBlattAn in menuekarte-falten.js). Ohne das liefe eine zu
+   lange Karte beim Drucken lautlos ueber den Blattrand. */
+.haelfte{padding:9mm 10mm 8mm;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+/* Kein Stauchen: ohne das druecken die Flex-Kinder ihre Zeilen ineinander,
+   scrollHeight bleibt bei der Blatthoehe stehen - und die Selbstmessung
+   haette einen Ueberlauf nie bemerkt. Jetzt behaelt jeder Teil seine echte
+   Hoehe und meldet, wenn es zu viel wird. */
+.haelfte>*{flex-shrink:0}
 .haelfte + .haelfte{border-left:1px dashed #11110f2e}
 @media print{.haelfte + .haelfte{border-left:0}}
 
 /* Vorderseite */
-.titel{align-items:center;justify-content:center;text-align:center;gap:9mm}
+.titel{align-items:center;justify-content:center;text-align:center;gap:8mm}
 .titel img{display:block;width:68mm;height:auto}
 .titel h1{margin:0;font-size:30pt;font-weight:400;letter-spacing:.06em;line-height:1}
 .titel .woche{margin:0;color:var(--gold);font-size:12.5pt;font-weight:600;letter-spacing:.02em}
@@ -60,17 +77,17 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
    gross mit Zeitfenster, Linie, Hinweis; je Gericht eine Zeile mit Preis
    rechts und den Beilagen darunter; duenne Linien dazwischen. */
 .karte-gruppe{display:flex;align-items:baseline;gap:6pt;margin:0;padding:0 0 3.5pt;border-bottom:1.3px solid var(--ink);
-  font-size:14pt;font-weight:600;letter-spacing:-.01em}
-.karte-gruppe .karte-fenster{font-size:8.6pt;font-weight:400;color:var(--grau);letter-spacing:0}
-.karte-hinweis{margin:3.5pt 0 0;color:var(--grau);font-size:8.6pt}
-.karte-zeile{display:grid;grid-template-columns:1fr auto;column-gap:8pt;padding:4.4pt 0;
+  font-size:1.47em;font-weight:600;letter-spacing:-.01em}
+.karte-gruppe .karte-fenster{font-size:.9em;font-weight:400;color:var(--grau);letter-spacing:0}
+.karte-hinweis{margin:3.5pt 0 0;color:var(--grau);font-size:.9em}
+.karte-zeile{display:grid;grid-template-columns:1fr auto;column-gap:8pt;padding:3.4pt 0;
   border-bottom:1px solid #11110f1f;break-inside:avoid}
-.karte-name{grid-column:1;margin:0;font-size:10pt;font-weight:600;line-height:1.25}
-.karte-preis{grid-column:2;grid-row:1;font-size:10pt;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-.karte-beilage{grid-column:1;margin:1pt 0 0;color:var(--grau);font-size:8.8pt;line-height:1.3}
-.fuss{margin:auto 0 0;padding-top:5pt;border-top:1.3px solid var(--ink);color:var(--grau);font-size:7.6pt;line-height:1.45}
+.karte-name{grid-column:1;margin:0;font-size:1.05em;font-weight:600;line-height:1.25}
+.karte-preis{grid-column:2;grid-row:1;font-size:1.05em;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.karte-beilage{grid-column:1;margin:1pt 0 0;color:var(--grau);font-size:.92em;line-height:1.3}
+.fuss{margin:auto 0 0;padding-top:5pt;border-top:1.3px solid var(--ink);color:var(--grau);font-size:.8em;line-height:1.45}
 .fuss b{color:var(--ink)}
-.legende{margin:4pt 0 0;color:var(--grau);font-size:7pt;line-height:1.4}
+.legende{margin:4pt 0 0;color:var(--grau);font-size:.74em;line-height:1.4}
 .laden{color:var(--grau)}
 
 /* Am Handy nur die Knoepfe: der Satz kostete 60 px, die Knoepfe sind Weg
