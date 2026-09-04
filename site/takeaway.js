@@ -1055,7 +1055,11 @@ byId('taBestellen')?.addEventListener('click', async () => {
   const knopfSenden = byId('taBestellen');
   knopfSenden.disabled = true;
   sag('Einen Moment, die Bestellung geht in die Küche …');
-  const antwort = await bestelleTakeaway({ name, telefon, posten: posten(), abholung, datum: wunschTag });
+  // Die E-Mail ist freiwillig; steht sie da, kommt der Beleg und spaeter
+  // "fertig" per Mail. Bisher blieb das Feld auf der Seite liegen und ging
+  // nie mit - der Gast tippte es umsonst.
+  const email = (byId('taMail')?.value || '').trim();
+  const antwort = await bestelleTakeaway({ name, telefon, email, posten: posten(), abholung, datum: wunschTag });
   knopfSenden.disabled = false;
 
   if (!antwort?.ok) {

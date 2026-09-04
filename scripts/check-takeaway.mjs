@@ -88,6 +88,14 @@ check('Ohne Telefon faellt raus',
   pruefeBestellung({ name: 'Huber', telefon: '', posten: [{ id: 'g1', menge: 1 }] }, rahmen).grund === 'telefon');
 check('Unbekanntes Gericht faellt weg, leere Bestellung raus',
   pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g99', menge: 2 }] }, rahmen).grund === 'leer');
+
+// ---- E-Mail an der Bestellung: freiwillig, geprueft, nie ein Ablehngrund ----
+const mitMail = pruefeBestellung({ name: 'Huber', telefon: '+436601234567', email: '  Anna.Huber@Example.AT ', posten: [{ id: 'g1', menge: 1 }] }, rahmen);
+check('E-Mail wird angenommen und geglaettet', mitMail.ok && mitMail.bestellung.email === 'anna.huber@example.at', JSON.stringify(mitMail.bestellung?.email));
+const ohneMail = pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 1 }] }, rahmen);
+check('Ohne E-Mail laeuft die Bestellung genauso', ohneMail.ok && ohneMail.bestellung.email === '');
+const kaputteMail = pruefeBestellung({ name: 'Huber', telefon: '+436601234567', email: 'keine-adresse', posten: [{ id: 'g1', menge: 1 }] }, rahmen);
+check('Kaputte E-Mail lehnt die Bestellung NICHT ab, faellt nur weg', kaputteMail.ok && kaputteMail.bestellung.email === '');
 check('Zu viele Portionen fallen raus',
   pruefeBestellung({ name: 'Huber', telefon: '+436601234567', posten: [{ id: 'g1', menge: 8 }, { id: 'g2', menge: 8 }] }, rahmen).grund === 'zu_viel',
   String(MAX_PORTIONEN));

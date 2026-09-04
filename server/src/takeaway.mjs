@@ -286,6 +286,14 @@ export function pruefeBestellung(roh, { gerichte, heute, jetzt, bestehende = [],
   const telefon = String(roh?.telefon ?? '').trim().slice(0, 25);
   if (!istTelefon(telefon)) return { ok: false, grund: 'telefon' };
 
+  // Die E-Mail ist freiwillig - wer sie angibt, bekommt die Bestaetigung
+  // und spaeter "dein Essen ist fertig" per Mail. Ohne sie laeuft die
+  // Bestellung genauso; nur der Beleg bleibt dann die Bildschirmseite.
+  // Eine kaputte Adresse ist kein Grund, die Bestellung abzulehnen: sie
+  // faellt still weg, die Kueche bekommt das Essen trotzdem.
+  const emailRoh = String(roh?.email ?? '').trim().slice(0, 80);
+  const email = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(emailRoh) ? emailRoh.toLowerCase() : '';
+
   // Fuer welchen Tag das gilt: normalerweise entscheidet die Uhr - heute,
   // solange die Kueche kocht, sonst der naechste Tag, an dem gekocht wird.
   // Nennt der Gast einen Wunschtag, gilt der - aber er muss durch dieselbe
@@ -343,7 +351,7 @@ export function pruefeBestellung(roh, { gerichte, heute, jetzt, bestehende = [],
   return {
     ok: true,
     bestellung: {
-      name, telefon, posten, summe,
+      name, telefon, email, posten, summe,
       date: tag.datum,
       abholzeit: abholung.zeit,
       // Der Wirt muss auf einen Blick sehen, dass das nicht fuer heute ist.
