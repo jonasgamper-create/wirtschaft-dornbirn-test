@@ -176,7 +176,9 @@ check('Ersatzwoche ist so gespeichert, wie sie geglaettet wird',
 const ziele = JSON.parse(await readFile(path.join(root, 'site/data/qr-ziele.json'), 'utf8'));
 for (const name of ['events', 'takeaway']) {
   const ziel = ziele[name]?.url || '';
-  check(`QR-Ziel ${name} liegt auf wirtschaft-dornbirn.at`, /^https:\/\/([\w-]+\.)*wirtschaft-dornbirn\.at\//.test(ziel), ziel);
+  // Die eigene Domain oder die Seite selbst - nie ein fremder Dienst.
+  check(`QR-Ziel ${name} liegt auf der eigenen Seite`,
+    /^https:\/\/([\w-]+\.)*wirtschaft-dornbirn\.at\//.test(ziel) || /^https:\/\/jonasgamper-create\.github\.io\/wirtschaft-dornbirn-test\//.test(ziel), ziel);
   check(`QR-Ziel ${name} hat einen Text`, typeof ziele[name]?.text === 'string' && ziele[name].text.length > 5);
   try {
     const svg = await readFile(path.join(root, `site/assets/qr/${name}.svg`), 'utf8');

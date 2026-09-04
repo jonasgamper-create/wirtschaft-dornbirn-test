@@ -1,5 +1,11 @@
 {
-  "_hinweis": "Die Ziele der beiden QR-Codes auf der Faltkarte. Gedruckt heisst dauerhaft: beide liegen auf der eigenen Domain. Heute fuehren sie auf die Wege, die es dort schon gibt (Ticketuebersicht, Lieferservice); zieht die neue Seite auf die Domain, bekommen genau diese beiden Pfade eine Weiterleitung auf events.html und takeaway.html - dann stimmen auch alte Karten weiter. Nach einer Aenderung hier: npm run ci (erzeugt die Codes neu).",
-  "events": { "url": "https://wirtschaft-dornbirn.at/event/", "text": "hier geht es zu den aktuellen events" },
-  "takeaway": { "url": "https://lieferservice.wirtschaft-dornbirn.at/", "text": "hier geht es zum takeaway" }
+  "_hinweis": "Die Ziele der beiden QR-Codes auf der Faltkarte. Gedruckt heisst dauerhaft. Events zeigt auf die Ticketuebersicht der bestehenden Seite; Takeaway auf die Bestellseite der neuen (Wunsch vom 04.09.). Nach einer Aenderung hier: npm run ci (erzeugt die Codes neu).",
+  "events": {
+    "url": "https://wirtschaft-dornbirn.at/event/",
+    "text": "hier geht es zu den aktuellen events"
+  },
+  "takeaway": {
+    "url": "https://jonasgamper-create.github.io/wirtschaft-dornbirn-test/takeaway.html",
+    "text": "hier geht es zum takeaway"
+  }
 }
