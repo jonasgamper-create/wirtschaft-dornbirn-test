@@ -25,8 +25,13 @@ const el = (tag, attribute = {}, ...kinder) => {
 };
 
 // Zwei Nachkommastellen, Komma: so steht der Preis auch auf der Karte.
-const alsPreisText = wert => (wert === null || wert === undefined || wert === '' || !Number.isFinite(Number(wert)))
-  ? '' : Number(wert).toFixed(2).replace('.', ',');
+// Nimmt Zahl wie Text ("15,90" aus einem Feld) - ohne den Tausch von Komma
+// zu Punkt wurde aus der Vorgabe NaN und das Feld blieb leer.
+const alsPreisText = wert => {
+  if (wert === null || wert === undefined || wert === '') return '';
+  const zahl = Number(String(wert).replace(',', '.'));
+  return Number.isFinite(zahl) ? zahl.toFixed(2).replace('.', ',') : '';
+};
 
 function feld(name, wert, label, { hinweis = '', breit = false, dezimal = false } = {}) {
   const input = el('input', { type: 'text', 'data-feld': name, value: wert ?? '', autocomplete: 'off' });
@@ -116,27 +121,34 @@ function zeilenWerkzeuge(zeile) {
     weg);
 }
 
-/** Eine Zeile Tagesgericht: Gericht, Beilagen, Allergene, eigener Preis. */
-function tagesZeile(gericht = {}) {
+/**
+ * Eine Zeile Tagesgericht: Gericht, Beilagen, Allergene, Preis.
+ *
+ * Der Preis steht bei JEDEM Gericht sichtbar und ist direkt aenderbar -
+ * die Menues kosten nicht alle dasselbe. Eine neue Zeile kommt mit der
+ * Vorgabe von oben; wer etwas anderes will, tippt es einfach drueber.
+ */
+function tagesZeile(gericht = {}, vorgabe = '') {
   const zeile = el('div', { class: 'plan-gericht' });
   zeile.append(
     feld('name', gericht.name, 'mittagsgericht', { hinweis: 'z. B. cordon bleu vom schwein', breit: true }),
     feld('beilage', gericht.beilage, 'beilagen', { hinweis: 'schnittlauchkartoffeln | salat', breit: true }),
     feld('allergene', gericht.allergene, 'allergene', { hinweis: 'a, c, g' }),
-    feld('preis', alsPreisText(gericht.preis), 'eigener preis', { hinweis: 'leer = gruppenpreis', dezimal: true }),
+    feld('preis', alsPreisText(gericht.preis ?? vorgabe), 'preis', { hinweis: '15,90', dezimal: true }),
     zeilenWerkzeuge(zeile),
     mitnehmHaken(gericht)
   );
   return zeile;
 }
 
-function vitalZeile(gericht = {}) {
+function vitalZeile(gericht = {}, vorgabe = '') {
   const zeile = el('div', { class: 'plan-gericht' });
   zeile.append(
     feld('titel', gericht.titel ?? 'vital-gericht', 'art', { hinweis: 'vital-gericht / vegi-gericht' }),
     feld('name', gericht.name, 'gericht', { hinweis: 'lachsschnitte', breit: true }),
     feld('beilage', gericht.beilage, 'beilagen', { hinweis: 'mango-bulgur | chili-honigsauce | minzjoghurt', breit: true }),
     feld('allergene', gericht.allergene, 'allergene', { hinweis: 'a, c, l, m' }),
+    feld('preis', alsPreisText(gericht.preis ?? vorgabe), 'preis', { hinweis: '15,90', dezimal: true }),
     zeilenWerkzeuge(zeile),
     mitnehmHaken(gericht)
   );
@@ -183,8 +195,8 @@ export function zeichneMenueplan(wurzel, plan = null) {
   const montag = el('input', { type: 'date', 'data-feld': 'montag', value: plan?.montag || naechsterMontag() });
   kopf.append(
     el('label', {}, el('span', { text: 'montag der woche' }), montag),
-    feld('preis-mittag', alsPreisText(plan?.preise?.mittag ?? ''), 'preis mittagsgerichte', { hinweis: '15,90', dezimal: true }),
-    feld('preis-vital', alsPreisText(plan?.preise?.vital ?? ''), 'preis vital & vegi', { hinweis: 'leer = wie mittag', dezimal: true })
+    feld('preis-mittag', alsPreisText(plan?.preise?.mittag ?? ''), 'vorgabe mittagsgerichte', { hinweis: '15,90 – gilt für neue zeilen', dezimal: true }),
+    feld('preis-vital', alsPreisText(plan?.preise?.vital ?? ''), 'vorgabe vital & vegi', { hinweis: 'leer = wie mittag', dezimal: true })
   );
   wurzel.append(kopf);
 
@@ -208,21 +220,24 @@ export function zeichneMenueplan(wurzel, plan = null) {
     return tage >= 0 && tage <= 4 ? tage : -1;
   })();
 
+  const vorgabeMittag = () => wurzel.querySelector('[data-feld="preis-mittag"]')?.value || '';
+  const vorgabeVital = () => wurzel.querySelector('[data-feld="preis-vital"]')?.value || vorgabeMittag();
+
   WOCHENTAGE.forEach((tag, i) => {
     const block = el('div', { class: 'plan-tag', 'data-tag': String(i) },
       el('h3', {}, tag, ...(i === heuteIndex ? [' ', el('span', { class: 'plan-heute', text: 'heute' })] : [])));
     if (i === heuteIndex) block.classList.add('plan-tag-heute');
     const liste = el('div', { class: 'plan-liste' });
     const gerichte = plan?.tage?.[i]?.gerichte?.length ? plan.tage[i].gerichte : [{}];
-    gerichte.forEach(g => liste.append(tagesZeile(g)));
-    block.append(liste, mehrKnopf('+ gericht zur wahl („oder“)', liste, () => tagesZeile(), MAX_JE_TAG));
+    gerichte.forEach(g => liste.append(tagesZeile(g, vorgabeMittag())));
+    block.append(liste, mehrKnopf('+ gericht zur wahl („oder“)', liste, () => tagesZeile({}, vorgabeMittag()), MAX_JE_TAG));
     woche.append(block);
   });
   const vital = el('div', { class: 'plan-tag plan-vital' }, el('h3', { text: 'vital & vegi' }));
   const vitalListe = el('div', { class: 'plan-liste' });
   const vitalGerichte = plan?.vital?.length ? plan.vital : [{ titel: 'vital-gericht' }, { titel: 'vegi-gericht' }];
-  vitalGerichte.forEach(g => vitalListe.append(vitalZeile(g)));
-  vital.append(vitalListe, mehrKnopf('+ vital- oder vegi-gericht', vitalListe, () => vitalZeile({ titel: 'vital-gericht' }), MAX_VITAL));
+  vitalGerichte.forEach(g => vitalListe.append(vitalZeile(g, vorgabeVital())));
+  vital.append(vitalListe, mehrKnopf('+ vital- oder vegi-gericht', vitalListe, () => vitalZeile({ titel: 'vital-gericht' }, vorgabeVital()), MAX_VITAL));
   woche.append(vital);
   wurzel.append(woche);
 
@@ -268,7 +283,7 @@ export function liesMenueplan(wurzel) {
         .filter(g => g.name.trim())
     })),
     vital: zeilen(wurzel.querySelector('.plan-vital'))
-      .map(z => ({ titel: wert(z, 'titel'), name: wert(z, 'name'), beilage: wert(z, 'beilage'), allergene: wert(z, 'allergene'), takeaway: haken(z) }))
+      .map(z => ({ titel: wert(z, 'titel'), name: wert(z, 'name'), beilage: wert(z, 'beilage'), allergene: wert(z, 'allergene'), preis: wert(z, 'preis'), takeaway: haken(z) }))
       .filter(g => g.name.trim()),
     alacarteFenster: wert(wurzel, 'alacarteFenster'),
     alacarte: zeilen(wurzel.querySelector('.plan-alacarte'))

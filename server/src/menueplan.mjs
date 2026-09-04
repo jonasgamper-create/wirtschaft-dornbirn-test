@@ -85,16 +85,23 @@ export function normalisiereMenueplan(roh, stand = new Date().toISOString()) {
   if (mittag === null) return { ok: false, grund: 'preis' };
   const vital = alsZahl(roh?.preise?.vital) ?? mittag;
 
+  // Seit 04.09. traegt JEDES Gericht seinen Preis - die Preise sind
+  // variabel, kein Menue muss so viel kosten wie das naechste. Die beiden
+  // Werte oben (mittag, vital) sind nur noch die Vorgabe fuer neue Zeilen
+  // und der Rueckfall fuer einen Eintrag ohne Preis.
   const tage = WOCHENTAGE.map((_, i) => {
     const liste = Array.isArray(roh?.tage?.[i]?.gerichte) ? roh.tage[i].gerichte : [];
-    return { gerichte: liste.slice(0, 3).map(eintrag => gericht(eintrag)).filter(Boolean) };
+    return {
+      gerichte: liste.slice(0, 3).map(eintrag => gericht(eintrag)).filter(Boolean)
+        .map(g => ({ ...g, preis: g.preis ?? mittag }))
+    };
   });
   if (!tage.some(tag => tag.gerichte.length)) return { ok: false, grund: 'leer' };
 
   const vitalListe = (Array.isArray(roh?.vital) ? roh.vital : []).slice(0, 4)
     .map(eintrag => {
       const g = gericht(eintrag);
-      return g ? { titel: text(eintrag?.titel, 30) || 'vital-gericht', ...g } : null;
+      return g ? { titel: text(eintrag?.titel, 30) || 'vital-gericht', ...g, preis: g.preis ?? vital } : null;
     })
     .filter(Boolean);
 
