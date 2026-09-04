@@ -30,7 +30,13 @@ while (geaendert && runden < 6) {
   for (const name of quellen) {
     const datei = path.join(site, name);
     const alt = await readFile(datei, 'utf8');
-    const neu = alt.replace(/(["'./])([a-z0-9-]+\.(?:js|mjs|css))\?v=[a-z0-9]+/gi,
+    // Auch Verweise OHNE ?v= werden erfasst. Vorher galt die Regel nur fuer
+    // solche, die schon eine Angabe trugen - eine neue Seite, die einfach
+    // "meinskript.js" schrieb, blieb still ohne Versionsangabe. Genau das
+    // ist am 04.09. bei mittagskarte.html und menuekarte-falten.html
+    // passiert: Besucher haetten dort dauerhaft die alte Fassung aus dem
+    // Zwischenspeicher bekommen, ohne dass es irgendwo auffiel.
+    const neu = alt.replace(/(["'./])([a-z0-9-]+\.(?:js|mjs|css))(\?v=[a-z0-9]+)?(?=["'\s>])/gi,
       (treffer, davor, ziel) => (hashes.has(ziel) ? `${davor}${ziel}?v=${hashes.get(ziel)}` : treffer));
     if (neu !== alt) {
       await writeFile(datei, neu);

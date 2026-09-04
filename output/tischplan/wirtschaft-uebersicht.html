@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-EbeI/ot3eiJuVbFtQ8nmt3GXHuoKG9jJ+tSh4qD9QLI='; script-src 'sha256-DUusG/6a1G1+3UfVBW9VkCHMGT6ADr7yUTQTlhcTNc8='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-6j6i6Nr6PyzrFRe2lljWtN85KXz1pFnEnIgS5Lj9l10='; script-src 'sha256-DUusG/6a1G1+3UfVBW9VkCHMGT6ADr7yUTQTlhcTNc8='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#11110f">
   <title>Übersicht · Wirtschaft Dornbirn</title>
@@ -478,6 +478,13 @@ h2{font-size:24px;margin-bottom:6px}
 }
 /* Der letzte Kasten braucht Luft, sonst liegt die Leiste darauf. */
 .plan-offen main{padding-bottom:120px}
+
+/* 16 px ist die Grenze, unter der iOS beim Antippen in das Feld zoomt und
+   die Seite verrutscht. Betrifft die beiden Uebergangs-Kaesten, die im
+   Standard ausgeblendet sind - wer sie einschaltet, soll trotzdem kein
+   springendes Bild bekommen. */
+.werkzeug textarea,
+.werkzeug input[type="file"]{font-size:16px}
 
   </style>
 </head>
