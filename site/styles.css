@@ -3222,3 +3222,51 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
   .final-site .lunch-book{display:flex;flex-wrap:wrap;align-items:stretch}
   .final-site .lunch-book>.button{flex:0 1 240px;justify-content:center;text-align:center}
 }
+
+/* ===== 04.09.: die letzten abschnitte atmen wieder =====
+   Gemessen am 402er: die drei Kapitel oben nehmen sich je einen ganzen
+   Bildschirm, danach fiel die Seite auf 24 und zuletzt 8 Pixel Innenabstand
+   zusammen. Wer so weit gescrollt ist, liest nicht schneller - es wirkt
+   nur, als liefe die Seite aus, statt zu enden. Die Handy-Ruhe vom 01.09.
+   hatte den Gutscheinteil zu Recht gekuerzt; sie hat ihm dabei aber auch
+   die Luft genommen.
+
+   Der Rhythmus ist jetzt durchgehend: grosse Kapitel oben, ruhige Blocke
+   unten - aber alle mit demselben Atem. */
+@media(max-width:700px){
+  /* section im Selektor, damit diese Werte die frueheren Kompakt-Regeln
+     (padding:max(8px, ... - 2cm)) sicher schlagen - mit gleicher
+     Spezifitaet gewann teils noch die aeltere Zeile. */
+  .final-site section.catering-scene{padding-top:clamp(56px,13vw,88px);padding-bottom:clamp(56px,13vw,88px)}
+  /* Diese Regel setzte den Fuss des Catering-Blocks auf 28 px - sie stammt
+     aus einer Zeit, in der dort ein Bild anschloss. Jetzt folgt der
+     Gutschein-Block, und die beiden klebten aneinander. */
+  .final-site .catering-scene[data-variant]{padding-bottom:clamp(56px,13vw,88px)}
+  .final-site section.voucher-scene{padding-top:clamp(64px,15vw,96px);padding-bottom:clamp(64px,15vw,96px)}
+  .final-site section.insta-strip{padding-top:clamp(56px,13vw,88px);padding-bottom:clamp(32px,8vw,48px)}
+
+  /* Luft um die Ueberschriften: eine grosse Zeile braucht Raum davor, sonst
+     klebt sie an dem, was darueber steht, und verliert ihr Gewicht. */
+  .final-site .voucher-scene .eyebrow,
+  .final-site .catering-scene .eyebrow{margin-bottom:14px}
+  .final-site .voucher-scene h2{margin-bottom:18px}
+  .final-site .voucher-scene>p{margin-bottom:0;line-height:1.62}
+  .final-site .voucher-weg{margin-top:30px}
+  .final-site .insta-strip>h2,
+  .final-site .insta-strip>p{margin-bottom:16px}
+  .final-site .insta-band{margin-top:26px}
+
+  /* Auch die Kapitel selbst: der Text steht dort dicht unter der Headline,
+     obwohl darunter ein ganzer Bildschirm Platz ist. Ein Fliesstext mit
+     1,7 Zeilenabstand liest sich am Telefon ruhiger - das ist der
+     groesste Hebel fuer das Gefuehl, dass eine Seite Zeit laesst. */
+  /* :not(.eyebrow) mitschreiben - sonst gewinnt die aeltere Zeile mit
+     demselben Selektor und der Fliesstext behaelt seinen engen Satz. */
+  .final-site .scene-copy>p:not(.eyebrow),
+  .final-site .final-copy>p:not(.eyebrow),
+  .final-site .prologue-copy>p:not(.eyebrow){margin-top:18px;line-height:1.7}
+  .final-site .scene-actions{margin-top:30px}
+  .final-site .scene-copy h2,
+  .final-site .prologue-copy h1{margin-bottom:4px}
+  .final-site .chapter-lunch .lunch-book{margin-top:30px}
+}

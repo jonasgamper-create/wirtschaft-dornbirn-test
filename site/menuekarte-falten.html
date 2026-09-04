@@ -38,14 +38,26 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
    A5-Haelften. Aussen: links die Rueckseite, rechts die Vorderseite. Innen:
    links der Wochenplan, rechts A la carte. Wenig Farbe - Schwarz, Grau und
    ein Hauch Gold auf Weiss. */
-/* Das Seitenverhaeltnis von A4 quer, fest: 297 zu 210. Ohne diese Zeile
-   waechst die Seite am Bildschirm einfach mit ihrem Inhalt (gemessen:
-   979 x 1138 statt 979 x 692) - und was ueber das echte Blatt hinausragt,
-   faellt beim Drucken lautlos weg. Erst mit festem Verhaeltnis zeigt die
-   Vorschau, was wirklich aufs Papier kommt, und die Selbstmessung in
-   menuekarte-falten.js kann greifen. */
-.page{display:grid;grid-template-columns:1fr 1fr;aspect-ratio:297/210;
+/* Die Seite IST das Blatt: 297 x 210 mm, in Bildpunkten 1123 x 794 bei
+   96 dpi. Am Bildschirm wird sie als Ganzes verkleinert (zoom), damit sie
+   ins Fenster passt - im Layout bleibt sie aber genau ein A4-Blatt.
+   Das ist der Unterschied zwischen einer Vorschau und einer Druckvorlage:
+   was hier zu sehen ist, kommt genau so aus dem Drucker. Vorher wuchs die
+   Seite am Bildschirm mit ihrem Inhalt, spaeter passte sie sich der
+   Fensterbreite an - beides zeigte etwas anderes als das Papier.
+   Im Druck setzt doc-page die echte Papiergroesse mit !important; der
+   Zoom gilt nur am Bildschirm. */
+.page{display:grid;grid-template-columns:1fr 1fr;
   background:#fff;color:var(--ink);font-size:9.5pt;line-height:1.3}
+@media screen{
+  .page{width:1123px !important;height:794px !important}
+  /* Der Zoom sitzt auf dem Behaelter, nicht auf dem Blatt: doc-page bringt
+     eigene Raender und Schatten mit, die sonst in voller Groesse stehen
+     bleiben - gemessen ragten sie 270 px aus dem Fenster. Im Layout bleibt
+     das Blatt dabei genau 1123 x 794, die Selbstmessung rechnet also
+     weiter mit echten Blattmassen. */
+  doc-page{display:block;zoom:var(--blatt-zoom,1)}
+}
 /* overflow:hidden ist hier nicht nur Kosmetik: erst damit meldet
    scrollHeight die wahre Inhaltshoehe, und die Seite kann sich selbst
    messen (passeAnsBlattAn in menuekarte-falten.js). Ohne das liefe eine zu
