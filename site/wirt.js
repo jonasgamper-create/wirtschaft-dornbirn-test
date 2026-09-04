@@ -6,13 +6,13 @@
 
 import {
   apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeKuechenzettel, holeMenueplan, holeStand, karteAdresse,
-  loescheMenueplan, sendeMenueplan,
+  loescheMenueplan, rueckeWocheVor, sendeMenueplan,
   leereTag, legeEinfach, loescheKarte, schluesselAusAdresse, sendeAktion, sendePlan,
   sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
   holeEigeneEvents, holeGeschlossen, holeOeffnung, legeEigenesEvent, loescheEigenesEvent, sageTagAb, sendeTischsperre, setzeOeffnung, setzeTagZu,
   setzeFertigWer,
   stelleTagWiederHer
-} from './haus-api.js?v=309a63fc';
+} from './haus-api.js?v=14d80640';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=aca534d9';
 import { liesAnsicht, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=df871f29';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
@@ -794,16 +794,37 @@ async function verdrahteMenueplan() {
 
   // Vorbefuellen: der Plan vom Dienst. Gibt es keinen, die hinterlegte
   // Ersatzwoche - so steht A la carte schon da und muss nicht abgetippt werden.
-  let plan = (await holeMenueplan())?.plan || null;
+  const antwortPlan = await holeMenueplan();
+  let plan = antwortPlan?.plan || null;
   const veroeffentlicht = Boolean(plan);
   byId('planWeg').hidden = !plan;
+
+  // Freitagabend legt der Dienst den Entwurf fuer die kommende Woche bereit.
+  // Er hat Vorrang im Formular: das ist die Woche, an der jetzt gearbeitet
+  // wird. Auf der Webseite steht solange weiter die bestaetigte Karte.
+  const entwurf = antwortPlan?.entwurf || null;
+  if (entwurf) {
+    zeichneMenueplan(form, entwurf);
+    zeigePlanStand(plan, entwurf);
+    verdrahteFormular();
+    return;
+  }
+
   if (!plan) {
     plan = await fetch(`${wurzel}data/menueplan.json`, { cache: 'no-store' })
       .then(antwort => (antwort.ok ? antwort.json() : null)).catch(() => null);
     sag('planInfo', 'Noch kein Plan veröffentlicht – vorbefüllt mit der hinterlegten Woche. Datum und Gerichte anpassen, dann veröffentlichen.');
   }
   zeichneMenueplan(form, plan);
-  zeigePlanStand(veroeffentlicht ? plan : null);
+  zeigePlanStand(veroeffentlicht ? plan : null, null);
+  verdrahteFormular();
+}
+
+/** Die Knoepfe des Menueplan-Kastens. Einmal verdrahtet, nicht je Neuzeichnen. */
+function verdrahteFormular() {
+  const form = byId('planForm');
+  if (form.dataset.verdrahtet) return;
+  form.dataset.verdrahtet = '1';
 
   // Ungespeichertes darf nicht still verloren gehen: sobald der Wirt etwas
   // aendert, faehrt unten eine Leiste mit dem Veroeffentlichen-Knopf mit.
@@ -820,6 +841,21 @@ async function verdrahteMenueplan() {
   });
   byId('planLeisteSetzen')?.addEventListener('click', () => byId('planSetzen').click());
 
+  // Die Woche von Hand vorruecken - denselben Weg geht der Dienst
+  // Freitagabend von selbst. Der Knopf hilft, wenn der Wirt frueher
+  // anfangen will oder ein Freitag einmal ausgefallen ist.
+  byId('planWoche')?.addEventListener('click', async () => {
+    sag('planInfo', 'Woche wird vorgerückt …');
+    const antwort = await rueckeWocheVor(hausToken());
+    if (!antwort?.ok) return sag('planInfo', 'Das hat nicht geklappt.', 'fehler');
+    if (antwort.grund === 'schon_aktuell') return sag('planInfo', 'Der Plan steht schon auf der laufenden Woche.', 'gut');
+    if (antwort.grund === 'kein_plan') return sag('planInfo', 'Es gibt noch keinen Plan, den man vorrücken könnte.', 'fehler');
+    if (antwort.grund === 'entwurf_liegt_schon') return sag('planInfo', 'Ein Entwurf für die kommende Woche liegt schon bereit.', 'gut');
+    sag('planInfo', 'Entwurf für die kommende Woche liegt bereit – bitte prüfen und veröffentlichen.', 'gut');
+    verdrahteMenueplan.neuLaden?.();
+    location.reload();
+  });
+
   byId('planSetzen').addEventListener('click', async () => {
     sag('planInfo', 'Wird veröffentlicht …');
     const antwort = await sendeMenueplan(hausToken(), liesMenueplan(form));
@@ -830,7 +866,7 @@ async function verdrahteMenueplan() {
     document.body.classList.remove('plan-offen');
     byId('planWeg').hidden = false;
     byId('planWeg').textContent = 'Plan entfernen';
-    zeigePlanStand(antwort.plan);
+    zeigePlanStand(antwort.plan, null);
     const tagesgerichte = antwort.plan.tage.reduce((summe, tag) => summe + tag.gerichte.length, 0);
     sag('planInfo', `Veröffentlicht: ${tagesgerichte} Tagesgericht(e), ${antwort.plan.vital.length} vital, `
       + `${antwort.plan.alacarte.length} à la carte – Takeaway, Mittagskarte und Faltkarte sind auf dem neuen Stand.`, 'gut');
@@ -863,9 +899,20 @@ async function verdrahteMenueplan() {
  * Gerichte davon zum Mitnehmen freigegeben sind. Eine Zeile, die beim
  * Hinschauen die Frage beantwortet "steht die Woche schon?".
  */
-function zeigePlanStand(plan) {
+function zeigePlanStand(plan, entwurf) {
   const zeile = byId('planStand');
   if (!zeile) return;
+  const kurz = datum => new Date(`${datum}T12:00:00`).toLocaleDateString('de-AT', { day: 'numeric', month: 'long' });
+  if (entwurf) {
+    const bis = new Date(`${entwurf.montag}T12:00:00`);
+    bis.setDate(bis.getDate() + 4);
+    const bisText = bis.toLocaleDateString('de-AT', { day: 'numeric', month: 'long' });
+    zeile.textContent = `Entwurf für ${kurz(entwurf.montag)} – ${bisText}: die Gerichte der Vorwoche stehen als Vorlage da. `
+      + `Anpassen und veröffentlichen – bis dahin steht auf der Webseite `
+      + (plan ? `die Woche ab ${kurz(plan.montag)}.` : 'noch nichts.');
+    zeile.dataset.art = 'entwurf';
+    return;
+  }
   if (!plan) {
     zeile.textContent = 'Noch nicht veröffentlicht – auf der Webseite steht die vorige Karte.';
     zeile.dataset.art = 'offen';
@@ -876,8 +923,8 @@ function zeigePlanStand(plan) {
   const mit = alle.filter(gericht => gericht.takeaway !== false).length;
   const bis = new Date(`${plan.montag}T12:00:00`);
   bis.setDate(bis.getDate() + 4);
-  const kurz = datum => datum.toLocaleDateString('de-AT', { day: 'numeric', month: 'long' });
-  zeile.textContent = `Veröffentlicht für ${kurz(new Date(`${plan.montag}T12:00:00`))} – ${kurz(bis)} · `
+  zeile.textContent = `Veröffentlicht für ${kurz(plan.montag)} – `
+    + `${bis.toLocaleDateString('de-AT', { day: 'numeric', month: 'long' })} · `
     + `${alle.length} Gerichte, davon ${mit} zum Mitnehmen.`;
   zeile.dataset.art = 'gut';
 }

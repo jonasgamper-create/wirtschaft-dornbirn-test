@@ -44,11 +44,33 @@ a:hover{color:var(--ink)}
 /* Das Blatt: weiss, ein duenner Rahmen, viel Luft - gegliedert wie die
    Mittagskarte des Hauses. Wenig Farbe: die Woche in Gold, der Rest in
    Schwarz und Grau auf Weiss. */
-doc-page{--doc-page-w:calc(100vw - 20px);--doc-page-margin:20px}
+/* Das Blatt IST A4 hoch: 210 x 297 mm, in Bildpunkten 794 x 1123 bei
+   96 dpi. Am Bildschirm wird es als Ganzes verkleinert, im Layout bleibt es
+   genau ein Blatt. Wer hier auf "als pdf speichern" geht, bekommt exakt
+   das, was er sieht - und wer nur schaut, sieht sofort eine Karte und
+   keine Webseite. */
+@media screen{
+  .blatt{width:794px !important;height:1123px !important;box-sizing:border-box;overflow:hidden}
+  .blatt + .blatt{margin-top:20px}
+  doc-page{display:block;zoom:var(--blatt-zoom,1)}
+  body{overflow-x:auto}
+}
+/* Im Druck bricht jedes Blatt eine Seite um. */
+@media print{
+  .blatt{height:auto;overflow:visible}
+  .blatt + .blatt{break-before:page}
+}
+.blatt{display:flex;flex-direction:column}
+.blatt-inhalt{flex:1;min-height:0}
+/* Folgeblaetter tragen nur eine schmale Kopfzeile, wie das Original. */
+.blatt-weiter .kopf{padding-bottom:6pt;margin-bottom:10pt}
+.blatt-weiter .kopf img,.blatt-weiter .kopf-meta{display:none}
+.blatt-weiter .kopf h1{font-size:13pt;text-align:left}
+.blatt-weiter .kopf h1 small{display:inline;margin:0 0 0 10pt;font-size:10pt}
 /* Kein Rahmen ums Blatt: die Karte laeuft wie das Original des Hauses auf
    zwei Seiten, und ein Rahmen, der am Seitenende abreisst, sieht nach
    Fehler aus. */
-.blatt{padding:6mm 4mm 8mm}
+.blatt{padding:13mm 12mm 11mm}
 .kopf{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10pt 16pt;
   padding-bottom:10pt;margin-bottom:12pt;border-bottom:1.5px solid var(--ink)}
 .kopf img{display:block;width:150px;height:auto}
@@ -93,23 +115,27 @@ doc-page{--doc-page-w:calc(100vw - 20px);--doc-page-margin:20px}
     </div>
   </nav>
 
-  <doc-page size="a4" margin="10mm">
-    <div class="blatt">
+  <!-- Ein Blatt ist die Vorlage; passt der Inhalt nicht darauf, legt
+       mittagskarte.js weitere an und verteilt die Zeilen - genau wie das
+       gedruckte Original des Hauses, das ueber zwei Seiten laeuft. -->
+  <doc-page size="a4" margin="0">
+    <div class="blatt" id="blatt1">
       <header class="kopf">
         <img src="assets/logo.png" width="300" height="69" alt="„wirtschaft“ – cafe restaurant bar">
         <h1>mittagskarte<small id="wochenText">&nbsp;</small></h1>
         <p class="kopf-meta">bahnhofstraße 24 · 6850 dornbirn<br>+43 (0)5572 20 540<br><span id="stand"></span></p>
       </header>
 
-      <section class="gruppe" id="woche"><p class="laden">Die Karte wird geladen.</p></section>
-      <section class="gruppe" id="alacarte"></section>
-
-      <p class="fuss" id="fuss" hidden></p>
-      <p class="legende" id="legende" hidden></p>
+      <div class="blatt-inhalt">
+        <section class="gruppe" id="woche"><p class="laden">Die Karte wird geladen.</p></section>
+        <section class="gruppe" id="alacarte"></section>
+        <p class="fuss" id="fuss" hidden></p>
+        <p class="legende" id="legende" hidden></p>
+      </div>
     </div>
   </doc-page>
 
-  <script src="doc-page.js?v=b1419670"></script>
-  <script type="module" src="mittagskarte.js?v=f1075366"></script>
+  <script src="doc-page.js?v=09f601fd"></script>
+  <script type="module" src="mittagskarte.js?v=3988ac4b"></script>
 </body>
 </html>

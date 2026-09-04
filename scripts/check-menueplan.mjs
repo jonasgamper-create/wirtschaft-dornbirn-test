@@ -139,6 +139,19 @@ check('Tagindex Montag 0, Freitag 4, Sonntag -1',
 check('Zahl aus Text', alsZahl('12,50') === 12.5 && alsZahl('abc') === null && alsZahl(0) === null);
 check('Allergencodes aus freiem Text', allergenCodes('(a, c, g)').join('') === 'ACG');
 
+// ---- 3b. Der Wochenwechsel am Freitagabend --------------------------------
+
+const { montagDanach, naechsteWoche } = await import('../server/src/menueplan.mjs');
+check('Montag nach einem Freitag ist der naechste Montag', montagDanach('2026-09-04') === '2026-09-07');
+check('Montag nach einem Montag ist der Montag darauf', montagDanach('2026-08-31') === '2026-09-07');
+check('Montag nach einem Sonntag ist der Tag danach', montagDanach('2026-09-06') === '2026-09-07');
+const weiter = naechsteWoche(plan, '2026-09-04T20:00:00Z');
+check('Die naechste Woche beginnt sieben Tage spaeter', weiter.montag === '2026-09-07');
+check('Die Gerichte bleiben stehen', JSON.stringify(weiter.tage) === JSON.stringify(plan.tage));
+check('A la carte bleibt stehen', weiter.alacarte.length === plan.alacarte.length);
+check('Der Stand ist neu', weiter.stand === '2026-09-04T20:00:00Z');
+check('Ohne Plan kein Entwurf', naechsteWoche(null) === null);
+
 // ---- 4. Die hinterlegte Ersatzwoche ---------------------------------------
 //
 // Ohne Dienst zeigt die Webseite diese Datei. Sie muss durch dieselbe

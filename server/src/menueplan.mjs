@@ -204,3 +204,25 @@ export function takeawayAusPlan(plan, datum = '') {
   }
   return { gruppen, gerichte: gruppen.flatMap(gruppe => gruppe.gerichte) };
 }
+
+/**
+ * Der Plan fuer die naechste Woche, aus dem laufenden abgeleitet.
+ *
+ * Freitagabend rueckt der Dienst die Woche vor und legt das Ergebnis als
+ * ENTWURF ab - die Gerichte bleiben stehen, weil sich meist nur ein Teil
+ * aendert und der Wirt bis Sonntag ohnehin darueberschaut. Live geht davon
+ * nichts: was die Gaeste sehen, bleibt die bestaetigte Woche, bis der Wirt
+ * den Entwurf veroeffentlicht. Eine Karte, die sich von selbst um eine
+ * Woche weiterdatiert, waere sonst eine Behauptung ueber Gerichte, die
+ * niemand geprueft hat.
+ */
+export function naechsteWoche(plan, stand = new Date().toISOString()) {
+  if (!plan?.montag) return null;
+  return { ...plan, montag: datumPlus(plan.montag, 7), stand };
+}
+
+/** Der Montag der Woche, die auf `datum` folgt. */
+export function montagDanach(datum) {
+  const wochentag = (new Date(`${datum}T12:00:00Z`).getUTCDay() + 6) % 7;
+  return datumPlus(datum, 7 - wochentag);
+}

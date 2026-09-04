@@ -112,7 +112,12 @@ export async function karteAdresse(info = null) {
   return basis ? `${basis}/mittagskarte.pdf` : null;
 }
 
-/** Der Menueplan der Woche - oeffentlich, er steht ohnehin auf der Seite. */
+/**
+ * Der Menueplan der Woche - oeffentlich, er steht ohnehin auf der Seite.
+ * Die Antwort traegt zusaetzlich `entwurf`: den Vorschlag fuer die kommende
+ * Woche, den der Dienst Freitagabend anlegt. Er ist Arbeitsstand des
+ * Hauses; die Gaesteseiten lesen ihn nicht.
+ */
 export const holeMenueplan = () => ruf('/api/menueplan');
 
 /** Der Wirt setzt den Plan; der Dienst prueft und nennt, was nicht passt. */
@@ -121,6 +126,13 @@ export const sendeMenueplan = (token, plan) =>
 
 export const loescheMenueplan = token =>
   ruf('/api/menueplan', { methode: 'DELETE', token });
+
+/**
+ * Die Woche von Hand vorruecken: legt den Entwurf fuer die kommende Woche
+ * an. Denselben Weg geht der Dienst Freitagabend von selbst.
+ */
+export const rueckeWocheVor = token =>
+  ruf('/api/menueplan', { methode: 'PUT', token });
 
 /** Gibt es eine Karte, und von wann ist sie? Oeffentlich, ohne Inhalt. */
 export const holeKarteInfo = () => ruf('/api/mittagskarte');
