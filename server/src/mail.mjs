@@ -358,3 +358,70 @@ export function wochenberichtMail({ von, bis, tage, gaeste, reservierungen, nich
       + (bestseller.length ? `\n\nBestseller:\n${bestseller.map(b => `${b.name}: ${b.portionen}`).join('\n')}` : '')
   };
 }
+
+// ---- Takeaway: drei Mails ---------------------------------------------------
+//
+// Bestellt jemand online, bekommt er sofort den Beleg; das Haus bekommt die
+// Bestellung zusaetzlich zur Wirt-Ansicht als Mail; und ist das Essen
+// fertig, sagt eine dritte Mail Bescheid. SMS war dafuer vorgesehen und ist
+// aus - die Mail ist der Weg, der ohne Guthaben laeuft.
+
+const preis = wert => `€ ${Number(wert).toFixed(2).replace('.', ',')}`;
+const postenZeilen = posten => (posten || []).map(p => `${p.menge}× ${p.name}`);
+
+/** An den Gast: "Wir haben deine Bestellung." */
+export function bestellBestaetigung({ nummer, name, tag, zeit, posten, summe, vorbestellung, statusLink }) {
+  const wann = `${langesDatum(tag)}, ca. ${zeit} Uhr`;
+  const essen = postenZeilen(posten);
+  const html = rahmen('Bestellung angenommen', [
+    kopf(`Nr. ${nummer}`, 'Deine Bestellung ist in der Küche.'),
+    zeile('Name', name),
+    zeile('Abholen', wann),
+    zeile('Essen', essen.join('<br>')),
+    zeile('Summe', `${preis(summe)} – bezahlt wird beim Abholen`),
+    zeile('Wo', 'Bahnhofstraße 24, 6850 Dornbirn'),
+    statusLink ? knopf(statusLink, 'Wann ist es fertig?', '#244635') : '',
+    `<tr><td style="padding:10px 28px 8px;"><p style="margin:0;font:400 12px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">`
+      + `Fragen oder etwas vergessen? +43 5572 20 540.</p></td></tr>`
+  ].join(''));
+  return {
+    betreff: `Bestellung Nr. ${nummer} – ${vorbestellung ? langesDatum(tag) : 'heute'}, ca. ${zeit} Uhr`,
+    html,
+    text: `Deine Bestellung ist in der Küche.\n\nNr. ${nummer}\n${name}\nAbholen: ${wann}\n\n${essen.join('\n')}\n`
+      + `Summe: ${preis(summe)} – bezahlt wird beim Abholen\n\nBahnhofstraße 24, 6850 Dornbirn\n`
+      + `${statusLink ? `Wann ist es fertig: ${statusLink}\n` : ''}Fragen: +43 5572 20 540`
+  };
+}
+
+/** Ans Haus: die Bestellung, wie sie in der Wirt-Ansicht steht. */
+export function neueBestellungMail({ nummer, name, telefon, tag, zeit, posten, summe, vorbestellung, eng, wirtLink }) {
+  const essen = postenZeilen(posten);
+  const html = rahmen('Neue Takeaway-Bestellung', [
+    kopf(`Nr. ${nummer}`, `${name} · ${vorbestellung ? langesDatum(tag) : 'heute'}, ${zeit} Uhr${eng ? ' · Slot eng' : ''}`),
+    zeile('Essen', essen.join('<br>')),
+    zeile('Summe', preis(summe)),
+    zeile('Telefon', telefon),
+    wirtLink ? knopf(wirtLink, 'Zur Wirt-Ansicht', '#244635') : ''
+  ].join(''));
+  return {
+    betreff: `Takeaway Nr. ${nummer}: ${name}, ${zeit} Uhr – ${essen.join(', ')}`,
+    html,
+    text: `Neue Takeaway-Bestellung\n\nNr. ${nummer} · ${name}\n${vorbestellung ? langesDatum(tag) : 'heute'}, ${zeit} Uhr${eng ? ' (Slot eng)' : ''}\n\n`
+      + `${essen.join('\n')}\nSumme: ${preis(summe)}\nTelefon: ${telefon}\n${wirtLink ? `\n${wirtLink}` : ''}`
+  };
+}
+
+/** An den Gast: "Es ist fertig." */
+export function bestellFertigMail({ nummer, name, zeit }) {
+  const html = rahmen('Dein Essen ist fertig', [
+    kopf(`Nr. ${nummer}`, 'Liegt am Tresen bereit.'),
+    zeile('Name', name),
+    zeile('Wo', 'Bahnhofstraße 24, 6850 Dornbirn'),
+    zeile('Wann', `ab jetzt${zeit ? ` – fertig um ${zeit} Uhr` : ''}`)
+  ].join(''));
+  return {
+    betreff: `Nr. ${nummer} ist fertig – komm vorbei`,
+    html,
+    text: `Dein Essen ist fertig und liegt am Tresen bereit.\n\nNr. ${nummer} · ${name}\nBahnhofstraße 24, 6850 Dornbirn`
+  };
+}

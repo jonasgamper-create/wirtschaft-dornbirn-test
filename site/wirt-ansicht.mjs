@@ -11,7 +11,7 @@
 
 // Version im Schluessel: aendert sich der Standard, verfaellt die alte
 // Einstellung auf jedem Geraet, und alle sehen dieselbe neue Ansicht.
-const SCHLUESSEL = 'wirtschaft-wirt-ansicht-2';
+const SCHLUESSEL = 'wirtschaft-wirt-ansicht-3';
 
 /**
  * Alle Abschnitte in ihrer Grundreihenfolge. `an` ist der Startzustand.
@@ -19,12 +19,15 @@ const SCHLUESSEL = 'wirtschaft-wirt-ansicht-2';
 export const BLOECKE = [
   // Die Zahlen zuerst: sie laufen ueber beide Spalten und sind die Kopfzeile
   // des Tages. Stuenden sie mittendrin, risse das Raster dort auseinander.
-  // Standard seit 04.09. (Wunsch von Jonas, per Screenshot): NUR der
-  // Menueplan. Alles andere ist ausgeblendet und per Haken zuschaltbar -
-  // die Ansicht ist zuerst das Werkzeug fuer die Karte.
+  // Standard seit 04.09.: Bestellungen und Menueplan. Alles andere ist
+  // ausgeblendet und per Haken zuschaltbar. Der Block mit den Bestellungen
+  // war kurz aus dem Standard - dann haette der Wirt online bestelltes
+  // Essen nie gesehen, obwohl genau das der Sinn der Sache ist.
+  // Bestellungen ZUERST: sie kommen live herein, klingeln und wollen den
+  // Knopf "fertig" - das ist der Alltag. Der Menueplan direkt darunter.
+  { id: 'heute', titel: 'Bestellungen & Reservierungen des Tages', an: true },
   { id: 'planKasten', titel: 'Menüplan der Woche', an: true },
   { id: 'zahlen', titel: 'Zahlen des Tages', an: false },
-  { id: 'heute', titel: 'Der Tag – wer reserviert hat und wer abholt', an: false },
   { id: 'laufkunde', titel: 'Laufkundschaft eintragen', an: false },
   { id: 'zettelKasten', titel: 'Küchenzettel', an: false },
   { id: 'eventKasten', titel: 'Eigene Termine', an: false },

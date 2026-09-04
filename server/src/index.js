@@ -31,8 +31,7 @@ import {
 import {
   absage as absageMail, baueTermin, bestaetigung as bestaetigungsMail, brevoPaket,
   escapeHtml, newsletterFrage, sendeMail, tageszettelMail, termin_uid,
-  wartelisteFreiMail, wochenberichtMail, wochenkarte as wochenkarteMail
-} from './mail.mjs';
+  wartelisteFreiMail, wochenberichtMail, wochenkarte as wochenkarteMail, bestellBestaetigung, bestellFertigMail, neueBestellungMail } from './mail.mjs';
 import {
   markiereInformiert, naechsterWartender, nimmAuf, pruefeWartelisteEintrag, raeumeWartelisteAb
 } from './warteliste.mjs';
@@ -294,6 +293,43 @@ export class Haus extends DurableObject {
     const an = nummerFuerSms(telefon);
     if (!an) return { ok: false, grund: 'nummer' };
     return sendeSms(this.env, { an, text });
+  }
+
+  /** Beleg an den Gast (wenn er eine Adresse angegeben hat) und Bestellung ans Haus. */
+  async #bestellMails(bestellung) {
+    const absender = String(this.env?.BREVO_ABSENDER || '');
+    if (!absender) return;
+    const seite = String(this.env?.GAESTE_SEITE || '').replace(/\/+$/, '');
+    const arbeiten = [];
+    if (bestellung.email) {
+      const inhalt = bestellBestaetigung({
+        nummer: bestellung.nummer, name: bestellung.name, tag: bestellung.date, zeit: bestellung.abholzeit,
+        posten: bestellung.posten, summe: bestellung.summe, vorbestellung: bestellung.vorbestellung,
+        statusLink: seite ? `${seite}/takeaway.html?bestellung=${bestellung.token}` : ''
+      });
+      arbeiten.push(sendeMail(this.env, brevoPaket({ absender, an: bestellung.email, anName: bestellung.name, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text })));
+    }
+    const haus = String(this.env?.WIRT_MAIL || '');
+    if (haus) {
+      const inhalt = neueBestellungMail({
+        nummer: bestellung.nummer, name: bestellung.name, telefon: bestellung.telefon, tag: bestellung.date,
+        zeit: bestellung.abholzeit, posten: bestellung.posten, summe: bestellung.summe,
+        vorbestellung: bestellung.vorbestellung, eng: bestellung.eng,
+        wirtLink: seite ? `${seite}/tischplan/wirt.html` : ''
+      });
+      arbeiten.push(sendeMail(this.env, brevoPaket({ absender, an: haus, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text })));
+    }
+    await Promise.allSettled(arbeiten);
+  }
+
+  /** "Dein Essen ist fertig" - per Mail, wenn eine Adresse da ist. Einmal. */
+  async #fertigMail(bestellung) {
+    const absender = String(this.env?.BREVO_ABSENDER || '');
+    if (!absender || !bestellung.email || bestellung.fertigMailUm) return;
+    bestellung.fertigMailUm = new Date().toISOString();
+    this.#takeawaySichere(bestellung);
+    const inhalt = bestellFertigMail({ nummer: bestellung.nummer, name: bestellung.name, zeit: bestellung.fertigUm });
+    await sendeMail(this.env, brevoPaket({ absender, an: bestellung.email, anName: bestellung.name, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text }));
   }
 
   /**
@@ -1756,6 +1792,10 @@ export class Haus extends DurableObject {
       zeit: bestellung.abholzeit,
       wann: bestellung.vorbestellung ? 'am naechsten Werktag' : 'heute'
     })));
+    // Der Beleg per Mail an den Gast und die Bestellung ans Haus - beides
+    // zusaetzlich zur Wirt-Ansicht, in der sie sofort steht. Scheitert eine
+    // Mail, bleibt die Bestellung trotzdem; die Kueche hat sie.
+    this.ctx.waitUntil(this.#bestellMails(bestellung));
 
     return {
       ok: true, nummer: bestellung.nummer, abholzeit: bestellung.abholzeit,
@@ -1877,6 +1917,7 @@ export class Haus extends DurableObject {
       this.#takeawaySichere(bestellung);
       this.#meldeAenderung();
       if (schonGemeldet) return { ok: true, sms: 'schon' };
+      this.ctx.waitUntil(this.#fertigMail(bestellung));
       // Die SMS haelt den Betrieb nicht auf: sie geht hinterher raus, und
       // scheitert sie, bleibt die Bestellung trotzdem fertig.
       // Push und SMS sind zwei Wege zum selben Gast, keine Alternativen:
