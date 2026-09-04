@@ -4,6 +4,8 @@
     "mittag": 15.9,
     "vital": 15.9
   },
+  "fenster": "11:30 bis 13:00 uhr",
+  "hinweis": "diese gerichte ändern sich wöchentlich.",
   "tage": [
     {
       "gerichte": [
@@ -58,18 +60,19 @@
   ],
   "vital": [
     {
-      "titel": "vital",
+      "titel": "vital-gericht",
       "name": "lachsschnitte | mango-bulgur",
       "beilage": "chili-honigsauce | minzjoghurt",
       "allergene": "a, c, l, m"
     },
     {
-      "titel": "vegetarisch",
+      "titel": "vegi-gericht",
       "name": "hausgemachte maultaschen | kartoffel-kürbisfüllung",
       "beilage": "nussbutter-espuma | brokkoli-gemüse",
       "allergene": "a, c, g"
     }
   ],
+  "alacarteFenster": "11:30 bis 13:00 uhr",
   "alacarte": [
     {
       "name": "Rindsbouillon mit Brätspätzle",
@@ -144,5 +147,6 @@
       "preis": 5
     }
   ],
+  "fussnote": "takeaway: bestellen auf wirtschaft-dornbirn.at oder telefonisch unter +43 (0)5572 20 540. trotz sorgfältiger zubereitung können unsere gerichte spuren von allergenen enthalten – fragen zu zutaten beantworten wir gerne.",
   "stand": "2026-08-31T08:00:00+02:00"
 }

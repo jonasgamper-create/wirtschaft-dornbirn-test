@@ -51,9 +51,16 @@ check('Erstes Gericht ohne eigenen Preis', plan.tage[1].gerichte[0].preis === un
 check('Leerer Tag bleibt leer', plan.tage[2].gerichte.length === 0);
 check('Zu kurzer Name faellt weg', plan.tage[3].gerichte.length === 0);
 check('Allergene in Klammern gehen auch', plan.tage[4].gerichte[0].allergene === 'f, l, m, n');
-check('Vital ohne Titel heisst vital', plan.vital[1].titel === 'vital');
+check('Vital ohne Titel heisst vital-gericht', plan.vital[1].titel === 'vital-gericht');
 check('A la carte ohne Preis faellt weg', plan.alacarte.length === 2 && plan.alacarte[1].name === 'Burger');
 check('Stand wird uebernommen', plan.stand === '2026-08-31T08:00:00Z');
+check('Fenster, Hinweis, Fussnote kommen als Vorgabe, wenn nicht mitgeschickt',
+  plan.fenster === '11:30 bis 13:00 uhr' && plan.hinweis === 'diese gerichte ändern sich wöchentlich.'
+  && plan.alacarteFenster === '11:30 bis 13:00 uhr' && plan.fussnote.startsWith('takeaway:'));
+const ohneZeilen = normalisiereMenueplan({ ...roh, fenster: '', hinweis: '  ', fussnote: '' }).plan;
+check('Leer mitgeschickt bleibt leer (wer die Zeile nicht will, loescht sie)',
+  ohneZeilen.fenster === '' && ohneZeilen.hinweis === '' && ohneZeilen.fussnote === '');
+check('Eigener Text wird uebernommen', normalisiereMenueplan({ ...roh, fenster: '11:30 bis 14:00 uhr' }).plan.fenster === '11:30 bis 14:00 uhr');
 
 check('Kein Montag wird abgelehnt', normalisiereMenueplan({ ...roh, montag: '2026-09-01' }).grund === 'kein_montag');
 check('Ohne Datum abgelehnt', normalisiereMenueplan({ ...roh, montag: '' }).grund === 'montag');
@@ -68,7 +75,9 @@ check('Montag: nur das Montagsgericht', montag.gruppen[0].id === 'tag-1' && mont
 check('Montag: Gruppenpreis am Tagesgericht', montag.gruppen[0].gerichte[0].preis === 15.9);
 check('Montag: Allergene als Codes', JSON.stringify(montag.gruppen[0].gerichte[0].allergene) === '["A","C","G","L","M"]');
 check('Montag: dann vital, dann a la carte', montag.gruppen.map(g => g.id).join(',') === 'tag-1,vital,alacarte');
+check('Gruppen tragen das Zeitfenster der Karte', montag.gruppen[0].fenster === '11:30 bis 13:00 uhr' && montag.gruppen[2].fenster === '11:30 bis 13:00 uhr');
 check('Vital traegt seinen Titel im Namen', montag.gruppen[1].gerichte[0].name === 'vital: Lachsschnitte');
+check('Tagesgericht traegt den Praefix der Karte', montag.gruppen[0].gerichte[0].name === 'mittagsgericht: Cordon bleu vom Schwein');
 
 const dienstag = takeawayAusPlan(plan, '2026-09-01');
 check('Dienstag: zwei Gerichte zur Wahl', dienstag.gruppen[0].gerichte.length === 2 && dienstag.gruppen[0].hinweis === 'zur wahl');

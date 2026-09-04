@@ -4,6 +4,13 @@
 //   2. die Mittagskarte zum Ansehen und als PDF (mittagskarte.html),
 //   3. die Faltkarte fuer den Tisch (menuekarte-falten.html).
 //
+// Gegliedert wie die Mittagskarte des Hauses (Stand 31.08.2026): eine Gruppe
+// "wochengerichte" mit Zeitfenster und Hinweis, darin die Tagesgerichte
+// Montag bis Freitag, Vital- und Vegi-Gericht; eine Gruppe "a la carte" mit
+// Zeitfenster; unten eine Fussnote (Bestellung, Allergene). Jede Zeile
+// traegt ihren Preis - beim Tagesgericht der Gruppenpreis, ausser es hat
+// einen eigenen.
+//
 // Vorher pflegte der Wirt ein PDF UND eine Textliste - zwei Wahrheiten, die
 // auseinanderlaufen konnten. Hier wird geprueft und geglaettet; die reine
 // Logik laeuft in Node genauso wie im Worker, deshalb ist sie testbar
@@ -14,6 +21,16 @@ import { ALLERGENE } from './takeaway.mjs';
 export const WOCHENTAGE = ['montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag'];
 const MONATE = ['jänner', 'februar', 'märz', 'april', 'mai', 'juni', 'juli', 'august',
   'september', 'oktober', 'november', 'dezember'];
+
+/** Die Vorgaben - so steht es auf der Karte des Hauses. */
+export const VORGABEN = {
+  fenster: '11:30 bis 13:00 uhr',
+  hinweis: 'diese gerichte ändern sich wöchentlich.',
+  alacarteFenster: '11:30 bis 13:00 uhr',
+  fussnote: 'takeaway: bestellen auf wirtschaft-dornbirn.at oder telefonisch unter +43 (0)5572 20 540. '
+    + 'trotz sorgfältiger zubereitung können unsere gerichte spuren von allergenen enthalten – '
+    + 'fragen zu zutaten beantworten wir gerne.'
+};
 
 const text = (wert, max) => String(wert ?? '').trim().replace(/\s+/g, ' ').slice(0, max);
 
@@ -38,7 +55,7 @@ function gericht(roh, { preisPflicht = false } = {}) {
   if (preisPflicht && preis === null) return null;
   const ergebnis = {
     name,
-    beilage: text(roh?.beilage, 160),
+    beilage: text(roh?.beilage, 220),
     allergene: alsAllergenText(allergenCodes(roh?.allergene))
   };
   // Beim Tagesgericht ist der Preis die Ausnahme (sonst gilt der Gruppenpreis).
@@ -49,6 +66,9 @@ function gericht(roh, { preisPflicht = false } = {}) {
 /**
  * Prueft, was der Wirt eingetragen hat, und macht daraus den gespeicherten
  * Plan. Was nicht passt, wird beim Namen genannt - kein stilles Verschlucken.
+ * Leere Textfelder (Fenster, Hinweis, Fussnote) bleiben leer: wer die Zeile
+ * nicht will, loescht sie; die Vorgabe gilt nur, wenn das Feld gar nicht
+ * mitgeschickt wurde.
  */
 export function normalisiereMenueplan(roh, stand = new Date().toISOString()) {
   const montag = text(roh?.montag, 10);
@@ -68,7 +88,7 @@ export function normalisiereMenueplan(roh, stand = new Date().toISOString()) {
   const vitalListe = (Array.isArray(roh?.vital) ? roh.vital : []).slice(0, 4)
     .map(eintrag => {
       const g = gericht(eintrag);
-      return g ? { titel: text(eintrag?.titel, 30) || 'vital', ...g } : null;
+      return g ? { titel: text(eintrag?.titel, 30) || 'vital-gericht', ...g } : null;
     })
     .filter(Boolean);
 
@@ -76,9 +96,22 @@ export function normalisiereMenueplan(roh, stand = new Date().toISOString()) {
     .map(eintrag => gericht(eintrag, { preisPflicht: true }))
     .filter(Boolean);
 
+  const feld = (name, max) => (roh?.[name] === undefined ? VORGABEN[name] : text(roh[name], max));
+
   return {
     ok: true,
-    plan: { montag, preise: { mittag, vital }, tage, vital: vitalListe, alacarte, stand }
+    plan: {
+      montag,
+      preise: { mittag, vital },
+      fenster: feld('fenster', 40),
+      hinweis: feld('hinweis', 120),
+      tage,
+      vital: vitalListe,
+      alacarteFenster: feld('alacarteFenster', 40),
+      alacarte,
+      fussnote: feld('fussnote', 400),
+      stand
+    }
   };
 }
 
@@ -111,12 +144,15 @@ export function tagIndex(datum) {
  *
  * Die Kennungen sind stabil (m1-1 = Montag, erstes Gericht; v1; a1): eine
  * Bestellung nennt sie, und der Dienst findet das Gericht wieder, egal an
- * welchem Tag er nachschaut.
+ * welchem Tag er nachschaut. Die Namen tragen den Praefix der Karte
+ * ("mittagsgericht: ...", "vital-gericht: ..."), damit Kuechenzettel und
+ * Beleg dasselbe sagen wie das gedruckte Blatt.
  */
 export function takeawayAusPlan(plan, datum = '') {
   if (!plan) return { gruppen: [], gerichte: [] };
   const gruppen = [];
   const codes = g => allergenCodes(g.allergene);
+  const fenster = plan.fenster || '';
 
   const index = datum ? tagIndex(datum) : -1;
   const tage = datum ? (index >= 0 ? [index] : []) : [0, 1, 2, 3, 4];
@@ -125,18 +161,18 @@ export function takeawayAusPlan(plan, datum = '') {
     if (!liste.length) continue;
     gruppen.push({
       id: `tag-${i + 1}`,
-      titel: `mittagsgericht ${datum ? 'am ' : ''}${WOCHENTAGE[i]}`,
-      fenster: '',
+      titel: `wochengericht ${datum ? 'am ' : ''}${WOCHENTAGE[i]}`,
+      fenster,
       hinweis: liste.length > 1 ? 'zur wahl' : '',
       gerichte: liste.map((g, n) => ({
-        id: `m${i + 1}-${n + 1}`, name: g.name, beilage: g.beilage,
+        id: `m${i + 1}-${n + 1}`, name: `mittagsgericht: ${g.name}`, beilage: g.beilage,
         preis: g.preis ?? plan.preise.mittag, allergene: codes(g)
       }))
     });
   }
   if (plan.vital.length) {
     gruppen.push({
-      id: 'vital', titel: 'vital & vegetarisch', fenster: '', hinweis: '',
+      id: 'vital', titel: 'vital & vegi', fenster, hinweis: '',
       gerichte: plan.vital.map((g, n) => ({
         id: `v${n + 1}`, name: `${g.titel}: ${g.name}`, beilage: g.beilage,
         preis: g.preis ?? plan.preise.vital, allergene: codes(g)
@@ -145,7 +181,7 @@ export function takeawayAusPlan(plan, datum = '') {
   }
   if (plan.alacarte.length) {
     gruppen.push({
-      id: 'alacarte', titel: 'à la carte', fenster: '', hinweis: '',
+      id: 'alacarte', titel: 'à la carte', fenster: plan.alacarteFenster || '', hinweis: '',
       gerichte: plan.alacarte.map((g, n) => ({
         id: `a${n + 1}`, name: g.name, beilage: g.beilage, preis: g.preis, allergene: codes(g)
       }))

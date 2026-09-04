@@ -56,26 +56,21 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .qr img{display:block;width:32mm;height:32mm}
 .qr p{margin:0;font-size:9.5pt;font-weight:600;letter-spacing:.02em}
 
-/* Innen: die Gerichte. */
-.innen h2{display:flex;justify-content:space-between;align-items:baseline;gap:8pt;margin:0 0 7pt;
-  padding:4pt 0;border-top:1.5px solid var(--ink);border-bottom:1px solid var(--ink);
-  font-size:9.5pt;font-weight:600}
-.innen h2 span:last-child{white-space:nowrap;font-variant-numeric:tabular-nums}
-.innen .gruppe + .gruppe{margin-top:10pt}
-.karte-tag{margin:0 0 6pt;break-inside:avoid}
-.karte-tag h3{margin:0;font-size:9.5pt;font-weight:600}
-.karte-name,.karte-beilage,.karte-codes{margin:0;color:var(--grau);font-size:9pt;line-height:1.28}
-.karte-codes{font-size:8.5pt}
-.karte-oder{margin:2pt 0 0;font-size:9.5pt;font-weight:600;color:var(--ink)}
-.karte-tag .karte-preis{display:block;font-size:9pt;font-weight:600;color:var(--ink)}
-
-/* A la carte: Preis rechts neben dem Gericht. */
-.alacarte .karte-gericht{display:grid;grid-template-columns:1fr auto;column-gap:8pt;padding:3.5pt 0;
-  border-bottom:1px solid #11110f1a;break-inside:avoid}
-.alacarte .karte-name{grid-column:1;color:var(--ink);font-weight:600;font-size:9pt}
-.alacarte .karte-beilage,.alacarte .karte-codes{grid-column:1}
-.alacarte .karte-preis{grid-column:2;grid-row:1;font-size:9pt;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-.legende{margin:auto 0 0;padding-top:5pt;border-top:1px solid #11110f33;color:var(--grau);font-size:7pt;line-height:1.45}
+/* Innen: die Gerichte, gegliedert wie die Mittagskarte des Hauses - Titel
+   gross mit Zeitfenster, Linie, Hinweis; je Gericht eine Zeile mit Preis
+   rechts und den Beilagen darunter; duenne Linien dazwischen. */
+.karte-gruppe{display:flex;align-items:baseline;gap:6pt;margin:0;padding:0 0 3.5pt;border-bottom:1.3px solid var(--ink);
+  font-size:14pt;font-weight:600;letter-spacing:-.01em}
+.karte-gruppe .karte-fenster{font-size:8.6pt;font-weight:400;color:var(--grau);letter-spacing:0}
+.karte-hinweis{margin:3.5pt 0 0;color:var(--grau);font-size:8.6pt}
+.karte-zeile{display:grid;grid-template-columns:1fr auto;column-gap:8pt;padding:4.4pt 0;
+  border-bottom:1px solid #11110f1f;break-inside:avoid}
+.karte-name{grid-column:1;margin:0;font-size:10pt;font-weight:600;line-height:1.25}
+.karte-preis{grid-column:2;grid-row:1;font-size:10pt;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.karte-beilage{grid-column:1;margin:1pt 0 0;color:var(--grau);font-size:8.8pt;line-height:1.3}
+.fuss{margin:auto 0 0;padding-top:5pt;border-top:1.3px solid var(--ink);color:var(--grau);font-size:7.6pt;line-height:1.45}
+.fuss b{color:var(--ink)}
+.legende{margin:4pt 0 0;color:var(--grau);font-size:7pt;line-height:1.4}
 .laden{color:var(--grau)}
 
 /* Am Handy nur die Knoepfe: der Satz kostete 60 px, die Knoepfe sind Weg
@@ -86,7 +81,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 </head>
 <body>
   <nav class="leiste" aria-label="Bedienung">
-    <p>Faltkarte: A4 quer, beidseitig drucken (an der kurzen Kante wenden), in der Mitte falten – fertig ist die A5-Menükarte für den Tisch.</p>
+    <p id="leisteHinweis">Faltkarte: A4 quer, beidseitig drucken (an der kurzen Kante wenden), in der Mitte falten – fertig ist die A5-Menükarte für den Tisch.</p>
     <div class="leiste-wege">
       <a href="mittagskarte.html">Mittagskarte (A4)</a>
       <button type="button" id="drucken">Drucken</button>
@@ -117,23 +112,15 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       </div>
     </section>
 
-    <!-- Blatt 2, innen: links die Woche, rechts A la carte. -->
+    <!-- Blatt 2, innen: links die Wochengerichte, rechts A la carte - wie
+         auf der Mittagskarte des Hauses gegliedert. -->
     <section class="page innen" id="innen">
       <div class="haelfte links">
-        <section class="gruppe">
-          <h2><span>unsere mittagsgerichte</span><span id="preisMittag"></span></h2>
-          <div id="tage"><p class="laden">Die Karte wird geladen.</p></div>
-        </section>
-        <section class="gruppe" id="vital" hidden>
-          <h2><span>unsere vitalgerichte</span><span id="preisVital"></span></h2>
-          <div id="vitalListe"></div>
-        </section>
+        <section class="gruppe" id="woche"><p class="laden">Die Karte wird geladen.</p></section>
       </div>
-      <div class="haelfte rechts alacarte">
-        <section class="gruppe">
-          <h2><span>à la carte</span><span data-woche></span></h2>
-          <div id="alacarte"></div>
-        </section>
+      <div class="haelfte rechts">
+        <section class="gruppe" id="alacarte"></section>
+        <p class="fuss" id="fuss" hidden></p>
         <p class="legende" id="legende" hidden></p>
       </div>
     </section>
