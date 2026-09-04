@@ -59,8 +59,16 @@ fetch('data/qr-ziele.json', { cache: 'no-store' })
  */
 function passeAnsBlattAn() {
   const haelften = [...document.querySelectorAll('#innen .haelfte')];
-  const zuVoll = () => haelften.some(h => h.scrollHeight > h.getBoundingClientRect().height + 1);
   const innen = document.getElementById('innen');
+
+  /**
+   * Gemessen wird in Layout-Pixeln: die Seite IST im Layout ein A4-Blatt
+   * (1123 x 794), auch wenn sie am Bildschirm verkleinert dargestellt wird.
+   * clientHeight und scrollHeight liefern beide diese Layout-Werte -
+   * getBoundingClientRect dagegen die verkleinerte Darstellung, was die
+   * Messung von der Fensterbreite abhaengig gemacht haette.
+   */
+  const zuVoll = () => haelften.some(h => h.scrollHeight > h.clientHeight + 1);
   let stufe = 1;
   const messen = () => {
     // Bis 72 Prozent darf die Schrift schrumpfen. Das ist auf A5 immer noch
@@ -81,6 +89,26 @@ function passeAnsBlattAn() {
       hinweis.dataset.art = 'warnung';
     }
   };
+  /**
+   * Das Blatt so verkleinern, dass es ins Fenster passt - nie vergroessern.
+   * zoom und nicht transform: zoom aendert auch den Platzbedarf, sonst
+   * bliebe unter der Karte eine Luecke in Originalgroesse stehen.
+   */
+  const passeZoomAn = () => {
+    // Die Fensterbreite, nicht der Elternknoten: der ist der Schacht von
+    // doc-page und richtet sich nach seinem Kind - er waere also immer
+    // genau so breit wie das Blatt und ergaebe nie eine Verkleinerung.
+    // 80 px Abzug, nicht 24: doc-page legt links und rechts einen eigenen
+    // Rand um das Blatt, der beim Zoom mitwaechst - mit knapperem Abzug
+    // ragte die Seite noch 51 px aus dem Fenster.
+    const platz = document.documentElement.clientWidth - 80;
+    const zoom = Math.min(1, platz / 1123);
+    document.querySelector('doc-page')?.style
+      .setProperty('--blatt-zoom', String(Math.round(zoom * 1000) / 1000));
+  };
+  passeZoomAn();
+  window.addEventListener('resize', passeZoomAn, { passive: true });
+
   // Kein requestAnimationFrame: liegt die Seite im Hintergrund (Vorschau,
   // zweiter Tab), laeuft die Bildschleife nicht - die Karte bliebe dann
   // ungemessen und liefe beim Drucken ueber. Schriften abwarten, dann messen.
