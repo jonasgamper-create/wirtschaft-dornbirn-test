@@ -64,7 +64,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 /* Die vier Haelften: Innenrand, Spalten-Flex (die Rueckseite verteilt
    Adresse, Codes und Fusszeile ueber die Hoehe, die Vorderseite zentriert),
    overflow:hidden fuer die Selbstmessung, kein Stauchen der Kinder. */
-.haelfte{padding:9mm 10mm 8mm;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.haelfte{padding:2.69em 2.98em 2.39em;min-width:0;display:flex;flex-direction:column;overflow:hidden}
 .haelfte>*{flex-shrink:0}
 .haelfte + .haelfte{border-left:1px dashed #11110f2e}
 @media print{.haelfte + .haelfte{border-left:0}}
@@ -76,48 +76,51 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @media print{
   html,body{margin:0;padding:0;background:#fff}
   .blaetter{zoom:1 !important;padding:0;width:auto;margin:0}
-  /* Gemessen am iPhone: mit zoom .88 (261 x 185 mm) kamen weiterhin vier
-     Seiten heraus - Safari beachtet zoom im Druck nicht, und der
-     bedruckbare Bereich ist bei iOS-Raendern (12,7 mm) nur 184,6 mm hoch.
-     Deshalb: ein Rahmen mit FESTER Groesse 244 x 173 mm (82 Prozent, ein
-     Millimeter Reserve gegen Rundung) als Layoutbox, darin das Blatt per transform skaliert. Die Layoutbox ist
-     das, was der Drucker umbricht - und 173 mm passen in jeden Rand. Der
-     Rahmen ist zentriert, der Falz bleibt in der Papiermitte. */
-  .blatt-rahmen{width:244mm;height:173mm;overflow:hidden;margin:0 auto;
+  /* Dritter Anlauf, und der ist grundsaetzlich anders: das Blatt wird im
+     Druck nicht optisch verkleinert, sondern IST kleiner. Ein per zoom
+     oder transform geschrumpftes Blatt bleibt im Layout 210 mm hoch -
+     Safari paginiert diesen versteckten Rest trotzdem und legte nach jeder
+     Seite eine leere an (gemessen: vier Seiten, Seite 2 und 4 leer).
+     Alle Innenmasse der Seite stehen in em; die Schrift auf 82 Prozent
+     gesetzt, und die ganze Seite ist 244 x 173 mm - eine Layoutbox, die in
+     jeden iOS-Rand passt. Zentriert, Falz in der Papiermitte. */
+  .blatt-rahmen{width:244mm;height:173mm;margin:0 auto;overflow:visible;
     break-inside:avoid;page-break-inside:avoid}
   .blatt-rahmen+.blatt-rahmen{margin-top:0;break-before:page;page-break-before:always}
-  .page{transform:scale(.82);transform-origin:top left;margin:0;box-shadow:none;border-radius:0}
+  .blatt-rahmen:last-child{break-after:avoid;page-break-after:avoid}
+  .page{width:244mm !important;height:173mm !important;font-size:7.79pt;transform:none;
+    margin:0;box-shadow:none;border-radius:0}
 }
 
 /* Vorderseite */
-.titel{align-items:center;justify-content:center;text-align:center;gap:8mm}
-.titel img{display:block;width:68mm;height:auto}
-.titel h1{margin:0;font-size:30pt;font-weight:400;letter-spacing:.06em;line-height:1}
-.titel .woche{margin:0;color:var(--gold);font-size:12.5pt;font-weight:600;letter-spacing:.02em}
+.titel{align-items:center;justify-content:center;text-align:center;gap:2.39em}
+.titel img{display:block;width:20.3em;height:auto}
+.titel h1{margin:0;font-size:3.16em;font-weight:400;letter-spacing:.06em;line-height:1}
+.titel .woche{margin:0;color:var(--gold);font-size:1.32em;font-weight:600;letter-spacing:.02em}
 
 /* Rueckseite: zwei Wege, zwei Codes. */
 .rueck{justify-content:space-between;align-items:center;text-align:center}
-.rueck .klein{margin:0;color:var(--grau);font-size:8pt;letter-spacing:.06em}
-.qr-wege{display:grid;gap:11mm;justify-items:center}
-.qr{display:grid;gap:4mm;justify-items:center}
-.qr img{display:block;width:32mm;height:32mm}
-.qr p{margin:0;font-size:9.5pt;font-weight:600;letter-spacing:.02em}
+.rueck .klein{margin:0;color:var(--grau);font-size:.84em;letter-spacing:.06em}
+.qr-wege{display:grid;gap:3.28em;justify-items:center}
+.qr{display:grid;gap:1.19em;justify-items:center}
+.qr img{display:block;width:9.55em;height:9.55em}
+.qr p{margin:0;font-size:1em;font-weight:600;letter-spacing:.02em}
 
 /* Innen: die Gerichte, gegliedert wie die Mittagskarte des Hauses - Titel
    gross mit Zeitfenster, Linie, Hinweis; je Gericht eine Zeile mit Preis
    rechts und den Beilagen darunter; duenne Linien dazwischen. */
-.karte-gruppe{display:flex;align-items:baseline;gap:6pt;margin:0;padding:0 0 3.5pt;border-bottom:1.3px solid var(--ink);
+.karte-gruppe{display:flex;align-items:baseline;gap:.63em;margin:0;padding:0 0 .37em;border-bottom:1.3px solid var(--ink);
   font-size:1.47em;font-weight:600;letter-spacing:-.01em}
 .karte-gruppe .karte-fenster{font-size:.9em;font-weight:400;color:var(--grau);letter-spacing:0}
-.karte-hinweis{margin:3.5pt 0 0;color:var(--grau);font-size:.9em}
-.karte-zeile{display:grid;grid-template-columns:1fr auto;column-gap:8pt;padding:3.4pt 0;
+.karte-hinweis{margin:.37em 0 0;color:var(--grau);font-size:.9em}
+.karte-zeile{display:grid;grid-template-columns:1fr auto;column-gap:.84em;padding:.36em 0;
   border-bottom:1px solid #11110f1f;break-inside:avoid}
 .karte-name{grid-column:1;margin:0;font-size:1.05em;font-weight:600;line-height:1.25}
 .karte-preis{grid-column:2;grid-row:1;font-size:1.05em;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-.karte-beilage{grid-column:1;margin:1pt 0 0;color:var(--grau);font-size:.92em;line-height:1.3}
-.fuss{margin:auto 0 0;padding-top:5pt;border-top:1.3px solid var(--ink);color:var(--grau);font-size:.8em;line-height:1.45}
+.karte-beilage{grid-column:1;margin:.1em 0 0;color:var(--grau);font-size:.92em;line-height:1.3}
+.fuss{margin:auto 0 0;padding-top:.53em;border-top:1.3px solid var(--ink);color:var(--grau);font-size:.8em;line-height:1.45}
 .fuss b{color:var(--ink)}
-.legende{margin:4pt 0 0;color:var(--grau);font-size:.74em;line-height:1.4}
+.legende{margin:.42em 0 0;color:var(--grau);font-size:.74em;line-height:1.4}
 .laden{color:var(--grau)}
 
 /* Am Handy nur die Knoepfe: der Satz kostete 60 px, die Knoepfe sind Weg
