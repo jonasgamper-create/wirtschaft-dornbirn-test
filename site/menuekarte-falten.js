@@ -102,7 +102,11 @@ function passeAnsBlattAn() {
     // Rand um das Blatt, der beim Zoom mitwaechst - mit knapperem Abzug
     // ragte die Seite noch 51 px aus dem Fenster.
     const platz = document.documentElement.clientWidth - 80;
-    const zoom = Math.min(1, platz / 1123);
+    // Nicht kleiner als 45 Prozent: am Telefon waere das Blatt sonst auf
+    // 29 Prozent geschrumpft (322 px breit) und niemand koennte pruefen,
+    // was er da druckt. Unterhalb dieser Grenze darf die Seite lieber
+    // seitlich scrollen - dafuer traegt der Behaelter overflow-x.
+    const zoom = Math.min(1, Math.max(0.45, platz / 1123));
     document.querySelector('doc-page')?.style
       .setProperty('--blatt-zoom', String(Math.round(zoom * 1000) / 1000));
   };

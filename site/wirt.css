@@ -467,3 +467,10 @@ h2{font-size:24px;margin-bottom:6px}
 }
 /* Der letzte Kasten braucht Luft, sonst liegt die Leiste darauf. */
 .plan-offen main{padding-bottom:120px}
+
+/* 16 px ist die Grenze, unter der iOS beim Antippen in das Feld zoomt und
+   die Seite verrutscht. Betrifft die beiden Uebergangs-Kaesten, die im
+   Standard ausgeblendet sind - wer sie einschaltet, soll trotzdem kein
+   springendes Bild bekommen. */
+.werkzeug textarea,
+.werkzeug input[type="file"]{font-size:16px}

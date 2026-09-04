@@ -57,6 +57,14 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
      das Blatt dabei genau 1123 x 794, die Selbstmessung rechnet also
      weiter mit echten Blattmassen. */
   doc-page{display:block;zoom:var(--blatt-zoom,1)}
+  /* Unter der 45-Prozent-Grenze passt das Blatt nicht mehr ins Fenster -
+     dann wird seitlich gescrollt, statt es unlesbar klein zu machen. */
+  body{overflow-x:auto}
+}
+/* Am Telefon ist die Faltkarte eine Vorschau, keine Arbeitsflaeche: der
+   Hinweis sagt, wo sie hingehoert. */
+@media(max-width:700px){
+  .leiste p::after{content:" Zum Drucken am besten am Rechner öffnen.";opacity:.72}
 }
 /* overflow:hidden ist hier nicht nur Kosmetik: erst damit meldet
    scrollHeight die wahre Inhaltshoehe, und die Seite kann sich selbst
@@ -155,7 +163,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     </section>
   </doc-page>
 
-  <script src="doc-page.js"></script>
-  <script type="module" src="menuekarte-falten.js"></script>
+  <script src="doc-page.js?v=b1419670"></script>
+  <script type="module" src="menuekarte-falten.js?v=21ef4e03"></script>
 </body>
 </html>

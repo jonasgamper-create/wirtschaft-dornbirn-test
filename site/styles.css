@@ -3206,8 +3206,11 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
    Aushang. Kleiner, schmaler, naeher an der Leiste - der Inhalt darunter
    bekommt den Platz (Wunsch vom 04.09.). */
 @media(max-width:700px){
-  .final-site .bar-news{min-height:36px;padding:0 11px;gap:6px;font-size:10px;
-    top:calc(var(--leiste-h,var(--bar-h,110px)) + 5px)}
+  /* Optisch schlank, aber 44 px hoch: der Daumen trifft die ganze Flaeche,
+     auch wenn der sichtbare Rand schmaler wirkt. Bei echten 36 px war die
+     Kachel das einzige Tippziel der Seite unter der Norm. */
+  .final-site .bar-news{min-height:44px;padding:0 11px;gap:6px;font-size:10px;
+    top:calc(var(--leiste-h,var(--bar-h,110px)) + 3px)}
   .final-site .bar-news b{max-width:44vw;font-size:10px}
   .final-site .bar-news-bilder{width:20px;height:20px;margin-left:-3px;border-radius:5px}
 }
