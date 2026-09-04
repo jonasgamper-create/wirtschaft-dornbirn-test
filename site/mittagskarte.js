@@ -1,33 +1,44 @@
-// Die Mittagskarte zum Ansehen und als PDF speichern - gesetzt aus dem
-// Menueplan, den der Wirt eintraegt. Dieselbe Quelle wie Takeaway und
-// Faltkarte; ein anderer Stand ist hier nicht moeglich.
+// Die Mittagskarte - EIN A4-Blatt, gefaltet, vier Seiten (Wunsch vom 04.09.).
+// Dieselbe Seite fuer Gaeste zum Ansehen und fuer den Tisch zum Drucken: Vorderseite mit Logo und Woche, innen links
+// die Wochengerichte und rechts A la carte - gegliedert wie die Mittagskarte
+// des Hauses -, hinten zwei QR-Codes. Gesetzt aus demselben Menueplan wie
+// Takeaway und Mittagskarte - eine Quelle, drei Blaetter.
+//
+// Die QR-Texte kommen aus data/qr-ziele.json, die Codes selbst liegen als
+// fertige SVG-Dateien im Repo (scripts/build-qr.mjs) - gedruckt heisst
+// dauerhaft, deshalb haengt hier nichts an einer Bibliothek im Browser.
 
-import { ladePlan, legende, standText, wochenText, zeichneAlacarte, zeichneFussnote, zeichneWoche } from './menuekarte.mjs?v=b7f21cf5';
+import { ladePlan, legende, wochenText, zeichneAlacarte, zeichneFussnote, zeichneWoche } from './menuekarte.mjs?v=b7f21cf5';
 
 const byId = id => document.getElementById(id);
 byId('drucken').addEventListener('click', () => window.print());
 
+fetch('data/qr-ziele.json', { cache: 'no-store' })
+  .then(antwort => antwort.json())
+  .then(ziele => {
+    if (ziele?.events?.text) byId('qrEventsText').textContent = ziele.events.text;
+    if (ziele?.takeaway?.text) byId('qrTakeawayText').textContent = ziele.takeaway.text;
+  })
+  .catch(() => { /* die Texte im HTML stimmen als Vorgabe */ });
+
 (async () => {
-  const { plan, pdf } = await ladePlan();
-  // Der Dienst hat keinen Plan, aber ein hochgeladenes PDF: das IST die Karte.
-  if (!plan && pdf) { window.location.replace(pdf); return; }
+  const { plan, quelle } = await ladePlan('', { pdfErlaubt: false });
+  if (plan && quelle === 'datei') {
+    // Noch kein Plan veroeffentlicht: die Vorschau zeigt die hinterlegte
+    // Woche, damit man das Blatt sieht - gedruckt werden sollte sie so nicht.
+    const hinweis = document.getElementById('leisteHinweis');
+    if (hinweis) hinweis.textContent = 'Noch kein Menüplan veröffentlicht – das ist die hinterlegte Beispielwoche. Erst in der Wirt-Ansicht veröffentlichen, dann drucken.';
+  }
   if (!plan) {
-    byId('woche').innerHTML = '';
-    const satz = document.createElement('p');
-    satz.className = 'laden';
-    satz.textContent = 'Die Karte lässt sich gerade nicht laden. Bitte kurz später erneut versuchen '
-      + 'oder anrufen: +43 (0)5572 20 540.';
-    byId('woche').append(satz);
+    byId('woche').textContent = 'Die Karte lässt sich gerade nicht laden – bitte den Menüplan in der Wirt-Ansicht veröffentlichen.';
     return;
   }
-
-  document.title = `Mittagskarte ${wochenText(plan)} · Wirtschaft Dornbirn`;
-  byId('wochenText').textContent = wochenText(plan);
-  byId('stand').textContent = standText(plan);
+  const woche = wochenText(plan);
+  document.title = `Mittagskarte ${woche} · Wirtschaft Dornbirn`;
+  document.querySelectorAll('[data-woche]').forEach(el => { el.textContent = woche; });
   zeichneWoche(byId('woche'), plan);
   zeichneAlacarte(byId('alacarte'), plan);
   zeichneFussnote(byId('fuss'), plan);
-
   const text = legende(plan);
   if (text) {
     byId('legende').textContent = `allergene: ${text}`;
@@ -37,101 +48,75 @@ byId('drucken').addEventListener('click', () => window.print());
 })();
 
 /**
- * Die Karte auf so viele A4-Blaetter verteilen, wie sie braucht.
+ * Die Faltkarte hat eine feste Groesse - was nicht draufpasst, wird beim
+ * Drucken abgeschnitten. Mit der Karte vom 04.09. blieben rechts noch fuenf
+ * Pixel Luft; eine Zeile mehr, und das letzte Gericht waere lautlos
+ * verschwunden.
  *
- * Die gedruckte Karte des Hauses laeuft ueber zwei Seiten, und mit zwanzig
- * Gerichten tut es diese auch: auf ein Blatt gezwungen, fehlten die letzten
- * fuenf. Statt die Schrift bis zur Unlesbarkeit zu schrumpfen, wandert der
- * Rest auf ein zweites Blatt - Zeile fuer Zeile, solange das erste
- * ueberlaeuft. Das Folgeblatt traegt nur eine schmale Kopfzeile.
- *
- * Gemessen wird in Layout-Pixeln: das Blatt IST 794 x 1123, unabhaengig
- * davon, wie klein es am Bildschirm dargestellt wird.
- */
-function verteileAufBlaetter() {
-  const behaelter = document.querySelector('doc-page');
-  const erstes = document.getElementById('blatt1');
-  if (!behaelter || !erstes) return;
-
-  const zuVoll = blatt => blatt.scrollHeight > blatt.clientHeight + 1;
-  const MAX_BLAETTER = 4; // Notbremse gegen eine Endlosschleife
-
-  let blatt = erstes;
-  let nummer = 1;
-  while (zuVoll(blatt) && nummer < MAX_BLAETTER) {
-    const naechstes = neuesBlatt();
-    behaelter.append(naechstes);
-    const ziel = naechstes.querySelector('.blatt-inhalt');
-    // Von hinten umschichten, bis es passt: das letzte Stueck des vollen
-    // Blattes wandert nach vorn auf das neue.
-    let notbremse = 0;
-    while (zuVoll(blatt) && notbremse < 200) {
-      notbremse += 1;
-      const inhalt = blatt.querySelector('.blatt-inhalt');
-      const letzte = letztesStueck(inhalt);
-      if (!letzte) break;
-      ziel.prepend(letzte);
-    }
-    blatt = naechstes;
-    nummer += 1;
-  }
-}
-
-/** Das letzte verschiebbare Stueck: eine Zeile, ein Absatz, eine Gruppe. */
-function letztesStueck(inhalt) {
-  const gruppen = [...inhalt.children].filter(k => !k.hidden);
-  for (let i = gruppen.length - 1; i >= 0; i -= 1) {
-    const teil = gruppen[i];
-    // Innerhalb einer Gruppe zuerst die einzelnen Zeilen wandern lassen -
-    // eine ganze Gruppe zu verschieben risse eine halbe Seite Loch.
-    const zeilen = [...teil.querySelectorAll(':scope > .karte-zeile')];
-    if (zeilen.length > 1) return zeilen[zeilen.length - 1];
-    return teil;
-  }
-  return null;
-}
-
-function neuesBlatt() {
-  const blatt = document.createElement('div');
-  blatt.className = 'blatt blatt-weiter';
-  const kopf = document.createElement('header');
-  kopf.className = 'kopf';
-  const titel = document.createElement('h1');
-  titel.textContent = 'mittagskarte';
-  const woche = document.createElement('small');
-  woche.textContent = document.getElementById('wochenText')?.textContent || '';
-  titel.append(woche);
-  kopf.append(titel);
-  const inhalt = document.createElement('div');
-  inhalt.className = 'blatt-inhalt';
-  blatt.append(kopf, inhalt);
-  return blatt;
-}
-
-/**
- * Dasselbe wie bei der Faltkarte: das Blatt hat eine feste Groesse, also
- * misst sich die Karte selbst und verkleinert die Schrift, bis sie passt.
- * Gemessen wird in Layout-Pixeln (das Blatt IST 794 x 1123), damit die
- * Fensterbreite das Ergebnis nicht verfaelscht.
+ * Deshalb misst die Seite sich selbst und verkleinert die Schrift in kleinen
+ * Schritten, bis beide Haelften passen - hoechstens bis 80 Prozent, darunter
+ * waere die Karte am Tisch nicht mehr lesbar. Reicht auch das nicht, sagt
+ * die Leiste es, statt still abzuschneiden.
  */
 function passeAnsBlattAn() {
+  const haelften = [...document.querySelectorAll('#innen .haelfte')];
+  const innen = document.getElementById('innen');
+
+  /**
+   * Gemessen wird in Layout-Pixeln: die Seite IST im Layout ein A4-Blatt
+   * (1123 x 794), auch wenn sie am Bildschirm verkleinert dargestellt wird.
+   * clientHeight und scrollHeight liefern beide diese Layout-Werte -
+   * getBoundingClientRect dagegen die verkleinerte Darstellung, was die
+   * Messung von der Fensterbreite abhaengig gemacht haette.
+   */
+  const zuVoll = () => haelften.some(h => h.scrollHeight > h.clientHeight + 1);
+  let stufe = 1;
+  const messen = () => {
+    // Bis 72 Prozent darf die Schrift schrumpfen. Das ist auf A5 immer noch
+    // gut lesbar (7 statt 10 pt fuer die Gerichtsnamen) und faengt eine
+    // laengere Woche ab, ohne dass jemand etwas tun muss.
+    // In Punkt rechnen, nicht in em: "0.72em" bezieht sich auf den ELTERN-
+    // wert (16 px vom Koerper), nicht auf die 9,5 pt der Seite - aus einer
+    // gewollten Verkleinerung auf 72 Prozent waeren so 91 Prozent geworden.
+    const AUSGANG = 9.5;
+    while (zuVoll() && stufe > 0.72) {
+      stufe = Math.round((stufe - 0.02) * 100) / 100;
+      innen.style.fontSize = `${(AUSGANG * stufe).toFixed(2)}pt`;
+    }
+    const hinweis = document.getElementById('leisteHinweis');
+    if (zuVoll() && hinweis) {
+      hinweis.textContent = 'Achtung: Die Karte ist zu lang für ein Blatt. Bitte in der Wirt-Ansicht ein paar Gerichte '
+        + 'entfernen – sonst fehlt beim Drucken das Ende.';
+      hinweis.dataset.art = 'warnung';
+    }
+  };
+  /**
+   * Das Blatt so verkleinern, dass es ins Fenster passt - nie vergroessern.
+   * zoom und nicht transform: zoom aendert auch den Platzbedarf, sonst
+   * bliebe unter der Karte eine Luecke in Originalgroesse stehen.
+   */
   const passeZoomAn = () => {
-    const platz = document.documentElement.clientWidth - 40;
-    const zoom = Math.min(1, Math.max(0.42, platz / 794));
+    // Die Fensterbreite, nicht der Elternknoten: der ist der Schacht von
+    // doc-page und richtet sich nach seinem Kind - er waere also immer
+    // genau so breit wie das Blatt und ergaebe nie eine Verkleinerung.
+    // 80 px Abzug, nicht 24: doc-page legt links und rechts einen eigenen
+    // Rand um das Blatt, der beim Zoom mitwaechst - mit knapperem Abzug
+    // ragte die Seite noch 51 px aus dem Fenster.
+    const platz = document.documentElement.clientWidth - 80;
+    // Nicht kleiner als 45 Prozent: am Telefon waere das Blatt sonst auf
+    // 29 Prozent geschrumpft (322 px breit) und niemand koennte pruefen,
+    // was er da druckt. Unterhalb dieser Grenze darf die Seite lieber
+    // seitlich scrollen - dafuer traegt der Behaelter overflow-x.
+    const zoom = Math.min(1, Math.max(0.45, platz / 1123));
     document.querySelector('doc-page')?.style
       .setProperty('--blatt-zoom', String(Math.round(zoom * 1000) / 1000));
   };
   passeZoomAn();
   window.addEventListener('resize', passeZoomAn, { passive: true });
 
-  const messen = () => {
-    verteileAufBlaetter();
-    const blaetter = document.querySelectorAll('.blatt').length;
-    const hinweis = document.querySelector('.leiste p');
-    if (hinweis && blaetter > 1) {
-      hinweis.textContent = `Die Mittagskarte der Woche – ${blaetter} Blätter, so kommt sie auch an den Tisch.`;
-    }
-  };
+  // Kein requestAnimationFrame: liegt die Seite im Hintergrund (Vorschau,
+  // zweiter Tab), laeuft die Bildschleife nicht - die Karte bliebe dann
+  // ungemessen und liefe beim Drucken ueber. Schriften abwarten, dann messen.
   const start = () => setTimeout(messen, 60);
   if (document.fonts?.ready) document.fonts.ready.then(start);
   else start();

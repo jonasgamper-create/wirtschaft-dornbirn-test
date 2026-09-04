@@ -790,7 +790,6 @@ async function verdrahteMenueplan() {
   // hoeher, wenn sie als Einzeldatei unter /tischplan/ laeuft.
   const wurzel = /\/tischplan\//.test(location.pathname) ? '../' : '';
   byId('planAnsehen').href = `${wurzel}mittagskarte.html`;
-  byId('planFalten').href = `${wurzel}menuekarte-falten.html`;
 
   // Vorbefuellen: der Plan vom Dienst. Gibt es keinen, die hinterlegte
   // Ersatzwoche - so steht A la carte schon da und muss nicht abgetippt werden.

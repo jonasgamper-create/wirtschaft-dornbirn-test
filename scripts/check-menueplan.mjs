@@ -190,7 +190,7 @@ for (const name of ['events', 'takeaway']) {
     check(`QR-Code ${name} liegt bereit`, false, 'npm run sync:qr');
   }
 }
-for (const seite of ['site/mittagskarte.html', 'site/menuekarte-falten.html']) {
+for (const seite of ['site/mittagskarte.html', 'site/mittagskarte.js', 'site/menuekarte-falten.html']) {
   try { await access(path.join(root, seite)); } catch { check(`${seite} liegt bereit`, false); }
 }
 

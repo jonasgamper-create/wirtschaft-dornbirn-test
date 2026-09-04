@@ -1626,7 +1626,7 @@ export class Haus extends DurableObject {
       ...this.#takeawayGerichte(tag?.datum || ''),
       // Liegt ein Plan vor, fuehrt der Kartenlink auf die gesetzte Karte
       // statt auf ein hochgeladenes PDF.
-      karte: this.#lies('menueplan', null) ? { file: 'mittagskarte.html', label: 'Mittagskarte ansehen und als PDF speichern' } : undefined,
+      karte: this.#lies('menueplan', null) ? { file: 'mittagskarte.html', label: 'Mittagskarte ansehen' } : undefined,
       slots: tag
         ? freieSlots({
           bestellungen: this.#takeawayAlle(), datum: tag.datum,
