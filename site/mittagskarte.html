@@ -47,9 +47,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
    Bereich ein paar Millimeter kleiner als das Blatt - und jede Seite brach
    in zwei, die Fusszeile der Rueckseite stand allein auf Seite 2. Eine
    Druckvorlage darf nicht davon abhaengen, ob ein Browser @page-Raender
-   beachtet. Jetzt ist die Seite im Druck 88 Prozent gross (261 x 185 mm),
-   zentriert: sie passt mit oder ohne Rand auf ein Blatt, und der Falz bleibt
-   in der Mitte des Papiers. */
+   beachtet. Die Druckgroesse steht unten im print-Block - sie ist so
+   gewaehlt, dass das Blatt mit oder ohne Rand auf eine Seite passt, und
+   der Falz bleibt in der Mitte des Papiers. */
 .blaetter{display:block}
 /* grid-template-rows:100% - ohne das ist die eine Zeile nur so hoch wie
    ihr Inhalt, und die Haelften (Flex-Spalten mit space-between) haben
@@ -81,14 +81,19 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
      oder transform geschrumpftes Blatt bleibt im Layout 210 mm hoch -
      Safari paginiert diesen versteckten Rest trotzdem und legte nach jeder
      Seite eine leere an (gemessen: vier Seiten, Seite 2 und 4 leer).
-     Alle Innenmasse der Seite stehen in em; die Schrift auf 82 Prozent
-     gesetzt, und die ganze Seite ist 244 x 173 mm - eine Layoutbox, die in
-     jeden iOS-Rand passt. Zentriert, Falz in der Papiermitte. */
-  .blatt-rahmen{width:244mm;height:173mm;margin:0 auto;overflow:visible;
+     Alle Innenmasse der Seite stehen in em, die Seite selbst ist im Druck
+     225 x 159 mm bei 7,16 pt (75 Prozent von A4). Warum genau das: im
+     iOS-Simulator (iPhone 17 Pro, 04.09.) gemessen - 244 x 173 mm ergab
+     im QUERFORMAT vier Seiten (Hochformat zwei, weil iOS dort das Blatt
+     verkleinert), 233 x 165 mm ergab zwei. Der bedruckbare Bereich im
+     Querformat ist also knapp unter 173 mm hoch, nicht 184,6 wie gerechnet.
+     159 mm laesst dazu noch Luft fuer Drucker mit eigenen Raendern.
+     Zentriert, Falz in der Papiermitte. */
+  .blatt-rahmen{width:225mm;height:159mm;margin:0 auto;overflow:visible;
     break-inside:avoid;page-break-inside:avoid}
   .blatt-rahmen+.blatt-rahmen{margin-top:0;break-before:page;page-break-before:always}
   .blatt-rahmen:last-child{break-after:avoid;page-break-after:avoid}
-  .page{width:244mm !important;height:173mm !important;font-size:7.79pt;transform:none;
+  .page{width:225mm !important;height:159mm !important;font-size:7.16pt;transform:none;
     margin:0;box-shadow:none;border-radius:0}
 }
 
