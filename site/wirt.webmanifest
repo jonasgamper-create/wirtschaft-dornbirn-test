@@ -1,0 +1,25 @@
+{
+  "name": "Wirtschaft Dornbirn · Wirt",
+  "short_name": "Wirt",
+  "description": "Bestellungen, Reservierungen und die Karte der Woche.",
+  "start_url": "wirt.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3efe6",
+  "theme_color": "#173e2c",
+  "lang": "de-AT",
+  "icons": [
+    {
+      "src": "assets/icons/favicon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

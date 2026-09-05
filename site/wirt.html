@@ -9,8 +9,15 @@
   <meta name="theme-color" content="#173e2c">
   <title>Heute Mittag · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
-  <link rel="stylesheet" href="wirt.css?v=2ddddd7c">
-  <script type="module" src="wirt.js?v=0f52b6aa"></script>
+  <!-- Auf dem Homescreen ist das hier eine App: eigenes Symbol, Vollbild,
+       kein Safari drumherum. Das Manifest reicht Android; iOS braucht
+       zusaetzlich die beiden apple-Angaben und ein eigenes Symbol. -->
+  <link rel="manifest" href="wirt.webmanifest?v=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Wirt">
+  <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
+  <link rel="stylesheet" href="wirt.css?v=fccaa8af">
+  <script type="module" src="wirt.js?v=47245455"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -23,7 +30,22 @@
   </header>
 
   <main id="wirtHaupt">
-    <p class="vorzeile" id="tagZeile">Heute Mittag</p>
+    <p class="vorzeile" id="tagZeile" data-reiter="heute">Heute Mittag</p>
+
+    <!-- Ohne Schluessel geht gar nichts - und auf dem Homescreen ist das
+         der Normalfall: iOS gibt einer installierten App einen eigenen
+         Speicher, der Schluessel aus dem Link liegt aber in Safari. Also
+         einmal einfuegen, danach merkt sich die App ihn selbst. -->
+    <section class="anmelden" id="anmeldeKasten" aria-labelledby="anmeldeTitel" hidden>
+      <h2 id="anmeldeTitel">Dieses Gerät anmelden</h2>
+      <p class="hinweis">Den Schlüssel aus dem Link des Hauses hier einfügen – er steht hinter <b>#k=</b>. Danach bleibt dieses Gerät angemeldet.</p>
+      <form class="anmelde-form" id="anmeldeForm">
+        <label for="anmeldeFeld">Schlüssel</label>
+        <input type="password" id="anmeldeFeld" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+        <button class="knopf" type="submit">Anmelden</button>
+      </form>
+      <p class="lauf-ergebnis" id="anmeldeErgebnis" role="status" aria-live="polite"></p>
+    </section>
 
     <!-- Alle Abschnitte liegen als gleichrangige Bloecke in EINEM Behaelter:
          nur so lassen sie sich frei sortieren und einzeln ausblenden
@@ -250,7 +272,7 @@
       <div id="ansichtForm"></div>
     </details>
     </div>
-    <p class="fuss">
+    <p class="fuss" data-reiter="haus">
       Tische werden nach der Essenszeit von selbst wieder frei. Etagen, Ordnungen und Betrieb:
       <a href="gastgeber-tischplan.html" id="cockpitLink">Einrichten</a>.
     </p>
@@ -284,7 +306,7 @@
 
       <p class="lauf-ergebnis" id="blattErgebnis" role="status" aria-live="polite"></p>
     </dialog>
-    <p class="fuss abschluss">
+    <p class="fuss abschluss" data-reiter="haus">
       <button class="knopf rot" type="button" id="tagLeeren">Tag leeren</button>
       <span>Räumt alle heutigen Reservierungen und offenen Abholungen – mit Rückgängig. Morgen bleibt unberührt.</span>
     </p>
@@ -293,6 +315,23 @@
       <button class="knopf leise" type="button" id="korbZurueck">Rückgängig</button>
     </p>
   </main>
+
+  <!-- Drei Reiter am unteren Rand, in Daumenreichweite. Woerter statt
+       Sinnbilder: die Wirtschaft-CI kennt keinen Symbolsatz, und drei kurze
+       Woerter sind ohnehin eindeutiger als drei gezeichnete Zeichen.
+       Die Zahl an "heute" sagt, wie viel offen ist - sie ist der Grund,
+       warum man die App aufmacht. -->
+  <nav class="reiter-leiste" id="reiterLeiste" aria-label="Bereiche">
+    <button class="reiter-knopf" type="button" data-ziel="heute" role="tab" aria-selected="true">
+      <span>heute</span><b class="reiter-zahl" id="heuteZahl" hidden></b>
+    </button>
+    <button class="reiter-knopf" type="button" data-ziel="karte" role="tab" aria-selected="false">
+      <span>karte</span>
+    </button>
+    <button class="reiter-knopf" type="button" data-ziel="haus" role="tab" aria-selected="false">
+      <span>haus</span>
+    </button>
+  </nav>
 
   <!-- Faehrt mit, sobald am Menueplan etwas geaendert wurde. Ohne sie tippt
        man die Woche ein, scrollt weiter - und auf der Webseite steht
