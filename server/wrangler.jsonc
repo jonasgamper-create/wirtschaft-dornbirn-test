@@ -26,7 +26,13 @@
   // Montag frueh, Erinnerungsfenster am Vormittag, Tageszettel werktags
   // 08:00 Hauszeit (beide moeglichen UTC-Stunden, die Hausuhr entscheidet),
   // Wochenbericht Freitag 15:00 Hauszeit.
-  "triggers": { "crons": ["15 5 * * 1", "15 6 * * 1", "*/15 8-12 * * 1-5", "0 6,7 * * 1-5", "0 13,14 * * 5", "0 18,19 * * 5"] },
+  // HOECHSTENS FUENF Eintraege: die Gratis-Stufe erlaubt fuenf Cron-Trigger
+  // je KONTO. Mit sechs meldete wrangler "nur teilweise aktualisiert" und
+  // liess die alten Zeitplaene stehen (05.09.2026) - der sechste, der
+  // Wochenwechsel am Freitagabend, war damit nie angelegt. Deshalb teilen
+  // sich Wochenbericht (15:00 Hauszeit) und Wochenwechsel (20:00 Hauszeit)
+  // EINEN Freitags-Eintrag; welcher Lauf was tut, entscheidet die Hausuhr.
+  "triggers": { "crons": ["15 5 * * 1", "15 6 * * 1", "*/15 8-12 * * 1-5", "0 6,7 * * 1-5", "0 13,14,18,19 * * 5"] },
 
   "durable_objects": {
     "bindings": [{ "name": "HAUS", "class_name": "Haus" }]
