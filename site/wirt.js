@@ -429,7 +429,10 @@ function male() {
         knopfText: 'Fertig', aktion: 'abgang', ton: 'da'
       }));
     } else {
-      const ueberfaellig = zeitVon < nu.zeit && !party.arrived;
+      // Ueberfaellig gibt es nur am heutigen Tag: eine Reservierung fuer
+      // Montag ist am Freitagabend nicht "ueberfaellig", nur weil die
+      // Wanduhr schon nach zwoelf steht.
+      const ueberfaellig = !TAG_AUS_ADRESSE && zeitVon < nu.zeit && !party.arrived;
       eintraege.push(zeile({
         zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz, gast: party.gast,
         titel: `${party.name} · ${personen}`,
