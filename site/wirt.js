@@ -10,11 +10,11 @@ import {
   leereTag, legeEinfach, loescheKarte, schluesselAusAdresse, sendeAktion, sendePlan,
   sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
   holeEigeneEvents, holeGeschlossen, holeOeffnung, legeEigenesEvent, loescheEigenesEvent, sageTagAb, sendeTischsperre, setzeOeffnung, setzeTagZu,
-  setzeFertigWer,
+  setzeFertigWer, setzeToken,
   stelleTagWiederHer
 } from './haus-api.js?v=14d80640';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
-import { liesAnsicht, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=df925146';
+import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=a031db85';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=2dead16d';
@@ -41,6 +41,12 @@ async function start() {
     byId('zahlErwartet').textContent = '–';
     return;
   }
+
+  // Kein Schluessel: anmelden statt einer Ansicht, die sich nur nicht
+  // verbinden kann. Vom Homescreen ist das der Regelfall - iOS gibt einer
+  // installierten App einen eigenen Speicher, und der Link mit #k= wurde
+  // in Safari geoeffnet.
+  if (!hausToken()) { zeigeAnmelden(); return; }
 
   byId('tagZeile').textContent = `Heute Mittag · ${new Date().toLocaleDateString('de-AT', {
     weekday: 'long', day: 'numeric', month: 'long'
@@ -467,6 +473,9 @@ function male() {
     liste.append(leer);
   }
 
+  // Wie viel noch offen ist - auch sichtbar, wenn gerade die Karte offen ist.
+  setzeHeuteZahl(eintraege.length);
+
   const archiv = byId('archiv');
   archiv.hidden = !erledigte.length;
   byId('archivTitel').textContent = `Erledigt heute (${erledigte.length})`;
@@ -763,8 +772,43 @@ function verdrahteTagLeeren() {
 
 function verdrahteAnsicht() {
   wendeAn(liesAnsicht());
+  // Die Leiste zuletzt: sie ruft wendeAn selbst noch einmal auf und setzt
+  // dabei den offenen Reiter.
+  verdrahteReiter(liesAnsicht);
   const form = byId('ansichtForm');
   if (form) zeichneEinstellungen(form);
+}
+
+// ---- Anmelden ---------------------------------------------------------------
+//
+// Der Schluessel steht im Link des Hauses hinter #k= und wird beim ersten
+// Aufruf gespeichert. Auf dem Homescreen greift das nicht: iOS fuehrt fuer
+// eine installierte App einen eigenen Speicher. Also einmal einfuegen.
+
+function zeigeAnmelden() {
+  document.body.classList.add('ohne-schluessel');
+  const kasten = byId('anmeldeKasten');
+  const form = byId('anmeldeForm');
+  const ergebnis = byId('anmeldeErgebnis');
+  if (!kasten || !form) return;
+  kasten.hidden = false;
+  byId('verbindung').hidden = true;
+
+  form.addEventListener('submit', async ereignis => {
+    ereignis.preventDefault();
+    const wert = byId('anmeldeFeld').value.trim();
+    if (wert.length < 8) { ergebnis.textContent = 'Der Schlüssel ist zu kurz.'; return; }
+    ergebnis.textContent = 'Prüfe …';
+    // Erst fragen, dann speichern: ein falscher Schluessel im Speicher
+    // wuerde die App bei jedem Start stumm scheitern lassen.
+    const antwort = await holeStand(wert);
+    if (!antwort?.stand) {
+      ergebnis.textContent = 'Der Schlüssel passt nicht. Bitte aus dem Link des Hauses kopieren.';
+      return;
+    }
+    setzeToken(wert);
+    window.location.reload();
+  });
 }
 
 // ---- Menueplan der Woche ----------------------------------------------------
