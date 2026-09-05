@@ -801,6 +801,12 @@ export class Haus extends DurableObject {
     // Ein Alarm raeumt spaeter auf - Speicherbegrenzung ist kein Nachgedanke.
     await this.ctx.storage.setAlarm(Date.now() + 24 * 60 * 60 * 1000);
     this.#meldeAenderung();
+    this.ctx.waitUntil(this.#pushHausAlle({
+      art: 'reservierung',
+      titel: `Neue Reservierung · ${party.time}`,
+      text: `${party.name} · ${party.guests} ${Number(party.guests) === 1 ? 'Person' : 'Personen'} · ${party.date}`,
+      datum: party.date
+    }));
 
     if (!result.ok) {
       return {
@@ -1786,6 +1792,14 @@ export class Haus extends DurableObject {
     // zusaetzlich zur Wirt-Ansicht, in der sie sofort steht. Scheitert eine
     // Mail, bleibt die Bestellung trotzdem; die Kueche hat sie.
     this.ctx.waitUntil(this.#bestellMails(bestellung));
+    // Und das Telefon im Haus klingelt.
+    const portionen = (bestellung.posten || []).reduce((summe, posten) => summe + (Number(posten.menge) || 0), 0);
+    this.ctx.waitUntil(this.#pushHausAlle({
+      art: 'takeaway',
+      titel: `Neue Bestellung Nr. ${bestellung.nummer}`,
+      text: `${bestellung.abholzeit} Uhr · ${bestellung.name} · ${portionen} ${portionen === 1 ? 'Portion' : 'Portionen'}`,
+      datum: bestellung.date || null
+    }));
 
     return {
       ok: true, nummer: bestellung.nummer, abholzeit: bestellung.abholzeit,
@@ -1824,6 +1838,61 @@ export class Haus extends DurableObject {
     delete bestellung.push;
     this.#takeawaySichere(bestellung);
     return { ok: true };
+  }
+
+  // ---- Push fuers Haus -----------------------------------------------------
+  //
+  // Das Telefon des Wirts klingelt, wenn eine Bestellung oder eine
+  // Reservierung hereinkommt - ohne dass die App offen ist. Gespeichert
+  // werden nur Endpunkte (wie beim Gast), hoechstens 20 Geraete. Der Inhalt
+  // der Meldung geht nicht ueber Apple und Google: der Service Worker holt
+  // ihn sich mit dem Hausschluessel beim Dienst (pushHausStand).
+
+  async pushHausAnmelden(roh) {
+    const geprueft = pruefePushAnmeldung(roh);
+    if (!geprueft.ok) return geprueft;
+    const liste = this.#lies('pushHaus', []).filter(a => a.endpunkt !== geprueft.anmeldung.endpunkt);
+    liste.push({
+      ...geprueft.anmeldung,
+      geraet: String(roh?.geraet || '').replace(/\s+/g, ' ').trim().slice(0, 40),
+      seit: new Date().toISOString()
+    });
+    this.#schreib('pushHaus', liste.slice(-20));
+    return { ok: true, anzahl: Math.min(liste.length, 20) };
+  }
+
+  async pushHausAbmelden(roh) {
+    const endpunkt = String(roh?.endpunkt || '');
+    const liste = this.#lies('pushHaus', []).filter(a => a.endpunkt !== endpunkt);
+    this.#schreib('pushHaus', liste);
+    return { ok: true, anzahl: liste.length };
+  }
+
+  /** Wie viele Geraete klingeln, und was zuletzt gemeldet wurde. */
+  async pushHausStand() {
+    return { ok: true, anzahl: this.#lies('pushHaus', []).length, letzte: this.#lies('pushHausLetzte', null) };
+  }
+
+  /**
+   * An alle Geraete des Hauses klopfen. Erloschene Anmeldungen (404/410)
+   * fallen dabei still heraus. Laeuft im waitUntil - eine langsame
+   * Push-Zentrale darf weder Bestellung noch Reservierung aufhalten.
+   */
+  async #pushHausAlle(meldung) {
+    const liste = this.#lies('pushHaus', []);
+    if (!liste.length) return 'keine';
+    this.#schreib('pushHausLetzte', { ...meldung, um: new Date().toISOString() });
+    const bleibt = [];
+    for (const anmeldung of liste) {
+      const ergebnis = await schickePush(anmeldung, {
+        privatSchluessel: this.env?.VAPID_PRIVAT,
+        oeffentlich: this.env?.VAPID_OEFFENTLICH,
+        kontakt: this.env?.VAPID_KONTAKT
+      });
+      if (!ergebnis.entfernen) bleibt.push(anmeldung);
+    }
+    if (bleibt.length !== liste.length) this.#schreib('pushHaus', bleibt);
+    return 'gesendet';
   }
 
   /**
@@ -2777,6 +2846,17 @@ export default {
         const token = String(body?.t || '');
         if (token.length < 8) return json({ ok: false, grund: 'unbekannt' }, 404, kopf);
         return json(await haus.pushAbmelden(token), 200, kopf);
+      }
+
+      // Push fuers Haus: nur mit Hausschluessel. GET sagt, wie viele Geraete
+      // klingeln und was zuletzt gemeldet wurde - das liest auch der Service
+      // Worker, wenn es klopft. POST meldet ein Geraet an, DELETE ab.
+      if (url.pathname === '/api/push/haus') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        if (request.method === 'GET') return json(await haus.pushHausStand(), 200, kopf);
+        const body = await request.json().catch(() => ({}));
+        if (request.method === 'POST') return json(await haus.pushHausAnmelden(body), 200, kopf);
+        if (request.method === 'DELETE') return json(await haus.pushHausAbmelden(body), 200, kopf);
       }
 
       // Oeffentlich mit Schluessel: der Stand der eigenen Bestellung. Kein

@@ -97,6 +97,9 @@ const einzel = [
   // beiden Kopien zeigte das Manifest ins Leere und das Symbol auf dem
   // Homescreen war ein Bildschirmfoto der Seite statt des Logos.
   ['site/wirt.webmanifest', 'tischplan/wirt.webmanifest'],
+  // Der Service Worker fuer das Klingeln: er muss im selben Pfad liegen wie
+  // die Seite, die ihn anmeldet, sonst gilt er nicht fuer sie.
+  ['site/wirt-sw.js', 'tischplan/wirt-sw.js'],
   ['site/assets/icons/favicon-180.png', 'tischplan/assets/icons/favicon-180.png'],
   ['site/assets/icons/favicon-512.png', 'tischplan/assets/icons/favicon-512.png']
 ];

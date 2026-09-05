@@ -33,7 +33,8 @@
 // -5: Jonas (05.09.): auf der ersten Seite nur Takeaway und Reservierungen.
 // Zahlen und Laufkundschaft sind dort nicht interessant - sie liegen jetzt
 // unter "haus" und sind aus, bis jemand sie per Haken holt.
-const SCHLUESSEL = 'wirtschaft-wirt-ansicht-5';
+// -6: der Kasten "Klingeln" kommt dazu und steht unter "haus" ganz oben.
+const SCHLUESSEL = 'wirtschaft-wirt-ansicht-6';
 
 /** Die drei Reiter, in der Reihenfolge der Leiste unten. */
 export const REITER = [
@@ -65,6 +66,7 @@ export const BLOECKE = [
   // haus - alles, was man selten braucht und dann sofort finden muss.
   // Zahlen und Laufkundschaft: fuer den Alltag nicht interessant (Jonas,
   // 05.09.), deshalb aus - wer sie will, setzt den Haken.
+  { id: 'pushKasten', titel: 'Klingeln bei neuer Bestellung', an: true, reiter: 'haus' },
   { id: 'zahlen', titel: 'Zahlen des Tages', an: false, reiter: 'haus' },
   { id: 'laufkunde', titel: 'Laufkundschaft eintragen', an: false, reiter: 'haus' },
   { id: 'zettelKasten', titel: 'Küchenzettel', an: true, reiter: 'haus' },
