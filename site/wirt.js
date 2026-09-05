@@ -15,6 +15,7 @@ import {
 } from './haus-api.js?v=14d80640';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
 import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=8ee90c36';
+import { istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=2dead16d';
@@ -26,14 +27,21 @@ const pad = zahl => String(zahl).padStart(2, '0');
 // Vorbestellungen fuer Montag, und so laesst sich die Ansicht pruefen, wenn
 // die Wirtschaft zu hat. Die Uhrzeit bleibt die echte: "ueberfaellig" und
 // "frei gegen" rechnen mit der Wanduhr, nicht mit dem gewaehlten Tag.
-const TAG_AUS_ADRESSE = (() => {
+const heuteDatum = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+// '' heisst heute. Ein anderer Tag kommt aus der Adresse oder aus der
+// Tagesleiste und steht danach auch in der Adresse - so ueberlebt die Wahl
+// ein Neuladen, und ein Link "zeig mir Montag" laesst sich weitergeben.
+let gewaehlterTag = (() => {
   const wert = new URLSearchParams(window.location.search).get('tag') || '';
-  return /^\d{4}-\d{2}-\d{2}$/.test(wert) ? wert : '';
+  return /^\d{4}-\d{2}-\d{2}$/.test(wert) && wert !== heuteDatum() ? wert : '';
 })();
 const jetzt = () => {
   const d = new Date();
   return {
-    datum: TAG_AUS_ADRESSE || `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+    datum: gewaehlterTag || heuteDatum(),
     zeit: `${pad(d.getHours())}:${pad(d.getMinutes())}`
   };
 };
@@ -57,10 +65,8 @@ async function start() {
   // in Safari geoeffnet.
   if (!hausToken()) { zeigeAnmelden(); return; }
 
-  const gezeigt = TAG_AUS_ADRESSE ? new Date(`${TAG_AUS_ADRESSE}T12:00:00`) : new Date();
-  byId('tagZeile').textContent = `${TAG_AUS_ADRESSE ? 'Mittag am' : 'Heute Mittag ·'} ${gezeigt.toLocaleDateString('de-AT', {
-    weekday: 'long', day: 'numeric', month: 'long'
-  })}`;
+  schreibTagZeile();
+  verdrahteTagwahl();
 
   // Erst der letzte bekannte Stand, dann der offene Draht. So steht sofort
   // etwas da, auch wenn der Draht eine Sekunde braucht.
@@ -257,6 +263,136 @@ function sag(wo, text, art = '') {
   if (art) ziel.dataset.art = art; else delete ziel.dataset.art;
 }
 
+// ---- Welcher Tag -------------------------------------------------------------
+//
+// Heute und die naechsten offenen Tage als Leiste. Am Freitag sieht die
+// Kueche damit die Vorbestellungen fuer Montag; an einem Samstag zeigt die
+// Ansicht nicht ins Leere, sondern einen Tipp weiter den Montag.
+
+function schreibTagZeile() {
+  const gezeigt = gewaehlterTag ? new Date(`${gewaehlterTag}T12:00:00`) : new Date();
+  byId('tagZeile').textContent = `${gewaehlterTag ? 'Mittag am' : 'Heute Mittag ·'} ${gezeigt.toLocaleDateString('de-AT', {
+    weekday: 'long', day: 'numeric', month: 'long'
+  })}`;
+}
+
+async function verdrahteTagwahl() {
+  const leiste = byId('tagWahl');
+  if (!leiste) return;
+  // Zugesperrte Tage kennt nur der Dienst; ohne Antwort gelten Werktage.
+  const antwort = await holeGeschlossen().catch(() => null);
+  const geschlossene = Array.isArray(antwort?.tage) ? antwort.tage : [];
+
+  const heute = heuteDatum();
+  const tage = [{ datum: heute, text: 'heute' }];
+  let cursor = heute;
+  while (tage.length < 5) {
+    const naechster = naechsterOffenerTag(datumPlus(cursor, 1), geschlossene);
+    if (!naechster || naechster === cursor) break;
+    tage.push({ datum: naechster, text: kurzTag(naechster) });
+    cursor = naechster;
+  }
+  // Ein Tag aus der Adresse, der nicht in der Leiste steht, bekommt einen
+  // eigenen Knopf - sonst zeigte die Liste einen Tag, den keine Leiste nennt.
+  if (gewaehlterTag && !tage.some(t => t.datum === gewaehlterTag)) {
+    tage.push({ datum: gewaehlterTag, text: kurzTag(gewaehlterTag) });
+  }
+
+  leiste.textContent = '';
+  for (const tag of tage) {
+    const knopf = document.createElement('button');
+    knopf.type = 'button';
+    knopf.className = 'tag-chip';
+    knopf.dataset.datum = tag.datum;
+    knopf.textContent = tag.text;
+    if (tag.datum === heute && !istOffenerTag(heute, geschlossene)) knopf.dataset.zu = '';
+    knopf.setAttribute('aria-pressed', String(tag.datum === (gewaehlterTag || heute)));
+    leiste.append(knopf);
+  }
+  leiste.addEventListener('click', ereignis => {
+    const knopf = ereignis.target.closest('.tag-chip');
+    if (!knopf) return;
+    gewaehlterTag = knopf.dataset.datum === heute ? '' : knopf.dataset.datum;
+    for (const k of leiste.querySelectorAll('.tag-chip')) {
+      k.setAttribute('aria-pressed', String(k.dataset.datum === (gewaehlterTag || heute)));
+    }
+    const adresse = new URL(window.location.href);
+    if (gewaehlterTag) adresse.searchParams.set('tag', gewaehlterTag);
+    else adresse.searchParams.delete('tag');
+    window.history.replaceState(null, '', adresse);
+    schreibTagZeile();
+    male();
+  });
+}
+
+const datumPlus = (datum, tage) => {
+  const d = new Date(`${datum}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + tage);
+  return d.toISOString().slice(0, 10);
+};
+const kurzTag = datum => new Date(`${datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'short', day: '2-digit', month: '2-digit' })
+  .toLowerCase().replace(/\.,/, '');
+
+// ---- Wischen zum Abhaken ----------------------------------------------------
+//
+// Eine Zeile nach rechts wischen loest ihren Hauptknopf aus - dasselbe wie
+// Tippen, nur schneller, wenn die Haende nass sind. Der Knopf bleibt: Wischen
+// sieht man nicht, den Knopf schon. Erledigtes und Zeilen ohne Knopf wischen
+// nicht. Ein Wischen darf nicht als Tippen enden und das Blatt aufmachen -
+// deshalb der Merker am Element, den der Klick danach abfaengt.
+
+const WISCH_SCHWELLE = 96;
+
+function verdrahteWischen(liste) {
+  let start = null;
+  liste.addEventListener('pointerdown', ereignis => {
+    if (ereignis.pointerType === 'mouse' && ereignis.button !== 0) return;
+    const li = ereignis.target.closest('li');
+    if (!li || li.dataset.erledigt !== undefined || ereignis.target.closest('button')) return;
+    if (!li.querySelector('.knopf:not(.leise)')) return;
+    start = { li, x: ereignis.clientX, y: ereignis.clientY, dx: 0, laeuft: false, id: ereignis.pointerId };
+  }, { passive: true });
+
+  liste.addEventListener('pointermove', ereignis => {
+    if (!start || ereignis.pointerId !== start.id) return;
+    const dx = ereignis.clientX - start.x;
+    const dy = ereignis.clientY - start.y;
+    // Erst entscheiden, ob es ein Wischen ist: mehr seitwaerts als hoch.
+    if (!start.laeuft) {
+      if (Math.abs(dx) < 10) return;
+      if (Math.abs(dy) > Math.abs(dx)) { start = null; return; }
+      start.laeuft = true;
+      start.li.dataset.wischt = '';
+    }
+    start.dx = Math.max(0, dx);
+    start.li.style.setProperty('--wisch', `${start.dx}px`);
+    start.li.style.setProperty('--wisch-anteil', String(Math.min(1, start.dx / WISCH_SCHWELLE)));
+  }, { passive: true });
+
+  const ende = ereignis => {
+    if (!start || (ereignis && ereignis.pointerId !== start.id)) return;
+    const { li, dx, laeuft } = start;
+    start = null;
+    if (!laeuft) return;
+    li.dataset.gewischt = '';
+    delete li.dataset.wischt;
+    li.style.removeProperty('--wisch');
+    li.style.removeProperty('--wisch-anteil');
+    if (dx >= WISCH_SCHWELLE) {
+      li.dataset.erledigtWisch = '';
+      li.querySelector('.knopf:not(.leise)')?.click();
+    }
+    // Der Klick nach dem Loslassen kommt gleich - und darf nichts tun.
+    setTimeout(() => { delete li.dataset.gewischt; }, 350);
+  };
+  liste.addEventListener('pointerup', ende);
+  liste.addEventListener('pointercancel', ende);
+  liste.addEventListener('click', ereignis => {
+    const li = ereignis.target.closest('li');
+    if (li?.dataset.gewischt !== undefined) { ereignis.stopPropagation(); ereignis.preventDefault(); }
+  }, true);
+}
+
 // ---- Der Tag als eine Liste ------------------------------------------------
 
 function verdrahteHeuteListe() {
@@ -278,6 +414,7 @@ function verdrahteHeuteListe() {
   };
   byId('heuteListe').addEventListener('click', behandle);
   byId('archivListe').addEventListener('click', behandle);
+  verdrahteWischen(byId('heuteListe'));
 }
 
 /**
@@ -432,7 +569,7 @@ function male() {
       // Ueberfaellig gibt es nur am heutigen Tag: eine Reservierung fuer
       // Montag ist am Freitagabend nicht "ueberfaellig", nur weil die
       // Wanduhr schon nach zwoelf steht.
-      const ueberfaellig = !TAG_AUS_ADRESSE && zeitVon < nu.zeit && !party.arrived;
+      const ueberfaellig = !gewaehlterTag && zeitVon < nu.zeit && !party.arrived;
       eintraege.push(zeile({
         zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz, gast: party.gast,
         titel: `${party.name} · ${personen}`,
@@ -847,6 +984,15 @@ async function verdrahteMenueplan() {
   // hoeher, wenn sie als Einzeldatei unter /tischplan/ laeuft.
   const wurzel = /\/tischplan\//.test(location.pathname) ? '../' : '';
   byId('planAnsehen').href = `${wurzel}mittagskarte.html`;
+  // Die Vorschau laedt erst beim Aufklappen und nach jedem Veroeffentlichen
+  // neu - sie zeigt immer die Karte, die die Gaeste sehen, nie den Entwurf.
+  const vorschau = byId('planVorschau');
+  const vorschauKasten = byId('planVorschauKasten');
+  const ladeVorschau = () => {
+    if (!vorschau || !vorschauKasten?.open) return;
+    vorschau.src = `${wurzel}mittagskarte.html?vorschau=${Date.now()}`;
+  };
+  vorschauKasten?.addEventListener('toggle', ladeVorschau);
 
   // Vorbefuellen: der Plan vom Dienst. Gibt es keinen, die hinterlegte
   // Ersatzwoche - so steht A la carte schon da und muss nicht abgetippt werden.
@@ -923,6 +1069,7 @@ function verdrahteFormular() {
     byId('planWeg').hidden = false;
     byId('planWeg').textContent = 'Plan entfernen';
     zeigePlanStand(antwort.plan, null);
+    ladeVorschau();
     const tagesgerichte = antwort.plan.tage.reduce((summe, tag) => summe + tag.gerichte.length, 0);
     sag('planInfo', `Veröffentlicht: ${tagesgerichte} Tagesgericht(e), ${antwort.plan.vital.length} vital, `
       + `${antwort.plan.alacarte.length} à la carte – Takeaway, Mittagskarte und Faltkarte sind auf dem neuen Stand.`, 'gut');
