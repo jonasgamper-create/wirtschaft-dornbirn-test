@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src 'self' data:; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self' https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self' https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'; upgrade-insecure-requests">
   <meta name="theme-color" content="#173e2c">
   <title>Heute Mittag · Wirtschaft Dornbirn</title>
   <link rel="icon" href="assets/wirtschaft-logo.png" type="image/png">
@@ -16,8 +16,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Wirt">
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
-  <link rel="stylesheet" href="wirt.css?v=fccaa8af">
-  <script type="module" src="wirt.js?v=abd2b0ce"></script>
+  <link rel="stylesheet" href="wirt.css?v=1eba7306">
+  <script type="module" src="wirt.js?v=5d4f79ec"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -31,6 +31,9 @@
 
   <main id="wirtHaupt">
     <p class="vorzeile" id="tagZeile" data-reiter="heute">Heute Mittag</p>
+    <!-- Welcher Tag: heute und die naechsten offenen Tage. Am Freitag sieht
+         die Kueche so die Vorbestellungen fuer Montag, ohne Adresse tippen. -->
+    <div class="tage" id="tagWahl" data-reiter="heute" role="group" aria-label="Tag wählen"></div>
 
     <!-- Ohne Schluessel geht gar nichts - und auf dem Homescreen ist das
          der Normalfall: iOS gibt einer installierten App einen eigenen
@@ -133,6 +136,13 @@
         <button class="knopf leise" type="button" id="planWeg" hidden>Plan entfernen</button>
       </div>
       <p class="lauf-ergebnis" id="planInfo" role="status" aria-live="polite"></p>
+      <!-- Die Faltkarte, wie sie gedruckt wird - direkt hier, ohne die Seite
+           zu wechseln. Geladen erst beim Aufklappen: die Karte holt Schriften
+           und Plan, das soll nicht bei jedem Oeffnen der Ansicht passieren. -->
+      <details class="plan-vorschau" id="planVorschauKasten">
+        <summary>Vorschau der Karte</summary>
+        <iframe id="planVorschau" title="Vorschau der Faltkarte" loading="lazy"></iframe>
+      </details>
     </details>
 
     <details class="werkzeug" id="karteKasten" data-block="karteKasten">

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-iPZaHaE6H/zdpRfvjeTAUdg8S9Mx24kLx8/zQJhhAzE='; script-src 'sha256-gw62wpAr607AlZSy2YCC74TKKsDlF7KkrOzsFoNDU9s='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-qlafvenLtYoWjUfx81WdNjoCJzYb1Gr/PV35wfYKKmU='; script-src 'sha256-gw62wpAr607AlZSy2YCC74TKKsDlF7KkrOzsFoNDU9s='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="theme-color" content="#11110f">
   <title>Einrichten · Wirtschaft Dornbirn</title>
   <style>
@@ -569,6 +569,37 @@ body.ohne-schluessel main{padding-bottom:64px}
 .ansicht-reiter{margin:16px 0 6px;color:var(--green);font-size:12.5px;font-weight:700;
   letter-spacing:.16em;text-transform:lowercase}
 .ansicht-reiter:first-child{margin-top:0}
+
+/* ---- Tagesleiste ------------------------------------------------------------
+   heute und die naechsten offenen Tage. Gefuellt ist nur der gewaehlte. */
+.tage{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
+.tag-chip{min-height:40px;padding:0 14px;border:1px solid var(--linie);border-radius:999px;background:#fff;
+  color:var(--muted);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:lowercase}
+.tag-chip[aria-pressed="true"]{border-color:var(--green);background:var(--green);color:#fff}
+/* heute, aber zu (Wochenende, Feiertag): gestrichelt - man darf schauen,
+   es passiert dort nur nichts. */
+.tag-chip[data-zu]{border-style:dashed}
+
+/* ---- Wischen zum Abhaken ----------------------------------------------------
+   Die Zeile faehrt mit dem Finger nach rechts; links erscheint ein Haken,
+   der mit dem Weg kraeftiger wird. Ab der Schwelle loest die Zeile ihren
+   Hauptknopf aus. touch-action pan-y: senkrecht bleibt Scrollen, waagrecht
+   gehoert uns. */
+.haus-liste li{position:relative;touch-action:pan-y;transform:translateX(var(--wisch,0px));
+  transition:transform .18s ease-out}
+.haus-liste li[data-wischt]{transition:none;user-select:none;-webkit-user-select:none}
+.haus-liste li::before{content:"\2713";position:absolute;left:-38px;top:50%;transform:translateY(-50%);
+  width:28px;text-align:center;color:var(--green);font-size:20px;font-weight:700;
+  opacity:var(--wisch-anteil,0);pointer-events:none}
+.haus-liste li[data-erledigt-wisch]{transform:translateX(24px);opacity:.6}
+
+/* ---- Vorschau der Karte -----------------------------------------------------
+   Die Faltkarte im Reiter "karte": die Seite verkleinert sich selbst auf die
+   Breite, der Rest scrollt im Rahmen. */
+.plan-vorschau{margin:16px 0 0;padding:0}
+.plan-vorschau summary{min-height:44px;display:flex;align-items:center;font-size:15px;font-weight:700;cursor:pointer}
+.plan-vorschau iframe{display:block;width:100%;height:min(70vh,640px);margin-top:8px;border:1px solid var(--linie);
+  border-radius:10px;background:#e9e6df}
 
   </style>
 </head>
