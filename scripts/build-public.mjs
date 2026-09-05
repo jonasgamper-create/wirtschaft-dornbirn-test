@@ -91,7 +91,14 @@ const einzel = [
   ['output/tischplan/wirtschaft-wirt.html', 'tischplan/wirt.html'],
   ['output/tischplan/wirtschaft-kueche.html', 'tischplan/kueche.html'],
   ['output/tischplan/wirtschaft-zahlen.html', 'tischplan/zahlen.html'],
-  ['output/tischplan/wirtschaft-uebersicht.html', 'tischplan/uebersicht.html']
+  ['output/tischplan/wirtschaft-uebersicht.html', 'tischplan/uebersicht.html'],
+  // Die Wirt-Ansicht ist eine Homescreen-App: Manifest und Symbol muessen
+  // NEBEN der Einzeldatei liegen, weil die Verweise relativ sind. Ohne die
+  // beiden Kopien zeigte das Manifest ins Leere und das Symbol auf dem
+  // Homescreen war ein Bildschirmfoto der Seite statt des Logos.
+  ['site/wirt.webmanifest', 'tischplan/wirt.webmanifest'],
+  ['site/assets/icons/favicon-180.png', 'tischplan/assets/icons/favicon-180.png'],
+  ['site/assets/icons/favicon-512.png', 'tischplan/assets/icons/favicon-512.png']
 ];
 let veroeffentlicht = 0;
 for (const [quelle, ziel] of einzel) {
