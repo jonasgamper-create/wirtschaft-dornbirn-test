@@ -21,10 +21,19 @@ import { durationFor, occupiesAt } from './table-assignment.mjs?v=2dead16d';
 
 const byId = id => document.getElementById(id);
 const pad = zahl => String(zahl).padStart(2, '0');
+// Welchen Tag die Liste zeigt. Normal: heute. Mit ?tag=2026-09-07 in der
+// Adresse einen anderen Tag - so sieht der Wirt am Freitag die
+// Vorbestellungen fuer Montag, und so laesst sich die Ansicht pruefen, wenn
+// die Wirtschaft zu hat. Die Uhrzeit bleibt die echte: "ueberfaellig" und
+// "frei gegen" rechnen mit der Wanduhr, nicht mit dem gewaehlten Tag.
+const TAG_AUS_ADRESSE = (() => {
+  const wert = new URLSearchParams(window.location.search).get('tag') || '';
+  return /^\d{4}-\d{2}-\d{2}$/.test(wert) ? wert : '';
+})();
 const jetzt = () => {
   const d = new Date();
   return {
-    datum: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+    datum: TAG_AUS_ADRESSE || `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
     zeit: `${pad(d.getHours())}:${pad(d.getMinutes())}`
   };
 };
@@ -48,7 +57,8 @@ async function start() {
   // in Safari geoeffnet.
   if (!hausToken()) { zeigeAnmelden(); return; }
 
-  byId('tagZeile').textContent = `Heute Mittag · ${new Date().toLocaleDateString('de-AT', {
+  const gezeigt = TAG_AUS_ADRESSE ? new Date(`${TAG_AUS_ADRESSE}T12:00:00`) : new Date();
+  byId('tagZeile').textContent = `${TAG_AUS_ADRESSE ? 'Mittag am' : 'Heute Mittag ·'} ${gezeigt.toLocaleDateString('de-AT', {
     weekday: 'long', day: 'numeric', month: 'long'
   })}`;
 
