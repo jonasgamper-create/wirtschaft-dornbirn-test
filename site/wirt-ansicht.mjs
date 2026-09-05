@@ -8,7 +8,7 @@
 // und die Liste bleibt kurz, ohne etwas wegzunehmen.
 //
 // Die Aufteilung folgt der Arbeit, nicht der Technik:
-//   heute - was jetzt passiert: Zahlen, Bestellungen, Reservierungen.
+//   heute - was jetzt passiert: Bestellungen und Reservierungen, abhakbar.
 //   karte - die Woche: Menueplan eintragen, veroeffentlichen, drucken.
 //   haus  - alles Selteneres: Tische, Zeiten, Termine, Einstellungen.
 //
@@ -30,7 +30,10 @@
 // -4: die Reiter. Vorher war fast alles ausgeblendet, weil alles
 // untereinander stand; jetzt hat jeder Abschnitt seinen Reiter und darf
 // sichtbar sein.
-const SCHLUESSEL = 'wirtschaft-wirt-ansicht-4';
+// -5: Jonas (05.09.): auf der ersten Seite nur Takeaway und Reservierungen.
+// Zahlen und Laufkundschaft sind dort nicht interessant - sie liegen jetzt
+// unter "haus" und sind aus, bis jemand sie per Haken holt.
+const SCHLUESSEL = 'wirtschaft-wirt-ansicht-5';
 
 /** Die drei Reiter, in der Reihenfolge der Leiste unten. */
 export const REITER = [
@@ -50,10 +53,9 @@ const REITER_IDS = new Set(REITER.map(r => r.id));
  * holt sie mit einem Haken zurueck.
  */
 export const BLOECKE = [
-  // heute - der Reiter, der beim Aufsperren offen ist.
-  { id: 'zahlen', titel: 'Zahlen des Tages', an: true, reiter: 'heute' },
+  // heute - der Reiter, der beim Aufsperren offen ist. Nur EINE Liste:
+  // Takeaway und Reservierungen, je Zeile ein Knopf zum Abhaken.
   { id: 'heute', titel: 'Bestellungen & Reservierungen des Tages', an: true, reiter: 'heute' },
-  { id: 'laufkunde', titel: 'Laufkundschaft eintragen', an: true, reiter: 'heute' },
 
   // karte - die Woche.
   { id: 'planKasten', titel: 'Menüplan der Woche', an: true, reiter: 'karte' },
@@ -61,6 +63,10 @@ export const BLOECKE = [
   { id: 'textKasten', titel: 'Gerichte als Textliste (Übergang)', an: false, reiter: 'karte' },
 
   // haus - alles, was man selten braucht und dann sofort finden muss.
+  // Zahlen und Laufkundschaft: fuer den Alltag nicht interessant (Jonas,
+  // 05.09.), deshalb aus - wer sie will, setzt den Haken.
+  { id: 'zahlen', titel: 'Zahlen des Tages', an: false, reiter: 'haus' },
+  { id: 'laufkunde', titel: 'Laufkundschaft eintragen', an: false, reiter: 'haus' },
   { id: 'zettelKasten', titel: 'Küchenzettel', an: true, reiter: 'haus' },
   { id: 'eventKasten', titel: 'Eigene Termine', an: true, reiter: 'haus' },
   { id: 'oeffnungKasten', titel: 'Öffnungszeiten', an: true, reiter: 'haus' },

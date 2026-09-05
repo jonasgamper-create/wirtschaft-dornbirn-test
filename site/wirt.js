@@ -14,7 +14,7 @@ import {
   stelleTagWiederHer
 } from './haus-api.js?v=14d80640';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
-import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=a031db85';
+import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=8ee90c36';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
 import { durationFor, occupiesAt } from './table-assignment.mjs?v=2dead16d';
