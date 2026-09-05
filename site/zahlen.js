@@ -3,7 +3,7 @@
 // Die Seite zeigt nur - gezaehlt wird im Dienst, anonym und dauerhaft,
 // waehrend die Bestellungen selbst nach 30 Tagen geloescht werden.
 
-import { apiAdresse, hausToken, holeZahlen, schluesselAusAdresse } from './haus-api.js?v=14d80640';
+import { apiAdresse, hausToken, holeZahlen, schluesselAusAdresse } from './haus-api.js?v=0b5227a8';
 
 const byId = id => document.getElementById(id);
 

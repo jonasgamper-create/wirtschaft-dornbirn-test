@@ -10,11 +10,12 @@ import {
   leereTag, legeEinfach, loescheKarte, schluesselAusAdresse, sendeAktion, sendePlan,
   sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
   holeEigeneEvents, holeGeschlossen, holeOeffnung, legeEigenesEvent, loescheEigenesEvent, sageTagAb, sendeTischsperre, setzeOeffnung, setzeTagZu,
+  holeHausPush, holePushSchluessel, meldeHausPushAb, meldeHausPushAn,
   setzeFertigWer, setzeToken,
   stelleTagWiederHer
-} from './haus-api.js?v=14d80640';
+} from './haus-api.js?v=0b5227a8';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
-import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=8ee90c36';
+import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=4e8e69a6';
 import { istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
@@ -100,6 +101,116 @@ async function start() {
   verdrahteZu();
   verdrahteOeffnung();
   verdrahteBestand();
+  verdrahtePush();
+}
+
+// ---- Klingeln bei neuer Bestellung -----------------------------------------
+//
+// Web Push fuers Haus, gebaut wie die Abholmeldung des Gastes (takeaway.js):
+// der Service Worker wirt-sw.js liegt neben dieser Seite, die Anmeldung geht
+// mit dem Hausschluessel an den Dienst, und die Meldung selbst holt sich der
+// Worker dort - ueber Apple und Google laeuft nur ein leeres Anklopfen.
+//
+// iOS erlaubt Meldungen nur der App vom Homescreen. Im Safari-Tab gibt es
+// dort keinen Knopf, sondern den Hinweis - ein Knopf, der nichts tut, waere
+// schlimmer als keiner.
+
+const SW_DATEI = 'wirt-sw.js?v=6d41bb4b';
+
+const schluesselAlsBytes = text => {
+  const roh = atob(text.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(text.length / 4) * 4, '='));
+  return Uint8Array.from(roh, zeichen => zeichen.charCodeAt(0));
+};
+
+async function verdrahtePush() {
+  const an = byId('pushAn');
+  const aus = byId('pushAus');
+  const hinweis = byId('pushHinweis');
+  if (!an || !aus) return;
+  const sagPush = (text, art = '') => sag('pushInfo', text, art);
+
+  const istIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const installiert = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const kann = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+
+  if (!kann || (istIos && !installiert)) {
+    an.hidden = true;
+    hinweis.textContent = istIos
+      ? 'Auf dem iPhone klingelt nur die App vom Homescreen: in Safari auf „Teilen“ und „Zum Home-Bildschirm“ tippen, dann dort anmelden.'
+      : 'Dieser Browser kann keine Meldungen im Hintergrund zeigen.';
+    return;
+  }
+
+  const zeige = angemeldet => { an.hidden = angemeldet; aus.hidden = !angemeldet; };
+
+  // Steht dieses Geraet schon auf der Liste? Der Browser weiss es.
+  try {
+    const worker = await navigator.serviceWorker.getRegistration(SW_DATEI);
+    const anmeldung = await worker?.pushManager.getSubscription();
+    zeige(Boolean(anmeldung));
+  } catch { zeige(false); }
+
+  an.addEventListener('click', async () => {
+    an.disabled = true;
+    try {
+      // Die Erlaubnis MUSS aus einem echten Tippen kommen.
+      const erlaubnis = await Notification.requestPermission();
+      if (erlaubnis !== 'granted') {
+        an.disabled = false;
+        return sagPush('Ohne Erlaubnis kein Klingeln – die Liste hier zeigt Neues trotzdem, solange die App offen ist.', 'warnung');
+      }
+      const schluessel = await holePushSchluessel();
+      if (!schluessel?.schluessel) throw new Error('kein Schluessel');
+
+      const worker = await navigator.serviceWorker.register(SW_DATEI);
+      await navigator.serviceWorker.ready;
+      const anmeldung = await worker.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: schluesselAlsBytes(schluessel.schluessel)
+      });
+      const gespeichert = await meldeHausPushAn(hausToken(), {
+        endpunkt: anmeldung.endpoint,
+        geraet: navigator.platform || ''
+      });
+      if (!gespeichert?.ok) throw new Error(gespeichert?.grund || 'abgelehnt');
+
+      (worker.active || navigator.serviceWorker.controller)?.postMessage({
+        art: 'merke',
+        daten: {
+          token: hausToken(),
+          api: await apiAdresse(),
+          seite: `${location.origin}${location.pathname}`,
+          symbol: new URL('assets/icons/favicon-180.png', location.href).href
+        }
+      });
+      zeige(true);
+      sagPush(`Passt – dieses Gerät klingelt. ${gespeichert.anzahl > 1 ? `Insgesamt ${gespeichert.anzahl} Geräte.` : ''}`.trim(), 'gut');
+    } catch {
+      sagPush('Das hat nicht geklappt. Bitte noch einmal – oder die App vom Homescreen öffnen.', 'fehler');
+    }
+    an.disabled = false;
+  });
+
+  aus.addEventListener('click', async () => {
+    aus.disabled = true;
+    try {
+      const worker = await navigator.serviceWorker.getRegistration(SW_DATEI);
+      const anmeldung = await worker?.pushManager.getSubscription();
+      const endpunkt = anmeldung?.endpoint || '';
+      await anmeldung?.unsubscribe();
+      (worker?.active || navigator.serviceWorker.controller)?.postMessage({ art: 'vergiss' });
+      if (endpunkt) await meldeHausPushAb(hausToken(), endpunkt);
+    } catch { /* Abmelden darf nie haengen bleiben */ }
+    aus.disabled = false;
+    zeige(false);
+    sagPush('Erledigt – dieses Gerät klingelt nicht mehr.', 'gut');
+  });
+
+  // Wie viele Geraete im Haus klingeln - eine Zeile, die den Zustand erklaert.
+  const stand = await holeHausPush(hausToken());
+  if (stand?.ok && stand.anzahl > 0) {
+    hinweis.textContent = `${stand.anzahl === 1 ? 'Ein Gerät' : `${stand.anzahl} Geräte`} im Haus ${stand.anzahl === 1 ? 'klingelt' : 'klingeln'} bei neuer Bestellung oder Reservierung.`;
+  }
 }
 
 /**

@@ -17,7 +17,7 @@
   <meta name="apple-mobile-web-app-title" content="Wirt">
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
   <link rel="stylesheet" href="wirt.css?v=1eba7306">
-  <script type="module" src="wirt.js?v=fd869e25"></script>
+  <script type="module" src="wirt.js?v=fc420263"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -258,6 +258,20 @@
         <button class="knopf" type="submit">Termin anlegen</button>
       </form>
       <p class="lauf-ergebnis" id="eventInfo" role="status" aria-live="polite"></p>
+    </details>
+
+    <!-- Das Telefon klingelt, wenn etwas hereinkommt - auch bei zugeklappter
+         App. Auf dem iPhone geht das nur in der App vom Homescreen; im
+         Safari-Tab erlaubt iOS keine Meldungen. Der Kasten sagt das, statt
+         einen Knopf zu zeigen, der dort nichts tut. -->
+    <details class="werkzeug" id="pushKasten" data-block="pushKasten" open>
+      <summary>Klingeln bei neuer Bestellung</summary>
+      <p class="hinweis" id="pushHinweis">Dieses Gerät meldet sich, wenn eine Bestellung oder Reservierung hereinkommt – auch wenn die App zu ist.</p>
+      <div class="karte-knoepfe">
+        <button class="knopf" type="button" id="pushAn">Auf diesem Gerät klingeln</button>
+        <button class="knopf leise" type="button" id="pushAus" hidden>Nicht mehr klingeln</button>
+      </div>
+      <p class="lauf-ergebnis" id="pushInfo" role="status" aria-live="polite"></p>
     </details>
 
     <details class="werkzeug" id="zettelKasten" data-block="zettelKasten">

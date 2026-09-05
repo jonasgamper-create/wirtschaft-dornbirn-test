@@ -236,6 +236,13 @@ export const holeTakeawayProtokoll = token => ruf('/api/takeaway/protokoll', { t
 /** Der oeffentliche Absenderausweis - er gehoert in die Seite, ist kein Geheimnis. */
 export const holePushSchluessel = () => ruf('/api/push/schluessel');
 
+/** Push fuers Haus: Stand, anmelden, abmelden - alles mit Hausschluessel. */
+export const holeHausPush = token => ruf('/api/push/haus', { token });
+export const meldeHausPushAn = (token, anmeldung) =>
+  ruf('/api/push/haus', { methode: 'POST', koerper: anmeldung, token });
+export const meldeHausPushAb = (token, endpunkt) =>
+  ruf('/api/push/haus', { methode: 'DELETE', koerper: { endpunkt }, token });
+
 export const meldePushAn = (token, anmeldung) =>
   ruf('/api/push/anmelden', { methode: 'POST', koerper: { t: token, anmeldung } });
 
