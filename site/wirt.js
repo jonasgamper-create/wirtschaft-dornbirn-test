@@ -374,7 +374,6 @@ function verdrahteWischen(liste) {
     const { li, dx, laeuft } = start;
     start = null;
     if (!laeuft) return;
-    li.dataset.gewischt = '';
     delete li.dataset.wischt;
     li.style.removeProperty('--wisch');
     li.style.removeProperty('--wisch-anteil');
@@ -382,7 +381,11 @@ function verdrahteWischen(liste) {
       li.dataset.erledigtWisch = '';
       li.querySelector('.knopf:not(.leise)')?.click();
     }
-    // Der Klick nach dem Loslassen kommt gleich - und darf nichts tun.
+    // ERST klicken, DANN den Merker setzen: der Abfaenger unten laeuft in
+    // der Capture-Phase und haette sonst auch diesen eigenen Klick
+    // geschluckt - das Wischen sah fertig aus und tat nichts. Der Klick,
+    // den der Finger beim Loslassen erzeugt, kommt erst danach.
+    li.dataset.gewischt = '';
     setTimeout(() => { delete li.dataset.gewischt; }, 350);
   };
   liste.addEventListener('pointerup', ende);
