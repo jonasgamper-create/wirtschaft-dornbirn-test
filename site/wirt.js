@@ -11,11 +11,12 @@ import {
   sendeKarte, sendeLaufkunde, sendeTakeawayAktion, sendeTakeawayKarte,
   holeEigeneEvents, holeGeschlossen, holeOeffnung, legeEigenesEvent, loescheEigenesEvent, sageTagAb, sendeTischsperre, setzeOeffnung, setzeTagZu,
   holeHausPush, holePushSchluessel, meldeHausPushAb, meldeHausPushAn,
+  legeZeitsperre, loescheZeitsperre, setzeAnnahme,
   setzeFertigWer, setzeToken,
   stelleTagWiederHer
-} from './haus-api.js?v=0b5227a8';
+} from './haus-api.js?v=9bbaa1e5';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
-import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=a9e772f2';
+import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=9afbccd3';
 import { istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
@@ -125,6 +126,71 @@ async function start() {
   verdrahteOeffnung();
   verdrahteBestand();
   verdrahtePush();
+  verdrahteAnnahme();
+}
+
+// ---- Online-Reservierungen: Tag voll, Zeiten blockieren --------------------
+//
+// Das Reservierungsmodell seit 06.09.: keine Tischautomatik, die Grenze
+// setzt der Wirt. Alles bezieht sich auf den gewaehlten Tag der Leiste.
+// Der Stand kommt ueber den Draht, deshalb malt male() den Kasten mit.
+
+function zeichneAnnahme() {
+  const kasten = byId('annahmeStand');
+  if (!kasten || !stand) return;
+  const datum = jetzt().datum;
+  const annahme = stand.annahme || { voll: [], sperren: [] };
+  const voll = annahme.voll.includes(datum);
+  const tagText = new Date(`${datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'long', day: 'numeric', month: 'long' });
+  byId('annahmeVoll').textContent = voll ? 'Wieder annehmen' : 'Tag voll melden';
+  byId('annahmeVoll').classList.toggle('rot', voll);
+  kasten.textContent = voll
+    ? `Voll gemeldet: online kommt für ${tagText} keine Reservierung mehr an. Gäste lesen „alles belegt, bitte anrufen“.`
+    : `Online werden für ${tagText} Reservierungen angenommen. Was du selbst einträgst, geht immer.`;
+
+  const liste = byId('sperrenListe');
+  liste.textContent = '';
+  for (const sperre of annahme.sperren.filter(sp => sp.datum === datum)) {
+    const li = document.createElement('li');
+    const text = document.createElement('span');
+    text.textContent = `${sperre.von}–${sperre.bis} blockiert`;
+    const weg = document.createElement('button');
+    weg.type = 'button';
+    weg.className = 'knopf leise klein';
+    weg.textContent = 'aufheben';
+    weg.addEventListener('click', async () => {
+      weg.disabled = true;
+      const antwort = await loescheZeitsperre(hausToken(), sperre);
+      if (!antwort?.ok) { weg.disabled = false; sag('annahmeInfo', 'Das hat nicht geklappt – bitte noch einmal.', 'fehler'); }
+    });
+    li.append(text, weg);
+    liste.append(li);
+  }
+}
+
+function verdrahteAnnahme() {
+  const knopf = byId('annahmeVoll');
+  const form = byId('sperreForm');
+  if (!knopf || !form) return;
+  knopf.addEventListener('click', async () => {
+    knopf.disabled = true;
+    const datum = jetzt().datum;
+    const voll = !(stand?.annahme?.voll || []).includes(datum);
+    const antwort = await setzeAnnahme(hausToken(), { datum, voll });
+    knopf.disabled = false;
+    if (!antwort?.ok) return sag('annahmeInfo', 'Das hat nicht geklappt – bitte noch einmal.', 'fehler');
+    sag('annahmeInfo', voll ? 'Gemeldet – online ist der Tag zu.' : 'Online wieder offen.', 'gut');
+  });
+  form.addEventListener('submit', async ereignis => {
+    ereignis.preventDefault();
+    const von = byId('sperreVon').value;
+    const bis = byId('sperreBis').value;
+    if (!von || !bis || von >= bis) return sag('annahmeInfo', 'Bitte eine Zeit von–bis wählen, bis nach von.', 'fehler');
+    const antwort = await legeZeitsperre(hausToken(), { datum: jetzt().datum, von, bis });
+    if (!antwort?.ok) return sag('annahmeInfo', 'Das hat nicht geklappt – bitte noch einmal.', 'fehler');
+    form.reset();
+    sag('annahmeInfo', `${von}–${bis} blockiert – online nicht mehr wählbar.`, 'gut');
+  });
 }
 
 // ---- Klingeln bei neuer Bestellung -----------------------------------------
@@ -772,6 +838,7 @@ function male() {
     liste.append(leer);
   }
 
+  zeichneAnnahme();
   // Wie viel noch offen ist - auch sichtbar, wenn gerade die Karte offen ist.
   setzeHeuteZahl(eintraege.length);
   // Und am App-Symbol auf dem Homescreen: beim Entsperren sieht man die

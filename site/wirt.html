@@ -16,8 +16,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Wirt">
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
-  <link rel="stylesheet" href="wirt.css?v=fc1d4435">
-  <script type="module" src="wirt.js?v=45c2847f"></script>
+  <link rel="stylesheet" href="wirt.css?v=aa1d7b5c">
+  <script type="module" src="wirt.js?v=8ba3dd4b"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -92,6 +92,24 @@
         <summary id="archivTitel">Erledigt heute</summary>
         <ul class="haus-liste" id="archivListe"></ul>
       </details>
+    </section>
+
+    <!-- Wenn es voll ist: den Tag online zumachen oder eine Zeit blockieren.
+         Gilt nur fuer Online-Reservierungen des gewaehlten Tages - was der
+         Wirt selbst eintraegt, geht immer. Kein Zusperren: gekocht wird. -->
+    <section class="annahme" data-block="annahmeKasten" aria-labelledby="annahmeTitel">
+      <div class="zeile-kopf">
+        <h2 id="annahmeTitel">Online-Reservierungen</h2>
+        <button class="knopf leise" type="button" id="annahmeVoll">Tag voll melden</button>
+      </div>
+      <p class="hinweis" id="annahmeStand">Wird geladen …</p>
+      <ul class="sperren" id="sperrenListe"></ul>
+      <form class="sperre-form" id="sperreForm">
+        <label>von<input type="time" id="sperreVon" min="11:00" max="14:00" step="900" required></label>
+        <label>bis<input type="time" id="sperreBis" min="11:15" max="14:00" step="900" required></label>
+        <button class="knopf leise" type="submit">Zeit blockieren</button>
+      </form>
+      <p class="lauf-ergebnis" id="annahmeInfo" role="status" aria-live="polite"></p>
     </section>
 
     <section class="laufkunde" data-block="laufkunde" aria-labelledby="laufTitel">

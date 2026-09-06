@@ -13,7 +13,8 @@
 import { DurableObject } from 'cloudflare:workers';
 import { holeAltFrei, bucheAlt, holeAltKarte } from './altsystem.mjs';
 import {
-  AUFBEWAHRUNG_TAGE, ampelFuer, betroffenePartys, brauchtErinnerung, freieZeiten, machId, planTaugt, pruefeAnfrage, raeumeAuf, tischBekannt, verteile, wendeAktionAn
+  AUFBEWAHRUNG_TAGE, MITTAGSZEITEN, ampelFuer, betroffenePartys, brauchtErinnerung, freieZeiten, machId, planTaugt,
+  pruefeAnfrage, raeumeAuf, tischBekannt, verteile, wendeAktionAn
 } from './haus-logik.mjs';
 import standardPlan from '../../site/data/floorplan.json';
 import eventDaten from '../../site/data/events.json';
@@ -656,6 +657,8 @@ export class Haus extends DurableObject {
       standardEtage: this.#lies('standardEtage', null),
       // Automatik aus heisst: Anfragen kommen an, aber das Haus teilt ein.
       automatik: this.#lies('automatik', true) !== false,
+      // Tag voll, blockierte Zeiten - die Wirt-App zeigt und schaltet sie.
+      annahme: rolle === 'haus' ? this.#annahme() : undefined,
       // Ob der Gast seine Tischnummer erfaehrt. Standard: nein - sie ist intern.
       tischAnzeigen: this.#lies('tischAnzeigen', false) === true,
       // Schickt der Dienst eine SMS, wenn das Essen fertig ist? Standard:
@@ -699,6 +702,12 @@ export class Haus extends DurableObject {
     // Feiertage und zugesperrte Tage: die Seite zeigt es vorher an, aber die
     // Seite ist nicht die Grenze - der Dienst ist es.
     if (this.#tagIstZu(gecheckt.anfrage?.date || roh?.date)) return { ok: false, grund: 'geschlossen' };
+    // Der Wirt hat den Tag voll gemeldet oder die Zeit blockiert: online
+    // kommt dann nichts mehr an. Die Seite graut die Zeit vorher aus, aber
+    // die Seite ist nicht die Grenze - der Dienst ist es.
+    if (this.#onlineGesperrt(gecheckt.anfrage?.date, gecheckt.anfrage?.time)) {
+      return { ok: false, grund: 'voll', alternativen: [] };
+    }
 
     // Eine Erreichbarkeit ist Pflicht. Nicht fuer Werbung, sondern damit eine
     // Absage ankommt: sagt das Haus den Mittag ab, muss jeder Gast das
@@ -1046,6 +1055,58 @@ export class Haus extends DurableObject {
 
   /** Einen Tag zusperren oder wieder oeffnen. Sperren stoppt NEUE Buchungen -
    *  bestehende sagt erst die Tagesabsage ab; das sind zwei Entscheidungen. */
+  // ---- Annahme online: Tag voll, Zeiten blockiert ---------------------------
+  //
+  // Reservierungsmodell seit 06.09. (Jonas): keine Tischautomatik, die App
+  // zeigt nur, wer kommt und wie viele. Die Grenze setzt der Wirt selbst -
+  // ein Tag ist "voll", oder eine Zeit ist blockiert. Beides gilt nur fuer
+  // Online-Reservierungen; was der Wirt selbst eintraegt, geht immer. Und
+  // beides ist getrennt vom Zusperren: "voll" heisst, es wird gekocht, nur
+  // online kommt nichts mehr an.
+
+  #annahme() {
+    return { voll: this.#lies('reservierungVoll', []), sperren: this.#lies('zeitSperren', []) };
+  }
+
+  /** null = frei; sonst 'voll' (ganzer Tag) oder 'zeit' (blockiertes Fenster). */
+  #onlineGesperrt(datum, zeit = null) {
+    const { voll, sperren } = this.#annahme();
+    if (voll.includes(String(datum))) return 'voll';
+    if (zeit && sperren.some(sp => sp.datum === String(datum) && sp.von <= zeit && zeit < sp.bis)) return 'zeit';
+    return null;
+  }
+
+  async setzeAnnahme(roh) {
+    const datum = String(roh?.datum || '');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(datum)) return { ok: false, grund: 'datum' };
+    const heute = jetztImHaus().datum;
+    // Vergangenes faellt beim Schreiben heraus - die Liste soll nicht wachsen.
+    const liste = new Set(this.#lies('reservierungVoll', []).filter(tag => tag >= heute));
+    if (roh?.voll) liste.add(datum); else liste.delete(datum);
+    this.#schreib('reservierungVoll', [...liste].sort());
+    this.#meldeAenderung();
+    return { ok: true, annahme: this.#annahme() };
+  }
+
+  async setzeZeitsperre(roh, weg = false) {
+    const datum = String(roh?.datum || '');
+    const von = String(roh?.von || '');
+    const bis = String(roh?.bis || '');
+    const zeit = /^\d{2}:\d{2}$/;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(datum)) return { ok: false, grund: 'datum' };
+    if (!zeit.test(von) || !zeit.test(bis) || von >= bis) return { ok: false, grund: 'zeit' };
+    const heute = jetztImHaus().datum;
+    const liste = this.#lies('zeitSperren', [])
+      .filter(sp => sp.datum >= heute)
+      .filter(sp => !(sp.datum === datum && sp.von === von && sp.bis === bis));
+    if (!weg) liste.push({ datum, von, bis });
+    if (liste.length > 60) return { ok: false, grund: 'zu_viele' };
+    liste.sort((a, b) => (a.datum + a.von).localeCompare(b.datum + b.von));
+    this.#schreib('zeitSperren', liste);
+    this.#meldeAenderung();
+    return { ok: true, annahme: this.#annahme() };
+  }
+
   async setzeTagZu(datum, zu) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(datum || ''))) return { ok: false, grund: 'datum' };
     const liste = new Set(this.#geschlossen());
@@ -1317,9 +1378,14 @@ export class Haus extends DurableObject {
   async frei(datum, personen) {
     const automatik = this.#lies('automatik', true) !== false;
     if (!automatik) {
-      // Ohne Automatik kann niemand ehrlich sagen, was frei ist - das
-      // entscheidet das Haus. Dann ist jede Zeit anfragbar.
-      return { ok: true, automatik, zeiten: null };
+      // Ohne Automatik entscheidet das Haus, was frei ist: jede Zeit ist
+      // anfragbar - ausser der Wirt hat den Tag voll gemeldet oder die
+      // Zeit blockiert. Genau das sieht der Gast dann als ausgegraut.
+      return {
+        ok: true,
+        automatik,
+        zeiten: MITTAGSZEITEN.map(zeit => ({ zeit, frei: !this.#onlineGesperrt(datum, zeit) }))
+      };
     }
     return {
       ok: true,
@@ -1332,7 +1398,7 @@ export class Haus extends DurableObject {
         deckel: this.#lies('deckel', null),
         guests: personen,
         date: datum
-      })
+      }).map(eintrag => ({ ...eintrag, frei: eintrag.frei && !this.#onlineGesperrt(datum, eintrag.zeit) }))
     };
   }
 
@@ -2707,6 +2773,18 @@ export default {
           return json(ergebnis, 200, kopf);
         }
         return json(await haus.aktion(body), 200, kopf);
+      }
+
+      // Tag voll / Zeiten blockieren - nur mit Hausschluessel.
+      if (url.pathname === '/api/reservierung/annahme' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.setzeAnnahme(body), 200, kopf);
+      }
+      if (url.pathname === '/api/reservierung/zeitsperre' && (request.method === 'POST' || request.method === 'DELETE')) {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.setzeZeitsperre(body, request.method === 'DELETE'), 200, kopf);
       }
 
       if (url.pathname === '/api/reservierung/intern' && request.method === 'POST') {

@@ -8,7 +8,7 @@ import { BIS_TAGESENDE, ELEMENTS, FLEX_STANDARD, FORMEN, GRID, METER_PRO_EINHEIT
 import { KARENZ_MINUTEN, assignTables, belegtBis, durationFor, occupiesAt, partyStatus, stamp } from './table-assignment.mjs?v=2dead16d';
 import { renderFloorplan } from './floorplan.js?v=f06f5e19';
 import { createHistory } from './plan-history.mjs?v=b86ccb46';
-import { apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeTakeawayProtokoll, istOffen, karteAdresse, loescheKarte, schluesselAusAdresse, sendeAktion, sendeKarte, sendePlan, sendeReservierung, sendeTakeawayKarte, setzeToken } from './haus-api.js?v=0b5227a8';
+import { apiAdresse, bleibVerbunden, hausToken, holeKarteInfo, holeTakeawayProtokoll, istOffen, karteAdresse, loescheKarte, schluesselAusAdresse, sendeAktion, sendeKarte, sendePlan, sendeReservierung, sendeTakeawayKarte, setzeToken } from './haus-api.js?v=9bbaa1e5';
 
 const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 const store = window.WirtschaftData;
