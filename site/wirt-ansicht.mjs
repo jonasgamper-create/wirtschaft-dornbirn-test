@@ -38,7 +38,8 @@
 // Tischzuweisung in der App - wer reserviert hat und wie viele, das zaehlt).
 // -8: Kasten "Online-Reservierungen" (Tag voll, Zeiten blockieren) unter heute.
 // -9: Kasten "Auslastung" unter haus.
-const SCHLUESSEL = 'wirtschaft-wirt-ansicht-9';
+// -10: Fusszeile und "Tag leeren" als Block vor der Uebersicht.
+const SCHLUESSEL = 'wirtschaft-wirt-ansicht-10';
 
 /** Die drei Reiter, in der Reihenfolge der Leiste unten. */
 export const REITER = [
@@ -82,7 +83,8 @@ export const BLOECKE = [
   { id: 'bestandKasten', titel: 'Tische & Stühle – was das Haus hat', an: true, reiter: 'haus' },
   { id: 'sperreKasten', titel: 'Tische sperren', an: true, reiter: 'haus' },
   { id: 'tischzuweisung', titel: 'Tischzuweisung im Gästeblatt', an: false, reiter: 'haus', ohneBlock: true },
-  { id: 'fertigKasten', titel: 'Wer meldet, dass das Essen fertig ist', an: true, reiter: 'haus' }
+  { id: 'fertigKasten', titel: 'Wer meldet, dass das Essen fertig ist', an: true, reiter: 'haus' },
+  { id: 'abschluss', titel: 'Einrichten-Link und „Tag leeren“', an: true, reiter: 'haus' }
 ];
 
 const reiterVon = id => BLOECKE.find(b => b.id === id)?.reiter || 'haus';
