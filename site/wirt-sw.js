@@ -54,6 +54,10 @@ self.addEventListener('push', ereignis => {
           headers: { 'x-haus-token': daten.token }
         });
         const stand = await antwort.json();
+        // Die Zahl am Symbol gleich mitsetzen - die App selbst ist zu.
+        if (stand?.ok && Number.isFinite(stand.offen) && 'setAppBadge' in self.navigator) {
+          await (stand.offen > 0 ? self.navigator.setAppBadge(stand.offen) : self.navigator.clearAppBadge()).catch(() => {});
+        }
         if (stand?.ok && stand.letzte?.titel) {
           titel = stand.letzte.titel;
           text = stand.letzte.text || text;
