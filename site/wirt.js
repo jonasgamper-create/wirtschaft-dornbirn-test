@@ -508,15 +508,10 @@ async function verdrahteTagwahl() {
       knopf.type = 'button';
       knopf.className = 'tag-chip';
       knopf.dataset.datum = tag.datum;
-      // Zwei Zeilen je Knopf - Wochentag oben, Datum klein darunter - damit
-      // fuenf Tage nebeneinander in EINE Zeile passen (Jonas, 06.09.:
-      // Freitag rutschte am Telefon in die zweite Zeile).
-      const [wochentag, datumKurz] = kurzTag(tag.datum).split(' ');
-      const wt = document.createElement('b');
-      wt.textContent = wochentag;
-      const dk = document.createElement('small');
-      dk.textContent = datumKurz;
-      knopf.append(wt, dk);
+      // Ein Knopf, eine Zeile: "mo 07.09." - fuenf davon nebeneinander,
+      // klein genug fuer 390 px (Jonas, 06.09.: alle Tage in einer Zeile,
+      // nichts gestapelt).
+      knopf.textContent = kurzTag(tag.datum).replace('.', '');
       if (tag.datum === heuteDatum()) knopf.dataset.heute = '';
       if (!istOffenerTag(tag.datum, geschlossene)) knopf.dataset.zu = '';
       knopf.setAttribute('aria-pressed', String(tag.datum === gezeigt));
