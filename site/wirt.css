@@ -568,6 +568,9 @@ body.ohne-schluessel main{padding-bottom:64px}
 /* heute, aber zu (Wochenende, Feiertag): gestrichelt - man darf schauen,
    es passiert dort nur nichts. */
 .tag-chip[data-zu]{border-style:dashed}
+/* Der heutige Tag traegt einen Punkt - er muss nicht vorne stehen (nach
+   15:00 steht morgen vorne), aber man soll ihn finden. */
+.tag-chip[data-heute]::before{content:"";display:inline-block;width:6px;height:6px;margin-right:7px;border-radius:50%;background:currentColor;vertical-align:middle}
 
 /* ---- Wischen zum Abhaken ----------------------------------------------------
    Die Zeile faehrt mit dem Finger nach rechts; links erscheint ein Haken,

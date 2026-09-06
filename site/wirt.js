@@ -15,7 +15,7 @@ import {
   stelleTagWiederHer
 } from './haus-api.js?v=0b5227a8';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
-import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=4e8e69a6';
+import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=a9e772f2';
 import { istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
@@ -28,21 +28,44 @@ const pad = zahl => String(zahl).padStart(2, '0');
 // Vorbestellungen fuer Montag, und so laesst sich die Ansicht pruefen, wenn
 // die Wirtschaft zu hat. Die Uhrzeit bleibt die echte: "ueberfaellig" und
 // "frei gegen" rechnen mit der Wanduhr, nicht mit dem gewaehlten Tag.
+const datumPlus = (datum, tage) => {
+  const d = new Date(`${datum}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + tage);
+  return d.toISOString().slice(0, 10);
+};
 const heuteDatum = () => {
   const d = new Date();
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
-// '' heisst heute. Ein anderer Tag kommt aus der Adresse oder aus der
+// Zugesperrte Tage kennt nur der Dienst; bis er antwortet, gelten Werktage.
+let geschlossene = [];
+
+/**
+ * Der Leittag: der Tag, um den es gerade geht. Bis 15:00 ist das heute
+ * (wenn heute gekocht wird), danach der naechste offene Tag - der Mittag ist
+ * vorbei, und was jetzt hereinkommt, ist fuer morgen (Jonas, 06.09.). Am
+ * Wochenende und an Feiertagen zeigt die App so nie ins Leere.
+ */
+const SPRUNG_UM = '15:00';
+const leitTag = () => {
+  const d = new Date();
+  const heute = heuteDatum();
+  const zeit = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  if (zeit < SPRUNG_UM && istOffenerTag(heute, geschlossene)) return heute;
+  return naechsterOffenerTag(datumPlus(heute, 1), geschlossene);
+};
+
+// '' heisst Leittag. Ein anderer Tag kommt aus der Adresse oder aus der
 // Tagesleiste und steht danach auch in der Adresse - so ueberlebt die Wahl
 // ein Neuladen, und ein Link "zeig mir Montag" laesst sich weitergeben.
 let gewaehlterTag = (() => {
   const wert = new URLSearchParams(window.location.search).get('tag') || '';
-  return /^\d{4}-\d{2}-\d{2}$/.test(wert) && wert !== heuteDatum() ? wert : '';
+  return /^\d{4}-\d{2}-\d{2}$/.test(wert) ? wert : '';
 })();
 const jetzt = () => {
   const d = new Date();
   return {
-    datum: gewaehlterTag || heuteDatum(),
+    datum: gewaehlterTag || leitTag(),
     zeit: `${pad(d.getHours())}:${pad(d.getMinutes())}`
   };
 };
@@ -381,8 +404,10 @@ function sag(wo, text, art = '') {
 // Ansicht nicht ins Leere, sondern einen Tipp weiter den Montag.
 
 function schreibTagZeile() {
-  const gezeigt = gewaehlterTag ? new Date(`${gewaehlterTag}T12:00:00`) : new Date();
-  byId('tagZeile').textContent = `${gewaehlterTag ? 'Mittag am' : 'Heute Mittag ·'} ${gezeigt.toLocaleDateString('de-AT', {
+  const datum = jetzt().datum;
+  const heute = heuteDatum();
+  const wann = datum === heute ? 'Heute Mittag ·' : datum === datumPlus(heute, 1) ? 'Morgen Mittag ·' : 'Mittag am';
+  byId('tagZeile').textContent = `${wann} ${new Date(`${datum}T12:00:00`).toLocaleDateString('de-AT', {
     weekday: 'long', day: 'numeric', month: 'long'
   })}`;
 }
@@ -390,42 +415,57 @@ function schreibTagZeile() {
 async function verdrahteTagwahl() {
   const leiste = byId('tagWahl');
   if (!leiste) return;
-  // Zugesperrte Tage kennt nur der Dienst; ohne Antwort gelten Werktage.
   const antwort = await holeGeschlossen().catch(() => null);
-  const geschlossene = Array.isArray(antwort?.tage) ? antwort.tage : [];
+  geschlossene = Array.isArray(antwort?.tage) ? antwort.tage : [];
 
-  const heute = heuteDatum();
-  const tage = [{ datum: heute, text: 'heute' }];
-  let cursor = heute;
-  while (tage.length < 5) {
-    const naechster = naechsterOffenerTag(datumPlus(cursor, 1), geschlossene);
-    if (!naechster || naechster === cursor) break;
-    tage.push({ datum: naechster, text: kurzTag(naechster) });
-    cursor = naechster;
-  }
-  // Ein Tag aus der Adresse, der nicht in der Leiste steht, bekommt einen
-  // eigenen Knopf - sonst zeigte die Liste einen Tag, den keine Leiste nennt.
-  if (gewaehlterTag && !tage.some(t => t.datum === gewaehlterTag)) {
-    tage.push({ datum: gewaehlterTag, text: kurzTag(gewaehlterTag) });
-  }
+  // Fuenf offene Tage ab dem Leittag - eine Arbeitswoche, Montag bis
+  // Freitag. Bis 15:00 steht der heutige Tag vorne, danach der naechste.
+  const male_leiste = () => {
+    const start = leitTag();
+    const tage = [{ datum: start }];
+    let cursor = start;
+    while (tage.length < 5) {
+      const naechster = naechsterOffenerTag(datumPlus(cursor, 1), geschlossene);
+      if (!naechster || naechster === cursor) break;
+      tage.push({ datum: naechster });
+      cursor = naechster;
+    }
+    // Ein Tag aus der Adresse, der nicht in der Leiste steht, bekommt einen
+    // eigenen Knopf - sonst zeigte die Liste einen Tag, den keine Leiste nennt.
+    if (gewaehlterTag && !tage.some(t => t.datum === gewaehlterTag)) tage.push({ datum: gewaehlterTag });
 
-  leiste.textContent = '';
-  for (const tag of tage) {
-    const knopf = document.createElement('button');
-    knopf.type = 'button';
-    knopf.className = 'tag-chip';
-    knopf.dataset.datum = tag.datum;
-    knopf.textContent = tag.text;
-    if (tag.datum === heute && !istOffenerTag(heute, geschlossene)) knopf.dataset.zu = '';
-    knopf.setAttribute('aria-pressed', String(tag.datum === (gewaehlterTag || heute)));
-    leiste.append(knopf);
-  }
+    leiste.textContent = '';
+    const gezeigt = jetzt().datum;
+    for (const tag of tage) {
+      const knopf = document.createElement('button');
+      knopf.type = 'button';
+      knopf.className = 'tag-chip';
+      knopf.dataset.datum = tag.datum;
+      knopf.textContent = kurzTag(tag.datum);
+      if (tag.datum === heuteDatum()) knopf.dataset.heute = '';
+      if (!istOffenerTag(tag.datum, geschlossene)) knopf.dataset.zu = '';
+      knopf.setAttribute('aria-pressed', String(tag.datum === gezeigt));
+      leiste.append(knopf);
+    }
+  };
+  male_leiste();
+  schreibTagZeile();
+  male();
+  // Um 15:00 springt die Leiste von selbst auf den naechsten Tag - auch
+  // wenn die App seit dem Morgen offen ist.
+  let letzterLeittag = leitTag();
+  setInterval(() => {
+    if (leitTag() === letzterLeittag) return;
+    letzterLeittag = leitTag();
+    if (!gewaehlterTag) { male_leiste(); schreibTagZeile(); male(); }
+  }, 60 * 1000);
+
   leiste.addEventListener('click', ereignis => {
     const knopf = ereignis.target.closest('.tag-chip');
     if (!knopf) return;
-    gewaehlterTag = knopf.dataset.datum === heute ? '' : knopf.dataset.datum;
+    gewaehlterTag = knopf.dataset.datum === leitTag() ? '' : knopf.dataset.datum;
     for (const k of leiste.querySelectorAll('.tag-chip')) {
-      k.setAttribute('aria-pressed', String(k.dataset.datum === (gewaehlterTag || heute)));
+      k.setAttribute('aria-pressed', String(k.dataset.datum === jetzt().datum));
     }
     const adresse = new URL(window.location.href);
     if (gewaehlterTag) adresse.searchParams.set('tag', gewaehlterTag);
@@ -436,11 +476,6 @@ async function verdrahteTagwahl() {
   });
 }
 
-const datumPlus = (datum, tage) => {
-  const d = new Date(`${datum}T12:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + tage);
-  return d.toISOString().slice(0, 10);
-};
 const kurzTag = datum => new Date(`${datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'short', day: '2-digit', month: '2-digit' })
   .toLowerCase().replace(/\.,/, '');
 
@@ -657,9 +692,9 @@ function male() {
   const erledigte = [];
   for (const party of heute) {
     const zeitVon = party.time;
-    const tische = party.tableIds?.length
-      ? `Tisch ${party.tableIds.map(id => plan.tables.find(t => t.id === id)?.number ?? '?').join(' + ')}`
-      : 'noch ohne Tisch';
+    // Keine Tischnummer in der Liste (Jonas, 06.09.): wer reserviert hat
+    // und wie viele - das zaehlt. Den Tisch hat der Wirt im Kopf; wer ihn
+    // doch eintragen will, findet ihn im Blatt der Reservierung.
     const [stunde, minute] = zeitVon.split(':').map(Number);
     const bis = stunde * 60 + minute + dauer(party);
     const bisText = `${pad(Math.floor(bis / 60) % 24)}:${pad(bis % 60)}`;
@@ -669,25 +704,25 @@ function male() {
       erledigte.push(zeile({
         zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz, gast: party.gast,
         titel: `${party.name} · ${personen}`,
-        info: `fertig um ${party.left} · ${tische}`,
+        info: `fertig um ${party.left}`,
         knopfText: 'Zurück', aktion: 'zurueck', erledigt: true, leiseKnopf: true
       }));
     } else if (party.arrived) {
       eintraege.push(zeile({
         zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz, gast: party.gast,
         titel: `${party.name} · ${personen}`,
-        info: `im Haus seit ${party.arrived} · ${tische} · frei gegen ${bisText}`,
+        info: `im Haus seit ${party.arrived} · bis gegen ${bisText}`,
         knopfText: 'Fertig', aktion: 'abgang', ton: 'da'
       }));
     } else {
       // Ueberfaellig gibt es nur am heutigen Tag: eine Reservierung fuer
       // Montag ist am Freitagabend nicht "ueberfaellig", nur weil die
       // Wanduhr schon nach zwoelf steht.
-      const ueberfaellig = !gewaehlterTag && zeitVon < nu.zeit && !party.arrived;
+      const ueberfaellig = nu.datum === heuteDatum() && zeitVon < nu.zeit && !party.arrived;
       eintraege.push(zeile({
         zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz, gast: party.gast,
         titel: `${party.name} · ${personen}`,
-        info: `${ueberfaellig ? 'überfällig' : 'erwartet'} · ${tische}`,
+        info: ueberfaellig ? 'überfällig' : 'erwartet',
         knopfText: 'Da', aktion: 'ankunft', ton: ueberfaellig ? 'spaet' : ''
       }));
     }
