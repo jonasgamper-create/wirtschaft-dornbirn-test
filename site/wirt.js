@@ -16,7 +16,7 @@ import {
   stelleTagWiederHer
 } from './haus-api.js?v=9bbaa1e5';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
-import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=9afbccd3';
+import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=b837fa49';
 import { istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
@@ -127,6 +127,7 @@ async function start() {
   verdrahteBestand();
   verdrahtePush();
   verdrahteAnnahme();
+  verdrahteUnterreiter();
 }
 
 // ---- Online-Reservierungen: Tag voll, Zeiten blockieren --------------------
@@ -608,6 +609,85 @@ function verdrahteWischen(liste) {
   }, true);
 }
 
+// ---- Unterreiter: links Reservierungen, rechts Takeaway --------------------
+//
+// Beides bleibt in EINER Liste im DOM; der Unterreiter blendet nur aus. So
+// bleibt die Sortierung nach Zeit, und die Zahl am Reiter unten zaehlt
+// weiter alles. Die Wahl haelt, bis man wechselt - beim Aufsperren links.
+
+let unterreiter = 'reservierung';
+
+function zeichneUnterreiter(eintraege, erledigte, nu) {
+  const zaehl = art => eintraege.filter(li => li.dataset.art === art).length;
+  const setz = (id, n) => { const el = byId(id); if (!el) return; el.textContent = n ? String(n) : ''; el.hidden = !n; };
+  setz('zahlReservierungen', zaehl('reservierung'));
+  setz('zahlTakeaway', zaehl('takeaway'));
+  for (const knopf of document.querySelectorAll('.unter-knopf')) {
+    knopf.setAttribute('aria-selected', String(knopf.dataset.art === unterreiter));
+  }
+  for (const li of document.querySelectorAll('#heuteListe li, #archivListe li')) {
+    if (li.classList.contains('leer')) { li.remove(); continue; }
+    li.hidden = li.dataset.art !== unterreiter;
+  }
+  const sichtbar = eintraege.filter(li => li.dataset.art === unterreiter).length;
+  if (!sichtbar) {
+    const leer = document.createElement('li');
+    leer.className = 'leer';
+    // "Heute" nur, wenn die Liste wirklich heute zeigt - am Sonntagabend
+    // steht Montag vorne, und da ist "heute" schlicht falsch.
+    const wann = nu.datum === heuteDatum() ? 'Heute' : 'An diesem Tag';
+    const was = unterreiter === 'takeaway' ? 'Bestellungen' : 'Reservierungen';
+    const erledigt = erledigte.filter(li => li.dataset.art === unterreiter).length;
+    leer.textContent = erledigt
+      ? 'Alles erledigt – der Rest liegt unten im Archiv des Tages.'
+      : `${wann} keine ${was}. Neue erscheinen hier von selbst.`;
+    byId('heuteListe').append(leer);
+  }
+  const archiv = byId('archiv');
+  if (archiv) archiv.hidden = !erledigte.some(li => li.dataset.art === unterreiter);
+}
+
+function verdrahteUnterreiter() {
+  const leiste = byId('unterReiter');
+  if (!leiste) return;
+  leiste.addEventListener('click', ereignis => {
+    const knopf = ereignis.target.closest('.unter-knopf');
+    if (!knopf || knopf.dataset.art === unterreiter) return;
+    unterreiter = knopf.dataset.art;
+    male();
+  });
+}
+
+// ---- Auslastung: Plaetze gegen Reservierungen ------------------------------
+//
+// Keine Tischzuweisung, nur die Summe: wie viele Plaetze hat das Haus laut
+// Standardplan, wie viele Personen haben fuer den gewaehlten Tag
+// reserviert. Das ist die Grundlage fuer "Tag voll melden" - eine Zahl,
+// kein Grundriss.
+
+function zeichneAuslastung(plan, heute, nu) {
+  const text = byId('auslastungText');
+  if (!text) return;
+  const gesperrt = new Set(stand.blockedTables || []);
+  const tische = (plan?.tables || []).filter(t => !gesperrt.has(t.id));
+  const plaetze = tische.reduce((summe, t) => summe + (Number(t.seats) || 0), 0);
+  const personen = heute
+    .filter(party => party.status !== 'storniert' && !party.left)
+    .reduce((summe, party) => summe + (Number(party.guests) || 0), 0);
+  const anteil = plaetze ? Math.min(100, Math.round(personen / plaetze * 100)) : 0;
+  byId('auslastungTag').textContent = `${nu.datum === heuteDatum() ? 'Heute' : new Date(`${nu.datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'long', day: 'numeric', month: 'long' })} · Reservierungen gegen die Plätze im Haus`;
+  text.textContent = `${personen} ${personen === 1 ? 'Person' : 'Personen'} reserviert · ${plaetze} Plätze · ${anteil} %`;
+  const balken = byId('auslastungBalken');
+  if (balken) { balken.style.width = `${anteil}%`; balken.dataset.stufe = anteil >= 90 ? 'voll' : anteil >= 70 ? 'eng' : ''; }
+  // Die Tische nach Groesse: "2× 8er, 6× 4er" - Standard, nichts zugewiesen.
+  const nachGroesse = new Map();
+  for (const t of tische) { const n = Number(t.seats) || 0; nachGroesse.set(n, (nachGroesse.get(n) || 0) + 1); }
+  const teile = [...nachGroesse.entries()].sort((a, b) => b[0] - a[0]).map(([seats, n]) => `${n}× ${seats}er`);
+  byId('auslastungTische').textContent = tische.length
+    ? `${tische.length} Tische laut Standardplan: ${teile.join(', ')}. Ändern unter „Tische & Stühle“.`
+    : 'Noch keine Tische eingetragen – unter „Tische & Stühle“ anlegen.';
+}
+
 // ---- Der Tag als eine Liste ------------------------------------------------
 
 function verdrahteHeuteListe() {
@@ -636,8 +716,9 @@ function verdrahteHeuteListe() {
  * Eine Zeile der Tagesliste. Links die Zeit, in der Mitte wer und was,
  * rechts genau ein Knopf - der naechste sinnvolle Schritt und sonst nichts.
  */
-function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, leiseKnopf = false, ton = '', notiz = null, partyId = null, gast = null, zweiterKnopf = null }) {
+function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, leiseKnopf = false, ton = '', notiz = null, partyId = null, gast = null, zweiterKnopf = null, art = 'reservierung' }) {
   const li = document.createElement('li');
+  li.dataset.art = art;
   if (erledigt) li.dataset.erledigt = '';
   if (ton) li.dataset.ton = ton;
   // Reservierungszeilen oeffnen das Aktionsblatt; neu Eingegangenes leuchtet,
@@ -801,7 +882,7 @@ function male() {
         zeit: bestellung.abholzeit, id: bestellung.id,
         titel: `Takeaway Nr. ${bestellung.nummer} · ${bestellung.name}`,
         info: `${essen} · ${summe}${bestellung.abgeholtUm ? ` · abgeholt ${bestellung.abgeholtUm}` : ''}`,
-        knopfText: 'Doch nicht', aktion: 'doch-nicht', erledigt: true, leiseKnopf: true
+        knopfText: 'Doch nicht', aktion: 'doch-nicht', erledigt: true, leiseKnopf: true, art: 'takeaway'
       }));
     } else {
       // Der Stand steht immer in der Zeile, egal wer fertigmeldet. Ob das
@@ -818,7 +899,7 @@ function male() {
         // Fertigmelden nur, wenn der Wirt dafuer zustaendig ist - und nur
         // solange es noch nicht gemeldet ist.
         zweiterKnopf: wirtDarfFertig() && !istFertig ? { text: 'Essen fertig', aktion: 'fertig' } : null,
-        knopfText: 'Abgeholt', aktion: 'abgeholt', ton: 'takeaway'
+        knopfText: 'Abgeholt', aktion: 'abgeholt', ton: 'takeaway', art: 'takeaway'
       }));
     }
   }
@@ -829,19 +910,10 @@ function male() {
   const liste = byId('heuteListe');
   liste.textContent = '';
   for (const eintrag of eintraege) liste.append(eintrag);
-  if (!eintraege.length) {
-    const leer = document.createElement('li');
-    leer.className = 'leer';
-    // "Heute" nur, wenn die Liste wirklich heute zeigt - am Sonntagabend
-    // steht Montag vorne, und da ist "heute" schlicht falsch.
-    const wann = nu.datum === heuteDatum() ? 'Heute' : 'An diesem Tag';
-    leer.textContent = erledigte.length
-      ? 'Alles erledigt – der Rest liegt unten im Archiv des Tages.'
-      : `${wann} steht noch nichts an. Reservierungen und Bestellungen erscheinen hier von selbst.`;
-    liste.append(leer);
-  }
 
+  zeichneUnterreiter(eintraege, erledigte, nu);
   zeichneAnnahme();
+  zeichneAuslastung(plan, heute, nu);
   // Wie viel noch offen ist - auch sichtbar, wenn gerade die Karte offen ist.
   setzeHeuteZahl(eintraege.length);
   // Und am App-Symbol auf dem Homescreen: beim Entsperren sieht man die
@@ -852,7 +924,9 @@ function male() {
   }
 
   const archiv = byId('archiv');
-  archiv.hidden = !erledigte.length;
+  // Nur das Archiv des offenen Unterreiters - sonst stuende "Erledigt (2)"
+  // ueber einer Seite, auf der nichts erledigt ist.
+  archiv.hidden = !erledigte.some(li => li.dataset.art === unterreiter);
   byId('archivTitel').textContent = `Erledigt heute (${erledigte.length})`;
   const archivListe = byId('archivListe');
   archivListe.textContent = '';
