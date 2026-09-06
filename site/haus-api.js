@@ -275,6 +275,14 @@ export const setzeSms = (token, an) =>
 export const holeKuechenzettel = (token, datum) =>
   ruf(`/api/kuechenzettel?datum=${encodeURIComponent(datum)}`, { token });
 
+/** Tag voll melden (oder wieder oeffnen) und Zeiten blockieren - online. */
+export const setzeAnnahme = (token, { datum, voll }) =>
+  ruf('/api/reservierung/annahme', { methode: 'POST', koerper: { datum, voll }, token });
+export const legeZeitsperre = (token, sperre) =>
+  ruf('/api/reservierung/zeitsperre', { methode: 'POST', koerper: sperre, token });
+export const loescheZeitsperre = (token, sperre) =>
+  ruf('/api/reservierung/zeitsperre', { methode: 'DELETE', koerper: sperre, token });
+
 /** Telefonische Reservierung aus der Wirt-Ansicht: vier Angaben genuegen. */
 export const legeEinfach = (token, reservierung) =>
   ruf('/api/reservierung/einfach', { methode: 'POST', koerper: reservierung, token });

@@ -36,7 +36,8 @@
 // -6: der Kasten "Klingeln" kommt dazu und steht unter "haus" ganz oben.
 // -7: Tischzuweisung im Blatt standardmaessig aus (Jonas, 06.09.: keine
 // Tischzuweisung in der App - wer reserviert hat und wie viele, das zaehlt).
-const SCHLUESSEL = 'wirtschaft-wirt-ansicht-7';
+// -8: Kasten "Online-Reservierungen" (Tag voll, Zeiten blockieren) unter heute.
+const SCHLUESSEL = 'wirtschaft-wirt-ansicht-8';
 
 /** Die drei Reiter, in der Reihenfolge der Leiste unten. */
 export const REITER = [
@@ -59,6 +60,7 @@ export const BLOECKE = [
   // heute - der Reiter, der beim Aufsperren offen ist. Nur EINE Liste:
   // Takeaway und Reservierungen, je Zeile ein Knopf zum Abhaken.
   { id: 'heute', titel: 'Bestellungen & Reservierungen des Tages', an: true, reiter: 'heute' },
+  { id: 'annahmeKasten', titel: 'Online-Reservierungen: Tag voll, Zeiten blockieren', an: true, reiter: 'heute' },
 
   // karte - die Woche.
   { id: 'planKasten', titel: 'Menüplan der Woche', an: true, reiter: 'karte' },
