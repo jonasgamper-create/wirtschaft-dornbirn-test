@@ -832,9 +832,12 @@ function male() {
   if (!eintraege.length) {
     const leer = document.createElement('li');
     leer.className = 'leer';
+    // "Heute" nur, wenn die Liste wirklich heute zeigt - am Sonntagabend
+    // steht Montag vorne, und da ist "heute" schlicht falsch.
+    const wann = nu.datum === heuteDatum() ? 'Heute' : 'An diesem Tag';
     leer.textContent = erledigte.length
       ? 'Alles erledigt – der Rest liegt unten im Archiv des Tages.'
-      : 'Heute steht noch nichts an. Reservierungen und Bestellungen erscheinen hier von selbst.';
+      : `${wann} steht noch nichts an. Reservierungen und Bestellungen erscheinen hier von selbst.`;
     liste.append(leer);
   }
 
