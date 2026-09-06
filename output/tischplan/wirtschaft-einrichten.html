@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-sq7Bsb4moK5uLni8JO+4XEXCk4K8wjzJf1+/NmthF5U='; script-src 'sha256-KbW1nAScsdr31WhcuMhE2KernnQv0Ry3hXl795t/zU4='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-aYMoWFmsgWzhD9ci8npLDyfKtImBLk9SAGffUOryVLQ='; script-src 'sha256-KbW1nAScsdr31WhcuMhE2KernnQv0Ry3hXl795t/zU4='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="theme-color" content="#11110f">
   <title>Einrichten · Wirtschaft Dornbirn</title>
   <style>
@@ -572,16 +572,24 @@ body.ohne-schluessel main{padding-bottom:64px}
 
 /* ---- Tagesleiste ------------------------------------------------------------
    heute und die naechsten offenen Tage. Gefuellt ist nur der gewaehlte. */
-.tage{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
-.tag-chip{min-height:40px;padding:0 14px;border:1px solid var(--linie);border-radius:999px;background:#fff;
-  color:var(--muted);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:lowercase}
+/* Fuenf Tage in EINER Zeile: festes Fuenferraster, jeder Knopf zweizeilig
+   (Wochentag, darunter das Datum klein). Kommt ein sechster Tag aus der
+   Adresse dazu, wird das Raster sechsspaltig - nie ein Umbruch. */
+.tage{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:0 0 14px}
+.tage:has(> :nth-child(6)){grid-template-columns:repeat(6,1fr)}
+.tag-chip{display:grid;justify-items:center;align-content:center;gap:1px;min-height:46px;padding:4px 2px;
+  border:1px solid var(--linie);border-radius:12px;background:#fff;
+  color:var(--muted);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:lowercase;line-height:1.1}
+.tag-chip b{font-weight:700}
+.tag-chip small{font-size:10.5px;font-weight:600;letter-spacing:0;opacity:.85}
 .tag-chip[aria-pressed="true"]{border-color:var(--green);background:var(--green);color:#fff}
 /* heute, aber zu (Wochenende, Feiertag): gestrichelt - man darf schauen,
    es passiert dort nur nichts. */
 .tag-chip[data-zu]{border-style:dashed}
 /* Der heutige Tag traegt einen Punkt - er muss nicht vorne stehen (nach
    15:00 steht morgen vorne), aber man soll ihn finden. */
-.tag-chip[data-heute]::before{content:"";display:inline-block;width:6px;height:6px;margin-right:7px;border-radius:50%;background:currentColor;vertical-align:middle}
+.tag-chip[data-heute]{position:relative}
+.tag-chip[data-heute]::before{content:"";position:absolute;top:5px;right:6px;width:5px;height:5px;border-radius:50%;background:currentColor}
 
 /* ---- Wischen zum Abhaken ----------------------------------------------------
    Die Zeile faehrt mit dem Finger nach rechts; links erscheint ein Haken,
