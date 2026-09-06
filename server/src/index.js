@@ -1868,9 +1868,17 @@ export class Haus extends DurableObject {
     return { ok: true, anzahl: liste.length };
   }
 
-  /** Wie viele Geraete klingeln, und was zuletzt gemeldet wurde. */
+  /**
+   * Wie viele Geraete klingeln, was zuletzt gemeldet wurde - und wie viel
+   * am gemeldeten Tag offen ist. Die Zahl setzt der Service Worker ans
+   * App-Symbol, waehrend die App selbst zu ist.
+   */
   async pushHausStand() {
-    return { ok: true, anzahl: this.#lies('pushHaus', []).length, letzte: this.#lies('pushHausLetzte', null) };
+    const letzte = this.#lies('pushHausLetzte', null);
+    const datum = letzte?.datum || jetztImHaus().datum;
+    const parties = this.#alle().filter(p => p.date === datum && p.status !== 'storniert' && !p.left);
+    const bestellungen = this.#takeawayAlle().filter(b => b.date === datum && b.status === 'offen');
+    return { ok: true, anzahl: this.#lies('pushHaus', []).length, letzte, offen: parties.length + bestellungen.length };
   }
 
   /**

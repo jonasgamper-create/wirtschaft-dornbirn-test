@@ -138,7 +138,7 @@ async function start() {
 // dort keinen Knopf, sondern den Hinweis - ein Knopf, der nichts tut, waere
 // schlimmer als keiner.
 
-const SW_DATEI = 'wirt-sw.js?v=6d41bb4b';
+const SW_DATEI = 'wirt-sw.js?v=96460eb3';
 
 const schluesselAlsBytes = text => {
   const roh = atob(text.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(text.length / 4) * 4, '='));
@@ -774,6 +774,12 @@ function male() {
 
   // Wie viel noch offen ist - auch sichtbar, wenn gerade die Karte offen ist.
   setzeHeuteZahl(eintraege.length);
+  // Und am App-Symbol auf dem Homescreen: beim Entsperren sieht man die
+  // Zahl, ohne die App aufzumachen. Nur die installierte App darf das;
+  // im Browser-Tab tut der Aufruf still nichts.
+  if ('setAppBadge' in navigator) {
+    (eintraege.length ? navigator.setAppBadge(eintraege.length) : navigator.clearAppBadge()).catch(() => {});
+  }
 
   const archiv = byId('archiv');
   archiv.hidden = !erledigte.length;
