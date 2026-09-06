@@ -34,7 +34,9 @@
 // Zahlen und Laufkundschaft sind dort nicht interessant - sie liegen jetzt
 // unter "haus" und sind aus, bis jemand sie per Haken holt.
 // -6: der Kasten "Klingeln" kommt dazu und steht unter "haus" ganz oben.
-const SCHLUESSEL = 'wirtschaft-wirt-ansicht-6';
+// -7: Tischzuweisung im Blatt standardmaessig aus (Jonas, 06.09.: keine
+// Tischzuweisung in der App - wer reserviert hat und wie viele, das zaehlt).
+const SCHLUESSEL = 'wirtschaft-wirt-ansicht-7';
 
 /** Die drei Reiter, in der Reihenfolge der Leiste unten. */
 export const REITER = [
@@ -75,7 +77,7 @@ export const BLOECKE = [
   { id: 'zuKasten', titel: 'Zusperren – wenn ein Mittag ausfällt', an: true, reiter: 'haus' },
   { id: 'bestandKasten', titel: 'Tische & Stühle – was das Haus hat', an: true, reiter: 'haus' },
   { id: 'sperreKasten', titel: 'Tische sperren', an: true, reiter: 'haus' },
-  { id: 'tischzuweisung', titel: 'Tischzuweisung im Gästeblatt', an: true, reiter: 'haus', ohneBlock: true },
+  { id: 'tischzuweisung', titel: 'Tischzuweisung im Gästeblatt', an: false, reiter: 'haus', ohneBlock: true },
   { id: 'fertigKasten', titel: 'Wer meldet, dass das Essen fertig ist', an: true, reiter: 'haus' }
 ];
 

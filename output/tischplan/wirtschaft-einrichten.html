@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-qlafvenLtYoWjUfx81WdNjoCJzYb1Gr/PV35wfYKKmU='; script-src 'sha256-tL9Q3hpnZgH+TDDptsMWe1aDbZNw9h114AvWlZR07ns='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-x8vm5+ZUaRq8jBNyCOzyRueDI+25EUiAVCKp7FLoVbo='; script-src 'sha256-tL9Q3hpnZgH+TDDptsMWe1aDbZNw9h114AvWlZR07ns='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="theme-color" content="#11110f">
   <title>Einrichten · Wirtschaft Dornbirn</title>
   <style>
@@ -579,6 +579,9 @@ body.ohne-schluessel main{padding-bottom:64px}
 /* heute, aber zu (Wochenende, Feiertag): gestrichelt - man darf schauen,
    es passiert dort nur nichts. */
 .tag-chip[data-zu]{border-style:dashed}
+/* Der heutige Tag traegt einen Punkt - er muss nicht vorne stehen (nach
+   15:00 steht morgen vorne), aber man soll ihn finden. */
+.tag-chip[data-heute]::before{content:"";display:inline-block;width:6px;height:6px;margin-right:7px;border-radius:50%;background:currentColor;vertical-align:middle}
 
 /* ---- Wischen zum Abhaken ----------------------------------------------------
    Die Zeile faehrt mit dem Finger nach rechts; links erscheint ein Haken,
