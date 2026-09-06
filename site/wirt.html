@@ -16,8 +16,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Wirt">
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
-  <link rel="stylesheet" href="wirt.css?v=aa1d7b5c">
-  <script type="module" src="wirt.js?v=d4aaddc8"></script>
+  <link rel="stylesheet" href="wirt.css?v=49c3cffc">
+  <script type="module" src="wirt.js?v=1aa3df0c"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -66,6 +66,12 @@
       <div class="zeile-kopf">
         <h2 id="heuteTitel">Bestellungen &amp; Reservierungen</h2>
         <button class="knopf leise" type="button" id="neuZeigen">+ Reservierung</button>
+      </div>
+      <!-- Zwei Unterreiter (Jonas, 06.09.): links die Reservierungen, rechts
+           das Takeaway. Die Zahl je Seite sagt, wie viel dort offen ist. -->
+      <div class="unterreiter" id="unterReiter" role="tablist" aria-label="Reservierungen oder Takeaway">
+        <button class="unter-knopf" type="button" role="tab" data-art="reservierung" aria-selected="true">reservierungen <b id="zahlReservierungen" hidden></b></button>
+        <button class="unter-knopf" type="button" role="tab" data-art="takeaway" aria-selected="false">takeaway <b id="zahlTakeaway" hidden></b></button>
       </div>
 
       <!-- Telefon klingelt: vier Angaben, Tisch kommt automatisch. -->
@@ -200,6 +206,17 @@
     </details>
 
 
+    <!-- Wie voll es werden kann: Plaetze aus dem Standardplan gegen die
+         Personen, die fuer den gewaehlten Tag reserviert haben. Keine
+         Tischzuweisung - nur die Summe, damit "Tag voll" eine Grundlage hat. -->
+    <section class="auslastung" data-block="auslastungKasten" aria-labelledby="auslastungTitel">
+      <h2 id="auslastungTitel">Auslastung</h2>
+      <p class="hinweis" id="auslastungTag"></p>
+      <div class="auslastung-balken" aria-hidden="true"><i id="auslastungBalken"></i></div>
+      <p class="auslastung-zahl" id="auslastungText">Wird geladen …</p>
+      <p class="klein" id="auslastungTische"></p>
+    </section>
+
     <details class="werkzeug" id="bestandKasten" data-block="bestandKasten">
       <summary>Tische &amp; Stühle – was das Haus hat</summary>
       <p class="hinweis">So einfach wie am Telefon: „Wir haben fünf Zweiertische und acht
@@ -308,8 +325,8 @@
 
     <!-- Die Einstellungen stehen immer zuletzt und lassen sich nicht
          ausblenden - sonst gaebe es keinen Weg zurueck. -->
-    <details class="werkzeug" id="ansichtKasten" data-block="einstellungen">
-      <summary>Einstellungen – welche Abschnitte, in welcher Reihenfolge</summary>
+    <details class="werkzeug uebersicht" id="ansichtKasten" data-block="einstellungen">
+      <summary>Übersicht – was angezeigt wird und was nicht</summary>
       <p class="hinweis">Haken setzen blendet einen Abschnitt ein, die Pfeile verschieben ihn. Gilt für dieses Gerät – am Tresen darf anderes stehen als in der Küche.</p>
       <div id="ansichtForm"></div>
     </details>

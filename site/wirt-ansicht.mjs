@@ -37,7 +37,8 @@
 // -7: Tischzuweisung im Blatt standardmaessig aus (Jonas, 06.09.: keine
 // Tischzuweisung in der App - wer reserviert hat und wie viele, das zaehlt).
 // -8: Kasten "Online-Reservierungen" (Tag voll, Zeiten blockieren) unter heute.
-const SCHLUESSEL = 'wirtschaft-wirt-ansicht-8';
+// -9: Kasten "Auslastung" unter haus.
+const SCHLUESSEL = 'wirtschaft-wirt-ansicht-9';
 
 /** Die drei Reiter, in der Reihenfolge der Leiste unten. */
 export const REITER = [
@@ -77,6 +78,7 @@ export const BLOECKE = [
   { id: 'eventKasten', titel: 'Eigene Termine', an: true, reiter: 'haus' },
   { id: 'oeffnungKasten', titel: 'Öffnungszeiten', an: true, reiter: 'haus' },
   { id: 'zuKasten', titel: 'Zusperren – wenn ein Mittag ausfällt', an: true, reiter: 'haus' },
+  { id: 'auslastungKasten', titel: 'Auslastung – Plätze gegen Reservierungen', an: true, reiter: 'haus' },
   { id: 'bestandKasten', titel: 'Tische & Stühle – was das Haus hat', an: true, reiter: 'haus' },
   { id: 'sperreKasten', titel: 'Tische sperren', an: true, reiter: 'haus' },
   { id: 'tischzuweisung', titel: 'Tischzuweisung im Gästeblatt', an: false, reiter: 'haus', ohneBlock: true },
