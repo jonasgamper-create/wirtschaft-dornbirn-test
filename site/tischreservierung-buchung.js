@@ -541,9 +541,12 @@ async function start() {
         + 'Dein Platz ist fix reserviert. Wir sehen uns – ein Anruf ist nicht mehr nötig.', 'gut');
     }
     if (antwort.automatik === false) {
+      // Seit Modell A (07.09.): ohne Tischautomatik ist die Reservierung
+      // trotzdem fix - das Haus hat die Tische im Kopf. Kein "wir melden
+      // uns": niemand ruft zurueck, und der Gast soll nicht darauf warten.
       zeigeVerfuegbarkeit();
-      return sag(`Danke, ${wer}. Deine Anfrage für ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'} am ${tag} `
-        + `um ${zeit} ist da. Wir teilen den Tisch von Hand ein und melden uns kurz zurück.`, 'gut');
+      return sag(`Passt: ${wer}, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'} am ${tag} um ${zeit}. `
+        + 'Dein Platz ist reserviert. Wir sehen uns – ein Anruf ist nicht nötig.', 'gut');
     }
     // Angenommen, aber kein Tisch: ehrlich sagen, dass sich jemand meldet.
     const alternativen = (antwort.alternativen || []).join(', ');
