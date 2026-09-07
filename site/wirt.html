@@ -16,8 +16,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Wirt">
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
-  <link rel="stylesheet" href="wirt.css?v=04bfcda6">
-  <script type="module" src="wirt.js?v=2d5b8bff"></script>
+  <link rel="stylesheet" href="wirt.css?v=e0ec5aa0">
+  <script type="module" src="wirt.js?v=1024c62c"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -96,8 +96,12 @@
 
       <!-- Erledigtes verstopft die Liste nicht: es liegt eingeklappt im
            Archiv des Tages - anschaubar, rueckholbar, aber aus dem Weg. -->
-      <details class="werkzeug archiv" id="archiv" hidden>
-        <summary id="archivTitel">Erledigt heute</summary>
+      <!-- Der Verlauf: was heute hereinkam und erledigt ist, offen sichtbar
+           unter der Liste (Jonas, 07.09.). Jede Zeile laesst sich mit
+           "wieder offen" zurueckholen - ein Fehltipp auf "abgeholt" ist so
+           in einer Sekunde repariert. -->
+      <details class="werkzeug archiv" id="archiv" open hidden>
+        <summary id="archivTitel">Verlauf</summary>
         <ul class="haus-liste" id="archivListe"></ul>
       </details>
     </section>

@@ -871,7 +871,7 @@ function male() {
         zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz, gast: party.gast,
         titel: `${party.name} · ${personen}`,
         info: `fertig um ${party.left}`,
-        knopfText: 'Zurück', aktion: 'zurueck', erledigt: true, leiseKnopf: true
+        knopfText: 'wieder offen', aktion: 'zurueck', erledigt: true, leiseKnopf: true
       }));
     } else if (party.arrived) {
       eintraege.push(zeile({
@@ -901,7 +901,7 @@ function male() {
         zeit: bestellung.abholzeit, id: bestellung.id,
         titel: `Takeaway Nr. ${bestellung.nummer} · ${bestellung.name}`,
         info: `${essen} · ${summe}${bestellung.abgeholtUm ? ` · abgeholt ${bestellung.abgeholtUm}` : ''}`,
-        knopfText: 'Doch nicht', aktion: 'doch-nicht', erledigt: true, leiseKnopf: true, art: 'takeaway'
+        knopfText: 'wieder offen', aktion: 'doch-nicht', erledigt: true, leiseKnopf: true, art: 'takeaway'
       }));
     } else {
       // Der Stand steht immer in der Zeile, egal wer fertigmeldet. Ob das
@@ -946,7 +946,8 @@ function male() {
   // Nur das Archiv des offenen Unterreiters - sonst stuende "Erledigt (2)"
   // ueber einer Seite, auf der nichts erledigt ist.
   archiv.hidden = !erledigte.some(li => li.dataset.art === unterreiter);
-  byId('archivTitel').textContent = `Erledigt heute (${erledigte.length})`;
+  const imVerlauf = erledigte.filter(li => li.dataset.art === unterreiter).length;
+  byId('archivTitel').textContent = `Verlauf · erledigt (${imVerlauf})`;
   const archivListe = byId('archivListe');
   archivListe.textContent = '';
   for (const eintrag of erledigte) archivListe.append(eintrag);
