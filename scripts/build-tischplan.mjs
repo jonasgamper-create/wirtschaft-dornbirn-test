@@ -99,7 +99,14 @@ async function baue({ quelle, ziel, code, kopfErsatz, stil = styles }) {
   html = html.replace(
     /<meta http-equiv="Content-Security-Policy"[^>]*>/,
     '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; '
-    + `base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; `
+    // worker-src 'self': der Service Worker fuers Klingeln (wirt-sw.js) liegt
+    // neben der Datei. Ohne die Regel fiel er auf script-src zurueck - dort
+    // steht nur der Hash des Inline-Skripts - und Chrome meldete "violates
+    // the Content Security Policy" (07.09., im Chrome von Jonas gesehen).
+    // manifest-src 'self' aus demselben Grund fuer das Homescreen-Manifest,
+    // img-src 'self' fuer das Symbol daraus.
+    + `base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; `
+    + `worker-src 'self'; manifest-src 'self'; `
     + `style-src ${sha(styleBody)}; script-src ${sha(scriptBody)}; connect-src ${dienstQuellen}; form-action 'none'">`
   );
 
