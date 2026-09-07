@@ -100,6 +100,12 @@ const einzel = [
   // Der Service Worker fuer das Klingeln: er muss im selben Pfad liegen wie
   // die Seite, die ihn anmeldet, sonst gilt er nicht fuer sie.
   ['site/wirt-sw.js', 'tischplan/wirt-sw.js'],
+  // Montserrat fuer die Einzeldateien unter /tischplan/ (wirt.css laedt sie
+  // relativ) - sonst zeigt das Telefon dort die Systemschrift.
+  ['site/assets/fonts/montserrat-latin-400-normal.woff2', 'tischplan/assets/fonts/montserrat-latin-400-normal.woff2'],
+  ['site/assets/fonts/montserrat-latin-600-normal.woff2', 'tischplan/assets/fonts/montserrat-latin-600-normal.woff2'],
+  ['site/assets/fonts/montserrat-latin-700-normal.woff2', 'tischplan/assets/fonts/montserrat-latin-700-normal.woff2'],
+  ['site/assets/fonts/montserrat-LICENSE.txt', 'tischplan/assets/fonts/montserrat-LICENSE.txt'],
   ['site/assets/icons/favicon-180.png', 'tischplan/assets/icons/favicon-180.png'],
   ['site/assets/icons/favicon-512.png', 'tischplan/assets/icons/favicon-512.png']
 ];
