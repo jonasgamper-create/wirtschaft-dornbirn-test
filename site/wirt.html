@@ -16,8 +16,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Wirt">
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
-  <link rel="stylesheet" href="wirt.css?v=a92af462">
-  <script type="module" src="wirt.js?v=1b8d3a3d"></script>
+  <link rel="stylesheet" href="wirt.css?v=e75c217d">
+  <script type="module" src="wirt.js?v=2d5b8bff"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -62,11 +62,9 @@
       <div class="kachel"><b id="zahlFrei">–</b><span>Tische frei</span><small id="subFrei"></small></div>
     </section>
 
-    <section class="heute" data-block="heute" aria-labelledby="heuteTitel">
-      <div class="zeile-kopf">
-        <h2 id="heuteTitel">Bestellungen &amp; Reservierungen</h2>
-        <button class="knopf leise" type="button" id="neuZeigen">+ Reservierung</button>
-      </div>
+    <section class="heute" data-block="heute" aria-label="Bestellungen und Reservierungen">
+      <!-- Keine Ueberschrift mehr (Entwurf A, 06.09.): Tagesleiste, dann
+           gleich die Unterreiter. Die Seite erklaert sich ueber ihre Liste. -->
       <!-- Zwei Unterreiter (Jonas, 06.09.): links die Reservierungen, rechts
            das Takeaway. Die Zahl je Seite sagt, wie viel dort offen ist. -->
       <div class="unterreiter" id="unterReiter" role="tablist" aria-label="Reservierungen oder Takeaway">
@@ -91,6 +89,10 @@
       <p class="lauf-ergebnis" id="neuErgebnis" role="status" aria-live="polite"></p>
 
       <ul class="haus-liste" id="heuteListe"></ul>
+      <!-- Der Hinweis zum Wischen: gestrichelt, klein - und weg, sobald
+           auf diesem Geraet einmal gewischt wurde. -->
+      <p class="wisch-hinweis" id="wischHinweis" hidden>Zeile nach rechts wischen = abhaken</p>
+      <p class="neu-zeile"><button class="knopf leise klein" type="button" id="neuZeigen">+ reservierung eintragen</button></p>
 
       <!-- Erledigtes verstopft die Liste nicht: es liegt eingeklappt im
            Archiv des Tages - anschaubar, rueckholbar, aber aus dem Weg. -->
@@ -103,12 +105,12 @@
     <!-- Wenn es voll ist: den Tag online zumachen oder eine Zeit blockieren.
          Gilt nur fuer Online-Reservierungen des gewaehlten Tages - was der
          Wirt selbst eintraegt, geht immer. Kein Zusperren: gekocht wird. -->
-    <section class="annahme" data-block="annahmeKasten" aria-labelledby="annahmeTitel">
+    <details class="werkzeug annahme" data-block="annahmeKasten" id="annahmeKasten">
+      <summary>Online-Reservierungen · <span class="annahme-kurz" id="annahmeKurz">wird geladen …</span></summary>
       <div class="zeile-kopf">
-        <h2 id="annahmeTitel">Online-Reservierungen</h2>
+        <p class="hinweis" id="annahmeStand">Wird geladen …</p>
         <button class="knopf leise" type="button" id="annahmeVoll">Tag voll melden</button>
       </div>
-      <p class="hinweis" id="annahmeStand">Wird geladen …</p>
       <ul class="sperren" id="sperrenListe"></ul>
       <form class="sperre-form" id="sperreForm">
         <label>von<input type="time" id="sperreVon" min="11:00" max="14:00" step="900" required></label>
@@ -116,7 +118,7 @@
         <button class="knopf leise" type="submit">Zeit blockieren</button>
       </form>
       <p class="lauf-ergebnis" id="annahmeInfo" role="status" aria-live="polite"></p>
-    </section>
+    </details>
 
     <section class="laufkunde" data-block="laufkunde" aria-labelledby="laufTitel">
       <h2 id="laufTitel">Gäste stehen da?</h2>

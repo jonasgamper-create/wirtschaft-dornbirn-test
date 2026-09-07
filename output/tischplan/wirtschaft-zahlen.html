@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-VhbPXU4jrxds5Drqq/zVu/NP4wo+5Y0kW8XfMiu7lF4='; script-src 'sha256-WLbXfzp19Xc298Ns37UOzJMFR6PRd1jLqitjdnUU+38='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-Htanjl9sBkQALHNKRk5kuupqnEjaQPilRoDdvaZu9Tg='; script-src 'sha256-WLbXfzp19Xc298Ns37UOzJMFR6PRd1jLqitjdnUU+38='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#11110f">
   <title>Monatszahlen · Wirtschaft Dornbirn</title>
@@ -651,6 +651,18 @@ body.ohne-schluessel main{padding-bottom:64px}
 
 /* Fusszeile und "Tag leeren" als Block: kein eigener Rahmen, nur Abstand. */
 .abschluss-block{padding:8px 0 0;border-top:0}
+
+/* ---- Entwurf A (06.09.): ohne Ueberschrift, Hinweis unter der Liste ------- */
+.wisch-hinweis{margin:10px 0 0;padding:12px 14px;border:1px dashed var(--linie);border-radius:10px;
+  color:var(--muted);font-size:14px}
+.neu-zeile{margin:12px 0 0}
+/* Online-Reservierungen eingeklappt: der Zustand steht in der Zeile. */
+.annahme summary{font-size:17px}
+.annahme-kurz{font-weight:700;color:var(--green)}
+.annahme-kurz[data-zustand="voll"]{color:var(--wine)}
+.annahme-kurz[data-zustand="teils"]{color:#8c6a2f}
+.annahme .zeile-kopf{align-items:start}
+.annahme .zeile-kopf .hinweis{margin:0;flex:1}
 
   </style>
 </head>

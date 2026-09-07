@@ -143,6 +143,12 @@ function zeichneAnnahme() {
   const annahme = stand.annahme || { voll: [], sperren: [] };
   const voll = annahme.voll.includes(datum);
   const tagText = new Date(`${datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'long', day: 'numeric', month: 'long' });
+  const sperrenHeute = annahme.sperren.filter(sp => sp.datum === datum).length;
+  const kurz = byId('annahmeKurz');
+  if (kurz) {
+    kurz.textContent = voll ? 'voll gemeldet' : sperrenHeute ? `${sperrenHeute} ${sperrenHeute === 1 ? 'Zeit' : 'Zeiten'} blockiert` : 'online offen';
+    kurz.dataset.zustand = voll ? 'voll' : sperrenHeute ? 'teils' : 'offen';
+  }
   byId('annahmeVoll').textContent = voll ? 'Wieder annehmen' : 'Tag voll melden';
   byId('annahmeVoll').classList.toggle('rot', voll);
   kasten.textContent = voll
@@ -596,6 +602,10 @@ function verdrahteWischen(liste) {
     if (dx >= WISCH_SCHWELLE) {
       li.dataset.erledigtWisch = '';
       li.querySelector('.knopf:not(.leise)')?.click();
+      // Einmal gewischt - der Hinweis hat seinen Dienst getan.
+      try { localStorage.setItem('wirtschaft-wisch-gelernt', '1'); } catch { /* privater Modus */ }
+      const hinweis = byId('wischHinweis');
+      if (hinweis) hinweis.hidden = true;
     }
     // ERST klicken, DANN den Merker setzen: der Abfaenger unten laeuft in
     // der Capture-Phase und haette sonst auch diesen eigenen Klick
@@ -633,6 +643,12 @@ function zeichneUnterreiter(eintraege, erledigte, nu) {
     li.hidden = li.dataset.art !== unterreiter;
   }
   const sichtbar = eintraege.filter(li => li.dataset.art === unterreiter).length;
+  const hinweis = byId('wischHinweis');
+  if (hinweis) {
+    let gelernt = false;
+    try { gelernt = localStorage.getItem('wirtschaft-wisch-gelernt') === '1'; } catch { /* privater Modus */ }
+    hinweis.hidden = gelernt || sichtbar === 0;
+  }
   if (!sichtbar) {
     const leer = document.createElement('li');
     leer.className = 'leer';
