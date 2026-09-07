@@ -930,7 +930,6 @@ function male() {
   liste.textContent = '';
   for (const eintrag of eintraege) liste.append(eintrag);
 
-  zeichneUnterreiter(eintraege, erledigte, nu);
   zeichneAnnahme();
   zeichneAuslastung(plan, heute, nu);
   // Wie viel noch offen ist - auch sichtbar, wenn gerade die Karte offen ist.
@@ -951,6 +950,10 @@ function male() {
   const archivListe = byId('archivListe');
   archivListe.textContent = '';
   for (const eintrag of erledigte) archivListe.append(eintrag);
+  // ERST wenn beide Listen stehen: der Unterreiter blendet auch im
+  // Verlauf aus. Vorher lief er, bevor der Verlauf befuellt war - dort
+  // stand dann eine Reservierung unter Takeaway.
+  zeichneUnterreiter(eintraege, erledigte, nu);
 }
 
 // ---- Das Aktionsblatt: Zeile antippen, Blatt geht auf ----------------------
