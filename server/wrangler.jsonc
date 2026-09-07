@@ -42,9 +42,12 @@
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Haus"] }],
 
   "vars": {
-    // Brueckenbetrieb: Reservierungen laufen ueber das Altsystem,
-    // bis der Umzug auf die eigene Strecke entschieden ist.
-    "ALT_RESERVIERUNG": "https://tischreservierung.wirtschaft-dornbirn.at",
+    // Seit 07.09.2026 (Jonas): Reservierungen der Testseite laufen ueber den
+    // EIGENEN Dienst und stehen damit in der Wirt-App. Die echte Wirtshaus-
+    // Seite (wirtschaft-dornbirn.at) bucht weiter im Altsystem - sie nutzt
+    // diesen Dienst nicht. Leer heisst: kein Brueckenbetrieb.
+    // Zurueck zur Bruecke: "https://tischreservierung.wirtschaft-dornbirn.at".
+    "ALT_RESERVIERUNG": "",
     "ALT_TAKEAWAY": "https://lieferservice.wirtschaft-dornbirn.at",
     // Nur diese Herkuenfte duerfen den Dienst im Browser ansprechen.
     // Beim eigenen Domainnamen hier ergaenzen.

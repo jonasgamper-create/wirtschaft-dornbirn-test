@@ -1077,6 +1077,13 @@ export class Haus extends DurableObject {
   }
 
   async setzeAnnahme(roh) {
+    // Die Tischautomatik laesst sich hier mit abschalten (Modell A: der
+    // Dienst vergibt keine Tische, die App zeigt nur wer und wie viele).
+    if (typeof roh?.automatik === 'boolean') {
+      this.#schreib('automatik', roh.automatik);
+      this.#meldeAenderung();
+      if (roh?.datum === undefined) return { ok: true, automatik: roh.automatik, annahme: this.#annahme() };
+    }
     const datum = String(roh?.datum || '');
     if (!/^\d{4}-\d{2}-\d{2}$/.test(datum)) return { ok: false, grund: 'datum' };
     const heute = jetztImHaus().datum;
