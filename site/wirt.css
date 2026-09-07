@@ -640,3 +640,15 @@ body.ohne-schluessel main{padding-bottom:64px}
 
 /* Fusszeile und "Tag leeren" als Block: kein eigener Rahmen, nur Abstand. */
 .abschluss-block{padding:8px 0 0;border-top:0}
+
+/* ---- Entwurf A (06.09.): ohne Ueberschrift, Hinweis unter der Liste ------- */
+.wisch-hinweis{margin:10px 0 0;padding:12px 14px;border:1px dashed var(--linie);border-radius:10px;
+  color:var(--muted);font-size:14px}
+.neu-zeile{margin:12px 0 0}
+/* Online-Reservierungen eingeklappt: der Zustand steht in der Zeile. */
+.annahme summary{font-size:17px}
+.annahme-kurz{font-weight:700;color:var(--green)}
+.annahme-kurz[data-zustand="voll"]{color:var(--wine)}
+.annahme-kurz[data-zustand="teils"]{color:#8c6a2f}
+.annahme .zeile-kopf{align-items:start}
+.annahme .zeile-kopf .hinweis{margin:0;flex:1}
