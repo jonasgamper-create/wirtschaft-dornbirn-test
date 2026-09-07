@@ -2964,6 +2964,32 @@ export default {
 
       // Intern: SMS an- oder abschalten. Sie kostet Geld, also gehoert der
       // Schalter dem Wirt und keiner Konfigurationsdatei.
+      // Mail-Pruefung fuers Haus: was sagt Brevo zu den Mails an eine Adresse
+      // (zugestellt, abgewiesen, Spam) und sind die Absender bestaetigt? Nur
+      // mit Hausschluessel; der Brevo-Schluessel bleibt im Dienst.
+      if (url.pathname === '/api/mail/pruefung' && request.method === 'GET') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        if (!env.BREVO_KEY) return json({ ok: false, grund: 'nicht_eingerichtet' }, 200, kopf);
+        const email = String(url.searchParams.get('email') || '').trim().toLowerCase().slice(0, 120);
+        const brevo = async pfad => {
+          const antwort = await fetch(`https://api.brevo.com/v3${pfad}`, { headers: { 'api-key': env.BREVO_KEY, accept: 'application/json' } });
+          return { status: antwort.status, daten: await antwort.json().catch(() => ({})) };
+        };
+        const [ereignisse, absender] = await Promise.all([
+          email ? brevo(`/smtp/statistics/events?email=${encodeURIComponent(email)}&limit=30&sort=desc`) : Promise.resolve(null),
+          brevo('/senders')
+        ]);
+        return json({
+          ok: true,
+          absenderEingetragen: env.BREVO_ABSENDER || '',
+          absender: (absender.daten?.senders || []).map(s => ({ email: s.email, aktiv: s.active === true })),
+          ereignisse: (ereignisse?.daten?.events || []).map(e => ({
+            wann: e.date, was: e.event, betreff: String(e.subject || '').slice(0, 80), von: e.from, grund: String(e.reason || '').slice(0, 160)
+          })),
+          brevoStatus: { ereignisse: ereignisse?.status ?? null, absender: absender.status }
+        }, 200, kopf);
+      }
+
       if (url.pathname === '/api/sms' && request.method === 'POST') {
         if (!darf()) return json({ ok: false }, 401, kopf);
         const body = await request.json().catch(() => ({}));
