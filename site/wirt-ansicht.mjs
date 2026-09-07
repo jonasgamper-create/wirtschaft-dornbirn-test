@@ -39,7 +39,9 @@
 // -8: Kasten "Online-Reservierungen" (Tag voll, Zeiten blockieren) unter heute.
 // -9: Kasten "Auslastung" unter haus.
 // -10: Fusszeile und "Tag leeren" als Block vor der Uebersicht.
-const SCHLUESSEL = 'wirtschaft-wirt-ansicht-10';
+// -11: Tag voll / Zeiten blockieren stehen beim Kontingent unter haus,
+// direkt unter der Auslastung (Jonas, 07.09.).
+const SCHLUESSEL = 'wirtschaft-wirt-ansicht-11';
 
 /** Die drei Reiter, in der Reihenfolge der Leiste unten. */
 export const REITER = [
@@ -62,7 +64,6 @@ export const BLOECKE = [
   // heute - der Reiter, der beim Aufsperren offen ist. Nur EINE Liste:
   // Takeaway und Reservierungen, je Zeile ein Knopf zum Abhaken.
   { id: 'heute', titel: 'Bestellungen & Reservierungen des Tages', an: true, reiter: 'heute' },
-  { id: 'annahmeKasten', titel: 'Online-Reservierungen: Tag voll, Zeiten blockieren', an: true, reiter: 'heute' },
 
   // karte - die Woche.
   { id: 'planKasten', titel: 'Menüplan der Woche', an: true, reiter: 'karte' },
@@ -80,6 +81,7 @@ export const BLOECKE = [
   { id: 'oeffnungKasten', titel: 'Öffnungszeiten', an: true, reiter: 'haus' },
   { id: 'zuKasten', titel: 'Zusperren – wenn ein Mittag ausfällt', an: true, reiter: 'haus' },
   { id: 'auslastungKasten', titel: 'Auslastung – Plätze gegen Reservierungen', an: true, reiter: 'haus' },
+  { id: 'annahmeKasten', titel: 'Online-Reservierungen: Tag voll, Zeiten blockieren', an: true, reiter: 'haus' },
   { id: 'bestandKasten', titel: 'Tische & Stühle – was das Haus hat', an: true, reiter: 'haus' },
   { id: 'sperreKasten', titel: 'Tische sperren', an: true, reiter: 'haus' },
   { id: 'tischzuweisung', titel: 'Tischzuweisung im Gästeblatt', an: false, reiter: 'haus', ohneBlock: true },
