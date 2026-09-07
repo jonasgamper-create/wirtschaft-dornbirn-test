@@ -670,3 +670,10 @@ body.ohne-schluessel main{padding-bottom:64px}
    "TEST Familie Moosbrugger · 4 P." unter die Zeile. */
 .haus-liste li{flex-wrap:nowrap}
 .haus-liste li .wer b{overflow-wrap:anywhere}
+
+/* Der Verlauf unter der Liste: sichtbar, ruhig, mit "wieder offen". */
+.archiv{margin-top:18px}
+.archiv summary{font-size:15px;color:var(--muted)}
+.archiv[open] summary{margin-bottom:8px}
+.haus-liste li[data-erledigt]{opacity:.7}
+.haus-liste li[data-erledigt] .knopf.leise{border-color:var(--green);color:var(--green)}

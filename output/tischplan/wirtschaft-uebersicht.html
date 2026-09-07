@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-R29cnPIR4jVIc0tSaYZbcOKU35z6fNRMDGT/LvIZK6M='; script-src 'sha256-GcriLYuE9v6qotXsu0zDi36550fJTIfJ+TEXO7jtzig='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-mnZH01jikt3tuud38TnuE0lY1oUhpXhOM6D19DsrkxE='; script-src 'sha256-GcriLYuE9v6qotXsu0zDi36550fJTIfJ+TEXO7jtzig='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#11110f">
   <title>Übersicht · Wirtschaft Dornbirn</title>
@@ -681,6 +681,13 @@ body.ohne-schluessel main{padding-bottom:64px}
    "TEST Familie Moosbrugger · 4 P." unter die Zeile. */
 .haus-liste li{flex-wrap:nowrap}
 .haus-liste li .wer b{overflow-wrap:anywhere}
+
+/* Der Verlauf unter der Liste: sichtbar, ruhig, mit "wieder offen". */
+.archiv{margin-top:18px}
+.archiv summary{font-size:15px;color:var(--muted)}
+.archiv[open] summary{margin-bottom:8px}
+.haus-liste li[data-erledigt]{opacity:.7}
+.haus-liste li[data-erledigt] .knopf.leise{border-color:var(--green);color:var(--green)}
 
   </style>
 </head>
