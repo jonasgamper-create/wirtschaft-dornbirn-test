@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-mnZH01jikt3tuud38TnuE0lY1oUhpXhOM6D19DsrkxE='; script-src 'sha256-KbW1nAScsdr31WhcuMhE2KernnQv0Ry3hXl795t/zU4='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; img-src data:; font-src 'self'; style-src 'sha256-9f7EZRWop8lJlkUb4B18Xcglco1+wlY7p+TUdBkOGUc='; script-src 'sha256-KbW1nAScsdr31WhcuMhE2KernnQv0Ry3hXl795t/zU4='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="theme-color" content="#11110f">
   <title>Einrichten · Wirtschaft Dornbirn</title>
   <style>
@@ -688,6 +688,14 @@ body.ohne-schluessel main{padding-bottom:64px}
 .archiv[open] summary{margin-bottom:8px}
 .haus-liste li[data-erledigt]{opacity:.7}
 .haus-liste li[data-erledigt] .knopf.leise{border-color:var(--green);color:var(--green)}
+
+/* Takeaway-Zeilen tragen viel Text (Gerichte, Summe): dort darf der Knopf
+   unter den Text rutschen, sonst wird die Textspalte am Telefon schmal
+   und jede Bestellung sechs Zeilen hoch. Reservierungen bleiben einzeilig. */
+@media(max-width:560px){
+  .haus-liste li[data-art="takeaway"]{flex-wrap:wrap}
+  .haus-liste li[data-art="takeaway"] .wer{flex-basis:calc(100% - 70px)}
+}
 
   </style>
 </head>

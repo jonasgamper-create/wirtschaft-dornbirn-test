@@ -677,3 +677,11 @@ body.ohne-schluessel main{padding-bottom:64px}
 .archiv[open] summary{margin-bottom:8px}
 .haus-liste li[data-erledigt]{opacity:.7}
 .haus-liste li[data-erledigt] .knopf.leise{border-color:var(--green);color:var(--green)}
+
+/* Takeaway-Zeilen tragen viel Text (Gerichte, Summe): dort darf der Knopf
+   unter den Text rutschen, sonst wird die Textspalte am Telefon schmal
+   und jede Bestellung sechs Zeilen hoch. Reservierungen bleiben einzeilig. */
+@media(max-width:560px){
+  .haus-liste li[data-art="takeaway"]{flex-wrap:wrap}
+  .haus-liste li[data-art="takeaway"] .wer{flex-basis:calc(100% - 70px)}
+}
