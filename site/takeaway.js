@@ -1077,7 +1077,9 @@ for (const kennung of ['taForm', 'taKarte', 'taTage']) {
 }
 
 byId('taBestellen')?.addEventListener('click', async () => {
-  const name = byId('taName').value.trim();
+  // Vor- und Nachname sind zwei Pflichtfelder - in der Kueche und in der
+  // Mail gehoert der ganze Name dazu, nicht nur der Nachname.
+  const name = `${(byId('taVorname')?.value || '').trim()} ${byId('taName').value.trim()}`.trim();
   const telefon = byId('taTelefon').value.trim();
   if (!posten().length) return sag('Bitte zuerst ein Gericht wählen.', 'fehler');
   if (name.length < 2) return sag('Bitte den Namen eintragen, auf den die Bestellung laufen soll.', 'fehler');
