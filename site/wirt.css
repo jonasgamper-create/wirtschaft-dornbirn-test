@@ -669,8 +669,14 @@ body.ohne-schluessel main{padding-bottom:64px}
   .tag-spalten[data-zeigt="takeaway"] .tag-spalte[data-art="reservierung"]{display:none}
 }
 @media(min-width:900px){
+  /* Tablet quer: der Tag bekommt die ganze Seite. Bei 680 Pixel Breite
+     standen die beiden Spalten in zwei Dritteln des Bildschirms, daneben
+     lag Papier. Die zweite Stufe (1040) bleibt, sie ordnet die Bloecke. */
+  .wirt-seite main{width:min(1120px,100%)}
   .unterreiter{display:none}
-  .tag-spalten{grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  /* minmax(0,1fr): sonst zieht die laengste Bestellzeile ihre Spalte
+     breiter, und die Reservierungen daneben werden schmal. */
+  .tag-spalten{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
   .spalte-titel{display:block;margin:0 0 10px;color:var(--green);font-size:12.5px;font-weight:700;
     letter-spacing:.16em;text-transform:lowercase}
 }
