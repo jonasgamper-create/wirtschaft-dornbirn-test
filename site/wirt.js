@@ -514,10 +514,19 @@ async function verdrahteTagwahl() {
       knopf.type = 'button';
       knopf.className = 'tag-chip';
       knopf.dataset.datum = tag.datum;
-      // Ein Knopf, eine Zeile: "mo 07.09." - fuenf davon nebeneinander,
-      // klein genug fuer 390 px (Jonas, 06.09.: alle Tage in einer Zeile,
-      // nichts gestapelt).
-      knopf.textContent = kurzTag(tag.datum).replace('.', '');
+      // Ein Knopf, eine Zeile: Wochentag und Datum, "mo 07.09." - fuenf
+      // davon nebeneinander, klein genug fuer 390 px (Jonas, 06.09.: alle
+      // Tage in einer Zeile, nichts gestapelt). Beides sind eigene Elemente:
+      // der Wochentag traegt die Farbe, das Datum steht ruhiger daneben.
+      // Zusammengesetzt statt aus der Landessprache geholt - `toLocaleDate`
+      // liefert je nach Browser "Mo., 07.09." oder "Mo, 07.09.", und das
+      // Wegschneiden der Punkte machte daraus "mo 0709.".
+      const teile = tagesTeile(tag.datum);
+      const wochentag = document.createElement('b');
+      wochentag.textContent = teile.wochentag;
+      const datumsteil = document.createElement('span');
+      datumsteil.textContent = teile.datum;
+      knopf.append(wochentag, datumsteil);
       if (tag.datum === heuteDatum()) knopf.dataset.heute = '';
       if (!istOffenerTag(tag.datum, geschlossene)) knopf.dataset.zu = '';
       knopf.setAttribute('aria-pressed', String(tag.datum === gezeigt));
@@ -552,8 +561,22 @@ async function verdrahteTagwahl() {
   });
 }
 
-const kurzTag = datum => new Date(`${datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'short', day: '2-digit', month: '2-digit' })
-  .toLowerCase().replace(/\.,/, '');
+const WOCHENTAGE_KURZ = ['so', 'mo', 'di', 'mi', 'do', 'fr', 'sa'];
+
+/** Wochentag und Datum eines Tages, getrennt: { wochentag: 'fr', datum: '11.09.' } */
+function tagesTeile(datum) {
+  const tag = new Date(`${datum}T12:00:00`);
+  const zwei = zahl => String(zahl).padStart(2, '0');
+  return {
+    wochentag: WOCHENTAGE_KURZ[tag.getDay()],
+    datum: `${zwei(tag.getDate())}.${zwei(tag.getMonth() + 1)}.`
+  };
+}
+
+const kurzTag = datum => {
+  const teile = tagesTeile(datum);
+  return `${teile.wochentag} ${teile.datum}`;
+};
 
 // ---- Wischen zum Abhaken ----------------------------------------------------
 //

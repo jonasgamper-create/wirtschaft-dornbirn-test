@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; style-src 'sha256-9f7EZRWop8lJlkUb4B18Xcglco1+wlY7p+TUdBkOGUc='; script-src 'sha256-WLbXfzp19Xc298Ns37UOzJMFR6PRd1jLqitjdnUU+38='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; style-src 'sha256-FbhI+7xJjNNtgaAXx3Mg78hnJnt2e7SsalG1JB9CD0Y='; script-src 'sha256-WLbXfzp19Xc298Ns37UOzJMFR6PRd1jLqitjdnUU+38='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#11110f">
   <title>Monatszahlen · Wirtschaft Dornbirn</title>
@@ -296,6 +296,14 @@ h2{font-size:24px;margin-bottom:6px}
  */
 @media(min-width:1040px){
   main{width:min(1120px,100%)}
+
+  /* Die Tagesleiste steht ueber den Bloecken und lief damit ueber die volle
+     Breite: fuenf 220 Pixel breite Baender mit drei Woertern darin. Sie
+     bekommt eine eigene Breite und dafuer groessere Schrift - der gewaehlte
+     Tag bleibt das Erste, was man sieht. */
+  .tage{max-width:800px;gap:10px;margin-bottom:20px}
+  .tage:has(> :nth-child(6)){max-width:940px}
+  .tag-chip{gap:8px;min-height:52px;font-size:15px;letter-spacing:.05em}
 
   /* Das Cockpit ist eine Uebersicht - also darf es auch wie eine aussehen:
      die vier Zahlen ueber die volle Breite, darunter zwei Spalten. */
@@ -589,11 +597,18 @@ body.ohne-schluessel main{padding-bottom:64px}
    aus der Adresse dazu, wird das Raster sechsspaltig - nie ein Umbruch. */
 .tage{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:0 0 14px}
 .tage:has(> :nth-child(6)){grid-template-columns:repeat(6,1fr)}
-.tag-chip{display:flex;align-items:center;justify-content:center;min-height:40px;padding:0 2px;
+.tag-chip{display:flex;align-items:center;justify-content:center;gap:5px;min-height:40px;padding:0 2px;
   border:1px solid var(--linie);border-radius:999px;background:#fff;white-space:nowrap;
   color:var(--muted);font-size:11.5px;font-weight:700;letter-spacing:.02em;text-transform:lowercase;line-height:1}
-@media(min-width:560px){.tag-chip{font-size:13px;letter-spacing:.04em}}
+/* Wochentag und Datum sind zwei Dinge: der Tag traegt die Farbe, das Datum
+   steht ruhiger daneben. Ziffern in gleicher Breite, damit die fuenf Knoepfe
+   nicht bei jedem Datumswechsel zappeln. */
+.tag-chip b{font-weight:700}
+.tag-chip span{font-weight:600;font-variant-numeric:tabular-nums;opacity:.62}
+@media(min-width:560px){.tag-chip{gap:6px;font-size:13px;letter-spacing:.04em}}
 .tag-chip[aria-pressed="true"]{border-color:var(--green);background:var(--green);color:#fff}
+.tag-chip[aria-pressed="true"] span{opacity:.78}
+@media(min-width:760px){.tage{gap:8px}.tag-chip{min-height:46px;font-size:14px}}
 /* heute, aber zu (Wochenende, Feiertag): gestrichelt - man darf schauen,
    es passiert dort nur nichts. */
 .tag-chip[data-zu]{border-style:dashed}
