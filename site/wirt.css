@@ -286,14 +286,6 @@ h2{font-size:24px;margin-bottom:6px}
 @media(min-width:1040px){
   main{width:min(1120px,100%)}
 
-  /* Die Tagesleiste steht ueber den Bloecken und lief damit ueber die volle
-     Breite: fuenf 220 Pixel breite Baender mit drei Woertern darin. Sie
-     bekommt eine eigene Breite und dafuer groessere Schrift - der gewaehlte
-     Tag bleibt das Erste, was man sieht. */
-  .tage{max-width:800px;gap:10px;margin-bottom:20px}
-  .tage:has(> :nth-child(6)){max-width:940px}
-  .tag-chip{gap:8px;min-height:52px;font-size:15px;letter-spacing:.05em}
-
   /* Das Cockpit ist eine Uebersicht - also darf es auch wie eine aussehen:
      die vier Zahlen ueber die volle Breite, darunter zwei Spalten. */
   .uebersicht-seite main{display:grid;grid-template-columns:1.05fr .95fr;column-gap:46px;align-items:start}
@@ -597,7 +589,17 @@ body.ohne-schluessel main{padding-bottom:64px}
 @media(min-width:560px){.tag-chip{gap:6px;font-size:13px;letter-spacing:.04em}}
 .tag-chip[aria-pressed="true"]{border-color:var(--green);background:var(--green);color:#fff}
 .tag-chip[aria-pressed="true"] span{opacity:.78}
+/* Drei Stufen, hier beisammen: am Telefon fuenf schmale Knoepfe in einer
+   Zeile, am Tablet etwas Luft, am Notebook eine eigene Breite statt der
+   vollen Seite - sonst standen dort fuenf 220 Pixel breite Baender mit drei
+   Woertern darin. Die Stufen muessen in dieser Reihenfolge stehen; im
+   grossen Notebook-Block weiter oben wurden sie von hier wieder ueberholt. */
 @media(min-width:760px){.tage{gap:8px}.tag-chip{min-height:46px;font-size:14px}}
+@media(min-width:1040px){
+  .tage{max-width:800px;gap:10px;margin-bottom:20px}
+  .tage:has(> :nth-child(6)){max-width:940px}
+  .tag-chip{gap:8px;min-height:52px;font-size:15px;letter-spacing:.05em}
+}
 /* heute, aber zu (Wochenende, Feiertag): gestrichelt - man darf schauen,
    es passiert dort nur nichts. */
 .tag-chip[data-zu]{border-style:dashed}
