@@ -72,6 +72,7 @@
                  die Karte in denselben zwei Gruppen wie dort. -->
             <p class="wide ta-tage-frage" id="taTageFrage">Für welchen Tag möchtest du bestellen?</p>
             <div class="wide ta-tage" id="taTage" role="group" aria-labelledby="taTageFrage"></div>
+            <small class="wide slot-info ta-tage-info" id="taDatumInfo" role="status" aria-live="polite"></small>
             <div class="wide ta-karte" id="taKarte" aria-label="Gerichte zum Mitnehmen"></div>
             <p class="wide ta-allergene" id="taAllergene" hidden></p>
             <!-- Der Weg zur ganzen Karte: dieselbe Datei, die auch die
@@ -152,22 +153,10 @@
           </form>
 
           <aside class="ta-spalte-rechts" id="taAbschluss" hidden>
-            <div class="ta-zusammenfassung">
-              <!-- Der Abholtag steht bewusst LEER da. Ein vorausgefuelltes Feld
-                   liest sich wie eine Entscheidung, die schon gefallen ist -
-                   dann tippt niemand mehr darauf, und wer fuer uebermorgen
-                   bestellen will, findet den Weg nicht. Leer mit Platzhalter
-                   fragt sichtbar nach. Wer nichts eintraegt, bekommt trotzdem
-                   den Tag, an dem als naechstes gekocht wird; er steht als
-                   Hinweis darunter, damit die Leere nicht raetselhaft ist. -->
-              <p class="ta-feld-titel"><label for="taDatum">Abholtag</label></p>
-              <span class="ta-datum">
-                <input type="date" id="taDatum" name="taDatum" autocomplete="off">
-                <button class="ta-datum-heute" type="button" id="taDatumZurueck" hidden>Auf den nächsten Kochtag zurücksetzen</button>
-              </span>
-              <small class="slot-info" id="taDatumInfo" role="status" aria-live="polite"></small>
-
-            </div>
+            <!-- Den Tag waehlt der Gast oben in der Tagesleiste. Das Datumsfeld
+                 bleibt unsichtbar bestehen: die Leiste schreibt hinein, der Dienst
+                 prueft es, und wer die Seite ohne Skript sieht, verliert nichts. -->
+            <input type="date" id="taDatum" name="taDatum" autocomplete="off" hidden>
 
             <div class="submit-row" id="taSenden" hidden>
               <p id="taSumme"></p>
@@ -242,8 +231,8 @@
              ist er, was er sein soll: der Weg fuer alle, bei denen etwas
              nicht passt. -->
         <p class="ta-anruf-zeile">
-          <a class="button" href="tel:+43557220540">Lieber anrufen: +43 (0)5572 20 540</a>
-          <small>Sonderwunsch, große Bestellung oder etwas unklar? Wir sind mittags am Telefon.</small>
+          <a class="button" href="tel:+43557220540">Gerne auch anrufen: +43 (0)5572 20 540</a>
+          <small>Sonderwunsch, große Bestellung oder etwas unklar? Gerne auch anrufen – wir sind mittags am Telefon.</small>
         </p>
       </div>
     </section>
@@ -268,7 +257,7 @@
     <p class="prototype-note">Öffentliche Testumgebung · Reservierung und Tickets über offizielle Anbieter</p>
   </footer>
 
-  <script type="module" src="takeaway.js?v=1ce477fe"></script>
+  <script type="module" src="takeaway.js?v=bd4f7529"></script>
   <script type="module" src="lieferservice.js?v=23d4684c"></script>
   <script type="module" src="instagram-feed.js?v=0ef6887a"></script>
 </body>
