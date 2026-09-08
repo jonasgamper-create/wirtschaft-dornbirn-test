@@ -93,6 +93,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .slots button{min-height:48px;padding:0 16px;border:1px solid #11110f3d;border-radius:999px;background:#fff;color:var(--ink);font-size:var(--t-body);font-weight:400;letter-spacing:0;text-transform:none;cursor:pointer;font-variant-numeric:tabular-nums}
 .slots button[aria-checked="true"]{border-color:var(--green);background:var(--green);color:#fff}
 .grid label.invalid input,.grid label.invalid .slots button{border-color:var(--wine)}
+/* Fehlt ein Pflichtfeld beim Takeaway, wird es rot. Beim Haekchen faerbt sich
+   der Text mit: ein roter Rahmen um ein kleines Kaestchen sieht sonst
+   niemand. Die Abholzeit hat keine Beschriftung, dort wird die Knopfreihe
+   selbst markiert. */
+.ta-merken.invalid span{color:var(--wine)}
+.ta-merken.invalid input{outline:2px solid var(--wine);outline-offset:2px}
+.slots.invalid button{border-color:var(--wine)}
 /* [hidden] setzt display:none, verliert aber gegen die Klassenregel .button -
    der Anrufknopf blieb neben dem Reservierknopf stehen, obwohl er versteckt
    war. Zwei Wege zum selben Ziel sind einer zu viel. */
