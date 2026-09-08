@@ -61,8 +61,10 @@ const REITER_IDS = new Set(REITER.map(r => r.id));
  * holt sie mit einem Haken zurueck.
  */
 export const BLOECKE = [
-  // heute - der Reiter, der beim Aufsperren offen ist. Nur EINE Liste:
-  // Takeaway und Reservierungen, je Zeile ein Knopf zum Abhaken.
+  // heute - der Reiter, der beim Aufsperren offen ist: Reservierungen und
+  // Takeaway des gewaehlten Tages, je Zeile ein Knopf zum Abhaken. Ganz
+  // unten steht, was diesen Tag online zumacht - Tag voll, Zeiten
+  // blockieren (Jonas, 08.09.: gehoert zum Tag, nicht ins Haus).
   { id: 'heute', titel: 'Bestellungen & Reservierungen des Tages', an: true, reiter: 'heute' },
 
   // karte - die Woche.
@@ -81,7 +83,7 @@ export const BLOECKE = [
   { id: 'oeffnungKasten', titel: 'Öffnungszeiten', an: true, reiter: 'haus' },
   { id: 'zuKasten', titel: 'Zusperren – wenn ein Mittag ausfällt', an: true, reiter: 'haus' },
   { id: 'auslastungKasten', titel: 'Auslastung – Plätze gegen Reservierungen', an: true, reiter: 'haus' },
-  { id: 'annahmeKasten', titel: 'Online-Reservierungen: Tag voll, Zeiten blockieren', an: true, reiter: 'haus' },
+  { id: 'annahmeKasten', titel: 'Online-Reservierungen: Tag voll, Zeiten blockieren', an: true, reiter: 'heute' },
   { id: 'bestandKasten', titel: 'Tische & Stühle – was das Haus hat', an: true, reiter: 'haus' },
   { id: 'sperreKasten', titel: 'Tische sperren', an: true, reiter: 'haus' },
   { id: 'tischzuweisung', titel: 'Tischzuweisung im Gästeblatt', an: false, reiter: 'haus', ohneBlock: true },
