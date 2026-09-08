@@ -666,6 +666,10 @@ function zeichneUnterreiter(eintraege, erledigte, nu) {
   const setz = (id, n) => { const el = byId(id); if (!el) return; el.textContent = n ? String(n) : ''; el.hidden = !n; };
   setz('zahlReservierungen', zaehl(eintraege, 'reservierung'));
   setz('zahlTakeaway', zaehl(eintraege, 'takeaway'));
+  // Nebeneinander gibt es keine Umschaltleiste mehr - dann tragen die
+  // Ueberschriften der Spalten die Zahlen.
+  setz('spalteZahlRes', zaehl(eintraege, 'reservierung'));
+  setz('spalteZahlTa', zaehl(eintraege, 'takeaway'));
   for (const knopf of document.querySelectorAll('.unter-knopf')) {
     knopf.setAttribute('aria-selected', String(knopf.dataset.art === unterreiter));
   }

@@ -16,8 +16,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Wirt">
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
-  <link rel="stylesheet" href="wirt.css?v=3c552f1e">
-  <script type="module" src="wirt.js?v=7b120e2c"></script>
+  <link rel="stylesheet" href="wirt.css?v=6f05f3d2">
+  <script type="module" src="wirt.js?v=cf4f4d74"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -94,11 +94,11 @@
            Umschaltleiste verschwindet - dort ist Platz fuer beides. -->
       <div class="tag-spalten" id="tagSpalten" data-zeigt="reservierung">
         <section class="tag-spalte" data-art="reservierung" aria-label="Reservierungen">
-          <h3 class="spalte-titel">reservierungen</h3>
+          <h3 class="spalte-titel">reservierungen <b id="spalteZahlRes" hidden></b></h3>
           <ul class="haus-liste" id="heuteListe"></ul>
         </section>
         <section class="tag-spalte" data-art="takeaway" aria-label="Takeaway">
-          <h3 class="spalte-titel">takeaway</h3>
+          <h3 class="spalte-titel">takeaway <b id="spalteZahlTa" hidden></b></h3>
           <ul class="haus-liste" id="heuteListeTa"></ul>
         </section>
       </div>
