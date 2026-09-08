@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; style-src 'sha256-4lIO5YVTYZFdQzvoXvXyis4LIXp/1KEFo4C7af2C31s='; script-src 'sha256-KbW1nAScsdr31WhcuMhE2KernnQv0Ry3hXl795t/zU4='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; style-src 'sha256-nT+F5XiPy9axKlqKrEU/qR2NzDP6Xq78iynIsap19iQ='; script-src 'sha256-KbW1nAScsdr31WhcuMhE2KernnQv0Ry3hXl795t/zU4='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="theme-color" content="#11110f">
   <title>Einrichten · Wirtschaft Dornbirn</title>
   <style>
@@ -712,12 +712,11 @@ body.ohne-schluessel main{padding-bottom:64px}
      dazwischen eine Linie. Nur Abstand reichte nicht - zwei Kartenstapel
      ohne Grenze lesen sich als einer, sobald links wenig steht. */
   .tag-spalten{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;align-items:stretch}
-  /* Takeaway steht links: es ist das, was mittags unter Zeitdruck laeuft,
-     und die Leseseite gehoert dem Dringenden (Jonas, 08.09.). Im HTML
-     bleiben die Reservierungen zuerst - dort zaehlt die Reihenfolge fuer
-     Vorlesen und Tastatur. */
-  .tag-spalte[data-art="takeaway"]{order:1;padding:0 26px 0 0}
-  .tag-spalte[data-art="reservierung"]{order:2;padding:0 0 0 26px;border-left:1px solid var(--linie)}
+  /* Reservierungen links, Takeaway rechts - wie im HTML, und so, wie es
+     Jonas am 08.09. nach dem Ansehen wieder wollte. Die Linie liegt beim
+     rechten Kasten, beide ruecken vom Falz weg. */
+  .tag-spalte[data-art="reservierung"]{padding:0 26px 0 0}
+  .tag-spalte[data-art="takeaway"]{padding:0 0 0 26px;border-left:1px solid var(--linie)}
   .spalte-titel{display:flex;align-items:center;gap:8px;margin:0 0 12px;color:var(--green);font-size:12.5px;
     font-weight:700;letter-spacing:.16em;text-transform:lowercase}
   .spalte-titel b{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;
@@ -728,8 +727,8 @@ body.ohne-schluessel main{padding-bottom:64px}
 /* Laptop: mehr Luft zwischen den beiden Haelften des Mittags - dort ist
    Platz dafuer, und die Trennung traegt die ganze Seite. */
 @media(min-width:1040px){
-  .tag-spalte[data-art="takeaway"]{padding-right:40px}
-  .tag-spalte[data-art="reservierung"]{padding-left:40px}
+  .tag-spalte[data-art="reservierung"]{padding-right:40px}
+  .tag-spalte[data-art="takeaway"]{padding-left:40px}
 }
 
 /* ---- Auslastung -------------------------------------------------------------
