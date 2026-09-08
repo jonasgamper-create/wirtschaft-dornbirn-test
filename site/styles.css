@@ -3310,3 +3310,10 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
   .lunch-karte .karte-gruppe{font-size:17px;flex-wrap:wrap;gap:2px 9px}
   .lunch-karte .karte-name,.lunch-karte .karte-preis{font-size:15px}
 }
+
+
+/* Der Reservieren-Knopf bestaetigt selbst: nach der Buchung steht das Danke
+   darauf. Gesperrt, aber nicht blass - es ist eine gute Nachricht, keine
+   ausgegraute Schaltflaeche. */
+.button#bookDirect[data-gebucht]{opacity:1;cursor:default;background:var(--green);border-color:var(--green);color:#fff}
+.button#bookDirect[data-gebucht]:hover{transform:none}

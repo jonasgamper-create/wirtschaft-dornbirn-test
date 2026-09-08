@@ -39,6 +39,32 @@ async function start() {
   }
   weiter.hidden = true;
   knopf.hidden = false;
+
+  // Der Knopf bestaetigt selbst (Jonas, 08.09.): nach einer angenommenen
+  // Reservierung steht "danke fuer die reservierung" darauf. Er bleibt
+  // gesperrt, damit niemand zweimal dasselbe bucht - und wird wieder zum
+  // Reservieren-Knopf, sobald am Formular etwas geaendert wird.
+  const KNOPF_TEXT = knopf.textContent;
+  let gebucht = false;
+  function dankeAmKnopf() {
+    gebucht = true;
+    knopf.textContent = 'Danke für die Reservierung';
+    knopf.dataset.gebucht = '';
+    knopf.disabled = true;
+  }
+  function knopfZurueck() {
+    if (!gebucht) return;
+    gebucht = false;
+    knopf.textContent = KNOPF_TEXT;
+    delete knopf.dataset.gebucht;
+    knopf.disabled = false;
+  }
+  // Jede Aenderung am Formular heisst: eine neue Reservierung ist gemeint.
+  for (const art of ['input', 'change', 'click']) {
+    document.getElementById('bookingForm')?.addEventListener(art, ereignis => {
+      if (ereignis.target !== knopf) knopfZurueck();
+    });
+  }
   // Der Anruf bleibt erreichbar, aber als Hinweis neben dem Knopf - nicht als
   // zweiter, gleich grosser Knopf. Zwei gleichwertige Knoepfe lesen sich wie
   // zwei Empfehlungen, und der Anruf ist hier die Ausweichloesung.
@@ -529,9 +555,11 @@ async function start() {
       return sag(gruende[antwort?.grund] || 'Das hat nicht geklappt. Bitte ruf uns kurz an: +43 (0)5572 20 540.', 'fehler');
     }
     if (antwort.doppelt) {
+      dankeAmKnopf();
       return sag(`Diese Reservierung haben wir schon – auf den Namen ${antwort.reservierung.name} um ${antwort.reservierung.time}. Bis dann!`, 'gut');
     }
     if (antwort.fix || antwort.tisch) {
+      dankeAmKnopf();
       zeigeVerfuegbarkeit();
       zeigeAmpel();
       zeigeBestaetigung({ wer, tag, zeit, gaeste, wohin });
@@ -544,7 +572,12 @@ async function start() {
       // Seit Modell A (07.09.): ohne Tischautomatik ist die Reservierung
       // trotzdem fix - das Haus hat die Tische im Kopf. Kein "wir melden
       // uns": niemand ruft zurueck, und der Gast soll nicht darauf warten.
+      dankeAmKnopf();
       zeigeVerfuegbarkeit();
+      // Denselben Beleg wie mit Tischautomatik: die Reservierung ist fix,
+      // also soll der Gast auch schwarz auf weiss sehen, was gilt. Ohne
+      // diesen Aufruf blieb der Beleg im Modell A ganz aus.
+      zeigeBestaetigung({ wer, tag, zeit, gaeste, wohin });
       return sag(`Passt: ${wer}, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'} am ${tag} um ${zeit}. `
         + 'Dein Platz ist reserviert. Wir sehen uns – ein Anruf ist nicht nötig.', 'gut');
     }
