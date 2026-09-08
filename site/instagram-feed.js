@@ -7,15 +7,13 @@
  * gehoert also in den Dienst des Hauses; dort laeuft es morgens um 6:00.
  *
  * Diese Datei liest in dieser Reihenfolge:
- *   1. der Dienst (/api/instagram) - der frischeste Stand,
- *   2. data/instagram.json - der hinterlegte Stand,
- *   3. was im Markup steht - damit nie eine Luecke klafft.
+ *   1. data/instagram.json - der hinterlegte Stand,
+ *   2. was im Markup steht - damit nie eine Luecke klafft.
  *
  * Der Streifen im Markup bleibt also stehen und wird nur ersetzt, wenn wirklich
  * etwas Neues da ist. Ein leerer Streifen ist schlimmer als ein Beitrag von
  * gestern.
  */
-import { apiAdresse } from './haus-api.js?v=9bbaa1e5';
 
 (() => {
   'use strict';
@@ -76,9 +74,10 @@ import { apiAdresse } from './haus-api.js?v=9bbaa1e5';
   }
 
   (async () => {
-    const basis = await apiAdresse();
-    const vomDienst = basis ? await hole(`${basis}/api/instagram`) : null;
-    if (vomDienst) return zeichne(vomDienst);
+    // Der Dienst hat diesen Weg nicht: /api/instagram gibt es dort nicht, die
+    // Anfrage endete auf jeder Seite mit einem 404 im Netzwerkprotokoll,
+    // bevor der hinterlegte Stand geladen wurde. Gibt es die Schnittstelle
+    // eines Tages, kommt sie hier wieder als erste Stufe davor.
     const ausDatei = await hole('data/instagram.json');
     if (ausDatei) zeichne(ausDatei);
     // Sonst bleibt der Streifen aus dem Markup stehen - unveraendert.
