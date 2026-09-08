@@ -31,6 +31,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .leiste button{background:var(--paper);border-color:var(--paper);color:var(--ink)}
 .leiste-wege{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .leiste p{margin:0;font-size:14.5px;max-width:60ch;line-height:1.4}
+.leiste{flex-wrap:wrap;row-gap:8px}
+.leiste-druckhinweis{flex-basis:100%;color:#cfc7b8;font-size:13px;max-width:none}
+.leiste-druckhinweis[hidden]{display:none}
 .leiste p[data-art="warnung"]{color:#f0b8b9;font-weight:700}
 
 /* Ein A4-Blatt quer, in der Mitte gefaltet: jede Seite besteht aus zwei
@@ -145,6 +148,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       <a href="takeaway.html">Zum Takeaway</a>
       <button type="button" id="drucken">Als PDF speichern / drucken</button>
     </div>
+    <!-- Kopf- und Fusszeile im Ausdruck (Adresse der Seite, Datum,
+         "Seite 1 von 2") kommen vom Browser, nicht von dieser Seite: das
+         Blatt selbst ist randlos gesetzt (@page margin:0). Chrome laesst
+         sie damit weg, Safari fragt danach im Druckfenster. Der Hinweis
+         steht nur beim Haus - Gaeste drucken nicht. -->
+    <p class="leiste-druckhinweis" id="druckHinweis" hidden>Steht im Ausdruck oben oder unten die Adresse der Seite oder „Seite 1 von 2“, kommt das vom Browser: im Druckfenster unter „Weitere Einstellungen“ die Kopf- und Fußzeilen abschalten. Einmal eingestellt, bleibt es so.</p>
   </nav>
 
   <div class="blaetter" id="blaetter">
@@ -185,6 +194,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     </section></div>
   </div>
 
-  <script type="module" src="mittagskarte.js?v=326bc441"></script>
+  <script type="module" src="mittagskarte.js?v=3feed011"></script>
 </body>
 </html>
