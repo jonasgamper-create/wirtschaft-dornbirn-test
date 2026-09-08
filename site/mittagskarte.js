@@ -20,8 +20,27 @@ const imHaus = (() => {
   try { return Boolean(localStorage.getItem('wirtschaft-haus-token')); } catch { return false; }
 })();
 const druckKnopf = byId('drucken');
-if (imHaus) druckKnopf.addEventListener('click', () => window.print());
-else druckKnopf.hidden = true;
+if (imHaus) {
+  druckKnopf.addEventListener('click', () => window.print());
+  const hinweis = byId('druckHinweis');
+  if (hinweis) hinweis.hidden = false;
+} else {
+  druckKnopf.hidden = true;
+}
+
+// Der Browser schreibt seine Kopfzeile aus dem Titel des Fensters. Der
+// Titel nennt sonst Woche und Haus - im Ausdruck steht dann eine Zeile
+// Kleingedrucktes ueber dem Blatt. Waehrend des Druckens heisst die Seite
+// deshalb nur "menükarte"; danach traegt sie ihren Namen wieder, damit
+// Lesezeichen und Tab-Leiste stimmen.
+let titelVorherigen = '';
+addEventListener('beforeprint', () => {
+  titelVorherigen = document.title;
+  document.title = 'menükarte';
+});
+addEventListener('afterprint', () => {
+  if (titelVorherigen) document.title = titelVorherigen;
+});
 
 fetch('data/qr-ziele.json', { cache: 'no-store' })
   .then(antwort => antwort.json())
