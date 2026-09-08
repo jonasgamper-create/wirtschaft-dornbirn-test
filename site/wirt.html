@@ -16,8 +16,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Wirt">
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
-  <link rel="stylesheet" href="wirt.css?v=432dd5fb">
-  <script type="module" src="wirt.js?v=f59ea386"></script>
+  <link rel="stylesheet" href="wirt.css?v=e5cfb09b">
+  <script type="module" src="wirt.js?v=7b120e2c"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -88,7 +88,20 @@
       </form>
       <p class="lauf-ergebnis" id="neuErgebnis" role="status" aria-live="polite"></p>
 
-      <ul class="haus-liste" id="heuteListe"></ul>
+      <!-- Zwei Spalten, eine Quelle: links die Reservierungen, rechts das
+           Takeaway. Am Telefon ist immer nur eine davon zu sehen, umgeschaltet
+           wird oben; ab Tablet quer stehen beide nebeneinander und die
+           Umschaltleiste verschwindet - dort ist Platz fuer beides. -->
+      <div class="tag-spalten" id="tagSpalten" data-zeigt="reservierung">
+        <section class="tag-spalte" data-art="reservierung" aria-label="Reservierungen">
+          <h3 class="spalte-titel">reservierungen</h3>
+          <ul class="haus-liste" id="heuteListe"></ul>
+        </section>
+        <section class="tag-spalte" data-art="takeaway" aria-label="Takeaway">
+          <h3 class="spalte-titel">takeaway</h3>
+          <ul class="haus-liste" id="heuteListeTa"></ul>
+        </section>
+      </div>
       <!-- Der Hinweis zum Wischen: gestrichelt, klein - und weg, sobald
            auf diesem Geraet einmal gewischt wurde. -->
       <p class="wisch-hinweis" id="wischHinweis" hidden>Zeile nach rechts wischen = abhaken</p>
@@ -102,7 +115,16 @@
            in einer Sekunde repariert. -->
       <details class="werkzeug archiv" id="archiv" open hidden>
         <summary id="archivTitel">Verlauf</summary>
-        <ul class="haus-liste" id="archivListe"></ul>
+        <div class="tag-spalten" id="archivSpalten" data-zeigt="reservierung">
+          <section class="tag-spalte" data-art="reservierung" aria-label="Erledigte Reservierungen">
+            <h3 class="spalte-titel">reservierungen</h3>
+            <ul class="haus-liste" id="archivListe"></ul>
+          </section>
+          <section class="tag-spalte" data-art="takeaway" aria-label="Erledigtes Takeaway">
+            <h3 class="spalte-titel">takeaway</h3>
+            <ul class="haus-liste" id="archivListeTa"></ul>
+          </section>
+        </div>
       </details>
     </section>
 

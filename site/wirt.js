@@ -16,7 +16,7 @@ import {
   stelleTagWiederHer
 } from './haus-api.js?v=9bbaa1e5';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
-import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=1ad5ecc9';
+import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=a0244daa';
 import { istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
@@ -653,43 +653,68 @@ function verdrahteWischen(liste) {
 
 let unterreiter = 'reservierung';
 
+/**
+ * Ab Tablet quer stehen beide Listen nebeneinander - dann gibt es nichts
+ * umzuschalten, und die Umschaltleiste ist weg (CSS). Darunter zeigt der
+ * Unterreiter eine Spalte, die andere liegt daneben und ist ausgeblendet.
+ */
+const BREIT = matchMedia('(min-width: 900px)');
+const beideSpalten = () => BREIT.matches;
+
 function zeichneUnterreiter(eintraege, erledigte, nu) {
-  const zaehl = art => eintraege.filter(li => li.dataset.art === art).length;
+  const zaehl = (feld, art) => feld.filter(li => li.dataset.art === art).length;
   const setz = (id, n) => { const el = byId(id); if (!el) return; el.textContent = n ? String(n) : ''; el.hidden = !n; };
-  setz('zahlReservierungen', zaehl('reservierung'));
-  setz('zahlTakeaway', zaehl('takeaway'));
+  setz('zahlReservierungen', zaehl(eintraege, 'reservierung'));
+  setz('zahlTakeaway', zaehl(eintraege, 'takeaway'));
   for (const knopf of document.querySelectorAll('.unter-knopf')) {
     knopf.setAttribute('aria-selected', String(knopf.dataset.art === unterreiter));
   }
-  for (const li of document.querySelectorAll('#heuteListe li, #archivListe li')) {
-    if (li.classList.contains('leer')) { li.remove(); continue; }
-    li.hidden = li.dataset.art !== unterreiter;
+  // Welche Spalte am Telefon vorne liegt. Breit ist beides zu sehen; das
+  // Merkmal bleibt trotzdem gesetzt, damit beim Verkleinern nichts fehlt.
+  for (const spalten of [byId('tagSpalten'), byId('archivSpalten')]) {
+    if (spalten) spalten.dataset.zeigt = unterreiter;
   }
-  const sichtbar = eintraege.filter(li => li.dataset.art === unterreiter).length;
+
+  // Leere Spalte: der Satz gehoert in die Spalte, nicht unter beide.
+  for (const li of document.querySelectorAll('.tag-spalten li.leer')) li.remove();
+  const wann = nu.datum === heuteDatum() ? 'Heute' : 'An diesem Tag';
+  const spalten = [
+    { art: 'reservierung', liste: byId('heuteListe'), was: 'Reservierungen' },
+    { art: 'takeaway', liste: byId('heuteListeTa'), was: 'Bestellungen' }
+  ];
+  for (const { art, liste, was } of spalten) {
+    if (zaehl(eintraege, art)) continue;
+    const leer = document.createElement('li');
+    leer.className = 'leer';
+    leer.dataset.art = art;
+    leer.textContent = zaehl(erledigte, art)
+      ? 'Alles erledigt – der Rest steht unten im Verlauf.'
+      : `${wann} keine ${was}. Neue erscheinen hier von selbst.`;
+    liste.append(leer);
+  }
+
+  const sichtbar = beideSpalten()
+    ? eintraege.length
+    : zaehl(eintraege, unterreiter);
   const hinweis = byId('wischHinweis');
   if (hinweis) {
     let gelernt = false;
     try { gelernt = localStorage.getItem('wirtschaft-wisch-gelernt') === '1'; } catch { /* privater Modus */ }
     hinweis.hidden = gelernt || sichtbar === 0;
   }
-  if (!sichtbar) {
-    const leer = document.createElement('li');
-    leer.className = 'leer';
-    // "Heute" nur, wenn die Liste wirklich heute zeigt - am Sonntagabend
-    // steht Montag vorne, und da ist "heute" schlicht falsch.
-    const wann = nu.datum === heuteDatum() ? 'Heute' : 'An diesem Tag';
-    const was = unterreiter === 'takeaway' ? 'Bestellungen' : 'Reservierungen';
-    const erledigt = erledigte.filter(li => li.dataset.art === unterreiter).length;
-    leer.textContent = erledigt
-      ? 'Alles erledigt – der Rest liegt unten im Archiv des Tages.'
-      : `${wann} keine ${was}. Neue erscheinen hier von selbst.`;
-    byId('heuteListe').append(leer);
-  }
+
   const archiv = byId('archiv');
-  if (archiv) archiv.hidden = !erledigte.some(li => li.dataset.art === unterreiter);
+  if (archiv) {
+    const imVerlauf = beideSpalten() ? erledigte.length : zaehl(erledigte, unterreiter);
+    archiv.hidden = !imVerlauf;
+    byId('archivTitel').textContent = `Verlauf · erledigt (${imVerlauf})`;
+  }
 }
 
 function verdrahteUnterreiter() {
+  // Dreht jemand das Tablet oder zieht das Fenster schmal, wechselt die
+  // Ansicht zwischen "beide nebeneinander" und "eine, umgeschaltet".
+  BREIT.addEventListener('change', () => male());
   const leiste = byId('unterReiter');
   if (!leiste) return;
   leiste.addEventListener('click', ereignis => {
@@ -749,9 +774,11 @@ function verdrahteHeuteListe() {
     if (aktion === 'doch-nicht') await sendeTakeawayAktion(hausToken(), { art: 'offen', id });
     // Die Antwort kommt ueber den Draht zurueck und malt die Liste neu.
   };
-  byId('heuteListe').addEventListener('click', behandle);
-  byId('archivListe').addEventListener('click', behandle);
+  for (const id of ['heuteListe', 'heuteListeTa', 'archivListe', 'archivListeTa']) {
+    byId(id)?.addEventListener('click', behandle);
+  }
   verdrahteWischen(byId('heuteListe'));
+  verdrahteWischen(byId('heuteListeTa'));
 }
 
 /**
@@ -950,8 +977,12 @@ function male() {
   erledigte.sort(nachZeit);
 
   const liste = byId('heuteListe');
+  const listeTa = byId('heuteListeTa');
   liste.textContent = '';
-  for (const eintrag of eintraege) liste.append(eintrag);
+  listeTa.textContent = '';
+  for (const eintrag of eintraege) {
+    (eintrag.dataset.art === 'takeaway' ? listeTa : liste).append(eintrag);
+  }
 
   zeichneAnnahme();
   zeichneAuslastung(plan, heute, nu);
@@ -964,15 +995,13 @@ function male() {
     (eintraege.length ? navigator.setAppBadge(eintraege.length) : navigator.clearAppBadge()).catch(() => {});
   }
 
-  const archiv = byId('archiv');
-  // Nur das Archiv des offenen Unterreiters - sonst stuende "Erledigt (2)"
-  // ueber einer Seite, auf der nichts erledigt ist.
-  archiv.hidden = !erledigte.some(li => li.dataset.art === unterreiter);
-  const imVerlauf = erledigte.filter(li => li.dataset.art === unterreiter).length;
-  byId('archivTitel').textContent = `Verlauf · erledigt (${imVerlauf})`;
   const archivListe = byId('archivListe');
+  const archivListeTa = byId('archivListeTa');
   archivListe.textContent = '';
-  for (const eintrag of erledigte) archivListe.append(eintrag);
+  archivListeTa.textContent = '';
+  for (const eintrag of erledigte) {
+    (eintrag.dataset.art === 'takeaway' ? archivListeTa : archivListe).append(eintrag);
+  }
   // ERST wenn beide Listen stehen: der Unterreiter blendet auch im
   // Verlauf aus. Vorher lief er, bevor der Verlauf befuellt war - dort
   // stand dann eine Reservierung unter Takeaway.
@@ -1006,8 +1035,9 @@ function verdrahteBlatt() {
     fuelleBlatt();
     blatt.showModal();
   };
-  byId('heuteListe').addEventListener('click', oeffne);
-  byId('archivListe').addEventListener('click', oeffne);
+  for (const id of ['heuteListe', 'heuteListeTa', 'archivListe', 'archivListeTa']) {
+    byId(id)?.addEventListener('click', oeffne);
+  }
 
   byId('blattZu').addEventListener('click', () => blatt.close());
   blatt.addEventListener('click', event => { if (event.target === blatt) blatt.close(); });

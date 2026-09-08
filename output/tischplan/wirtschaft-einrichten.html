@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; style-src 'sha256-umQ3d+0Xw2X6JaPVCkUQKcwcc6YhEOu8GmewOtXs3SQ='; script-src 'sha256-KbW1nAScsdr31WhcuMhE2KernnQv0Ry3hXl795t/zU4='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; style-src 'sha256-f7wwC8WiBQBeplTwAQWkydkj6ma5VoICE5To3g0KHvQ='; script-src 'sha256-KbW1nAScsdr31WhcuMhE2KernnQv0Ry3hXl795t/zU4='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="theme-color" content="#11110f">
   <title>Einrichten · Wirtschaft Dornbirn</title>
   <style>
@@ -325,6 +325,10 @@ h2{font-size:24px;margin-bottom:6px}
      Reichweite. */
   .wirt-seite .wirt-bloecke>[data-block="zahlen"],
   .wirt-seite .wirt-bloecke>[data-block="planKasten"],
+  /* Der Tag traegt selbst schon zwei Spalten - in einer halben Rasterspalte
+     waeren daraus vier schmale Streifen geworden. */
+  .wirt-seite .wirt-bloecke>[data-block="heute"],
+  .wirt-seite .wirt-bloecke>[data-block="annahmeKasten"],
   .wirt-seite .wirt-bloecke>[data-block="einstellungen"]{grid-column:1/-1}
   .wirt-seite .plan-gericht{grid-template-columns:minmax(0,2fr) minmax(0,2.3fr) minmax(0,.85fr) minmax(0,.85fr) auto auto;
     align-items:end;column-gap:10px}
@@ -661,6 +665,26 @@ body.ohne-schluessel main{padding-bottom:64px}
   border-radius:999px;background:var(--wine);color:#fff;font-size:11.5px;letter-spacing:0;font-variant-numeric:tabular-nums}
 .unter-knopf[aria-selected="true"] b{background:#fff;color:var(--green)}
 .unter-knopf b[hidden]{display:none}
+
+/* ---- Zwei Spalten: Reservierungen und Takeaway ------------------------------
+   Am Telefon liegt eine Spalte vorne, umgeschaltet wird mit der Leiste
+   darueber - sie klebt beim Blaettern oben fest, damit der Wechsel nicht
+   erst ein Zurueckscrollen braucht. Ab Tablet quer (900 px) stehen beide
+   Spalten nebeneinander; dann gibt es nichts umzuschalten und die Leiste
+   ist weg. Die Ueberschriften ersetzen sie. */
+.tag-spalten{display:grid;gap:0}
+.spalte-titel{display:none}
+@media(max-width:899px){
+  .unterreiter{position:sticky;top:6px;z-index:6;box-shadow:0 2px 10px #11110f14}
+  .tag-spalten[data-zeigt="reservierung"] .tag-spalte[data-art="takeaway"],
+  .tag-spalten[data-zeigt="takeaway"] .tag-spalte[data-art="reservierung"]{display:none}
+}
+@media(min-width:900px){
+  .unterreiter{display:none}
+  .tag-spalten{grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  .spalte-titel{display:block;margin:0 0 10px;color:var(--green);font-size:12.5px;font-weight:700;
+    letter-spacing:.16em;text-transform:lowercase}
+}
 
 /* ---- Auslastung -------------------------------------------------------------
    Ein Balken, eine Zahl. Gruen bis 70, gold bis 90, weinrot darueber. */
