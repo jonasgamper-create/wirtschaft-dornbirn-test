@@ -978,7 +978,10 @@ function male() {
     if (bestellung.status === 'abgeholt') {
       erledigte.push(zeile({
         zeit: bestellung.abholzeit, id: bestellung.id,
-        titel: `Takeaway Nr. ${bestellung.nummer} · ${bestellung.name}`,
+        // Ohne das Wort "Takeaway": es steht ueber der Spalte und in der
+        // Umschaltleiste. In der Zeile kostete es am Telefon eine ganze
+        // Zeile Hoehe.
+        titel: `Nr. ${bestellung.nummer} · ${bestellung.name}`,
         info: `${kurz}${bestellung.abgeholtUm ? ` · abgeholt ${bestellung.abgeholtUm}` : ''}`,
         ausklapp: essen,
         knopfText: 'wieder offen', aktion: 'doch-nicht', erledigt: true, leiseKnopf: true, art: 'takeaway'
@@ -993,7 +996,7 @@ function male() {
         : '○ in der Küche';
       eintraege.push(zeile({
         zeit: bestellung.abholzeit, id: bestellung.id,
-        titel: `Takeaway Nr. ${bestellung.nummer} · ${bestellung.name}`,
+        titel: `Nr. ${bestellung.nummer} · ${bestellung.name}`,
         info: `${lage} · ${kurz}`,
         ausklapp: essen,
         // Fertigmelden nur, wenn der Wirt dafuer zustaendig ist - und nur
