@@ -15,6 +15,16 @@
 :root{
   --ink:#11110f;--paper:#f3efe6;--cream:#ead9bc;--wine:#8c292b;--green:#244635;--gold:#c59b5d;
   --muted:#57524a;--linie:#11110f26;
+  /* Abstufungen der CI, damit sie nicht als lose Hexwerte im Code stehen:
+     leise = zweite Textebene, matt = ausgegraut und Platzhalter,
+     gold-text/-rand/-flaeche = Gold in lesbarer Staerke auf hellem Grund,
+     kreide und gruen-hell = ruhige Flaechen. */
+  /* Beide waren zu blass, um Text zu tragen: 3,5 und 2,8 zu 1 gegen Weiss -
+     die Schwelle fuer lesbaren Text liegt bei 4,5. Jetzt 5,5 und 4,7, und
+     sie bleiben trotzdem die zweite und dritte Ebene hinter --muted. */
+  --leise:#6f695c;--matt:#7a7365;
+  --gold-text:#8c6a2f;--gold-rand:#a67f45;--gold-flaeche:#f6ecd9;
+  --kreide:#e9e6df;--gruen-hell:#dfe8e1;
   font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   color-scheme:light
 }
@@ -27,7 +37,7 @@ button:focus-visible,a:focus-visible,label:focus-within{outline:3px solid var(--
 .kopf{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px max(18px,4vw)}
 .kopf img{width:150px;height:auto}
 .verbindung{display:flex;align-items:center;gap:8px;margin:0;color:var(--muted);font-size:12.5px}
-.verbindung i{width:9px;height:9px;border-radius:50%;background:#a29b90}
+.verbindung i{width:9px;height:9px;border-radius:50%;background:var(--matt)}
 .verbindung[data-zustand="verbunden"] i{background:var(--green)}
 .verbindung[data-zustand="getrennt"] i{background:var(--wine)}
 
@@ -35,6 +45,11 @@ main{width:min(680px,100%);margin:0 auto;padding:0 max(18px,4vw) 64px}
 section{padding:26px 0;border-top:1px solid var(--linie)}
 section:first-child{border-top:0}
 h1,h2{font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-weight:400;margin:0}
+/* Die Gaesteseite setzt ihre Ueberschriften klein und halbfett, enger
+   gesetzt ("was darf's heute sein?"). Die Wirt-Ansicht folgt ihr - eine
+   Handschrift fuer beide Haelften des Hauses. Namen in den Zeilen bleiben
+   unberuehrt: sie sind Daten, keine Gestaltung. */
+h2,.werkzeug>summary{font-weight:600;letter-spacing:-.01em;text-transform:lowercase}
 h2{font-size:24px;margin-bottom:6px}
 .vorzeile{margin:0 0 8px;color:var(--green);font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:lowercase}
 .hinweis{margin:0 0 14px;color:var(--muted);font-size:14.5px}
@@ -48,7 +63,7 @@ h2{font-size:24px;margin-bottom:6px}
 .kachel small{color:var(--muted);font-size:12.5px;min-height:1.2em}
 
 /* Rueckgaengig statt Warndialog: der Balken erscheint nach dem Leeren. */
-.korb{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:12px 14px;border:1px solid #a67f45;border-radius:10px;background:var(--gold);color:var(--ink);font-size:14.5px;font-weight:700}
+.korb{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:12px 14px;border:1px solid var(--gold-rand);border-radius:10px;background:var(--gold);color:var(--ink);font-size:14.5px;font-weight:700}
 .korb[hidden]{display:none}
 
 .zeile-kopf{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
@@ -63,7 +78,7 @@ h2{font-size:24px;margin-bottom:6px}
 
 /* Die Zeitmarke am Zeilenanfang - die Liste liest sich wie der Tag selbst. */
 .haus-liste .zeit{flex:0 0 auto;padding:6px 10px;border:1px solid var(--linie);border-radius:8px;background:var(--paper);font-size:14.5px;font-weight:700;font-variant-numeric:tabular-nums}
-.haus-liste li[data-ton="spaet"]{border-color:#a67f45;background:#f6ecd9}
+.haus-liste li[data-ton="spaet"]{border-color:var(--gold-rand);background:var(--gold-flaeche)}
 .haus-liste li[data-ton="takeaway"]{border-left:3px solid var(--green)}
 .haus-liste li .wer{flex:1 1 auto}
 
@@ -149,7 +164,7 @@ h2{font-size:24px;margin-bottom:6px}
 /* Neu eingegangen: leuchtet gold, bis die Zeile einmal angetippt wurde. */
 .haus-liste li[data-neu]{border-color:var(--gold,#c59b5d);background:#c59b5d22}
 .haus-liste li[data-party]{cursor:pointer}
-.haus-liste .wer .wunsch{color:#8c6a2f;font-size:13px}
+.haus-liste .wer .wunsch{color:var(--gold-text);font-size:13px}
 /* Stammgast: gruen, weil es eine gute Nachricht ist - im Gegensatz zum
    goldenen Wunsch, der eine Aufgabe ist. */
 .haus-liste .wer .stammgast{color:var(--green);font-size:13px;font-weight:700}
@@ -180,7 +195,7 @@ h2{font-size:24px;margin-bottom:6px}
 /* ---- Eigene Termine -------------------------------------------------------- */
 .event-liste{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px}
 .event-liste li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid #11110f1f;border-radius:10px;background:#fff}
-.event-liste li.leer{border-style:dashed;color:#8f887b;grid-template-columns:1fr}
+.event-liste li.leer{border-style:dashed;color:var(--leise);grid-template-columns:1fr}
 .event-wann{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
 .event-was{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .event-form{display:grid;gap:10px}
@@ -198,7 +213,7 @@ h2{font-size:24px;margin-bottom:6px}
 .werkzeug.offen-immer h2{margin:0 0 12px;font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:lowercase}
 .aufgaben-liste{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .aufgaben-liste li{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 14px;border:1px solid #c59b5d66;border-radius:10px;background:#c59b5d14}
-.aufgaben-liste li.leer{border-color:#11110f1f;background:#fff;color:#8f887b;border-style:dashed}
+.aufgaben-liste li.leer{border-color:#11110f1f;background:#fff;color:var(--leise);border-style:dashed}
 .aufgaben-liste a{white-space:nowrap;font-weight:700}
 .werkzeug-links{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:560px){.werkzeug-links{grid-template-columns:1fr}}
@@ -213,13 +228,13 @@ h2{font-size:24px;margin-bottom:6px}
 .sperre span{font-size:11px;color:var(--muted)}
 /* Gesperrt sieht gesperrt aus: durchgestrichen und blass - dieselbe Sprache
    wie die vollen Uhrzeiten auf der Gaesteseite. */
-.sperre.zu{border-style:dashed;background:#11110f08;color:#a29b90;text-decoration:line-through}
-.sperre.zu span{color:#a29b90}
+.sperre.zu{border-style:dashed;background:#11110f08;color:var(--matt);text-decoration:line-through}
+.sperre.zu span{color:var(--matt)}
 
 /* ---- Tische & Stuehle ueber Anzahlen --------------------------------------- */
 .bestand-liste{display:grid;gap:14px;margin:0 0 14px}
 .bestand-etage h4{margin:0 0 8px;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:lowercase;color:var(--muted)}
-.bestand-leer{margin:0;color:#8f887b;font-size:14px}
+.bestand-leer{margin:0;color:var(--leise);font-size:14px}
 .bestand-zeile{display:grid;grid-template-columns:minmax(0,1fr) 52px 56px 52px;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #11110f14}
 .bestand-zeile span{font-size:16px}
 .bestand-zeile b{text-align:center;font-size:22px;font-variant-numeric:tabular-nums}
@@ -243,7 +258,7 @@ h2{font-size:24px;margin-bottom:6px}
 .ordnung b{font-size:16px}
 .ordnung span{color:var(--muted);font-size:13px;white-space:nowrap}
 .ordnung.aktiv{border-color:var(--green);background:var(--green);color:#fff}
-.ordnung.aktiv span{color:#dfe8e1}
+.ordnung.aktiv span{color:var(--gruen-hell)}
 .ordnung-weg{align-self:center}
 .ordnung-neu{display:flex;align-items:end;gap:10px;margin-top:4px}
 .ordnung-neu label{flex:1;display:grid;gap:5px;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:lowercase}
@@ -263,7 +278,7 @@ h2{font-size:24px;margin-bottom:6px}
 .zu-form input{min-height:46px;padding:8px 12px;border:1px solid #11110f3d;border-radius:8px;background:#fff;font-size:16px}
 .zu-liste{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:8px}
 .zu-liste li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border:1px dashed #11110f3d;border-radius:10px;background:#11110f05;color:#57524a}
-.zu-liste li.leer{border-style:solid;border-color:#11110f1f;background:#fff;color:#8f887b}
+.zu-liste li.leer{border-style:solid;border-color:#11110f1f;background:#fff;color:var(--leise)}
 /* Der Absage-Knopf ist ROT: er schickt Mails hinaus, das ist keine
    Umsortierung. Wein ist der Ton des Hauses fuer "Achtung". */
 .knopf.warn{background:var(--wine);border-color:var(--wine);color:#fff}
@@ -375,7 +390,7 @@ h2{font-size:24px;margin-bottom:6px}
 .plan-kopf{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .plan-form label{display:grid;gap:4px;min-width:0;color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:lowercase}
 .plan-form input{min-height:46px;width:100%;padding:8px 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;color:var(--ink);font:inherit;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none}
-.plan-form input::placeholder{color:#a29b90}
+.plan-form input::placeholder{color:var(--matt)}
 .plan-form fieldset{margin:0;padding:12px;border:1px solid var(--linie);border-radius:10px;display:grid;gap:10px;min-width:0}
 .plan-form legend{padding:0 6px;color:var(--green);font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:lowercase}
 .plan-form fieldset .hinweis{margin:0}
@@ -631,7 +646,7 @@ body.ohne-schluessel main{padding-bottom:64px}
 .plan-vorschau{margin:16px 0 0;padding:0}
 .plan-vorschau summary{min-height:44px;display:flex;align-items:center;font-size:15px;font-weight:700;cursor:pointer}
 .plan-vorschau iframe{display:block;width:100%;height:min(70vh,640px);margin-top:8px;border:1px solid var(--linie);
-  border-radius:10px;background:#e9e6df}
+  border-radius:10px;background:var(--kreide)}
 
 /* ---- Online-Reservierungen: Tag voll, Zeiten blockieren -------------------- */
 .sperren{display:grid;gap:6px;margin:0 0 12px;padding:0;list-style:none}
@@ -708,7 +723,7 @@ body.ohne-schluessel main{padding-bottom:64px}
 .annahme summary{font-size:17px}
 .annahme-kurz{font-weight:700;color:var(--green)}
 .annahme-kurz[data-zustand="voll"]{color:var(--wine)}
-.annahme-kurz[data-zustand="teils"]{color:#8c6a2f}
+.annahme-kurz[data-zustand="teils"]{color:var(--gold-text)}
 .annahme .zeile-kopf{align-items:start}
 .annahme .zeile-kopf .hinweis{margin:0;flex:1}
 
