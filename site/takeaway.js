@@ -1071,9 +1071,52 @@ function knopfZurueck() {
 for (const kennung of ['taForm', 'taKarte', 'taTage']) {
   const bereich = byId(kennung);
   if (!bereich) continue;
-  bereich.addEventListener('input', knopfZurueck);
-  bereich.addEventListener('change', knopfZurueck);
+  const wiederFrei = e => {
+    knopfZurueck();
+    const marke = e.target.closest?.('label.invalid') || e.target.closest?.('.invalid');
+    marke?.classList.remove('invalid');
+  };
+  bereich.addEventListener('input', wiederFrei);
+  bereich.addEventListener('change', wiederFrei);
   bereich.addEventListener('click', e => { if (e.target.closest('button, input, select')) knopfZurueck(); });
+}
+
+const MAIL_MUSTER = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/**
+ * Was mit * markiert ist, muss auch wirklich da sein - sonst steht der Stern
+ * als Versprechen da, das niemand einloest, und die Bestellung geht ohne
+ * Telefonnummer oder ohne Zustimmung hinaus. Geprueft wird in der
+ * Reihenfolge des Formulars, damit der Gast oben anfangen kann.
+ */
+function fehlendePflicht() {
+  const fehlt = [];
+  if (!posten().length) fehlt.push({ id: 'taKarte', was: 'mindestens ein Gericht' });
+  const pflicht = [
+    ['taVorname', 'der Vorname'], ['taName', 'der Nachname'],
+    ['taTelefon', 'die Telefonnummer'], ['taMail', 'die E-Mail-Adresse']
+  ];
+  for (const [id, was] of pflicht) if (!byId(id)?.value.trim()) fehlt.push({ id, was });
+  const mail = (byId('taMail')?.value || '').trim();
+  if (mail && !MAIL_MUSTER.test(mail)) fehlt.push({ id: 'taMail', was: 'eine gültige E-Mail-Adresse' });
+  if (!document.querySelector('#taZeiten [aria-checked="true"]')) fehlt.push({ id: 'taZeiten', was: 'eine Abholzeit' });
+  if (!byId('taDatenschutz')?.checked) fehlt.push({ id: 'taDatenschutz', was: 'die Zustimmung zur Datenschutzerklärung' });
+  return fehlt;
+}
+
+/** Rote Rahmen an den Feldern, die fehlen - und nur an denen. */
+function markiereFehlend(fehlt) {
+  for (const feld of document.querySelectorAll('.invalid')) feld.classList.remove('invalid');
+  for (const { id } of fehlt) {
+    const feld = byId(id);
+    // Die Abholzeit steht in keiner Beschriftung, sondern in einer eigenen
+    // Reihe von Knoepfen - dann wird die Reihe selbst markiert.
+    (feld?.closest('label') || feld)?.classList.add('invalid');
+  }
+  const erstes = byId(fehlt[0]?.id);
+  if (!erstes) return;
+  erstes.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  if (erstes.matches('input')) erstes.focus({ preventScroll: true });
 }
 
 byId('taBestellen')?.addEventListener('click', async () => {
@@ -1081,9 +1124,14 @@ byId('taBestellen')?.addEventListener('click', async () => {
   // Mail gehoert der ganze Name dazu, nicht nur der Nachname.
   const name = `${(byId('taVorname')?.value || '').trim()} ${byId('taName').value.trim()}`.trim();
   const telefon = byId('taTelefon').value.trim();
-  if (!posten().length) return sag('Bitte zuerst ein Gericht wählen.', 'fehler');
-  if (name.length < 2) return sag('Bitte den Namen eintragen, auf den die Bestellung laufen soll.', 'fehler');
-  if (!telefon) return sag('Bitte eine Telefonnummer angeben – wir rufen an, falls etwas ausgeht.', 'fehler');
+  const fehlt = fehlendePflicht();
+  if (fehlt.length) {
+    markiereFehlend(fehlt);
+    const liste = fehlt.map(f => f.was);
+    return sag(liste.length === 1
+      ? `Es fehlt noch ${liste[0]}.`
+      : `Es fehlt noch: ${liste.slice(0, -1).join(', ')} und ${liste[liste.length - 1]}.`, 'fehler');
+  }
 
   const knopfSenden = byId('taBestellen');
   knopfSenden.disabled = true;
