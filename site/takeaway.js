@@ -732,9 +732,7 @@ function sagDatum(antwort, fehler = '') {
   const gilt = gueltig ? tagesName(gueltig) : null;
   byId('taDatumInfo').textContent = fehler
     ? `${fehler}${gilt ? ` Es gilt weiter ${gilt}.` : ''}`
-    : (wunschTag
-      ? `Deine Bestellung läuft auf ${gilt || tagesName(wunschTag)}.`
-      : `Ohne Eintrag kochen wir es für ${gilt || 'den nächsten Kochtag'} – tipp hinein, wenn du einen anderen Tag möchtest.`);
+    : `Deine Bestellung läuft auf ${gilt || (wunschTag ? tagesName(wunschTag) : 'den nächsten Kochtag')}.`;
   byId('taDatumInfo').dataset.art = fehler ? 'fehler' : '';
   const zurueck = byId('taDatumZurueck');
   if (zurueck) zurueck.hidden = !wunschTag;
@@ -755,6 +753,7 @@ async function waehleTag(wert) {
   }
   if (gewuenscht && antwort.wunschGrund) {
     byId('taDatum').value = wunschTag;
+    markiereTag(wunschTag || antwort.bestelltag || '');
     sagDatum(antwort, DATUM_GRUENDE[antwort.wunschGrund] || 'An diesem Tag geht es leider nicht.');
     return;
   }
@@ -1045,6 +1044,38 @@ function sag(text, art = 'info') {
   kasten.dataset.art = art;
 }
 
+/**
+ * Der Knopf bestaetigt selbst: nach der Bestellung steht "Danke für die
+ * Bestellung" darauf, und er ist aus - wer noch einmal drueckt, bestellt
+ * nicht doppelt. Sobald der Gast etwas aendert (Gericht, Zeit, Tag, Feld),
+ * wird er wieder zum Bestellknopf.
+ */
+const KNOPF_TEXT = byId('taBestellen')?.textContent || 'Bestellung aufgeben';
+let bestellt = false;
+function dankeAmKnopf() {
+  const knopf = byId('taBestellen');
+  if (!knopf) return;
+  bestellt = true;
+  knopf.textContent = 'Danke für die Bestellung';
+  knopf.dataset.gebucht = '';
+  knopf.disabled = true;
+}
+function knopfZurueck() {
+  if (!bestellt) return;
+  const knopf = byId('taBestellen');
+  bestellt = false;
+  knopf.textContent = KNOPF_TEXT;
+  delete knopf.dataset.gebucht;
+  knopf.disabled = false;
+}
+for (const kennung of ['taForm', 'taKarte', 'taTage']) {
+  const bereich = byId(kennung);
+  if (!bereich) continue;
+  bereich.addEventListener('input', knopfZurueck);
+  bereich.addEventListener('change', knopfZurueck);
+  bereich.addEventListener('click', e => { if (e.target.closest('button, input, select')) knopfZurueck(); });
+}
+
 byId('taBestellen')?.addEventListener('click', async () => {
   const name = byId('taName').value.trim();
   const telefon = byId('taTelefon').value.trim();
@@ -1061,6 +1092,7 @@ byId('taBestellen')?.addEventListener('click', async () => {
   const email = (byId('taMail')?.value || '').trim();
   const antwort = await bestelleTakeaway({ name, telefon, email, posten: posten(), abholung, datum: wunschTag });
   knopfSenden.disabled = false;
+  if (antwort?.ok) dankeAmKnopf();
 
   if (!antwort?.ok) {
     const gruende = {
@@ -1168,6 +1200,7 @@ function zeigeTage() {
 
   const markiere = wert => knoepfe.forEach(k =>
     k.setAttribute('aria-pressed', String(k.dataset.wert === wert)));
+  markiereTag = markiere;
 
   setzeTagAusStreifen = wert => {
     markiere(wert);
@@ -1204,5 +1237,7 @@ function zeigeTage() {
 
 /** Wird von zeigeTage() gesetzt - vorher gibt es keine Tage zu waehlen. */
 let setzeTagAusStreifen = () => {};
+/** Ebenfalls von zeigeTage() gesetzt: die Markierung in der Leiste. */
+let markiereTag = () => {};
 /** Ebenfalls von zeigeTage() gesetzt: Markierung und Sperre nach Dienstlage. */
 let richteStreifenNachDienst = () => {};

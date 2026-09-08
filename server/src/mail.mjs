@@ -368,28 +368,39 @@ export function wochenberichtMail({ von, bis, tage, gaeste, reservierungen, nich
 
 const preis = wert => `€ ${Number(wert).toFixed(2).replace('.', ',')}`;
 const postenZeilen = posten => (posten || []).map(p => `${p.menge}× ${p.name}`);
+/* Mehrere Gerichte, jedes auf seiner Zeile. `zeile` schuetzt den Wert als
+   Text - ein <br> darin kaeme als Buchstaben an, nicht als Umbruch. */
+const essenZeile = essen => `<tr><td style="padding:2px 28px;"><p style="margin:0;font:400 15px/1.7 Helvetica,Arial,sans-serif;color:#11110f;">`
+  + `<span style="color:#6a655c;">Essen:</span> ${essen.map(escapeHtml).join('<br>')}</p></td></tr>`;
+const absatz = text => `<tr><td style="padding:12px 28px 4px;"><p style="margin:0;font:400 15px/1.7 Helvetica,Arial,sans-serif;color:#11110f;">${escapeHtml(text)}</p></td></tr>`;
 
 /** An den Gast: "Wir haben deine Bestellung." */
 export function bestellBestaetigung({ nummer, name, tag, zeit, posten, summe, vorbestellung, statusLink }) {
   const wann = `${langesDatum(tag)}, ca. ${zeit} Uhr`;
   const essen = postenZeilen(posten);
+  const vorname = String(name || '').trim().split(/\s+/)[0] || '';
+  const gruss = vorname ? `Danke für deine Bestellung, ${vorname}!` : 'Danke für deine Bestellung!';
+  const lage = vorbestellung ? 'Wir kochen sie am Abholtag frisch für dich.' : 'Sie ist in der Küche.';
   const html = rahmen('Bestellung angenommen', [
-    kopf(`Nr. ${nummer}`, 'Deine Bestellung ist in der Küche.'),
+    kopf(`Bestellung Nr. ${nummer}`, gruss),
+    absatz(`${lage} Sag am Tresen einfach deine Nummer – bezahlt wird beim Abholen, bar oder mit Karte.`),
+    zeile('Nummer', String(nummer)),
     zeile('Name', name),
     zeile('Abholen', wann),
-    zeile('Essen', essen.join('<br>')),
-    zeile('Summe', `${preis(summe)} – bezahlt wird beim Abholen`),
-    zeile('Wo', 'Bahnhofstraße 24, 6850 Dornbirn'),
+    essenZeile(essen),
+    zeile('Summe', preis(summe)),
+    zeile('Wo', 'wirtschaft, Bahnhofstraße 24, 6850 Dornbirn'),
     statusLink ? knopf(statusLink, 'Wann ist es fertig?', '#244635') : '',
     `<tr><td style="padding:10px 28px 8px;"><p style="margin:0;font:400 12px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">`
-      + `Fragen oder etwas vergessen? +43 5572 20 540.</p></td></tr>`
+      + `Etwas vergessen oder ein Sonderwunsch? Gerne auch anrufen: +43 5572 20 540. Bis gleich – deine wirtschaft.</p></td></tr>`
   ].join(''));
   return {
-    betreff: `Bestellung Nr. ${nummer} – ${vorbestellung ? langesDatum(tag) : 'heute'}, ca. ${zeit} Uhr`,
+    betreff: `Danke für deine Bestellung – Nr. ${nummer}, ${vorbestellung ? langesDatum(tag) : 'heute'} ca. ${zeit} Uhr`,
     html,
-    text: `Deine Bestellung ist in der Küche.\n\nNr. ${nummer}\n${name}\nAbholen: ${wann}\n\n${essen.join('\n')}\n`
-      + `Summe: ${preis(summe)} – bezahlt wird beim Abholen\n\nBahnhofstraße 24, 6850 Dornbirn\n`
-      + `${statusLink ? `Wann ist es fertig: ${statusLink}\n` : ''}Fragen: +43 5572 20 540`
+    text: `${gruss}\n${lage} Sag am Tresen einfach deine Nummer – bezahlt wird beim Abholen, bar oder mit Karte.\n\n`
+      + `Nummer: ${nummer}\nName: ${name}\nAbholen: ${wann}\n\n${essen.join('\n')}\nSumme: ${preis(summe)}\n\n`
+      + `wirtschaft, Bahnhofstraße 24, 6850 Dornbirn\n`
+      + `${statusLink ? `Wann ist es fertig: ${statusLink}\n` : ''}Etwas vergessen oder ein Sonderwunsch? Gerne auch anrufen: +43 5572 20 540.\nBis gleich – deine wirtschaft.`
   };
 }
 
@@ -398,7 +409,7 @@ export function neueBestellungMail({ nummer, name, telefon, tag, zeit, posten, s
   const essen = postenZeilen(posten);
   const html = rahmen('Neue Takeaway-Bestellung', [
     kopf(`Nr. ${nummer}`, `${name} · ${vorbestellung ? langesDatum(tag) : 'heute'}, ${zeit} Uhr${eng ? ' · Slot eng' : ''}`),
-    zeile('Essen', essen.join('<br>')),
+    essenZeile(essen),
     zeile('Summe', preis(summe)),
     zeile('Telefon', telefon),
     wirtLink ? knopf(wirtLink, 'Zur Wirt-Ansicht', '#244635') : ''
