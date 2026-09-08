@@ -11,7 +11,17 @@
 import { ladePlan, legende, wochenText, zeichneAlacarte, zeichneFussnote, zeichneWoche } from './menuekarte.mjs?v=de95404d';
 
 const byId = id => document.getElementById(id);
-byId('drucken').addEventListener('click', () => window.print());
+
+// Drucken ist Sache des Hauses (Jonas, 08.09.): der Knopf erscheint nur auf
+// einem Geraet, das den Hausschluessel hat - also aus der Wirt-Ansicht
+// heraus. Gaeste sehen die Karte, aber keinen Druckknopf; die Gerichte
+// stehen ohnehin auf der Mittagstisch- und der Takeaway-Seite.
+const imHaus = (() => {
+  try { return Boolean(localStorage.getItem('wirtschaft-haus-token')); } catch { return false; }
+})();
+const druckKnopf = byId('drucken');
+if (imHaus) druckKnopf.addEventListener('click', () => window.print());
+else druckKnopf.hidden = true;
 
 fetch('data/qr-ziele.json', { cache: 'no-store' })
   .then(antwort => antwort.json())

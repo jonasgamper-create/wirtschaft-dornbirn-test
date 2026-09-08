@@ -102,11 +102,23 @@ const dienst = await readFile(path.join(root, 'server/src/index.js'), 'utf8');
   check('Die Gaesteseite hat den Abschnitt', kasten.includes('id="lunchLive"') && kasten.includes('hidden'));
   check('Der Abschnitt steht unter dem Reservieren-Knopf',
     seite.indexOf('id="lunchLive"') > seite.indexOf('id="bookDirect"'));
-  check('Das PDF oeffnet in neuem Tab mit noopener',
-    /id="lunchLiveLink"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/.test(kasten));
+  // Seit 08.09. stehen dort die Gerichte selbst statt eines PDF-Links:
+  // Wochengerichte und a la carte. Ein Druckknopf gehoert nicht auf die
+  // Gaesteseite - gedruckt wird in der Wirt-Ansicht.
+  check('Der Abschnitt zeigt Wochengerichte und a la carte',
+    kasten.includes('id="lunchWoche"') && kasten.includes('id="lunchAlacarte"'));
+  check('Kein PDF-Link und kein Druckknopf fuer Gaeste',
+    !/lunchLiveLink|window\.print|als PDF/i.test(kasten));
   const buchung = await readFile(path.join(root, 'site/tischreservierung-buchung.js'), 'utf8');
   check('Die Seite fragt beim Laden nach der Karte', /zeigeKarte\(\);/.test(buchung));
   check('Die Seite haelt die Karte aktuell', /setInterval\(zeigeKarte/.test(buchung));
+  check('Die Gaesteseite zeichnet die Karte selbst',
+    /zeichneWoche\(/.test(buchung) && /zeichneAlacarte\(/.test(buchung));
+  // Der Druckknopf der Faltkarte haengt am Hausschluessel: ohne ihn kein
+  // Drucken. Gaeste sehen die Karte, drucken sie aber nicht.
+  const karteJs = await readFile(path.join(root, 'site/mittagskarte.js'), 'utf8');
+  check('Drucken nur mit Hausschluessel',
+    /wirtschaft-haus-token/.test(karteJs) && /imHaus/.test(karteJs));
   const cockpit = await readFile(path.join(root, 'site/gastgeber-tischplan.html'), 'utf8');
   check('Das Cockpit hat den Upload', /id="fpKarteDatei"[^>]*type="file"[^>]*accept="application\/pdf/.test(cockpit));
   const cockpitJs = await readFile(path.join(root, 'site/gastgeber-floorplan.js'), 'utf8');
