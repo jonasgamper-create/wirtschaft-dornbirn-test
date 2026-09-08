@@ -789,7 +789,7 @@ function verdrahteHeuteListe() {
  * Eine Zeile der Tagesliste. Links die Zeit, in der Mitte wer und was,
  * rechts genau ein Knopf - der naechste sinnvolle Schritt und sonst nichts.
  */
-function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, leiseKnopf = false, ton = '', notiz = null, partyId = null, gast = null, zweiterKnopf = null, art = 'reservierung' }) {
+function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, leiseKnopf = false, ton = '', notiz = null, partyId = null, gast = null, zweiterKnopf = null, art = 'reservierung', ausklapp = '' }) {
   const li = document.createElement('li');
   li.dataset.art = art;
   if (erledigt) li.dataset.erledigt = '';
@@ -825,6 +825,17 @@ function zeile({ zeit, titel, info, knopfText, aktion, id, erledigt = false, lei
     if (gast.unvertraeglichkeit) teile.push(gast.unvertraeglichkeit);
     kennung.textContent = `★ ${teile.join(' · ')}`;
     wer.append(kennung);
+  }
+  // Die ganze Bestellung steht nicht in der Zeile, sondern eine Zeile
+  // tiefer - erst auf Tippen. Sonst ist jede Bestellung vier Zeilen hoch
+  // und am Telefon passen drei auf den Bildschirm (Jonas, 08.09.).
+  if (ausklapp) {
+    li.dataset.aufklappbar = '';
+    const alles = document.createElement('span');
+    alles.className = 'posten';
+    alles.textContent = ausklapp;
+    alles.hidden = true;
+    wer.append(alles);
   }
   li.append(zeitEl, wer);
   // Ein zweiter Knopf ist die Ausnahme, nicht die Regel: er steht nur beim
@@ -948,13 +959,28 @@ function male() {
     }
   }
   for (const bestellung of takeaway) {
-    const essen = (bestellung.posten || []).map(eintrag => `${eintrag.menge}× ${eintrag.name}`).join(', ');
+    const posten = bestellung.posten || [];
+    const essen = posten.map(eintrag => `${eintrag.menge}× ${eintrag.name}`).join(', ');
     const summe = `€ ${Number(bestellung.summe).toFixed(2).replace('.', ',')}`;
+    // Kurzform fuer die Zeile: wie viel, was es kostet, und das Gericht mit
+    // den meisten Portionen - beim Namen genuegt das Wort vor dem
+    // Doppelpunkt ("mittagsgericht: hausgemachte lasagne" -> "lasagne").
+    const portionen = posten.reduce((summe, eintrag) => summe + (Number(eintrag.menge) || 0), 0);
+    const groesster = posten.slice().sort((a, b) => (b.menge || 0) - (a.menge || 0))[0];
+    const kurzName = groesster
+      ? String(groesster.name).split(':').pop().trim().split(' ').slice(-2).join(' ')
+      : '';
+    const kurz = [
+      `${portionen} ${portionen === 1 ? 'Portion' : 'Portionen'}`,
+      summe,
+      kurzName + (posten.length > 1 ? ' u. a.' : '')
+    ].filter(Boolean).join(' · ');
     if (bestellung.status === 'abgeholt') {
       erledigte.push(zeile({
         zeit: bestellung.abholzeit, id: bestellung.id,
         titel: `Takeaway Nr. ${bestellung.nummer} · ${bestellung.name}`,
-        info: `${essen} · ${summe}${bestellung.abgeholtUm ? ` · abgeholt ${bestellung.abgeholtUm}` : ''}`,
+        info: `${kurz}${bestellung.abgeholtUm ? ` · abgeholt ${bestellung.abgeholtUm}` : ''}`,
+        ausklapp: essen,
         knopfText: 'wieder offen', aktion: 'doch-nicht', erledigt: true, leiseKnopf: true, art: 'takeaway'
       }));
     } else {
@@ -968,7 +994,8 @@ function male() {
       eintraege.push(zeile({
         zeit: bestellung.abholzeit, id: bestellung.id,
         titel: `Takeaway Nr. ${bestellung.nummer} · ${bestellung.name}`,
-        info: `${lage} · ${essen} · ${summe} · zahlt bei Abholung`,
+        info: `${lage} · ${kurz}`,
+        ausklapp: essen,
         // Fertigmelden nur, wenn der Wirt dafuer zustaendig ist - und nur
         // solange es noch nicht gemeldet ist.
         zweiterKnopf: wirtDarfFertig() && !istFertig ? { text: 'Essen fertig', aktion: 'fertig' } : null,
@@ -1041,6 +1068,17 @@ function verdrahteBlatt() {
   };
   for (const id of ['heuteListe', 'heuteListeTa', 'archivListe', 'archivListeTa']) {
     byId(id)?.addEventListener('click', oeffne);
+    // Takeaway-Zeilen haben kein Blatt: sie klappen auf und zeigen die
+    // ganze Bestellung. Ein Knopf oder ein Wischen faengt den Tipp vorher ab.
+    byId(id)?.addEventListener('click', event => {
+      if (event.target.closest('[data-aktion]')) return;
+      const li = event.target.closest('li[data-aufklappbar]');
+      if (!li || li.dataset.gewischt !== undefined) return;
+      const alles = li.querySelector('.posten');
+      if (!alles) return;
+      alles.hidden = !alles.hidden;
+      li.toggleAttribute('data-offen', !alles.hidden);
+    });
   }
 
   byId('blattZu').addEventListener('click', () => blatt.close());
