@@ -730,6 +730,10 @@ a.button,
 .ta-pflicht{margin:0;color:#57524a;font-size:var(--t-meta)}
 #taJetzt{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
   margin-top:6px;padding-top:20px;border-top:1px solid #11110f26}
+/* Laeuft der Hausdienst, blendet das Skript diese Zeile aus. Die Kennung
+   schlaegt sonst die allgemeine [hidden]-Regel - und der Gast saehe zwei
+   Bestellknoepfe. */
+#taJetzt[hidden]{display:none}
 #taGesamt{margin:0;font-size:var(--t-listitem);font-variant-numeric:tabular-nums}
 #taJetztInfo[data-art="warnung"]{color:var(--wine)}
 
