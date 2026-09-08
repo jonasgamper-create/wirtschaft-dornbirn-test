@@ -5,6 +5,7 @@
 // Dienst laeuft, wird aus dem Formular eine echte Buchung.
 
 import { apiAdresse, buche, holeAmpel, holeFrei, holeGeschlossen, holeKarteInfo, holeTakeawayKarte, karteAdresse, meldeMittagskarte, trageWartelisteEin } from './haus-api.js?v=9bbaa1e5';
+import { ladePlan, legende, wochenText, zeichneAlacarte, zeichneWoche } from './menuekarte.mjs?v=de95404d';
 import { istFeiertag, istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 
 const byId = id => document.getElementById(id);
@@ -54,17 +55,16 @@ async function start() {
   async function zeigeKarte() {
     const kasten = byId('lunchLive');
     if (!kasten) return;
-    const info = await holeKarteInfo();
-    if (!info?.ok || !info.da) { kasten.hidden = true; return; }
-    const link = byId('lunchLiveLink');
-    link.href = await karteAdresse(info);
-    // Ein gesetzter Plan ist eine Seite (dort: ansehen, als PDF speichern);
-    // ein hochgeladenes PDF oeffnet direkt.
-    link.textContent = info.art === 'plan' ? 'Mittagskarte ansehen' : 'Mittagskarte öffnen (PDF)';
-    const stand = new Date(info.stand);
-    byId('lunchLiveStand').textContent = Number.isNaN(stand.getTime()) ? '' : `Stand: ${stand.toLocaleDateString('de-AT', {
-      weekday: 'long', day: 'numeric', month: 'long'
-    })}, ${stand.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' })} Uhr`;
+    // Die Gerichte selbst - Wochengerichte und a la carte. Kein Link auf ein
+    // PDF und kein Druckknopf: gedruckt wird in der Wirt-Ansicht (Jonas,
+    // 08.09.). Ohne veroeffentlichten Plan bleibt der Kasten weg.
+    const { plan, quelle } = await ladePlan('', { pdfErlaubt: false });
+    if (!plan || quelle !== 'dienst') { kasten.hidden = true; return; }
+    byId('lunchLiveWoche').textContent = `Wochengerichte ${wochenText(plan)} – frisch vom Haus.`;
+    zeichneWoche(byId('lunchWoche'), plan);
+    zeichneAlacarte(byId('lunchAlacarte'), plan);
+    const text = legende(plan);
+    byId('lunchLiveStand').textContent = text ? `Allergene: ${text}` : '';
     kasten.hidden = false;
   }
   zeigeKarte();

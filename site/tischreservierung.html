@@ -145,8 +145,12 @@
         <aside class="lunch-live" id="lunchLive" hidden>
           <p class="lunch-live-kicker">Mittagskarte</p>
           <h3>Was diese Woche auf den Tisch kommt</h3>
-          <p class="lunch-live-note">Frisch vom Haus – so kommt sie auch an den Tisch.</p>
-          <a class="button button-green" id="lunchLiveLink" href="#" target="_blank" rel="noopener noreferrer">Mittagskarte öffnen (PDF)</a>
+          <p class="lunch-live-note" id="lunchLiveWoche"></p>
+          <!-- Die Gerichte selbst, nicht ein Link auf ein PDF (Jonas,
+               08.09.): Wochengerichte und a la carte, sonst nichts.
+               Gedruckt wird ausschliesslich in der Wirt-Ansicht. -->
+          <div class="lunch-karte" id="lunchWoche"></div>
+          <div class="lunch-karte" id="lunchAlacarte"></div>
           <small class="lunch-live-stand" id="lunchLiveStand"></small>
         </aside>
         <p class="form-alert" id="formAlert" role="alert" hidden></p>
@@ -238,7 +242,7 @@
   </footer>
 
   <script src="tischreservierung.js?v=98b4f7d0-08-31a" defer></script>
-  <script type="module" src="tischreservierung-buchung.js?v=664e32be"></script>
+  <script type="module" src="tischreservierung-buchung.js?v=f9608ccf"></script>
   <script type="module" src="instagram-feed.js?v=0ef6887a"></script>
 </body>
 </html>
