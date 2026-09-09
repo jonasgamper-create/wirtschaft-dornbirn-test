@@ -3,7 +3,7 @@
 // schickt, waere schlimmer als keines.
 
 import {
-  apiAdresse, bestelleTakeaway, holeBestellStatus, holePushSchluessel,
+  apiAdresse, bestelleTakeaway, holeBestellStatus, holeMenueplan, holePushSchluessel,
   holeTakeawayKarte, meldePushAb, meldePushAn,
   holeKarteAusDatei,
 } from './haus-api.js?v=9bbaa1e5';
@@ -1270,6 +1270,13 @@ function zeigeTage() {
   const ersterOffener = knoepfe.find(k => !k.disabled);
   markiere(feld?.value || ersterOffener?.dataset.wert || '');
 
+  // Die Woche als Karte: jedes Tageskaestchen traegt sein Wochengericht mit
+  // dem Preis rechts daneben - der Gast sieht die ganze Woche auf einen
+  // Blick, nicht nur den gewaehlten Tag. Die Gerichte kommen aus dem
+  // Menueplan des Hauses; passt dessen Woche nicht zum Streifen (z. B. am
+  // Wochenende vor der Veroeffentlichung), bleibt das Kaestchen ehrlich leer.
+  zeigeWochengerichte(knoepfe, alsWert(montag));
+
   // Der Dienst weiss es besser: sagt er "Vorbestellung, Bestelltag X",
   // wandert die Markierung auf X und heute wird gesperrt. Vorher stand die
   // gruene Pille auf "dienstag (heute)", waehrend der Kasten daneben erklaerte,
@@ -1283,6 +1290,32 @@ function zeigeTage() {
       markiere(bestelltag);
     }
   };
+}
+
+/**
+ * Das Wochengericht in jedes Tageskaestchen schreiben: Name links, Preis
+ * rechts. Der Menueplan ist dieselbe Quelle wie Mittagskarte und Faltblatt -
+ * eine Woche, eine Wahrheit. Ohne veroeffentlichten Plan oder bei einer
+ * anderen Woche bleibt der Streifen wie bisher: nur die Tage.
+ */
+async function zeigeWochengerichte(knoepfe, streifenMontag) {
+  const antwort = await holeMenueplan().catch(() => null);
+  const plan = antwort?.ok ? antwort.plan : null;
+  if (!plan || plan.montag !== streifenMontag || !Array.isArray(plan.tage)) return;
+  knoepfe.forEach((knopf, index) => {
+    const gericht = plan.tage[index]?.gerichte?.[0];
+    if (!gericht?.name) return;
+    const zeile = document.createElement('span');
+    zeile.className = 'ta-tag-gericht';
+    const name = document.createElement('i');
+    // "mittagsgericht:" ist im Kaestchen Rauschen - der Streifen heisst schon so.
+    name.textContent = String(gericht.name).replace(/^mittagsgericht:\s*/i, '');
+    const preis = document.createElement('em');
+    const wert = Number(gericht.preis ?? plan.preise?.mittag);
+    if (Number.isFinite(wert) && wert > 0) preis.textContent = alsPreis(wert);
+    zeile.append(name, preis);
+    knopf.append(zeile);
+  });
 }
 
 /** Wird von zeigeTage() gesetzt - vorher gibt es keine Tage zu waehlen. */
