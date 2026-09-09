@@ -71,13 +71,28 @@ const icsNeu = icsZeilen.join('\r\n') + '\r\n';
 const icsAlt = await readFile(site('wirtschaft-events.ics'), 'utf8').catch(() => '');
 if (icsNeu !== icsAlt) { await writeFile(site('wirtschaft-events.ics'), icsNeu); geaendert += 1; }
 
+/**
+ * Mitteleuropaeische Zeitzone zu einem Datum: Sommerzeit gilt vom letzten
+ * Sonntag im Maerz bis zum letzten Sonntag im Oktober, sonst Winterzeit.
+ */
+function zeitzone(datum) {
+  const letzterSonntag = (jahr, monat) => {
+    const d = new Date(Date.UTC(jahr, monat, 0));
+    d.setUTCDate(d.getUTCDate() - d.getUTCDay());
+    return d;
+  };
+  const tag = new Date(`${datum}T12:00:00Z`);
+  const jahr = tag.getUTCFullYear();
+  return tag >= letzterSonntag(jahr, 3) && tag < letzterSonntag(jahr, 10) ? '+02:00' : '+01:00';
+}
+
 // --- 3. Google-Eventschema in events.html ---------------------------------
 const schemaEvents = events
   .filter(e => e.status !== 'cancelled')
   .map(e => ({
     '@type': 'Event',
     name: e.title,
-    startDate: `${e.date}T${e.tickets[0]?.beginn || '19:00'}:00+02:00`,
+    startDate: `${e.date}T${e.tickets[0]?.beginn || '19:00'}:00${zeitzone(e.date)}`,
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     location: {

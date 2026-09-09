@@ -250,7 +250,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .slots button[aria-checked="true"] .ta-rest{color:#e8d9bd}
 /* Die Warteliste: erscheint erst, wenn der Tag voll ist - im Ton der
    uebrigen Hinweise, nicht als Alarm. */
-.warteliste{margin-top:14px;padding:16px;border:1px solid #11110f24;background:#fff}
+.warteliste{grid-column:1/-1;margin-top:14px;padding:16px;border:1px solid #11110f24;background:#fff}
 .warteliste[hidden]{display:none}
 .warteliste-titel{margin:0 0 6px;font-size:var(--t-meta);font-weight:700}
 .warteliste-text{margin:0 0 12px;color:#57524a;font-size:13.5px;line-height:1.55;max-width:56ch;font-weight:400;letter-spacing:0;text-transform:lowercase}
