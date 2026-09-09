@@ -2567,7 +2567,7 @@ a.button,
 .final-site #concept-03[data-variant="n"]{
   --s-section:clamp(28px,4.5vh,58px);--s-block:clamp(15px,2vh,24px);
   --s-para:clamp(10px,1.4vh,16px);--s-row:10px;
-  min-height:auto;height:auto;flex:0 0 auto;
+  min-height:100svh;height:auto;flex:0 0 auto;
   isolation:isolate;background:var(--ink)}
 .final-site #concept-03[data-variant="n"] .scene-media{
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
@@ -2576,7 +2576,7 @@ a.button,
 .final-site #concept-03[data-variant="n"] .scene-shell{
   display:grid;grid-template-columns:minmax(0,1fr) minmax(330px,44%);
   column-gap:clamp(32px,4vw,80px);row-gap:var(--s-block);
-  align-content:center;height:auto;min-height:0}
+  align-content:center;height:auto;min-height:100svh}
 .final-site #concept-03[data-variant="n"] .lunch-card{
   display:contents}
 
@@ -3318,20 +3318,3 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
 .button#bookDirect[data-gebucht]{opacity:1;cursor:default;background:var(--green);border-color:var(--green);color:#fff}
 .button#bookDirect[data-gebucht]:hover{transform:none}
 
-/* Das Schlussdrittel der Startseite. Die Truck-Szene ist die grosse
-   Abschlussinszenierung und fuellt eine volle Bildschirmseite; die Fahrspur
-   (32% der Szenenhoehe, absolut am Boden) bekommt ihre Reserve zurueck -
-   die spaete "Sektionen atmen gleich"-Regel hatte sie auf das kleine
-   Standardpolster gedrueckt, und Text wie Anfrage-Karte sassen dem Wagen
-   auf dem Dach. Die Gutschein-Szene daneben atmet im selben Takt, statt
-   nach der grossen Szene gestaucht zu wirken. Nur Desktop: auf Mobile ist
-   die Fahrspur ein eigener Streifen unter dem Inhalt. */
-@media(min-width:901px){
-  .final-site .catering-scene{min-height:100svh}
-  /* Mit ID-Spezifitaet, sonst gewinnt die Varianten-Regel (clamp 132px):
-     Reserve = Fahrspur (15vh) + Wagenueberstand + Notenflug + echte Luft. */
-  .final-site #foodtruck[data-variant="k"],
-  .final-site #foodtruck[data-variant="l"],
-  .final-site #foodtruck[data-variant="m"]{padding-bottom:max(300px,34svh)}
-  .final-site .voucher-scene{padding-top:clamp(72px,9vw,120px);padding-bottom:clamp(72px,9vw,120px)}
-}
