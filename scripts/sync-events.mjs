@@ -45,6 +45,53 @@ await ersetzeZwischenMarken('app.js',
   '// [events:auto-ende]',
   events.map(jsZeile).join('\n'));
 
+// --- 1b. Terminliste und Terminauswahl in index.html -----------------------
+//
+// Ohne Javascript - und fuer Suchmaschinen, die keines ausfuehren - ist das,
+// was hier steht, die ganze Wahrheit der Startseite. Von Hand gepflegt lief
+// sie auseinander: zehn Termine im Markup gegen achtzehn in den Daten, und
+// Rock4 stand als "Warteliste" da, waehrend die Stehplaetze buchbar waren.
+// Jetzt kommt beides aus derselben Quelle wie alles andere.
+const schuetzeHtml = wert => String(wert ?? '')
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+// Dieselben Beschriftungen wie in app.js: "Restkarten", wenn nur eine
+// Kategorie weg ist - an dem Abend gibt es noch etwas zu holen.
+const statusWort = status => ({
+  scheduled: 'Tickets', teilweise: 'Restkarten', sold_out: 'Ausverkauft',
+  waitlist: 'Warteliste', cancelled: 'Abgesagt', paused: 'Pausiert'
+}[status] || 'Details');
+
+const monatKurz = datum => new Intl.DateTimeFormat('de-AT', { month: 'short' })
+  .format(new Date(`${datum}T12:00:00`)).replace('.', '').toUpperCase();
+
+const zeileHtml = e => {
+  // Der Ticketweg des Hauses ist Ticketist; die eigene Eventseite ist der
+  // Rueckfall, wenn kein Ticketlink hinterlegt ist.
+  const ziel = e.ticketUrl || e.officialUrl;
+  const ticket = ziel
+    ? `<a class="event-ticket-link event-status-${schuetzeHtml(e.status)}" href="${schuetzeHtml(ziel)}" target="_blank" rel="noopener noreferrer">${schuetzeHtml(statusWort(e.status))} \u2197</a>`
+    : '';
+  const kalender = e.status === 'cancelled'
+    ? ''
+    : `<button type="button" data-calendar-event="${schuetzeHtml(e.id)}">Zum Kalender <span>+</span></button>`;
+  return `        <article data-event-status="${schuetzeHtml(e.status)}"><time datetime="${schuetzeHtml(e.date)}"><b>${e.date.slice(8, 10)}</b><span>${monatKurz(e.date)}</span></time><div><p>${schuetzeHtml(e.title)}</p><small>${schuetzeHtml(e.type)}</small></div><div class="event-actions">${ticket}${kalender}</div></article>`;
+};
+const heuteIso = new Date().toISOString().slice(0, 10);
+const kommende = events.filter(e => e.date >= heuteIso);
+
+await ersetzeZwischenMarken('index.html',
+  '<!-- [events:timeline-start] wird von scripts/sync-events.mjs aus data/events.json erzeugt - hier nichts von Hand aendern. -->',
+  '<!-- [events:timeline-ende] -->',
+  kommende.map(zeileHtml).join('\n'));
+
+const tagMonat = datum => `${datum.slice(8, 10)}.${datum.slice(5, 7)}.`;
+await ersetzeZwischenMarken('index.html',
+  '<!-- [events:select-start] erzeugt von scripts/sync-events.mjs -->',
+  '<!-- [events:select-ende] -->',
+  kommende.map(e => `<option value="${schuetzeHtml(e.id)}">${tagMonat(e.date)} \u00b7 ${schuetzeHtml(e.title)}</option>`).join(''));
+
 // --- 2. Kalenderdatei ------------------------------------------------------
 const schuetzeIcs = wert => String(wert)
   .replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');

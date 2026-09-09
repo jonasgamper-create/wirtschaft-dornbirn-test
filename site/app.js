@@ -759,10 +759,16 @@
         .slice(0, 3)
         .forEach(item => link?.insertAdjacentHTML('beforebegin', renderSpotlight(item)));
     }
-    if (timeline) timeline.innerHTML = events.map(renderTimeline).join('');
+    // "Was als Naechstes auf die Buehne kommt" - ein Abend von letzter Woche
+    // gehoert nicht hinein. Der Generator filtert zur Bauzeit, hier wird zur
+    // Anzeigezeit nachgezogen: zwischen Bau und Besuch liegen Tage.
+    const heuteNull = new Date();
+    heuteNull.setHours(0, 0, 0, 0);
+    const kommende = events.filter(item => new Date(`${item.date}T23:59:00`) >= heuteNull);
+    if (timeline) timeline.innerHTML = kommende.map(renderTimeline).join('');
     const select = document.getElementById('ticketEvent');
     if (select) {
-      select.innerHTML = events.map(item => `<option value="${escapeHtml(item.id)}">${escapeHtml(formatEventDate(item.date))} · ${escapeHtml(item.title)}</option>`).join('');
+      select.innerHTML = kommende.map(item => `<option value="${escapeHtml(item.id)}">${escapeHtml(formatEventDate(item.date))} · ${escapeHtml(item.title)}</option>`).join('');
     }
     // ===== die kopfleiste faehrt am telefon mit =====
   // Sie ist dort 113 px hoch - 13 Prozent des Bildschirms, dauerhaft belegt.
