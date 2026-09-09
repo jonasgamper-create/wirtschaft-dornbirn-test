@@ -336,7 +336,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .ta-gericht:first-child{border-top:0}
 .ta-gericht-name{font-size:var(--t-listitem);font-weight:400;letter-spacing:0;text-transform:lowercase;line-height:1.4}
 .ta-gericht-name .ta-codes{margin-left:8px;color:#8f887b;font-size:12px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
-.ta-gericht-preis{color:var(--ink);font-size:var(--t-body);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ta-gericht-preis{color:var(--ink);font-size:var(--t-body);font-variant-numeric:tabular-nums;white-space:nowrap;justify-self:end}
 /* Die Allergen-Legende: nur die Buchstaben, die heute vorkommen. */
 .ta-allergene{margin:12px 0 0;color:#57524a;font-size:13px;line-height:1.65;max-width:76ch}
 .ta-allergene[hidden]{display:none}
@@ -691,7 +691,11 @@ a.button,
    zwei Gruppen. Nur Systemfarben, keine Schatten, keine Verlaeufe. */
 .ta-tage-frage{margin:0 0 4px;font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;
   font-size:24px;font-weight:600;line-height:1.15;letter-spacing:-.01em;text-transform:lowercase}
-.ta-tage{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+/* Die Woche als fuenf gleichbreite Kacheln - jede traegt ihr Gericht.
+   Der gewaehlte Tag steht voll da, die anderen treten zurueck, bleiben
+   aber lesbar: die Woche soll als Woche erfassbar sein. */
+.ta-tage{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:10px}
+@media(max-width:900px){.ta-tage{grid-template-columns:1fr}}
 .ta-tage-info{display:block;margin:0 0 22px;color:#57524a;font-size:var(--t-meta);line-height:1.5}
 .ta-tage-info[data-art="fehler"]{color:var(--wine);font-weight:700}
 /* Der Bestellknopf im Danke-Zustand: gruen, ruhig, nicht mehr drueckbar. */
@@ -703,7 +707,17 @@ a.button,
 .ta-tag b{font-size:14.5px;font-weight:700;letter-spacing:.01em;text-transform:lowercase}
 .ta-tag span{font-size:12.5px;color:#57524a;text-transform:lowercase}
 .ta-tag:hover:not(:disabled){border-color:#11110f}
+.ta-tage .ta-tag[aria-pressed="false"]:not(:disabled){opacity:.6}
+.ta-tage .ta-tag[aria-pressed="false"]:not(:disabled):hover{opacity:1}
+.ta-tag:disabled{opacity:.35;cursor:not-allowed}
 .ta-tag[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+/* Das Gericht im Kaestchen: Name links, Preis rechts - wie auf der Karte. */
+.ta-tag-gericht{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:7px;padding-top:7px;border-top:1px solid #11110f1a;text-align:left}
+.ta-tag-gericht i{font-style:normal;font-size:12.5px;line-height:1.35;color:#3c3833}
+.ta-tag-gericht em{font-style:normal;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink)}
+.ta-tag[aria-pressed="true"] .ta-tag-gericht{border-top-color:#ffffff42}
+.ta-tag[aria-pressed="true"] .ta-tag-gericht i{color:#e4ece7}
+.ta-tag[aria-pressed="true"] .ta-tag-gericht em{color:#fff}
 .ta-tag[aria-pressed="true"] span{color:#e4ece7}
 .ta-tag:disabled{border-color:#11110f1f;color:#8d887f;cursor:default}
 .ta-tag:disabled span{color:#8d887f}
@@ -832,3 +846,9 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
   .back-link{flex:0 0 auto;font-size:11px;letter-spacing:.05em;white-space:nowrap}
   .back-link .zurueck-lang{display:none}
 }
+
+
+/* Die Takeaway-Seite nutzt die Breite: Wochenstreifen und Karte laufen bis
+   1040px, statt in der schmalen Formularspalte zu stehen. Nur dort - die
+   Reservierungsseite behaelt ihre ruhige 720er-Spalte. */
+#bestellen .grid,#bestellen .ta-spalte-rechts{max-width:1040px}
