@@ -1401,6 +1401,10 @@ a{text-decoration-thickness:from-font;text-underline-offset:.18em}
 .final-site .experience-bar>p.bar-hours{display:grid;gap:1px;margin:0 0 0 auto;text-align:right;line-height:1.25}
 .final-site .bar-hours span{color:var(--gold,#c59b5d);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:lowercase}
 .final-site .bar-hours time{color:#e6e2da;font-size:13.5px;font-variant-numeric:tabular-nums}
+/* Das Haus ist laenger offen, als die Kueche kocht. Ohne diese Zeile las
+   ein Gast oben 09:30-14:00 und unten 11:30-13:30 und hielt es fuer einen
+   Widerspruch - es sind zwei verschiedene Dinge. */
+.bar-hours small{color:#a9a49c;font-size:11px;font-variant-numeric:tabular-nums}
 @media(max-width:900px){
   .final-site .experience-bar{flex-wrap:wrap;height:auto;padding-top:10px;padding-bottom:10px;row-gap:6px}
   .final-site .experience-bar>p.bar-hours{margin-left:auto;text-align:right}
