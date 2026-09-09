@@ -3318,3 +3318,10 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
 .button#bookDirect[data-gebucht]{opacity:1;cursor:default;background:var(--green);border-color:var(--green);color:#fff}
 .button#bookDirect[data-gebucht]:hover{transform:none}
 
+
+
+/* Das heutige Wochengericht im Mittag-Kapitel: eine Zeile, live vom
+   Menueplan. Der Goldstrich ist das bestehende Hinweismuster des Hauses. */
+.final-site .lunch-heute{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:16px 0 0;padding:10px 14px;border-left:2px solid var(--gold);background:#ffffff12;font-size:15px;line-height:1.5;color:#f3efe6}
+.final-site .lunch-heute a{color:var(--gold);text-decoration-thickness:1px;text-underline-offset:4px;white-space:nowrap}
+.final-site .lunch-heute a:hover{color:#f3efe6}

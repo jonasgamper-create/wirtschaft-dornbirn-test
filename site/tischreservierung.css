@@ -715,6 +715,12 @@ a.button,
 .ta-tag-gericht{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:7px;padding-top:7px;border-top:1px solid #11110f1a;text-align:left}
 .ta-tag-gericht i{font-style:normal;font-size:12.5px;line-height:1.35;color:#3c3833}
 .ta-tag-gericht em{font-style:normal;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink)}
+/* Vital und Vegi: leise Begleiter unter dem Tagesgericht, ohne eigene Linie. */
+.ta-tag-gericht.ta-tag-begleiter{margin-top:3px;padding-top:0;border-top:0}
+.ta-tag-gericht.ta-tag-begleiter i{color:#6d675f}
+.ta-tag-gericht.ta-tag-begleiter em{font-weight:400;color:#57524a}
+.ta-tag[aria-pressed="true"] .ta-tag-gericht.ta-tag-begleiter i{color:#c9d6cd}
+.ta-tag[aria-pressed="true"] .ta-tag-gericht.ta-tag-begleiter em{color:#e4ece7}
 .ta-tag[aria-pressed="true"] .ta-tag-gericht{border-top-color:#ffffff42}
 .ta-tag[aria-pressed="true"] .ta-tag-gericht i{color:#e4ece7}
 .ta-tag[aria-pressed="true"] .ta-tag-gericht em{color:#fff}

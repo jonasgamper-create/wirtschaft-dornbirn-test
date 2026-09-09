@@ -4,7 +4,7 @@
 // zurueckkommt. Die Anmeldung nach einer Reservierung und der
 // Dienst-Endpunkt bleiben davon unberuehrt.
 
-import { holeKarteInfo, karteAdresse } from './haus-api.js?v=9bbaa1e5';
+import { holeKarteInfo, holeMenueplan, karteAdresse } from './haus-api.js?v=9bbaa1e5';
 
 // ---- Die Mittagskarte als PDF, frisch vom Haus -----------------------------
 //
@@ -31,3 +31,39 @@ zeigeKartenKnopf();
 // sie abzuschreiben. Der Renderer ist mitgegangen - ohne ihn kann die
 // Uebersicht nicht still zurueckkommen, sobald irgendwo wieder ein
 // Container mit data-lunch-menu auftaucht.
+
+// ---- Das heutige Wochengericht, eine Zeile ---------------------------------
+//
+// Das staerkste Kaufargument des Mittags ist das heutige Gericht mit seinem
+// Preis (Wunsch vom 09.09.). EINE Zeile aus dem Menueplan - kein Abschreiben
+// der Karte, die Entscheidung vom 31.08. bleibt: wer die Woche will, geht
+// zur Karte. Die Zeile erscheint nur an Werktagen der veroeffentlichten
+// Planwoche; sonst bleibt sie weg, statt ein altes Gericht zu behaupten.
+async function zeigeTagesgericht() {
+  const kasten = document.getElementById('lunchHeute');
+  if (!kasten) return;
+  const heute = new Date();
+  const wochentag = heute.getDay();
+  if (wochentag < 1 || wochentag > 5) return;
+
+  const antwort = await holeMenueplan().catch(() => null);
+  const plan = antwort?.ok ? antwort.plan : null;
+  if (!plan?.montag || !Array.isArray(plan.tage)) return;
+
+  const zweistellig = zahl => String(zahl).padStart(2, '0');
+  const montag = new Date(heute);
+  montag.setDate(heute.getDate() - (wochentag - 1));
+  const montagWert = `${montag.getFullYear()}-${zweistellig(montag.getMonth() + 1)}-${zweistellig(montag.getDate())}`;
+  if (plan.montag !== montagWert) return;
+
+  const gericht = plan.tage[wochentag - 1]?.gerichte?.[0];
+  if (!gericht?.name) return;
+  const name = String(gericht.name).replace(/^mittagsgericht:\s*/i, '');
+  const preis = Number(gericht.preis ?? plan.preise?.mittag);
+  const preisText = Number.isFinite(preis) && preis > 0
+    ? ` · € ${preis.toFixed(2).replace('.', ',')}`
+    : '';
+  document.getElementById('lunchHeuteText').textContent = `Heute: ${name}${preisText}`;
+  kasten.hidden = false;
+}
+zeigeTagesgericht();
