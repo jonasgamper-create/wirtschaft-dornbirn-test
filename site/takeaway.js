@@ -1302,19 +1302,37 @@ async function zeigeWochengerichte(knoepfe, streifenMontag) {
   const antwort = await holeMenueplan().catch(() => null);
   const plan = antwort?.ok ? antwort.plan : null;
   if (!plan || plan.montag !== streifenMontag || !Array.isArray(plan.tage)) return;
+  // Vital und Vegi gelten die ganze Woche - sie stehen als leise Begleiter
+  // unter dem Tagesgericht in jedem Kaestchen (Wunsch vom 09.09.).
+  const begleiter = (Array.isArray(plan.vital) ? plan.vital : [])
+    .filter(extra => extra?.name);
+
+  const gerichtZeile = (titel, wert, leise = false) => {
+    const zeile = document.createElement('span');
+    zeile.className = leise ? 'ta-tag-gericht ta-tag-begleiter' : 'ta-tag-gericht';
+    const name = document.createElement('i');
+    name.textContent = titel;
+    const preis = document.createElement('em');
+    if (Number.isFinite(wert) && wert > 0) preis.textContent = alsPreis(wert);
+    zeile.append(name, preis);
+    return zeile;
+  };
+
   knoepfe.forEach((knopf, index) => {
     const gericht = plan.tage[index]?.gerichte?.[0];
     if (!gericht?.name) return;
-    const zeile = document.createElement('span');
-    zeile.className = 'ta-tag-gericht';
-    const name = document.createElement('i');
     // "mittagsgericht:" ist im Kaestchen Rauschen - der Streifen heisst schon so.
-    name.textContent = String(gericht.name).replace(/^mittagsgericht:\s*/i, '');
-    const preis = document.createElement('em');
-    const wert = Number(gericht.preis ?? plan.preise?.mittag);
-    if (Number.isFinite(wert) && wert > 0) preis.textContent = alsPreis(wert);
-    zeile.append(name, preis);
-    knopf.append(zeile);
+    knopf.append(gerichtZeile(
+      String(gericht.name).replace(/^mittagsgericht:\s*/i, ''),
+      Number(gericht.preis ?? plan.preise?.mittag)
+    ));
+    for (const extra of begleiter) {
+      knopf.append(gerichtZeile(
+        String(extra.name),
+        Number(extra.preis ?? plan.preise?.vital),
+        true
+      ));
+    }
   });
 }
 
