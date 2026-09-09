@@ -213,7 +213,7 @@ html{scroll-padding-top:0}
 @media(prefers-reduced-motion:reduce){.final-site .hero-arrival{transform:none!important;opacity:1!important;will-change:auto;transition:none}.final-site .hero-arrival-vehicle{filter:drop-shadow(0 18px 24px #11110f77)}}
 
 /* Scroll-film: three original stills are blended and panned like a short concert cut. */
-.chapter-stage .scene-shell{position:relative;z-index:3}.chapter-stage .instrument-frames{z-index:1}.motion-off .motion-off .stage-video-frame,.motion-off @media(prefers-reduced-motion:reduce){.stage-video-frame,}@media(max-width:900px){.chapter-stage .instrument-frames{z-index:1}}
+.chapter-stage .scene-shell{position:relative;z-index:3}.chapter-stage .instrument-frames{z-index:1}@media(max-width:900px){.chapter-stage .instrument-frames{z-index:1}}
 
 /* A full-width scroll reel: the page pins while the house story cuts horizontally through three scenes. */
 /* Guest-first order: events immediately after the hero, lunch and reservation next. */

@@ -34,7 +34,9 @@
   const today = new Date();
   const todayValue = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().split('T')[0];
   date.min = todayValue;
-  date.value = todayValue;
+  // Kein vorbelegtes Datum: ein Fest plant niemand fuer heute. Vorbelegt ging
+  // die Anfrage mit dem heutigen Tag hinaus, wenn der Gast das Feld uebersah -
+  // der Wirt las einen Wunschtermin, den nie jemand gewaehlt hatte.
 
   // Der flexible Wunschtermin ist optionales Markup; ohne die Felder
   // bleibt das exakte Datum einfach Pflicht.

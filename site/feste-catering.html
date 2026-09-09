@@ -25,7 +25,7 @@
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-600-normal.woff2" crossorigin>
   <link rel="stylesheet" href="feste-catering.css?v=cde82b9a">
   <link rel="stylesheet" href="feste-catering-legal.css?v=f5164866">
-  <script src="feste-catering.js?v=4d0864be" defer></script>
+  <script src="feste-catering.js?v=4fd253a4" defer></script>
   <script src="measurement-hooks.js?v=4e60ff58" defer></script>
 </head>
 <body>
@@ -93,6 +93,7 @@
       <form id="eventInquiryForm" data-measurement-submit="catering_submit" novalidate>
         <div class="form-grid">
           <label>Anlass *<select id="occasion" name="occasion" required><option value="">Bitte wählen</option><option>Seminar</option><option>Kongress</option><option>Firmenfeier</option><option>Weihnachtsfeier</option><option>Hochzeit</option><option>Geburtstag</option><option>Privates Fest</option><option>Catering</option><option>Foodtruck &amp; mobile Bühne</option><option>Etwas anderes</option></select></label>
+          <label id="customOccasionWrap" hidden>Was für ein Anlass? *<input id="customOccasion" name="customOccasion" type="text" maxlength="80" placeholder="z. B. Vereinsjubiläum"></label>
           <label>Gewünschter Ort *<select id="location" name="location" required><option value="">Bitte wählen</option><option>In der Wirtschaft Dornbirn</option><option>Im Kulturhaus Dornbirn</option><option>Bei uns vor Ort / Wunschlocation</option><option>Noch offen</option></select></label>
           <label>Wunschtermin *<input id="eventDate" name="date" type="date" required></label>
           <label>Ungefähre Gästezahl *<input id="guestCount" name="guests" type="number" min="2" max="1000" inputmode="numeric" placeholder="z. B. 80" required></label>
