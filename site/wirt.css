@@ -23,7 +23,7 @@ main{width:min(680px,100%);margin:0 auto;padding:0 max(18px,4vw) 64px}
 section{padding:26px 0;border-top:1px solid var(--linie)}
 section:first-child{border-top:0}
 h1,h2{font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-weight:400;margin:0}
-h2{font-size:24px;margin-bottom:6px}
+h2{font-size:clamp(20px,5vw,25px);font-weight:600;letter-spacing:-.012em;margin-bottom:6px;text-wrap:balance}
 .vorzeile{margin:0 0 8px;color:var(--green);font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:lowercase}
 .hinweis{margin:0 0 14px;color:var(--muted);font-size:14.5px}
 
@@ -40,7 +40,8 @@ h2{font-size:24px;margin-bottom:6px}
 .korb[hidden]{display:none}
 
 .zeile-kopf{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-.zeile-kopf h2{margin:0}
+.zeile-kopf h2{margin:0;min-width:0}
+.zeile-kopf .knopf{flex:0 0 auto;white-space:nowrap}
 
 /* Telefonische Reservierung: vier Felder, fertig. */
 .neu-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px;padding:14px;border:1px solid var(--linie);border-radius:12px;background:#fff}
@@ -52,7 +53,8 @@ h2{font-size:24px;margin-bottom:6px}
 /* Die Zeitmarke am Zeilenanfang - die Liste liest sich wie der Tag selbst. */
 .haus-liste .zeit{flex:0 0 auto;padding:6px 10px;border:1px solid var(--linie);border-radius:8px;background:var(--paper);font-size:14.5px;font-weight:700;font-variant-numeric:tabular-nums}
 .haus-liste li[data-ton="spaet"]{border-color:#a67f45;background:#f6ecd9}
-.haus-liste li[data-ton="takeaway"]{border-left:3px solid var(--green)}
+.haus-liste li[data-ton="takeaway"]{border-left:3px solid var(--green);background:#ead9bc59}
+.haus-liste li[data-ton="takeaway"] .zeit{background:#fff}
 .haus-liste li .wer{flex:1 1 auto}
 
 /* Laufkundschaft: die Knoepfe sind absichtlich die groessten Elemente der
@@ -73,12 +75,19 @@ h2{font-size:24px;margin-bottom:6px}
 .haus-liste{display:grid;gap:8px;margin:0;padding:0;list-style:none}
 .haus-liste li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--linie);border-radius:10px;background:#fff}
 .haus-liste .wer{display:grid;gap:2px;min-width:0}
-.haus-liste .wer b{font-size:16px;font-weight:700}
+.haus-liste .wer b{font-size:17px;font-weight:700;line-height:1.3}
 .haus-liste .wer span{color:var(--muted);font-size:13px}
 .haus-liste .leer{border-style:dashed;background:transparent;color:var(--muted);justify-content:flex-start;font-size:14.5px}
 
 .knopf{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border:1px solid var(--green);border-radius:999px;background:var(--green);color:#fff;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:lowercase;text-decoration:none;cursor:pointer}
 .knopf.leise{background:transparent;color:var(--ink);border-color:var(--linie)}
+@media(hover:hover){
+  .knopf:hover{opacity:.86}
+  .knopf.leise:hover{opacity:1;border-color:var(--green);color:var(--green)}
+  .knopf.rot:hover,.knopf.warn:hover{opacity:.86}
+}
+.knopf:active{transform:translateY(1px)}
+@media(prefers-reduced-motion:reduce){.knopf:active{transform:none}}
 /* [hidden] verliert gegen display:inline-flex der Klassenregel - dieselbe
    Falle wie beim Anrufknopf der Gaesteseite. Einmal explizit, nie wieder raten. */
 .knopf[hidden]{display:none}
@@ -87,8 +96,17 @@ h2{font-size:24px;margin-bottom:6px}
 /* Eingeklappte Werkzeuge: Karte und Takeaway-Karte brauchen den Platz nur,
    wenn man sie wirklich in der Hand hat. */
 .werkzeug{padding:16px 0;border-top:1px solid var(--linie)}
-.werkzeug summary{min-height:44px;display:flex;align-items:center;font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-size:20px;cursor:pointer}
-.werkzeug[open] summary{margin-bottom:10px}
+.werkzeug>summary{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;
+  font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:lowercase;color:var(--muted);
+  cursor:pointer;list-style:none}
+.werkzeug>summary::-webkit-details-marker{display:none}
+.werkzeug>summary::after{content:"";flex:0 0 auto;width:8px;height:8px;margin-right:3px;
+  border-right:2px solid currentColor;border-bottom:2px solid currentColor;
+  transform:rotate(45deg);transition:transform .18s ease}
+.werkzeug[open]>summary{margin-bottom:12px;color:var(--ink)}
+.werkzeug[open]>summary::after{transform:rotate(-135deg)}
+@media(prefers-reduced-motion:reduce){.werkzeug>summary::after{transition:none}}
 .werkzeug textarea{width:100%;min-height:120px;margin:0 0 10px;padding:10px 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;font:inherit;font-size:14.5px;line-height:1.5;resize:vertical}
 
 /* Kuechenzettel: die empfohlene Zahl steht vorn und gross - sie ist das
@@ -136,7 +154,10 @@ h2{font-size:24px;margin-bottom:6px}
 
 /* Neu eingegangen: leuchtet gold, bis die Zeile einmal angetippt wurde. */
 .haus-liste li[data-neu]{border-color:var(--gold,#c59b5d);background:#c59b5d22}
-.haus-liste li[data-party]{cursor:pointer}
+.haus-liste li[data-party]{cursor:pointer;transition:border-color .15s ease,background-color .15s ease}
+@media(hover:hover){.haus-liste li[data-party]:hover{border-color:var(--green)}}
+.haus-liste li[data-party]:active{background:#11110f0a}
+@media(prefers-reduced-motion:reduce){.haus-liste li[data-party]{transition:none}}
 .haus-liste .wer .wunsch{color:#8c6a2f;font-size:13px}
 /* Stammgast: gruen, weil es eine gute Nachricht ist - im Gegensatz zum
    goldenen Wunsch, der eine Aufgabe ist. */
