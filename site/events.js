@@ -67,6 +67,73 @@
     </article>`;
   }
 
+  /**
+   * Ein Abend im Kulturhaus. Dieselbe Kachel wie oben - dieselbe Groesse,
+   * dasselbe Raster, derselbe Knopf -, nur beige statt dunkel: der Gast
+   * soll EIN Programm sehen und trotzdem auf einen Blick wissen, wo er
+   * hingeht (Jonas, 11.09.). Preise und Kategorien stehen hier nicht: die
+   * Programmseite von Emma & Eugen nennt sie nicht, und geraten wird nicht.
+   */
+  function kachelKulturhaus(event, index) {
+    const datum = new Date(`${event.date}T12:00:00`);
+    const tag = event.date.slice(8, 10);
+    const monat = MONATE.format(datum).replace('.', '');
+    const wochentag = new Intl.DateTimeFormat('de-AT', { weekday: 'long' }).format(datum);
+    const fallback = FALLBACK_BILDER[index % FALLBACK_BILDER.length];
+    const bild = event.bild || fallback;
+    const zweite = [wochentag, 'kulturhaus dornbirn', event.programm].filter(Boolean).join(' · ');
+    return `
+    <article class="event-kachel" data-haus="kulturhaus">
+      <div class="kachel-medien">
+        <img src="${escapeHtml(bild)}" width="1200" height="750" loading="lazy" decoding="async"
+             alt="${escapeHtml(event.title)}" data-fallback="${fallback}">
+        <span class="kachel-ort">kulturhaus</span>
+      </div>
+      <div class="kachel-inhalt">
+        <div class="kachel-zeile">
+          <time datetime="${escapeHtml(event.date)}"><b>${escapeHtml(tag)}</b><span>${escapeHtml(monat)}</span></time>
+          <h2>${escapeHtml(event.title)}</h2>
+        </div>
+        <p class="kachel-typ">${escapeHtml(zweite)}</p>
+        <div class="kachel-aktionen">
+          <button class="button light" type="button" data-buchen="${escapeHtml(event.ticketUrl)}" data-titel="${escapeHtml(event.title)}">Tickets buchen</button>
+          <a class="button ghost" href="${escapeHtml(event.infoUrl)}" target="_blank" rel="noopener noreferrer">Details ↗</a>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  /**
+   * Das Kulturhaus-Programm: zuerst beim Dienst, der es selbst mehrmals
+   * taeglich bei Emma & Eugen liest. Antwortet er nicht, gilt der Stand,
+   * der bei uns liegt - lieber ein Programm von gestern als eine leere
+   * Haelfte der Seite. Der Browser des Gastes fragt nie bei eugen.family
+   * an; es soll niemand eine Spur auf einer fremden Seite hinterlassen,
+   * nur weil er unsere Termine anschaut.
+   */
+  async function holeKulturhaus() {
+    const ausDatei = () => fetch('data/kulturhaus.json', { cache: 'no-store' })
+      .then(a => a.json()).then(d => d?.events || []).catch(() => []);
+    const hinterlegt = await ausDatei();
+
+    // Die Bilder liegen bei uns, die Liste kommt vom Dienst: er kennt auch
+    // Termine, die seit dem letzten Abgleich dazugekommen sind. Beides wird
+    // ueber die Kennung zusammengefuehrt - ein neuer Abend ohne eigenes Bild
+    // bekommt eines aus unserem Haus (data-fallback in der Kachel).
+    const bilder = new Map(hinterlegt.filter(e => e.bild).map(e => [e.id, e.bild]));
+    try {
+      const haus = await fetch('data/haus.json?t=' + Date.now(), { cache: 'no-store' }).then(a => a.json());
+      const basis = String(haus?.api || '').trim().replace(/\/+$/, '');
+      if (!/^https?:\/\//.test(basis)) return hinterlegt;
+      const antwort = await fetch(`${basis}/api/kulturhaus`, { cache: 'no-store' }).then(a => a.json());
+      const liste = antwort?.ok ? (antwort.events || []) : [];
+      if (!liste.length) return hinterlegt;
+      return liste.map(event => ({ ...event, bild: bilder.get(event.id) || '' }));
+    } catch {
+      return hinterlegt;
+    }
+  }
+
   // Buchung im Haus: der Klick oeffnet Ticketist als Overlay. Der Gast
   // bleibt auf unserer Seite; Buchung und Zahlung laufen beim Anbieter.
   const dialog = document.getElementById('ticketDialog');
@@ -154,9 +221,10 @@
 
   Promise.all([
     fetch('data/events.json', { cache: 'no-store' }).then(antwort => antwort.json()),
-    fetch('data/event-medien.json', { cache: 'no-store' }).then(antwort => antwort.json()).catch(() => ({ bilder: [], videos: [] }))
+    fetch('data/event-medien.json', { cache: 'no-store' }).then(antwort => antwort.json()).catch(() => ({ bilder: [], videos: [] })),
+    holeKulturhaus()
   ])
-    .then(([daten, medien]) => {
+    .then(([daten, medien, kulturhaus]) => {
       vorhandeneBilder = new Set(medien?.bilder || []);
       vorhandeneVideos = new Set(medien?.videos || []);
       const heute = new Date();
@@ -164,12 +232,25 @@
       const kommende = (daten?.events || [])
         .filter(event => event.status !== 'cancelled' && new Date(`${event.date}T23:59:00`) >= heute)
         .sort((a, b) => a.date.localeCompare(b.date));
-      if (!kommende.length) {
+      if (!kommende.length && !(kulturhaus || []).length) {
         grid.innerHTML = '<p class="events-laden">Gerade steht kein Termin fest – schau bald wieder vorbei oder trag dich unten ein.</p>';
         return;
       }
+      // Zwei Haeuser, eine Liste, nach Datum. Das ist der ganze Sinn der
+      // Seite: der Gast sucht einen Abend, nicht einen Veranstalter.
+      const kulturhausKommend = (kulturhaus || [])
+        .filter(event => event.date && new Date(`${event.date}T23:59:00`) >= heute);
+      const alles = [
+        ...kommende.map(event => ({ event, haus: 'wirtschaft' })),
+        ...kulturhausKommend.map(event => ({ event, haus: 'kulturhaus' }))
+      ].sort((a, b) => a.event.date.localeCompare(b.event.date));
+
       alleEvents = kommende;
-      grid.innerHTML = kommende.map((event, index) => kachel(event, index)).join('');
+      grid.innerHTML = alles.map(({ event, haus }, index) => (
+        haus === 'kulturhaus' ? kachelKulturhaus(event, index) : kachel(event, index)
+      )).join('');
+      const legende = document.getElementById('eventsLegende');
+      if (legende) legende.hidden = kulturhausKommend.length === 0;
       verdrahte();
     })
     .catch(() => {
