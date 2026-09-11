@@ -36,8 +36,18 @@ while (geaendert && runden < 6) {
     // ist am 04.09. bei mittagskarte.html und menuekarte-falten.html
     // passiert: Besucher haetten dort dauerhaft die alte Fassung aus dem
     // Zwischenspeicher bekommen, ohne dass es irgendwo auffiel.
+    //
+    // Verweise einer Datei auf sich selbst bleiben unberuehrt. Sie koennen
+    // gar nicht stimmen: der eingetragene Hash veraendert den Dateiinhalt und
+    // damit den Hash, den er beschreiben soll - das laeuft in jedem Lauf neu.
+    // In site/doc-page.js steht so ein Selbstverweis als Beispielzeile in
+    // einem Dokumentationskommentar; dadurch tauchte die Datei bisher in
+    // jedem Pull Request als geaendert auf und musste von Hand
+    // zurueckgenommen werden.
     const neu = alt.replace(/(["'./])([a-z0-9-]+\.(?:js|mjs|css))(\?v=[a-z0-9]+)?(?=["'\s>])/gi,
-      (treffer, davor, ziel) => (hashes.has(ziel) ? `${davor}${ziel}?v=${hashes.get(ziel)}` : treffer));
+      (treffer, davor, ziel) => (hashes.has(ziel) && ziel !== name
+        ? `${davor}${ziel}?v=${hashes.get(ziel)}`
+        : treffer));
     if (neu !== alt) {
       await writeFile(datei, neu);
       angepasst.add(name);
