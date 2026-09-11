@@ -37,6 +37,7 @@ import {
   markiereInformiert, naechsterWartender, nimmAuf, pruefeWartelisteEintrag, raeumeWartelisteAb
 } from './warteliste.mjs';
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
+import { FRISCH_MS, holeProgramm, listeGueltig } from './kulturhaus.mjs';
 import {
   bestellungText, erinnerungText, fertigText, nummerFuerSms, reservierungText, sendeSms
 } from './sms.mjs';
@@ -2009,6 +2010,48 @@ export class Haus extends DurableObject {
     return { ok: true, events: liste.map(fuerDieGaesteseite) };
   }
 
+  /**
+   * Das Programm im Kulturhaus, gelesen bei Emma & Eugen.
+   *
+   * Der Gast soll beide Haeuser in EINER Liste sehen; geholt wird deshalb
+   * hier und nicht im Browser des Gastes - sonst haette jeder Aufruf der
+   * Eventseite eine Spur bei eugen.family hinterlassen, und die fremde
+   * Seite erlaubt das Lesen aus einem Browser ohnehin nicht.
+   *
+   * Der Stand liegt sechs Stunden. Ist er aelter, geht die Antwort trotzdem
+   * sofort raus und das Nachholen laeuft danach weiter (waitUntil): eine
+   * fremde Seite darf unsere eigene nie warten lassen. Kommt nichts
+   * Brauchbares zurueck, bleibt der letzte bekannte Stand stehen.
+   */
+  async kulturhaus() {
+    const stand = this.#lies('kulturhaus', null);
+    const alter = stand?.geholtAm ? Date.now() - stand.geholtAm : Infinity;
+    const frisch = alter < FRISCH_MS;
+
+    if (!frisch) {
+      const holen = (async () => {
+        const events = await holeProgramm();
+        if (!listeGueltig(events)) return;
+        this.#schreib('kulturhaus', { geholtAm: Date.now(), events });
+      })();
+      // Ohne bekannten Stand warten wir einmal - sonst saehe der erste Gast
+      // nach dem Start eine leere Liste, obwohl das Programm voll ist.
+      if (!stand?.events?.length) await holen;
+      else this.ctx.waitUntil(holen);
+    }
+
+    const jetzt = this.#lies('kulturhaus', null);
+    const heute = jetztImHaus().datum;
+    // Die Adresse des Pressefotos bei eugen.family bleibt hier: gaebe der
+    // Dienst sie heraus, wuerde sie frueher oder spaeter jemand einbauen -
+    // und dann laedt der Browser des Gastes doch wieder von der fremden
+    // Seite. Die Bilder liegen bei uns (scripts/sync-kulturhaus.mjs).
+    const events = (jetzt?.events || [])
+      .filter(e => e.date >= heute)
+      .map(({ bildQuelle, ...rest }) => rest);
+    return { ok: true, events, geholtAm: jetzt?.geholtAm || 0 };
+  }
+
   /** Der Wirt legt einen Termin an. Die Liste haelt sich selbst sortiert. */
   async eigenesEventAnlegen(roh) {
     const geprueft = pruefeEigenesEvent(roh);
@@ -2904,6 +2947,10 @@ export default {
       // Gaesteseite), schreiben nur das Haus.
       if (url.pathname === '/api/events' && request.method === 'GET') {
         return json(await haus.eigeneEvents(), 200, kopf);
+      }
+      // Das Kulturhaus-Programm: oeffentlich wie die eigenen Termine.
+      if (url.pathname === '/api/kulturhaus' && request.method === 'GET') {
+        return json(await haus.kulturhaus(), 200, kopf);
       }
       if (url.pathname === '/api/events' && request.method === 'POST') {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);

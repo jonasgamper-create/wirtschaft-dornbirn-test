@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "updatedAt": "2026-09-11",
+  "sourceUrl": "https://eugen.family/kulturhaus/",
+  "events": [
+    {
+      "id": "kulis-02-2026",
+      "date": "2026-10-07",
+      "title": "gernot kulis",
+      "programm": "programm: ich kann nicht anders",
+      "infoUrl": "https://eugen.family/event/kulis-02-2026/",
+      "ticketUrl": "https://www.ticketist.io/events/kulis-02-2026",
+      "bild": "assets/events/kulturhaus/kulis-02-2026.webp"
+    },
+    {
+      "id": "kulis-03-2026",
+      "date": "2026-10-08",
+      "title": "gernot kulis",
+      "programm": "programm: ich kann nicht anders",
+      "infoUrl": "https://eugen.family/event/kulis-03-2026/",
+      "ticketUrl": "https://www.ticketist.io/events/kulis-03-2026",
+      "bild": "assets/events/kulturhaus/kulis-02-2026.webp"
+    },
+    {
+      "id": "luis-2026",
+      "date": "2026-10-13",
+      "title": "luis aus südtirol",
+      "programm": "\"pfiati\" - der letzte applaus",
+      "infoUrl": "https://eugen.family/event/luis-2026/",
+      "ticketUrl": "https://www.ticketist.io/events/luis-2026",
+      "bild": "assets/events/kulturhaus/luis-2026.webp"
+    },
+    {
+      "id": "luis-02-2026",
+      "date": "2026-10-14",
+      "title": "luis aus südtirol",
+      "programm": "\"pfiati\" - der letzte applaus",
+      "infoUrl": "https://eugen.family/event/luis-02-2026/",
+      "ticketUrl": "https://www.ticketist.io/events/luis-02-2026",
+      "bild": "assets/events/kulturhaus/luis-2026.webp"
+    },
+    {
+      "id": "ullitroy-01-2026",
+      "date": "2026-10-25",
+      "title": "ulli troy: 50 jahre bühnenjubiläum",
+      "programm": "konzertabend mit 3-gänge menü",
+      "infoUrl": "https://eugen.family/event/ullitroy-01-2026/",
+      "ticketUrl": "https://www.ticketist.io/events/ullitroy-01-2026",
+      "bild": "assets/events/kulturhaus/ullitroy-01-2026.webp"
+    },
+    {
+      "id": "ullitroy-02-2026",
+      "date": "2026-10-26",
+      "title": "ulli troy: 50 jahre bühnenjubiläum",
+      "programm": "feiertagsmatinee mit brunch",
+      "infoUrl": "https://eugen.family/event/ullitroy-02-2026/",
+      "ticketUrl": "https://www.ticketist.io/events/ullitroy-02-2026",
+      "bild": "assets/events/kulturhaus/ullitroy-01-2026.webp"
+    },
+    {
+      "id": "kulturimhaus-h2026",
+      "date": "2026-10-28",
+      "title": "kultur:im:haus",
+      "programm": "dinner & comedy im großformat",
+      "infoUrl": "https://eugen.family/event/kulturimhaus-h2026/",
+      "ticketUrl": "https://www.ticketist.io/events/kulturimhaus-h2026",
+      "bild": "assets/events/kulturhaus/kulturimhaus-h2026.webp"
+    },
+    {
+      "id": "hader-02-2026",
+      "date": "2026-10-29",
+      "title": "josef hader",
+      "programm": "programm: hader on ice",
+      "infoUrl": "https://eugen.family/event/hader-02-2026/",
+      "ticketUrl": "https://www.ticketist.io/events/hader-02-2026",
+      "bild": "assets/events/kulturhaus/hader-02-2026.webp"
+    },
+    {
+      "id": "singmit-2026",
+      "date": "2026-10-31",
+      "title": "sing mit!",
+      "programm": "die mitsingnacht mit notenlos",
+      "infoUrl": "https://eugen.family/event/singmit-2026/",
+      "ticketUrl": "https://www.ticketist.io/events/singmit-2026",
+      "bild": "assets/events/kulturhaus/singmit-2026.webp"
+    },
+    {
+      "id": "meyle-2026",
+      "date": "2026-11-08",
+      "title": "gregor meyle",
+      "programm": "unplugged 2026",
+      "infoUrl": "https://eugen.family/event/meyle-2026/",
+      "ticketUrl": "https://www.ticketist.io/events/meyle-2026",
+      "bild": "assets/events/kulturhaus/meyle-2026.webp"
+    },
+    {
+      "id": "landert-2026",
+      "date": "2026-11-17",
+      "title": "fabio landert",
+      "programm": "die verbotene frucht",
+      "infoUrl": "https://eugen.family/event/landert-2026/",
+      "ticketUrl": "https://www.ticketist.io/events/landert-2026",
+      "bild": "assets/events/kulturhaus/landert-2026.webp"
+    },
+    {
+      "id": "luis-03-2026",
+      "date": "2026-11-25",
+      "title": "luis aus südtirol",
+      "programm": "\"pfiati\" - der letzte applaus",
+      "infoUrl": "https://eugen.family/event/luis-03-2026/",
+      "ticketUrl": "https://www.ticketist.io/events/luis-03-2026",
+      "bild": "assets/events/kulturhaus/luis-2026.webp"
+    },
+    {
+      "id": "einarsson-2027",
+      "date": "2027-03-13",
+      "title": "thorsteinn einarsson",
+      "programm": "solstice tour 2027",
+      "infoUrl": "https://eugen.family/event/einarsson-2027/",
+      "ticketUrl": "https://www.ticketist.io/events/einarsson-2027",
+      "bild": "assets/events/kulturhaus/einarsson-2027.webp"
+    },
+    {
+      "id": "genussroute-6850",
+      "date": "2027-05-20",
+      "title": "genussroute 6850",
+      "programm": "kulinarische reise durch dornbirn",
+      "infoUrl": "https://eugen.family/event/genussroute-6850/",
+      "ticketUrl": "https://www.ticketist.io/events/genussroute-6850",
+      "bild": "assets/events/kulturhaus/genussroute-6850.webp"
+    }
+  ]
+}

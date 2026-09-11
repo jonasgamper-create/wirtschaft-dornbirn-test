@@ -8,7 +8,7 @@
 // fertige SVG-Dateien im Repo (scripts/build-qr.mjs) - gedruckt heisst
 // dauerhaft, deshalb haengt hier nichts an einer Bibliothek im Browser.
 
-import { ladePlan, legende, wochenText, zeichneAlacarte, zeichneFussnote, zeichneWoche } from './menuekarte.mjs?v=de95404d';
+import { ladePlan, legende, wochenText, zeichneAlacarte, zeichneFussnote, zeichneWoche } from './menuekarte.mjs?v=e16af489';
 
 const byId = id => document.getElementById(id);
 
@@ -19,6 +19,20 @@ const byId = id => document.getElementById(id);
 const imHaus = (() => {
   try { return Boolean(localStorage.getItem('wirtschaft-haus-token')); } catch { return false; }
 })();
+// iOS erzwingt beim Drucken eigene Raender: im Querformat ist der
+// bedruckbare Bereich knapp unter 173 mm hoch (im Simulator am 04.09.
+// gemessen). Ein Blatt von 196 mm wird dort in vier Seiten zerlegt. Am
+// Telefon und am iPad bleibt deshalb die kleinere, gepruefte Groesse -
+// am Rechner, wo wirklich gedruckt wird, nutzt die Karte das ganze Blatt.
+const amApfelGeraet = /iPad|iPhone|iPod/.test(navigator.platform)
+  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+if (amApfelGeraet) {
+  const wurzel = document.documentElement.style;
+  wurzel.setProperty('--druck-breite', '225mm');
+  wurzel.setProperty('--druck-hoehe', '159mm');
+  wurzel.setProperty('--druck-schrift', '7.16pt');
+}
+
 const druckKnopf = byId('drucken');
 if (imHaus) {
   druckKnopf.addEventListener('click', () => window.print());
@@ -104,13 +118,14 @@ function passeAnsBlattAn() {
     // Bis 72 Prozent darf die Schrift schrumpfen. Das ist auf A5 immer noch
     // gut lesbar (7 statt 10 pt fuer die Gerichtsnamen) und faengt eine
     // laengere Woche ab, ohne dass jemand etwas tun muss.
-    // In Punkt rechnen, nicht in em: "0.72em" bezieht sich auf den ELTERN-
-    // wert (16 px vom Koerper), nicht auf die 9,5 pt der Seite - aus einer
-    // gewollten Verkleinerung auf 72 Prozent waeren so 91 Prozent geworden.
-    const AUSGANG = 9.5;
+    // Nicht die Schriftgroesse selbst setzen, sondern die Stufe: im Druck ist
+    // das Blatt kleiner als am Bildschirm und rechnet mit einem eigenen
+    // Ausgangswert. Eine feste Punktzahl aus der Bildschirmmessung haette
+    // ihn ueberschrieben - die gedruckte Karte waere um ein Viertel zu gross
+    // aus dem Drucker gekommen.
     while (zuVoll() && stufe > 0.72) {
       stufe = Math.round((stufe - 0.02) * 100) / 100;
-      innen.style.fontSize = `${(AUSGANG * stufe).toFixed(2)}pt`;
+      innen.style.setProperty('--karte-stufe', String(stufe));
     }
     const hinweis = document.getElementById('leisteHinweis');
     if (zuVoll() && hinweis) {
