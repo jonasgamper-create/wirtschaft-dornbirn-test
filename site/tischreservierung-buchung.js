@@ -5,7 +5,7 @@
 // Dienst laeuft, wird aus dem Formular eine echte Buchung.
 
 import { apiAdresse, buche, holeAmpel, holeFrei, holeGeschlossen, holeKarteInfo, holeTakeawayKarte, karteAdresse, meldeMittagskarte, trageWartelisteEin } from './haus-api.js?v=9bbaa1e5';
-import { ladePlan, legende, wochenText, zeichneAlacarte, zeichneWoche } from './menuekarte.mjs?v=de95404d';
+import { ladePlan, legende, wochenText, zeichneAlacarte, zeichneWoche } from './menuekarte.mjs?v=e16af489';
 import { istFeiertag, istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 
 const byId = id => document.getElementById(id);
