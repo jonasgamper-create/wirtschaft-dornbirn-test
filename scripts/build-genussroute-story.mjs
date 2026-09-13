@@ -26,7 +26,7 @@ const replacements = {
   '{{LEAD}}': leadLines.map((line, index) => `<span${index ? ' class="lead-accent"' : ''}>${esc(line)}</span>`).join('<br>'),
   '{{CTA}}': upper(event.cta),
   '{{BACKGROUND}}': `../../site/assets/${path.basename(event.background || 'food.webp')}`,
-  '{{OFFICIAL_URL}}': esc(event.officialUrl || 'https://wirtschaft-dornbirn.at/event/'),
+  '{{OFFICIAL_URL}}': esc(event.ticketUrl || 'https://www.ticketist.io/'),
 };
 const replaceTokens = source => Object.entries(replacements).reduce((value, [token, replacement]) => value.replaceAll(token, replacement), source);
 

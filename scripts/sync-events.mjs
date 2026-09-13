@@ -69,7 +69,7 @@ const monatKurz = datum => new Intl.DateTimeFormat('de-AT', { month: 'short' })
 const zeileHtml = e => {
   // Der Ticketweg des Hauses ist Ticketist; die eigene Eventseite ist der
   // Rueckfall, wenn kein Ticketlink hinterlegt ist.
-  const ziel = e.ticketUrl || e.officialUrl;
+  const ziel = e.ticketUrl;
   const ticket = ziel
     ? `<a class="event-ticket-link event-status-${schuetzeHtml(e.status)}" href="${schuetzeHtml(ziel)}" target="_blank" rel="noopener noreferrer">${schuetzeHtml(statusWort(e.status))} \u2197</a>`
     : '';

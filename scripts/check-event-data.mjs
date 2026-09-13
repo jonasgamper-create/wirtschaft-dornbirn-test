@@ -26,8 +26,10 @@ try {
 
 if (!data || typeof data !== 'object') fail('Wurzel muss ein Objekt sein.');
 if (!Number.isInteger(data?.version)) fail('version fehlt oder ist keine Ganzzahl.');
-if (!data?.sourceUrl || !/^https:\/\/([\w-]+\.)*wirtschaft-dornbirn\.at\//i.test(data.sourceUrl)) {
-  fail('sourceUrl muss auf die offizielle Wirtschaft-Dornbirn-Domain zeigen.');
+// Die Quelle der Termine ist seit 13.09. der Ticketdienst - die alte
+// Wirtschaft-Seite wird abgeloest und darf hier nicht mehr stehen.
+if (!/^https:\/\/(www\.)?ticketist\.io\//i.test(data.sourceUrl || '')) {
+  fail('sourceUrl muss auf den Ticketdienst zeigen.');
 }
 if (!data?.updatedAt || !Number.isFinite(Date.parse(data.updatedAt))) fail('updatedAt ist kein gültiger ISO-Zeitstempel.');
 if (!Number.isFinite(Number(data?.maxAgeHours)) || Number(data.maxAgeHours) <= 0) fail('maxAgeHours muss positiv sein.');
@@ -51,9 +53,12 @@ for (const [index, event] of events.entries()) {
   if (previousDate && event.date < previousDate) fail('Events müssen chronologisch sortiert sein.');
   previousDate = event.date || previousDate;
   if (!allowedStatuses.has(event.status)) fail(`${prefix}.status ist nicht erlaubt: ${event.status}`);
-  if (!event.officialUrl || !/^https:\/\/([\w-]+\.)*wirtschaft-dornbirn\.at\//i.test(event.officialUrl)) {
-    fail(`${prefix}.officialUrl muss auf die offizielle Domain zeigen.`);
+  // Seit 13.09. steht das Programm bei uns: ein Termin verweist nicht mehr
+  // auf die alte Wirtschaft-Seite. Tickets laufen ueber den Ticketdienst.
+  if (event.officialUrl) {
+    fail(`${prefix}.officialUrl gibt es nicht mehr - die Seite verweist nicht auf das Alte.`);
   }
+
   // Der direkte Buchungsweg: gebucht wird ohne Zwischenseite beim
   // Ticketanbieter. Das Feld ist freiwillig, aber wenn es da ist, muss es
   // wirklich dorthin zeigen - ein Tippfehler wuerde Gaeste ins Leere schicken.

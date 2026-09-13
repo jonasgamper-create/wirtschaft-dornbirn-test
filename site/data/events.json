@@ -2,7 +2,7 @@
   "version": 2,
   "updatedAt": "2026-08-27T18:00:00+02:00",
   "maxAgeHours": 48,
-  "sourceUrl": "https://wirtschaft-dornbirn.at/event/",
+  "sourceUrl": "https://www.ticketist.io/",
   "pause": {
     "label": "Sommerpause",
     "start": "2026-07-24",
@@ -16,7 +16,6 @@
       "title": "Genussroute 6850",
       "type": "Dornbirner Genussabend",
       "status": "sold_out",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/genussroute-2026/",
       "tickets": [
         {
           "name": "Sitzplatz",
@@ -24,7 +23,8 @@
           "beginn": "18:00",
           "status": "ausverkauft"
         }
-      ]
+      ],
+      "ticketUrl": "https://www.ticketist.io/events/genussroute"
     },
     {
       "id": "event-2026-09-22",
@@ -32,7 +32,6 @@
       "title": "Helden reisen, Gäste speisen!",
       "type": "Dinner & Bühne",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/comedynacht-05-2026/",
       "tickets": [
         {
           "name": "Dinner & Comedy (Sitzplatz)",
@@ -49,7 +48,6 @@
       "title": "Helden reisen, Gäste speisen! – Zusatzabend",
       "type": "Dinner & Bühne",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/comedynacht-06-2026/",
       "tickets": [
         {
           "name": "Dinner & Comedy (Sitzplatz)",
@@ -66,7 +64,6 @@
       "title": "Dinner & Comedy",
       "type": "Genuss trifft Humor",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/dinner-comedy-04-2026/",
       "tickets": [
         {
           "name": "Dinner & Comedy (Sitzplatz)",
@@ -89,7 +86,6 @@
       "title": "Christof Spörk",
       "type": "Kabarett in der Wirtschaft",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/spoerk-2026/",
       "tickets": [
         {
           "name": "Dinner & Comedy (Sitzplatz)",
@@ -112,7 +108,6 @@
       "title": "Maria Neuschmid & Stefan Vögel",
       "type": "Kabarett in der Wirtschaft",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/neuschmid-voegel-02-2026/",
       "tickets": [
         {
           "name": "Dinner & Comedy (Sitzplatz)",
@@ -129,7 +124,6 @@
       "title": "Rock4 – A Cappella",
       "type": "The Music of Queen · A cappella",
       "status": "teilweise",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/rock4-2026/",
       "tickets": [
         {
           "name": "Dinner & Konzert (Sitzplatz)",
@@ -152,7 +146,6 @@
       "title": "Mathias Kellner",
       "type": "Lieder & Kabarett",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/kellner-2026/",
       "tickets": [
         {
           "name": "Dinner & Konzert (Sitzplatz)",
@@ -175,7 +168,6 @@
       "title": "Dinner & Comedy",
       "type": "Genuss trifft Humor",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/dinner-comedy-05-2026/",
       "tickets": [
         {
           "name": "Dinner & Comedy (Sitzplatz)",
@@ -198,7 +190,6 @@
       "title": "Philipp Lingg's Musikzimmer",
       "type": "Das musikalische Blind Date",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/philippsmusikzimmer-02-2026/",
       "tickets": [
         {
           "name": "Dinner & Konzert (Sitzplatz)",
@@ -221,7 +212,6 @@
       "title": "Hanskaspas Enkel & George Nussbaumer",
       "type": "Dinner & Konzert",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/hanskaspasenkel-2026/",
       "tickets": [
         {
           "name": "Dinner & Konzert (Sitzplatz)",
@@ -244,7 +234,6 @@
       "title": "Notenlos",
       "type": "Dinner & Konzert",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/notenlos-2026/",
       "tickets": [
         {
           "name": "Dinner & Konzert (Sitzplatz)",
@@ -267,7 +256,6 @@
       "title": "Krauthobel Anplakt",
       "type": "Dinner & Konzert",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/krauthobel-2026/",
       "tickets": [
         {
           "name": "Dinner & Konzert (Sitzplatz)",
@@ -290,7 +278,6 @@
       "title": "Rebel Tell",
       "type": "Dinner & Konzert",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/rebeltell-2026/",
       "tickets": [
         {
           "name": "Dinner & Konzert (Sitzplatz)",
@@ -313,7 +300,6 @@
       "title": "The Monroes",
       "type": "Dinner & Konzert",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/themonroes-2026/",
       "tickets": [
         {
           "name": "Dinner & Konzert (Sitzplatz)",
@@ -336,7 +322,6 @@
       "title": "Dinner & Comedy",
       "type": "Genuss trifft Humor",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/dinner-comedy-06-2026/",
       "tickets": [
         {
           "name": "Dinner & Comedy (Sitzplatz)",
@@ -359,7 +344,6 @@
       "title": "Dinner & Comedy",
       "type": "Genuss trifft Humor",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/dinner-comedy-07-2026/",
       "tickets": [
         {
           "name": "Dinner & Comedy (Sitzplatz)",
@@ -382,7 +366,6 @@
       "title": "Genussroute 6850",
       "type": "5 Gastronomen · 6 Live-Bands",
       "status": "scheduled",
-      "officialUrl": "https://wirtschaft-dornbirn.at/event/genussroute-2026/",
       "tickets": [
         {
           "name": "Sitzplatz",

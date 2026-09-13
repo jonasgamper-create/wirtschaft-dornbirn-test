@@ -37,6 +37,20 @@ for (const [relative, source] of Object.entries(html)) {
 }
 
 const events = JSON.parse(await readFile(path.join(root, 'site/data/events.json'), 'utf8'));
+// Gegenprobe zur Eigenstaendigkeit: kein Gast soll von hier auf eine der
+// beiden alten Seiten geschickt werden. Eigene Adressen in canonical, og
+// und Schema bleiben erlaubt - das ist die kuenftige Adresse dieser Seite,
+// kein Verweis auf das Alte.
+for (const [datei, quelle] of Object.entries(html)) {
+  // Ohne die Kopfzeilen: canonical, og:url und das Schema nennen die
+  // kuenftige Adresse DIESER Seite - das ist kein Verweis aufs Alte.
+  const koerper = quelle.slice(quelle.indexOf('<body'));
+  for (const treffer of koerper.matchAll(/href="(https?:\/\/[^"]*(?:eugen\.family|wirtschaft-dornbirn\.at)[^"]*)"/g)) {
+    if (/gutscheine\.wirtschaft-dornbirn\.at/.test(treffer[1])) continue;
+    fail(`${datei}: Verweis auf die alte Seite (${treffer[1]})`);
+  }
+}
+
 const eventIds = new Set(events.events.map(event => event.id));
 for (const match of main.matchAll(/data-calendar-event="([^"]+)"/g)) {
   if (!eventIds.has(match[1])) fail(`Kalenderaktion verweist auf unbekanntes Event ${match[1]}`);
@@ -46,10 +60,13 @@ for (const match of main.matchAll(/data-calendar-event="([^"]+)"/g)) {
 // Takeaway oeffnen die EIGENEN Strecken als Overlay auf der Startseite,
 // die alten Subseiten sind abgeloest. Pflicht sind die eigenen Ziele;
 // fehlten sie, stuende der Gast ohne Buchungsweg da.
+// Seit 13.09. ist die Seite eigenstaendig: sie verweist nicht mehr auf die
+// alte Wirtschaft-Seite und nicht mehr auf eugen.family. Das Programm steht
+// bei uns (events.html), Tickets laufen ueber den Ticketdienst.
 for (const required of [
   'tischreservierung.html',
   'takeaway.html',
-  'https://wirtschaft-dornbirn.at/event/',
+  'events.html',
   'feste-catering.html'
 ]) {
   const traegtZiel = quelle => quelle.includes(`href="${required}"`) || quelle.includes(`data-haus="${required}`);

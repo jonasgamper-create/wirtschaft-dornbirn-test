@@ -37,7 +37,7 @@ import {
   markiereInformiert, naechsterWartender, nimmAuf, pruefeWartelisteEintrag, raeumeWartelisteAb
 } from './warteliste.mjs';
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
-import { FRISCH_MS, holeProgramm, listeGueltig } from './kulturhaus.mjs';
+import { FRISCH_MS as TICKETIST_FRISCH_MS, holeTermin, KENNUNGEN, terminGueltig } from './ticketist.mjs';
 import {
   bestellungText, erinnerungText, fertigText, nummerFuerSms, reservierungText, sendeSms
 } from './sms.mjs';
@@ -2011,45 +2011,67 @@ export class Haus extends DurableObject {
   }
 
   /**
-   * Das Programm im Kulturhaus, gelesen bei Emma & Eugen.
+   * Die Abende beider Haeuser, gelesen beim Ticketdienst.
    *
-   * Der Gast soll beide Haeuser in EINER Liste sehen; geholt wird deshalb
-   * hier und nicht im Browser des Gastes - sonst haette jeder Aufruf der
-   * Eventseite eine Spur bei eugen.family hinterlassen, und die fremde
-   * Seite erlaubt das Lesen aus einem Browser ohnehin nicht.
+   * Eine Quelle fuer alles, was auf der Eventseite steht - und zwar die,
+   * bei der ohnehin verkauft wird. Die beiden alten Webseiten kommen nicht
+   * mehr vor (Jonas, 13.09.): eine neue Seite, die ihre Termine von der
+   * Seite holt, die sie ersetzen soll, waere am Tag der Abschaltung leer.
    *
-   * Der Stand liegt sechs Stunden. Ist er aelter, geht die Antwort trotzdem
-   * sofort raus und das Nachholen laeuft danach weiter (waitUntil): eine
-   * fremde Seite darf unsere eigene nie warten lassen. Kommt nichts
-   * Brauchbares zurueck, bleibt der letzte bekannte Stand stehen.
+   * Jeder Abend liegt einzeln im Speicher und haelt zwoelf Stunden. Bei
+   * jedem Aufruf werden hoechstens sechs veraltete nachgeholt, die
+   * aeltesten zuerst, und zwar NACH der Antwort (waitUntil): der Gast
+   * wartet nie auf einen fremden Dienst. Beim ersten Mal - wenn noch
+   * nichts gespeichert ist - holen wir acht sofort, damit die Seite nicht
+   * leer bleibt.
+   *
+   * Ein Abend, der beim Dienst nicht mehr zu lesen ist, bleibt mit seinem
+   * letzten bekannten Stand stehen. Verschwinden soll er erst, wenn sein
+   * Tag vorbei ist.
    */
-  async kulturhaus() {
-    const stand = this.#lies('kulturhaus', null);
-    const alter = stand?.geholtAm ? Date.now() - stand.geholtAm : Infinity;
-    const frisch = alter < FRISCH_MS;
+  async termine() {
+    const stand = this.#lies('termine', {});
+    const jetzt = Date.now();
+    const veraltet = KENNUNGEN
+      .filter(k => !stand[k] || (jetzt - (stand[k].geholtAm || 0)) > TICKETIST_FRISCH_MS)
+      .sort((a, b) => (stand[a]?.geholtAm || 0) - (stand[b]?.geholtAm || 0));
 
-    if (!frisch) {
-      const holen = (async () => {
-        const events = await holeProgramm();
-        if (!listeGueltig(events)) return;
-        this.#schreib('kulturhaus', { geholtAm: Date.now(), events });
-      })();
-      // Ohne bekannten Stand warten wir einmal - sonst saehe der erste Gast
-      // nach dem Start eine leere Liste, obwohl das Programm voll ist.
-      if (!stand?.events?.length) await holen;
-      else this.ctx.waitUntil(holen);
+    const hole = async kennungen => {
+      const frisch = { ...this.#lies('termine', {}) };
+      let geaendert = false;
+      for (const kennung of kennungen) {
+        const termin = await holeTermin(kennung);
+        if (!terminGueltig(termin)) {
+          // Nicht lesbar: den naechsten Versuch verschieben, aber den alten
+          // Stand behalten. Sonst fragt jeder Aufruf erneut nach einer
+          // Seite, die es nicht gibt.
+          if (frisch[kennung]) frisch[kennung] = { ...frisch[kennung], geholtAm: jetzt };
+          else frisch[kennung] = { geholtAm: jetzt, termin: null };
+          geaendert = true;
+          continue;
+        }
+        frisch[kennung] = { geholtAm: jetzt, termin };
+        geaendert = true;
+      }
+      if (geaendert) this.#schreib('termine', frisch);
+    };
+
+    const leer = !Object.values(stand).some(e => e?.termin);
+    if (veraltet.length) {
+      if (leer) await hole(veraltet.slice(0, 8));
+      else this.ctx.waitUntil(hole(veraltet.slice(0, 6)));
     }
 
-    const jetzt = this.#lies('kulturhaus', null);
     const heute = jetztImHaus().datum;
-    // Die Adresse des Pressefotos bei eugen.family bleibt hier: gaebe der
-    // Dienst sie heraus, wuerde sie frueher oder spaeter jemand einbauen -
-    // und dann laedt der Browser des Gastes doch wieder von der fremden
-    // Seite. Die Bilder liegen bei uns (scripts/sync-kulturhaus.mjs).
-    const events = (jetzt?.events || [])
-      .filter(e => e.date >= heute)
-      .map(({ bildQuelle, ...rest }) => rest);
-    return { ok: true, events, geholtAm: jetzt?.geholtAm || 0 };
+    const termine = Object.values(this.#lies('termine', {}))
+      .map(e => e?.termin)
+      .filter(t => t && t.date >= heute)
+      // Die Adresse des Bildes beim Dienst bleibt hier: die Bilder liegen
+      // bei uns, und niemand soll versehentlich von aussen nachladen.
+      .map(({ bildQuelle, ...rest }) => rest)
+      .sort((a, b) => a.date.localeCompare(b.date) || String(a.zeit).localeCompare(String(b.zeit)));
+
+    return { ok: true, termine, kennungen: KENNUNGEN.length };
   }
 
   /** Der Wirt legt einen Termin an. Die Liste haelt sich selbst sortiert. */
@@ -2948,9 +2970,10 @@ export default {
       if (url.pathname === '/api/events' && request.method === 'GET') {
         return json(await haus.eigeneEvents(), 200, kopf);
       }
-      // Das Kulturhaus-Programm: oeffentlich wie die eigenen Termine.
-      if (url.pathname === '/api/kulturhaus' && request.method === 'GET') {
-        return json(await haus.kulturhaus(), 200, kopf);
+      // Die Abende beider Haeuser, gelesen beim Ticketdienst - oeffentlich
+      // wie die eigenen Termine.
+      if (url.pathname === '/api/termine' && request.method === 'GET') {
+        return json(await haus.termine(), 200, kopf);
       }
       if (url.pathname === '/api/events' && request.method === 'POST') {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
