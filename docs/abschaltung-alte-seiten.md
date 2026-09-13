@@ -23,6 +23,18 @@ Adresse unter derselben Domain, nicht die alte Webseite. Alles andere ist
 weg: der Kopfknopf der Eventseite, zwei Knöpfe auf der Startseite, die
 Verweise aller 18 Termine, die Betreiberlinks in den Fußzeilen.
 
+**Eine benannte Ausnahme:** fünf Abende im Kulturhaus – Sing mit!, Ulli Troy
+(zwei Abende), Einarsson 2027 und Genussroute 6850 – haben beim Ticketdienst
+keine eigene Seite. Verkauft werden sie im Shop auf eugen.family, und dorthin
+führt bei diesen fünf Kacheln der Ticketknopf (Entscheidung vom 13.09.). Er
+öffnet in einem neuen Fenster, nicht in unserem.
+
+Das löst sich von selbst: Sobald ein solcher Abend beim Ticketdienst
+auftaucht, nimmt der Dienst dessen Auskunft und der Knopf zeigt dorthin – die
+Kennung ist dieselbe. Verschwindet eugen.family vorher, fallen genau diese
+fünf aus der Liste, ohne dass etwas kaputtgeht. **Damit sie bleiben, brauchen
+sie bis dahin eine Seite beim Ticketdienst.**
+
 **Entscheidung nötig:** Wird der Gutscheinshop weiter betrieben? Wenn ja,
 bleibt alles, wie es ist. Wenn nein, nehme ich die sieben Links heraus.
 
@@ -41,9 +53,12 @@ Die Gästeseiten rufen zur Laufzeit genau zwei fremde Adressen auf:
 | `wirtschaft-reservierung.jonas-gamper.workers.dev` | unser eigener Dienst | nein |
 | `www.ticketist.io` | Ticketkauf im Fenster | nein |
 
-Der Dienst selbst ruft auf: `api.brevo.com` (Mails) und
-`www.ticketist.io` (Termine). **eugen.family kommt im Dienst nicht mehr
-vor** – der frühere Weg über die Programmseite ist entfernt.
+Der Dienst selbst ruft auf: `api.brevo.com` (Mails), `www.ticketist.io`
+(Termine) und `eugen.family/kulturhaus` – die Programmseite, damit er weiß,
+welche Abende im Kulturhaus überhaupt anstehen. Das passiert **im
+Hintergrund**; kein Browser eines Gastes berührt diese Seite. Fällt sie weg,
+bleibt der letzte bekannte Stand stehen, und neue Abende werden von Hand
+nachgetragen.
 
 ### 4. Der gedruckte QR-Code auf der Faltkarte
 
@@ -99,9 +114,11 @@ Testlauf auf, nicht erst beim Gast.
 
 1. **Gutscheinshop klären** – bleibt er, bleibt der Link.
 2. **Alte Faltkarten aussortieren** – der alte QR-Code zeigt ins Leere.
-3. **Fünf Kennungen nachtragen** – Einarsson 2027, Genussroute 6850,
-   Sing mit!, Ulli Troy (zwei Abende). Beim Ticketdienst antworten sie unter
-   der bisherigen Kennung nicht; ohne sie fehlen fünf Abende im Programm.
+3. **Fünf Abende zum Ticketdienst bringen** – Einarsson 2027, Genussroute
+   6850, Sing mit!, Ulli Troy (zwei Abende). Sie stehen in der Übersicht und
+   verkaufen heute über den Shop des Kulturhauses. Wird eugen.family
+   abgeschaltet, bevor sie beim Ticketdienst stehen, verschwinden sie aus der
+   Liste – und sind dann auch nirgends mehr zu kaufen.
 4. **Weiterleitungen einrichten**, sobald die Domain umzieht: `/event/…`,
    `/das-konzept/`, `/comedynacht/` und die drei Subdomains sollten auf die
    passenden neuen Seiten zeigen, damit alte Links und Suchergebnisse nicht

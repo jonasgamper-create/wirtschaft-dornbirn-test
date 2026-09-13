@@ -82,6 +82,13 @@
             /* Kein Link auf einer ausverkauften Kachel: der Shop zeigt dort
                den naechsten Termin, und der Gast landete beim falschen. */
             ? '<span class="button light kachel-ausverkauft" aria-disabled="true">Ausverkauft</span>'
+            : termin.quelle === 'kulturhaus'
+            /* Diese Abende verkauft das Kulturhaus in seinem eigenen Shop -
+               beim Ticketdienst haben sie (noch) keine Seite. Der Shop
+               laesst sich nicht in unser Fenster holen, also oeffnet er im
+               neuen Tab. Sobald der Abend beim Ticketdienst steht, greift
+               von selbst wieder der Weg darueber. */
+            ? `<a class="button light" href="${escapeHtml(termin.ticketUrl)}" target="_blank" rel="noopener noreferrer">Tickets ↗</a>`
             : `<button class="button light" type="button" data-buchen="${escapeHtml(termin.ticketUrl)}" data-titel="${escapeHtml(termin.title)}">Tickets buchen</button>`}
           <button class="button ghost kachel-kalender" type="button" data-kalender="${escapeHtml(termin.id)}" aria-label="${escapeHtml(termin.title)} in den Kalender eintragen">+ Kalender</button>
         </div>

@@ -78,8 +78,21 @@ check('Keine fremden Bildadressen in der Datei',
   datei.termine.every(t => !t.bild || t.bild.startsWith('assets/events/ticketist/')));
 // Verweise auf die alten Seiten sind verboten - eine Mailadresse im
 // beschreibenden Text des Veranstalters ist keiner.
-check('Kein Verweis auf die alten Seiten in der Datei',
-  !/https?:\/\/[^"\s]*(eugen\.family|wirtschaft-dornbirn\.at)/.test(JSON.stringify(datei)));
+// Verweise auf die alten Seiten sind verboten - mit einer benannten
+// Ausnahme: die Abende, die das Kulturhaus in seinem eigenen Shop verkauft
+// und die beim Ticketdienst (noch) keine Seite haben. Sie sind als solche
+// markiert, und ihr Ticketweg ist der einzige, der zu einer Karte fuehrt.
+for (const t of datei.termine) {
+  const zeigtAufAlt = /https?:\/\/[^"\s]*(eugen\.family|wirtschaft-dornbirn\.at)/.test(JSON.stringify(t));
+  if (!zeigtAufAlt) continue;
+  check(`${t.id}: Verweis auf die alte Seite nur beim Kulturhaus-Shop`, t.quelle === 'kulturhaus');
+  check(`${t.id}: der Verweis ist der Ticketweg, sonst nichts`,
+    !/https?:\/\/[^"\s]*(eugen\.family|wirtschaft-dornbirn\.at)/.test(JSON.stringify({ ...t, ticketUrl: '' })));
+}
+check('Jeder Termin sagt, woher er kommt',
+  datei.termine.every(t => t.quelle === 'ticketist' || t.quelle === 'kulturhaus'));
+check('Beide Haeuser stehen in der Liste',
+  new Set(datei.termine.map(t => t.haus)).size === 2);
 check('Ausverkauft im Text zaehlt als ausverkauft',
   leseTermin(seite.replace('"description":"Erste Zeile.', '"description":"Diese Veranstaltung ist ausverkauft.'), 'x').buchbar === false);
 

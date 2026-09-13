@@ -22,6 +22,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { holeTermin } from '../server/src/ticketist.mjs';
+import { holeProgramm } from '../server/src/kulturhaus.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ziel = path.join(root, 'site', 'data', 'termine.json');
@@ -47,14 +48,37 @@ function alsWebp(rohdatei, zieldatei) {
   }
 }
 
+// Das Programm des Kulturhauses sagt, WELCHE Abende es gibt - auch die, die
+// beim Ticketdienst (noch) keine eigene Seite haben. Der Dienst im Haus liest
+// dieselbe Seite; hier geht es nur um den hinterlegten Stand und die Bilder.
+const programm = await holeProgramm() || [];
+const ausProgramm = new Map(programm.map(e => [e.id, e]));
+const alleKennungen = [...new Set([...kennungen, ...ausProgramm.keys()])].sort();
+
 const termine = [];
-const fehlend = [];
+const nurKulturhaus = [];
 const nachQuelle = new Map();
 let geholt = 0;
 
-for (const kennung of kennungen) {
-  const termin = await holeTermin(kennung);
-  if (!termin) { fehlend.push(kennung); continue; }
+for (const kennung of alleKennungen) {
+  let termin = await holeTermin(kennung);
+  if (!termin) {
+    // Kein Eintrag beim Ticketdienst: steht der Abend im Programm des
+    // Kulturhauses, kommt er von dort - mit dem Shop des Hauses als
+    // Ticketweg, bis er beim Ticketdienst auftaucht.
+    const roh = ausProgramm.get(kennung);
+    if (!roh) continue;
+    nurKulturhaus.push(kennung);
+    termin = {
+      id: roh.id, date: roh.date, zeit: '', title: roh.title,
+      untertitel: roh.programm || '', ort: 'Kulturhaus Dornbirn', haus: 'kulturhaus',
+      adresse: 'Rathausplatz 1, Dornbirn', beschreibung: '',
+      bildQuelle: roh.bildQuelle || '', ticketUrl: roh.infoUrl, buchbar: true,
+      quelle: 'kulturhaus'
+    };
+  } else {
+    termin.quelle = 'ticketist';
+  }
 
   if (termin.bildQuelle) {
     // Dieselbe Aufnahme für mehrere Abende (die drei Luis-Termine teilen
@@ -96,9 +120,8 @@ for (const kennung of kennungen) {
 
 termine.sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
 
-if (fehlend.length) {
-  console.warn(`  Nicht gelesen: ${fehlend.join(', ')}`);
-  console.warn('  (Kennung falsch geschrieben, oder der Termin ist beim Dienst nicht mehr da.)');
+if (nurKulturhaus.length) {
+  console.log(`  Nur im Kulturhaus-Programm (noch nicht beim Ticketdienst): ${nurKulturhaus.join(', ')}`);
 }
 if (!termine.length) {
   console.error('sync-termine FEHLER: kein einziger Termin gelesen - die alte Datei bleibt stehen.');
@@ -109,10 +132,10 @@ await writeFile(ziel, JSON.stringify({
   version: 1,
   updatedAt: new Date().toISOString().slice(0, 10),
   quelle: 'https://www.ticketist.io/events/<kennung>',
-  kennungen,
+  kennungen: alleKennungen,
   termine
 }, null, 2) + '\n');
 
 const haeuser = termine.reduce((zahl, t) => ({ ...zahl, [t.haus]: (zahl[t.haus] || 0) + 1 }), {});
 console.log(`Termine: ${termine.length} gelesen (${Object.entries(haeuser).map(([h, n]) => `${n}× ${h}`).join(', ')}), `
-  + `${geholt} Bilder neu geholt${fehlend.length ? `, ${fehlend.length} Kennung(en) ohne Treffer` : ''}.`);
+  + `${geholt} Bilder neu geholt${nurKulturhaus.length ? `, davon ${nurKulturhaus.length} aus dem Kulturhaus-Programm` : ''}.`);
