@@ -36,6 +36,32 @@
 .kachel-aktionen .button{min-height:44px}
 .event-kachel[data-status="sold_out"] .kachel-aktionen .button.light{background:transparent;color:#c8c2b8;border-color:#ffffff44}
 
+/* ---- Die Abende im Kulturhaus ---------------------------------------------
+   Dieselbe Kachel, andere Farbe: beige statt dunkel. Damit steht das
+   Programm beider Haeuser in einer Liste und der Ort ist trotzdem auf einen
+   Blick zu sehen (Jonas, 11.09.). Der Text wird dunkel - auf Creme ist
+   Weiss nicht lesbar -, alles andere bleibt, wie es ist. */
+/* Creme steht hier ausgeschrieben: diese Seite baut auf feste-catering.css
+   auf, und dort gibt es --cream nicht (nur ink, paper, wine, gold, green).
+   Der Wert ist der aus der CI, --ink dagegen kommt von dort. */
+.event-kachel[data-haus="kulturhaus"]{border-color:#00000018;background:#ead9bc;color:var(--ink)}
+.event-kachel[data-haus="kulturhaus"] .kachel-typ{color:#57524a}
+.event-kachel[data-haus="kulturhaus"] .kachel-zeile time{color:#8a6a2f}
+.event-kachel[data-haus="kulturhaus"] .kachel-medien{background:#d9c9ad}
+/* Der Knopf traegt hier die Farbe des Hauses, nicht die der dunklen Seite. */
+.event-kachel[data-haus="kulturhaus"] .kachel-aktionen .button.light{background:var(--ink);border-color:var(--ink);color:#f3efe6}
+.event-kachel[data-haus="kulturhaus"] .kachel-aktionen .button.light:hover{background:#2b2b27;border-color:#2b2b27}
+.event-kachel[data-haus="kulturhaus"] .kachel-aktionen .button.ghost{border-color:#11110f4d;color:var(--ink)}
+.event-kachel[data-haus="kulturhaus"] .kachel-aktionen .button.ghost:hover{background:#11110f12}
+/* Das Wort im Bild sagt den Ort auch dem, der die Legende ueberliest. */
+.kachel-ort{position:absolute;left:12px;top:12px;z-index:2;padding:5px 11px;border-radius:99px;
+  background:#11110fbf;color:#ead9bc;font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:lowercase}
+
+.events-legende{display:flex;align-items:center;gap:10px;margin:0 0 18px;color:#c9c4bb;font-size:13.5px;line-height:1.6}
+.events-legende[hidden]{display:none}
+.events-legende b{color:#e8e3da}
+.legende-punkt{flex:0 0 14px;width:14px;height:14px;border-radius:4px;background:#ead9bc}
+
 .events-hinweis{max-width:720px;margin:30px 0 0;padding-top:16px;border-top:1px solid #ffffff26;color:#c9c4bb;font-size:13.5px;line-height:1.6}
 
 .events-abo{width:min(1240px,calc(100% - 48px));margin:40px auto 0;padding:34px;display:grid;grid-template-columns:1.1fr .9fr;gap:34px;border:1px solid #ffffff22;background:#244635}

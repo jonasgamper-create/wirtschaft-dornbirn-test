@@ -45,6 +45,9 @@ const excluded = new Set([
   'einrichten.html',
   'einrichten.js',
   'entwuerfe.html',
+  // Gehoert zum Entwurf cinematic und traegt 18 Links auf die alte
+  // Wirtschaft-Seite. Die Entwurfsseite selbst ist ohnehin draussen.
+  'cinematic-event-calendar.js',
   'drafts.css',
   'entwuerfe.css',
   'ticketing-cinematic.css',

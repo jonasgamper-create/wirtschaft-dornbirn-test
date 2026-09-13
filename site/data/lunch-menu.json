@@ -4,12 +4,12 @@
   "status": "active",
   "serviceWindow": "Montag bis Freitag · 11:30–13:30",
   "reservationUrl": "tischreservierung.html",
-  "sourceUrl": "https://wirtschaft-dornbirn.at/",
+  "sourceUrl": "https://www.ticketist.io/",
   "pauseNote": "Zurzeit kochen wir wieder mittags – Montag bis Freitag, 11:30–13:30.",
   "card": {
     "file": "",
     "label": "Aktuelle Mittagskarte (PDF)",
-    "sourceUrl": "https://wirtschaft-dornbirn.at/wp-content/uploads/2026/07/mittagskarte_sommerurlaub_2026.pdf",
+    "sourceUrl": "",
     "fetchedAt": "2026-08-09"
   },
   "days": [

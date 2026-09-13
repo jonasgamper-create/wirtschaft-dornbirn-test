@@ -76,7 +76,7 @@ const el = (tag, klasse = '', text = '') => {
   return knoten;
 };
 
-/** Eine Zeile der Karte: Praefix + Name fett, Preis rechts, Beilagen darunter. */
+/** Eine Zeile: Praefix + Name fett samt Allergenen, Preis rechts, Beilagen darunter. */
 function zeile(gericht, { praefix = '', preis = null } = {}) {
   const block = el('div', 'karte-zeile');
   const name = el('p', 'karte-name');
@@ -84,8 +84,12 @@ function zeile(gericht, { praefix = '', preis = null } = {}) {
   name.append(gericht.name);
   block.append(name);
   if (preis !== null) block.append(el('span', 'karte-preis', alsPreis(preis)));
-  const unten = [gericht.beilage, gericht.allergene ? `(${gericht.allergene})` : ''].filter(Boolean).join(' ');
-  if (unten) block.append(el('p', 'karte-beilage', unten));
+  // Die Allergene gehoeren an den Namen, nicht unter die Beilagen: wer nach
+  // ihnen sucht, liest die fette Zeile und nicht das Kleingedruckte darunter
+  // (Jonas, 11.09.). Sie stehen mager hinter dem Namen, damit die Zeile
+  // trotzdem ruhig bleibt.
+  if (gericht.allergene) name.append(' ', el('span', 'karte-allergene', `(${gericht.allergene})`));
+  if (gericht.beilage) block.append(el('p', 'karte-beilage', gericht.beilage));
   return block;
 }
 

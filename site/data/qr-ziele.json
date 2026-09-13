@@ -1,7 +1,7 @@
 {
-  "_hinweis": "Die Ziele der beiden QR-Codes auf der Faltkarte. Gedruckt heisst dauerhaft. Events zeigt auf die Ticketuebersicht der bestehenden Seite; Takeaway auf die Bestellseite der neuen (Wunsch vom 04.09.). Nach einer Aenderung hier: npm run ci (erzeugt die Codes neu).",
+  "_hinweis": "Die Ziele der beiden QR-Codes auf der Faltkarte. Gedruckt heisst dauerhaft: seit 13.09. zeigen beide auf die eigene Seite, weil die alte Wirtschaft-Seite abgeloest und geloescht wird. Nach einer Aenderung hier: npm run ci (erzeugt die Codes neu).",
   "events": {
-    "url": "https://wirtschaft-dornbirn.at/event/",
+    "url": "https://jonasgamper-create.github.io/wirtschaft-dornbirn-test/events.html",
     "text": "hier geht es zu den aktuellen events"
   },
   "takeaway": {
