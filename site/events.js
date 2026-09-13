@@ -54,6 +54,8 @@
 
     // Zweite Zeile: wann und wo. Beim Kulturhaus gehoert der Ort dazu, im
     // eigenen Haus waere er Fuellsel - der Gast steht ja schon davor.
+    // Hier und nur hier: eine Marke im Bild sagte dasselbe ein zweites Mal
+    // und war am Telefon zu gross (Jonas, 13.09.).
     const zweite = [
       wochentag,
       termin.zeit ? `${termin.zeit} Uhr` : '',
@@ -66,7 +68,6 @@
       <div class="kachel-medien">
         <img src="${escapeHtml(bild)}" width="1200" height="750" loading="lazy" decoding="async"
              alt="${escapeHtml(termin.title)}" data-fallback="${fallback}">
-        ${imKulturhaus ? '<span class="kachel-ort">kulturhaus</span>' : ''}
         ${video ? `<video preload="metadata" playsinline muted hidden src="${video}"></video>
         <button class="kachel-hoerprobe" type="button">Hörprobe ▶</button>` : ''}
       </div>

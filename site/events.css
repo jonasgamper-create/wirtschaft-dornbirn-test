@@ -53,10 +53,6 @@
 .event-kachel[data-haus="kulturhaus"] .kachel-aktionen .button.light:hover{background:#2b2b27;border-color:#2b2b27}
 .event-kachel[data-haus="kulturhaus"] .kachel-aktionen .button.ghost{border-color:#11110f4d;color:var(--ink)}
 .event-kachel[data-haus="kulturhaus"] .kachel-aktionen .button.ghost:hover{background:#11110f12}
-/* Das Wort im Bild sagt den Ort auch dem, der die Legende ueberliest. */
-.kachel-ort{position:absolute;left:12px;top:12px;z-index:2;padding:5px 11px;border-radius:99px;
-  background:#11110fbf;color:#ead9bc;font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:lowercase}
-
 .events-legende{display:flex;align-items:center;gap:10px;margin:0 0 18px;color:#c9c4bb;font-size:13.5px;line-height:1.6}
 .events-legende[hidden]{display:none}
 .events-legende b{color:#e8e3da}
