@@ -21,19 +21,13 @@ import { mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promise
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { holeTermin } from '../server/src/ticketist.mjs';
-import { holeProgramm } from '../server/src/kulturhaus.mjs';
+import { gruppiere, holeTermin, KENNUNGEN } from '../server/src/ticketist.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ziel = path.join(root, 'site', 'data', 'termine.json');
 const bilderOrdner = path.join(root, 'site', 'assets', 'events', 'ticketist');
 
-const vorher = JSON.parse(await readFile(ziel, 'utf8').catch(() => '{"kennungen":[]}'));
-const kennungen = [...new Set(vorher.kennungen || [])].sort();
-if (!kennungen.length) {
-  console.error('sync-termine FEHLER: keine Kennungen in site/data/termine.json.');
-  process.exit(1);
-}
+const kennungen = [...KENNUNGEN].sort();
 
 await mkdir(bilderOrdner, { recursive: true });
 const vorhanden = new Set(await readdir(bilderOrdner).catch(() => []));
@@ -48,37 +42,23 @@ function alsWebp(rohdatei, zieldatei) {
   }
 }
 
-// Das Programm des Kulturhauses sagt, WELCHE Abende es gibt - auch die, die
-// beim Ticketdienst (noch) keine eigene Seite haben. Der Dienst im Haus liest
-// dieselbe Seite; hier geht es nur um den hinterlegten Stand und die Bilder.
-const programm = await holeProgramm() || [];
-const ausProgramm = new Map(programm.map(e => [e.id, e]));
-const alleKennungen = [...new Set([...kennungen, ...ausProgramm.keys()])].sort();
+// Die Preise stehen nicht auf der oeffentlichen Eventseite - der Dienst gibt
+// sie nur im Verwaltungsbereich heraus. Sie liegen deshalb als eigene Datei
+// im Projekt (site/data/ticketist-preise.json, gelesen am 14.09.) und werden
+// hier zu den Terminen gelegt. Preise aendern sich selten; ob noch Karten da
+// sind, kommt live von der Eventseite.
+const preisDatei = JSON.parse(await readFile(path.join(root, 'site', 'data', 'ticketist-preise.json'), 'utf8'));
+const preise = preisDatei.preise || {};
 
 const termine = [];
-const nurKulturhaus = [];
+const fehlend = [];
 const nachQuelle = new Map();
 let geholt = 0;
 
-for (const kennung of alleKennungen) {
-  let termin = await holeTermin(kennung);
-  if (!termin) {
-    // Kein Eintrag beim Ticketdienst: steht der Abend im Programm des
-    // Kulturhauses, kommt er von dort - mit dem Shop des Hauses als
-    // Ticketweg, bis er beim Ticketdienst auftaucht.
-    const roh = ausProgramm.get(kennung);
-    if (!roh) continue;
-    nurKulturhaus.push(kennung);
-    termin = {
-      id: roh.id, date: roh.date, zeit: '', title: roh.title,
-      untertitel: roh.programm || '', ort: 'Kulturhaus Dornbirn', haus: 'kulturhaus',
-      adresse: 'Rathausplatz 1, Dornbirn', beschreibung: '',
-      bildQuelle: roh.bildQuelle || '', ticketUrl: roh.infoUrl, buchbar: true,
-      quelle: 'kulturhaus'
-    };
-  } else {
-    termin.quelle = 'ticketist';
-  }
+for (const kennung of kennungen) {
+  const termin = await holeTermin(kennung);
+  if (!termin) { fehlend.push(kennung); continue; }
+  termin.preise = preise[kennung] || [];
 
   if (termin.bildQuelle) {
     // Dieselbe Aufnahme für mehrere Abende (die drei Luis-Termine teilen
@@ -118,10 +98,12 @@ for (const kennung of alleKennungen) {
   termine.push(schlank);
 }
 
-termine.sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+// Zwei Wege zu einem Abend zusammenlegen - dieselbe Regel wie im Dienst.
+const abende = gruppiere(termine);
 
-if (nurKulturhaus.length) {
-  console.log(`  Nur im Kulturhaus-Programm (noch nicht beim Ticketdienst): ${nurKulturhaus.join(', ')}`);
+if (fehlend.length) {
+  console.warn(`  Nicht gelesen: ${fehlend.join(', ')}`);
+  console.warn('  (Kennung falsch geschrieben, oder der Termin ist beim Dienst nicht mehr da.)');
 }
 if (!termine.length) {
   console.error('sync-termine FEHLER: kein einziger Termin gelesen - die alte Datei bleibt stehen.');
@@ -132,10 +114,12 @@ await writeFile(ziel, JSON.stringify({
   version: 1,
   updatedAt: new Date().toISOString().slice(0, 10),
   quelle: 'https://www.ticketist.io/events/<kennung>',
-  kennungen: alleKennungen,
-  termine
+  kennungen,
+  termine: abende
 }, null, 2) + '\n');
 
-const haeuser = termine.reduce((zahl, t) => ({ ...zahl, [t.haus]: (zahl[t.haus] || 0) + 1 }), {});
-console.log(`Termine: ${termine.length} gelesen (${Object.entries(haeuser).map(([h, n]) => `${n}× ${h}`).join(', ')}), `
-  + `${geholt} Bilder neu geholt${nurKulturhaus.length ? `, davon ${nurKulturhaus.length} aus dem Kulturhaus-Programm` : ''}.`);
+const haeuser = abende.reduce((zahl, t) => ({ ...zahl, [t.haus]: (zahl[t.haus] || 0) + 1 }), {});
+const zweiWege = abende.filter(a => a.varianten?.length).length;
+console.log(`Termine: ${abende.length} Abende (${termine.length} Veranstaltungen, ${zweiWege} mit zweitem Ticketweg)`
+  + ` (${Object.entries(haeuser).map(([h, n]) => `${n}× ${h}`).join(', ')}), `
+  + `${geholt} Bilder neu geholt${fehlend.length ? `, ${fehlend.length} ohne Treffer` : ''}.`);

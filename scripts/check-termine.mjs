@@ -76,23 +76,37 @@ check('Termine sind sortiert',
   datei.termine.every((t, i) => i === 0 || datei.termine[i - 1].date <= t.date));
 check('Keine fremden Bildadressen in der Datei',
   datei.termine.every(t => !t.bild || t.bild.startsWith('assets/events/ticketist/')));
-// Verweise auf die alten Seiten sind verboten - eine Mailadresse im
-// beschreibenden Text des Veranstalters ist keiner.
-// Verweise auf die alten Seiten sind verboten - mit einer benannten
-// Ausnahme: die Abende, die das Kulturhaus in seinem eigenen Shop verkauft
-// und die beim Ticketdienst (noch) keine Seite haben. Sie sind als solche
-// markiert, und ihr Ticketweg ist der einzige, der zu einer Karte fuehrt.
-for (const t of datei.termine) {
-  const zeigtAufAlt = /https?:\/\/[^"\s]*(eugen\.family|wirtschaft-dornbirn\.at)/.test(JSON.stringify(t));
-  if (!zeigtAufAlt) continue;
-  check(`${t.id}: Verweis auf die alte Seite nur beim Kulturhaus-Shop`, t.quelle === 'kulturhaus');
-  check(`${t.id}: der Verweis ist der Ticketweg, sonst nichts`,
-    !/https?:\/\/[^"\s]*(eugen\.family|wirtschaft-dornbirn\.at)/.test(JSON.stringify({ ...t, ticketUrl: '' })));
-}
-check('Jeder Termin sagt, woher er kommt',
-  datei.termine.every(t => t.quelle === 'ticketist' || t.quelle === 'kulturhaus'));
+// Seit 14.09. kommt jeder Abend vom Ticketdienst - auch die im Kulturhaus.
+// Ein Verweis auf eine der alten Seiten hat hier nichts mehr verloren.
+check('Kein Verweis auf die alten Seiten',
+  !/https?:\/\/[^"\s]*(eugen\.family|wirtschaft-dornbirn\.at)/.test(
+    JSON.stringify(datei.termine.map(({ beschreibung, ...rest }) => rest))));
 check('Beide Haeuser stehen in der Liste',
   new Set(datei.termine.map(t => t.haus)).size === 2);
+check('Jeder Ticketweg zeigt auf den Ticketdienst',
+  datei.termine.every(t => t.ticketUrl.startsWith('https://www.ticketist.io/events/')
+    && (t.varianten || []).every(v => v.ticketUrl.startsWith('https://www.ticketist.io/events/'))));
+
+// Die zwei Wege zu einem Abend: der zweite traegt eine Beschriftung, eine
+// eigene Kennung und einen eigenen Preis - sonst waere er keiner.
+const mitZweitem = datei.termine.filter(t => t.varianten?.length);
+check('Es gibt Abende mit zweitem Ticketweg', mitZweitem.length > 10);
+check('Jeder zweite Weg hat Beschriftung, Kennung und Zeit',
+  mitZweitem.every(t => t.varianten.every(v => v.label && v.id && v.id !== t.id)));
+check('Kein Abend taucht zweimal auf',
+  new Set(datei.termine.map(t => t.id)).size === datei.termine.length);
+check('Keine Kennung steckt zugleich in einem zweiten Weg',
+  datei.termine.every(t => !datei.termine.some(x => (x.varianten || []).some(v => v.id === t.id))));
+
+// Preise: sie kommen aus dem Verwaltungsbereich und liegen bei uns.
+const preisDatei = JSON.parse(await readFile(path.join(root, 'site', 'data', 'ticketist-preise.json'), 'utf8'));
+check('Preise fuer jede Kennung hinterlegt',
+  KENNUNGEN.every(k => Array.isArray(preisDatei.preise?.[k])));
+check('Jeder Preis ist eine Zahl',
+  Object.values(preisDatei.preise).every(l => l.every(p => typeof p.preis === 'number' && p.preis > 0)));
+check('Die Termine tragen ihre Preise',
+  datei.termine.filter(t => (t.preise || []).length).length > 25);
+
 check('Ausverkauft im Text zaehlt als ausverkauft',
   leseTermin(seite.replace('"description":"Erste Zeile.', '"description":"Diese Veranstaltung ist ausverkauft.'), 'x').buchbar === false);
 

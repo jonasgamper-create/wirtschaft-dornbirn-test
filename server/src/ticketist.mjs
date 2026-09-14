@@ -30,17 +30,22 @@
  * und der Dienst holt den Rest selbst.
  */
 export const KENNUNGEN = [
-  'comedynacht-05-2026-1', 'comedynacht-06-2026-1', 'dinner-comedy-04-2026',
-  'dinner-comedy-05-2026', 'dinner-comedy-06-2026', 'dinner-comedy-07-2026',
-  'einarsson-2027', 'genussroute', 'genussroute-6850',
-  'hader-02-2026', 'hanskaspasenkel-2026', 'kellner-2026',
-  'krauthobel-2026', 'kulis-02-2026', 'kulis-03-2026',
+  'comedynacht-05-2026-1', 'comedynacht-06-2026-1', 'dabado-charity',
+  'dabado-charity-dinner', 'dinner-comedy-04-2026', 'dinner-comedy-04-only-2026',
+  'dinner-comedy-05-2026', 'dinner-comedy-05-only-2026', 'dinner-comedy-06-2026',
+  'dinner-comedy-06-only-2026', 'dinner-comedy-07-2026', 'dinner-comedy-07-only-2026',
+  'einarsson-sitzplatz-2027', 'einarsson-stehplatz-2027', 'genussroute',
+  'hader-02-2026', 'hanskaspasenkel-2026', 'hanskaspasenkel-2026-only',
+  'kellner-2026', 'kellner-2026-only', 'krauthobel-2026',
+  'krauthobel-2026-only', 'kulis-02-2026', 'kulis-03-2026',
   'kulturimhaus-h2026', 'landert-2026', 'luis-02-2026',
   'luis-03-2026', 'luis-2026', 'meyle-2026',
-  'neuschmid-voegel-02-2026', 'notenlos-2026', 'philippsmusikzimmer-02-2026',
-  'rebeltell-2026', 'rock4-2026-only', 'singmit-2026',
-  'spoerk-2026', 'themonroes-2026', 'ullitroy-01-2026',
-  'ullitroy-02-2026'
+  'neuschmid-voegel-02-2026', 'notenlos-2026', 'notenlos-2026-only',
+  'philippsmusikzimmer-02-2026', 'philippsmusikzimmer-02-only-2026', 'rebeltell-2026',
+  'rebeltell-2026-only', 'rock4-2026', 'rock4-2026-only',
+  'singmit-konzertonly', 'spoerk-2026', 'spoerk-2026-only',
+  'themonroes-2026', 'themonroes-2026-only', 'ullitroy-brunch-2026',
+  'ullitroy-menue-2026'
 ];
 
 /** Wie lange ein gelesener Termin als frisch gilt. */
@@ -143,6 +148,74 @@ export function leseTermin(html, kennung) {
 /** Ein Termin, der sich anzeigen lässt. */
 export function terminGueltig(termin) {
   return Boolean(termin && termin.id && termin.date && termin.title && termin.ticketUrl);
+}
+
+/**
+ * Ein Abend, zwei Wege zur Karte.
+ *
+ * Das Haus verkauft viele Abende zweimal: einmal als "dinner & comedy" um
+ * 19 Uhr (Essen und Vorstellung) und einmal als "comedy only" um 21 Uhr
+ * (nur die Vorstellung, Stehplatz). Beim Ticketdienst sind das zwei
+ * getrennte Veranstaltungen mit eigenem Namen, eigener Kennung, eigenem
+ * Preis - fuer den Gast ist es EIN Abend mit zwei Moeglichkeiten.
+ *
+ * Erkannt wird das am Namen: der zweite heisst wie der erste, dann ein
+ * Trennzeichen, dann die Art des Zugangs.
+ *
+ *   "dinner & comedy"  +  "dinner & comedy | comedy only"
+ *   "Dabado Charity • Clubbing II"  +  "... - Dinner & Konzert"
+ *   "Thorsteinn Einarsson"  +  "Thorsteinn Einarsson | Sitzplatz"
+ *
+ * Zusammengefasst wird nur, was am selben Tag im selben Haus stattfindet -
+ * zwei Luis-Abende an zwei Tagen bleiben zwei Abende (Jonas, 14.09.).
+ */
+const TRENNER = /\s+[|\u2013-]\s+/;
+
+const schluessel = termin => `${termin.date}|${termin.haus}`;
+const normal = wert => String(wert || '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+export function gruppiere(termine) {
+  const nachTag = new Map();
+  for (const termin of termine) {
+    const k = schluessel(termin);
+    if (!nachTag.has(k)) nachTag.set(k, []);
+    nachTag.get(k).push(termin);
+  }
+
+  const raus = [];
+  for (const gruppe of nachTag.values()) {
+    // Der kuerzeste Name zuerst: er ist der Abend, alles Weitere ein Zugang.
+    const sortiert = gruppe.slice().sort((a, b) => a.title.length - b.title.length
+      || String(a.zeit).localeCompare(String(b.zeit)));
+    const vergeben = new Set();
+
+    for (const haupt of sortiert) {
+      if (vergeben.has(haupt.id)) continue;
+      vergeben.add(haupt.id);
+      const varianten = [];
+      for (const anderer of sortiert) {
+        if (vergeben.has(anderer.id)) continue;
+        const rest = normal(anderer.title).startsWith(normal(haupt.title))
+          ? anderer.title.slice(haupt.title.length)
+          : '';
+        if (!rest || !TRENNER.test(rest)) continue;
+        vergeben.add(anderer.id);
+        varianten.push({
+          id: anderer.id,
+          // Was nach dem Trennzeichen steht, ist die Beschriftung des
+          // zweiten Knopfes: "comedy only", "Sitzplatz", "Dinner & Konzert".
+          label: rest.replace(TRENNER, '').trim(),
+          zeit: anderer.zeit,
+          ticketUrl: anderer.ticketUrl,
+          buchbar: anderer.buchbar
+        });
+      }
+      raus.push(varianten.length ? { ...haupt, varianten } : haupt);
+    }
+  }
+
+  raus.sort((a, b) => a.date.localeCompare(b.date) || String(a.zeit).localeCompare(String(b.zeit)));
+  return raus;
 }
 
 /**

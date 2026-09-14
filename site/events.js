@@ -44,18 +44,30 @@
     const video = vorhandeneVideos.has(termin.id) ? `assets/events/${encodeURIComponent(termin.id)}.mp4` : '';
     const imKulturhaus = termin.haus === 'kulturhaus';
 
-    const zeilen = (termin.tickets || []).map(t => `
-      <li data-status="${escapeHtml(t.status || '')}">
-        <span class="tz-name">${escapeHtml(t.name)}</span>
-        <span class="tz-detail">${escapeHtml(t.beginn)} Uhr · ${escapeHtml(preis(t.preis))} · ${escapeHtml(statusWort(t.status))}</span>
-      </li>`).join('');
-    const ausverkauft = termin.buchbar === false
-      || ((termin.tickets || []).length > 0 && (termin.tickets || []).every(t => t.status === 'ausverkauft'));
+    // Ausverkauft heisst: keine der Kategorien hat noch etwas frei. Die Zahl
+    // stammt aus dem Ticketdienst; sagt der Veranstalter es zusaetzlich im
+    // Text, zaehlt auch das (termin.buchbar).
+    const ausverkauft = weg => {
+      if (weg.buchbar === false) return true;
+      const preise = weg.preise || [];
+      return preise.length > 0 && preise.every(p => p.frei === 0);
+    };
+
+    // Jede Kategorie eine Zeile: was sie heisst, was sie kostet, ob noch
+    // etwas da ist. Beim zweiten Weg steht sein Name davor, damit man sieht,
+    // wozu der Preis gehoert.
+    const zeile = (p, praefix = '') => `
+      <li data-status="${p.frei === 0 ? 'ausverkauft' : 'buchbar'}">
+        <span class="tz-name">${escapeHtml(praefix ? `${praefix}: ${p.name}` : p.name)}</span>
+        <span class="tz-detail">${escapeHtml(preis(p.preis))}${p.frei === 0 ? ' · ausverkauft' : ''}</span>
+      </li>`;
+    const zeilen = [
+      ...(termin.preise || []).map(p => zeile(p)),
+      ...(termin.varianten || []).flatMap(v => (v.preise || []).map(p => zeile(p, v.label)))
+    ].join('');
 
     // Zweite Zeile: wann und wo. Beim Kulturhaus gehoert der Ort dazu, im
     // eigenen Haus waere er Fuellsel - der Gast steht ja schon davor.
-    // Hier und nur hier: eine Marke im Bild sagte dasselbe ein zweites Mal
-    // und war am Telefon zu gross (Jonas, 13.09.).
     const zweite = [
       wochentag,
       termin.zeit ? `${termin.zeit} Uhr` : '',
@@ -63,8 +75,23 @@
       termin.untertitel
     ].filter(Boolean).join(' · ');
 
+    // Ein Abend, bis zu zwei Wege zur Karte: "dinner & comedy" um 19 Uhr und
+    // "comedy only" um 21 Uhr sind beim Ticketdienst zwei Veranstaltungen -
+    // hier stehen sie als zwei Knoepfe auf einer Kachel (Jonas, 14.09.).
+    // Bei einem Weg genuegt "ausverkauft"; bei zweien muss dabeistehen,
+    // WELCHER weg ist - sonst weiss der Gast nicht, ob der andere noch geht.
+    const zweiWege = Boolean(termin.varianten?.length);
+    const knopf = (weg, beschriftung, art) => ausverkauft(weg)
+      ? `<span class="button ${art} kachel-ausverkauft" aria-disabled="true">${escapeHtml(zweiWege ? `${beschriftung} · ausverkauft` : 'ausverkauft')}</span>`
+      : `<button class="button ${art}" type="button" data-buchen="${escapeHtml(weg.ticketUrl)}" data-titel="${escapeHtml(termin.title)}">${escapeHtml(beschriftung)}</button>`;
+
+    const wege = [knopf(termin, zweiWege ? erstesWort(termin) : 'tickets buchen', 'light')];
+    for (const v of termin.varianten || []) {
+      wege.push(knopf({ ...v, preise: v.preise || [] }, v.label, 'ghost'));
+    }
+
     return `
-    <article class="event-kachel" data-haus="${escapeHtml(termin.haus || 'wirtschaft')}" data-status="${ausverkauft ? 'sold_out' : 'buchbar'}">
+    <article class="event-kachel" data-haus="${escapeHtml(termin.haus || 'wirtschaft')}" data-status="${ausverkauft(termin) ? 'sold_out' : 'buchbar'}">
       <div class="kachel-medien">
         <img src="${escapeHtml(bild)}" width="1200" height="750" loading="lazy" decoding="async"
              alt="${escapeHtml(termin.title)}" data-fallback="${fallback}">
@@ -79,22 +106,23 @@
         <p class="kachel-typ">${escapeHtml(zweite)}</p>
         ${zeilen ? `<ul class="ticketzeilen">${zeilen}</ul>` : ''}
         <div class="kachel-aktionen">
-          ${ausverkauft
-            /* Kein Link auf einer ausverkauften Kachel: der Shop zeigt dort
-               den naechsten Termin, und der Gast landete beim falschen. */
-            ? '<span class="button light kachel-ausverkauft" aria-disabled="true">Ausverkauft</span>'
-            : termin.quelle === 'kulturhaus'
-            /* Diese Abende verkauft das Kulturhaus in seinem eigenen Shop -
-               beim Ticketdienst haben sie (noch) keine Seite. Der Shop
-               laesst sich nicht in unser Fenster holen, also oeffnet er im
-               neuen Tab. Sobald der Abend beim Ticketdienst steht, greift
-               von selbst wieder der Weg darueber. */
-            ? `<a class="button light" href="${escapeHtml(termin.ticketUrl)}" target="_blank" rel="noopener noreferrer">Tickets ↗</a>`
-            : `<button class="button light" type="button" data-buchen="${escapeHtml(termin.ticketUrl)}" data-titel="${escapeHtml(termin.title)}">Tickets buchen</button>`}
+          ${wege.join('')}
           <button class="button ghost kachel-kalender" type="button" data-kalender="${escapeHtml(termin.id)}" aria-label="${escapeHtml(termin.title)} in den Kalender eintragen">+ Kalender</button>
         </div>
       </div>
     </article>`;
+  }
+
+  /**
+   * Die Beschriftung des ersten Knopfes, wenn es zwei Wege gibt. Sie kommt
+   * aus dem Namen der Kategorie ("dinner & comedy (sitzplatz)" wird zu
+   * "dinner & comedy") - so steht auf beiden Knoepfen, was man bekommt,
+   * und nicht zweimal "tickets buchen".
+   */
+  function erstesWort(termin) {
+    const name = (termin.preise || [])[0]?.name || '';
+    const ohneKlammer = name.replace(/\s*\([^)]*\)\s*$/, '').trim();
+    return ohneKlammer || 'tickets buchen';
   }
 
   /**
@@ -108,15 +136,35 @@
     const ausDatei = () => fetch('data/termine.json', { cache: 'no-store' })
       .then(a => a.json()).then(d => d?.termine || []).catch(() => []);
     const hinterlegt = await ausDatei();
-    const bilder = new Map(hinterlegt.filter(t => t.bild).map(t => [t.id, t.bild]));
+
+    // Was bei uns liegt und was der Dienst NICHT liefern kann: die Bilder
+    // (sie sollen nicht von aussen nachgeladen werden) und die Preise (der
+    // Ticketdienst gibt sie oeffentlich nicht heraus). Beides kommt ueber
+    // die Kennung an den frischen Termin.
+    const dazu = new Map(hinterlegt.map(t => [t.id, {
+      bild: t.bild || '',
+      preise: t.preise || [],
+      varianten: new Map((t.varianten || []).map(v => [v.id, v.preise || []]))
+    }]));
+
+    const ergaenze = termin => {
+      const eigen = dazu.get(termin.id);
+      if (!eigen) return termin;
+      return {
+        ...termin,
+        bild: eigen.bild,
+        preise: eigen.preise,
+        varianten: (termin.varianten || []).map(v => ({ ...v, preise: eigen.varianten.get(v.id) || [] }))
+      };
+    };
+
     try {
       const haus = await fetch('data/haus.json?t=' + Date.now(), { cache: 'no-store' }).then(a => a.json());
       const basis = String(haus?.api || '').trim().replace(/\/+$/, '');
       if (!/^https?:\/\//.test(basis)) return hinterlegt;
       const antwort = await fetch(`${basis}/api/termine`, { cache: 'no-store' }).then(a => a.json());
       const liste = antwort?.ok ? (antwort.termine || []) : [];
-      if (!liste.length) return hinterlegt;
-      return liste.map(termin => ({ ...termin, bild: bilder.get(termin.id) || '' }));
+      return liste.length ? liste.map(ergaenze) : hinterlegt;
     } catch {
       return hinterlegt;
     }
@@ -215,29 +263,17 @@
   }
 
   Promise.all([
-    // Unsere eigene Liste: sie bringt die Preise mit, die der Ticketdienst
-    // nicht herausgibt. Alles andere kommt von dort.
-    fetch('data/events.json', { cache: 'no-store' }).then(antwort => antwort.json()).catch(() => ({ events: [] })),
     fetch('data/event-medien.json', { cache: 'no-store' }).then(antwort => antwort.json()).catch(() => ({ bilder: [], videos: [] })),
     holeTermine()
   ])
-    .then(([daten, medien, termine]) => {
+    .then(([medien, termine]) => {
       vorhandeneBilder = new Set(medien?.bilder || []);
       vorhandeneVideos = new Set(medien?.videos || []);
       const heute = new Date();
       heute.setHours(0, 0, 0, 0);
 
-      // Preise und Ticketzeilen aus der eigenen Liste, zugeordnet ueber die
-      // Kennung beim Ticketdienst - dieselbe, unter der dort verkauft wird.
-      const preise = new Map();
-      for (const event of daten?.events || []) {
-        const kennung = kennungAus(event.ticketUrl);
-        if (kennung && (event.tickets || []).length) preise.set(kennung, event.tickets);
-      }
-
       const kommende = (termine || [])
         .filter(termin => termin.date && new Date(`${termin.date}T23:59:00`) >= heute)
-        .map(termin => ({ ...termin, tickets: preise.get(termin.id) || [] }))
         .sort((a, b) => a.date.localeCompare(b.date) || String(a.zeit).localeCompare(String(b.zeit)));
 
       if (!kommende.length) {

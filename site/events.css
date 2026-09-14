@@ -46,6 +46,14 @@
    Der Wert ist der aus der CI, --ink dagegen kommt von dort. */
 .event-kachel[data-haus="kulturhaus"]{border-color:#00000018;background:#ead9bc;color:var(--ink)}
 .event-kachel[data-haus="kulturhaus"] .kachel-typ{color:#57524a}
+/* Die Ticketzeilen sind fuer die dunkle Kachel gesetzt - auf Creme waere
+   das ein helles Grau auf hellem Grund. Hier dieselbe Abstufung, nur
+   andersherum. */
+.event-kachel[data-haus="kulturhaus"] .ticketzeilen li{border-top-color:#11110f1f}
+.event-kachel[data-haus="kulturhaus"] .ticketzeilen .tz-name{color:var(--ink)}
+.event-kachel[data-haus="kulturhaus"] .ticketzeilen .tz-detail{color:#57524a}
+.event-kachel[data-haus="kulturhaus"] .ticketzeilen li[data-status="ausverkauft"] .tz-detail{color:#8c292b}
+.event-kachel[data-haus="kulturhaus"] .kachel-ausverkauft{background:#11110f14;border-color:#11110f2e;color:#57524a}
 .event-kachel[data-haus="kulturhaus"] .kachel-zeile time{color:#8a6a2f}
 .event-kachel[data-haus="kulturhaus"] .kachel-medien{background:#d9c9ad}
 /* Der Knopf traegt hier die Farbe des Hauses, nicht die der dunklen Seite. */
