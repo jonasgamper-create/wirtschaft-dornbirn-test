@@ -37,8 +37,9 @@ import {
   markiereInformiert, naechsterWartender, nimmAuf, pruefeWartelisteEintrag, raeumeWartelisteAb
 } from './warteliste.mjs';
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
-import { FRISCH_MS as TICKETIST_FRISCH_MS, holeTermin, KENNUNGEN, terminGueltig } from './ticketist.mjs';
-import { FRISCH_MS as PROGRAMM_FRISCH_MS, holeProgramm, listeGueltig } from './kulturhaus.mjs';
+import {
+  FRISCH_MS as TICKETIST_FRISCH_MS, gruppiere, holeTermin, KENNUNGEN, terminGueltig
+} from './ticketist.mjs';
 import {
   bestellungText, erinnerungText, fertigText, nummerFuerSms, reservierungText, sendeSms
 } from './sms.mjs';
@@ -2031,54 +2032,27 @@ export class Haus extends DurableObject {
    * Tag vorbei ist.
    */
   /**
-   * Woher wir wissen, welche Abende es gibt.
+   * Die Abende beider Haeuser, gelesen beim Ticketdienst.
    *
-   * Zwei Quellen, eine Liste:
+   * Eine Quelle, und zwar die, bei der verkauft wird. Die Kennungen stehen
+   * in ticketist.mjs; sie kommen aus dem Verwaltungsbereich des Dienstes
+   * und sind damit dieselben, unter denen dort verkauft wird - geraten
+   * wird nichts (Jonas, 14.09.).
    *
-   *   1. Der Ticketdienst. Dort steht alles, was eine Kachel braucht -
-   *      Name, Untertitel, Tag UND Uhrzeit, Ort, Bild, Beschreibung und ob
-   *      noch gekauft werden kann. Das ist die bessere Auskunft, und sie
-   *      gilt immer, wenn es sie gibt.
-   *   2. Die Programmseite des Kulturhauses. Sie sagt, WELCHE Abende es
-   *      gibt - auch die, die beim Ticketdienst (noch) keine eigene Seite
-   *      haben, weil sie im Shop des Kulturhauses verkauft werden.
+   * Jeder Abend liegt einzeln im Speicher und haelt zwoelf Stunden. Je
+   * Aufruf werden hoechstens sechs veraltete nachgeholt, die aeltesten
+   * zuerst, und zwar NACH der Antwort (waitUntil): der Gast wartet nie auf
+   * einen fremden Dienst. Beim ersten Mal holen wir acht sofort, damit die
+   * Seite nicht leer bleibt.
    *
-   * Gelesen wird beides hier im Dienst. Der Browser des Gastes ruft keine
-   * der beiden Seiten auf: er bekommt nur unsere fertige Liste.
-   *
-   * Fuer die Abende, die der Ticketdienst nicht kennt, fuehrt der
-   * Ticketknopf in den Shop des Kulturhauses - die einzige Stelle, an der
-   * man sie heute kaufen kann (Jonas, 13.09.). Sobald sie beim
-   * Ticketdienst auftauchen, wandert der Knopf von selbst dorthin: die
-   * Kennung ist dieselbe.
+   * Zum Schluss werden die zwei Wege zu einem Abend zusammengelegt -
+   * "dinner & comedy" und "comedy only" sind beim Dienst zwei
+   * Veranstaltungen, fuer den Gast aber ein Abend mit zwei Moeglichkeiten.
    */
-  async #kulturhausProgramm() {
-    const stand = this.#lies('kulturhausProgramm', null);
-    const alter = stand?.geholtAm ? Date.now() - stand.geholtAm : Infinity;
-    if (alter < PROGRAMM_FRISCH_MS) return stand.events || [];
-
-    const holen = (async () => {
-      const events = await holeProgramm();
-      if (listeGueltig(events)) this.#schreib('kulturhausProgramm', { geholtAm: Date.now(), events });
-      // Nicht lesbar: den naechsten Versuch verschieben, den Stand behalten.
-      else if (stand) this.#schreib('kulturhausProgramm', { ...stand, geholtAm: Date.now() });
-    })();
-
-    if (!stand?.events?.length) { await holen; return this.#lies('kulturhausProgramm', null)?.events || []; }
-    this.ctx.waitUntil(holen);
-    return stand.events;
-  }
-
   async termine() {
-    const programm = await this.#kulturhausProgramm();
-    // Die Kennungen aus beiden Quellen. Ein neuer Kulturhaus-Abend wird so
-    // automatisch auch beim Ticketdienst nachgeschlagen - taucht er dort
-    // auf, gilt ab sofort dessen Auskunft.
-    const alleKennungen = [...new Set([...KENNUNGEN, ...programm.map(e => e.id)])];
-
     const stand = this.#lies('termine', {});
     const jetzt = Date.now();
-    const veraltet = alleKennungen
+    const veraltet = KENNUNGEN
       .filter(k => !stand[k] || (jetzt - (stand[k].geholtAm || 0)) > TICKETIST_FRISCH_MS)
       .sort((a, b) => (stand[a]?.geholtAm || 0) - (stand[b]?.geholtAm || 0));
 
@@ -2102,43 +2076,15 @@ export class Haus extends DurableObject {
       else this.ctx.waitUntil(hole(veraltet.slice(0, 6)));
     }
 
-    const vomDienst = this.#lies('termine', {});
     const heute = jetztImHaus().datum;
-    const liste = new Map();
+    const gelesen = Object.values(this.#lies('termine', {}))
+      .map(e => e?.termin)
+      .filter(t => t && t.date >= heute)
+      // Die Adresse des Bildes beim Dienst bleibt hier: die Bilder liegen
+      // bei uns, und niemand soll versehentlich von aussen nachladen.
+      .map(({ bildQuelle, ...rest }) => rest);
 
-    // Erst der Ticketdienst - seine Auskunft ist die bessere.
-    for (const [kennung, eintrag] of Object.entries(vomDienst)) {
-      if (!eintrag?.termin) continue;
-      const { bildQuelle, ...termin } = eintrag.termin;
-      liste.set(kennung, { ...termin, quelle: 'ticketist' });
-    }
-
-    // Dann, was der Ticketdienst nicht kennt: aus dem Programm des Hauses.
-    for (const eintrag of programm) {
-      if (liste.has(eintrag.id)) continue;
-      liste.set(eintrag.id, {
-        id: eintrag.id,
-        date: eintrag.date,
-        zeit: '',
-        title: eintrag.title,
-        untertitel: eintrag.programm || '',
-        ort: 'Kulturhaus Dornbirn',
-        haus: 'kulturhaus',
-        adresse: 'Rathausplatz 1, Dornbirn',
-        beschreibung: '',
-        // Der Shop des Kulturhauses: bis der Abend beim Ticketdienst steht,
-        // ist das der einzige Weg zu einer Karte.
-        ticketUrl: eintrag.infoUrl,
-        buchbar: true,
-        quelle: 'kulturhaus'
-      });
-    }
-
-    const termine = [...liste.values()]
-      .filter(t => t.date >= heute)
-      .sort((a, b) => a.date.localeCompare(b.date) || String(a.zeit).localeCompare(String(b.zeit)));
-
-    return { ok: true, termine, kennungen: alleKennungen.length };
+    return { ok: true, termine: gruppiere(gelesen), kennungen: KENNUNGEN.length };
   }
 
   /** Der Wirt legt einen Termin an. Die Liste haelt sich selbst sortiert. */

@@ -1,0 +1,408 @@
+{
+  "_hinweis": "Preise und Restplaetze je Ticketkategorie, gelesen im Verwaltungsbereich des Ticketdienstes (nur lesend). Oeffentlich gibt der Dienst beides nicht heraus. Die Preise sind stabil; 'frei' ist eine Momentaufnahme vom Stand unten - ein Abend mit 0 gilt auf der Seite als ausverkauft. Wer die Zahl frisch will, liest sie im Verwaltungsbereich neu.",
+  "stand": "2026-09-14",
+  "preise": {
+    "comedynacht-05-2026-1": [
+      {
+        "name": "dinner & comedy (sitzplatz)",
+        "preis": 88,
+        "frei": 24
+      }
+    ],
+    "comedynacht-06-2026-1": [
+      {
+        "name": "dinner & comedy (sitzplatz)",
+        "preis": 88,
+        "frei": 41
+      }
+    ],
+    "kulis-02-2026": [
+      {
+        "name": "Kategorie 1",
+        "preis": 41,
+        "frei": 0
+      },
+      {
+        "name": "Kategorie 2",
+        "preis": 37,
+        "frei": 0
+      }
+    ],
+    "kulis-03-2026": [
+      {
+        "name": "Kategorie 1",
+        "preis": 41,
+        "frei": 16
+      },
+      {
+        "name": "Kategorie 2",
+        "preis": 37,
+        "frei": 77
+      }
+    ],
+    "luis-2026": [
+      {
+        "name": "Kategorie 1",
+        "preis": 40,
+        "frei": 0
+      },
+      {
+        "name": "Kategorie 2",
+        "preis": 36,
+        "frei": 0
+      },
+      {
+        "name": "Kategorie 3",
+        "preis": 33,
+        "frei": 0
+      }
+    ],
+    "dinner-comedy-04-2026": [
+      {
+        "name": "dinner & comedy (sitzplatz)",
+        "preis": 68,
+        "frei": 0
+      }
+    ],
+    "luis-02-2026": [
+      {
+        "name": "Kategorie 1",
+        "preis": 40,
+        "frei": 1
+      },
+      {
+        "name": "Kategorie 2",
+        "preis": 36,
+        "frei": 4
+      },
+      {
+        "name": "Kategorie 3",
+        "preis": 33,
+        "frei": 2
+      }
+    ],
+    "dinner-comedy-04-only-2026": [
+      {
+        "name": "comedy only (stehplatz)",
+        "preis": 28,
+        "frei": 18
+      }
+    ],
+    "spoerk-2026": [
+      {
+        "name": "dinner & comedy (sitzplatz)",
+        "preis": 68,
+        "frei": 156
+      }
+    ],
+    "spoerk-2026-only": [
+      {
+        "name": "comedy only (stehplatz)",
+        "preis": 28,
+        "frei": 19
+      }
+    ],
+    "neuschmid-voegel-02-2026": [
+      {
+        "name": "dinner & comedy (sitzplatz)",
+        "preis": 78,
+        "frei": 18
+      }
+    ],
+    "rock4-2026": [
+      {
+        "name": "dinner & konzert (sitzplatz)",
+        "preis": 68,
+        "frei": 0
+      }
+    ],
+    "rock4-2026-only": [
+      {
+        "name": "konzert only (stehplatz)",
+        "preis": 28,
+        "frei": 0
+      }
+    ],
+    "ullitroy-menue-2026": [
+      {
+        "name": "Sitzplatz (inkl. 3-Gänge Menü)",
+        "preis": 68,
+        "frei": 0
+      }
+    ],
+    "ullitroy-brunch-2026": [
+      {
+        "name": "Sitzplatz (inkl. Brunchbuffet)",
+        "preis": 68,
+        "frei": 77
+      }
+    ],
+    "kellner-2026": [
+      {
+        "name": "dinner & konzert (sitzplatz)",
+        "preis": 68,
+        "frei": 174
+      }
+    ],
+    "kellner-2026-only": [
+      {
+        "name": "konzert only (stehplatz)",
+        "preis": 28,
+        "frei": 17
+      }
+    ],
+    "kulturimhaus-h2026": [
+      {
+        "name": "Dinner & Comedy",
+        "preis": 98,
+        "frei": 263
+      }
+    ],
+    "hader-02-2026": [
+      {
+        "name": "Kategorie 1",
+        "preis": 34,
+        "frei": 3
+      },
+      {
+        "name": "Kategorie 2",
+        "preis": 29,
+        "frei": 12
+      }
+    ],
+    "singmit-konzertonly": [
+      {
+        "name": "Sitzplatz ohne Essen",
+        "preis": 22,
+        "frei": 624
+      }
+    ],
+    "meyle-2026": [
+      {
+        "name": "Kategorie 1",
+        "preis": 65,
+        "frei": 12
+      },
+      {
+        "name": "Kategorie 2",
+        "preis": 59,
+        "frei": 82
+      },
+      {
+        "name": "Kategorie 3",
+        "preis": 49,
+        "frei": 64
+      }
+    ],
+    "dinner-comedy-05-2026": [
+      {
+        "name": "dinner & comedy (sitzplatz)",
+        "preis": 68,
+        "frei": 0
+      }
+    ],
+    "dinner-comedy-05-only-2026": [
+      {
+        "name": "comedy only (stehplatz)",
+        "preis": 28,
+        "frei": 18
+      }
+    ],
+    "landert-2026": [
+      {
+        "name": "Kategorie 1",
+        "preis": 39,
+        "frei": 0
+      },
+      {
+        "name": "Kategorie 2",
+        "preis": 35,
+        "frei": 0
+      }
+    ],
+    "philippsmusikzimmer-02-2026": [
+      {
+        "name": "dinner & konzert (sitzplatz)",
+        "preis": 68,
+        "frei": 120
+      }
+    ],
+    "philippsmusikzimmer-02-only-2026": [
+      {
+        "name": "konzert only (stehplatz)",
+        "preis": 28,
+        "frei": 24
+      }
+    ],
+    "hanskaspasenkel-2026": [
+      {
+        "name": "dinner & konzert (sitzplatz)",
+        "preis": 68,
+        "frei": 155
+      }
+    ],
+    "hanskaspasenkel-2026-only": [
+      {
+        "name": "konzert only (stehplatz)",
+        "preis": 28,
+        "frei": 20
+      }
+    ],
+    "notenlos-2026": [
+      {
+        "name": "dinner & konzert (sitzplatz)",
+        "preis": 68,
+        "frei": 141
+      }
+    ],
+    "notenlos-2026-only": [
+      {
+        "name": "konzert only (stehplatz)",
+        "preis": 28,
+        "frei": 16
+      }
+    ],
+    "luis-03-2026": [
+      {
+        "name": "Kategorie 1",
+        "preis": 40,
+        "frei": 52
+      },
+      {
+        "name": "Kategorie 2",
+        "preis": 36,
+        "frei": 128
+      },
+      {
+        "name": "Kategorie 3",
+        "preis": 33,
+        "frei": 114
+      }
+    ],
+    "krauthobel-2026": [
+      {
+        "name": "dinner & konzert (sitzplatz)",
+        "preis": 78,
+        "frei": 153
+      }
+    ],
+    "krauthobel-2026-only": [
+      {
+        "name": "konzert only (stehplatz)",
+        "preis": 38,
+        "frei": 18
+      }
+    ],
+    "rebeltell-2026": [
+      {
+        "name": "dinner & konzert (sitzplatz)",
+        "preis": 68,
+        "frei": 134
+      }
+    ],
+    "rebeltell-2026-only": [
+      {
+        "name": "konzert only (stehplatz)",
+        "preis": 28,
+        "frei": 2
+      }
+    ],
+    "themonroes-2026": [
+      {
+        "name": "dinner & konzert (sitzplatz)",
+        "preis": 78,
+        "frei": 33
+      }
+    ],
+    "themonroes-2026-only": [
+      {
+        "name": "konzert only (stehplatz)",
+        "preis": 38,
+        "frei": 7
+      }
+    ],
+    "dinner-comedy-06-2026": [
+      {
+        "name": "dinner & comedy (sitzplatz)",
+        "preis": 68,
+        "frei": 131
+      }
+    ],
+    "dinner-comedy-06-only-2026": [
+      {
+        "name": "comedy only (stehplatz)",
+        "preis": 28,
+        "frei": 14
+      }
+    ],
+    "dinner-comedy-07-2026": [
+      {
+        "name": "dinner & comedy (sitzplatz)",
+        "preis": 68,
+        "frei": 140
+      }
+    ],
+    "dinner-comedy-07-only-2026": [
+      {
+        "name": "comedy only (stehplatz)",
+        "preis": 28,
+        "frei": 20
+      }
+    ],
+    "dabado-charity-dinner": [
+      {
+        "name": "Sitzplatz mit 3-Gänge-Menü (Galerie)",
+        "preis": 68,
+        "frei": 70
+      }
+    ],
+    "dabado-charity": [
+      {
+        "name": "Stehplatz (Parterre)",
+        "preis": 27,
+        "frei": 688
+      }
+    ],
+    "einarsson-stehplatz-2027": [
+      {
+        "name": "Stehplatz (Parterre)",
+        "preis": 28,
+        "frei": 661
+      }
+    ],
+    "einarsson-sitzplatz-2027": [
+      {
+        "name": "Sitzplatz",
+        "preis": 38,
+        "frei": 154
+      }
+    ],
+    "genussroute": [
+      {
+        "name": "Start-Location: \"wirtschaft\"",
+        "preis": 88,
+        "frei": 65
+      },
+      {
+        "name": "Start-Location: Gasthaus Schiffle",
+        "preis": 88,
+        "frei": 55
+      },
+      {
+        "name": "Start-Location: Gasthaus Gemsle",
+        "preis": 88,
+        "frei": 67
+      },
+      {
+        "name": "Start-Location: Panoramarestaurant Karren",
+        "preis": 88,
+        "frei": 113
+      },
+      {
+        "name": "Start-Location: Emma&Eugen im Kulturhaus",
+        "preis": 88,
+        "frei": 65
+      }
+    ]
+  }
+}

@@ -23,17 +23,12 @@ Adresse unter derselben Domain, nicht die alte Webseite. Alles andere ist
 weg: der Kopfknopf der Eventseite, zwei Knöpfe auf der Startseite, die
 Verweise aller 18 Termine, die Betreiberlinks in den Fußzeilen.
 
-**Eine benannte Ausnahme:** fünf Abende im Kulturhaus – Sing mit!, Ulli Troy
-(zwei Abende), Einarsson 2027 und Genussroute 6850 – haben beim Ticketdienst
-keine eigene Seite. Verkauft werden sie im Shop auf eugen.family, und dorthin
-führt bei diesen fünf Kacheln der Ticketknopf (Entscheidung vom 13.09.). Er
-öffnet in einem neuen Fenster, nicht in unserem.
-
-Das löst sich von selbst: Sobald ein solcher Abend beim Ticketdienst
-auftaucht, nimmt der Dienst dessen Auskunft und der Knopf zeigt dorthin – die
-Kennung ist dieselbe. Verschwindet eugen.family vorher, fallen genau diese
-fünf aus der Liste, ohne dass etwas kaputtgeht. **Damit sie bleiben, brauchen
-sie bis dahin eine Seite beim Ticketdienst.**
+**Seit 14.09. ohne Ausnahme:** Die fünf Kulturhaus-Abende, die vorher nur
+über eugen.family zu kaufen waren, haben im Ticketdienst eigene Kennungen –
+sie standen dort unter anderem Namen (`ullitroy-menue-2026`,
+`ullitroy-brunch-2026`, `singmit-konzertonly`, `einarsson-stehplatz-2027`,
+`einarsson-sitzplatz-2027`). Gelesen im Verwaltungsbereich des Dienstes.
+Damit führt **kein einziger Ticketknopf** mehr auf eine der alten Seiten.
 
 **Entscheidung nötig:** Wird der Gutscheinshop weiter betrieben? Wenn ja,
 bleibt alles, wie es ist. Wenn nein, nehme ich die sieben Links heraus.
@@ -53,12 +48,9 @@ Die Gästeseiten rufen zur Laufzeit genau zwei fremde Adressen auf:
 | `wirtschaft-reservierung.jonas-gamper.workers.dev` | unser eigener Dienst | nein |
 | `www.ticketist.io` | Ticketkauf im Fenster | nein |
 
-Der Dienst selbst ruft auf: `api.brevo.com` (Mails), `www.ticketist.io`
-(Termine) und `eugen.family/kulturhaus` – die Programmseite, damit er weiß,
-welche Abende im Kulturhaus überhaupt anstehen. Das passiert **im
-Hintergrund**; kein Browser eines Gastes berührt diese Seite. Fällt sie weg,
-bleibt der letzte bekannte Stand stehen, und neue Abende werden von Hand
-nachgetragen.
+Der Dienst selbst ruft nur noch `api.brevo.com` (Mails) und
+`www.ticketist.io` (Termine) auf. **eugen.family kommt nirgends mehr vor** –
+weder im Browser des Gastes noch im Dienst.
 
 ### 4. Der gedruckte QR-Code auf der Faltkarte
 
@@ -114,14 +106,15 @@ Testlauf auf, nicht erst beim Gast.
 
 1. **Gutscheinshop klären** – bleibt er, bleibt der Link.
 2. **Alte Faltkarten aussortieren** – der alte QR-Code zeigt ins Leere.
-3. **Fünf Abende zum Ticketdienst bringen** – Einarsson 2027, Genussroute
-   6850, Sing mit!, Ulli Troy (zwei Abende). Sie stehen in der Übersicht und
-   verkaufen heute über den Shop des Kulturhauses. Wird eugen.family
-   abgeschaltet, bevor sie beim Ticketdienst stehen, verschwinden sie aus der
-   Liste – und sind dann auch nirgends mehr zu kaufen.
+3. ~~Fünf Abende zum Ticketdienst bringen~~ – **erledigt am 14.09.**: Sie
+   waren dort längst, nur unter anderen Kennungen. Alle 46 Veranstaltungen
+   kommen jetzt aus dem Ticketdienst.
 4. **Weiterleitungen einrichten**, sobald die Domain umzieht: `/event/…`,
    `/das-konzept/`, `/comedynacht/` und die drei Subdomains sollten auf die
    passenden neuen Seiten zeigen, damit alte Links und Suchergebnisse nicht
    ins Leere laufen.
-5. **Preise vom Ticketdienst** – sie stehen heute in unserer eigenen Liste.
-   Wenn der Dienst sie herausgibt, kommen auch sie aus einer Quelle.
+5. **Preise und Restplätze live** – beides kommt heute aus einer Lesung im
+   Verwaltungsbereich (`site/data/ticketist-preise.json`, Stand im Kopf der
+   Datei). Öffentlich gibt der Dienst es nicht heraus. Mit einem Zugang für
+   den Dienst – danach müsste man bei Ticketist fragen – wären auch diese
+   beiden Werte live.

@@ -1,21 +1,30 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-13",
+  "updatedAt": "2026-09-14",
   "quelle": "https://www.ticketist.io/events/<kennung>",
   "kennungen": [
     "comedynacht-05-2026-1",
     "comedynacht-06-2026-1",
+    "dabado-charity",
+    "dabado-charity-dinner",
     "dinner-comedy-04-2026",
+    "dinner-comedy-04-only-2026",
     "dinner-comedy-05-2026",
+    "dinner-comedy-05-only-2026",
     "dinner-comedy-06-2026",
+    "dinner-comedy-06-only-2026",
     "dinner-comedy-07-2026",
-    "einarsson-2027",
+    "dinner-comedy-07-only-2026",
+    "einarsson-sitzplatz-2027",
+    "einarsson-stehplatz-2027",
     "genussroute",
-    "genussroute-6850",
     "hader-02-2026",
     "hanskaspasenkel-2026",
+    "hanskaspasenkel-2026-only",
     "kellner-2026",
+    "kellner-2026-only",
     "krauthobel-2026",
+    "krauthobel-2026-only",
     "kulis-02-2026",
     "kulis-03-2026",
     "kulturimhaus-h2026",
@@ -26,14 +35,20 @@
     "meyle-2026",
     "neuschmid-voegel-02-2026",
     "notenlos-2026",
+    "notenlos-2026-only",
     "philippsmusikzimmer-02-2026",
+    "philippsmusikzimmer-02-only-2026",
     "rebeltell-2026",
+    "rebeltell-2026-only",
+    "rock4-2026",
     "rock4-2026-only",
-    "singmit-2026",
+    "singmit-konzertonly",
     "spoerk-2026",
+    "spoerk-2026-only",
     "themonroes-2026",
-    "ullitroy-01-2026",
-    "ullitroy-02-2026"
+    "themonroes-2026-only",
+    "ullitroy-brunch-2026",
+    "ullitroy-menue-2026"
   ],
   "termine": [
     {
@@ -48,7 +63,13 @@
       "beschreibung": "an einem abend verschiedene comedians, zauberer und auch kabarettisten zu erleben und dabei auch kulinarisch verwöhnt zu werden, ist in der „wirtschaft“ in dornbirn nichts neues mehr. nun schicken wir unsere „helden“ zwischen ihren kurzauftritten auf die reise! in unseren 4 haltestellen – falstaff bregenz, sarah kocht, oxa hittisau und „wirtschaft“ dornbirn - werden am gleichen abend die gleichen 4 comedians ihr können zeigen! die entscheidung ist nun lediglich, in welcher haltestelle sie ihren gaumen zum jubilieren bringen möchten?! nach dem vorbild des comic strip live clubs in new york, des",
       "ticketUrl": "https://www.ticketist.io/events/comedynacht-05-2026-1",
       "buchbar": true,
-      "quelle": "ticketist",
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 88,
+          "frei": 24
+        }
+      ],
       "bild": "assets/events/ticketist/comedynacht-05-2026-1.webp"
     },
     {
@@ -63,7 +84,13 @@
       "beschreibung": "an einem abend verschiedene comedians, zauberer und auch kabarettisten zu erleben und dabei auch kulinarisch verwöhnt zu werden, ist in der „wirtschaft“ in dornbirn nichts neues mehr. nun schicken wir unsere „helden“ zwischen ihren kurzauftritten auf die reise! in unseren 4 haltestellen – falstaff bregenz, sarah kocht, oxa hittisau und „wirtschaft“ dornbirn - werden am gleichen abend die gleichen 4 comedians ihr können zeigen! die entscheidung ist nun lediglich, in welcher haltestelle sie ihren gaumen zum jubilieren bringen möchten?! nach dem vorbild des comic strip live clubs in new york, des",
       "ticketUrl": "https://www.ticketist.io/events/comedynacht-06-2026-1",
       "buchbar": true,
-      "quelle": "ticketist",
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 88,
+          "frei": 41
+        }
+      ],
       "bild": "assets/events/ticketist/comedynacht-06-2026-1.webp"
     },
     {
@@ -78,7 +105,18 @@
       "beschreibung": "Sein neues Comedy-Programm über den täglichen Kampf mit dem ultimativen Gegner: dem eigenen Leben. Gernot Kulis nimmt das Leben, wie es ist – auf die Schaufel. Ob im chaotischen Familienalltag, auf abenteuerlichen Reisen mit schrägen Begegnungen oder im unausgewogenen Duell gegen die künstlich intelligente Badezimmerwaage – überall lauern Konflikte, die er nur auf eine Weise löst: mit Humor. Er kann nicht anders. Ausgestattet mit der K.I. – der Kulis Intelligenz – nimmt er sich in seinem neuen Programm der großen und kleinen Fragen seines Lebens an – stets bereit, auch im Ernst einen Witz zu f",
       "ticketUrl": "https://www.ticketist.io/events/kulis-02-2026",
       "buchbar": true,
-      "quelle": "ticketist",
+      "preise": [
+        {
+          "name": "Kategorie 1",
+          "preis": 41,
+          "frei": 0
+        },
+        {
+          "name": "Kategorie 2",
+          "preis": 37,
+          "frei": 0
+        }
+      ],
       "bild": "assets/events/ticketist/kulis-02-2026.webp"
     },
     {
@@ -93,7 +131,18 @@
       "beschreibung": "Sein neues Comedy-Programm über den täglichen Kampf mit dem ultimativen Gegner: dem eigenen Leben. Gernot Kulis nimmt das Leben, wie es ist – auf die Schaufel. Ob im chaotischen Familienalltag, auf abenteuerlichen Reisen mit schrägen Begegnungen oder im unausgewogenen Duell gegen die künstlich intelligente Badezimmerwaage – überall lauern Konflikte, die er nur auf eine Weise löst: mit Humor. Er kann nicht anders. Ausgestattet mit der K.I. – der Kulis Intelligenz – nimmt er sich in seinem neuen Programm der großen und kleinen Fragen seines Lebens an – stets bereit, auch im Ernst einen Witz zu f",
       "ticketUrl": "https://www.ticketist.io/events/kulis-03-2026",
       "buchbar": true,
-      "quelle": "ticketist",
+      "preise": [
+        {
+          "name": "Kategorie 1",
+          "preis": 41,
+          "frei": 16
+        },
+        {
+          "name": "Kategorie 2",
+          "preis": 37,
+          "frei": 77
+        }
+      ],
       "bild": "assets/events/ticketist/kulis-03-2026.webp"
     },
     {
@@ -108,7 +157,23 @@
       "beschreibung": "Diese Veranstaltung ist ausverkauft. Gerne kannst du dich per E-Mail an uri@eugen.family auf unserer Warteliste eintragen - wir informieren dich, sobald wieder Plätze frei werden. Bitte beachte, dass wir dies nicht garantieren können. - Nach über zwei Jahrzehnten auf den Kabarett- und Kleinkunstbühnen verabschiedet sich Luis aus Südtirol alias Manfred Zöschg mit einer letzten großen Tournee von seinem Publikum. Die „Pfiati“-Tour markiert den Abschluss einer einzigartigen Bühnenkarriere – und bietet zugleich eine einmalige Gelegenheit, den beliebten Südtiroler Kabarettisten noch ein letztes Mal",
       "ticketUrl": "https://www.ticketist.io/events/luis-2026",
       "buchbar": false,
-      "quelle": "ticketist",
+      "preise": [
+        {
+          "name": "Kategorie 1",
+          "preis": 40,
+          "frei": 0
+        },
+        {
+          "name": "Kategorie 2",
+          "preis": 36,
+          "frei": 0
+        },
+        {
+          "name": "Kategorie 3",
+          "preis": 33,
+          "frei": 0
+        }
+      ],
       "bild": "assets/events/ticketist/luis-2026.webp"
     },
     {
@@ -123,8 +188,23 @@
       "beschreibung": "nach dem vorbild des comic strip live clubs in new york, des comedy stores in london oder auch des quatsch comedy clubs in berlin sorgen wir einmal im monat mit drei comedians aus österreich, deutschland und der schweiz für großartige unterhaltung. in einer abwechslungsreichen und schnellen show bleibt kein auge trocken und unsere comedy-kollegen und wir haben nur ein ziel: wir bringen dich zum lachen. das schnelle format, bei dem mehrere künstler jeweils 20 minuten highlights aus ihren programmen bieten, garantiert bestes entertainment und einen abwechslungsreichen abend. wir wollen weder pol",
       "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-04-2026",
       "buchbar": true,
-      "quelle": "ticketist",
-      "bild": "assets/events/ticketist/dinner-comedy-04-2026.webp"
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 68,
+          "frei": 0
+        }
+      ],
+      "bild": "assets/events/ticketist/dinner-comedy-04-2026.webp",
+      "varianten": [
+        {
+          "id": "dinner-comedy-04-only-2026",
+          "label": "comedy only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-04-only-2026",
+          "buchbar": true
+        }
+      ]
     },
     {
       "id": "luis-02-2026",
@@ -138,7 +218,23 @@
       "beschreibung": "Nach über zwei Jahrzehnten auf den Kabarett- und Kleinkunstbühnen verabschiedet sich Luis aus Südtirol alias Manfred Zöschg mit einer letzten großen Tournee von seinem Publikum. Die „Pfiati“-Tour markiert den Abschluss einer einzigartigen Bühnenkarriere – und bietet zugleich eine einmalige Gelegenheit, den beliebten Südtiroler Kabarettisten noch ein letztes Mal live zu erleben. Mit im Gepäck: neue Nummern, altbewährte Klassiker und jede Menge Geschichten aus dem echten Leben – witzig, berührend und typisch Luis. Das Publikum darf sich auf ein sehr persönliches Programm freuen, das Rückblicke a",
       "ticketUrl": "https://www.ticketist.io/events/luis-02-2026",
       "buchbar": true,
-      "quelle": "ticketist",
+      "preise": [
+        {
+          "name": "Kategorie 1",
+          "preis": 40,
+          "frei": 1
+        },
+        {
+          "name": "Kategorie 2",
+          "preis": 36,
+          "frei": 4
+        },
+        {
+          "name": "Kategorie 3",
+          "preis": 33,
+          "frei": 2
+        }
+      ],
       "bild": "assets/events/ticketist/luis-02-2026.webp"
     },
     {
@@ -153,8 +249,23 @@
       "beschreibung": "christof spörk hat schon viele lieder geschrieben. und er kann ein lied davon singen, wie es ist, im schönsten land der latenten unzufriedenheit, pardon im unzufriedensten land der latenten schönheit zu leben. andere mögen heimat- oder liebeslieder sülzen. spörk trällerte bisher eher über lärmschutzwände, gewerbeparks oder schneekanonen. immer in der hoffnung, sie mögen ob seines gesanges aufhören, das land zu verschandeln. spörks lieder lieben immer das leben, auch wenn das leben oft lieblos ist. mit „maximo lieder“ kehrt der promovierte politikwissenschaftler und proklamierte jazzsänger spör",
       "ticketUrl": "https://www.ticketist.io/events/spoerk-2026",
       "buchbar": true,
-      "quelle": "ticketist",
-      "bild": "assets/events/ticketist/spoerk-2026.webp"
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 68,
+          "frei": 156
+        }
+      ],
+      "bild": "assets/events/ticketist/spoerk-2026.webp",
+      "varianten": [
+        {
+          "id": "spoerk-2026-only",
+          "label": "comedy only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/spoerk-2026-only",
+          "buchbar": true
+        }
+      ]
     },
     {
       "id": "neuschmid-voegel-02-2026",
@@ -168,53 +279,86 @@
       "beschreibung": "ein kabarett mit maria neuschmid & stefan vögel 27 jahre nach ihrem hausbau, 5 jahre nach tilgung aller schulden, 2 jahre nach auszug des nachzüglers und einem leben in zweisamkeit - schlägt das schicksal bei günther und irene batlogg grausam zu: tochter laura will samt amerikanischem ehemann und kindern zurückkehren ins heimatliche frastanz. ihr ziel: günthers haus, das dank umbau zum drei-generationen-heim werden soll. kann sich der hausherr gegen die feindliche übernahme wehren? zumal er schon bald eine gegnerin in den eigenen vier wänden hat, die von dieser idee sehr angetan ist. ein abend",
       "ticketUrl": "https://www.ticketist.io/events/neuschmid-voegel-02-2026",
       "buchbar": true,
-      "quelle": "ticketist",
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 78,
+          "frei": 18
+        }
+      ],
       "bild": "assets/events/ticketist/neuschmid-voegel-02-2026.webp"
     },
     {
-      "id": "rock4-2026-only",
+      "id": "rock4-2026",
       "date": "2026-10-22",
-      "zeit": "21:00",
-      "title": "rock4 - a cappella | konzert only",
+      "zeit": "19:00",
+      "title": "rock4 - a cappella",
       "untertitel": "the music of queen: a night at the opera, 50th anniversary",
       "ort": "\"wirtschaft\" Dornbirn",
       "haus": "wirtschaft",
       "adresse": "Bahnhofstraße 24, Dornbirn",
       "beschreibung": "50 jahre bohemian rhapsody. 50 jahre a night at the opera, das facettenreiche meisterwerk von queen und eines der berühmtesten alben aller zeiten. rock4 zelebriert diesen meilenstein der musikgeschichte auf grandiose art und weise, mit der stimme als einzigem instrument. in den letzten jahren entwickelte sich rock4 zu einer vokal-rockband: mit einem tiefen bass und einem perkussionisten von weltklasse, einem beeindruckenden leadsänger und einem großartigen, klassischen tenor. stimmkünstler von höchstem niveau, die das publikum in die kraftvollen queen-songs mitnehmen mit ihren vielfältigen mus",
-      "ticketUrl": "https://www.ticketist.io/events/rock4-2026-only",
+      "ticketUrl": "https://www.ticketist.io/events/rock4-2026",
       "buchbar": true,
-      "quelle": "ticketist",
-      "bild": "assets/events/ticketist/rock4-2026-only.webp"
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 68,
+          "frei": 0
+        }
+      ],
+      "bild": "assets/events/ticketist/rock4-2026.webp",
+      "varianten": [
+        {
+          "id": "rock4-2026-only",
+          "label": "konzert only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/rock4-2026-only",
+          "buchbar": true
+        }
+      ]
     },
     {
-      "id": "ullitroy-01-2026",
+      "id": "ullitroy-menue-2026",
       "date": "2026-10-25",
-      "zeit": "",
-      "title": "ulli troy: 50 jahre bühnenjubiläum",
-      "untertitel": "konzertabend mit 3-gänge menü",
+      "zeit": "19:00",
+      "title": "50 Jahre Ulli Troy",
+      "untertitel": "Konzertabend mit 3-Gänge Menü",
       "ort": "Kulturhaus Dornbirn",
       "haus": "kulturhaus",
       "adresse": "Rathausplatz 1, Dornbirn",
-      "beschreibung": "",
-      "ticketUrl": "https://eugen.family/event/ullitroy-01-2026/",
+      "beschreibung": "Ulli Troy begeht sein 50-jähriges Bühnenjubiläum und lädt dazu ein, gemeinsam mit ihm und seinen Weggefährten auf eine musikalische Zeitreise zu gehen und die Höhepunkte seiner Karriere noch einmal Revue passieren zu lassen. Im Jahr 1976 – in Billericay, Essex – kam es zum ersten gemeinsamen Auftritt von Stemmeisen Hermann Stadelmann und Zündschnur Ulli Troy. 50 Jahre später - und um ca. 170 Liedertexte „reicher“ – begeht Ulli Troy sein Bühnenjubiläum im Kulturhaus Dornbirn. Mit dabei sind viele seiner musikalischen BegleiterInnen: Stemmeisen Hermann Stadelmann, Rolf Aberer, Zündschnurs Wiebor",
+      "ticketUrl": "https://www.ticketist.io/events/ullitroy-menue-2026",
       "buchbar": true,
-      "quelle": "kulturhaus",
-      "bild": "assets/events/ticketist/ullitroy-01-2026.webp"
+      "preise": [
+        {
+          "name": "Sitzplatz (inkl. 3-Gänge Menü)",
+          "preis": 68,
+          "frei": 0
+        }
+      ],
+      "bild": "assets/events/ticketist/ullitroy-menue-2026.webp"
     },
     {
-      "id": "ullitroy-02-2026",
+      "id": "ullitroy-brunch-2026",
       "date": "2026-10-26",
-      "zeit": "",
-      "title": "ulli troy: 50 jahre bühnenjubiläum",
-      "untertitel": "feiertagsmatinee mit brunch",
+      "zeit": "11:00",
+      "title": "50 Jahre Ulli Troy",
+      "untertitel": "Feiertagsmatinee mit Brunch",
       "ort": "Kulturhaus Dornbirn",
       "haus": "kulturhaus",
       "adresse": "Rathausplatz 1, Dornbirn",
-      "beschreibung": "",
-      "ticketUrl": "https://eugen.family/event/ullitroy-02-2026/",
+      "beschreibung": "Ulli Troy begeht sein 50-jähriges Bühnenjubiläum und lädt dazu ein, gemeinsam mit ihm und seinen Weggefährten auf eine musikalische Zeitreise zu gehen und die Höhepunkte seiner Karriere noch einmal Revue passieren zu lassen. Im Jahr 1976 – in Billericay, Essex – kam es zum ersten gemeinsamen Auftritt von Stemmeisen Hermann Stadelmann und Zündschnur Ulli Troy. 50 Jahre später - und um ca. 170 Liedertexte „reicher“ – begeht Ulli Troy sein Bühnenjubiläum im Kulturhaus Dornbirn. Mit dabei sind viele seiner musikalischen BegleiterInnen: Stemmeisen Hermann Stadelmann, Rolf Aberer, Zündschnurs Wiebor",
+      "ticketUrl": "https://www.ticketist.io/events/ullitroy-brunch-2026",
       "buchbar": true,
-      "quelle": "kulturhaus",
-      "bild": "assets/events/ticketist/ullitroy-01-2026.webp"
+      "preise": [
+        {
+          "name": "Sitzplatz (inkl. Brunchbuffet)",
+          "preis": 68,
+          "frei": 77
+        }
+      ],
+      "bild": "assets/events/ticketist/ullitroy-brunch-2026.webp"
     },
     {
       "id": "kellner-2026",
@@ -228,8 +372,23 @@
       "beschreibung": "mit seinem neuen programm „schnappschuss!“ holt der bayrische liedermacher und kabarettist mathias kellner zu einem kreativen rundumschlag aus. er schaut wieder einmal ganz tief in die bayrische seele und beobachtet genau, welche kuriositäten der alltag so bereithält. das macht er zum einen mit seinen spitzfindigen liedern in denen er unter anderem über die täglichen belastungen eines „ohrwaschls“ berichtet, nur um im nächsten moment mit einem lied über verhasste freizeitaktivitäten aufzufahren. zum anderen, mit seinen grandiosen bawarisierten übersetzungen großer rock- und pop-klassiker. da w",
       "ticketUrl": "https://www.ticketist.io/events/kellner-2026",
       "buchbar": true,
-      "quelle": "ticketist",
-      "bild": "assets/events/ticketist/kellner-2026.webp"
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 68,
+          "frei": 174
+        }
+      ],
+      "bild": "assets/events/ticketist/kellner-2026.webp",
+      "varianten": [
+        {
+          "id": "kellner-2026-only",
+          "label": "konzert only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/kellner-2026-only",
+          "buchbar": true
+        }
+      ]
     },
     {
       "id": "kulturimhaus-h2026",
@@ -243,7 +402,13 @@
       "beschreibung": "Zu Beginn der Veranstaltung heißen wir euch im Foyer des Kulturhaus Dornbirn willkommen. Dort sorgt ein erfrischender Aperitif und köstliche Vorspeisen für einen genussvollen Einstieg. Nach dem kulinarischen Auftakt geht es in den Saal Dora, wo zwei Comedians für beste Unterhaltung und viele Lacher sorgen. Doch das war erst der Anfang! Nach den ersten zwei Comedians kehrt ihr ins Foyer zurück, wo unser Küchenteam euch mit exquisiten Hauptgerichten verwöhnt. Nach diesem Genuss geht es anschließend wieder zurück in den Saal Dora, wo die nächsten beiden Comedy-Acts euch zum Lachen bringen. Zum kr",
       "ticketUrl": "https://www.ticketist.io/events/kulturimhaus-h2026",
       "buchbar": true,
-      "quelle": "ticketist",
+      "preise": [
+        {
+          "name": "Dinner & Comedy",
+          "preis": 98,
+          "frei": 263
+        }
+      ],
       "bild": "assets/events/ticketist/kulturimhaus-h2026.webp"
     },
     {
@@ -258,23 +423,40 @@
       "beschreibung": "„Immer is irgendwas. Entweder die Fiaß schlafen mir ein. Oder sie jucken. Dann krieg i wieder ka Luft, wenn i schneller geh. Oder i hab an Schweißausbruch. Dann friert mich wieder. Das Essen schmeckt mir nimmer, der Sex ist fad, die Hosen sind z’eng. Was is das bitte? - Des muss alles dieser Klimawandel sein, oder? Temperaturen hat’s im Sommer wie in den Tropen! Dadurch gibt’s auf einmal diese riesigen Insekten! Die hat’s doch früher net geb’n! Wenn die dich stechen, kriegst einen Dippel, der geht monatelang net weg! Wahrscheinlich san die alle gentechnisch verändert. Und die Pflanzen! Die wer",
       "ticketUrl": "https://www.ticketist.io/events/hader-02-2026",
       "buchbar": true,
-      "quelle": "ticketist",
+      "preise": [
+        {
+          "name": "Kategorie 1",
+          "preis": 34,
+          "frei": 3
+        },
+        {
+          "name": "Kategorie 2",
+          "preis": 29,
+          "frei": 12
+        }
+      ],
       "bild": "assets/events/ticketist/hader-02-2026.webp"
     },
     {
-      "id": "singmit-2026",
+      "id": "singmit-konzertonly",
       "date": "2026-10-31",
-      "zeit": "",
-      "title": "sing mit!",
-      "untertitel": "die mitsingnacht mit notenlos",
+      "zeit": "20:00",
+      "title": "SING MIT! - Konzert Only",
+      "untertitel": "SING MIT! - Die große Mitsingnacht",
       "ort": "Kulturhaus Dornbirn",
       "haus": "kulturhaus",
       "adresse": "Rathausplatz 1, Dornbirn",
-      "beschreibung": "",
-      "ticketUrl": "https://eugen.family/event/singmit-2026/",
+      "beschreibung": "Band: Notenlos Unser offenes Gesangsevent lädt jede:n zum Mitsingen ein: Wer Spaß am Singen und an Musik hat, ist hier richtig! Wir singen uns quer durch ein buntes Repertoire aus bekannten Evergreens, Gassenhauern, Schlagern und aktueller Pop-Rock-Musik. Wer im Publikum sitzt, kann den ganzen Abend mitsingen – so laut er will. Vorkenntnisse brauchst du keine, nur Freude am Singen sollte jeder mitbringen. Die Texte werden zum Mitlesen an die Leinwand projiziert, du wirst live von der Band „Notenlos“ angeleitet und begleitet. Echt und in Farbe, purer Spaß – sei dabei und mach mit! In Zusammenar",
+      "ticketUrl": "https://www.ticketist.io/events/singmit-konzertonly",
       "buchbar": true,
-      "quelle": "kulturhaus",
-      "bild": "assets/events/ticketist/singmit-2026.webp"
+      "preise": [
+        {
+          "name": "Sitzplatz ohne Essen",
+          "preis": 22,
+          "frei": 624
+        }
+      ],
+      "bild": "assets/events/ticketist/singmit-konzertonly.webp"
     },
     {
       "id": "meyle-2026",
@@ -288,7 +470,23 @@
       "beschreibung": "Ab dem 22. Oktober 2026 geht Gregor Meyle mit seiner Band auf große Unplugged-Tour und wird in 21 Städten sein Publikum mit einer neuen, einzigartigen Show begeistern. Nach dem überwältigenden Erfolg der letzten Tour, die restlos ausverkauft war, verspricht die Unplugged-Tour 2026 erneut ein unvergessliches musikalisches Erlebnis. Die Konzerte von Gregor Meyle zeichnen sich durch eine besondere Nähe zum Publikum aus. Mit seiner Band präsentiert er seine Songs in reduzierter, akustischer Form, wodurch die Musik noch intensiver und emotionaler zur Geltung kommt. Diese Shows laden nicht nur zum M",
       "ticketUrl": "https://www.ticketist.io/events/meyle-2026",
       "buchbar": true,
-      "quelle": "ticketist",
+      "preise": [
+        {
+          "name": "Kategorie 1",
+          "preis": 65,
+          "frei": 12
+        },
+        {
+          "name": "Kategorie 2",
+          "preis": 59,
+          "frei": 82
+        },
+        {
+          "name": "Kategorie 3",
+          "preis": 49,
+          "frei": 64
+        }
+      ],
       "bild": "assets/events/ticketist/meyle-2026.webp"
     },
     {
@@ -303,8 +501,23 @@
       "beschreibung": "nach dem vorbild des comic strip live clubs in new york, des comedy stores in london oder auch des quatsch comedy clubs in berlin sorgen wir einmal im monat mit drei comedians aus österreich, deutschland und der schweiz für großartige unterhaltung. in einer abwechslungsreichen und schnellen show bleibt kein auge trocken und unsere comedy-kollegen und wir haben nur ein ziel: wir bringen dich zum lachen. das schnelle format, bei dem mehrere künstler jeweils 20 minuten highlights aus ihren programmen bieten, garantiert bestes entertainment und einen abwechslungsreichen abend. wir wollen weder pol",
       "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-05-2026",
       "buchbar": true,
-      "quelle": "ticketist",
-      "bild": "assets/events/ticketist/dinner-comedy-05-2026.webp"
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 68,
+          "frei": 0
+        }
+      ],
+      "bild": "assets/events/ticketist/dinner-comedy-05-2026.webp",
+      "varianten": [
+        {
+          "id": "dinner-comedy-05-only-2026",
+          "label": "comedy only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-05-only-2026",
+          "buchbar": true
+        }
+      ]
     },
     {
       "id": "landert-2026",
@@ -318,7 +531,18 @@
       "beschreibung": "Der preisgekrönte Ostschweizer Stand-Up-Comedian öffnet mit seinem zweiten Solo-Programm \"Die verbotene Frucht\" die Tür zu einer Welt, die perfekt erscheint. Fabio Landert malt ein Bild von einem Paradies, in dem alle Fehler vergeben sind. Doch inmitten dieser makellosen Welt fehlt etwas Wesentliches: Humor und Spaß. Obwohl man glaubt, frei zu sein, fühlt man sich immer, als würde man etwas falsch machen. Landert verführt das Publikum dazu, die verbotene Frucht zu probieren. Mit seinem eigenen, authentischen und trockenen Stil entführt er die Gäste in eine Welt ohne Tabus, in der jeder über al",
       "ticketUrl": "https://www.ticketist.io/events/landert-2026",
       "buchbar": true,
-      "quelle": "ticketist",
+      "preise": [
+        {
+          "name": "Kategorie 1",
+          "preis": 39,
+          "frei": 0
+        },
+        {
+          "name": "Kategorie 2",
+          "preis": 35,
+          "frei": 0
+        }
+      ],
       "bild": "assets/events/ticketist/landert-2026.webp"
     },
     {
@@ -333,8 +557,23 @@
       "beschreibung": "willkommen in philipp lingg’s musikzimmer - dem neuen, intimen konzertformat des bregenzerwälder singer-songwriters, bei dem echte emotionen und besondere musikalische begegnungen im vordergrund stehen. wenn sich die tür zu philipp’s musikzimmer öffnet, wissen die besucher:innen nicht, was sie erwartet - und vor allem nicht, wer auf der bühne stehen wird. zwei auserlesene musiker:innen - ob bekannte stimme oder vielversprechender geheimtipp - treten ans mikrofon und sorgen für gänsehautmomente, die lange nachklingen. philipp lingg führt durch den abend, erzählt, spielt, singt und begeistert - ",
       "ticketUrl": "https://www.ticketist.io/events/philippsmusikzimmer-02-2026",
       "buchbar": true,
-      "quelle": "ticketist",
-      "bild": "assets/events/ticketist/philippsmusikzimmer-02-2026.webp"
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 68,
+          "frei": 120
+        }
+      ],
+      "bild": "assets/events/ticketist/philippsmusikzimmer-02-2026.webp",
+      "varianten": [
+        {
+          "id": "philippsmusikzimmer-02-only-2026",
+          "label": "konzert only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/philippsmusikzimmer-02-only-2026",
+          "buchbar": true
+        }
+      ]
     },
     {
       "id": "hanskaspasenkel-2026",
@@ -348,8 +587,23 @@
       "beschreibung": "in ihrem neuen programm begeben sich george nußbaumer und hanskaspas enkel (ulli troy, richard & jos natter) auf eine ganz besondere und kurvenreiche reise. viele neue lieder umrahmen die erzählungen - wa(h)rheiten - aus dem leben von george und seinem vater hubert nußbaumer. auf dieser „reise ins glück“ wird aber nicht nur neben, sondern auch miteinander musiziert. freuen sie sich auf ein spannendes, v.a. aber humorvolles „reiseprogramm“. ❗️für den fall von unverträglichkeiten oder dem wunsch nach einem vegetarischen menü, bitten wir um eine rechtzeitige information unter veranstaltungen@wirt",
       "ticketUrl": "https://www.ticketist.io/events/hanskaspasenkel-2026",
       "buchbar": true,
-      "quelle": "ticketist",
-      "bild": "assets/events/ticketist/hanskaspasenkel-2026.webp"
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 68,
+          "frei": 155
+        }
+      ],
+      "bild": "assets/events/ticketist/hanskaspasenkel-2026.webp",
+      "varianten": [
+        {
+          "id": "hanskaspasenkel-2026-only",
+          "label": "konzert only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/hanskaspasenkel-2026-only",
+          "buchbar": true
+        }
+      ]
     },
     {
       "id": "notenlos-2026",
@@ -363,8 +617,23 @@
       "beschreibung": "zwei typen, zwei keyboards, zwei stimmen und ein abend voller überraschungen pusch & speckmann geben die „living jukebox“ und präsentieren ein wunschkonzert der extraklasse, das man so noch nie gehört hat – und das auch jedes mal anders klingt. ganz nach lust, laune und kreativität der gäste. die sind nicht nur live mit dabei, sondern gestalten den abend auch aktiv mit! im duett und im duell improvisieren sich die beiden ausnahmemusiker kunterbunt durch klassik, jazz, musical und pop. ohne playback, ohne hilfsmittel und ohne noten führen sie sich und ihre pianos an die leistungsgrenze. zum bei",
       "ticketUrl": "https://www.ticketist.io/events/notenlos-2026",
       "buchbar": true,
-      "quelle": "ticketist",
-      "bild": "assets/events/ticketist/notenlos-2026.webp"
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 68,
+          "frei": 141
+        }
+      ],
+      "bild": "assets/events/ticketist/notenlos-2026.webp",
+      "varianten": [
+        {
+          "id": "notenlos-2026-only",
+          "label": "konzert only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/notenlos-2026-only",
+          "buchbar": true
+        }
+      ]
     },
     {
       "id": "luis-03-2026",
@@ -378,7 +647,23 @@
       "beschreibung": "Nach über zwei Jahrzehnten auf den Kabarett- und Kleinkunstbühnen verabschiedet sich Luis aus Südtirol alias Manfred Zöschg mit einer letzten großen Tournee von seinem Publikum. Die „Pfiati“-Tour markiert den Abschluss einer einzigartigen Bühnenkarriere – und bietet zugleich eine einmalige Gelegenheit, den beliebten Südtiroler Kabarettisten noch ein letztes Mal live zu erleben. Mit im Gepäck: neue Nummern, altbewährte Klassiker und jede Menge Geschichten aus dem echten Leben – witzig, berührend und typisch Luis. Das Publikum darf sich auf ein sehr persönliches Programm freuen, das Rückblicke a",
       "ticketUrl": "https://www.ticketist.io/events/luis-03-2026",
       "buchbar": true,
-      "quelle": "ticketist",
+      "preise": [
+        {
+          "name": "Kategorie 1",
+          "preis": 40,
+          "frei": 52
+        },
+        {
+          "name": "Kategorie 2",
+          "preis": 36,
+          "frei": 128
+        },
+        {
+          "name": "Kategorie 3",
+          "preis": 33,
+          "frei": 114
+        }
+      ],
       "bild": "assets/events/ticketist/luis-03-2026.webp"
     },
     {
@@ -393,8 +678,23 @@
       "beschreibung": "die kultige montafoner mundart band krauthobel hat neue wege eingeschlagen. seit ende 2015 sind sie mit ihrer akustik-tour, bis über die landesgrenzen hinaus, unterwegs. krauthobel steht für selbst komponierte lieder im montafoner dialekt, in deren texten sie geschichten aus dem alltag aufgreifen und songs daraus zaubern. die besten lieder schreibt bekanntlich das leben selbst. das beweist krauthobel seit mehr als 20 jahren immer wieder aufs neue – mit einer beachtlichen anzahl von veröffentlichten alben. ihr beeindruckendes repertoire an nummern, das die vollblutmusiker schon seit 1996 sehr e",
       "ticketUrl": "https://www.ticketist.io/events/krauthobel-2026",
       "buchbar": true,
-      "quelle": "ticketist",
-      "bild": "assets/events/ticketist/krauthobel-2026.webp"
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 78,
+          "frei": 153
+        }
+      ],
+      "bild": "assets/events/ticketist/krauthobel-2026.webp",
+      "varianten": [
+        {
+          "id": "krauthobel-2026-only",
+          "label": "konzert only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/krauthobel-2026-only",
+          "buchbar": true
+        }
+      ]
     },
     {
       "id": "rebeltell-2026",
@@ -408,8 +708,23 @@
       "beschreibung": "ein bunter sänger mit backenbart und rhythmusgitarre, ein mann in tigershorts am kontrabass, ein angemalter e-gitarrist der noten lesen kann und ein holländer in roten socken und breitem grinsen hinter dem schlagzeug: das sind die einzigen konstanten bei einem auftritt von rebel tell. alles andere unterliegt dem kausalgesetz von ursache und wirkung. vier echte authentische typen, vier instrumente und eine mission: das sind die zutaten aus denen die band vom niederrhein ihre bühneshow zaubert. mit jeder menge herzblut, ein bißchen heimatliches „watt“ und „datt“, gerne auch gedöns und gelaber un",
       "ticketUrl": "https://www.ticketist.io/events/rebeltell-2026",
       "buchbar": true,
-      "quelle": "ticketist",
-      "bild": "assets/events/ticketist/rebeltell-2026.webp"
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 68,
+          "frei": 134
+        }
+      ],
+      "bild": "assets/events/ticketist/rebeltell-2026.webp",
+      "varianten": [
+        {
+          "id": "rebeltell-2026-only",
+          "label": "konzert only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/rebeltell-2026-only",
+          "buchbar": true
+        }
+      ]
     },
     {
       "id": "themonroes-2026",
@@ -423,8 +738,23 @@
       "beschreibung": "the monroes setzen der musikalischen ära der 50er und 60er jahre und ihren ikonen des rock’n’roll mit maximaler spielfreude, mehrstimmigem gesang und einer energiegeladenen bühnenshow ein denkmal. seit über 25 jahren gilt auf der bühne: krawatte an – rock’n’roll an. bereits kurz nach der gründung 1997 wurden the monroes von presse und fans als „local heroes“ gefeiert. mit über 1500 shows im in- und ausland, zahlreichen tv‑auftritten und starken platzierungen in radio‑ und streaming‑charts zählen sie heute zu den erfolgreichsten und erfahrensten rock’n’roll‑bands des landes. für viele sind sie ",
       "ticketUrl": "https://www.ticketist.io/events/themonroes-2026",
       "buchbar": true,
-      "quelle": "ticketist",
-      "bild": "assets/events/ticketist/themonroes-2026.webp"
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 78,
+          "frei": 33
+        }
+      ],
+      "bild": "assets/events/ticketist/themonroes-2026.webp",
+      "varianten": [
+        {
+          "id": "themonroes-2026-only",
+          "label": "konzert only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/themonroes-2026-only",
+          "buchbar": true
+        }
+      ]
     },
     {
       "id": "dinner-comedy-06-2026",
@@ -438,8 +768,23 @@
       "beschreibung": "nach dem vorbild des comic strip live clubs in new york, des comedy stores in london oder auch des quatsch comedy clubs in berlin sorgen wir einmal im monat mit drei comedians aus österreich, deutschland und der schweiz für großartige unterhaltung. in einer abwechslungsreichen und schnellen show bleibt kein auge trocken und unsere comedy-kollegen und wir haben nur ein ziel: wir bringen dich zum lachen. das schnelle format, bei dem mehrere künstler jeweils 20 minuten highlights aus ihren programmen bieten, garantiert bestes entertainment und einen abwechslungsreichen abend. wir wollen weder pol",
       "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-06-2026",
       "buchbar": true,
-      "quelle": "ticketist",
-      "bild": "assets/events/ticketist/dinner-comedy-06-2026.webp"
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 68,
+          "frei": 131
+        }
+      ],
+      "bild": "assets/events/ticketist/dinner-comedy-06-2026.webp",
+      "varianten": [
+        {
+          "id": "dinner-comedy-06-only-2026",
+          "label": "comedy only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-06-only-2026",
+          "buchbar": true
+        }
+      ]
     },
     {
       "id": "dinner-comedy-07-2026",
@@ -453,23 +798,83 @@
       "beschreibung": "nach dem vorbild des comic strip live clubs in new york, des comedy stores in london oder auch des quatsch comedy clubs in berlin sorgen wir einmal im monat mit drei comedians aus österreich, deutschland und der schweiz für großartige unterhaltung. in einer abwechslungsreichen und schnellen show bleibt kein auge trocken und unsere comedy-kollegen und wir haben nur ein ziel: wir bringen dich zum lachen. das schnelle format, bei dem mehrere künstler jeweils 20 minuten highlights aus ihren programmen bieten, garantiert bestes entertainment und einen abwechslungsreichen abend. wir wollen weder pol",
       "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-07-2026",
       "buchbar": true,
-      "quelle": "ticketist",
-      "bild": "assets/events/ticketist/dinner-comedy-07-2026.webp"
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 68,
+          "frei": 140
+        }
+      ],
+      "bild": "assets/events/ticketist/dinner-comedy-07-2026.webp",
+      "varianten": [
+        {
+          "id": "dinner-comedy-07-only-2026",
+          "label": "comedy only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-07-only-2026",
+          "buchbar": true
+        }
+      ]
     },
     {
-      "id": "einarsson-2027",
-      "date": "2027-03-13",
-      "zeit": "",
-      "title": "thorsteinn einarsson",
-      "untertitel": "solstice tour 2027",
+      "id": "dabado-charity",
+      "date": "2026-12-19",
+      "zeit": "19:00",
+      "title": "Dabado Charity • Clubbing II",
+      "untertitel": "",
       "ort": "Kulturhaus Dornbirn",
       "haus": "kulturhaus",
       "adresse": "Rathausplatz 1, Dornbirn",
-      "beschreibung": "",
-      "ticketUrl": "https://eugen.family/event/einarsson-2027/",
+      "beschreibung": "Eine lange Nacht. Jede Menge Live-Musik. Und das alles für den guten Zweck. Am Samstag, 19. Dezember 2026 geht das dabado charity • clubbing in die zweite Runde - diesmal im Kulturhaus Dornbirn. Von 19:00 bis 03:00 Uhr erwartet euch ein abwechslungsreicher Konzert- und Clubbingabend mit einem Line-Up quer durch die Vorarlberger Musikszene. Line-Up: Stereo Ida • Bada & special Guest • dabado & friends • dabado ft. DBA Dancecrew • dabado HYPER EXTENDED | Aftershow: DJ LUIFF 100% der Ticketeinnahmen für das Clubbing wandern in den Spendentopf. Unser Spendenprojekt Mit dem diesjährigen Charity Clu",
+      "ticketUrl": "https://www.ticketist.io/events/dabado-charity",
       "buchbar": true,
-      "quelle": "kulturhaus",
-      "bild": "assets/events/ticketist/einarsson-2027.webp"
+      "preise": [
+        {
+          "name": "Stehplatz (Parterre)",
+          "preis": 27,
+          "frei": 688
+        }
+      ],
+      "bild": "assets/events/ticketist/dabado-charity.webp",
+      "varianten": [
+        {
+          "id": "dabado-charity-dinner",
+          "label": "Dinner & Konzert",
+          "zeit": "17:30",
+          "ticketUrl": "https://www.ticketist.io/events/dabado-charity-dinner",
+          "buchbar": true
+        }
+      ]
+    },
+    {
+      "id": "einarsson-stehplatz-2027",
+      "date": "2027-03-13",
+      "zeit": "20:00",
+      "title": "Thorsteinn Einarsson",
+      "untertitel": "SOLSTICE Tour 2027",
+      "ort": "Kulturhaus Dornbirn",
+      "haus": "kulturhaus",
+      "adresse": "Rathausplatz 1, Dornbirn",
+      "beschreibung": "Support: emma Mit „SOLSTICE“ veröffentlicht Thorsteinn Einarsson im März 2027 sein mittlerweile fünftes Studioalbum – und eröffnet damit eines der bisher spannendsten Kapitel seiner Karriere. Inspiriert von der Mitternachtssonne seiner isländischen Heimat erzählt „SOLSTICE“ von einer langen, hellen und positiven Phase in Thorsteinns Leben: nach vielen Höhen und Tiefen, beschreibt Thorsteinn die letzten 2 Jahre wie “einen sehr langen, sehr schönen Tag”, ein Gefühl, das sich „wie ein nie endender Sommertag“ anfühlt. Musikalisch vereint das Album alles, wofür Thorsteinn Einarsson seit Jahren steh",
+      "ticketUrl": "https://www.ticketist.io/events/einarsson-stehplatz-2027",
+      "buchbar": true,
+      "preise": [
+        {
+          "name": "Stehplatz (Parterre)",
+          "preis": 28,
+          "frei": 661
+        }
+      ],
+      "bild": "assets/events/ticketist/einarsson-stehplatz-2027.webp",
+      "varianten": [
+        {
+          "id": "einarsson-sitzplatz-2027",
+          "label": "Sitzplatz",
+          "zeit": "20:00",
+          "ticketUrl": "https://www.ticketist.io/events/einarsson-sitzplatz-2027",
+          "buchbar": true
+        }
+      ]
     },
     {
       "id": "genussroute",
@@ -483,23 +888,34 @@
       "beschreibung": "18.00 bis 01.00 Uhr | Küche jeweils bis 22.00 Uhr Die „wirtschaft“, das Gasthaus Gemsle, das Gasthaus Schiffle, das Panoramarestaurant Karren und Emma&Eugen im Kulturhaus (Foyer Bira) setzen Dornbirn für einen Abend in Bewegung. In allen fünf Lokalitäten wird aufgetischt – mit Live-Musik aus Vorarlberg und köstlichen Speisegängen im Kleinformat. Keiner der Gäste muss sich für eine Lokalität entscheiden, viel mehr darf jeder Gast 5-fach genießen. Jede Eintrittskarte beinhaltet den Zutritt in alle fünf Lokale. Die Eintrittskarten sind in sechs Karten unterteilt – 2x Vorspeise, 2x Hauptspeise, 1x",
       "ticketUrl": "https://www.ticketist.io/events/genussroute",
       "buchbar": true,
-      "quelle": "ticketist",
+      "preise": [
+        {
+          "name": "Start-Location: \"wirtschaft\"",
+          "preis": 88,
+          "frei": 65
+        },
+        {
+          "name": "Start-Location: Gasthaus Schiffle",
+          "preis": 88,
+          "frei": 55
+        },
+        {
+          "name": "Start-Location: Gasthaus Gemsle",
+          "preis": 88,
+          "frei": 67
+        },
+        {
+          "name": "Start-Location: Panoramarestaurant Karren",
+          "preis": 88,
+          "frei": 113
+        },
+        {
+          "name": "Start-Location: Emma&Eugen im Kulturhaus",
+          "preis": 88,
+          "frei": 65
+        }
+      ],
       "bild": "assets/events/ticketist/genussroute.webp"
-    },
-    {
-      "id": "genussroute-6850",
-      "date": "2027-05-20",
-      "zeit": "",
-      "title": "genussroute 6850",
-      "untertitel": "kulinarische reise durch dornbirn",
-      "ort": "Kulturhaus Dornbirn",
-      "haus": "kulturhaus",
-      "adresse": "Rathausplatz 1, Dornbirn",
-      "beschreibung": "",
-      "ticketUrl": "https://eugen.family/event/genussroute-6850/",
-      "buchbar": true,
-      "quelle": "kulturhaus",
-      "bild": "assets/events/ticketist/genussroute-6850.webp"
     }
   ]
 }
