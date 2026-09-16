@@ -28,9 +28,9 @@
   <main id="main">
     <section class="wrap hero" id="hero">
       <div>
-        <p class="eyebrow">Mittag · 11:30–13:30</p>
+        <p class="eyebrow">Mittags in der „wirtschaft“ · Mittagstisch 11:30–13:30</p>
         <h1>Reservier’ dir<br>deinen Platz</h1>
-        <p class="lead">Der Tisch gilt für den Mittag. Abends öffnen wir ausschließlich für Events – dort gilt das Eventticket.</p>
+        <p class="lead">Reserviere dir deinen Mittagstisch in der „wirtschaft“.</p>
         <aside class="status">
           <i aria-hidden="true"></i>
           <span><strong data-status-name>Mittagstisch</strong><em data-status-detail>Mo–Fr · 11:30–13:30</em></span>
@@ -51,7 +51,7 @@
              erreichbar ist - und er ist das, was Suchmaschinen lesen: sie
              fuehren das Skript meist nicht aus. Er nannte frueher ein
              "offizielles Reservierungssystem", das es nicht mehr gibt. -->
-        <p class="sub" id="bookingLead">Wähl’ Tag, Uhrzeit und Personenzahl. Wir teilen den Tisch direkt ein und bestätigen sofort – ohne Konto und ohne Anruf. Klappt die Verbindung einmal nicht, erreichst du uns jederzeit telefonisch.</p>
+        <p class="sub" id="bookingLead">Wähl’ Tag, Uhrzeit und Personenzahl. Wir teilen den Tisch direkt ein. Gespeichert werden nur Name, Termin, Personenzahl und eine Erreichbarkeit – gelöscht spätestens 30 Tage nach dem Termin.</p>
         <!-- Die Ampel: wie voll ist der Mittag heute. Sie erscheint nur, wenn
              der Reservierungsdienst laeuft und etwas Ehrliches zu sagen hat. -->
         <p class="ampel" id="ampelStand" role="status" aria-live="polite" hidden>
@@ -93,10 +93,10 @@
               <p class="warteliste-status" id="wlStatus" role="status" aria-live="polite"></p>
             </div>
           <label class="wide stepper-field">Anzahl Personen*
-            <span class="stepper" data-stepper="guests" data-min="1" data-max="20" data-value="2">
+            <span class="stepper" data-stepper="guests" data-min="1" data-max="10" data-value="2">
               <button type="button" data-step="-1" aria-label="Eine Person weniger">−</button>
               <span class="stepper-zahl">
-                <input type="number" name="guests" inputmode="numeric" min="1" max="20" step="1" value="2" aria-label="Anzahl Personen – auch direkt eintippbar">
+                <input type="number" name="guests" inputmode="numeric" min="1" max="10" step="1" value="2" aria-label="Anzahl Personen – auch direkt eintippbar">
                 <span data-einheit aria-hidden="true">Personen</span>
               </span>
               <button type="button" data-step="1" aria-label="Eine Person mehr">+</button>
@@ -121,10 +121,10 @@
             <label class="wunsch-feld">Wünsche (optional)
               <input type="text" name="gastwunsch" id="guestWish" maxlength="120" placeholder="z. B. Fensterplatz, Kinderstuhl">
             </label>
-            <p class="contact-note">Nur für diese Reservierung: Bestätigung – und die Absage, falls wir kurzfristig nicht kochen können. Gelöscht spätestens 30 Tage nach dem Termin.</p>
+            <p class="contact-note">Nur für diese Reservierung: Bestätigung – und die Absage, falls wir deine Reservierung kurzfristig nicht wahrnehmen können. Gelöscht spätestens 30 Tage nach dem Termin.</p>
           </div>
         </form>
-        <p class="group-hint">Mehr als 20 Personen? Ruf’ uns an: <a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
+        <p class="group-hint">Mehr als 10 Personen? Ruf’ uns an: <a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
         <p class="required">* Pflichtfelder</p>
           <!-- Die Information gehoert an die Stelle, an der die Daten erhoben
                werden (Art. 13 DSGVO) - nicht nur in den Fuss der Seite. -->
@@ -137,7 +137,7 @@
           <a class="button button-green" id="submitBooking" href="tel:+43557220540">Lieber anrufen: +43 (0)5572 20 540</a>
           <p class="call-aside" id="callAside" hidden>Lieber telefonisch?
             <a href="tel:+43557220540">+43 (0)5572 20 540</a></p>
-          <p id="submitHint">Gespeichert werden nur Name, Termin, Personenzahl und eine Erreichbarkeit – gelöscht spätestens 30 Tage nach dem Termin.</p>
+          <p id="submitHint">Reservierung fixiert: du bekommst die Zusage direkt hier – ohne Anruf, ohne Konto. Absagen geht über den Link in der Bestätigung.</p>
         </div>
         <!-- Die aktuelle Mittagskarte, direkt vom Haus. Erscheint nur, wenn
              der Dienst laeuft und eine Karte hochgeladen ist - und ist in dem
@@ -185,7 +185,7 @@
     <section class="wrap section">
       <p class="eyebrow">Gut zu wissen</p>
       <h2>Mittags Tisch, abends Ticket</h2>
-      <p class="note">Tischreservierungen gibt es ausschließlich für den Mittag von 11:30 bis 13:30. Für die Abende gilt: Platz gibt es über das Ticket der jeweiligen Veranstaltung – Termine stehen auf der Startseite.</p>
+      <p class="note">Tischreservierungen gibt es ausschließlich von Montag bis Freitag von 11:30 bis 13:30. Am Abend bleibt die „wirtschaft“ geschlossen – geöffnet ist sie abends nur, wenn eine Veranstaltung im Obergeschoss stattfindet. Die Termine findest du auf der Startseite.</p>
     </section>
 
     <!-- Haeufige Fragen: beantwortet, was sonst das Telefon beantwortet.
@@ -200,23 +200,23 @@
         </details>
         <details>
           <summary>Wir sind eine größere Gruppe – geht das?</summary>
-          <p>Bis 20 Personen kannst du direkt hier reservieren. Ab 21 ruf uns kurz an – wir stellen die Tische passend zusammen: <a href="tel:+43557220540">+43 (0)5572 20 540</a>.</p>
+          <p>Bis 10 Personen kannst du direkt hier reservieren. Ab 10 Personen kannst du uns gerne kurz anrufen: <a href="tel:+43557220540">+43 (0)5572 20 540</a>.</p>
         </details>
         <details>
           <summary>Wo parke ich am besten?</summary>
-          <p>Am einfachsten in der Tiefgarage der Wirtschaft – direkt im Haus. Alternativ beim Bahnhof Dornbirn, zwei Gehminuten entfernt. Bus und Zug sind die entspannteste Anreise.</p>
+          <p>Die beste Parkmöglichkeit gibt’s in der Tiefgarage des WIFI Dornbirn – direkt im Haus. Alternativ beim Bahnhof Dornbirn, zwei Gehminuten entfernt. Bus und Zug sind die entspannteste Anreise.</p>
         </details>
         <details>
           <summary>Wie löse ich einen Gutschein ein?</summary>
-          <p>Einfach beim Kommen vorzeigen – er gilt für Essen genauso wie für Konzert- und Comedyabende. Bei Events sag beim Ticketkauf kurz Bescheid.</p>
+          <p>Je nach Art deines Gutscheines kann dieser für ein Essen oder eine Veranstaltung in der „wirtschaft“ eingelöst werden. Wenn du deinen Gutschein gerne einlösen möchtest, ruf uns einfach kurz an oder schreib’ uns eine Mail: <a href="tel:+436642306587">+43 664 230 65 87</a> / <a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a>.</p>
         </details>
         <details>
           <summary>Ist das Haus barrierefrei?</summary>
-          <p>Ruf am besten kurz an – wir sagen dir ehrlich, was gut geht, und helfen beim Ankommen: <a href="tel:+43557220540">+43 (0)5572 20 540</a>.</p>
+          <p>Grundsätzlich ja. Um auf Nummer sicher zu gehen, ruf am besten kurz an – wir sagen dir ehrlich, was gut geht, und helfen beim Ankommen: <a href="tel:+436642306587">+43 664 230 65 87</a>.</p>
         </details>
         <details>
           <summary>Kann ich abends auch nur essen kommen?</summary>
-          <p>Abends öffnen wir für Events – Dinner, Konzert und Comedy. Zum Essen ohne Programm bist du mittags richtig, Montag bis Freitag ab 11:30.</p>
+          <p>Die „wirtschaft“ bleibt abends geschlossen &amp; öffnet nur für Veranstaltungen. Zum Essen ohne Programm bist du mittags richtig, von Montag bis Freitag ab 11:30.</p>
         </details>
       </div>
     </section>
@@ -234,7 +234,7 @@
     </section>
 
   <footer class="site-footer" id="impressum" data-variant="d">
-    <div><p class="fuss-label">das haus</p><img src="assets/wirtschaft-logo.png" width="300" height="69" loading="lazy" decoding="async" alt="Wirtschaft Dornbirn"><p>Wolfgang Preuß</p><p>Bahnhofstraße 24 · 6850 Dornbirn</p><a href="tel:+43557220540">+43 (0)5572 20 540</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a></div>
+    <div><p class="fuss-label">die „wirtschaft“</p><img src="assets/wirtschaft-logo.png" width="300" height="69" loading="lazy" decoding="async" alt="Wirtschaft Dornbirn"><p>Wolfgang Preuß</p><p>Bahnhofstraße 24 · 6850 Dornbirn</p><a href="tel:+436642306587">+43 664 230 65 87</a><a href="mailto:willkommen@wirtschaft-dornbirn.at">willkommen@wirtschaft-dornbirn.at</a></div>
     <div class="partner-block"><p class="fuss-label">emma &amp; eugen</p><img src="assets/emma-eugen-logo.png" width="206" height="116" loading="lazy" decoding="async" alt="Emma &amp; Eugen – Essen, Trinken &amp; Livemusik auf Achse"><p>Wolfgang Preuß</p><p>Bahnhofstraße 24 · 6850 Dornbirn</p><a href="tel:+436642306587">+43 664 230 65 87</a><a href="mailto:Uri@eugen.family">Uri@eugen.family</a>www.emmaundeugen.family</div>
     <div><p class="fuss-label">rechtliches</p><p>UID ATU 36206707</p><p>FN 329272 z</p><p>Firmenbuchgericht: Landesgericht Feldkirch</p><a href="impressum.html">Impressum</a><a href="datenschutz-sicherheit.html">Datenschutz &amp; Sicherheit</a></div>
     <div><p class="fuss-label">seiten</p><a href="index.html">Zur Startseite</a><a href="events.html">Termine &amp; Tickets</a><a href="feste-catering.html">Locations · Feste &amp; Catering</a><a href="agentur.html">Agentur</a><a href="https://gutscheine.wirtschaft-dornbirn.at/" target="_blank" rel="noopener noreferrer">Gutscheine</a><a data-route href="https://www.google.com/maps/dir/?api=1&destination=Bahnhofstra%C3%9Fe+24%2C+6850+Dornbirn%2C+%C3%96sterreich" target="_blank" rel="noopener noreferrer">Route öffnen ↗</a></div>
