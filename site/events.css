@@ -221,6 +221,19 @@ h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:normal;word-break:normal;hyphens:
   .events-grid{grid-template-columns:repeat(2,1fr);gap:10px}
   .kachel-zeile h2{min-height:0}
 }
+/* Was am Telefon gilt, steht bewusst NACH dem Block oben: bei gleicher
+   Staerke gewinnt die spaetere Regel, und 375 px sind auch "unter 900". */
+@media(max-width:560px){
+  .events-kopf{padding-top:calc(62px + 20px);padding-bottom:0}
+  .events-kopf h1{font-size:clamp(38px,10.5vw,44px)}
+  .events-lead{margin-top:10px;font-size:14px;line-height:1.5}
+  .events-grid-bereich{padding-top:12px}
+  /* Die Legende erklaert die Farbe - am Telefon genuegt die halbe Zeile,
+     der Rest steht am Rechner. Sonst schoben vier Zeilen Erklaerung die
+     ersten Termine aus dem Bild (Jonas, 16.09.). */
+  .events-legende{margin-bottom:10px;font-size:12px;line-height:1.45}
+  .legende-lang{display:none}
+}
 /* ===== handy: zwei kacheln nebeneinander, wie auf der alten seite =====
    Eine Kachel pro Zeile machte aus 18 Terminen neun Bildschirmmeter - und
    war nie die Vorgabe. Zwei nebeneinander halbieren den Weg; dafuer wird
