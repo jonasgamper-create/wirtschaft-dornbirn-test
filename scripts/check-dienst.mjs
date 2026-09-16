@@ -241,11 +241,11 @@ check('Zehn bekommen fuenf Tische', zehn.result.ok && zehn.result.tableIds.lengt
 const elf = verteile({ name: 'Elf', date: heute, time: '12:00', guests: 11 }, { config: flexConfig, parties: [] });
 check('Elf sprengen die Kombigrenze von 5 Tischen', !elf.result.ok, JSON.stringify(elf.result));
 
-// Online-Grenze: bis 20 Personen, darueber ans Telefon.
-check('Zwanzig Personen gehen online durch',
-  pruefeAnfrage({ name: 'Gross', date: heute, time: '12:00', guests: 20 }, { heute }).ok);
-check('Einundzwanzig gehoeren ans Telefon',
-  pruefeAnfrage({ name: 'Zu gross', date: heute, time: '12:00', guests: 21 }, { heute }).grund === 'personen');
+// Online-Grenze: bis 10 Personen, darueber ans Telefon (16.09.).
+check('Zehn Personen gehen online durch',
+  pruefeAnfrage({ name: 'Gross', date: heute, time: '12:00', guests: 10 }, { heute }).ok);
+check('Elf gehoeren ans Telefon',
+  pruefeAnfrage({ name: 'Zu gross', date: heute, time: '12:00', guests: 11 }, { heute }).grund === 'personen');
 
 // Eine groessere Kombigrenze traegt auch die Zwanzigergruppe.
 const grossConfig = structuredClone(flexConfig);

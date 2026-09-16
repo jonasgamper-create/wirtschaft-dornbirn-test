@@ -610,19 +610,12 @@ function uebernimmTag(antwort) {
       : `${grund} – deine Bestellung geht auf den nächsten Tag, an dem wir kochen. `
         + 'Wähl einfach die Abholzeit, wir haben es dann fertig.';
   }
-  // Die Ueberschriften nennen denselben Tag wie die Bestellung. Ohne das stand
-  // "Heute auf dem Teller" ueber einer Bestellung fuer naechsten Montag.
+  // Die Ueberschrift nennt den Tag nicht mehr (Kundentext vom 16.09.): sie
+  // steht fest, der Tag steht in der Tagesleiste und in der Frage darunter.
+  // Damit kann auch nicht mehr "Heute auf dem Teller" ueber einer Bestellung
+  // fuer naechsten Montag stehen.
   const bestellTag = antwort.bestelltag || null;
-  if (bestellTag) {
-    const wort = tagesWort(bestellTag);
-    byId('taHeroTag').textContent = grossAnfang(wort);
-    byId('taBestellTitel').textContent = `Was darf’s ${wort} sein?`;
-    // Die 20-30-Minuten-Zusage gilt nur, wenn heute gekocht wird.
-    if (vorbestellung) {
-      byId('taHeroLead').textContent = 'Frisch gekocht wie am Tisch, bestellt in zwei Minuten – '
-        + `abholbereit ${wort} ab 11:30 Uhr. Wähl einfach deine Abholzeit.`;
-    }
-  }
+  if (bestellTag) byId('taBestellTitel').textContent = `Was darf’s ${tagesWort(bestellTag)} sein?`;
 
   byId('taSenden').hidden = false;
   zeigeZeiten(minuten);
@@ -797,7 +790,6 @@ function tagesWort(datum) {
   return `am ${new Date(`${datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'long' })}`;
 }
 
-const grossAnfang = wort => wort.charAt(0).toUpperCase() + wort.slice(1);
 
 function tagesName(datum, { lang = false } = {}) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(datum || ''))) return lang ? '' : 'demnächst';
