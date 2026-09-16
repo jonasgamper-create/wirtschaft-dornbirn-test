@@ -1,18 +1,25 @@
 /* Termine & Tickets: die Kachelseite. Baut auf feste-catering.css auf
    (Schrift, Kopf, Knoepfe) und bringt nur das Kachelraster mit. */
 
-.events-kopf{width:min(1240px,calc(100% - 48px));margin:auto;padding:140px 0 20px}
+.events-kopf{width:min(1240px,calc(100% - 48px));margin:auto;padding:112px 0 8px}
 .events-kopf .eyebrow{margin:0 0 18px;color:var(--gold);font-size:12.5px;font-weight:700;letter-spacing:.17em;text-transform:lowercase}
 .events-kopf h1{margin:0;font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-size:clamp(54px,7vw,110px);font-weight:600;line-height:.9;letter-spacing:-.015em}
-.events-lead{max-width:640px;margin:26px 0 0;color:#d2ccc3;font-size:17.5px;line-height:1.6}
+.events-lead{max-width:640px;margin:18px 0 0;color:#d2ccc3;font-size:17.5px;line-height:1.55}
 
-.events-grid-bereich{width:min(1240px,calc(100% - 48px));margin:auto;padding:60px 0 30px}
+.events-grid-bereich{width:min(1240px,calc(100% - 48px));margin:auto;padding:26px 0 30px}
 .events-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .events-laden{grid-column:1/-1;color:#c8c2b8}
 
 .event-kachel{display:flex;flex-direction:column;border:1px solid #ffffff1c;background:#1d1915}
-.kachel-medien{position:relative;aspect-ratio:16/10;overflow:hidden;background:#000}
-.kachel-medien img,.kachel-medien video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+/* Das Fach fuer das Bild hat dasselbe Verhaeltnis wie die Fotos selbst:
+   42 der 50 Pressefotos sind 2:1, der Rest liegt dazwischen. Vorher stand
+   hier 16:10 mit "cover" - damit war von jedem Foto ein Fuenftel der Breite
+   abgeschnitten, bei einem Hochformat sogar mehr. Jetzt 2:1 mit "contain":
+   das ganze Bild ist zu sehen (Jonas, 16.09.), und die wenigen Fotos mit
+   anderem Verhaeltnis bekommen einen ruhigen Rand in der Farbe der Kachel
+   statt eines Schnitts. */
+.kachel-medien{position:relative;aspect-ratio:2/1;overflow:hidden;background:#11110f}
+.kachel-medien img,.kachel-medien video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
 .kachel-medien video[hidden]{display:none}
 .kachel-hoerprobe{position:absolute;right:12px;bottom:12px;z-index:2;display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:0 14px;border:1px solid #ffffff77;border-radius:99px;background:#11110fc9;color:#fff;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:lowercase;cursor:pointer}
 .kachel-hoerprobe:hover{background:#c59b5d33;border-color:var(--gold)}
@@ -55,7 +62,7 @@
 .event-kachel[data-haus="kulturhaus"] .ticketzeilen li[data-status="ausverkauft"] .tz-detail{color:#8c292b}
 .event-kachel[data-haus="kulturhaus"] .kachel-ausverkauft{background:#11110f14;border-color:#11110f2e;color:#57524a}
 .event-kachel[data-haus="kulturhaus"] .kachel-zeile time{color:#8a6a2f}
-.event-kachel[data-haus="kulturhaus"] .kachel-medien{background:#d9c9ad}
+.event-kachel[data-haus="kulturhaus"] .kachel-medien{background:#e2d3b8}
 /* Der Knopf traegt hier die Farbe des Hauses, nicht die der dunklen Seite. */
 .event-kachel[data-haus="kulturhaus"] .kachel-aktionen .button.light{background:var(--ink);border-color:var(--ink);color:#f3efe6}
 .event-kachel[data-haus="kulturhaus"] .kachel-aktionen .button.light:hover{background:#2b2b27;border-color:#2b2b27}
@@ -206,7 +213,11 @@ h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:normal;word-break:normal;hyphens:
 
 @media(max-width:1100px){.events-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:900px){
-  .events-kopf{padding-top:calc(62px + 58px)}
+  .events-kopf{padding-top:calc(62px + 26px);padding-bottom:4px}
+  .events-kopf h1{font-size:clamp(40px,11vw,64px)}
+  .events-lead{margin-top:14px;font-size:16px}
+  .events-grid-bereich{padding-top:16px}
+  .events-legende{margin-bottom:12px}
   .events-grid{grid-template-columns:repeat(2,1fr);gap:10px}
   .kachel-zeile h2{min-height:0}
 }
