@@ -189,8 +189,13 @@ h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:normal;word-break:normal;hyphens:
    Rechnung wie auf Start-, Mittags- und Rechtsseiten. */
 :root{--content:1060px;--gutter:clamp(20px,6vw,132px);--edge:max(var(--gutter),calc((100% - var(--content)) / 2))}
 .events-kopf,.events-grid-bereich,.events-abo{width:100%;margin:0;padding-left:var(--edge);padding-right:var(--edge)}
-.events-kopf{padding-top:calc(78px + 62px)}
-.events-grid-bereich{padding-top:60px;padding-bottom:30px}
+/* Am Rechner stand zwischen dem Satz zum Ticketverkauf und der ersten
+   Kachel ein ganzer Handbreit Luft: 62 px ueber der Ueberschrift und noch
+   einmal 60 px unter der Einleitung. Zusammen schoben sie die Termine aus
+   dem ersten Bildschirm. Jetzt folgt das Raster direkt auf den Text
+   (Jonas, 16.09.); die Luft ueber der Ueberschrift bleibt, nur knapper. */
+.events-kopf{padding-top:calc(78px + 44px)}
+.events-grid-bereich{padding-top:26px;padding-bottom:30px}
 .events-abo{margin-top:40px}
 
 /* Drei Kacheln statt vier: in der gemeinsamen Inhaltsbreite bleibt so
