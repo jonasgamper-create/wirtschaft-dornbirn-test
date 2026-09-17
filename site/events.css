@@ -25,6 +25,23 @@
 .kachel-hoerprobe:hover{background:#c59b5d33;border-color:var(--gold)}
 .kachel-hoerprobe[hidden]{display:none}
 
+/* ===== verpasst =============================================================
+   Ein Abend, der vorbei ist, verschwindet nicht sofort: eine Woche lang
+   bleibt er stehen, damit ein Plakat oder ein geteilter Link nicht ins Leere
+   fuehrt (Jonas, 17.09.). Er steht am Ende der Liste, blass, und im Bild
+   steht, woran man ist. Knoepfe hat er keine - ein toter Ticketknopf ist
+   schlimmer als gar keiner. */
+.event-kachel[data-vorbei]{opacity:.62}
+.event-kachel[data-vorbei] .kachel-medien img,
+.event-kachel[data-vorbei] .kachel-medien video{filter:grayscale(1) contrast(.92)}
+.event-kachel[data-vorbei] .kachel-medien::after{content:"";position:absolute;inset:0;background:#11110f5c}
+.kachel-verpasst{position:absolute;z-index:2;left:50%;top:50%;transform:translate(-50%,-50%);
+  margin:0;padding:6px 16px;border:1px solid #f3efe6b3;border-radius:99px;
+  background:#11110fa6;color:#f3efe6;
+  font-size:11.5px;font-weight:700;letter-spacing:.17em;text-transform:lowercase;white-space:nowrap}
+.event-kachel[data-vorbei]:hover{opacity:.82}
+@media(max-width:560px){.kachel-verpasst{font-size:10px;padding:4px 11px;letter-spacing:.12em}}
+
 .kachel-inhalt{display:flex;flex-direction:column;gap:10px;flex:1;padding:16px 16px 18px}
 .kachel-zeile{display:flex;align-items:baseline;gap:16px}
 .kachel-zeile time{display:grid;justify-items:center;color:var(--gold)}

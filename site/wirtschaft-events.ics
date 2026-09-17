@@ -7,171 +7,241 @@ X-WR-CALNAME:Wirtschaft Dornbirn - Events
 X-WR-TIMEZONE:Europe/Vienna
 BEGIN:VEVENT
 UID:event-2026-09-22@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
+DTSTAMP:20260914T120000Z
 DTSTART;TZID=Europe/Vienna:20260922T184500
 DTEND;TZID=Europe/Vienna:20260922T230000
-SUMMARY:Helden reisen\, Gäste speisen!
-DESCRIPTION:Dinner & Bühne. Tickets und Details: wirtschaft-dornbirn.at
+SUMMARY:helden reisen\, gäste speisen!
+DESCRIPTION:4 comedians in verschiedenen haltestellen. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:event-2026-09-23@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
+DTSTAMP:20260914T120000Z
 DTSTART;TZID=Europe/Vienna:20260923T184500
 DTEND;TZID=Europe/Vienna:20260923T230000
-SUMMARY:Helden reisen\, Gäste speisen! – Zusatzabend
-DESCRIPTION:Dinner & Bühne. Tickets und Details: wirtschaft-dornbirn.at
+SUMMARY:helden reisen\, gäste speisen!
+DESCRIPTION:4 comedians in verschiedenen haltestellen. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
-UID:event-2026-10-14@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
-DTSTART;TZID=Europe/Vienna:20261014T190000
+UID:event-2026-10-08@wirtschaft-dornbirn.at
+DTSTAMP:20260914T120000Z
+DTSTART;TZID=Europe/Vienna:20261008T200000
+DTEND;TZID=Europe/Vienna:20261008T230000
+SUMMARY:Gernot Kulis
+DESCRIPTION:Programm: Ich kann nicht anders. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2026-10-14-2@wirtschaft-dornbirn.at
+DTSTAMP:20260914T120000Z
+DTSTART;TZID=Europe/Vienna:20261014T200000
 DTEND;TZID=Europe/Vienna:20261014T230000
-SUMMARY:Dinner & Comedy
-DESCRIPTION:Genuss trifft Humor. Tickets und Details: wirtschaft-dornbirn.at
+SUMMARY:Luis aus Südtirol
+DESCRIPTION:„Pfiati“-Tour - der letzte Applaus. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:event-2026-10-15@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
+DTSTAMP:20260914T120000Z
 DTSTART;TZID=Europe/Vienna:20261015T190000
 DTEND;TZID=Europe/Vienna:20261015T230000
-SUMMARY:Christof Spörk
-DESCRIPTION:Kabarett in der Wirtschaft. Tickets und Details: wirtschaft-dornbirn.at
+SUMMARY:christof spörk
+DESCRIPTION:programm: maximo lieder. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:event-2026-10-21@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
+DTSTAMP:20260914T120000Z
 DTSTART;TZID=Europe/Vienna:20261021T190000
 DTEND;TZID=Europe/Vienna:20261021T230000
-SUMMARY:Maria Neuschmid & Stefan Vögel
-DESCRIPTION:Kabarett in der Wirtschaft. Tickets und Details: wirtschaft-dornbirn.at
+SUMMARY:maria neuschmid & stefan vögel
+DESCRIPTION:programm: schaffa\, schaffa\, hüsle baua 3 - mei home isch mei kaschtl. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
-UID:event-2026-10-22@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
-DTSTART;TZID=Europe/Vienna:20261022T190000
-DTEND;TZID=Europe/Vienna:20261022T230000
-SUMMARY:Rock4 – A Cappella
-DESCRIPTION:The Music of Queen · A cappella. Tickets und Details: wirtschaft-dornbirn.at
+UID:event-2026-10-26@wirtschaft-dornbirn.at
+DTSTAMP:20260914T120000Z
+DTSTART;TZID=Europe/Vienna:20261026T110000
+DTEND;TZID=Europe/Vienna:20261026T230000
+SUMMARY:50 Jahre Ulli Troy
+DESCRIPTION:Feiertagsmatinee mit Brunch. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:event-2026-10-27@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
+DTSTAMP:20260914T120000Z
 DTSTART;TZID=Europe/Vienna:20261027T190000
 DTEND;TZID=Europe/Vienna:20261027T230000
-SUMMARY:Mathias Kellner
-DESCRIPTION:Lieder & Kabarett. Tickets und Details: wirtschaft-dornbirn.at
+SUMMARY:mathias kellner
+DESCRIPTION:programm: schnappschuss!. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
-UID:event-2026-11-11@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
-DTSTART;TZID=Europe/Vienna:20261111T190000
-DTEND;TZID=Europe/Vienna:20261111T230000
-SUMMARY:Dinner & Comedy
-DESCRIPTION:Genuss trifft Humor. Tickets und Details: wirtschaft-dornbirn.at
+UID:event-2026-10-28@wirtschaft-dornbirn.at
+DTSTAMP:20260914T120000Z
+DTSTART;TZID=Europe/Vienna:20261028T183000
+DTEND;TZID=Europe/Vienna:20261028T230000
+SUMMARY:Kultur:Im:Haus
+DESCRIPTION:Eassô\, Gnüssô\, Lachô. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2026-10-29@wirtschaft-dornbirn.at
+DTSTAMP:20260914T120000Z
+DTSTART;TZID=Europe/Vienna:20261029T200000
+DTEND;TZID=Europe/Vienna:20261029T230000
+SUMMARY:Josef Hader
+DESCRIPTION:Programm: Hader On Ice. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2026-10-31@wirtschaft-dornbirn.at
+DTSTAMP:20260914T120000Z
+DTSTART;TZID=Europe/Vienna:20261031T200000
+DTEND;TZID=Europe/Vienna:20261031T230000
+SUMMARY:SING MIT! - Konzert Only
+DESCRIPTION:SING MIT! - Die große Mitsingnacht. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2026-11-08@wirtschaft-dornbirn.at
+DTSTAMP:20260914T120000Z
+DTSTART;TZID=Europe/Vienna:20261108T190000
+DTEND;TZID=Europe/Vienna:20261108T230000
+SUMMARY:Gregor Meyle
+DESCRIPTION:Unplugged - “Das Wohnzimmerkonzert” 2026. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:event-2026-11-18@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
+DTSTAMP:20260914T120000Z
 DTSTART;TZID=Europe/Vienna:20261118T190000
 DTEND;TZID=Europe/Vienna:20261118T230000
-SUMMARY:Philipp Lingg's Musikzimmer
-DESCRIPTION:Das musikalische Blind Date. Tickets und Details: wirtschaft-dornbirn.at
+SUMMARY:philipp lingg's musikzimmer
+DESCRIPTION:das musikalische blind date. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:event-2026-11-19@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
+DTSTAMP:20260914T120000Z
 DTSTART;TZID=Europe/Vienna:20261119T190000
 DTEND;TZID=Europe/Vienna:20261119T230000
-SUMMARY:Hanskaspas Enkel & George Nussbaumer
-DESCRIPTION:Dinner & Konzert. Tickets und Details: wirtschaft-dornbirn.at
+SUMMARY:hanskaspas enkel & george nussbaumer
+DESCRIPTION:programm: „eine reise ins glück“ … und andere wa(h)rheiten. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:event-2026-11-24@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
+DTSTAMP:20260914T120000Z
 DTSTART;TZID=Europe/Vienna:20261124T190000
 DTEND;TZID=Europe/Vienna:20261124T230000
-SUMMARY:Notenlos
-DESCRIPTION:Dinner & Konzert. Tickets und Details: wirtschaft-dornbirn.at
+SUMMARY:notenlos
+DESCRIPTION:das wunschkonzert der extraklasse. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2026-11-25@wirtschaft-dornbirn.at
+DTSTAMP:20260914T120000Z
+DTSTART;TZID=Europe/Vienna:20261125T200000
+DTEND;TZID=Europe/Vienna:20261125T230000
+SUMMARY:Luis aus Südtirol
+DESCRIPTION:„Pfiati“-Tour - der letzte Applaus. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:event-2026-11-26@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
+DTSTAMP:20260914T120000Z
 DTSTART;TZID=Europe/Vienna:20261126T190000
 DTEND;TZID=Europe/Vienna:20261126T230000
-SUMMARY:Krauthobel Anplakt
-DESCRIPTION:Dinner & Konzert. Tickets und Details: wirtschaft-dornbirn.at
+SUMMARY:krauthobel anplakt
+DESCRIPTION:In der „wirtschaft“. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:event-2026-12-03@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
+DTSTAMP:20260914T120000Z
 DTSTART;TZID=Europe/Vienna:20261203T190000
 DTEND;TZID=Europe/Vienna:20261203T230000
-SUMMARY:Rebel Tell
-DESCRIPTION:Dinner & Konzert. Tickets und Details: wirtschaft-dornbirn.at
+SUMMARY:rebel tell
+DESCRIPTION:schlagerbilly - chaos\, herzblut & eskalation. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:event-2026-12-10@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
+DTSTAMP:20260914T120000Z
 DTSTART;TZID=Europe/Vienna:20261210T190000
 DTEND;TZID=Europe/Vienna:20261210T230000
-SUMMARY:The Monroes
-DESCRIPTION:Dinner & Konzert. Tickets und Details: wirtschaft-dornbirn.at
+SUMMARY:the monroes
+DESCRIPTION:live‑kings des rock’n’roll. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:event-2026-12-15@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
+DTSTAMP:20260914T120000Z
 DTSTART;TZID=Europe/Vienna:20261215T190000
 DTEND;TZID=Europe/Vienna:20261215T230000
-SUMMARY:Dinner & Comedy
-DESCRIPTION:Genuss trifft Humor. Tickets und Details: wirtschaft-dornbirn.at
+SUMMARY:dinner & comedy
+DESCRIPTION:3 comedians | an einem abend | auf einer bühne. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:event-2026-12-16@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
+DTSTAMP:20260914T120000Z
 DTSTART;TZID=Europe/Vienna:20261216T190000
 DTEND;TZID=Europe/Vienna:20261216T230000
-SUMMARY:Dinner & Comedy
-DESCRIPTION:Genuss trifft Humor. Tickets und Details: wirtschaft-dornbirn.at
+SUMMARY:dinner & comedy
+DESCRIPTION:3 comedians | an einem abend | auf einer bühne. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2026-12-19@wirtschaft-dornbirn.at
+DTSTAMP:20260914T120000Z
+DTSTART;TZID=Europe/Vienna:20261219T190000
+DTEND;TZID=Europe/Vienna:20261219T230000
+SUMMARY:Dabado Charity • Clubbing II
+DESCRIPTION:Kulturhaus Dornbirn. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-03-13@wirtschaft-dornbirn.at
+DTSTAMP:20260914T120000Z
+DTSTART;TZID=Europe/Vienna:20270313T200000
+DTEND;TZID=Europe/Vienna:20270313T230000
+SUMMARY:Thorsteinn Einarsson
+DESCRIPTION:SOLSTICE Tour 2027. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:event-2027-05-20@wirtschaft-dornbirn.at
-DTSTAMP:20260827T180000Z
+DTSTAMP:20260914T120000Z
 DTSTART;TZID=Europe/Vienna:20270520T180000
 DTEND;TZID=Europe/Vienna:20270520T230000
 SUMMARY:Genussroute 6850
-DESCRIPTION:5 Gastronomen · 6 Live-Bands. Tickets und Details: wirtschaft-dornbirn.at
+DESCRIPTION:5 heimische Gastronomen | 6 Live-Bands | 6 Speisegänge im Kleinformat. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT

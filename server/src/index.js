@@ -2076,10 +2076,18 @@ export class Haus extends DurableObject {
       else this.ctx.waitUntil(hole(veraltet.slice(0, 6)));
     }
 
+    // Abende, die vorbei sind, verschwinden nicht sofort: eine Woche lang
+    // bleiben sie in der Liste, damit ein geteilter Link oder ein Plakat
+    // nicht ins Leere fuehrt. Die Eventseite stellt sie blass und mit
+    // "verpasst" ans Ende; die Startseite zeigt sie gar nicht
+    // (Jonas, 17.09.). Danach sind sie weg.
     const heute = jetztImHaus().datum;
+    const nachlauf = new Date(`${heute}T12:00:00Z`);
+    nachlauf.setUTCDate(nachlauf.getUTCDate() - 7);
+    const grenze = nachlauf.toISOString().slice(0, 10);
     const gelesen = Object.values(this.#lies('termine', {}))
       .map(e => e?.termin)
-      .filter(t => t && t.date >= heute)
+      .filter(t => t && t.date >= grenze)
       // Die Adresse des Bildes beim Dienst bleibt hier: die Bilder liegen
       // bei uns, und niemand soll versehentlich von aussen nachladen.
       .map(({ bildQuelle, ...rest }) => rest);
