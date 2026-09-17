@@ -42,6 +42,15 @@ const excluded = new Set([
   // Einzeldatei unter /tischplan/.
   'uebersicht.html',
   'uebersicht.js',
+  // Die Monatszahlen gehoerten von Anfang an in diese Liste und standen
+  // nicht drin: dadurch lag /zahlen.html im Gaeste-Build und war oeffentlich
+  // erreichbar (gefunden beim Verweis-Durchlauf am 17.09.). Gezeigt hat sie
+  // nichts - /api/zahlen verlangt den Hausschluessel -, aber sie ist ein
+  // Werkzeug fuers Haus, und ihre drei Verweise (wirt.css, wirt.html,
+  // uebersicht.html) zeigten im Gaeste-Build ins Leere. Als Einzeldatei
+  // unter /tischplan/zahlen.html geht sie weiterhin hinaus.
+  'zahlen.html',
+  'zahlen.js',
   'einrichten.html',
   'einrichten.js',
   'entwuerfe.html',
