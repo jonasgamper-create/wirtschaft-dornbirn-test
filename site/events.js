@@ -34,7 +34,13 @@
    * beige, die im eigenen Haus dunkel (Jonas, 11.09.). Eine Liste, zwei
    * Haeuser, ein Blick.
    */
-  function kachel(termin, index) {
+  /**
+   * @param vorbei  Der Abend war gestern oder frueher. Die Kachel bleibt
+   *   noch eine Woche stehen - blass, mit "verpasst" im Bild und ohne
+   *   Knoepfe. Ein Plakat oder ein geteilter Link soll nicht ins Leere
+   *   fuehren, aber niemand soll auf einen toten Ticketknopf druecken.
+   */
+  function kachel(termin, index, vorbei = false) {
     const datum = new Date(`${termin.date}T12:00:00`);
     const tag = termin.date.slice(8, 10);
     const monat = MONATE.format(datum).replace('.', '');
@@ -118,12 +124,13 @@
     }
 
     return `
-    <article class="event-kachel" data-haus="${escapeHtml(termin.haus || 'wirtschaft')}" data-status="${ausverkauft(termin) ? 'sold_out' : 'buchbar'}">
+    <article class="event-kachel" data-haus="${escapeHtml(termin.haus || 'wirtschaft')}" data-status="${vorbei ? 'vorbei' : ausverkauft(termin) ? 'sold_out' : 'buchbar'}"${vorbei ? ' data-vorbei="ja"' : ''}>
       <div class="kachel-medien">
         <img src="${escapeHtml(bild)}" width="1200" height="750" loading="lazy" decoding="async"
              alt="${escapeHtml(termin.title)}" data-fallback="${fallback}">
-        ${video ? `<video preload="metadata" playsinline muted hidden src="${video}"></video>
+        ${video && !vorbei ? `<video preload="metadata" playsinline muted hidden src="${video}"></video>
         <button class="kachel-hoerprobe" type="button">Hörprobe ▶</button>` : ''}
+        ${vorbei ? '<p class="kachel-verpasst">verpasst</p>' : ''}
       </div>
       <div class="kachel-inhalt">
         <div class="kachel-zeile">
@@ -132,10 +139,10 @@
         </div>
         <p class="kachel-typ">${escapeHtml(zweite)}</p>
         ${zeilen ? `<ul class="ticketzeilen">${zeilen}</ul>` : ''}
-        <div class="kachel-aktionen">
+        ${vorbei ? '' : `<div class="kachel-aktionen">
           ${wege.join('')}
           <button class="button ghost kachel-kalender" type="button" data-kalender="${escapeHtml(termin.id)}" aria-label="${escapeHtml(termin.title)} in den Kalender eintragen">+ Kalender</button>
-        </div>
+        </div>`}
       </div>
     </article>`;
   }
@@ -300,19 +307,27 @@
       const heute = new Date();
       heute.setHours(0, 0, 0, 0);
 
-      const kommende = (termine || [])
-        .filter(termin => termin.date && new Date(`${termin.date}T23:59:00`) >= heute)
-        .sort((a, b) => a.date.localeCompare(b.date) || String(a.zeit).localeCompare(String(b.zeit)));
+      const istVorbei = termin => new Date(`${termin.date}T23:59:00`) < heute;
+      const nachDatum = (a, b) => a.date.localeCompare(b.date) || String(a.zeit).localeCompare(String(b.zeit));
 
-      if (!kommende.length) {
+      const alle = (termine || []).filter(termin => termin.date);
+      const kommende = alle.filter(t => !istVorbei(t)).sort(nachDatum);
+      // Was vorbei ist, steht hinten: zuerst das, was noch zu holen ist.
+      // Unter den vergangenen zuerst der letzte Abend - er ist der, an den
+      // sich jemand erinnert. Der Dienst liefert nur die letzten sieben
+      // Tage, laenger haelt sich kein "verpasst" (Jonas, 17.09.).
+      const vergangene = alle.filter(istVorbei).sort((a, b) => nachDatum(b, a));
+
+      if (!kommende.length && !vergangene.length) {
         grid.innerHTML = '<p class="events-laden">Gerade steht kein Termin fest – schau bald wieder vorbei oder trag dich unten ein.</p>';
         return;
       }
 
+      const gezeigt = [...kommende, ...vergangene];
       alleEvents = kommende;
-      grid.innerHTML = kommende.map((termin, index) => kachel(termin, index)).join('');
+      grid.innerHTML = gezeigt.map((termin, index) => kachel(termin, index, istVorbei(termin))).join('');
       const legende = document.getElementById('eventsLegende');
-      if (legende) legende.hidden = !kommende.some(t => t.haus === 'kulturhaus');
+      if (legende) legende.hidden = !gezeigt.some(t => t.haus === 'kulturhaus');
       verdrahte();
     })
     .catch(() => {

@@ -66,24 +66,37 @@
     pause: { label: 'Sommerpause', start: '2026-07-24', end: '2026-08-23', reopen: '2026-08-24' },
     events: [
       // [events:auto-start] wird von scripts/sync-events.mjs aus data/events.json erzeugt - hier nichts von Hand aendern.
-      { id: "event-2026-09-03", date: "2026-09-03", title: "Genussroute 6850", type: "Dornbirner Genussabend", status: "sold_out", officialUrl: undefined, tickets: [{ name: "Sitzplatz", preis: 88, beginn: "18:00", status: "ausverkauft" }], ticketUrl: "https://www.ticketist.io/events/genussroute" },
-      { id: "event-2026-09-22", date: "2026-09-22", title: "Helden reisen, Gäste speisen!", type: "Dinner & Bühne", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 88, beginn: "18:45", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/comedynacht-05-2026-1" },
-      { id: "event-2026-09-23", date: "2026-09-23", title: "Helden reisen, Gäste speisen! – Zusatzabend", type: "Dinner & Bühne", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 88, beginn: "18:45", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/comedynacht-06-2026-1" },
-      { id: "event-2026-10-14", date: "2026-10-14", title: "Dinner & Comedy", type: "Genuss trifft Humor", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Comedy only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/dinner-comedy-04-2026" },
-      { id: "event-2026-10-15", date: "2026-10-15", title: "Christof Spörk", type: "Kabarett in der Wirtschaft", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Comedy only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/spoerk-2026" },
-      { id: "event-2026-10-21", date: "2026-10-21", title: "Maria Neuschmid & Stefan Vögel", type: "Kabarett in der Wirtschaft", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 78, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/neuschmid-voegel-02-2026" },
-      { id: "event-2026-10-22", date: "2026-10-22", title: "Rock4 – A Cappella", type: "The Music of Queen · A cappella", status: "teilweise", officialUrl: undefined, tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 68, beginn: "19:00", status: "ausverkauft" }, { name: "Konzert only (Stehplatz)", preis: 38, beginn: "21:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/rock4-2026-only" },
-      { id: "event-2026-10-27", date: "2026-10-27", title: "Mathias Kellner", type: "Lieder & Kabarett", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Konzert only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/kellner-2026" },
-      { id: "event-2026-11-11", date: "2026-11-11", title: "Dinner & Comedy", type: "Genuss trifft Humor", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Comedy only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/dinner-comedy-05-2026" },
-      { id: "event-2026-11-18", date: "2026-11-18", title: "Philipp Lingg's Musikzimmer", type: "Das musikalische Blind Date", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Konzert only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/philippsmusikzimmer-02-2026" },
-      { id: "event-2026-11-19", date: "2026-11-19", title: "Hanskaspas Enkel & George Nussbaumer", type: "Dinner & Konzert", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Konzert only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/hanskaspasenkel-2026" },
-      { id: "event-2026-11-24", date: "2026-11-24", title: "Notenlos", type: "Dinner & Konzert", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Konzert only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/notenlos-2026" },
-      { id: "event-2026-11-26", date: "2026-11-26", title: "Krauthobel Anplakt", type: "Dinner & Konzert", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 78, beginn: "19:00", status: "buchbar" }, { name: "Konzert only (Stehplatz)", preis: 38, beginn: "21:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/krauthobel-2026" },
-      { id: "event-2026-12-03", date: "2026-12-03", title: "Rebel Tell", type: "Dinner & Konzert", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Konzert only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/rebeltell-2026" },
-      { id: "event-2026-12-10", date: "2026-12-10", title: "The Monroes", type: "Dinner & Konzert", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Konzert (Sitzplatz)", preis: 78, beginn: "19:00", status: "buchbar" }, { name: "Konzert only (Stehplatz)", preis: 38, beginn: "21:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/themonroes-2026" },
-      { id: "event-2026-12-15", date: "2026-12-15", title: "Dinner & Comedy", type: "Genuss trifft Humor", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Comedy only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/dinner-comedy-06-2026" },
-      { id: "event-2026-12-16", date: "2026-12-16", title: "Dinner & Comedy", type: "Genuss trifft Humor", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Comedy (Sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "Comedy only (Stehplatz)", preis: 28, beginn: "21:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/dinner-comedy-07-2026" },
-      { id: "event-2027-05-20", date: "2027-05-20", title: "Genussroute 6850", type: "5 Gastronomen · 6 Live-Bands", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Sitzplatz", preis: 88, beginn: "18:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/genussroute" },
+      { id: "event-2026-09-22", date: "2026-09-22", title: "helden reisen, gäste speisen!", type: "4 comedians in verschiedenen haltestellen", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & comedy (sitzplatz)", preis: 88, beginn: "18:45", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/comedynacht-05-2026-1" },
+      { id: "event-2026-09-23", date: "2026-09-23", title: "helden reisen, gäste speisen!", type: "4 comedians in verschiedenen haltestellen", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & comedy (sitzplatz)", preis: 88, beginn: "18:45", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/comedynacht-06-2026-1" },
+      { id: "event-2026-10-07", date: "2026-10-07", title: "Gernot Kulis", type: "Programm: Ich kann nicht anders", status: "sold_out", officialUrl: undefined, tickets: [{ name: "Kategorie 1", preis: 41, beginn: "20:00", status: "ausverkauft" }, { name: "Kategorie 2", preis: 37, beginn: "20:00", status: "ausverkauft" }], ticketUrl: "https://www.ticketist.io/events/kulis-02-2026" },
+      { id: "event-2026-10-08", date: "2026-10-08", title: "Gernot Kulis", type: "Programm: Ich kann nicht anders", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Kategorie 1", preis: 41, beginn: "20:00", status: "buchbar" }, { name: "Kategorie 2", preis: 37, beginn: "20:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/kulis-03-2026" },
+      { id: "event-2026-10-13", date: "2026-10-13", title: "Luis aus Südtirol", type: "„Pfiati“-Tour - der letzte Applaus", status: "sold_out", officialUrl: undefined, tickets: [{ name: "Kategorie 1", preis: 40, beginn: "20:00", status: "ausverkauft" }, { name: "Kategorie 2", preis: 36, beginn: "20:00", status: "ausverkauft" }, { name: "Kategorie 3", preis: 33, beginn: "20:00", status: "ausverkauft" }], ticketUrl: "https://www.ticketist.io/events/luis-2026" },
+      { id: "event-2026-10-14", date: "2026-10-14", title: "dinner & comedy", type: "3 comedians | an einem abend | auf einer bühne", status: "sold_out", officialUrl: undefined, tickets: [{ name: "dinner & comedy (sitzplatz)", preis: 68, beginn: "19:00", status: "ausverkauft" }], ticketUrl: "https://www.ticketist.io/events/dinner-comedy-04-2026" },
+      { id: "event-2026-10-14-2", date: "2026-10-14", title: "Luis aus Südtirol", type: "„Pfiati“-Tour - der letzte Applaus", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Kategorie 1", preis: 40, beginn: "20:00", status: "buchbar" }, { name: "Kategorie 2", preis: 36, beginn: "20:00", status: "buchbar" }, { name: "Kategorie 3", preis: 33, beginn: "20:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/luis-02-2026" },
+      { id: "event-2026-10-15", date: "2026-10-15", title: "christof spörk", type: "programm: maximo lieder", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & comedy (sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/spoerk-2026" },
+      { id: "event-2026-10-21", date: "2026-10-21", title: "maria neuschmid & stefan vögel", type: "programm: schaffa, schaffa, hüsle baua 3 - mei home isch mei kaschtl", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & comedy (sitzplatz)", preis: 78, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/neuschmid-voegel-02-2026" },
+      { id: "event-2026-10-22", date: "2026-10-22", title: "rock4 - a cappella", type: "the music of queen: a night at the opera, 50th anniversary", status: "sold_out", officialUrl: undefined, tickets: [{ name: "dinner & konzert (sitzplatz)", preis: 68, beginn: "19:00", status: "ausverkauft" }], ticketUrl: "https://www.ticketist.io/events/rock4-2026" },
+      { id: "event-2026-10-25", date: "2026-10-25", title: "50 Jahre Ulli Troy", type: "Konzertabend mit 3-Gänge Menü", status: "sold_out", officialUrl: undefined, tickets: [{ name: "Sitzplatz (inkl. 3-Gänge Menü)", preis: 68, beginn: "19:00", status: "ausverkauft" }], ticketUrl: "https://www.ticketist.io/events/ullitroy-menue-2026" },
+      { id: "event-2026-10-26", date: "2026-10-26", title: "50 Jahre Ulli Troy", type: "Feiertagsmatinee mit Brunch", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Sitzplatz (inkl. Brunchbuffet)", preis: 68, beginn: "11:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/ullitroy-brunch-2026" },
+      { id: "event-2026-10-27", date: "2026-10-27", title: "mathias kellner", type: "programm: schnappschuss!", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & konzert (sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/kellner-2026" },
+      { id: "event-2026-10-28", date: "2026-10-28", title: "Kultur:Im:Haus", type: "Eassô, Gnüssô, Lachô", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Dinner & Comedy", preis: 98, beginn: "18:30", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/kulturimhaus-h2026" },
+      { id: "event-2026-10-29", date: "2026-10-29", title: "Josef Hader", type: "Programm: Hader On Ice", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Kategorie 1", preis: 34, beginn: "20:00", status: "buchbar" }, { name: "Kategorie 2", preis: 29, beginn: "20:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/hader-02-2026" },
+      { id: "event-2026-10-31", date: "2026-10-31", title: "SING MIT! - Konzert Only", type: "SING MIT! - Die große Mitsingnacht", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Sitzplatz ohne Essen", preis: 22, beginn: "20:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/singmit-konzertonly" },
+      { id: "event-2026-11-08", date: "2026-11-08", title: "Gregor Meyle", type: "Unplugged - “Das Wohnzimmerkonzert” 2026", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Kategorie 1", preis: 65, beginn: "19:00", status: "buchbar" }, { name: "Kategorie 2", preis: 59, beginn: "19:00", status: "buchbar" }, { name: "Kategorie 3", preis: 49, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/meyle-2026" },
+      { id: "event-2026-11-11", date: "2026-11-11", title: "dinner & comedy", type: "3 comedians | an einem abend | auf einer bühne", status: "sold_out", officialUrl: undefined, tickets: [{ name: "dinner & comedy (sitzplatz)", preis: 68, beginn: "19:00", status: "ausverkauft" }], ticketUrl: "https://www.ticketist.io/events/dinner-comedy-05-2026" },
+      { id: "event-2026-11-17", date: "2026-11-17", title: "Fabio Landert", type: "Programm: Die verbotene Frucht", status: "sold_out", officialUrl: undefined, tickets: [{ name: "Kategorie 1", preis: 39, beginn: "20:00", status: "ausverkauft" }, { name: "Kategorie 2", preis: 35, beginn: "20:00", status: "ausverkauft" }], ticketUrl: "https://www.ticketist.io/events/landert-2026" },
+      { id: "event-2026-11-18", date: "2026-11-18", title: "philipp lingg's musikzimmer", type: "das musikalische blind date", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & konzert (sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/philippsmusikzimmer-02-2026" },
+      { id: "event-2026-11-19", date: "2026-11-19", title: "hanskaspas enkel & george nussbaumer", type: "programm: „eine reise ins glück“ … und andere wa(h)rheiten", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & konzert (sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/hanskaspasenkel-2026" },
+      { id: "event-2026-11-24", date: "2026-11-24", title: "notenlos", type: "das wunschkonzert der extraklasse", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & konzert (sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/notenlos-2026" },
+      { id: "event-2026-11-25", date: "2026-11-25", title: "Luis aus Südtirol", type: "„Pfiati“-Tour - der letzte Applaus", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Kategorie 1", preis: 40, beginn: "20:00", status: "buchbar" }, { name: "Kategorie 2", preis: 36, beginn: "20:00", status: "buchbar" }, { name: "Kategorie 3", preis: 33, beginn: "20:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/luis-03-2026" },
+      { id: "event-2026-11-26", date: "2026-11-26", title: "krauthobel anplakt", type: "In der „wirtschaft“", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & konzert (sitzplatz)", preis: 78, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/krauthobel-2026" },
+      { id: "event-2026-12-03", date: "2026-12-03", title: "rebel tell", type: "schlagerbilly - chaos, herzblut & eskalation", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & konzert (sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/rebeltell-2026" },
+      { id: "event-2026-12-10", date: "2026-12-10", title: "the monroes", type: "live‑kings des rock’n’roll", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & konzert (sitzplatz)", preis: 78, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/themonroes-2026" },
+      { id: "event-2026-12-15", date: "2026-12-15", title: "dinner & comedy", type: "3 comedians | an einem abend | auf einer bühne", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & comedy (sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/dinner-comedy-06-2026" },
+      { id: "event-2026-12-16", date: "2026-12-16", title: "dinner & comedy", type: "3 comedians | an einem abend | auf einer bühne", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & comedy (sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/dinner-comedy-07-2026" },
+      { id: "event-2026-12-19", date: "2026-12-19", title: "Dabado Charity • Clubbing II", type: "Kulturhaus Dornbirn", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Stehplatz (Parterre)", preis: 27, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/dabado-charity" },
+      { id: "event-2027-03-13", date: "2027-03-13", title: "Thorsteinn Einarsson", type: "SOLSTICE Tour 2027", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Stehplatz (Parterre)", preis: 28, beginn: "20:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/einarsson-stehplatz-2027" },
+      { id: "event-2027-05-20", date: "2027-05-20", title: "Genussroute 6850", type: "5 heimische Gastronomen | 6 Live-Bands | 6 Speisegänge im Kleinformat", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Start-Location: \"wirtschaft\"", preis: 88, beginn: "18:00", status: "buchbar" }, { name: "Start-Location: Gasthaus Schiffle", preis: 88, beginn: "18:00", status: "buchbar" }, { name: "Start-Location: Gasthaus Gemsle", preis: 88, beginn: "18:00", status: "buchbar" }, { name: "Start-Location: Panoramarestaurant Karren", preis: 88, beginn: "18:00", status: "buchbar" }, { name: "Start-Location: Emma&Eugen im Kulturhaus", preis: 88, beginn: "18:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/genussroute" },
   // [events:auto-ende]
     ]
   };
@@ -932,6 +945,8 @@
   // Abende einsortiert. Scheitert der Abruf, fehlt nur diese Ergaenzung -
   // die Seite selbst bleibt, wie sie ist.
   let hausEvents = [];
+  // Steht die Liste vom Dienst, hat sie Vorrang vor der hinterlegten Datei.
+  let programmVomDienst = false;
   const mischeHausEvents = () => {
     const eigene = hausEvents.filter(event => !calendarEvents.some(alt => alt.id === event.id));
     if (!eigene.length) return;
@@ -958,13 +973,81 @@
       // nicht mehr das Mittagsfenster. Das Fenster vom Dienst (/api/oeffnung,
       // 11:30-13:30) gilt weiter fuer die Reservierung - hier wuerde es die
       // Hauszeiten ueberschreiben, deshalb bleibt der Text aus dem HTML.
-      return fetch(`${basis}/api/events`, { cache: 'no-store' })
+      // ---- Programm vom Dienst -------------------------------------------
+      // Die Startseite soll IMMER das laufende Programm zeigen, nicht den
+      // Stand des letzten Bauens (Jonas, 17.09.). Deshalb holt sie sich die
+      // Abende beim Dienst, der sie live beim Ticketdienst liest - dieselbe
+      // Quelle wie die Eventseite. data/events.json bleibt der Rueckfall:
+      // fuer den ersten Augenblick, fuer Suchmaschinen und fuer den Fall,
+      // dass der Dienst schweigt.
+      //
+      // Die Umrechnung steht absichtlich zweimal im Projekt - hier und in
+      // scripts/sync-events-quelle.mjs. Ein gemeinsames Modul ginge nicht,
+      // ohne diese Datei auf ein ES-Modul umzustellen; wer die eine Regel
+      // aendert, aendert bitte die andere mit.
+      const heuteIso = new Date().toISOString().slice(0, 10);
+      const alsEvent = (termin, id) => {
+        const arten = [];
+        const nimm = (preise, buchbar, praefix) => {
+          for (const p of preise || []) {
+            if (!(Number(p.preis) > 0)) continue;
+            arten.push({
+              name: praefix ? `${praefix}: ${p.name}` : p.name,
+              preis: Number(p.preis),
+              beginn: termin.zeit || '19:00',
+              status: !buchbar || p.frei === 0 ? 'ausverkauft' : 'buchbar'
+            });
+          }
+        };
+        nimm(termin.preise, termin.buchbar !== false, '');
+        for (const v of termin.varianten || []) nimm(v.preise, v.buchbar !== false, v.label);
+        if (!arten.length) return null;
+        const alleWeg = arten.every(a => a.status === 'ausverkauft');
+        const eineWeg = arten.some(a => a.status === 'ausverkauft');
+        return {
+          id,
+          date: termin.date,
+          title: termin.title,
+          type: termin.untertitel || (termin.haus === 'kulturhaus' ? 'Kulturhaus Dornbirn' : 'In der „wirtschaft“'),
+          status: alleWeg ? 'sold_out' : eineWeg ? 'teilweise' : 'scheduled',
+          tickets: arten,
+          ticketUrl: termin.ticketUrl
+        };
+      };
+
+      const programm = fetch(`${basis}/api/termine`, { cache: 'no-store' })
+        .then(antwort => antwort.json())
+        .then(liste => {
+          const abende = Array.isArray(liste?.termine) ? liste.termine : [];
+          const vergeben = new Map();
+          const neu = [];
+          for (const termin of abende.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)))) {
+            // Vorbei ist vorbei: auf der Startseite steht, was noch kommt.
+            if (!termin?.date || termin.date < heuteIso) continue;
+            const zahl = (vergeben.get(termin.date) || 0) + 1;
+            vergeben.set(termin.date, zahl);
+            const event = alsEvent(termin, zahl === 1 ? `event-${termin.date}` : `event-${termin.date}-${zahl}`);
+            if (event) neu.push(event);
+          }
+          if (!neu.length) return;
+          programmVomDienst = true;
+          eventData = { ...eventData, events: neu, updatedAt: new Date().toISOString() };
+          calendarEvents = neu.map(item => ({ ...item }));
+          renderEventLists();
+          mischeHausEvents();
+          syncOfficialTicketLink();
+        })
+        .catch(() => { /* schweigt der Dienst, bleibt der hinterlegte Stand */ });
+
+      const eigeneAbende = fetch(`${basis}/api/events`, { cache: 'no-store' })
         .then(antwort => antwort.json())
         .then(eigene => {
           if (!Array.isArray(eigene?.events) || !eigene.events.length) return;
           hausEvents = eigene.events;
           mischeHausEvents();
         });
+
+      return Promise.all([programm, eigeneAbende]);
     })
     .catch(() => { /* ohne Dienst einfach ohne Haus-Termine */ });
 
@@ -975,6 +1058,10 @@
     })
     .then(data => {
       if (!Array.isArray(data?.events) || !data?.pause || !data?.updatedAt) throw new Error('Eventdaten haben ein ungültiges Format');
+      // War der Dienst schneller, gilt seine Liste. Sonst ueberschriebe die
+      // hinterlegte Datei das aktuelle Programm - je nachdem, welcher Abruf
+      // zuerst zurueckkommt, mal so und mal so.
+      if (programmVomDienst) return;
       eventData = data;
       calendarEvents = data.events.map(item => ({ ...item }));
       renderEventLists();
