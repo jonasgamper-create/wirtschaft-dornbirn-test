@@ -1,5 +1,8 @@
 # Go-live-Checkliste Wirtschaft Dornbirn
 
+Die laufende Uebersicht steht in [projektstand.md](projektstand.md); hier bleibt
+nur die Abhakliste fuer den Tag des Scharfschaltens.
+
 ## Inhalt und Marke
 
 - [ ] Wolfgang hat Logo, Bilder, Texte, Preise, Öffnungszeiten und Termine freigegeben.
@@ -8,7 +11,8 @@
 
 ## Buchung
 
-- [ ] Resmio-Reservierung, Änderung, Storno und Warteliste real getestet.
+- [ ] Reservierung, Änderung, Storno und Warteliste real getestet (eigener
+      Dienst, nicht mehr Resmio - seit 07.09. laeuft die Buchung im Haus).
 - [ ] Ticketist-Kauf, Ausverkauft, Warteliste, Storno/Rückerstattung getestet.
 - [ ] Kalenderexport enthält bestätigte Zeiten, Ort und Veranstaltungsstatus.
 - [ ] Keine Kapazitäten oder internen Limits in der Gästeseite sichtbar.
