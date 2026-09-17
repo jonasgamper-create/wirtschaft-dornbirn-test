@@ -9,7 +9,7 @@ Spezialdokumenten, auf die hier verwiesen wird.
 
 | Teil | Wo | Stand |
 |---|---|---|
-| Gästeseite | GitHub Pages, 11 Seiten | live auf der Testadresse |
+| Gästeseite | Cloudflare Pages + GitHub Pages, 11 Seiten | live unter [wirtschaft-dornbirn.pages.dev](https://wirtschaft-dornbirn.pages.dev) |
 | Reservierung & Takeaway | Cloudflare Worker + Durable Object | im Betrieb, Gratisstufe |
 | Wirt-Ansicht | `/tischplan/wirt.html` | im täglichen Gebrauch, hinter Hausschlüssel |
 | Termine | ticketist.io, 46 Kennungen | live gelesen, 31 Abende |
@@ -91,6 +91,7 @@ In dieser Reihenfolge, weil jeder Schritt den nächsten möglich macht:
 
 ## Wo was steht
 
+- [adresse.md](adresse.md) – wo die Seite steht und wie sie veröffentlicht wird
 - [testumgebung.md](testumgebung.md) – der Probemodus zum Herzeigen
 - [abschaltung-alte-seiten.md](abschaltung-alte-seiten.md) – Abhängigkeiten der alten Seiten
 - [altbestand/](altbestand/) – gesicherte Fassungen beider alter Auftritte

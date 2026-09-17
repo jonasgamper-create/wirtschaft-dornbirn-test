@@ -50,8 +50,12 @@
     "ALT_RESERVIERUNG": "",
     "ALT_TAKEAWAY": "https://lieferservice.wirtschaft-dornbirn.at",
     // Nur diese Herkuenfte duerfen den Dienst im Browser ansprechen.
-    // Beim eigenen Domainnamen hier ergaenzen.
-    "ALLOWED_ORIGINS": "https://jonasgamper-create.github.io,http://localhost:4321,http://localhost:4322,http://localhost:4323",
+    // Seit 17.09. steht die Seite unter einer eigenen Adresse
+    // (wirtschaft-dornbirn.pages.dev, Cloudflare Pages, Gratisstufe). Die
+    // alte Testadresse bleibt in der Liste, solange beide laufen; beim
+    // Umzug auf wirtschaft-dornbirn.at kommt sie hierher und die anderen
+    // koennen weg.
+    "ALLOWED_ORIGINS": "https://wirtschaft-dornbirn.pages.dev,https://jonasgamper-create.github.io,http://localhost:4321,http://localhost:4322,http://localhost:4323",
 
     // Die eigene Adresse fuer Links in automatisch versendeten Mails - der
     // Wochenkarten-Versand hat keine Anfrage, aus der er sie lesen koennte.
@@ -76,7 +80,7 @@
     // Jonas; im echten Betrieb die Adresse des Wirts.
     "WIRT_MAIL": "jonas.gamper@aon.at",
     // Die Gaesteseite - fuer Links in Mails (Warteliste).
-    "GAESTE_SEITE": "https://jonasgamper-create.github.io/wirtschaft-dornbirn-test"
+    "GAESTE_SEITE": "https://wirtschaft-dornbirn.pages.dev"
   },
 
   // HAUS_TOKEN ist ein Geheimnis und steht nicht in dieser Datei:
@@ -130,13 +134,13 @@
         // draussen zeigen, was echte Bestellungen entgegennimmt.
         "ALT_RESERVIERUNG": "",
         "ALT_TAKEAWAY": "",
-        "ALLOWED_ORIGINS": "https://jonasgamper-create.github.io,http://localhost:4321,http://localhost:4322,http://localhost:4323",
+        "ALLOWED_ORIGINS": "https://wirtschaft-dornbirn.pages.dev,https://jonasgamper-create.github.io,http://localhost:4321,http://localhost:4322,http://localhost:4323",
         "DIENST_BASIS": "https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev",
         "OFFEN": "nein",
         "VAPID_OEFFENTLICH": "BPLEbe0YGZChaS1PY-NtqMLW32AC_PVQ2QTDAYhwnqd6iyQ9V28etINQVmUloVHlLgwQPtiUwCjwnSCtlnvPQTw",
         "VAPID_KONTAKT": "mailto:willkommen@wirtschaft-dornbirn.at",
         "WIRT_MAIL": "jonas.gamper@aon.at",
-        "GAESTE_SEITE": "https://jonasgamper-create.github.io/wirtschaft-dornbirn-test"
+        "GAESTE_SEITE": "https://wirtschaft-dornbirn.pages.dev"
       }
     }
   }
