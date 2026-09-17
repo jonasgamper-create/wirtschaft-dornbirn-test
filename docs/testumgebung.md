@@ -20,6 +20,24 @@ liegt in `sessionStorage`, nicht in `localStorage`. Ein Probemodus, der Monate
 später noch im Browser des Wirts steckt und echte Bestellungen verschwinden
 lässt, wäre schlimmer als gar keiner.
 
+Auch die **Wirt-Ansicht** macht mit:
+
+```
+https://jonasgamper-create.github.io/wirtschaft-dornbirn-test/tischplan/wirt.html?probe=1
+```
+
+Damit lässt sich der ganze Weg vorführen: der Gast bestellt im Probemodus, der
+Wirt sieht die Bestellung – beides im Testdienst, während im Haus nebenan der
+echte Betrieb unberührt weiterläuft. Geprüft am 17.09.: eine Reservierung aus
+dem Probemodus stand in der Probe-Wirt-Ansicht, im echten Dienst nicht.
+
+Ein Sonderfall steckt in dieser Datei: sie liegt allein unter `/tischplan/` und
+trägt ihre Dienstadresse im Dokument, weil sie `haus.json` nicht nachladen kann.
+Beim Bauen wandern deshalb **beide** Adressen hinein, und `probe.js` wird in die
+Einzeldatei hineingeschrieben statt daneben gelegt. Ihr Stilblatt ist per CSP an
+einen Fingerabdruck gebunden – das Band setzt seine Eigenschaften einzeln über
+`.style`, sonst stünde es dort als nackter Text.
+
 ## Was anders ist
 
 | | Echtbetrieb | Probe |
