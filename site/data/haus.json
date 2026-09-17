@@ -1,5 +1,7 @@
 {
   "_hinweis": "Adresse des Reservierungsdienstes. Leer bedeutet: aus. Dann verhaelt sich alles wie vorher - die Gaesteseite leitet auf den offiziellen Anbieter weiter, der Tischplan arbeitet nur im Browser. Nach dem Veroeffentlichen des Workers hier die Adresse eintragen, zum Beispiel https://wirtschaft-reservierung.<konto>.workers.dev",
   "api": "https://wirtschaft-reservierung.jonas-gamper.workers.dev",
+  "_probe": "Derselbe Dienst noch einmal, zum Herzeigen: eigene Datenbank, keine Mails, keine Zeitplaene. Benutzt wird er nur, wenn die Seite mit ?probe=1 geoeffnet wurde - sonst nie.",
+  "probe": "https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev",
   "status": "an"
 }

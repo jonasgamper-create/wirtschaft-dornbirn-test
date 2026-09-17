@@ -13,11 +13,20 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const site = path.join(root, 'site');
 
-// Nur die Seiten, die den Dienst wirklich ansprechen.
-const SEITEN = ['screen.html', 'gastgeber-tischplan.html', 'events.html'];
+// Alle Seiten, die den Dienst wirklich ansprechen. Bis 17.09. standen hier
+// nur drei - die uebrigen fuenf trugen ihre connect-src von Hand und waeren
+// beim naechsten Adresswechsel stillschweigend auf der alten haengen
+// geblieben. Aufgefallen ist das beim Nachtragen des Testdienstes.
+const SEITEN = [
+  'screen.html', 'gastgeber-tischplan.html', 'events.html', 'wirt.html',
+  'uebersicht.html', 'kueche.html', 'zahlen.html', 'einrichten.html'
+];
 
 const konfig = JSON.parse(await readFile(path.join(site, 'data', 'haus.json'), 'utf8'));
 const adresse = String(konfig.api || '').trim().replace(/\/+$/, '');
+// Der Testdienst gehoert mit in die Liste: im Probemodus spricht dieselbe
+// Seite ihn an, und connect-src kennt keine Ausnahme fuer "nur manchmal".
+const probe = String(konfig.probe || '').trim().replace(/\/+$/, '');
 
 let quellen = "'self'";
 let ziel = 'aus';
@@ -38,6 +47,25 @@ if (adresse) {
   const draht = `${url.protocol === 'https:' ? 'wss' : 'ws'}://${url.host}`;
   quellen = `'self' ${url.origin} ${draht}`;
   ziel = url.origin;
+
+  if (probe) {
+    let pUrl;
+    try {
+      pUrl = new URL(probe);
+    } catch {
+      console.error(`CSP: "${probe}" in site/data/haus.json ist keine gueltige Adresse.`);
+      process.exit(1);
+    }
+    if (pUrl.protocol !== 'https:' && pUrl.hostname !== 'localhost' && pUrl.hostname !== '127.0.0.1') {
+      console.error('CSP: Der Testdienst muss ueber https laufen (ausser oertlich zum Testen).');
+      process.exit(1);
+    }
+    if (pUrl.origin !== url.origin) {
+      const pDraht = `${pUrl.protocol === 'https:' ? 'wss' : 'ws'}://${pUrl.host}`;
+      quellen = `${quellen} ${pUrl.origin} ${pDraht}`;
+      ziel = `${ziel} + Probe ${pUrl.origin}`;
+    }
+  }
 }
 
 let geaendert = 0;

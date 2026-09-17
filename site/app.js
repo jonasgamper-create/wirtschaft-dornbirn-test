@@ -951,7 +951,8 @@
   fetch('data/haus.json', { cache: 'no-store' })
     .then(antwort => antwort.json())
     .then(daten => {
-      const basis = String(daten?.api || '').trim().replace(/\/+$/, '');
+      // Im Probemodus der Testdienst, sonst der echte (siehe probe.js).
+      const basis = String((window.WIRTSCHAFT_PROBE && daten?.probe) || daten?.api || '').trim().replace(/\/+$/, '');
       if (!/^https?:\/\//.test(basis)) return;
       // Oben rechts stehen seit 01.09. die Wirtschaftszeiten (09:30-14:00),
       // nicht mehr das Mittagsfenster. Das Fenster vom Dienst (/api/oeffnung,

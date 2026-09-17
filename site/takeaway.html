@@ -257,8 +257,10 @@
     <p class="prototype-note">Öffentliche Testumgebung · Reservierung und Tickets über offizielle Anbieter</p>
   </footer>
 
-  <script type="module" src="takeaway.js?v=7784eab4"></script>
-  <script type="module" src="lieferservice.js?v=23d4684c"></script>
+  <!-- Muss vor allen anderen laufen: setzt den Probemodus (siehe probe.js). -->
+  <script src="probe.js?v=ecac8ddc" defer></script>
+  <script type="module" src="takeaway.js?v=564dc10f"></script>
+  <script type="module" src="lieferservice.js?v=d50b4614"></script>
   <script type="module" src="instagram-feed.js?v=5b4fbfb8"></script>
 </body>
 </html>
