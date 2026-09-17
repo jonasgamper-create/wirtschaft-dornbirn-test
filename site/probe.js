@@ -79,17 +79,52 @@
       #probeband span{display:none}
     }`;
 
+  /**
+   * Platz schaffen, damit das Band nichts verdeckt.
+   *
+   * Zwei verschiedene Faelle, und der zweite ist der wichtigere:
+   *
+   *  1. Was im Fluss steht (Fusszeile), kommt mit Luft unter dem Koerper frei.
+   *  2. Was fest am unteren Rand klebt, kommt damit NICHT frei - Polsterung
+   *     bewegt einen fixierten Kasten nicht. Genau dort sitzen aber die
+   *     wichtigsten Knoepfe des Hauses: die Bestellleiste im Takeaway
+   *     (#taJetzt), die Absendezeile der Reservierung am Telefon und die
+   *     Reiterleiste der Wirt-Ansicht. Ohne diesen Schritt lag das Band auf
+   *     "Bestellung aufgeben" (17.09.).
+   *
+   * Deshalb wird jeder fixierte Kasten, der tiefer sitzt als das Band hoch
+   * ist, um die Bandhoehe angehoben. Gesucht wird nach dem berechneten Wert,
+   * nicht nach Namen: eine Leiste, die es in einem halben Jahr dazugibt,
+   * wird so von selbst mitgenommen.
+   */
+  const platz = () => {
+    const hoch = band.offsetHeight;
+    document.documentElement.style.setProperty('--probeband-h', `${hoch}px`);
+    document.body.style.paddingBottom = `${hoch}px`;
+
+    for (const el of document.querySelectorAll('body *')) {
+      if (el === band || band.contains(el)) continue;
+      const stand = getComputedStyle(el);
+      if (stand.position !== 'fixed') continue;
+      const unten = parseFloat(stand.bottom);
+      // "auto" oder weit oben: der Kasten haengt nicht am unteren Rand.
+      if (!Number.isFinite(unten) || unten > hoch + 24) continue;
+      if (el.dataset.probeGehoben === String(hoch)) continue;
+      el.dataset.probeGehoben = String(hoch);
+      el.style.bottom = `calc(${stand.bottom} + ${hoch}px)`;
+    }
+  };
+
   const zeige = () => {
     document.head.appendChild(stil);
     document.body.appendChild(band);
-    // Damit das Band nichts verdeckt, was unten steht (Fusszeile, Knopfleiste
-    // der Bestellung): der Seite unten so viel Luft geben, wie das Band hoch
-    // ist. Ohne das lag es auf dem Absende-Knopf des Takeaway.
-    const luft = () => {
-      document.body.style.paddingBottom = `${band.offsetHeight}px`;
-    };
-    luft();
+    platz();
+    const luft = () => platz();
     window.addEventListener('resize', luft, { passive: true });
+    // Ein zweiter Durchgang, wenn die Seite fertig aufgebaut ist: manche
+    // Leisten entstehen erst, wenn Daten da sind, und eine Regel aus einem
+    // Medienblock greift erst nach dem ersten Zeichnen.
+    setTimeout(platz, 1500);
     band.querySelector('button').addEventListener('click', () => {
       merke(false);
       window.location.href = window.location.pathname;
