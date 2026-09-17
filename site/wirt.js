@@ -14,7 +14,7 @@ import {
   legeZeitsperre, loescheZeitsperre, setzeAnnahme,
   setzeFertigWer, setzeToken,
   stelleTagWiederHer
-} from './haus-api.js?v=50d3f834';
+} from './haus-api.js?v=fd2a5ef6';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
 import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=a0244daa';
 import { istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';

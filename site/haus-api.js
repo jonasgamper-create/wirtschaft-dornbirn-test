@@ -16,7 +16,8 @@ export async function apiAdresse() {
   if (gemerkt !== null) return gemerkt;
   // In der Einzeldatei steht die Adresse im Dokument: sie liegt allein unter
   // /tischplan/ und kann data/haus.json nicht nachladen.
-  const eingebettet = String(window.WIRTSCHAFT_HAUS?.api || '').trim().replace(/\/+$/, '');
+  const haus = window.WIRTSCHAFT_HAUS;
+  const eingebettet = String((window.WIRTSCHAFT_PROBE && haus?.probe) || haus?.api || '').trim().replace(/\/+$/, '');
   if (eingebettet) {
     gemerkt = /^https?:\/\//.test(eingebettet) ? eingebettet : '';
     return gemerkt;
