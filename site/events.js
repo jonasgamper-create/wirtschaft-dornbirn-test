@@ -61,10 +61,37 @@
         <span class="tz-name">${escapeHtml(praefix ? `${praefix}: ${p.name}` : p.name)}</span>
         <span class="tz-detail">${escapeHtml(preis(p.preis))}${p.frei === 0 ? ' · ausverkauft' : ''}</span>
       </li>`;
-    const zeilen = [
-      ...(termin.preise || []).map(p => zeile(p)),
-      ...(termin.varianten || []).flatMap(v => (v.preise || []).map(p => zeile(p, v.label)))
-    ].join('');
+    // Alle Posten eines Abends: die eigenen Kategorien und die des zweiten
+    // Ticketwegs.
+    const posten = [
+      ...(termin.preise || []).map(p => ({ p })),
+      ...(termin.varianten || []).flatMap(v => (v.preise || []).map(p => ({ p, praefix: v.label })))
+    ];
+
+    // Eine lange Liste zieht die ganze Reihe in die Hoehe: die Kacheln einer
+    // Reihe sind gleich hoch, also bekommen die Nachbarn ein Loch. Bei der
+    // Genussroute waren es fuenf Zeilen - fuenfmal derselbe Preis, weil dort
+    // nicht Kategorien, sondern Startorte verkauft werden. Die Kachel war
+    // 694 px hoch, ihre drei Nachbarn hatten 236 px Luft (Jonas, 17.09.).
+    //
+    // Zwei Regeln, beide inhaltlich begruendet:
+    //  - Kostet alles gleich viel, genuegt EINE Zeile mit der Anzahl. Mehr
+    //    sagt die Aufzaehlung nicht; welche es sind, steht beim Ticketdienst.
+    //  - Bleiben trotzdem mehr als drei, stehen drei da und der Rest als
+    //    Zeile. Das ist die Bremse fuer Abende, die es noch nicht gibt.
+    const alleGleich = posten.length > 3
+      && posten.every(x => x.p.preis === posten[0].p.preis && (x.p.frei === 0) === (posten[0].p.frei === 0));
+    let sichtbar = posten;
+    let rest = 0;
+    if (alleGleich) {
+      sichtbar = [{ p: { ...posten[0].p, name: `${posten.length} kategorien zur wahl` } }];
+    } else if (posten.length > 3) {
+      sichtbar = posten.slice(0, 3);
+      rest = posten.length - 3;
+    }
+
+    const zeilen = sichtbar.map(x => zeile(x.p, x.praefix)).join('')
+      + (rest ? `<li><span class="tz-name">und ${rest} weitere</span><span class="tz-detail"></span></li>` : '');
 
     // Zweite Zeile: wann und wo. Beim Kulturhaus gehoert der Ort dazu, im
     // eigenen Haus waere er Fuellsel - der Gast steht ja schon davor.
