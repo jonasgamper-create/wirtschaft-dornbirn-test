@@ -94,4 +94,50 @@
   // Kein "keep_vars": es hielt zwar die Variablen, band das Geheimnis aber
   // nicht an die veroeffentlichte Fassung - HAUS_TOKEN fehlte in der
   // Bindungsliste und kam im Code als leer an.
+
+  // ===== Die Probe: derselbe Dienst noch einmal, zum Herzeigen ============
+  //
+  // Wunsch vom 17.09.: der Kunde soll die Seite durchklicken duerfen, ohne
+  // dass eine echte Reservierung entsteht oder eine Mail hinausgeht. Dafuer
+  // laeuft derselbe Code ein zweites Mal unter eigenem Namen. Weil jede
+  // Umgebung bei Cloudflare ein eigenes Skript ist, hat sie auch ihre eigene
+  // Datenbank - der echte Bestand wird nicht beruehrt.
+  //
+  //   npx wrangler@4 deploy --env probe
+  //   npx wrangler@4 secret put HAUS_TOKEN --env probe
+  //
+  // Zwei Dinge fehlen hier bewusst:
+  //  - Zeitplaene. Die Gratis-Stufe erlaubt FUENF je Konto, und die fuenf
+  //    oben sind vergeben. Ein sechster haette den Abgleich stillschweigend
+  //    scheitern lassen (siehe oben, 05.09.). Die Probe braucht keine:
+  //    Wochenkarte, Erinnerungen und Berichte sind nichts, was man vorfuehrt.
+  //  - Die Brevo-Geheimnisse. Ohne sie versendet der Dienst nichts und
+  //    arbeitet ansonsten unveraendert weiter (siehe oben). Genau das wollen
+  //    wir: niemand bekommt Post, weil jemand ausprobiert hat.
+  "env": {
+    "probe": {
+      "durable_objects": {
+        "bindings": [{ "name": "HAUS", "class_name": "Haus" }]
+      },
+      "observability": { "enabled": true },
+      // Ausdruecklich leer: ohne diese Zeile erbt die Umgebung die fuenf
+      // Zeitplaene von oben, und der Abgleich bricht am Kontolimit ab
+      // ("only partially updated", 17.09.) - der Dienst steht dann zwar,
+      // der Befehl endet aber mit einem Fehler.
+      "triggers": { "crons": [] },
+      "vars": {
+        // Keine Bruecke ins Altsystem: in der Probe soll nichts nach
+        // draussen zeigen, was echte Bestellungen entgegennimmt.
+        "ALT_RESERVIERUNG": "",
+        "ALT_TAKEAWAY": "",
+        "ALLOWED_ORIGINS": "https://jonasgamper-create.github.io,http://localhost:4321,http://localhost:4322,http://localhost:4323",
+        "DIENST_BASIS": "https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev",
+        "OFFEN": "nein",
+        "VAPID_OEFFENTLICH": "BPLEbe0YGZChaS1PY-NtqMLW32AC_PVQ2QTDAYhwnqd6iyQ9V28etINQVmUloVHlLgwQPtiUwCjwnSCtlnvPQTw",
+        "VAPID_KONTAKT": "mailto:willkommen@wirtschaft-dornbirn.at",
+        "WIRT_MAIL": "jonas.gamper@aon.at",
+        "GAESTE_SEITE": "https://jonasgamper-create.github.io/wirtschaft-dornbirn-test"
+      }
+    }
+  }
 }

@@ -160,7 +160,8 @@
 
     try {
       const haus = await fetch('data/haus.json?t=' + Date.now(), { cache: 'no-store' }).then(a => a.json());
-      const basis = String(haus?.api || '').trim().replace(/\/+$/, '');
+      // Im Probemodus der Testdienst, sonst der echte (siehe probe.js).
+      const basis = String((window.WIRTSCHAFT_PROBE && haus?.probe) || haus?.api || '').trim().replace(/\/+$/, '');
       if (!/^https?:\/\//.test(basis)) return hinterlegt;
       const antwort = await fetch(`${basis}/api/termine`, { cache: 'no-store' }).then(a => a.json());
       const liste = antwort?.ok ? (antwort.termine || []) : [];
@@ -305,7 +306,8 @@
       versprochen ||= fetch('data/haus.json?t=' + Date.now(), { cache: 'no-store' })
         .then(antwort => antwort.json())
         .then(daten => {
-          const adresse = String(daten?.api || '').trim().replace(/\/+$/, '');
+          // Im Probemodus der Testdienst, sonst der echte (siehe probe.js).
+          const adresse = String((window.WIRTSCHAFT_PROBE && daten?.probe) || daten?.api || '').trim().replace(/\/+$/, '');
           return /^https?:\/\//.test(adresse) ? adresse : '';
         })
         .catch(() => '');

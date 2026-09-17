@@ -24,7 +24,8 @@ export async function apiAdresse() {
   try {
     const antwort = await fetch(`${KONFIG}?t=${Date.now()}`, { cache: 'no-store' });
     const daten = await antwort.json();
-    const adresse = String(daten?.api || '').trim().replace(/\/+$/, '');
+    // Im Probemodus der Testdienst, sonst der echte (siehe probe.js).
+    const adresse = String((window.WIRTSCHAFT_PROBE && daten?.probe) || daten?.api || '').trim().replace(/\/+$/, '');
     gemerkt = /^https?:\/\//.test(adresse) ? adresse : '';
   } catch {
     gemerkt = '';
