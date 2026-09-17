@@ -323,12 +323,27 @@
         return;
       }
 
-      const gezeigt = [...kommende, ...vergangene];
       alleEvents = kommende;
-      grid.innerHTML = gezeigt.map((termin, index) => kachel(termin, index, istVorbei(termin))).join('');
+      grid.innerHTML = kommende.map((termin, index) => kachel(termin, index)).join('');
       const legende = document.getElementById('eventsLegende');
-      if (legende) legende.hidden = !gezeigt.some(t => t.haus === 'kulturhaus');
+      if (legende) legende.hidden = !kommende.some(t => t.haus === 'kulturhaus');
       verdrahte();
+
+      // Die vergangenen Abende stehen NICHT im selben Raster: sonst sitzt
+      // ein verpasster Abend in derselben Reihe wie einer, der noch zu
+      // haben ist, und die Reihe erzaehlt zwei Geschichten (Jonas, 17.09.).
+      // Eigener Block ganz unten, durch eine Linie abgesetzt, ausgeblendet.
+      const altBereich = document.getElementById('eventsVorbei');
+      if (altBereich) altBereich.remove();
+      if (vergangene.length) {
+        const bereich = document.createElement('section');
+        bereich.id = 'eventsVorbei';
+        bereich.className = 'events-vorbei';
+        bereich.setAttribute('aria-label', 'Abende, die schon gelaufen sind');
+        bereich.innerHTML = '<p class="events-vorbei-kappe">schon gelaufen</p>'
+          + `<div class="events-grid">${vergangene.map((termin, index) => kachel(termin, index, true)).join('')}</div>`;
+        grid.after(bereich);
+      }
     })
     .catch(() => {
       grid.innerHTML = '<p class="events-laden">Die Termine konnten gerade nicht geladen werden. '

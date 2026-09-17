@@ -31,7 +31,12 @@
    fuehrt (Jonas, 17.09.). Er steht am Ende der Liste, blass, und im Bild
    steht, woran man ist. Knoepfe hat er keine - ein toter Ticketknopf ist
    schlimmer als gar keiner. */
-.event-kachel[data-vorbei]{opacity:.62}
+/* Ein eigener Block unter dem Raster, durch eine Linie abgesetzt. Die
+   Ueberschrift ist leise: sie ordnet ein, sie wirbt nicht. */
+.events-vorbei{margin-top:38px;padding-top:20px;border-top:1px solid #ffffff1f}
+.events-vorbei-kappe{margin:0 0 16px;color:#8e887e;font-size:11.5px;font-weight:700;
+  letter-spacing:.19em;text-transform:lowercase}
+.event-kachel[data-vorbei]{opacity:.42}
 .event-kachel[data-vorbei] .kachel-medien img,
 .event-kachel[data-vorbei] .kachel-medien video{filter:grayscale(1) contrast(.92)}
 .event-kachel[data-vorbei] .kachel-medien::after{content:"";position:absolute;inset:0;background:#11110f5c}
@@ -39,7 +44,7 @@
   margin:0;padding:6px 16px;border:1px solid #f3efe6b3;border-radius:99px;
   background:#11110fa6;color:#f3efe6;
   font-size:11.5px;font-weight:700;letter-spacing:.17em;text-transform:lowercase;white-space:nowrap}
-.event-kachel[data-vorbei]:hover{opacity:.82}
+.event-kachel[data-vorbei]:hover{opacity:.72}
 @media(max-width:560px){.kachel-verpasst{font-size:10px;padding:4px 11px;letter-spacing:.12em}}
 
 .kachel-inhalt{display:flex;flex-direction:column;gap:10px;flex:1;padding:16px 16px 18px}
