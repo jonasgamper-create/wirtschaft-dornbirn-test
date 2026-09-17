@@ -217,11 +217,15 @@ export function takeawayAusPlan(plan, datum = '') {
  *
  * Freitagabend rueckt der Dienst die Woche vor und legt das Ergebnis als
  * ENTWURF ab - die Gerichte bleiben stehen, weil sich meist nur ein Teil
- * aendert und der Wirt bis Sonntag ohnehin darueberschaut. Live geht davon
- * nichts: was die Gaeste sehen, bleibt die bestaetigte Woche, bis der Wirt
- * den Entwurf veroeffentlicht. Eine Karte, die sich von selbst um eine
- * Woche weiterdatiert, waere sonst eine Behauptung ueber Gerichte, die
- * niemand geprueft hat.
+ * aendert und der Wirt bis Sonntag ohnehin darueberschaut.
+ *
+ * Bis 17.09. galt: live geht davon nichts, die Gaeste sehen die bestaetigte
+ * Woche, bis der Wirt den Entwurf veroeffentlicht. Das hatte einen Preis:
+ * am 18.09. stand auf der Seite noch "wochengerichte 07. - 11. september".
+ * Seither gilt die Entscheidung von Jonas: Bleibt der Plan liegen, wird er
+ * fortgeschrieben - dieselben Gerichte, nur das Datum der laufenden Woche
+ * (siehe fortgeschrieben). Der gespeicherte Plan bleibt dabei unveraendert;
+ * das Haus sieht in seiner Ansicht weiterhin, dass niemand eingetragen hat.
  */
 export function naechsteWoche(plan, stand = new Date().toISOString()) {
   if (!plan?.montag) return null;
@@ -232,4 +236,23 @@ export function naechsteWoche(plan, stand = new Date().toISOString()) {
 export function montagDanach(datum) {
   const wochentag = (new Date(`${datum}T12:00:00Z`).getUTCDay() + 6) % 7;
   return datumPlus(datum, 7 - wochentag);
+}
+
+/**
+ * Der Plan, wie die Gaeste ihn sehen: liegt seine Woche zurueck, rueckt das
+ * Datum auf die laufende Woche vor - in ganzen Wochen, die Gerichte bleiben.
+ * Der Rueckgabewert traegt `fortgeschriebenSeit` (den urspruenglichen
+ * Montag), damit die Wirt-Ansicht sagen kann, dass hier niemand eingetragen
+ * hat. Ein Plan der laufenden oder einer kuenftigen Woche kommt unveraendert
+ * zurueck. Am Wochenende zaehlt schon die kommende Woche als "laufend":
+ * samstags interessiert niemanden mehr, was es am Donnerstag gab.
+ */
+export function fortgeschrieben(plan, heute) {
+  if (!plan?.montag || !/^\d{4}-\d{2}-\d{2}$/.test(String(heute || ''))) return plan;
+  const wochentag = (new Date(`${heute}T12:00:00Z`).getUTCDay() + 6) % 7;
+  const laufenderMontag = wochentag < 5 ? datumPlus(heute, -wochentag) : montagDanach(heute);
+  if (plan.montag >= laufenderMontag) return plan;
+  const tage = Math.round((Date.parse(`${laufenderMontag}T12:00:00Z`) - Date.parse(`${plan.montag}T12:00:00Z`)) / 86400000);
+  const wochen = Math.ceil(tage / 7);
+  return { ...plan, montag: datumPlus(plan.montag, wochen * 7), fortgeschriebenSeit: plan.montag };
 }

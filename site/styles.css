@@ -167,7 +167,16 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 
 
-.final-prologue{min-height:100svh;background:#11110f}.final-prologue .prologue-media{animation:none;transform:translate3d(0,var(--parallax,0),0) scale(var(--zoom,1.075));will-change:transform}.final-prologue .prologue-shade{background:linear-gradient(90deg,#11110ff7 0%,#11110fcf 48%,#11110f5e 76%,#11110f9c 100%)}.final-prologue .prologue-shade:after{background:linear-gradient(0deg,#11110ff2,transparent 58%)}.final-prologue .prologue-copy{position:relative;z-index:2;width:min(820px,calc(100% - 64px));margin-left:max(8vw,84px)}.final-prologue h1{font-size:clamp(54px,7.25vw,112px);line-height:.91;letter-spacing:-.052em}
+.final-prologue{min-height:100svh;background:#11110f}
+/* Die Knoepfe im ersten Bild (17.09.): der volle Knopf ist der Hauptweg
+   (Tickets), der Umriss der zweite (Tisch). Dieselbe Form wie ueberall. */
+.prologue-actions{margin-top:2px}
+.prologue-actions .button{min-height:48px;padding:0 22px;font-size:11.5px;letter-spacing:.1em}
+.prologue-actions .button.solid{background:#f3efe6;border-color:#f3efe6;color:#11110f}
+.prologue-actions .button.solid:hover{background:#fff;border-color:#fff}
+/* Am Telefon nicht auf volle Hoehe: 84 svh lassen den naechsten Abschnitt
+   unten anblitzen - der Gast sieht, dass es weitergeht. */
+@media(max-width:520px){.final-prologue{min-height:84svh}.prologue-actions{gap:8px}.prologue-actions .button{flex:1 1 100%;min-height:46px}}.final-prologue .prologue-media{animation:none;transform:translate3d(0,var(--parallax,0),0) scale(var(--zoom,1.075));will-change:transform}.final-prologue .prologue-shade{background:linear-gradient(90deg,#11110ff7 0%,#11110fcf 48%,#11110f5e 76%,#11110f9c 100%)}.final-prologue .prologue-shade:after{background:linear-gradient(0deg,#11110ff2,transparent 58%)}.final-prologue .prologue-copy{position:relative;z-index:2;width:min(820px,calc(100% - 64px));margin-left:max(8vw,84px)}.final-prologue h1{font-size:clamp(54px,7.25vw,112px);line-height:.91;letter-spacing:-.052em}
 
 
 

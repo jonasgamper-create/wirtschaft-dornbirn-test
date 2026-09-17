@@ -7,7 +7,7 @@ import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  allergenCodes, alsZahl, datumPlus, normalisiereMenueplan, tagIndex, takeawayAusPlan, wochenText
+  allergenCodes, alsZahl, datumPlus, fortgeschrieben, normalisiereMenueplan, tagIndex, takeawayAusPlan, wochenText
 } from '../server/src/menueplan.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -194,8 +194,27 @@ for (const seite of ['site/mittagskarte.html', 'site/mittagskarte.js', 'site/men
   try { await access(path.join(root, seite)); } catch { check(`${seite} liegt bereit`, false); }
 }
 
+// ---- Die Woche schreibt sich fort (Jonas, 17.09.) -------------------------
+// Bleibt der Plan liegen, sehen die Gaeste dieselben Gerichte mit dem Datum
+// der laufenden Woche - und nie mehr "07. - 11. september" am 18.
+{
+  const alt = { ...plan, montag: '2026-09-07' };
+  const f1 = fortgeschrieben(alt, '2026-09-18');                 // Freitag, eine Woche spaeter
+  check('Vergangene Woche rueckt auf die laufende vor', f1.montag === '2026-09-14', f1.montag);
+  check('Die Gerichte bleiben dieselben', f1.tage[0].gerichte[0].name === alt.tage[0].gerichte[0].name);
+  check('Der urspruengliche Montag bleibt bekannt', f1.fortgeschriebenSeit === '2026-09-07');
+  check('Der gespeicherte Plan wird nicht angefasst', alt.montag === '2026-09-07');
+  const f2 = fortgeschrieben(alt, '2026-10-01');                 // drei Wochen spaeter
+  check('Mehrere Wochen auf einmal', f2.montag === '2026-09-28', f2.montag);
+  const f3 = fortgeschrieben({ ...plan, montag: '2026-09-14' }, '2026-09-18');
+  check('Laufende Woche bleibt unveraendert', f3.montag === '2026-09-14' && !f3.fortgeschriebenSeit);
+  const f4 = fortgeschrieben(alt, '2026-09-19');                 // Samstag: die kommende Woche zaehlt
+  check('Am Wochenende gilt schon die kommende Woche', f4.montag === '2026-09-21', f4.montag);
+  check('Ohne Plan kommt nichts', fortgeschrieben(null, '2026-09-18') === null);
+}
+
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);
 }
-console.log(`Menüplan-Prüfung OK: Eintrag, Takeaway-Karte, Woche, Ersatzwoche und QR-Ziele geprüft (${kennungen.length} Kennungen).`);
+console.log(`Menüplan-Prüfung OK: Eintrag, Takeaway-Karte, Woche, Ersatzwoche, Fortschreibung und QR-Ziele geprüft (${kennungen.length} Kennungen).`);
