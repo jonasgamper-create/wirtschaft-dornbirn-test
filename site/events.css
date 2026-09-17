@@ -281,12 +281,14 @@ h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:normal;word-break:normal;hyphens:
   .kachel-inhalt{padding:10px 10px 12px;gap:6px}
   .kachel-zeile{gap:5px}
   .kachel-zeile time b{font-size:17px}
-  .kachel-zeile time span{font-size:9.5px}
+  .kachel-zeile time span{font-size:10.5px}
   .kachel-zeile h2{font-size:13.5px;line-height:1.25}
-  .kachel-typ{font-size:10.5px;line-height:1.4}
+  /* 12 statt 10,5 px: Wochentag, Uhrzeit und Preise sind das, was ein
+     Gast wirklich liest - und das Publikum ist oft ueber 40 (17.09.). */
+  .kachel-typ{font-size:12px;line-height:1.4}
   .ticketzeilen{gap:4px}
-  .ticketzeilen .tz-name{font-size:10.5px}
-  .ticketzeilen .tz-detail{font-size:10.5px;white-space:normal}
+  .ticketzeilen .tz-name{font-size:12px}
+  .ticketzeilen .tz-detail{font-size:12px;white-space:normal}
   /* Zwei Knoepfe passen nicht nebeneinander in eine halbe Kachel -
      untereinander, jeweils volle Breite. */
   .kachel-aktionen{flex-direction:column;gap:6px;padding-top:10px}
@@ -295,11 +297,11 @@ h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:normal;word-break:normal;hyphens:
      die Spalte - in Safari wuchs die rechte Spalte damit ueber den Rand
      hinaus, waehrend die linke schmal blieb (Jonas, 17.09.). */
   .kachel-aktionen .button{width:100%;justify-content:center;text-align:center;
-    min-height:44px;padding:8px;font-size:10.5px;letter-spacing:.05em;
+    min-height:44px;padding:8px;font-size:11.5px;letter-spacing:.05em;
     white-space:normal;line-height:1.25}
   /* "ausverkauft · details" ist der laengste knopftext - eine spur enger,
      damit der pfeil nicht allein in die zweite zeile faellt. */
-  .kachel-aktionen a.button{font-size:10px;letter-spacing:.03em}
+  .kachel-aktionen a.button{font-size:11px;letter-spacing:.03em}
 }
 
 

@@ -48,7 +48,7 @@ import {
   bestelltag, freieSlots, kuechenzettel, parseKarte, pruefeBestellung, pruefeWunschtag,
   statistik, VORAUS_TAGE
 } from './takeaway.mjs';
-import { montagDanach, naechsteWoche, normalisiereMenueplan, takeawayAusPlan } from './menueplan.mjs';
+import { fortgeschrieben, montagDanach, naechsteWoche, normalisiereMenueplan, takeawayAusPlan } from './menueplan.mjs';
 
 const HAUS = 'wirtschaft-dornbirn';
 
@@ -1324,7 +1324,9 @@ export class Haus extends DurableObject {
   async menueplan() {
     return {
       ok: true,
-      plan: this.#lies('menueplan', null),
+      // Fortgeschrieben auf die laufende Woche, falls niemand eingetragen
+      // hat (Jonas, 17.09.) - gespeichert bleibt der Plan, wie er war.
+      plan: fortgeschrieben(this.#lies('menueplan', null), jetztImHaus().datum),
       // Der Entwurf ist Arbeitsstand des Hauses, keine Gaesteinformation -
       // die Gaesteseiten lesen ihn nie, sie zeigen den bestaetigten Plan.
       entwurf: this.#lies('menueplanEntwurf', null)
@@ -1375,7 +1377,7 @@ export class Haus extends DurableObject {
    * Kuechenzettel: sie muessen jede bestellte Kennung kennen).
    */
   #takeawayGerichte(datum = '') {
-    const plan = this.#lies('menueplan', null);
+    const plan = fortgeschrieben(this.#lies('menueplan', null), jetztImHaus().datum);
     if (plan) return takeawayAusPlan(plan, datum);
     return { gruppen: null, gerichte: this.#lies('takeawayKarte', []) };
   }
