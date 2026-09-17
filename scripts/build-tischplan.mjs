@@ -82,9 +82,16 @@ const dienstQuellen = (() => {
   return teile.join(' ');
 })();
 
+// Der Probemodus gehoert in die Einzeldatei hinein, nicht als zweite Datei
+// daneben: sie soll allein lauffaehig bleiben. Sie steht ganz vorn, damit
+// window.WIRTSCHAFT_PROBE gesetzt ist, bevor irgendjemand die Dienstadresse
+// liest.
+const probeCode = await readFile(path.join(site, 'probe.js'), 'utf8');
+
 async function baue({ quelle, ziel, code, kopfErsatz, stil = styles }) {
   const script = `window.WIRTSCHAFT_FLOORPLAN=${embed(config)};\n`
-    + `window.WIRTSCHAFT_HAUS=${embed({ api: dienstAdresse, probe: probeAdresse })};\n${code}`;
+    + `window.WIRTSCHAFT_HAUS=${embed({ api: dienstAdresse, probe: probeAdresse })};\n`
+    + `${probeCode}\n${code}`;
   const styleBody = `\n${stil}\n  `;
   const scriptBody = `\n${script}\n  `;
   const sha = value => `'sha256-${createHash('sha256').update(value, 'utf8').digest('base64')}'`;
