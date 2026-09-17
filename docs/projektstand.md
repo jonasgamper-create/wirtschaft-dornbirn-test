@@ -33,6 +33,12 @@ Danach ging es um Format und Technik:
 - **Testumgebung** mit eigenem Dienst, eigener Datenbank und ohne Mailversand
   (PR #212–#218).
 - **Monatszahlen** lagen im öffentlichen Build und sind jetzt draußen (PR #222).
+- **Kritische Runde 17.09.** (PR #229): die beiden Wege „Termine & Tickets" und
+  „Mittagstisch reservieren" stehen auf der Startseite im ersten Bild (vorher
+  erster Knopf bei 1325 px am Telefon); Eventkacheln am Telefon 12 statt 10,5 px;
+  Wochenkarte schreibt sich fort. Bewusst **nicht** umgesetzt (Jonas):
+  vergangene Tage im Takeaway ausblenden, „2. abend"-Kennzeichen bei Serien,
+  Legende am Laptop kürzen, Reservierungsformular straffen, Labels 12,5 px.
 
 ## Was geprüft ist
 
@@ -61,8 +67,10 @@ Stand 17.09., an der lebenden Seite gemessen:
 
 In dieser Reihenfolge, weil jeder Schritt den nächsten möglich macht:
 
-1. **Mittagskarte aktualisieren.** Der hinterlegte Plan ist vom 7. September;
-   Takeaway und Mittagskarte zeigen seither dieselben Gerichte.
+1. **Mittagskarte aktualisieren.** Der hinterlegte Plan ist vom 7. September.
+   Seit 17.09. schreibt der Dienst ihn von selbst auf die laufende Woche fort
+   (gleiche Gerichte, aktuelles Datum), damit Gäste kein altes Datum sehen –
+   eingetragen werden muss die neue Woche trotzdem.
 2. **Zwei Eventquellen zusammenlegen.** Die Startseite und die
    Kalender-Abodatei lesen eine Liste von Hand (`site/data/events.json`, Stand
    27.08., 18 Einträge); die Eventseite liest live beim Ticketdienst (31
