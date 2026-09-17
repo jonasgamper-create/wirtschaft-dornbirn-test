@@ -9,7 +9,7 @@
 
 import {
   apiAdresse, bleibVerbunden, hausToken, holeStand, schluesselAusAdresse, sendePlan
-} from './haus-api.js?v=50d3f834';
+} from './haus-api.js?v=fd2a5ef6';
 import { setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
 
 const byId = id => document.getElementById(id);

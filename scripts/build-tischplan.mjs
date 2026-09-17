@@ -66,16 +66,25 @@ const embed = value => JSON.stringify(value)
 // steht die Seite mit "Kein Dienst eingetragen" da, obwohl er laeuft.
 const hausKonfig = JSON.parse(await readFile(path.join(site, 'data', 'haus.json'), 'utf8'));
 const dienstAdresse = String(hausKonfig.api || '').trim().replace(/\/+$/, '');
+// Der Testdienst wandert mit: die Einzeldatei traegt ihre Adresse im Dokument
+// und kann sie nicht nachschlagen. Ohne ihn zeigte die Wirt-Ansicht im
+// Probemodus zwar das rote Band, aber die echten Bestellungen - eine Anzeige,
+// die das Gegenteil von dem behauptet, was sie tut (17.09.).
+const probeAdresse = String(hausKonfig.probe || '').trim().replace(/\/+$/, '');
+const quellenFuer = adresse => {
+  const url = new URL(adresse);
+  return `${url.origin} ${url.protocol === 'https:' ? 'wss' : 'ws'}://${url.host}`;
+};
 const dienstQuellen = (() => {
   if (!dienstAdresse) return "'none'";
-  const url = new URL(dienstAdresse);
-  const draht = `${url.protocol === 'https:' ? 'wss' : 'ws'}://${url.host}`;
-  return `${url.origin} ${draht}`;
+  const teile = [quellenFuer(dienstAdresse)];
+  if (probeAdresse && probeAdresse !== dienstAdresse) teile.push(quellenFuer(probeAdresse));
+  return teile.join(' ');
 })();
 
 async function baue({ quelle, ziel, code, kopfErsatz, stil = styles }) {
   const script = `window.WIRTSCHAFT_FLOORPLAN=${embed(config)};\n`
-    + `window.WIRTSCHAFT_HAUS=${embed({ api: dienstAdresse })};\n${code}`;
+    + `window.WIRTSCHAFT_HAUS=${embed({ api: dienstAdresse, probe: probeAdresse })};\n${code}`;
   const styleBody = `\n${stil}\n  `;
   const scriptBody = `\n${script}\n  `;
   const sha = value => `'sha256-${createHash('sha256').update(value, 'utf8').digest('base64')}'`;
