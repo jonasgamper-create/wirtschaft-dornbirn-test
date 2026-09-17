@@ -181,13 +181,23 @@ h1,h2,h3,.zitat,.kachel-zeile h2{overflow-wrap:normal;word-break:normal;hyphens:
 }
 
 
-/* ===== eine kante und eine hoehe fuer die terminseite =====
+/* ===== eine kante fuer die terminseite =====
    Ausgangslage: die Terminseite rechnete mit 1240 px und 24 px Rand, die
    uebrigen Seiten mit 1060 px Inhaltsbreite und der gemeinsamen Kante
    (--edge). Nebeneinander gehalten sprangen Logo, Ueberschrift und
-   Kachelrand um bis zu 50 px auseinander. Jetzt gilt hier dieselbe
-   Rechnung wie auf Start-, Mittags- und Rechtsseiten. */
-:root{--content:1060px;--gutter:clamp(20px,6vw,132px);--edge:max(var(--gutter),calc((100% - var(--content)) / 2))}
+   Kachelrand um bis zu 50 px auseinander. Seither dieselbe Rechnung.
+
+   Seit 17.09. rechnet diese Seite aber mit einer BREITEREN Kante als die
+   uebrigen (Jonas: "bis zum Rand raus"). Grund: sie ist die einzige Seite,
+   die ein Raster traegt. Bei 1060 px Inhalt standen am Laptop 190 px Rand
+   links und rechts leer, waehrend die Kacheln auf 255 px zusammengedrueckt
+   waren. Jetzt liegt die Kante bei rund 30 px - dort, wo auch das Logo im
+   Kopf steht -, und die Kacheln sind ein Drittel groesser.
+
+   Der Deckel bei 1640 px ist Absicht: ohne ihn wuerden die Kacheln auf
+   einem 27-Zoll-Schirm zu Plakaten. Ueberschrift, Einleitung, Legende und
+   Raster teilen sich weiterhin EINE Kante - das war die Lehre von damals. */
+:root{--content:1640px;--gutter:clamp(20px,2.2vw,30px);--edge:max(var(--gutter),calc((100% - var(--content)) / 2))}
 .events-kopf,.events-grid-bereich,.events-abo{width:100%;margin:0;padding-left:var(--edge);padding-right:var(--edge)}
 /* Am Rechner stand zwischen dem Satz zum Ticketverkauf und der ersten
    Kachel ein ganzer Handbreit Luft: 62 px ueber der Ueberschrift und noch
