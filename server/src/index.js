@@ -3533,6 +3533,47 @@ export default {
       // Mail-Pruefung fuers Haus: was sagt Brevo zu den Mails an eine Adresse
       // (zugestellt, abgewiesen, Spam) und sind die Absender bestaetigt? Nur
       // mit Hausschluessel; der Brevo-Schluessel bleibt im Dienst.
+      // Die Absenderdomain bei Brevo: welche Eintraege im DNS stehen muessen,
+      // damit Mails des Hauses ueberall ankommen - und ob sie schon stehen.
+      //
+      // Warum ueber den Dienst und nicht von Hand in der Brevo-Oberflaeche:
+      // die Werte sind kontoeigen (DKIM-Schluessel, Pruefcode) und muessen
+      // Zeichen fuer Zeichen ins DNS. Abgetippt geht dabei etwas schief;
+      // hier kommen sie so heraus, wie sie hineingehoeren.
+      //
+      // GET liest, POST legt eine Domain an (Brevo gibt dann dieselben
+      // Eintraege zurueck). Beides nur mit Hausschluessel.
+      if (url.pathname === '/api/mail/domain' && (request.method === 'GET' || request.method === 'POST')) {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        if (!env.BREVO_KEY) return json({ ok: false, grund: 'nicht_eingerichtet' }, 200, kopf);
+        const brevo = async (pfad, koerper = null) => {
+          const antwort = await fetch(`https://api.brevo.com/v3${pfad}`, {
+            method: koerper ? 'POST' : 'GET',
+            headers: {
+              'api-key': env.BREVO_KEY,
+              accept: 'application/json',
+              ...(koerper ? { 'content-type': 'application/json' } : {})
+            },
+            body: koerper ? JSON.stringify(koerper) : undefined
+          });
+          return { status: antwort.status, daten: await antwort.json().catch(() => ({})) };
+        };
+        if (request.method === 'POST') {
+          const body = await request.json().catch(() => ({}));
+          const name = String(body?.domain || '').trim().toLowerCase();
+          if (!/^[a-z0-9.-]{4,120}\.[a-z]{2,}$/.test(name)) return json({ ok: false, grund: 'domain' }, 200, kopf);
+          const angelegt = await brevo('/senders/domains', { name });
+          return json({ ok: angelegt.status < 300, status: angelegt.status, antwort: angelegt.daten }, 200, kopf);
+        }
+        const liste = await brevo('/senders/domains');
+        return json({
+          ok: liste.status < 300,
+          status: liste.status,
+          absenderEingetragen: env.BREVO_ABSENDER || '',
+          domains: liste.daten?.domains || liste.daten || null
+        }, 200, kopf);
+      }
+
       if (url.pathname === '/api/mail/pruefung' && request.method === 'GET') {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         if (!env.BREVO_KEY) return json({ ok: false, grund: 'nicht_eingerichtet' }, 200, kopf);
