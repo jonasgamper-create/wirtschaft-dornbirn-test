@@ -202,7 +202,14 @@
           "label": "comedy only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-04-only-2026",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "comedy only (stehplatz)",
+              "preis": 28,
+              "frei": 18
+            }
+          ]
         }
       ]
     },
@@ -263,7 +270,14 @@
           "label": "comedy only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/spoerk-2026-only",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "comedy only (stehplatz)",
+              "preis": 28,
+              "frei": 19
+            }
+          ]
         }
       ]
     },
@@ -314,7 +328,14 @@
           "label": "konzert only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/rock4-2026-only",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 28,
+              "frei": 0
+            }
+          ]
         }
       ]
     },
@@ -386,7 +407,14 @@
           "label": "konzert only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/kellner-2026-only",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 28,
+              "frei": 17
+            }
+          ]
         }
       ]
     },
@@ -515,7 +543,14 @@
           "label": "comedy only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-05-only-2026",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "comedy only (stehplatz)",
+              "preis": 28,
+              "frei": 18
+            }
+          ]
         }
       ]
     },
@@ -571,7 +606,14 @@
           "label": "konzert only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/philippsmusikzimmer-02-only-2026",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 28,
+              "frei": 24
+            }
+          ]
         }
       ]
     },
@@ -601,7 +643,14 @@
           "label": "konzert only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/hanskaspasenkel-2026-only",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 28,
+              "frei": 20
+            }
+          ]
         }
       ]
     },
@@ -631,7 +680,14 @@
           "label": "konzert only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/notenlos-2026-only",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 28,
+              "frei": 16
+            }
+          ]
         }
       ]
     },
@@ -692,7 +748,14 @@
           "label": "konzert only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/krauthobel-2026-only",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 38,
+              "frei": 18
+            }
+          ]
         }
       ]
     },
@@ -722,7 +785,14 @@
           "label": "konzert only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/rebeltell-2026-only",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 28,
+              "frei": 2
+            }
+          ]
         }
       ]
     },
@@ -752,7 +822,14 @@
           "label": "konzert only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/themonroes-2026-only",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 38,
+              "frei": 7
+            }
+          ]
         }
       ]
     },
@@ -782,7 +859,14 @@
           "label": "comedy only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-06-only-2026",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "comedy only (stehplatz)",
+              "preis": 28,
+              "frei": 14
+            }
+          ]
         }
       ]
     },
@@ -812,7 +896,14 @@
           "label": "comedy only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-07-only-2026",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "comedy only (stehplatz)",
+              "preis": 28,
+              "frei": 20
+            }
+          ]
         }
       ]
     },
@@ -842,7 +933,14 @@
           "label": "Dinner & Konzert",
           "zeit": "17:30",
           "ticketUrl": "https://www.ticketist.io/events/dabado-charity-dinner",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "Sitzplatz mit 3-Gänge-Menü (Galerie)",
+              "preis": 68,
+              "frei": 70
+            }
+          ]
         }
       ]
     },
@@ -872,7 +970,14 @@
           "label": "Sitzplatz",
           "zeit": "20:00",
           "ticketUrl": "https://www.ticketist.io/events/einarsson-sitzplatz-2027",
-          "buchbar": true
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "Sitzplatz",
+              "preis": 38,
+              "frei": 154
+            }
+          ]
         }
       ]
     },

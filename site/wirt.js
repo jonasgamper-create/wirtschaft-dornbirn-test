@@ -1135,17 +1135,25 @@ function maleWarteliste() {
       text.textContent = gruppe.buchbar === true
         ? 'Alle Wartenden bekommen dieselbe Mail: Karten sind da, hier der Link.'
         : 'Der Abend ist noch ausverkauft – verständigen geht trotzdem, etwa bei Rückläufern an der Kasse.';
+      // Ein Satz fuer die Mail, freiwillig: "Bitte bis Freitag buchen, dann
+      // gehen die Karten an die Naechsten." Ohne Frist wartet mancher ewig.
+      const hinweis = document.createElement('input');
+      hinweis.type = 'text';
+      hinweis.maxLength = 300;
+      hinweis.className = 'warte-hinweis-feld';
+      hinweis.placeholder = 'Satz für die Mail (freiwillig), z. B. bitte bis Freitag buchen';
       const knopf = document.createElement('button');
       knopf.type = 'button';
       knopf.className = gruppe.buchbar === true ? 'knopf' : 'knopf leise';
       knopf.textContent = `alle ${gruppe.wartend} verständigen`;
       knopf.addEventListener('click', async () => {
+        if (!window.confirm(`${gruppe.wartend} ${gruppe.wartend === 1 ? 'Person' : 'Personen'} per Mail verständigen, dass es für „${gruppe.titel}“ wieder Karten gibt?`)) return;
         knopf.disabled = true;
-        const antwort = await sendeEventWartelisteAktion(hausToken(), { art: 'mail_alle', weg: gruppe.weg });
+        const antwort = await sendeEventWartelisteAktion(hausToken(), { art: 'mail_alle', weg: gruppe.weg, hinweis: hinweis.value.trim() });
         knopf.disabled = false;
         zeigeMailErgebnis(antwort);
       });
-      alle.append(text, knopf);
+      alle.append(text, hinweis, knopf);
       inhalt.append(alle);
     }
 

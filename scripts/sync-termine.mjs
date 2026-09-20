@@ -100,6 +100,13 @@ for (const kennung of kennungen) {
 
 // Zwei Wege zu einem Abend zusammenlegen - dieselbe Regel wie im Dienst.
 const abende = gruppiere(termine);
+// Die Preise des zweiten Weges haengen an SEINER Kennung ("comedy only" hat
+// eigene Kategorien). Bis 20.09. bekamen nur die Hauptwege ihre Preise -
+// ein zweiter Weg mit 0 frei stand auf der Seite als buchbar (rock4,
+// 22.10.: "konzert only" war laut Liste weg, der Knopf sagte "buchbar").
+for (const abend of abende) {
+  for (const v of abend.varianten || []) v.preise = preise[v.id] || [];
+}
 
 if (fehlend.length) {
   console.warn(`  Nicht gelesen: ${fehlend.join(', ')}`);

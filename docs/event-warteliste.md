@@ -85,9 +85,110 @@ Bestätigungsmail – die hatte er am Telefon.
 - **Erinnerung nach drei Tagen ohne Rückmeldung** – dieselbe Mail nochmal,
   dann Eintrag auf „kein Bedarf“. Bewusst noch nicht: das Ende des Abends
   räumt ohnehin auf.
-- **Startseite**: Die statischen „Ausverkauft ↗“-Links dort zeigen weiter auf
-  den Ticketdienst. Der Weg zur Warteliste führt über die Eventseite; ob der
-  Startseiten-Link dorthin zeigen soll, ist eine Entscheidung von Jonas.
+- **Startseite**: erledigt am 20.09. – „Ausverkauft · Warteliste“ führt auf
+  die Eventseite, die den Kasten für genau diesen Weg öffnet
+  (`events.html?warteliste=<kennung>`). Bei „Restkarten“ (ein Weg weg, der
+  andere buchbar) bleibt der Knopf auf dem Ticketdienst; im Startseiten-Dialog
+  steht zusätzlich „Auf die Warteliste“.
+
+## Die Abgrenzung: welcher Weg betroffen ist und welcher nicht
+
+Das ist die Regel, an der alles hängt. Ein Abend kann bis zu zwei Wege haben
+(„dinner & comedy“ 19 Uhr, „comedy only“ 21 Uhr). Jeder Weg hat beim
+Ticketdienst seine eigene Kennung, seine eigenen Kategorien, seinen eigenen
+Stand. Deshalb gilt:
+
+| Lage am Abend | Kachel auf der Eventseite | Dialog „Wofür genau?“ | Was beim Wirt steht |
+|---|---|---|---|
+| beide Wege buchbar | zwei Ticketknöpfe, **kein** Wartelisten-Knopf | – | nichts |
+| ein Weg ausverkauft, einer buchbar (rock4 22.10. vor dem 20.09., dinner & comedy 14.10.) | grauer Stempel am ausverkauften Weg, Ticketknopf am anderen, dazu „auf die warteliste“ | genau **ein** Haken: der ausverkaufte Weg. Darüber: „Am selben Abend gibt es noch Karten: comedy only · 21:00 – tickets buchen“ | eine Gruppe nur für den ausverkauften Weg |
+| beide Wege ausverkauft (rock4 22.10. seit dem 20.09.) | zwei graue Stempel, „auf die warteliste“ | zwei Haken | zwei Gruppen |
+| dasselbe Programm an anderen Tagen (Luis 13.10. weg, 14.10. und 25.11. buchbar) | wie oben | Haken für die ausverkauften Tage; Hinweis mit Ticketknopf für die buchbaren, höchstens die nächsten drei | je Tag eine Gruppe |
+
+Der buchbare Weg wird **nie** angefasst: sein Ticketknopf bleibt, er taucht
+im Dialog nur als Alternative mit „tickets buchen“ auf, und niemand kann sich
+für ihn auf eine Warteliste setzen – der Dienst lehnt eine Kennung, die nicht
+existiert, ab, und für eine buchbare Kennung zeigt die Seite keinen Haken.
+
+**Was „ausverkauft“ heißt.** Zwei Quellen, dieselbe Regel auf der Seite und
+im Dienst:
+
+1. Der Ticketdienst meldet den Verkauf als geschlossen oder schreibt „Diese
+   Veranstaltung ist ausverkauft“ in die Beschreibung (live, alle 12 Stunden
+   gelesen).
+2. **Oder** die hinterlegte Preisliste (`site/data/ticketist-preise.json`,
+   gelesen im Verwaltungsbereich) kennt für alle Kategorien des Weges 0 freie
+   Karten.
+
+Der Schalter des Ticketdienstes allein reicht nicht: Kulis 07.10. stand am
+20.09. live auf „Verkauf offen“, obwohl seit dem 14.09. 0 frei eingetragen
+sind. Umgekehrt ist die Preisliste eine Momentaufnahme – kommen Karten
+zurück, weiß das nur der Verwaltungsbereich. Deshalb entscheidet der Wirt,
+wann verständigt wird, und die Zahl am Reiter zeigt nur die Fälle, in denen
+der Ticketdienst selbst wieder aufgemacht hat.
+
+**Behobener Fehler am 20.09.:** Der Abgleich der Termine hängte die
+Preisliste nur an den ersten Weg. „konzert only“ bei rock4 (22.10.) war laut
+Liste weg, stand aber als buchbar auf der Seite. Jetzt bekommt jeder Weg
+seine eigene Preisliste (`scripts/sync-termine.mjs`).
+
+## Prüfprotokoll vom 20.09.2026
+
+Alles gegen den Probe-Dienst (`?probe=1`), in der eingebauten Browserprüfung
+und über die Schnittstelle.
+
+**Alle 31 Kacheln der Eventseite, automatisch abgeglichen:**
+7 Kacheln mit mindestens einem ausverkauften Weg tragen den Knopf, 24 ohne
+tragen ihn nicht. Bei jeder der 7 zeigt der Dialog genau die ausverkauften
+Wege als Haken und genau die buchbaren als Alternative:
+
+| Kachel | Haken | noch buchbar (Hinweis) |
+|---|---|---|
+| Gernot Kulis 07.10. | kulis-02-2026 | Kulis 08.10. |
+| Luis aus Südtirol 13.10. | luis-2026 | Luis 14.10., 25.11. |
+| dinner & comedy 14.10. | dinner-comedy-04-2026 (+ 11.11. anhakbar) | comedy only 14.10. am selben Abend, dann weitere Abende |
+| rock4 22.10. | rock4-2026, rock4-2026-only | – |
+| 50 Jahre Ulli Troy 25.10. | ullitroy-menue-2026 | Brunch 26.10. |
+| dinner & comedy 11.11. | dinner-comedy-05-2026 (+ 14.10.) | comedy only 11.11., dann weitere |
+| Fabio Landert 17.11. | landert-2026 | – |
+
+Die Gruppen beim Wirt sind exakt dieselben acht Wege (7 Kacheln, rock4 mit
+zwei Wegen) – Seite und Dienst rechnen mit derselben Regel.
+
+**Gastseite, durchgeklickt:**
+- Eintrag mit Name, Mail, Telefon, 2 Karten für Kulis → steht beim Wirt mit
+  Zeit, Kontakt und Quelle „Gast“.
+- Kaputte Mailadresse → Fehlertext, nichts gesendet.
+- Zwei Haken (14.10. + 11.11.) in einem Zug → zwei Einträge, Bestätigung nennt
+  beide.
+- Dieselbe Adresse nochmal (Groß-/Kleinschreibung anders) → „stehst schon auf
+  der Liste“, kein Doppel.
+- Unbekannte Kennung → abgelehnt (`grund: weg`).
+- Startseite „Ausverkauft · Warteliste“ → Eventseite öffnet den Kasten für
+  genau diesen Abend (auch im Probemodus).
+- Handyformat 390 px: Dialog, Kachelknöpfe, vier Reiter ohne Umbruch.
+
+**Wirtseite, durchgeklickt und per Schnittstelle:**
+- Ohne Hausschlüssel 401, mit Schlüssel die Übersicht; Geheimnisse der Gäste
+  stehen weder im Live-Stand noch in der Übersicht.
+- „verständigen“ und „alle verständigen“ → in der Probe ohne Mailschlüssel:
+  Zeile zeigt „Mail So., 20.09 16:17 nicht zugestellt (kein Versand
+  eingerichtet)“, Stand bleibt „wartet“. Im Echtbetrieb wird dieselbe Zeile
+  zu „Mail … “ und der Stand zu „verständigt“.
+- „hat gebucht“ mit Notiz → grün, Rückmeldung „vom Haus“ mit Zeit.
+- Eintrag am Telefon („+ eintragen“) → Quelle „vom Haus“, keine
+  Bestätigungsmail; die Antwort liefert die drei Links des Gastes.
+- Antwortlink „gebucht“ → Dankesseite, beim Wirt „Rückmeldung per Mail-Link:
+  hat gebucht“. Antwortlink „austragen“ → Eintrag samt Adresse weg; derselbe
+  Link danach 404. Falsches Geheimnis → 404.
+- Reiter wechselt live: eine Eintragung auf der Gastseite erscheint ohne
+  Neuladen beim Wirt (Draht).
+
+**Was in der Probe nicht prüfbar ist:** die Zustellung echter Mails (kein
+Brevo-Schlüssel) und der Push „Wieder Karten“ (bräuchte einen Abend, den der
+Ticketdienst wieder aufmacht). Beides läuft über Bausteine, die im
+Echtbetrieb seit Wochen arbeiten (Reservierungsmails, Bestell-Push); die
+Logik dahinter ist im Check abgedeckt.
 
 ## Technik
 

@@ -347,7 +347,14 @@
       .sort((a, b) => a.date.localeCompare(b.date));
     const alleWege = [termin, ...verwandte].flatMap(wegeVon);
     const weg = alleWege.filter(w => w.ausverkauft);
-    const noch = alleWege.filter(w => !w.ausverkauft);
+    // Was noch zu haben ist: alles vom selben Abend, dazu hoechstens die
+    // naechsten drei anderen Tage. "dinner & comedy" gibt es sechsmal im
+    // Halbjahr - sechs Knoepfe waeren kein Hinweis mehr, sondern eine Liste.
+    const nochAlle = alleWege.filter(w => !w.ausverkauft);
+    const noch = [
+      ...nochAlle.filter(w => w.datum === termin.date),
+      ...nochAlle.filter(w => w.datum !== termin.date).sort((a, b) => a.datum.localeCompare(b.datum)).slice(0, 3)
+    ];
 
     document.getElementById('warteDialogTitel').textContent = termin.title;
     warteWege.innerHTML = weg.map(w => `
@@ -515,6 +522,26 @@
       const legende = document.getElementById('eventsLegende');
       if (legende) legende.hidden = !kommende.some(t => t.haus === 'kulturhaus');
       verdrahte();
+
+      // Von der Startseite (oder aus einer Mail) direkt auf die Warteliste
+      // eines Weges: ?warteliste=<kennung>. Der Abend wird gesucht, ob als
+      // Hauptweg oder als Variante; die Kachel kommt ins Bild, der Kasten
+      // geht auf. Ist der Weg inzwischen buchbar, oeffnet sich nichts -
+      // dann steht der Ticketknopf da, und der ist der bessere Weg.
+      const gewuenscht = new URLSearchParams(window.location.search).get('warteliste') || '';
+      if (gewuenscht) {
+        const abend = kommende.find(t => t.id === gewuenscht || (t.varianten || []).some(v => v.id === gewuenscht));
+        const knopf = abend && grid.querySelector(`[data-warteliste="${CSS.escape(abend.id)}"]`);
+        if (knopf) {
+          knopf.closest('.event-kachel')?.scrollIntoView({ block: 'center' });
+          oeffneWarteliste(abend.id);
+          // Den gewuenschten Weg anhaken, wenn er nicht ohnehin der Abend ist.
+          const haken = warteWege?.querySelector(`input[value="${CSS.escape(gewuenscht)}"]`);
+          if (haken) haken.checked = true;
+        } else if (abend) {
+          grid.querySelector(`[data-kalender="${CSS.escape(abend.id)}"]`)?.closest('.event-kachel')?.scrollIntoView({ block: 'center' });
+        }
+      }
 
       // Die vergangenen Abende stehen NICHT im selben Raster: sonst sitzt
       // ein verpasster Abend in derselben Reihe wie einer, der noch zu

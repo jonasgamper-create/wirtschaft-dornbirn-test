@@ -675,11 +675,7 @@ export class Haus extends DurableObject {
       annahme: rolle === 'haus' ? this.#annahme() : undefined,
       // Die Warteliste der Abende - nur fuer den Wirt, mit Uebersicht je Weg.
       // Ohne die Geheimnisse der Gaeste: die stehen nur in ihren Mails.
-      eventWarteliste: rolle === 'haus'
-        ? this.eventWartelisteUebersicht().map(gruppe => ({
-          ...gruppe, eintraege: gruppe.eintraege.map(({ token, ...rest }) => rest)
-        }))
-        : undefined,
+      eventWarteliste: rolle === 'haus' ? this.eventWartelisteUebersicht() : undefined,
       // Ob der Gast seine Tischnummer erfaehrt. Standard: nein - sie ist intern.
       tischAnzeigen: this.#lies('tischAnzeigen', false) === true,
       // Schickt der Dienst eine SMS, wenn das Essen fertig ist? Standard:
@@ -1053,9 +1049,14 @@ export class Haus extends DurableObject {
     this.#meldeAenderung();
   }
 
-  /** Die Uebersicht fuer den Wirt - Wege mit Wartenden, samt Stand beim Ticketdienst. */
+  /**
+   * Die Uebersicht fuer den Wirt - Wege mit Wartenden, samt Stand beim
+   * Ticketdienst. Ohne die Geheimnisse der Gaeste: die stehen in ihren
+   * Mails, und wer sie braucht (Eintrag am Telefon), bekommt sie dort.
+   */
   eventWartelisteUebersicht() {
-    return wartelisteUebersicht(this.#eventWarteliste(), this.#lies('termine', {}), jetztImHaus().datum, AUSVERKAUFT_LAUT_PREISEN);
+    return wartelisteUebersicht(this.#eventWarteliste(), this.#lies('termine', {}), jetztImHaus().datum, AUSVERKAUFT_LAUT_PREISEN)
+      .map(gruppe => ({ ...gruppe, eintraege: gruppe.eintraege.map(({ token, ...rest }) => rest) }));
   }
 
   /**
@@ -1109,7 +1110,19 @@ export class Haus extends DurableObject {
     }
     return {
       ok: true,
-      neu: ergebnis.angelegt.map(e => ({ weg: e.weg, titel: e.titel, datum: e.datum })),
+      neu: ergebnis.angelegt.map(e => ({
+        weg: e.weg, titel: e.titel, datum: e.datum, id: e.id,
+        // Nur fuers Haus: die Antwortlinks des Gastes, falls der Wirt sie
+        // selbst weitergibt (Telefon, WhatsApp). Der Gast bekommt sie in
+        // seiner Mail - in seiner Antwort stehen sie nie.
+        ...(quelle === 'wirt' && basis ? {
+          antwort: {
+            gebucht: `${basis}/warteliste/antwort?t=${e.token}&a=gebucht`,
+            keinBedarf: `${basis}/warteliste/antwort?t=${e.token}&a=kein_bedarf`,
+            austragen: `${basis}/warteliste/antwort?t=${e.token}&a=austragen`
+          }
+        } : {})
+      })),
       schon: ergebnis.schon,
       voll: ergebnis.voll
     };

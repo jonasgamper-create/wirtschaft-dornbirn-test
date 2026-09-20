@@ -847,3 +847,4 @@ body.ohne-schluessel main{padding-bottom:64px}
 @media(min-width:700px){
   .reiter-leiste{width:min(520px,calc(100% - 36px))}
 }
+.warte-gruppe .warte-hinweis-feld{flex:1 1 100%;min-height:44px;padding:0 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;font-size:15px}
