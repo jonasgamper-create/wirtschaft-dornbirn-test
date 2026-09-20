@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-14",
+  "updatedAt": "2026-09-20",
   "quelle": "https://www.ticketist.io/events/<kennung>",
   "kennungen": [
     "comedynacht-05-2026-1",
@@ -53,6 +53,7 @@
   "termine": [
     {
       "id": "comedynacht-05-2026-1",
+      "eventId": 1502,
       "date": "2026-09-22",
       "zeit": "18:45",
       "title": "helden reisen, gäste speisen!",
@@ -74,6 +75,7 @@
     },
     {
       "id": "comedynacht-06-2026-1",
+      "eventId": 1503,
       "date": "2026-09-23",
       "zeit": "18:45",
       "title": "helden reisen, gäste speisen!",
@@ -95,6 +97,7 @@
     },
     {
       "id": "kulis-02-2026",
+      "eventId": 1208,
       "date": "2026-10-07",
       "zeit": "20:00",
       "title": "Gernot Kulis",
@@ -121,6 +124,7 @@
     },
     {
       "id": "kulis-03-2026",
+      "eventId": 1459,
       "date": "2026-10-08",
       "zeit": "20:00",
       "title": "Gernot Kulis",
@@ -147,6 +151,7 @@
     },
     {
       "id": "luis-2026",
+      "eventId": 1191,
       "date": "2026-10-13",
       "zeit": "20:00",
       "title": "Luis aus Südtirol",
@@ -178,6 +183,7 @@
     },
     {
       "id": "dinner-comedy-04-2026",
+      "eventId": 1504,
       "date": "2026-10-14",
       "zeit": "19:00",
       "title": "dinner & comedy",
@@ -215,6 +221,7 @@
     },
     {
       "id": "luis-02-2026",
+      "eventId": 1361,
       "date": "2026-10-14",
       "zeit": "20:00",
       "title": "Luis aus Südtirol",
@@ -246,6 +253,7 @@
     },
     {
       "id": "spoerk-2026",
+      "eventId": 1512,
       "date": "2026-10-15",
       "zeit": "19:00",
       "title": "christof spörk",
@@ -283,6 +291,7 @@
     },
     {
       "id": "neuschmid-voegel-02-2026",
+      "eventId": 1441,
       "date": "2026-10-21",
       "zeit": "19:00",
       "title": "maria neuschmid & stefan vögel",
@@ -304,6 +313,7 @@
     },
     {
       "id": "rock4-2026",
+      "eventId": 1526,
       "date": "2026-10-22",
       "zeit": "19:00",
       "title": "rock4 - a cappella",
@@ -341,6 +351,7 @@
     },
     {
       "id": "ullitroy-menue-2026",
+      "eventId": 1285,
       "date": "2026-10-25",
       "zeit": "19:00",
       "title": "50 Jahre Ulli Troy",
@@ -362,6 +373,7 @@
     },
     {
       "id": "ullitroy-brunch-2026",
+      "eventId": 1286,
       "date": "2026-10-26",
       "zeit": "11:00",
       "title": "50 Jahre Ulli Troy",
@@ -383,6 +395,7 @@
     },
     {
       "id": "kellner-2026",
+      "eventId": 1522,
       "date": "2026-10-27",
       "zeit": "19:00",
       "title": "mathias kellner",
@@ -420,6 +433,7 @@
     },
     {
       "id": "kulturimhaus-h2026",
+      "eventId": 1521,
       "date": "2026-10-28",
       "zeit": "18:30",
       "title": "Kultur:Im:Haus",
@@ -441,6 +455,7 @@
     },
     {
       "id": "hader-02-2026",
+      "eventId": 1256,
       "date": "2026-10-29",
       "zeit": "20:00",
       "title": "Josef Hader",
@@ -467,6 +482,7 @@
     },
     {
       "id": "singmit-konzertonly",
+      "eventId": 1622,
       "date": "2026-10-31",
       "zeit": "20:00",
       "title": "SING MIT! - Konzert Only",
@@ -488,6 +504,7 @@
     },
     {
       "id": "meyle-2026",
+      "eventId": 1244,
       "date": "2026-11-08",
       "zeit": "19:00",
       "title": "Gregor Meyle",
@@ -519,6 +536,7 @@
     },
     {
       "id": "dinner-comedy-05-2026",
+      "eventId": 1506,
       "date": "2026-11-11",
       "zeit": "19:00",
       "title": "dinner & comedy",
@@ -556,6 +574,7 @@
     },
     {
       "id": "landert-2026",
+      "eventId": 1364,
       "date": "2026-11-17",
       "zeit": "20:00",
       "title": "Fabio Landert",
@@ -582,6 +601,7 @@
     },
     {
       "id": "philippsmusikzimmer-02-2026",
+      "eventId": 1514,
       "date": "2026-11-18",
       "zeit": "19:00",
       "title": "philipp lingg's musikzimmer",
@@ -619,6 +639,7 @@
     },
     {
       "id": "hanskaspasenkel-2026",
+      "eventId": 1626,
       "date": "2026-11-19",
       "zeit": "19:00",
       "title": "hanskaspas enkel & george nussbaumer",
@@ -656,6 +677,7 @@
     },
     {
       "id": "notenlos-2026",
+      "eventId": 1518,
       "date": "2026-11-24",
       "zeit": "19:00",
       "title": "notenlos",
@@ -693,6 +715,7 @@
     },
     {
       "id": "luis-03-2026",
+      "eventId": 1630,
       "date": "2026-11-25",
       "zeit": "20:00",
       "title": "Luis aus Südtirol",
@@ -724,6 +747,7 @@
     },
     {
       "id": "krauthobel-2026",
+      "eventId": 1628,
       "date": "2026-11-26",
       "zeit": "19:00",
       "title": "krauthobel anplakt",
@@ -761,6 +785,7 @@
     },
     {
       "id": "rebeltell-2026",
+      "eventId": 1516,
       "date": "2026-12-03",
       "zeit": "19:00",
       "title": "rebel tell",
@@ -798,6 +823,7 @@
     },
     {
       "id": "themonroes-2026",
+      "eventId": 1524,
       "date": "2026-12-10",
       "zeit": "19:00",
       "title": "the monroes",
@@ -835,6 +861,7 @@
     },
     {
       "id": "dinner-comedy-06-2026",
+      "eventId": 1508,
       "date": "2026-12-15",
       "zeit": "19:00",
       "title": "dinner & comedy",
@@ -872,6 +899,7 @@
     },
     {
       "id": "dinner-comedy-07-2026",
+      "eventId": 1510,
       "date": "2026-12-16",
       "zeit": "19:00",
       "title": "dinner & comedy",
@@ -909,6 +937,7 @@
     },
     {
       "id": "dabado-charity",
+      "eventId": 1723,
       "date": "2026-12-19",
       "zeit": "19:00",
       "title": "Dabado Charity • Clubbing II",
@@ -946,6 +975,7 @@
     },
     {
       "id": "einarsson-stehplatz-2027",
+      "eventId": 1495,
       "date": "2027-03-13",
       "zeit": "20:00",
       "title": "Thorsteinn Einarsson",
@@ -983,6 +1013,7 @@
     },
     {
       "id": "genussroute",
+      "eventId": 1624,
       "date": "2027-05-20",
       "zeit": "18:00",
       "title": "Genussroute 6850",

@@ -4,7 +4,7 @@
 import {
   HOECHSTENS_JE_WEG, antwortVomGast, ausverkauftLautPreisen, entferneEintrag, merkeMail, nimmAufEvent,
   pruefeEventWartelisteEintrag, raeumeEventWartelisteAb, setzeStatus,
-  wartelisteUebersicht, wegAusTermin, wiederBuchbar, zuVerstaendigen
+  wartelisteUebersicht, wegAusTermin, wegStand, wiederBuchbar, zuVerstaendigen
 } from '../server/src/event-warteliste.mjs';
 import { eventWartelisteAufnahmeMail, eventWartelisteFreiMail } from '../server/src/mail.mjs';
 
@@ -112,10 +112,42 @@ check('Laut Preisliste ausverkauft: steht in der Uebersicht, obwohl der Dienst "
 
 const frisch = { ...termine, 'kulis-02-2026': { termin: { ...termine['kulis-02-2026'].termin, buchbar: true } } };
 const wieder = wiederBuchbar(termine, frisch, liste);
-check('Der Wechsel auf buchbar wird erkannt', wieder.length === 1 && wieder[0] === 'kulis-02-2026', wieder.join(','));
+check('Der Wechsel auf buchbar wird erkannt', wieder.length === 1 && wieder[0].weg === 'kulis-02-2026', JSON.stringify(wieder));
 check('Ohne Wartende keine Meldung', wiederBuchbar(termine, frisch, []).length === 0);
 check('Ohne Wechsel keine Meldung', wiederBuchbar(frisch, frisch, liste).length === 0);
 check('Jetzt gibt es etwas zu tun', zuVerstaendigen(wartelisteUebersicht(liste, frisch, heute)) === 2);
+
+// ---- 5b. Der Stand eines Weges: drei Quellen, eine Regel ------------------
+
+const zu = { termin: { id: 'x', date: '2026-10-07', title: 'X', buchbar: false } };
+const offen = { termin: { id: 'x', date: '2026-10-07', title: 'X', buchbar: true } };
+check('Unbekannter Abend: Stand unbekannt', wegStand(undefined, 'x').buchbar === null);
+check('Schalter zu heisst ausverkauft', wegStand(zu, 'x').buchbar === false);
+check('Schalter offen heisst buchbar', wegStand(offen, 'x').buchbar === true);
+check('Kartenliste auf 0 sticht den offenen Schalter',
+  wegStand(offen, 'x', new Set(['x'])).buchbar === false);
+// Der Fall, der die Warteliste erst nuetzlich macht: alles verkauft, dann
+// storniert jemand. Der Schalter des Dienstes merkt das nicht.
+check('Zurueckgekommene Karten stechen alles',
+  wegStand({ ...zu, verkauft: 770, verkauftMax: 774 }, 'x').buchbar === true);
+check('Und sie werden gezaehlt',
+  wegStand({ ...zu, verkauft: 770, verkauftMax: 774 }, 'x').zurueck === 4);
+check('Wieder ausverkauft, wenn nachgekauft wurde',
+  wegStand({ ...zu, verkauft: 774, verkauftMax: 774 }, 'x').buchbar === false);
+check('Ohne Zahlen bleibt es bei Schalter und Liste',
+  wegStand({ ...zu, verkauft: null, verkauftMax: null }, 'x').zurueck === 0);
+
+// Dieselbe Regel meldet auch den Rueckkauf-Fall an den Wirt.
+const voll = { 'kulis-02-2026': { ...termine['kulis-02-2026'], verkauft: 774, verkauftMax: 774 } };
+const retour = { 'kulis-02-2026': { ...termine['kulis-02-2026'], verkauft: 771, verkauftMax: 774 } };
+const gemeldet = wiederBuchbar(voll, retour, liste);
+check('Stornierte Karten melden sich beim Wirt',
+  gemeldet.length === 1 && gemeldet[0].weg === 'kulis-02-2026' && gemeldet[0].zurueck === 3, JSON.stringify(gemeldet));
+check('Dieselben drei Karten melden sich nicht zweimal', wiederBuchbar(retour, retour, liste).length === 0);
+check('Kommt eine vierte zurueck, ist das neu',
+  wiederBuchbar(retour, { 'kulis-02-2026': { ...retour['kulis-02-2026'], verkauft: 770 } }, liste)[0].zurueck === 1);
+check('Die Uebersicht zeigt die zurueckgekommenen Karten',
+  wartelisteUebersicht(liste, retour, heute).find(g => g.weg === 'kulis-02-2026')?.zurueck === 3);
 
 liste = merkeMail(liste, 'ew-1', { ok: true }, '2026-09-19T09:00:00Z');
 check('Mail merkt sich Zeit und Erfolg',

@@ -36,7 +36,7 @@ import {
   eventWartelisteAufnahmeMail, eventWartelisteFreiMail } from './mail.mjs';
 import {
   antwortVomGast, ausverkauftLautPreisen, entferneEintrag, merkeMail, nimmAufEvent, pruefeEventWartelisteEintrag,
-  raeumeEventWartelisteAb, setzeNotiz, setzeStatus, wartelisteUebersicht, wegAusTermin, wiederBuchbar
+  raeumeEventWartelisteAb, setzeNotiz, setzeStatus, wartelisteUebersicht, wegAusTermin, wegStand, wiederBuchbar
 } from './event-warteliste.mjs';
 import ticketistPreise from '../../site/data/ticketist-preise.json';
 
@@ -49,7 +49,8 @@ import {
 } from './warteliste.mjs';
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
 import {
-  FRISCH_MS as TICKETIST_FRISCH_MS, gruppiere, holeTermin, KENNUNGEN, terminGueltig
+  FRISCH_MS as TICKETIST_FRISCH_MS, gruppiere, holeTermin, holeVerkauft, kennungAusLink,
+  KENNUNGEN, terminGueltig
 } from './ticketist.mjs';
 import {
   bestellungText, erinnerungText, fertigText, nummerFuerSms, reservierungText, sendeSms
@@ -676,6 +677,9 @@ export class Haus extends DurableObject {
       // Die Warteliste der Abende - nur fuer den Wirt, mit Uebersicht je Weg.
       // Ohne die Geheimnisse der Gaeste: die stehen nur in ihren Mails.
       eventWarteliste: rolle === 'haus' ? this.eventWartelisteUebersicht() : undefined,
+      // Die selbst aufgenommenen Abende - damit der Wirt sieht, was er
+      // hinzugefuegt hat, und es wieder hergeben kann.
+      eigeneKennungen: rolle === 'haus' ? this.#lies('eigeneKennungen', []) : undefined,
       // Ob der Gast seine Tischnummer erfaehrt. Standard: nein - sie ist intern.
       tischAnzeigen: this.#lies('tischAnzeigen', false) === true,
       // Schickt der Dienst eine SMS, wenn das Essen fertig ist? Standard:
@@ -1066,7 +1070,7 @@ export class Haus extends DurableObject {
    * Browser des Gastes.
    */
   async eventWartelisteEintragen(roh, quelle = 'gast', basis = '') {
-    const geprueft = pruefeEventWartelisteEintrag(roh, new Set(KENNUNGEN));
+    const geprueft = pruefeEventWartelisteEintrag(roh, new Set(this.#alleKennungen()));
     if (!geprueft.ok) return geprueft;
     // Der Stand des Ticketdienstes, damit Titel und Datum stimmen. Ist er
     // leer (frischer Dienst), wird er hier gefuellt - der Gast wartet dann
@@ -1078,10 +1082,28 @@ export class Haus extends DurableObject {
     }
     const heute = jetztImHaus().datum;
     const wegeInfo = {};
+    const buchbare = [];
     for (const weg of geprueft.eintrag.wege) {
       const termin = termine[weg]?.termin;
       if (termin && termin.date < heute) return { ok: false, grund: 'vergangen' };
       wegeInfo[weg] = wegAusTermin(termin, weg, roh?.ersatz?.[weg] || {});
+      if (wegStand(termine[weg], weg, AUSVERKAUFT_LAUT_PREISEN).buchbar === true) buchbare.push(weg);
+    }
+    // Fuer diesen Abend gibt es gerade Karten. Einen Gast auf eine Liste zu
+    // setzen, waehrend er kaufen koennte, waere die falsche Auskunft - die
+    // Seite schickt ihn stattdessen zum Ticketdienst. Der Wirt darf es
+    // trotzdem: am Telefon weiss er mehr als jede Momentaufnahme.
+    if (quelle === 'gast' && buchbare.length === geprueft.eintrag.wege.length) {
+      return {
+        ok: false,
+        grund: 'buchbar',
+        wege: buchbare.map(weg => ({ weg, titel: wegeInfo[weg].titel, ticketUrl: wegeInfo[weg].ticketUrl }))
+      };
+    }
+    // Steht nur EIN Weg wieder offen, wird er stillschweigend ausgelassen:
+    // die uebrigen Haken sind gemeint, und ein Fehler waere hier im Weg.
+    if (quelle === 'gast' && buchbare.length) {
+      geprueft.eintrag.wege = geprueft.eintrag.wege.filter(weg => !buchbare.includes(weg));
     }
     const neu = () => ({
       id: `ew-${Date.now().toString(36)}-${Math.trunc(Math.random() * 1e6).toString(36)}`,
@@ -2233,46 +2255,144 @@ export class Haus extends DurableObject {
    * "dinner & comedy" und "comedy only" sind beim Dienst zwei
    * Veranstaltungen, fuer den Gast aber ein Abend mit zwei Moeglichkeiten.
    */
+  /**
+   * Alle Abende, die der Dienst kennt: die fest eingebauten und die, die
+   * der Wirt selbst aufgenommen hat (ein eingefuegter Link genuegt).
+   *
+   * Warum beides: die eingebauten sind der Grundstock, damit ein frisch
+   * aufgesetzter Dienst nicht leer dasteht. Ein neuer Abend soll aber
+   * keinen Programmierer und keine Veroeffentlichung brauchen - sonst
+   * fehlt er auf der Seite UND in der Warteliste, und niemand merkt es.
+   */
+  #alleKennungen() {
+    const eigene = this.#lies('eigeneKennungen', []);
+    return [...new Set([...KENNUNGEN, ...(Array.isArray(eigene) ? eigene : [])])];
+  }
+
+  /**
+   * Einen Abend aufnehmen. Der Wirt fuegt den Link vom Ticketdienst ein,
+   * der Dienst liest ihn sofort und behaelt die Kennung. Ab diesem Moment
+   * steht der Abend auf der Eventseite, im Kalender und - wenn er
+   * ausverkauft ist - mit seiner Warteliste da. Ein Handgriff, eine Quelle.
+   */
+  async kennungAufnehmen(roh) {
+    const kennung = kennungAusLink(roh?.link ?? roh?.kennung);
+    if (!kennung) return { ok: false, grund: 'link' };
+    if (this.#alleKennungen().includes(kennung)) return { ok: true, schon: true, kennung };
+    // Erst lesen, dann behalten: eine Kennung, die es beim Ticketdienst
+    // nicht gibt, waere eine Zeile, die bei jedem Durchgang ins Leere greift.
+    const termin = await holeTermin(kennung);
+    if (!terminGueltig(termin)) return { ok: false, grund: 'unbekannt' };
+    const eigene = this.#lies('eigeneKennungen', []);
+    this.#schreib('eigeneKennungen', [...(Array.isArray(eigene) ? eigene : []), kennung].slice(-80));
+    const verkauft = await holeVerkauft(termin.eventId);
+    const stand = { ...this.#lies('termine', {}) };
+    stand[kennung] = { geholtAm: Date.now(), termin, verkauft, verkauftMax: verkauft };
+    this.#schreib('termine', stand);
+    this.#meldeAenderung();
+    return {
+      ok: true,
+      kennung,
+      termin: { titel: termin.title, datum: termin.date, zeit: termin.zeit, haus: termin.haus, buchbar: termin.buchbar !== false }
+    };
+  }
+
+  /** Einen selbst aufgenommenen Abend wieder hergeben. */
+  async kennungEntfernen(wert) {
+    const kennung = kennungAusLink(wert);
+    const eigene = this.#lies('eigeneKennungen', []);
+    if (!kennung || !Array.isArray(eigene) || !eigene.includes(kennung)) {
+      return { ok: false, grund: KENNUNGEN.includes(kennung) ? 'fest' : 'unbekannt' };
+    }
+    this.#schreib('eigeneKennungen', eigene.filter(k => k !== kennung));
+    const stand = { ...this.#lies('termine', {}) };
+    delete stand[kennung];
+    this.#schreib('termine', stand);
+    this.#meldeAenderung();
+    return { ok: true, kennung };
+  }
+
+  /**
+   * Die genannten Abende beim Ticketdienst nachlesen und behalten.
+   *
+   * Zwei Aufrufer: der Zwoelfstundentakt (ein paar Abende im Hintergrund)
+   * und der Knopf des Wirts, wenn er JETZT wissen will, ob Karten
+   * zurueckgekommen sind. Deshalb steht die Schleife hier und nicht mehr
+   * in termine() - zwei Kopien waeren zwei Wahrheiten.
+   */
+  async #holeAbende(kennungen) {
+    const jetzt = Date.now();
+    const frisch = { ...this.#lies('termine', {}) };
+    for (const kennung of kennungen) {
+      const termin = await holeTermin(kennung);
+      // Nicht lesbar: den naechsten Versuch verschieben, aber den alten
+      // Stand behalten. Sonst fragt jeder Aufruf erneut nach einer Seite,
+      // die es nicht gibt.
+      if (!terminGueltig(termin)) {
+        frisch[kennung] = { ...(frisch[kennung] || { termin: null }), geholtAm: jetzt };
+        continue;
+      }
+      // Wie viele Karten verkauft sind. Faellt die Zahl spaeter unter
+      // ihren Hoechststand, sind Karten zurueckgekommen - der einzige
+      // Hinweis darauf, den es oeffentlich gibt.
+      const vorher = frisch[kennung] || {};
+      const gelesen = await holeVerkauft(termin.eventId);
+      const verkauft = Number.isFinite(gelesen) ? gelesen
+        : (Number.isFinite(vorher.verkauft) ? vorher.verkauft : null);
+      const bisher = Number.isFinite(vorher.verkauftMax) ? vorher.verkauftMax : null;
+      frisch[kennung] = {
+        geholtAm: jetzt,
+        termin,
+        verkauft,
+        verkauftMax: Number.isFinite(verkauft)
+          ? Math.max(verkauft, bisher === null ? verkauft : bisher)
+          : bisher
+      };
+    }
+    // Ist ein Abend mit Wartenden wieder buchbar geworden, klingelt es
+    // beim Haus: das ist der Moment, in dem der Wirt verstaendigen kann.
+    const alt = this.#lies('termine', {});
+    this.#schreib('termine', frisch);
+    const wieder = wiederBuchbar(alt, frisch, this.#lies('eventWarteliste', []), AUSVERKAUFT_LAUT_PREISEN);
+    if (wieder.length) {
+      const wege = new Set(wieder.map(w => w.weg));
+      const wartende = this.#lies('eventWarteliste', []).filter(e => e.status === 'wartet' && wege.has(e.weg));
+      const erster = wieder[0];
+      const titel = frisch[erster.weg]?.termin?.title || erster.weg;
+      this.#meldeAenderung();
+      this.ctx.waitUntil(this.#pushHausAlle({
+        art: 'warteliste',
+        titel: `Wieder Karten: ${titel}`,
+        text: `${erster.zurueck > 0 ? `${erster.zurueck} ${erster.zurueck === 1 ? 'Karte' : 'Karten'} zurück · ` : ''}`
+          + `${wartende.length} ${wartende.length === 1 ? 'Person wartet' : 'Personen warten'} – jetzt verständigen`,
+        datum: frisch[erster.weg]?.termin?.date || ''
+      }));
+    }
+  }
+
+  /**
+   * Auf Zuruf beim Ticketdienst nachsehen - fuer die Abende, um die es
+   * gerade geht: die ausverkauften und die mit Wartenden. Nicht fuer alle:
+   * ein Knopf, der fuenfzig Abfragen ausloest, waere unhoeflich gegenueber
+   * dem Dienst und langsam fuer den Wirt.
+   */
+  async wartelisteAuffrischen() {
+    const wege = [...new Set(this.eventWartelisteUebersicht().map(g => g.weg))].slice(0, 12);
+    if (wege.length) await this.#holeAbende(wege);
+    return { ok: true, geprueft: wege.length, gruppen: this.eventWartelisteUebersicht() };
+  }
+
   async termine() {
     const stand = this.#lies('termine', {});
     const jetzt = Date.now();
-    const veraltet = KENNUNGEN
+    const veraltet = this.#alleKennungen()
       .filter(k => !stand[k] || (jetzt - (stand[k].geholtAm || 0)) > TICKETIST_FRISCH_MS)
       .sort((a, b) => (stand[a]?.geholtAm || 0) - (stand[b]?.geholtAm || 0));
 
-    const hole = async kennungen => {
-      const frisch = { ...this.#lies('termine', {}) };
-      for (const kennung of kennungen) {
-        const termin = await holeTermin(kennung);
-        // Nicht lesbar: den naechsten Versuch verschieben, aber den alten
-        // Stand behalten. Sonst fragt jeder Aufruf erneut nach einer Seite,
-        // die es nicht gibt.
-        frisch[kennung] = terminGueltig(termin)
-          ? { geholtAm: jetzt, termin }
-          : { ...(frisch[kennung] || { termin: null }), geholtAm: jetzt };
-      }
-      // Ist ein Abend mit Wartenden wieder buchbar geworden, klingelt es
-      // beim Haus: das ist der Moment, in dem der Wirt verstaendigen kann.
-      const alt = this.#lies('termine', {});
-      this.#schreib('termine', frisch);
-      const wieder = wiederBuchbar(alt, frisch, this.#lies('eventWarteliste', []));
-      if (wieder.length) {
-        const wartende = this.#lies('eventWarteliste', []).filter(e => e.status === 'wartet' && wieder.includes(e.weg));
-        const titel = frisch[wieder[0]]?.termin?.title || wieder[0];
-        this.#meldeAenderung();
-        this.ctx.waitUntil(this.#pushHausAlle({
-          art: 'warteliste',
-          titel: `Wieder Karten: ${titel}`,
-          text: `${wartende.length} ${wartende.length === 1 ? 'Person wartet' : 'Personen warten'} – jetzt verständigen`,
-          datum: frisch[wieder[0]]?.termin?.date || ''
-        }));
-      }
-    };
-
     const leer = !Object.values(stand).some(e => e?.termin);
     if (veraltet.length) {
-      if (leer) await hole(veraltet.slice(0, 8));
-      else this.ctx.waitUntil(hole(veraltet.slice(0, 6)));
+      if (leer) await this.#holeAbende(veraltet.slice(0, 8));
+      else this.ctx.waitUntil(this.#holeAbende(veraltet.slice(0, 6)));
     }
 
     // Abende, die vorbei sind, verschwinden nicht sofort: eine Woche lang
@@ -2291,7 +2411,7 @@ export class Haus extends DurableObject {
       // bei uns, und niemand soll versehentlich von aussen nachladen.
       .map(({ bildQuelle, ...rest }) => rest);
 
-    return { ok: true, termine: gruppiere(gelesen), kennungen: KENNUNGEN.length };
+    return { ok: true, termine: gruppiere(gelesen), kennungen: this.#alleKennungen().length };
   }
 
   /** Der Wirt legt einen Termin an. Die Liste haelt sich selbst sortiert. */
@@ -3163,6 +3283,20 @@ export default {
 
       // Geschlossene Tage: lesen darf jeder (die Gaesteseite graut sie aus),
       // setzen nur das Haus.
+      // Einen Abend aufnehmen: der Wirt fuegt den Ticketist-Link ein. Ab
+      // dann steht der Abend auf der Seite und in der Warteliste - ohne
+      // Programmieren, ohne Veroeffentlichen.
+      if (url.pathname === '/api/termine/kennung' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.kennungAufnehmen(body), 200, kopf);
+      }
+      if (url.pathname === '/api/termine/kennung/entfernen' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.kennungEntfernen(body?.kennung ?? body?.link), 200, kopf);
+      }
+
       // Warteliste fuer ausverkaufte Abende: der Gast traegt sich ein (ohne
       // Schluessel), der Wirt liest, verstaendigt und raeumt (mit Schluessel).
       if (url.pathname === '/api/event-warteliste' && request.method === 'POST') {
@@ -3177,6 +3311,11 @@ export default {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         const body = await request.json().catch(() => ({}));
         return json(await haus.eventWartelisteEintragen(body, 'wirt', url.origin), 200, kopf);
+      }
+      // Jetzt beim Ticketdienst nachsehen - der Knopf des Wirts.
+      if (url.pathname === '/api/event-warteliste/auffrischen' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        return json(await haus.wartelisteAuffrischen(), 200, kopf);
       }
       if (url.pathname === '/api/event-warteliste/aktion' && request.method === 'POST') {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);

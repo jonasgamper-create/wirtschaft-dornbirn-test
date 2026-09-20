@@ -848,3 +848,12 @@ body.ohne-schluessel main{padding-bottom:64px}
   .reiter-leiste{width:min(520px,calc(100% - 36px))}
 }
 .warte-gruppe .warte-hinweis-feld{flex:1 1 100%;min-height:44px;padding:0 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;font-size:15px}
+
+/* Neuen Abend aufnehmen: ein Feld, ein Knopf. */
+.abend-form{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 10px}
+.abend-form input{flex:1 1 220px;min-height:48px;padding:0 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;font-size:16px}
+.abend-form .knopf{flex:0 0 auto}
+#abendKasten code{padding:1px 5px;border-radius:4px;background:var(--kreide);font-size:13px;overflow-wrap:anywhere}
+.warte-gruppe .warte-zurueck{color:var(--gold-text);font-weight:700}
+
+.warte-kopf-knoepfe{display:flex;gap:8px;flex:0 0 auto;flex-wrap:wrap;justify-content:flex-end}

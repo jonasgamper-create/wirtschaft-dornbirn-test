@@ -433,3 +433,18 @@ export const sendeEventWartelisteAktion = (token, befehl) =>
 
 /** Die Abende beider Haeuser, wie sie die Eventseite liest. Oeffentlich. */
 export const holeTermine = () => ruf('/api/termine');
+
+/**
+ * Einen Abend vom Ticketdienst aufnehmen: der Wirt fuegt den Link ein.
+ * Ab dann steht der Abend auf der Eventseite und - wenn er ausverkauft
+ * ist - mit seiner Warteliste da. Kein Programmieren, kein Deploy.
+ */
+export const nimmAbendAuf = (token, link) =>
+  ruf('/api/termine/kennung', { methode: 'POST', koerper: { link }, token });
+
+export const gibAbendHer = (token, kennung) =>
+  ruf('/api/termine/kennung/entfernen', { methode: 'POST', koerper: { kennung }, token });
+
+/** Jetzt beim Ticketdienst nachsehen, ob Karten zurueckgekommen sind. */
+export const frischeWarteliste = token =>
+  ruf('/api/event-warteliste/auffrischen', { methode: 'POST', koerper: {}, token });

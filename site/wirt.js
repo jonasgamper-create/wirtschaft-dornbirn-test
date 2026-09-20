@@ -14,8 +14,9 @@ import {
   legeZeitsperre, loescheZeitsperre, setzeAnnahme,
   setzeFertigWer, setzeToken,
   stelleTagWiederHer,
-  holeTermine, legeEventWartelisteEintrag, sendeEventWartelisteAktion
-} from './haus-api.js?v=871d7746';
+  holeTermine, legeEventWartelisteEintrag, sendeEventWartelisteAktion,
+  frischeWarteliste, gibAbendHer, nimmAbendAuf
+} from './haus-api.js?v=b578eb0c';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
 import { liesAnsicht, setzeHeuteZahl, setzeWartelisteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=0d552f41';
 import { istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
@@ -130,6 +131,7 @@ async function start() {
   verdrahteAnnahme();
   verdrahteUnterreiter();
   verdrahteWarteliste();
+  verdrahteAbende();
 }
 
 // ---- Online-Reservierungen: Tag voll, Zeiten blockieren --------------------
@@ -1043,6 +1045,7 @@ function male() {
   // stand dann eine Reservierung unter Takeaway.
   zeichneUnterreiter(eintraege, erledigte, nu);
   maleWarteliste();
+  maleAbende();
 }
 
 // ---- Warteliste der ausverkauften Abende -----------------------------------
@@ -1113,13 +1116,21 @@ function maleWarteliste() {
     titel.textContent = gruppe.titel + (gruppe.haus === 'kulturhaus' ? ' · kulturhaus' : '');
     const standZeile = document.createElement('span');
     standZeile.className = 'warte-stand';
+    // Zurueckgekommene Karten stehen zuerst: sie sind das, was der Wirt
+    // wissen muss. Der Ticketdienst meldet sie nicht - die Zahl der
+    // verkauften Karten schon, und sie ist gefallen.
+    const lage = gruppe.zurueck > 0
+      ? `${wartePlural(gruppe.zurueck, 'karte zurück', 'karten zurück')}`
+      : gruppe.buchbar === true ? 'wieder karten da'
+        : gruppe.buchbar === false ? 'ausverkauft' : 'stand unbekannt';
     const teile = [
-      gruppe.buchbar === true ? 'wieder karten da' : gruppe.buchbar === false ? 'ausverkauft' : 'stand unbekannt',
+      lage,
       gruppe.eintraege?.length
         ? `${wartePlural(gruppe.wartend, 'wartet', 'warten')}${gruppe.informiert ? `, ${gruppe.informiert} verständigt` : ''}${gruppe.personen ? ` · ${wartePlural(gruppe.personen, 'karte', 'karten')}` : ''}`
         : 'noch niemand'
     ];
     standZeile.textContent = teile.join(' · ');
+    if (gruppe.zurueck > 0) standZeile.classList.add('warte-zurueck');
     const pfeil = document.createElement('i');
     pfeil.className = 'warte-pfeil';
     pfeil.setAttribute('aria-hidden', 'true');
@@ -1331,6 +1342,32 @@ function verdrahteWarteliste() {
   const form = byId('warteNeuForm');
   const zeigen = byId('warteNeuZeigen');
   if (!form || !zeigen) return;
+
+  // Von selbst sieht der Dienst alle zwoelf Stunden nach. Wer jetzt wissen
+  // will, ob Karten zurueckgekommen sind - weil jemand angerufen hat oder
+  // weil eine Absage kam -, drueckt hier. Nachgesehen wird nur bei den
+  // Abenden, um die es geht.
+  const nachsehen = byId('warteNachsehen');
+  nachsehen?.addEventListener('click', async () => {
+    nachsehen.disabled = true;
+    const vorher = (stand?.eventWarteliste || []).reduce((n, g) => n + (g.zurueck || 0), 0);
+    sag('warteInfo', 'Sehe beim Ticketdienst nach …');
+    const antwort = await frischeWarteliste(hausToken());
+    nachsehen.disabled = false;
+    if (!antwort?.ok) {
+      return sag('warteInfo', antwort?.grund === 'token'
+        ? 'Kein Zugang – bitte den Einrichtungslink neu öffnen.'
+        : 'Der Ticketdienst war gerade nicht erreichbar.', 'fehler');
+    }
+    const jetzt = (antwort.gruppen || []).reduce((n, g) => n + (g.zurueck || 0), 0);
+    const offen = (antwort.gruppen || []).filter(g => g.buchbar === true).length;
+    sag('warteInfo', jetzt > vorher
+      ? `${jetzt - vorher} ${jetzt - vorher === 1 ? 'Karte ist' : 'Karten sind'} zurückgekommen.`
+      : offen
+        ? `${antwort.geprueft} Abende nachgesehen – bei ${offen} gibt es Karten.`
+        : `${antwort.geprueft} Abende nachgesehen – alles unverändert ausverkauft.`,
+      jetzt > vorher || offen ? 'gut' : '');
+  });
   zeigen.addEventListener('click', async () => {
     form.hidden = !form.hidden;
     if (!form.hidden) { await fuelleWarteAbende(); byId('warteNeuName').focus(); }
@@ -1368,6 +1405,86 @@ function verdrahteWarteliste() {
       byId('warteNeuTelefon').value = '';
       form.hidden = true;
     }
+  });
+}
+
+// ---- Abende vom Ticketdienst aufnehmen -------------------------------------
+//
+// Der Grundstock der Abende steht im Dienst; ein neuer kommt mit einem
+// eingefuegten Link dazu. Das ist die Stelle, die garantiert, dass ein
+// kuenftiger Abend ueberall auftaucht - Eventseite, Kalender, Warteliste -
+// ohne dass jemand Programmcode aendern und veroeffentlichen muss.
+
+function maleAbende() {
+  const liste = byId('abendListe');
+  if (!liste || !stand) return;
+  const eigene = Array.isArray(stand.eigeneKennungen) ? stand.eigeneKennungen : [];
+  liste.textContent = '';
+  if (!eigene.length) {
+    const leer = document.createElement('li');
+    leer.className = 'leer';
+    leer.textContent = 'Noch keiner selbst aufgenommen. Die Abende des Programms kennt der Dienst schon.';
+    liste.append(leer);
+    return;
+  }
+  // Was der Dienst inzwischen ueber den Abend weiss, steht in der
+  // Warteliste-Uebersicht - sonst genuegt die Kennung.
+  const bekannt = new Map((stand.eventWarteliste || []).map(g => [g.weg, g]));
+  for (const kennung of eigene) {
+    const li = document.createElement('li');
+    const wann = document.createElement('span');
+    wann.className = 'event-wann';
+    const gruppe = bekannt.get(kennung);
+    wann.textContent = gruppe?.datum
+      ? new Date(`${gruppe.datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'short', day: '2-digit', month: 'short' })
+      : 'aufgenommen';
+    const was = document.createElement('span');
+    was.className = 'event-was';
+    was.textContent = gruppe?.titel || kennung;
+    const weg = document.createElement('button');
+    weg.type = 'button';
+    weg.className = 'knopf leise';
+    weg.textContent = 'Entfernen';
+    weg.addEventListener('click', async () => {
+      if (!window.confirm(`„${was.textContent}“ nicht mehr anzeigen?`)) return;
+      weg.disabled = true;
+      const antwort = await gibAbendHer(hausToken(), kennung);
+      weg.disabled = false;
+      if (!antwort?.ok) {
+        return sag('abendInfo', antwort?.grund === 'fest'
+          ? 'Dieser Abend gehört zum Grundstock und bleibt.'
+          : 'Das hat nicht geklappt.', 'fehler');
+      }
+      sag('abendInfo', 'Entfernt.', 'gut');
+    });
+    li.append(wann, was, weg);
+    liste.append(li);
+  }
+}
+
+function verdrahteAbende() {
+  const form = byId('abendForm');
+  if (!form) return;
+  form.addEventListener('submit', async ereignis => {
+    ereignis.preventDefault();
+    const link = byId('abendLink').value.trim();
+    if (!link) return;
+    sag('abendInfo', 'Einen Moment – der Abend wird beim Ticketdienst gelesen …');
+    const antwort = await nimmAbendAuf(hausToken(), link);
+    if (!antwort?.ok) {
+      const gruende = {
+        link: 'Das sieht nicht nach einem Ticketist-Link aus. Beispiel: https://www.ticketist.io/events/kulis-03-2026',
+        unbekannt: 'Diesen Abend kennt der Ticketdienst nicht. Stimmt der Link?',
+        token: 'Kein Zugang – bitte den Einrichtungslink neu öffnen.'
+      };
+      return sag('abendInfo', gruende[antwort?.grund] || 'Das hat nicht geklappt.', 'fehler');
+    }
+    if (antwort.schon) return sag('abendInfo', 'Diesen Abend kennt der Dienst schon.');
+    const t = antwort.termin || {};
+    const tag = t.datum ? new Date(`${t.datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'long', day: '2-digit', month: 'long' }) : '';
+    sag('abendInfo', `„${t.titel}“ am ${tag} steht jetzt auf der Eventseite`
+      + `${t.buchbar === false ? ' – er ist ausverkauft, die Warteliste ist offen.' : '.'}`, 'gut');
+    byId('abendLink').value = '';
   });
 }
 

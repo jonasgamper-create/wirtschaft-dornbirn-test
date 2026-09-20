@@ -12,7 +12,7 @@
 // in server/src/menueplan.mjs, das im Browser nicht laeuft). Beide Fassungen
 // sind absichtlich gleich kurz.
 
-import { holeKarteInfo, holeMenueplan, karteAdresse } from './haus-api.js?v=871d7746';
+import { holeKarteInfo, holeMenueplan, karteAdresse } from './haus-api.js?v=b578eb0c';
 
 export const WOCHENTAGE = ['montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag'];
 const MONATE = ['jänner', 'februar', 'märz', 'april', 'mai', 'juni', 'juli', 'august',

@@ -209,15 +209,23 @@ export function raeumeEventWartelisteAb(liste, heute) {
  * dem neuen Stand des Ticketdienstes; gemeldet wird nur, wofuer jemand
  * wartet. Ein Abend, auf den niemand wartet, braucht keine Meldung.
  */
-export function wiederBuchbar(alterStand, neuerStand, liste) {
+export function wiederBuchbar(alterStand, neuerStand, liste, lautPreisen = new Set()) {
   const wartende = new Set((liste || []).filter(e => e.status === 'wartet').map(e => e.weg));
   const raus = [];
   for (const [kennung, neu] of Object.entries(neuerStand || {})) {
     if (!wartende.has(kennung)) continue;
-    const vorher = alterStand?.[kennung]?.termin;
-    const jetzt = neu?.termin;
-    if (!jetzt || !vorher) continue;
-    if (vorher.buchbar === false && jetzt.buchbar !== false) raus.push(kennung);
+    const alt = alterStand?.[kennung];
+    if (!alt?.termin || !neu?.termin) continue;
+    const vorher = wegStand(alt, kennung, lautPreisen);
+    const jetzt = wegStand(neu, kennung, lautPreisen);
+    // Gemeldet wird der WECHSEL, nicht der Zustand: sonst klingelte es bei
+    // jedem Durchgang aufs Neue, solange Karten da sind.
+    if (vorher.buchbar === false && jetzt.buchbar === true) {
+      raus.push({ weg: kennung, zurueck: jetzt.zurueck });
+    } else if (jetzt.zurueck > vorher.zurueck) {
+      // Noch mehr Karten zurueck als beim letzten Mal - auch das ist neu.
+      raus.push({ weg: kennung, zurueck: jetzt.zurueck - vorher.zurueck });
+    }
   }
   return raus;
 }
@@ -240,6 +248,33 @@ export function ausverkauftLautPreisen(preise) {
 }
 
 /**
+ * Der Stand EINES Weges - die einzige Stelle, an der entschieden wird, ob
+ * etwas zu haben ist. Drei Quellen, in dieser Reihenfolge:
+ *
+ *  1. Karten sind zurueckgekommen. Wie viele Karten verkauft sind, gibt
+ *     der Ticketdienst oeffentlich heraus; faellt die Zahl unter ihren
+ *     Hoechststand, hat jemand storniert. Das sticht alles andere - es ist
+ *     die einzige Quelle, die LIVE ist und aus der Wirklichkeit kommt.
+ *  2. Der Schalter des Dienstes (Verkauf geschlossen, oder der Satz
+ *     "Diese Veranstaltung ist ausverkauft" im Text).
+ *  3. Die hinterlegte Kartenliste: alle Kategorien des Weges auf 0.
+ *     Eine Momentaufnahme aus dem Verwaltungsbereich - sie faengt den Fall,
+ *     in dem der Schalter offen steht, obwohl nichts mehr da ist.
+ *
+ * buchbar === null heisst: der Abend ist dem Dienst (noch) nicht bekannt.
+ */
+export function wegStand(eintrag, kennung, lautPreisen = new Set()) {
+  const termin = eintrag?.termin || null;
+  const verkauft = Number.isFinite(eintrag?.verkauft) ? eintrag.verkauft : null;
+  const hoechstens = Number.isFinite(eintrag?.verkauftMax) ? eintrag.verkauftMax : null;
+  const zurueck = verkauft !== null && hoechstens !== null ? Math.max(0, hoechstens - verkauft) : 0;
+  if (!termin) return { buchbar: null, zurueck, verkauft };
+  if (zurueck > 0) return { buchbar: true, zurueck, verkauft };
+  const zu = termin.buchbar === false || (lautPreisen instanceof Set ? lautPreisen.has(kennung) : false);
+  return { buchbar: !zu, zurueck, verkauft };
+}
+
+/**
  * Die Uebersicht fuer den Wirt: je Weg eine Gruppe - was, wann, ob gerade
  * ausverkauft, und wer wartet. Dabei sind auch die ausverkauften Abende,
  * fuer die noch niemand wartet: die Warteliste gibt es, sobald der Abend
@@ -253,20 +288,24 @@ export function wartelisteUebersicht(liste, termine, heute, lautPreisen = new Se
     if (!gruppen.has(weg)) gruppen.set(weg, { ...info, eintraege: [] });
     return gruppen.get(weg);
   };
-  // Ausverkauft ist ein Weg, wenn der Dienst es sagt ODER die Preisliste
-  // nichts Freies mehr kennt - dieselbe Regel wie auf der Eventseite.
-  const weg = kennung => termine?.[kennung]?.termin?.buchbar === false || lautPreisen.has(kennung);
   for (const [kennung, stand] of Object.entries(termine || {})) {
     const termin = stand?.termin;
     if (!termin || termin.date < String(heute || '')) continue;
-    if (!weg(kennung)) continue;
-    lege(kennung, { ...wegAusTermin(termin, kennung), buchbar: false });
+    const wie = wegStand(stand, kennung, lautPreisen);
+    // Ohne Wartende steht hier nur, was ausverkauft ist: die Warteliste
+    // gibt es, sobald nichts mehr zu haben ist - nicht erst mit dem
+    // ersten Eintrag. Ein buchbarer Abend braucht keine.
+    if (wie.buchbar !== false) continue;
+    lege(kennung, { ...wegAusTermin(termin, kennung), buchbar: false, verkauft: wie.verkauft, zurueck: 0 });
   }
   for (const eintrag of (liste || [])) {
-    const termin = termine?.[eintrag.weg]?.termin;
+    const stand = termine?.[eintrag.weg];
+    const wie = wegStand(stand, eintrag.weg, lautPreisen);
     const gruppe = lege(eintrag.weg, {
-      ...wegAusTermin(termin, eintrag.weg, eintrag),
-      buchbar: termin ? !weg(eintrag.weg) : null
+      ...wegAusTermin(stand?.termin, eintrag.weg, eintrag),
+      buchbar: wie.buchbar,
+      verkauft: wie.verkauft,
+      zurueck: wie.zurueck
     });
     gruppe.eintraege.push(eintrag);
   }

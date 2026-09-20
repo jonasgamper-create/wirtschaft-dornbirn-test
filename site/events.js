@@ -419,12 +419,23 @@
         });
         const daten = await antwort.json().catch(() => ({}));
         if (!daten?.ok) {
+          senden.disabled = false;
+          // Der schoenste Fehlschlag: es gibt wieder Karten. Dann keine
+          // Warteliste, sondern der Weg zur Kasse.
+          if (daten?.grund === 'buchbar') {
+            const erster = (daten.wege || [])[0];
+            sage('Gute Nachricht: für diesen Abend gibt es gerade wieder Karten. Du brauchst keine Warteliste.');
+            if (erster?.ticketUrl) {
+              warteDialog.close();
+              oeffneBuchung(erster.ticketUrl, erster.titel || '');
+            }
+            return;
+          }
           const gruende = {
             voll: 'Die Warteliste für diesen Abend ist voll – ruf uns an, wir finden etwas.',
             vergangen: 'Dieser Abend ist schon vorbei.',
             weg: 'Diesen Abend kennen wir nicht – bitte die Seite neu laden.'
           };
-          senden.disabled = false;
           return sage(gruende[daten?.grund] || 'Das hat nicht geklappt. Versuch es später noch einmal oder ruf uns an.', 'fehler');
         }
         const neu = daten.neu || [];

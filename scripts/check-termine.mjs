@@ -9,7 +9,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  ausZeitpunkt, hausAusOrt, KENNUNGEN, leseTermin, schneideJson, seiteFuer, terminGueltig
+  ausZeitpunkt, hausAusOrt, kennungAusLink, KENNUNGEN, leseTermin, schneideJson, seiteFuer, terminGueltig
 } from '../server/src/ticketist.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -109,6 +109,25 @@ check('Die Termine tragen ihre Preise',
 
 check('Ausverkauft im Text zaehlt als ausverkauft',
   leseTermin(seite.replace('"description":"Erste Zeile.', '"description":"Diese Veranstaltung ist ausverkauft.'), 'x').buchbar === false);
+
+// Die Nummer des Abends beim Dienst: ueber sie ist oeffentlich lesbar, wie
+// viele Karten verkauft sind (holeVerkauft). Ohne sie faellt der Dienst auf
+// den Schalter zurueck und merkt nicht, wenn Karten zurueckkommen.
+check('Der Termin traegt die Nummer des Dienstes', typeof leseTermin(seite, 'x').eventId === 'number');
+check('Die hinterlegten Termine tragen sie auch',
+  datei.termine.every(t => Number.isFinite(t.eventId)),
+  String(datei.termine.filter(t => !Number.isFinite(t.eventId)).map(t => t.id)));
+
+// Einen Abend aufnehmen heisst: Link einfuegen. Was daraus wird, entscheidet
+// diese eine Funktion - sie ist die Tuer, durch die von aussen etwas
+// hereinkommt, und laesst nur eine Kennung durch.
+check('Link wird zur Kennung', kennungAusLink('https://www.ticketist.io/events/kulis-02-2026') === 'kulis-02-2026');
+check('Link mit Anhang geht auch', kennungAusLink('https://www.ticketist.io/events/kulis-02-2026?utm=x#a') === 'kulis-02-2026');
+check('Die blosse Kennung geht auch', kennungAusLink('  KULIS-02-2026  ') === 'kulis-02-2026');
+check('javascript: faellt raus', kennungAusLink('javascript:alert(1)') === '');
+check('Leeres faellt raus', kennungAusLink('') === '' && kennungAusLink(null) === '');
+check('Pfadtricks fallen raus', kennungAusLink('../../etc/passwd') === '');
+check('Ueberlanges faellt raus', kennungAusLink('a'.repeat(80)) === '');
 
 if (fehler) {
   console.error(`Termin-Prüfung FEHLGESCHLAGEN: ${fehler} Punkt(e).`);

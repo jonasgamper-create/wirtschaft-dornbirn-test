@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; style-src 'sha256-Qyc5uJRt1EekdZM5iFIV7lwZfOwJWLworC45A4FYC1s='; script-src 'sha256-7aa1FTkqFmjbyeu9AQ6zdNxl1xJaYXkl8ffheStTuDM='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev wss://wirtschaft-reservierung-probe.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; style-src 'sha256-iYhRXjMmvoGmO3sw6oZck81sVGYFC8+OKHq9K0UusQw='; script-src 'sha256-tEycHvwMlYBtDjezQoHcFG60zW8Pdp32fgGBePoreuc='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev wss://wirtschaft-reservierung-probe.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="theme-color" content="#11110f">
   <title>Einrichten · Wirtschaft Dornbirn</title>
   <style>
@@ -860,6 +860,15 @@ body.ohne-schluessel main{padding-bottom:64px}
 }
 .warte-gruppe .warte-hinweis-feld{flex:1 1 100%;min-height:44px;padding:0 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;font-size:15px}
 
+/* Neuen Abend aufnehmen: ein Feld, ein Knopf. */
+.abend-form{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 10px}
+.abend-form input{flex:1 1 220px;min-height:48px;padding:0 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;font-size:16px}
+.abend-form .knopf{flex:0 0 auto}
+#abendKasten code{padding:1px 5px;border-radius:4px;background:var(--kreide);font-size:13px;overflow-wrap:anywhere}
+.warte-gruppe .warte-zurueck{color:var(--gold-text);font-weight:700}
+
+.warte-kopf-knoepfe{display:flex;gap:8px;flex:0 0 auto;flex-wrap:wrap;justify-content:flex-end}
+
   </style>
 </head>
 <body class="einrichten-seite">
@@ -1106,7 +1115,7 @@ window.WIRTSCHAFT_HAUS={"api":"https://wirtschaft-reservierung.jonas-gamper.work
 })();
 
 (() => {
-  // site/haus-api.js?v=871d7746
+  // site/haus-api.js?v=b578eb0c
   var KONFIG = "data/haus.json";
   var TOKEN_SCHLUESSEL = "wirtschaft-haus-token";
   var gemerkt = null;

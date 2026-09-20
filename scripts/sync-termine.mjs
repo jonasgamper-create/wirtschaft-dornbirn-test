@@ -50,13 +50,27 @@ function alsWebp(rohdatei, zieldatei) {
 const preisDatei = JSON.parse(await readFile(path.join(root, 'site', 'data', 'ticketist-preise.json'), 'utf8'));
 const preise = preisDatei.preise || {};
 
+// Der bisherige Stand. Er ist der Rueckfall fuer jeden Abend, der sich
+// gerade nicht lesen laesst: ein Aussetzer beim Ticketdienst darf keinen
+// kommenden Abend aus der Datei loeschen. Genau das ist am 20.09.2026
+// passiert - der Abend am 22.09. war nach einem einzigen misslungenen
+// Abruf weg, ohne dass es jemandem aufgefallen waere.
+const bisher = await readFile(ziel, 'utf8').then(JSON.parse).catch(() => ({ termine: [] }));
+const bisherNachId = new Map((bisher.termine || []).map(t => [t.id, t]));
+
 const termine = [];
 const fehlend = [];
 const nachQuelle = new Map();
 let geholt = 0;
 
 for (const kennung of kennungen) {
-  const termin = await holeTermin(kennung);
+  // Zwei Versuche: der Ticketdienst antwortet gelegentlich nicht, und ein
+  // einzelner Aussetzer soll keinen Abend kosten.
+  let termin = await holeTermin(kennung);
+  if (!termin) {
+    await new Promise(fertig => setTimeout(fertig, 1500));
+    termin = await holeTermin(kennung);
+  }
   if (!termin) { fehlend.push(kennung); continue; }
   termin.preise = preise[kennung] || [];
 
@@ -108,9 +122,34 @@ for (const abend of abende) {
   for (const v of abend.varianten || []) v.preise = preise[v.id] || [];
 }
 
+// Was auch beim zweiten Versuch nicht kam: den bisherigen Eintrag behalten,
+// solange der Abend nicht vorbei ist. Ein alter Stand ist besser als eine
+// Luecke - die Kachel bleibt stehen, der Ticketlink stimmt weiter.
+const heute = new Date().toISOString().slice(0, 10);
+const gerettet = [];
+for (const kennung of fehlend) {
+  const alt = bisherNachId.get(kennung);
+  if (alt && alt.date >= heute) { abende.push(alt); gerettet.push(kennung); }
+}
+if (gerettet.length) {
+  abende.sort((a, b) => a.date.localeCompare(b.date) || String(a.zeit).localeCompare(String(b.zeit)));
+  console.warn(`  Aus dem bisherigen Stand behalten: ${gerettet.join(', ')}`);
+}
+
 if (fehlend.length) {
   console.warn(`  Nicht gelesen: ${fehlend.join(', ')}`);
   console.warn('  (Kennung falsch geschrieben, oder der Termin ist beim Dienst nicht mehr da.)');
+}
+
+// Mehr als eine Handvoll Ausfaelle heisst: beim Ticketdienst klemmt etwas.
+// Dann wird die gute Datei NICHT durch eine halbe ersetzt.
+const verloren = fehlend.filter(k => !gerettet.includes(k));
+if (fehlend.length > 5) {
+  console.error(`sync-termine FEHLER: ${fehlend.length} Abende nicht lesbar - die alte Datei bleibt stehen.`);
+  process.exit(1);
+}
+if (verloren.length) {
+  console.warn(`  Ohne Eintrag (weder gelesen noch im bisherigen Stand): ${verloren.join(', ')}`);
 }
 if (!termine.length) {
   console.error('sync-termine FEHLER: kein einziger Termin gelesen - die alte Datei bleibt stehen.');

@@ -16,10 +16,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Wirt">
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
-  <link rel="stylesheet" href="wirt.css?v=b3859bfd">
+  <link rel="stylesheet" href="wirt.css?v=c415d56d">
   <!-- Muss vor allen anderen laufen: setzt den Probemodus (siehe probe.js). -->
   <script src="probe.js?v=ddc3b38b" defer></script>
-  <script type="module" src="wirt.js?v=13168033"></script>
+  <script type="module" src="wirt.js?v=3c0e6d46"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -348,7 +348,10 @@
     <section class="warteliste" data-block="wartelisteKasten" aria-labelledby="warteTitel">
       <div class="zeile-kopf">
         <h2 id="warteTitel">Warteliste</h2>
-        <button class="knopf leise klein" type="button" id="warteNeuZeigen">+ eintragen</button>
+        <span class="warte-kopf-knoepfe">
+          <button class="knopf leise klein" type="button" id="warteNachsehen">Jetzt nachsehen</button>
+          <button class="knopf leise klein" type="button" id="warteNeuZeigen">+ eintragen</button>
+        </span>
       </div>
       <p class="hinweis" id="warteHinweis">Wird geladen …</p>
       <form class="neu-form warte-neu" id="warteNeuForm" hidden>
@@ -364,6 +367,25 @@
       </form>
       <p class="lauf-ergebnis" id="warteInfo" role="status" aria-live="polite"></p>
       <div class="warte-gruppen" id="warteGruppen"></div>
+
+      <!-- Ein neuer Abend beim Ticketdienst: Link einfuegen, fertig. Der
+           Dienst liest ihn sofort, danach steht der Abend auf der
+           Eventseite, im Kalender und - sobald er ausverkauft ist - mit
+           seiner Warteliste hier. Ohne diesen Weg braeuchte jeder neue
+           Abend eine Programmaenderung, und bis dahin fehlte er ueberall. -->
+      <details class="werkzeug" id="abendKasten">
+        <summary>Neuen Abend aufnehmen</summary>
+        <p class="hinweis">Link vom Ticketdienst einfügen – zum Beispiel
+          <code>ticketist.io/events/kulis-03-2026</code>. Der Abend steht danach auf der
+          Eventseite; ist er ausverkauft, gibt es seine Warteliste von selbst.</p>
+        <form class="abend-form" id="abendForm">
+          <input type="url" id="abendLink" inputmode="url" autocomplete="off" spellcheck="false"
+            placeholder="https://www.ticketist.io/events/…" required>
+          <button class="knopf" type="submit">Aufnehmen</button>
+        </form>
+        <p class="lauf-ergebnis" id="abendInfo" role="status" aria-live="polite"></p>
+        <ul class="event-liste" id="abendListe"></ul>
+      </details>
     </section>
 
     <details class="werkzeug" id="zettelKasten" data-block="zettelKasten">
