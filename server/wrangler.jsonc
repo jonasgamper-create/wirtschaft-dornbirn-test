@@ -32,7 +32,17 @@
   // Wochenwechsel am Freitagabend, war damit nie angelegt. Deshalb teilen
   // sich Wochenbericht (15:00 Hauszeit) und Wochenwechsel (20:00 Hauszeit)
   // EINEN Freitags-Eintrag; welcher Lauf was tut, entscheidet die Hausuhr.
-  "triggers": { "crons": ["15 5 * * 1", "15 6 * * 1", "*/15 8-12 * * 1-5", "0 6,7 * * 1-5", "0 13,14,18,19 * * 5"] },
+  // Der vierte Eintrag traegt seit 21.09.2026 drei Aufgaben statt einer.
+  // Grund: die Gratis-Stufe erlaubt FUENF Trigger je Konto, und die fuenf
+  // sind vergeben. Mehr Stunden in einem Eintrag kosten aber keinen
+  // weiteren Trigger - welcher Lauf was tut, entscheidet die Hausuhr:
+  //   04:00/05:00 UTC -> 06:00 im Haus: Termine und Warteliste auffrischen
+  //   06:00/07:00 UTC -> 08:00 im Haus: Tageszettel (nur Mo-Fr, im Code)
+  //   10:00/11:00 UTC -> 12:00 im Haus: Termine und Warteliste auffrischen
+  // Je Paar feuert nur eine Stunde wirklich - die andere gehoert zur
+  // Sommer- bzw. Winterzeit. Taeglich statt Mo-Fr, weil Abende auch am
+  // Wochenende stattfinden.
+  "triggers": { "crons": ["15 5 * * 1", "15 6 * * 1", "*/15 8-12 * * 1-5", "0 4,5,6,7,10,11 * * *", "0 13,14,18,19 * * 5"] },
 
   "durable_objects": {
     "bindings": [{ "name": "HAUS", "class_name": "Haus" }]

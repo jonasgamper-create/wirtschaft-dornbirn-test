@@ -1,10 +1,23 @@
-# Warteliste für ausverkaufte Abende
+# Die Wartelisten: ausverkaufte Abende und voller Mittagstisch
 
 Eingerichtet am 20. September 2026.
 
-**Zweck.** Wer für einen ausverkauften Abend Karten will, soll nicht ins Leere
-klicken. Und das Haus soll wissen, wer wann wofür angefragt hat, und die
-Wartenden mit einem Knopf verständigen können, sobald wieder Karten da sind.
+**Zweck.** Wer für einen ausverkauften Abend Karten will oder an einem vollen
+Tag einen Tisch braucht, soll nicht ins Leere klicken. Und das Haus soll
+wissen, wer wann wofür angefragt hat, und die Wartenden mit einem Knopf
+verständigen können, sobald wieder etwas frei ist.
+
+Der Reiter **warteliste** in der Wirt-App hat zwei Abschnitte:
+
+| Abschnitt | Wofür | Wer trägt ein |
+|---|---|---|
+| **Abende** | ausverkaufte Abende beim Ticketdienst | Gast auf der Eventseite, oder der Wirt am Telefon |
+| **Mittagstisch** | Tage, an denen der Mittag voll gemeldet ist | Gast auf der Reservierungsseite |
+
+Sie funktionieren nach demselben Muster — Reihenfolge der Eintragung,
+Verständigung per Mail, Zeitstempel für alles —, haben aber verschiedene
+Quellen und verschiedene Automatiken. Die Abschnitte 2 bis 10 beschreiben
+die **Abende**; der Mittagstisch steht in [Abschnitt 11](#11-der-mittagstisch).
 
 ---
 
@@ -20,10 +33,12 @@ Wartenden mit einem Knopf verständigen können, sobald wieder Karten da sind.
 8. [Ein neuer Abend: was von selbst geht, was ein Handgriff ist](#8-ein-neuer-abend-was-von-selbst-geht-was-ein-handgriff-ist)
 9. [Was garantiert ist — und was nicht](#9-was-garantiert-ist--und-was-nicht)
 10. [Welche Zugänge noch etwas bringen würden](#10-welche-zugänge-noch-etwas-bringen-würden)
-11. [Datenschutz](#11-datenschutz)
-12. [Prüfprotokoll](#12-prüfprotokoll)
-13. [Technische Übersicht](#13-technische-übersicht)
-14. [Was noch dazukommen könnte](#14-was-noch-dazukommen-könnte)
+11. [Der Mittagstisch](#11-der-mittagstisch)
+12. [Wann aktualisiert wird](#12-wann-aktualisiert-wird)
+13. [Datenschutz](#13-datenschutz)
+14. [Prüfprotokoll](#14-prüfprotokoll)
+15. [Technische Übersicht](#15-technische-übersicht)
+16. [Was noch dazukommen könnte](#16-was-noch-dazukommen-könnte)
 
 ---
 
@@ -307,7 +322,106 @@ verlässlicher.
 
 ---
 
-## 11. Datenschutz
+## 11. Der Mittagstisch
+
+Der zweite Abschnitt im selben Reiter. Er betrifft **Reservierungen**, nicht
+Tickets, und hat mit den Abenden nichts zu tun — außer der Form.
+
+### Wie ein Eintrag entsteht
+
+Meldet der Wirt einen Tag als voll (oder ist keine Zeit mehr frei), zeigt die
+Reservierungsseite statt der Zeiten die Warteliste: Name, E-Mail,
+Personenzahl. Mehr wird nicht gefragt. Dieselbe Adresse steht je Tag nur
+einmal auf der Liste, höchstens 30 Einträge je Tag.
+
+### Was von selbst passiert
+
+Sagt ein Gast online ab, oder wird eine Reservierung im Haus storniert,
+verständigt der Dienst **von selbst** den ältesten Eintrag, der von der
+Personenzahl her passt. Eine Sechsergruppe zu rufen, weil ein Zweiertisch
+frei wurde, wäre eine Einladung zur Enttäuschung — deshalb die Prüfung.
+Die Mail reserviert nichts; gebucht wird über den normalen Weg mit denselben
+Grenzen. So kann die Warteliste nie an der Kapazitätsprüfung vorbei buchen.
+
+### Was der Wirt seit 21.09.2026 sieht und tun kann
+
+Bis dahin war diese Liste **unsichtbar**. Der Gast trug sich ein, der Dienst
+verständigte bei einer Absage automatisch — und im Haus sah das niemand. Wer
+nicht drankam, blieb es stillschweigend; die einzige Spur war eine Zahl im
+Tageszettel.
+
+Jetzt steht je Tag eine Gruppe da, mit allen Wartenden in der Reihenfolge
+ihrer Eintragung: Name, Personenzahl, wann eingetragen, E-Mail, und der
+Mailverlauf mit Zeitpunkt und Zustellung. Zwei Knöpfe je Zeile:
+
+- **ein tisch ist frei** — schickt dieselbe Mail, die auch die Automatik
+  schickt. Gedacht für den Fall, den nur der Wirt kennt: ein Tisch wird frei,
+  ohne dass online jemand abgesagt hat. Mit Rückfrage vor dem Versand.
+- **entfernen** — nimmt den Eintrag samt Adresse von der Liste.
+
+Bei einem bereits verständigten Eintrag steht stattdessen **zurück auf
+wartend** — etwa wenn die Mail nicht ankam.
+
+### Unterschiede zu den Abenden
+
+| | Abende | Mittagstisch |
+|---|---|---|
+| Wovon hängt es ab | Weg beim Ticketdienst | Tag |
+| Wer verständigt | der Wirt (ein Knopf) | der Dienst von selbst bei einer Absage, zusätzlich der Wirt |
+| Warum nicht automatisch bzw. doch | eine einzige Rückläuferkarte würde fünfzig Mails auslösen | eine Absage gibt genau einen Platz frei, und die Personenzahl wird geprüft |
+| Rückmeldung des Gastes | zwei Links in der Mail | keine — er bucht einfach, und das sieht der Wirt in der Tagesliste |
+| Zahl am Reiter | ja, wenn es Karten gibt | nein — es gibt nichts zu entscheiden, solange niemand absagt |
+| Aufbewahrung | bis zum Abend | bis zum Tag selbst |
+
+---
+
+## 12. Wann aktualisiert wird
+
+Die Abende kommen vom Ticketdienst. Wie oft nachgesehen wird, entscheidet
+über die Frage „stimmt das, was ich hier sehe?“.
+
+| Wann | Was | Wie viele Abende |
+|---|---|---|
+| **06:00 im Haus, täglich** | Termine und Wartelisten-Stand auffrischen | die ausverkauften und die mit Wartenden, höchstens zwölf |
+| **12:00 im Haus, täglich** | dasselbe | dasselbe |
+| laufend, alle 12 Stunden | jeder Abend, sobald sein Stand veraltet ist | im Hintergrund, sechs je Aufruf |
+| **Knopf „Jetzt nachsehen“** | sofort | dieselben zwölf; gemessen 2,7 Sekunden für neun |
+| beim Aufnehmen eines Abends | sofort dieser eine | einer |
+
+Der Mittagstisch braucht keinen Takt: seine Einträge entstehen im eigenen
+Dienst und stehen sofort über den Live-Draht in der App.
+
+### Warum kein sechster Zeitplan
+
+Die Cloudflare-Gratisstufe erlaubt **fünf Cron-Trigger je Konto**, und die
+fünf sind vergeben. Ein sechster hätte den Abgleich stillschweigend scheitern
+lassen („only partially updated“) — genau das ist am 05.09.2026 schon einmal
+passiert. Mehr Stunden **in einem bestehenden Eintrag** kosten dagegen keinen
+weiteren Trigger. Deshalb trägt der vierte Eintrag jetzt drei Aufgaben:
+
+```
+"0 4,5,6,7,10,11 * * *"
+  04:00 / 05:00 UTC  ->  06:00 im Haus  ->  auffrischen
+  06:00 / 07:00 UTC  ->  08:00 im Haus  ->  Tageszettel (nur Mo-Fr, im Code geprüft)
+  10:00 / 11:00 UTC  ->  12:00 im Haus  ->  auffrischen
+```
+
+Je Paar feuert nur eine Stunde wirklich — die andere gehört zur Sommer- bzw.
+Winterzeit; welche zählt, entscheidet die Hausuhr im Code. Täglich statt
+Montag bis Freitag, weil Abende auch am Wochenende stattfinden.
+
+Zwei Vorkehrungen:
+
+- Ein **Merker** verhindert einen zweiten Lauf zur selben Minute. Nötig, weil
+  sich an Werktagen um 12:00 zwei Zeitpläne überschneiden (das
+  Erinnerungsfenster läuft dort alle Viertelstunde) und weil Cloudflare einen
+  Lauf wiederholen darf, der nicht durchkam.
+- Um 12:00 läuft das **Erinnerungsfenster weiter**. Ein früher Ausstieg hätte
+  die Tischerinnerungen dieser Viertelstunde verschluckt.
+
+---
+
+## 13. Datenschutz
 
 - Erhoben werden Name, E-Mail, Kartenzahl und — freiwillig — die
   Telefonnummer, für genau die angehakten Abende.
@@ -322,9 +436,14 @@ verlässlicher.
 - Der Text steht auf der Seite unter
   [Datenschutz → Warteliste für ausverkaufte Abende](../site/datenschutz-sicherheit.html).
 
+Für den **Mittagstisch** gilt dasselbe in kleiner: Name, E-Mail und
+Personenzahl für genau einen Tag, Löschung nach diesem Tag, keine weitere
+Verwendung. Der eigene Abschnitt steht ebenfalls in den
+Datenschutzhinweisen.
+
 ---
 
-## 12. Prüfprotokoll
+## 14. Prüfprotokoll
 
 Alles gegen den Probe-Dienst (`?probe=1`), am 20.09.2026, in der eingebauten
 Browserprüfung und über die Schnittstelle.
@@ -402,6 +521,28 @@ Die Gruppen beim Wirt sind exakt dieselben acht Wege.
 - Mehr als fünf Ausfälle → der Lauf bricht ab, die gute Datei bleibt.
 - Alle 46 Kennungen und 31 Abende nach der Änderung fehlerfrei gelesen.
 
+### Mittagstisch
+
+- Tag voll gemeldet, drei Gäste über die öffentliche Schnittstelle
+  eingetragen (2, 6 und 2 Personen) → beim Wirt eine Gruppe „Mo., 21.09,
+  2 warten · 8 personen“ nach Entfernen eines Eintrags.
+- „ein tisch ist frei“ → in der Probe ohne Mailversand steht in der Zeile
+  „Mail So., 20.09 21:13 nicht zugestellt (kein Versand eingerichtet)“, der
+  Stand bleibt „wartet“. Genau so soll es sein: ein misslungener Versand ist
+  keine Verständigung.
+- Unbekannter Eintrag → abgelehnt. Ohne Hausschlüssel → 401.
+- „entfernen“ → Eintrag samt Adresse weg.
+- Beide Abschnitte stehen im Reiter untereinander und lassen sich einzeln
+  über die Übersicht aus- und einblenden.
+
+### Zeitplan
+
+- Fünf Cron-Einträge, also innerhalb der Grenze der Gratisstufe.
+- Gegenprobe der Hausuhr für alle sechs Stunden des vierten Eintrags, für
+  Sommer- und Winterzeit: 06:00, 08:00 und 12:00 im Haus werden getroffen.
+- Der Merker verhindert den Doppellauf um 12:00; die Tischerinnerungen
+  laufen dort weiter.
+
 ### Was in der Probe nicht prüfbar ist
 
 - **Zustellung echter Mails** (kein Brevo-Schlüssel in der Probe).
@@ -409,16 +550,20 @@ Die Gruppen beim Wirt sind exakt dieselben acht Wege.
   tatsächlich jemand stornieren. Die Regel dahinter ist durch Testfälle
   abgedeckt, die genau die gespeicherte Form verwenden; dass die Zahlen aus
   dem Ticketdienst in der Übersicht ankommen, ist live belegt.
+- **Die Läufe um 06:00 und 12:00** — die Probe hat bewusst keine Zeitpläne
+  (die fünf des Kontos gehören dem Echtbetrieb). Der Weg dahinter ist
+  derselbe, den der Knopf „Jetzt nachsehen“ nimmt, und der ist belegt.
 
 ---
 
-## 13. Technische Übersicht
+## 15. Technische Übersicht
 
 **Logik ohne Netz** (in Node prüfbar):
 
 | Datei | Inhalt |
 |---|---|
-| `server/src/event-warteliste.mjs` | Eingabenprüfung, Aufnahme, `wegStand` (die Ausverkauft-Regel), Übersicht, Rückläufer-Erkennung, Aufräumen |
+| `server/src/event-warteliste.mjs` | Abende: Eingabenprüfung, Aufnahme, `wegStand` (die Ausverkauft-Regel), Übersicht, Rückläufer-Erkennung, Aufräumen |
+| `server/src/warteliste.mjs` | Mittagstisch: Eingabenprüfung, Aufnahme, wer als Nächstes dran ist, Übersicht fürs Haus, Aufräumen |
 | `server/src/ticketist.mjs` | Lesen beim Ticketdienst, `holeVerkauft`, `kennungAusLink`, Zusammenlegen zweier Wege |
 | `scripts/check-event-warteliste.mjs` | goldene Testfälle, Teil von `npm run ci` |
 | `scripts/check-termine.mjs` | Testfälle fürs Lesen, für `kennungAusLink` und die Nummern |
@@ -435,6 +580,8 @@ Die Gruppen beim Wirt sind exakt dieselben acht Wege.
 | `GET /warteliste/antwort?t=…&a=…` | Gast mit seinem Geheimnis | gebucht / kein Bedarf / austragen |
 | `POST /api/termine/kennung` | Haus | Abend aufnehmen |
 | `POST /api/termine/kennung/entfernen` | Haus | Abend hergeben |
+| `POST /api/warteliste` | jeder | Gast trägt sich für einen Mittag ein |
+| `POST /api/warteliste/aktion` | Haus | Mittagstisch: verständigen, Stand, entfernen |
 
 **Speicher** (Durable Object, Tabelle `einstellungen`):
 
@@ -443,16 +590,19 @@ Die Gruppen beim Wirt sind exakt dieselben acht Wege.
 | `eventWarteliste` | die Einträge; höchstens 200 je Weg, 8 Wege je Eintragung |
 | `eigeneKennungen` | die selbst aufgenommenen Abende, höchstens 80 |
 | `termine` | je Kennung `{ geholtAm, termin, verkauft, verkauftMax }` |
+| `warteliste` | die Mittags-Einträge; höchstens 30 je Tag |
+| `wartelisteTakt` | Merker gegen Doppelläufe um 06:00 und 12:00 |
 
 **Wege zur Oberfläche:** Die Gruppen kommen über den Live-Draht als
-`stand.eventWarteliste` — die Wirt-App rechnet nichts, sie zeigt.
+`stand.eventWarteliste` und `stand.mittagWarteliste` — die Wirt-App rechnet
+nichts, sie zeigt.
 
 **Mails:** `eventWartelisteAufnahmeMail` und `eventWartelisteFreiMail` in
 `server/src/mail.mjs`.
 
 ---
 
-## 14. Was noch dazukommen könnte
+## 16. Was noch dazukommen könnte
 
 - **Automatischer Versand an die ersten N**, wenn der Wirt binnen einer Stunde
   nicht selbst geklickt hat. Bewusst noch nicht gebaut: erst sehen, wie oft

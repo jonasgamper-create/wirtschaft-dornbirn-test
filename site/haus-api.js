@@ -448,3 +448,7 @@ export const gibAbendHer = (token, kennung) =>
 /** Jetzt beim Ticketdienst nachsehen, ob Karten zurueckgekommen sind. */
 export const frischeWarteliste = token =>
   ruf('/api/event-warteliste/auffrischen', { methode: 'POST', koerper: {}, token });
+
+/** Mittags-Warteliste: verstaendigen, Stand setzen, entfernen. */
+export const sendeMittagWartelisteAktion = (token, befehl) =>
+  ruf('/api/warteliste/aktion', { methode: 'POST', koerper: befehl, token });

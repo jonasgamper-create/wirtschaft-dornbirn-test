@@ -15,10 +15,10 @@ import {
   setzeFertigWer, setzeToken,
   stelleTagWiederHer,
   holeTermine, legeEventWartelisteEintrag, sendeEventWartelisteAktion,
-  frischeWarteliste, gibAbendHer, nimmAbendAuf
-} from './haus-api.js?v=b578eb0c';
+  frischeWarteliste, gibAbendHer, nimmAbendAuf, sendeMittagWartelisteAktion
+} from './haus-api.js?v=42118de8';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
-import { liesAnsicht, setzeHeuteZahl, setzeWartelisteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=0d552f41';
+import { liesAnsicht, setzeHeuteZahl, setzeWartelisteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=815106c6';
 import { istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
@@ -1045,6 +1045,7 @@ function male() {
   // stand dann eine Reservierung unter Takeaway.
   zeichneUnterreiter(eintraege, erledigte, nu);
   maleWarteliste();
+  maleMittagWarteliste();
   maleAbende();
 }
 
@@ -1406,6 +1407,139 @@ function verdrahteWarteliste() {
       form.hidden = true;
     }
   });
+}
+
+// ---- Warteliste Mittagstisch -----------------------------------------------
+//
+// Ist ein Mittag voll, traegt sich der Gast auf der Reservierungsseite ein.
+// Sagt jemand ab, verstaendigt der Dienst von selbst den aeltesten Eintrag,
+// der von der Personenzahl her passt. Was fehlte, war der Blick darauf: wer
+// wartet ueberhaupt, seit wann, und ist die Mail angekommen.
+//
+// Der Wirt kann hier auch selbst verstaendigen - ein Tisch wird frei, ohne
+// dass online jemand abgesagt hat, und das weiss nur er.
+
+function maleMittagWarteliste() {
+  const wurzel = byId('mittagWarteGruppen');
+  const hinweis = byId('mittagWarteHinweis');
+  if (!wurzel || !stand) return;
+  const gruppen = Array.isArray(stand.mittagWarteliste) ? stand.mittagWarteliste : [];
+  const wartend = gruppen.reduce((n, g) => n + (g.wartend || 0), 0);
+
+  if (hinweis) {
+    hinweis.textContent = !gruppen.length
+      ? 'Gerade wartet niemand auf einen Tisch. Eintragen kann sich ein Gast, sobald ein Mittag voll gemeldet ist.'
+      : `${wartePlural(wartend, 'Person wartet', 'Personen warten')} auf einen Tisch. `
+        + 'Wird online abgesagt, verständigt der Dienst von selbst den Ältesten, der passt.';
+  }
+
+  wurzel.textContent = '';
+  for (const gruppe of gruppen) {
+    const kasten = document.createElement('details');
+    kasten.className = 'warte-gruppe';
+    kasten.dataset.buchbar = 'nein';
+    kasten.open = gruppe.wartend > 0;
+
+    const summary = document.createElement('summary');
+    const wann = document.createElement('span');
+    wann.className = 'warte-wann';
+    wann.textContent = new Date(`${gruppe.datum}T12:00:00`)
+      .toLocaleDateString('de-AT', { weekday: 'short', day: '2-digit', month: '2-digit' }).replace(/\.$/, '');
+    const titel = document.createElement('span');
+    titel.className = 'warte-titel';
+    titel.textContent = 'Mittagstisch';
+    const standZeile = document.createElement('span');
+    standZeile.className = 'warte-stand';
+    standZeile.textContent = [
+      `${wartePlural(gruppe.wartend, 'wartet', 'warten')}${gruppe.informiert ? `, ${gruppe.informiert} verständigt` : ''}`,
+      gruppe.personen ? wartePlural(gruppe.personen, 'person', 'personen') : ''
+    ].filter(Boolean).join(' · ');
+    const pfeil = document.createElement('i');
+    pfeil.className = 'warte-pfeil';
+    pfeil.setAttribute('aria-hidden', 'true');
+    summary.append(wann, titel, standZeile, pfeil);
+    kasten.append(summary);
+
+    const inhalt = document.createElement('div');
+    const liste = document.createElement('ul');
+    liste.className = 'haus-liste warte-liste';
+    for (const eintrag of gruppe.eintraege) liste.append(mittagZeile(eintrag));
+    inhalt.append(liste);
+    kasten.append(inhalt);
+    wurzel.append(kasten);
+  }
+}
+
+function mittagZeile(eintrag) {
+  const li = document.createElement('li');
+  li.dataset.status = eintrag.status === 'informiert' ? 'informiert' : 'wartet';
+
+  const wer = document.createElement('div');
+  wer.className = 'wer';
+  const name = document.createElement('b');
+  name.textContent = `${eintrag.name} · ${wartePlural(eintrag.personen, 'person', 'personen')}`;
+  const wann = document.createElement('span');
+  wann.textContent = `eingetragen ${stempel(eintrag.eingetragen)}`;
+  const kontakt = document.createElement('span');
+  kontakt.textContent = eintrag.email;
+  wer.append(name, wann, kontakt);
+
+  // Derselbe Verlauf wie bei den Abenden: jede Mail mit Zeit und ob sie
+  // hinausging. Die Automatik schreibt hier nur informiertUm - darum zaehlt
+  // beides.
+  const teile = (eintrag.mails || []).map(m => m.ok
+    ? `Mail ${stempel(m.um)}`
+    : `Mail ${stempel(m.um)} nicht zugestellt (${m.grund === 'nicht_eingerichtet' ? 'kein Versand eingerichtet' : m.grund || 'Fehler'})`);
+  if (!teile.length && eintrag.informiertUm) teile.push(`verständigt ${stempel(eintrag.informiertUm)}`);
+  if (teile.length) {
+    const verlauf = document.createElement('span');
+    verlauf.className = 'verlauf';
+    const i = document.createElement('i');
+    i.textContent = teile.join(' · ');
+    verlauf.append(i);
+    wer.append(verlauf);
+  }
+
+  const knoepfe = document.createElement('div');
+  knoepfe.className = 'warte-knoepfe';
+  const tu = async (art, meldung) => {
+    const antwort = await sendeMittagWartelisteAktion(hausToken(), { art, datum: eintrag.datum, email: eintrag.email });
+    if (art === 'mail') {
+      if (antwort?.ok) return sag('mittagWarteInfo', 'Die Mail ist hinausgegangen – der Zeitpunkt steht in der Zeile.', 'gut');
+      const gruende = {
+        nicht_eingerichtet: 'Kein Mailversand eingerichtet – der Versuch steht in der Zeile. Bitte anrufen.',
+        abgelehnt: 'Der Mailversand hat die Nachricht abgelehnt – der Versuch steht in der Zeile.',
+        netz: 'Keine Verbindung zum Mailversand – gleich noch einmal.'
+      };
+      return sag('mittagWarteInfo', gruende[antwort?.grund] || 'Das hat nicht geklappt.', 'fehler');
+    }
+    if (!antwort?.ok) return sag('mittagWarteInfo', 'Das hat nicht geklappt.', 'fehler');
+    if (meldung) sag('mittagWarteInfo', meldung, 'gut');
+  };
+  const knopf = (text, klasse, aktion) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = klasse;
+    b.textContent = text;
+    b.addEventListener('click', aktion);
+    return b;
+  };
+
+  if (eintrag.status === 'informiert') {
+    knoepfe.append(knopf('zurück auf wartend', 'knopf leise', () => tu('wartet', `${eintrag.name} wartet wieder.`)));
+  } else {
+    knoepfe.append(knopf('ein tisch ist frei', 'knopf', () => {
+      if (!window.confirm(`${eintrag.name} verständigen, dass ein Tisch frei geworden ist?`)) return;
+      tu('mail');
+    }));
+  }
+  knoepfe.append(knopf('entfernen', 'knopf leise', () => {
+    if (!window.confirm(`${eintrag.name} von der Warteliste nehmen? Die Adresse ist dann weg.`)) return;
+    tu('entfernen', `${eintrag.name} ist von der Liste.`);
+  }));
+
+  li.append(wer, knoepfe);
+  return li;
 }
 
 // ---- Abende vom Ticketdienst aufnehmen -------------------------------------

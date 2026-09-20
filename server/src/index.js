@@ -45,7 +45,8 @@ import ticketistPreise from '../../site/data/ticketist-preise.json';
 // neuen Stand aus dem Verwaltungsbereich.
 const AUSVERKAUFT_LAUT_PREISEN = ausverkauftLautPreisen(ticketistPreise?.preise);
 import {
-  markiereInformiert, naechsterWartender, nimmAuf, pruefeWartelisteEintrag, raeumeWartelisteAb
+  entferneMittagEintrag, markiereInformiert, merkeMittagMail, mittagUebersicht, naechsterWartender,
+  nimmAuf, pruefeWartelisteEintrag, raeumeWartelisteAb, setzeMittagStatus
 } from './warteliste.mjs';
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
 import {
@@ -680,6 +681,9 @@ export class Haus extends DurableObject {
       // Die selbst aufgenommenen Abende - damit der Wirt sieht, was er
       // hinzugefuegt hat, und es wieder hergeben kann.
       eigeneKennungen: rolle === 'haus' ? this.#lies('eigeneKennungen', []) : undefined,
+      // Die Mittags-Warteliste - nur fuers Haus. Sie stand bisher nirgends,
+      // obwohl sich Gaeste laengst eintragen konnten.
+      mittagWarteliste: rolle === 'haus' ? this.mittagWarteliste() : undefined,
       // Ob der Gast seine Tischnummer erfaehrt. Standard: nein - sie ist intern.
       tischAnzeigen: this.#lies('tischAnzeigen', false) === true,
       // Schickt der Dienst eine SMS, wenn das Essen fertig ist? Standard:
@@ -1036,6 +1040,66 @@ export class Haus extends DurableObject {
   wartelisteZahl(datum) {
     return this.#lies('warteliste', []).filter(eintrag =>
       eintrag.datum === datum && eintrag.status === 'wartet').length;
+  }
+
+  /**
+   * Die Mittags-Warteliste, wie sie der Wirt sieht: je Tag eine Gruppe.
+   *
+   * Bis zum 21.09.2026 gab es diese Ansicht nicht. Der Gast trug sich ein,
+   * der Dienst verstaendigte bei einer Absage von selbst - und im Haus sah
+   * das niemand. Wer nicht drankam, blieb es stillschweigend.
+   */
+  mittagWarteliste() {
+    const heute = jetztImHaus().datum;
+    return mittagUebersicht(raeumeWartelisteAb(this.#lies('warteliste', []), heute), heute);
+  }
+
+  /**
+   * Die Handgriffe des Wirts an der Mittagsliste: verstaendigen (dieselbe
+   * Mail, die auch die Automatik schickt), zurueck auf wartend, entfernen.
+   * Angesprochen wird ueber Tag und Mailadresse - zusammen eindeutig.
+   */
+  async mittagWartelisteAktion(befehl) {
+    const heute = jetztImHaus().datum;
+    const liste = raeumeWartelisteAb(this.#lies('warteliste', []), heute);
+    const datum = String(befehl?.datum || '');
+    const email = String(befehl?.email || '').trim().toLowerCase();
+    const eintrag = liste.find(e => e.datum === datum && e.email === email);
+    if (!eintrag) return { ok: false, grund: 'unbekannt' };
+    const art = String(befehl?.art || '');
+
+    if (art === 'mail') {
+      const ergebnis = await this.#mittagVerstaendigen(eintrag);
+      this.#schreib('warteliste', merkeMittagMail(liste, datum, email, ergebnis, new Date().toISOString()));
+      this.#meldeAenderung();
+      return { ok: ergebnis.ok === true, grund: ergebnis.ok ? '' : String(ergebnis.grund || 'fehler') };
+    }
+    if (art === 'wartet' || art === 'informiert') {
+      this.#schreib('warteliste', setzeMittagStatus(liste, datum, email, art));
+      this.#meldeAenderung();
+      return { ok: true };
+    }
+    if (art === 'entfernen') {
+      this.#schreib('warteliste', entferneMittagEintrag(liste, datum, email));
+      this.#meldeAenderung();
+      return { ok: true };
+    }
+    return { ok: false, grund: 'art' };
+  }
+
+  /** Die Mail "ein Tisch ist frei geworden" - von Hand ausgeloest. */
+  async #mittagVerstaendigen(eintrag) {
+    const absender = String(this.env?.BREVO_ABSENDER || '');
+    const seite = String(this.env?.GAESTE_SEITE || '').replace(/\/+$/, '');
+    if (!absender || !seite) return { ok: false, grund: 'nicht_eingerichtet' };
+    const inhalt = wartelisteFreiMail({
+      name: eintrag.name, tag: eintrag.datum, personen: eintrag.personen,
+      buchungsLink: `${seite}/tischreservierung.html?tag=${eintrag.datum}`
+    });
+    return sendeMail(this.env, brevoPaket({
+      absender, an: eintrag.email, anName: eintrag.name,
+      betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
+    }));
   }
 
   // ---- Warteliste fuer ausverkaufte Abende ---------------------------------
@@ -2376,6 +2440,20 @@ export class Haus extends DurableObject {
    * ein Knopf, der fuenfzig Abfragen ausloest, waere unhoeflich gegenueber
    * dem Dienst und langsam fuer den Wirt.
    */
+  /**
+   * Der Takt: zweimal am Tag von selbst nachsehen.
+   *
+   * Der Merker verhindert einen zweiten Lauf zur selben Minute. Noetig,
+   * weil sich zwei Zeitplaene an Werktagen um 12:00 ueberschneiden (das
+   * Erinnerungsfenster laeuft dort alle Viertelstunde) - und weil
+   * Cloudflare einen Lauf wiederholen darf, wenn er nicht durchkam.
+   */
+  async wartelisteTakt(marke) {
+    if (this.#lies('wartelisteTakt', '') === marke) return { ok: true, schon: true };
+    this.#schreib('wartelisteTakt', marke);
+    return this.wartelisteAuffrischen();
+  }
+
   async wartelisteAuffrischen() {
     const wege = [...new Set(this.eventWartelisteUebersicht().map(g => g.weg))].slice(0, 12);
     if (wege.length) await this.#holeAbende(wege);
@@ -2886,6 +2964,20 @@ export default {
   async scheduled(event, env, ctx) {
     const uhr = jetztImHaus();
 
+    // Zweimal am Tag beim Ticketdienst nachsehen: frueh um sechs, bevor
+    // jemand aufsperrt, und mittags um zwoelf. Dazwischen liegt der
+    // Zwoelfstundentakt ohnehin richtig; diese beiden Laeufe machen den
+    // Stand zu einer Uhrzeit verlaesslich, auf die man sich verlassen kann.
+    // Nachgesehen wird nur bei den Abenden, um die es geht - ausverkaufte
+    // und solche mit Wartenden.
+    if (uhr.zeit === '06:00' || uhr.zeit === '12:00') {
+      ctx.waitUntil(stub(env).wartelisteTakt(`${uhr.datum} ${uhr.zeit}`));
+      // Um 06:00 ist sonst nichts zu tun. Um 12:00 laeuft das
+      // Erinnerungsfenster weiter - hier auszusteigen haette die
+      // Tischerinnerungen dieser Viertelstunde verschluckt.
+      if (uhr.zeit === '06:00') return;
+    }
+
     // Die Wochenkarte, montags um 07:15.
     if (uhr.zeit === '07:15') {
       const basis = String(env.DIENST_BASIS || '').replace(/\/+$/, '');
@@ -3273,6 +3365,14 @@ export default {
       if (url.pathname === '/api/wochenbericht' && request.method === 'POST') {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         return json(await haus.wochenbericht(), 200, kopf);
+      }
+
+      // Die Mittags-Warteliste aus Sicht des Hauses: verstaendigen, Stand,
+      // entfernen. Lesen geht ueber den Live-Stand.
+      if (url.pathname === '/api/warteliste/aktion' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.mittagWartelisteAktion(body), 200, kopf);
       }
 
       // Warteliste: der Gast traegt sich ein, wenn der Mittag voll ist.

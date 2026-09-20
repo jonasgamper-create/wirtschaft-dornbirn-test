@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="wirt.css?v=c415d56d">
   <!-- Muss vor allen anderen laufen: setzt den Probemodus (siehe probe.js). -->
   <script src="probe.js?v=ddc3b38b" defer></script>
-  <script type="module" src="wirt.js?v=3c0e6d46"></script>
+  <script type="module" src="wirt.js?v=1b89f945"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -347,7 +347,7 @@
          ob eine Antwort kam, steht in der Zeile. -->
     <section class="warteliste" data-block="wartelisteKasten" aria-labelledby="warteTitel">
       <div class="zeile-kopf">
-        <h2 id="warteTitel">Warteliste</h2>
+        <h2 id="warteTitel">Abende</h2>
         <span class="warte-kopf-knoepfe">
           <button class="knopf leise klein" type="button" id="warteNachsehen">Jetzt nachsehen</button>
           <button class="knopf leise klein" type="button" id="warteNeuZeigen">+ eintragen</button>
@@ -386,6 +386,21 @@
         <p class="lauf-ergebnis" id="abendInfo" role="status" aria-live="polite"></p>
         <ul class="event-liste" id="abendListe"></ul>
       </details>
+    </section>
+
+    <!-- Der Mittagstisch. Ist ein Tag voll, kann sich der Gast auf der
+         Reservierungsseite eintragen; sagt jemand ab, verstaendigt der
+         Dienst von selbst den ersten, der passt. Bis zum 21.09.2026 sah
+         das im Haus niemand - wer nicht drankam, blieb es stillschweigend.
+         Hier steht die Liste, und der Wirt kann auch selbst verstaendigen
+         (ein Tisch wird frei, ohne dass jemand online abgesagt hat). -->
+    <section class="warteliste" data-block="mittagWarteKasten" aria-labelledby="mittagWarteTitel">
+      <div class="zeile-kopf">
+        <h2 id="mittagWarteTitel">Mittagstisch</h2>
+      </div>
+      <p class="hinweis" id="mittagWarteHinweis">Wird geladen …</p>
+      <p class="lauf-ergebnis" id="mittagWarteInfo" role="status" aria-live="polite"></p>
+      <div class="warte-gruppen" id="mittagWarteGruppen"></div>
     </section>
 
     <details class="werkzeug" id="zettelKasten" data-block="zettelKasten">

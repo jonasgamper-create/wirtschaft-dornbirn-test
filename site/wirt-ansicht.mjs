@@ -43,7 +43,9 @@
 // direkt unter der Auslastung (Jonas, 07.09.).
 // -12: vierter Reiter "warteliste" - die Wartenden der ausverkauften Abende
 // (Jonas, 20.09.: eigener Reiter, nicht irgendwo unter haus).
-const SCHLUESSEL = 'wirtschaft-wirt-ansicht-12';
+// -13: der Reiter hat zwei Abschnitte - Abende und Mittagstisch (Jonas,
+// 21.09.). Die Mittagsliste gab es laengst, sie stand nur nirgends.
+const SCHLUESSEL = 'wirtschaft-wirt-ansicht-13';
 
 /** Die drei Reiter, in der Reihenfolge der Leiste unten. */
 export const REITER = [
@@ -78,7 +80,8 @@ export const BLOECKE = [
   // warteliste - wer auf einen ausverkauften Abend wartet. Eigener Reiter:
   // die Liste entsteht von selbst, sobald ein Abend ausverkauft ist, und
   // der Wirt soll sie finden, ohne zu suchen (Jonas, 20.09.).
-  { id: 'wartelisteKasten', titel: 'Warteliste der ausverkauften Abende', an: true, reiter: 'warteliste' },
+  { id: 'wartelisteKasten', titel: 'Abende – wer auf ausverkaufte Karten wartet', an: true, reiter: 'warteliste' },
+  { id: 'mittagWarteKasten', titel: 'Mittagstisch – wer auf einen Tisch wartet', an: true, reiter: 'warteliste' },
 
   // haus - alles, was man selten braucht und dann sofort finden muss.
   // Zahlen und Laufkundschaft: fuer den Alltag nicht interessant (Jonas,
