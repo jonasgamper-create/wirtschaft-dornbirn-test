@@ -16,6 +16,31 @@
 
   const preis = wert => `€ ${String(wert).replace('.', ',')}`;
 
+  // Ausverkauft heisst: keine der Kategorien hat noch etwas frei. Die Zahl
+  // stammt aus dem Ticketdienst; sagt der Veranstalter es zusaetzlich im
+  // Text, zaehlt auch das (termin.buchbar).
+  const ausverkauft = weg => {
+    if (weg.buchbar === false) return true;
+    const preise = weg.preise || [];
+    return preise.length > 0 && preise.every(p => p.frei === 0);
+  };
+
+  // Die Adresse des eigenen Dienstes - einmal gelesen, dann gemerkt. Im
+  // Probemodus der Testdienst, sonst der echte (siehe probe.js).
+  const dienstAdresse = (() => {
+    let versprochen = null;
+    return () => {
+      versprochen ||= fetch('data/haus.json?t=' + Date.now(), { cache: 'no-store' })
+        .then(antwort => antwort.json())
+        .then(daten => {
+          const adresse = String((window.WIRTSCHAFT_PROBE && daten?.probe) || daten?.api || '').trim().replace(/\/+$/, '');
+          return /^https?:\/\//.test(adresse) ? adresse : '';
+        })
+        .catch(() => '');
+      return versprochen;
+    };
+  })();
+
   const statusWort = status => ({
     buchbar: 'buchbar',
     ausverkauft: 'ausverkauft',
@@ -49,15 +74,6 @@
     const bild = termin.bild || fallback;
     const video = vorhandeneVideos.has(termin.id) ? `assets/events/${encodeURIComponent(termin.id)}.mp4` : '';
     const imKulturhaus = termin.haus === 'kulturhaus';
-
-    // Ausverkauft heisst: keine der Kategorien hat noch etwas frei. Die Zahl
-    // stammt aus dem Ticketdienst; sagt der Veranstalter es zusaetzlich im
-    // Text, zaehlt auch das (termin.buchbar).
-    const ausverkauft = weg => {
-      if (weg.buchbar === false) return true;
-      const preise = weg.preise || [];
-      return preise.length > 0 && preise.every(p => p.frei === 0);
-    };
 
     // Jede Kategorie eine Zeile: was sie heisst, was sie kostet, ob noch
     // etwas da ist. Beim zweiten Weg steht sein Name davor, damit man sieht,
@@ -121,6 +137,12 @@
     const wege = [knopf(termin, zweiWege ? erstesWort(termin) : 'tickets buchen', 'light')];
     for (const v of termin.varianten || []) {
       wege.push(knopf({ ...v, preise: v.preise || [] }, v.label, 'ghost'));
+    }
+    // Ist ein Weg ausverkauft, gibt es die Warteliste - von selbst, ohne
+    // dass jemand sie anlegt. Der Knopf steht NEBEN dem grauen "ausverkauft",
+    // nicht statt seiner: der Gast soll beides sehen, den Stand und den Weg.
+    if (wegeVon(termin).some(w => w.ausverkauft)) {
+      wege.push(`<button class="button ghost kachel-warteliste" type="button" data-warteliste="${escapeHtml(termin.id)}">auf die warteliste</button>`);
     }
 
     return `
@@ -259,7 +281,190 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
+  /**
+   * Die Wege eines Abends, flach: der Hauptweg und jede Variante als eigener
+   * Eintrag mit Kennung, Beschriftung, Zeit und ob noch etwas da ist. Die
+   * Warteliste haengt am Weg, nicht am Abend - "dinner & comedy" und
+   * "comedy only" sind beim Ticketdienst zwei Veranstaltungen.
+   */
+  function wegeVon(termin) {
+    const zweiWege = Boolean(termin.varianten?.length);
+    const raus = [{
+      id: termin.id,
+      titel: termin.title,
+      label: zweiWege ? erstesWort(termin) : termin.title,
+      datum: termin.date,
+      zeit: termin.zeit || '',
+      haus: termin.haus || 'wirtschaft',
+      ticketUrl: termin.ticketUrl,
+      ausverkauft: ausverkauft(termin)
+    }];
+    for (const v of termin.varianten || []) {
+      raus.push({
+        id: v.id,
+        titel: `${termin.title} · ${v.label}`,
+        label: v.label,
+        datum: termin.date,
+        zeit: v.zeit || '',
+        haus: termin.haus || 'wirtschaft',
+        ticketUrl: v.ticketUrl,
+        ausverkauft: ausverkauft({ ...v, preise: v.preise || [] })
+      });
+    }
+    return raus;
+  }
+
+  const kurzesDatum = (datum, zeit) => {
+    const d = new Date(`${datum}T12:00:00`);
+    const tag = new Intl.DateTimeFormat('de-AT', { weekday: 'short', day: '2-digit', month: '2-digit' }).format(d).replace(/\.$/, '');
+    return zeit ? `${tag} · ${zeit} Uhr` : tag;
+  };
+
+  // ---- Die Warteliste --------------------------------------------------------
+  //
+  // Der Klick auf "auf die warteliste" oeffnet einen Kasten wie die
+  // Ticketbuchung. Darin: alle ausverkauften Wege dieses Abends UND desselben
+  // Programms an anderen Tagen (Luis spielt dreimal), je ein Haken -
+  // vorgehakt ist, was auf der Kachel stand. Gibt es vom selben Programm
+  // noch etwas zu kaufen, steht das gleich dabei, mit Knopf: wer heute
+  // Karten will, soll nicht warten muessen, wenn morgen welche da sind.
+  const warteDialog = document.getElementById('warteDialog');
+  const warteForm = document.getElementById('warteForm');
+  const warteNote = document.getElementById('warteNote');
+  const warteWege = document.getElementById('warteWege');
+  const warteAlternativen = document.getElementById('warteAlternativen');
+
+  const programmVon = termin => String(termin.title || '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+  function oeffneWarteliste(terminId) {
+    if (!warteDialog || !warteForm) return;
+    const termin = alleEvents.find(t => t.id === terminId);
+    if (!termin) return;
+    // Dasselbe Programm an anderen Tagen im selben Haus - erst dieser Abend,
+    // dann die anderen nach Datum.
+    const verwandte = alleEvents
+      .filter(t => t.id !== termin.id && programmVon(t) === programmVon(termin) && (t.haus || 'wirtschaft') === (termin.haus || 'wirtschaft'))
+      .sort((a, b) => a.date.localeCompare(b.date));
+    const alleWege = [termin, ...verwandte].flatMap(wegeVon);
+    const weg = alleWege.filter(w => w.ausverkauft);
+    // Was noch zu haben ist: alles vom selben Abend, dazu hoechstens die
+    // naechsten drei anderen Tage. "dinner & comedy" gibt es sechsmal im
+    // Halbjahr - sechs Knoepfe waeren kein Hinweis mehr, sondern eine Liste.
+    const nochAlle = alleWege.filter(w => !w.ausverkauft);
+    const noch = [
+      ...nochAlle.filter(w => w.datum === termin.date),
+      ...nochAlle.filter(w => w.datum !== termin.date).sort((a, b) => a.datum.localeCompare(b.datum)).slice(0, 3)
+    ];
+
+    document.getElementById('warteDialogTitel').textContent = termin.title;
+    warteWege.innerHTML = weg.map(w => `
+      <label class="warte-weg">
+        <input type="checkbox" name="weg" value="${escapeHtml(w.id)}"${w.datum === termin.date ? ' checked' : ''}>
+        <span><b>${escapeHtml(w.label)}</b><small>${escapeHtml(kurzesDatum(w.datum, w.zeit))}${w.haus === 'kulturhaus' ? ' · kulturhaus' : ''} · ausverkauft</small></span>
+      </label>`).join('');
+    warteWege.dataset.wege = JSON.stringify(Object.fromEntries(weg.map(w => [w.id, { titel: w.titel, datum: w.datum, zeit: w.zeit, haus: w.haus }])));
+
+    if (noch.length) {
+      const selberAbend = noch.some(w => w.datum === termin.date);
+      warteAlternativen.innerHTML = `<p>${selberAbend ? 'Am selben Abend gibt es noch Karten:' : 'An einem anderen Tag gibt es noch Karten:'}</p>
+        <ul>${noch.map(w => `<li><span><b>${escapeHtml(w.label)}</b> · ${escapeHtml(kurzesDatum(w.datum, w.zeit))}${w.haus === 'kulturhaus' ? ' · kulturhaus' : ''}</span>
+          <button class="button ghost" type="button" data-buchen="${escapeHtml(w.ticketUrl)}" data-titel="${escapeHtml(w.titel)}">tickets buchen</button></li>`).join('')}</ul>`;
+      warteAlternativen.hidden = false;
+      warteAlternativen.querySelectorAll('[data-buchen]').forEach(knopf => {
+        knopf.addEventListener('click', () => { warteDialog.close(); oeffneBuchung(knopf.dataset.buchen, knopf.dataset.titel); });
+      });
+    } else {
+      warteAlternativen.hidden = true;
+      warteAlternativen.innerHTML = '';
+    }
+
+    delete warteForm.dataset.fertig;
+    warteNote.textContent = '';
+    delete warteNote.dataset.art;
+    document.getElementById('warteSenden').disabled = false;
+    document.getElementById('warteAbbrechen').textContent = 'abbrechen';
+    warteDialog.showModal();
+  }
+
+  if (warteDialog && warteForm) {
+    document.getElementById('warteZu').addEventListener('click', () => warteDialog.close());
+    document.getElementById('warteAbbrechen').addEventListener('click', () => warteDialog.close());
+    warteDialog.addEventListener('click', e => { if (e.target === warteDialog) warteDialog.close(); });
+
+    warteForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const wege = [...warteWege.querySelectorAll('input[name="weg"]:checked')].map(el => el.value);
+      const name = document.getElementById('warteName').value.trim();
+      const email = document.getElementById('warteMail').value.trim();
+      const telefon = document.getElementById('warteTelefon').value.trim();
+      const personen = Number(document.getElementById('wartePersonen').value);
+      const sage = (text, art = '') => { warteNote.textContent = text; if (art) warteNote.dataset.art = art; else delete warteNote.dataset.art; };
+
+      if (!wege.length) return sage('Bitte mindestens einen Abend anhaken.', 'fehler');
+      if (name.length < 2) return sage('Bitte deinen Namen eintragen.', 'fehler');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return sage('Bitte eine gültige E-Mail-Adresse eintragen – dorthin schicken wir die Nachricht, wenn Karten da sind.', 'fehler');
+
+      const basis = await dienstAdresse();
+      if (!basis) return sage('Die Warteliste ist gerade nicht erreichbar. Ruf uns an: +43 (0)5572 20 540', 'fehler');
+      const senden = document.getElementById('warteSenden');
+      senden.disabled = true;
+      sage('Einen Moment …');
+      let ersatz = {};
+      try { ersatz = JSON.parse(warteWege.dataset.wege || '{}'); } catch { ersatz = {}; }
+      try {
+        const antwort = await fetch(basis + '/api/event-warteliste', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ name, email, telefon, personen, wege, ersatz })
+        });
+        const daten = await antwort.json().catch(() => ({}));
+        if (!daten?.ok) {
+          senden.disabled = false;
+          // Der schoenste Fehlschlag: es gibt wieder Karten. Dann keine
+          // Warteliste, sondern der Weg zur Kasse.
+          if (daten?.grund === 'buchbar') {
+            const erster = (daten.wege || [])[0];
+            sage('Gute Nachricht: für diesen Abend gibt es gerade wieder Karten. Du brauchst keine Warteliste.');
+            if (erster?.ticketUrl) {
+              warteDialog.close();
+              oeffneBuchung(erster.ticketUrl, erster.titel || '');
+            }
+            return;
+          }
+          const gruende = {
+            voll: 'Die Warteliste für diesen Abend ist voll – ruf uns an, wir finden etwas.',
+            vergangen: 'Dieser Abend ist schon vorbei.',
+            weg: 'Diesen Abend kennen wir nicht – bitte die Seite neu laden.'
+          };
+          return sage(gruende[daten?.grund] || 'Das hat nicht geklappt. Versuch es später noch einmal oder ruf uns an.', 'fehler');
+        }
+        const neu = daten.neu || [];
+        const schonDa = (daten.schon || []).length;
+        const namen = neu.map(n => `${n.titel} (${kurzesDatum(n.datum, '')})`);
+        let text = '';
+        if (neu.length) {
+          text = `Eingetragen für ${namen.join(', ')}. Wir haben dir eine Bestätigung an ${email} geschickt – sobald wieder Karten da sind, melden wir uns dort.`;
+        } else if (schonDa) {
+          text = 'Du stehst für diesen Abend schon auf der Liste – alles gut, wir melden uns, sobald Karten da sind.';
+        }
+        if (neu.length && schonDa) text += ' Für einen Abend standest du schon auf der Liste.';
+        warteForm.dataset.fertig = 'ja';
+        document.getElementById('warteAbbrechen').textContent = 'schließen';
+        sage(text);
+        document.getElementById('warteName').value = '';
+        document.getElementById('warteMail').value = '';
+        document.getElementById('warteTelefon').value = '';
+      } catch {
+        senden.disabled = false;
+        sage('Das hat nicht geklappt. Versuch es später noch einmal oder ruf uns an.', 'fehler');
+      }
+    });
+  }
+
   function verdrahte() {
+    grid.querySelectorAll('[data-warteliste]').forEach(knopf => {
+      knopf.addEventListener('click', () => oeffneWarteliste(knopf.dataset.warteliste));
+    });
     grid.querySelectorAll('[data-buchen]').forEach(knopf => {
       knopf.addEventListener('click', () => oeffneBuchung(knopf.dataset.buchen, knopf.dataset.titel));
     });
@@ -328,6 +533,26 @@
       const legende = document.getElementById('eventsLegende');
       if (legende) legende.hidden = !kommende.some(t => t.haus === 'kulturhaus');
       verdrahte();
+
+      // Von der Startseite (oder aus einer Mail) direkt auf die Warteliste
+      // eines Weges: ?warteliste=<kennung>. Der Abend wird gesucht, ob als
+      // Hauptweg oder als Variante; die Kachel kommt ins Bild, der Kasten
+      // geht auf. Ist der Weg inzwischen buchbar, oeffnet sich nichts -
+      // dann steht der Ticketknopf da, und der ist der bessere Weg.
+      const gewuenscht = new URLSearchParams(window.location.search).get('warteliste') || '';
+      if (gewuenscht) {
+        const abend = kommende.find(t => t.id === gewuenscht || (t.varianten || []).some(v => v.id === gewuenscht));
+        const knopf = abend && grid.querySelector(`[data-warteliste="${CSS.escape(abend.id)}"]`);
+        if (knopf) {
+          knopf.closest('.event-kachel')?.scrollIntoView({ block: 'center' });
+          oeffneWarteliste(abend.id);
+          // Den gewuenschten Weg anhaken, wenn er nicht ohnehin der Abend ist.
+          const haken = warteWege?.querySelector(`input[value="${CSS.escape(gewuenscht)}"]`);
+          if (haken) haken.checked = true;
+        } else if (abend) {
+          grid.querySelector(`[data-kalender="${CSS.escape(abend.id)}"]`)?.closest('.event-kachel')?.scrollIntoView({ block: 'center' });
+        }
+      }
 
       // Die vergangenen Abende stehen NICHT im selben Raster: sonst sitzt
       // ein verpasster Abend in derselben Reihe wie einer, der noch zu

@@ -72,3 +72,78 @@ export function markiereInformiert(liste, eintrag, jetzt) {
 export function raeumeWartelisteAb(liste, heute) {
   return (liste || []).filter(eintrag => eintrag.datum >= String(heute || ''));
 }
+
+// ---- Was der Wirt mit der Liste tun kann -----------------------------------
+//
+// Bis zum 21.09.2026 war die Mittags-Warteliste unsichtbar: der Gast trug
+// sich ein, der Dienst verstaendigte bei einer Absage automatisch - und im
+// Haus sah das niemand. Wer nicht drankam, blieb es stillschweigend. Die
+// folgenden Funktionen sind die Grundlage des Abschnitts in der Wirt-Ansicht.
+//
+// Angesprochen wird ein Eintrag ueber Tag UND Mailadresse: die beiden
+// zusammen sind eindeutig, dafuer sorgt nimmAuf().
+
+const gleich = (eintrag, datum, email) =>
+  eintrag.datum === String(datum || '') && eintrag.email === String(email || '').trim().toLowerCase();
+
+/**
+ * Die Liste fuer den Wirt: je Tag eine Gruppe, aelteste Eintragung zuerst.
+ * Vergangenes ist da schon weg (raeumeWartelisteAb).
+ */
+export function mittagUebersicht(liste, heute) {
+  const tage = new Map();
+  for (const eintrag of (liste || [])) {
+    if (eintrag.datum < String(heute || '')) continue;
+    if (!tage.has(eintrag.datum)) tage.set(eintrag.datum, []);
+    tage.get(eintrag.datum).push(eintrag);
+  }
+  return [...tage.entries()]
+    .map(([datum, eintraege]) => {
+      const sortiert = eintraege.slice()
+        .sort((a, b) => String(a.eingetragen).localeCompare(String(b.eingetragen)));
+      const wartend = sortiert.filter(e => e.status === 'wartet');
+      return {
+        datum,
+        eintraege: sortiert,
+        wartend: wartend.length,
+        informiert: sortiert.length - wartend.length,
+        personen: wartend.reduce((summe, e) => summe + (Number(e.personen) || 0), 0)
+      };
+    })
+    .sort((a, b) => a.datum.localeCompare(b.datum));
+}
+
+/** Einen Eintrag entfernen - samt Adresse. */
+export function entferneMittagEintrag(liste, datum, email) {
+  return (liste || []).filter(eintrag => !gleich(eintrag, datum, email));
+}
+
+/**
+ * Den Stand setzen. 'wartet' nimmt eine Verstaendigung zurueck - etwa wenn
+ * die Mail nicht ankam und der Gast weiter warten soll.
+ */
+export function setzeMittagStatus(liste, datum, email, status) {
+  if (status !== 'wartet' && status !== 'informiert') return liste;
+  return (liste || []).map(eintrag => gleich(eintrag, datum, email)
+    ? { ...eintrag, status, informiertUm: status === 'informiert' ? eintrag.informiertUm : null }
+    : eintrag);
+}
+
+/**
+ * Eine Mail ist hinausgegangen - oder es wurde versucht. Beides bleibt
+ * sichtbar: ein misslungener Versand ist keine Verstaendigung, und der Wirt
+ * muss das sehen, statt sich auf eine Zeile zu verlassen, die nie ankam.
+ */
+export function merkeMittagMail(liste, datum, email, ergebnis, jetzt) {
+  return (liste || []).map(eintrag => {
+    if (!gleich(eintrag, datum, email)) return eintrag;
+    const mails = [...(eintrag.mails || []), {
+      um: jetzt,
+      ok: ergebnis?.ok === true,
+      grund: ergebnis?.ok ? '' : String(ergebnis?.grund || 'fehler')
+    }];
+    return ergebnis?.ok
+      ? { ...eintrag, mails, status: 'informiert', informiertUm: jetzt }
+      : { ...eintrag, mails };
+  });
+}

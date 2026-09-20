@@ -70,9 +70,15 @@ const zeileHtml = e => {
   // Der Ticketweg des Hauses ist Ticketist; die eigene Eventseite ist der
   // Rueckfall, wenn kein Ticketlink hinterlegt ist.
   const ziel = e.ticketUrl;
-  const ticket = ziel
-    ? `<a class="event-ticket-link event-status-${schuetzeHtml(e.status)}" href="${schuetzeHtml(ziel)}" target="_blank" rel="noopener noreferrer">${schuetzeHtml(statusWort(e.status))} \u2197</a>`
-    : '';
+  // Ausverkauft: nicht zum Ticketdienst, wo nichts mehr zu holen ist,
+  // sondern auf die eigene Warteliste - die Eventseite oeffnet sie fuer
+  // genau diesen Weg (events.js liest ?warteliste=<kennung>).
+  const kennung = (String(ziel || '').match(/\/events\/([a-z0-9-]+)/) || [])[1] || '';
+  const ticket = e.status === 'sold_out' && kennung
+    ? `<a class="event-ticket-link event-status-sold_out" href="events.html?warteliste=${schuetzeHtml(kennung)}">Ausverkauft · Warteliste</a>`
+    : ziel
+      ? `<a class="event-ticket-link event-status-${schuetzeHtml(e.status)}" href="${schuetzeHtml(ziel)}" target="_blank" rel="noopener noreferrer">${schuetzeHtml(statusWort(e.status))} \u2197</a>`
+      : '';
   const kalender = e.status === 'cancelled'
     ? ''
     : `<button type="button" data-calendar-event="${schuetzeHtml(e.id)}">Zum Kalender <span>+</span></button>`;

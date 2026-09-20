@@ -346,3 +346,59 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
 
 /* Die ausverkaufte Kachel traegt ein Wort statt eines Links. */
 .kachel-ausverkauft{opacity:.55;cursor:default;pointer-events:none}
+
+/* ---- Warteliste fuer ausverkaufte Abende ----------------------------------
+   Derselbe dunkle Kasten wie die Ticketbuchung, damit beides als EIN Weg
+   vom selben Knopf aus wirkt. Keine neuen Farben: Weiss, Gold, die Flaeche
+   der Seite. Der Knopf auf der Kachel ist ein Geist-Knopf - er steht neben
+   dem grauen "ausverkauft", nicht statt seiner. */
+.kachel-warteliste{border-color:#c59b5d99;color:#e7c985}
+.kachel-warteliste:hover{background:#c59b5d22}
+.event-kachel[data-haus="kulturhaus"] .kachel-warteliste{border-color:#8a6a2f;color:#8a6a2f}
+.event-kachel[data-haus="kulturhaus"] .kachel-warteliste:hover{background:#8a6a2f14}
+
+.warte-dialog{width:min(560px,calc(100% - 20px));max-height:calc(100svh - 20px);padding:0;border:1px solid #ffffff2e;border-radius:4px;background:#141210;color:#f3efe6;overflow:auto}
+.warte-dialog::backdrop{background:#0b0a09e6}
+.warte-form{display:grid;gap:16px;padding:22px 22px 20px}
+.warte-kopf{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.warte-kicker{margin:0 0 6px;color:#c59b5d;font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:lowercase}
+.warte-kopf h2{margin:0;font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-size:clamp(22px,3vw,28px);font-weight:600;line-height:1.15;letter-spacing:-.01em}
+#warteZu{flex:0 0 38px;width:38px;height:38px;border:1px solid #ffffff33;border-radius:50%;background:transparent;color:#f3efe6;font-size:20px;cursor:pointer}
+#warteZu:hover{border-color:#c59b5d;color:#c59b5d}
+.warte-text{margin:0;color:#c8c2b8;font-size:14.5px;line-height:1.6}
+.warte-wege{margin:0;padding:0;border:0;min-width:0}
+.warte-wege legend{padding:0 0 8px;color:#e7c985;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:lowercase}
+.warte-weg{display:flex;align-items:flex-start;gap:12px;padding:11px 12px;border:1px solid #ffffff22;border-radius:8px;cursor:pointer}
+.warte-weg+.warte-weg{margin-top:8px}
+.warte-weg input{flex:0 0 22px;width:22px;height:22px;margin:1px 0 0;accent-color:#c59b5d}
+.warte-weg span{display:block;min-width:0}
+.warte-weg b{display:block;font-size:15px;font-weight:600}
+.warte-weg small{display:block;margin-top:2px;color:#c8c2b8;font-size:13px}
+.warte-weg:has(input:checked){border-color:#c59b5d;background:#c59b5d14}
+.warte-alternativen{display:grid;gap:8px;padding:12px 14px;border-left:2px solid #c59b5d;background:#ffffff08}
+.warte-alternativen p{margin:0;color:#e6e2da;font-size:14px;line-height:1.55}
+.warte-alternativen ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.warte-alternativen li{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14px}
+.warte-alternativen li span{color:#c8c2b8}
+.warte-alternativen .button{min-height:38px;padding:0 14px;font-size:11.5px}
+.warte-felder{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.warte-felder label{display:grid;gap:6px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:lowercase;color:#e6e2da}
+.warte-felder input,.warte-felder select{min-height:48px;padding:0 12px;border:1px solid #ffffff44;border-radius:8px;background:#ffffff10;color:#fff;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none}
+.warte-felder select{appearance:auto;color-scheme:dark}
+.warte-felder input::placeholder{color:#8e887e}
+.warte-hinweis{margin:0;color:#8e887e;font-size:12.5px;line-height:1.6}
+.warte-hinweis a{color:#c8c2b8}
+.warte-aktionen{display:flex;gap:10px;flex-wrap:wrap}
+.warte-aktionen .button{min-height:46px}
+.warte-note{min-height:20px;margin:0;color:#e8f0e9;font-size:14px;line-height:1.55}
+.warte-note[data-art="fehler"]{color:#e0a389}
+.warte-form[data-fertig] .warte-wege,.warte-form[data-fertig] .warte-felder,.warte-form[data-fertig] .warte-hinweis,.warte-form[data-fertig] .warte-text,.warte-form[data-fertig] .warte-alternativen,.warte-form[data-fertig] #warteSenden{display:none}
+@media(max-width:560px){
+  .warte-form{padding:18px 16px 16px}
+  .warte-felder{grid-template-columns:1fr}
+  .warte-aktionen .button{flex:1 1 auto;justify-content:center}
+}
+/* Nach dem Absenden steht die Bestaetigung VOR dem Schliessen-Knopf - erst
+   lesen, dann zumachen. */
+.warte-form[data-fertig] .warte-kopf{order:-2}
+.warte-form[data-fertig] .warte-note{order:-1}

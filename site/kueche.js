@@ -9,7 +9,7 @@
 
 import {
   apiAdresse, bleibVerbunden, hausToken, holeStand, schluesselAusAdresse, sendeTakeawayAktion
-} from './haus-api.js?v=fd2a5ef6';
+} from './haus-api.js?v=42118de8';
 
 const byId = id => document.getElementById(id);
 const pad = zahl => String(zahl).padStart(2, '0');

@@ -124,6 +124,9 @@ export function leseTermin(html, kennung) {
 
   return {
     id: kennung,
+    // Die Nummer des Abends beim Dienst. Ueber sie ist oeffentlich lesbar,
+    // wie viele Karten verkauft sind - siehe holeVerkauft().
+    eventId: Number(roh.id) || null,
     date: datum,
     zeit,
     title: name,
@@ -234,4 +237,44 @@ export async function holeTermin(kennung, fetchImpl = fetch) {
   } catch {
     return null;
   }
+}
+
+/**
+ * Wie viele Karten fuer diesen Abend verkauft sind.
+ *
+ * Der Ticketdienst gibt das oeffentlich heraus (`/api/events/<nummer>`,
+ * Feld `ticketCount`) - im Gegensatz zu den Preisen und den Restkarten.
+ * Gemessen am 20.09.2026: Kulis 07.10. 774 verkauft bei 0 frei laut
+ * Kartenliste, Kulis 08.10. 676 verkauft bei 93 frei. Die Zahl ist also
+ * die VERKAUFTEN Karten, und Platzangebot = verkauft + frei.
+ *
+ * Wozu wir sie brauchen: der Schalter des Dienstes sagt nur, ob der Verkauf
+ * offen ist. Ob Karten zurueckkommen, sagt er nicht - die Zahl schon. Faellt
+ * sie unter ihren Hoechststand, ist wieder etwas zu haben, und genau darauf
+ * wartet die Warteliste.
+ *
+ * Wirft nicht: ohne Zahl bleibt der bisherige Stand.
+ */
+export async function holeVerkauft(eventId, fetchImpl = fetch) {
+  if (!Number.isFinite(Number(eventId))) return null;
+  try {
+    const antwort = await fetchImpl(`https://www.ticketist.io/api/events/${Number(eventId)}`, {
+      headers: { 'user-agent': 'wirtschaft-dornbirn-events/1.0 (+https://wirtschaft-dornbirn.at)' },
+      cf: { cacheTtl: 900, cacheEverything: true }
+    });
+    if (!antwort.ok) return null;
+    const daten = await antwort.json();
+    const zahl = Number(daten?.ticketCount);
+    return Number.isFinite(zahl) && zahl >= 0 ? zahl : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Die Kennung aus einem Link auf den Ticketdienst - oder aus sich selbst. */
+export function kennungAusLink(wert) {
+  const text = String(wert || '').trim();
+  const ausLink = text.match(/\/events\/([a-z0-9-]+)/);
+  const kennung = (ausLink ? ausLink[1] : text).toLowerCase();
+  return /^[a-z0-9-]{3,60}$/.test(kennung) ? kennung : '';
 }
