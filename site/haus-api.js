@@ -416,3 +416,20 @@ export async function holeKarteAusDatei() {
     return { ok: false, grund: 'netz' };
   }
 }
+
+// ---- Warteliste fuer ausverkaufte Abende ----------------------------------
+
+/** Der Gast traegt sich fuer einen oder mehrere Wege ein. Kein Token. */
+export const trageEventWartelisteEin = eintrag =>
+  ruf('/api/event-warteliste', { methode: 'POST', koerper: eintrag });
+
+/** Der Wirt am Telefon: derselbe Eintrag, mit Hausschluessel. */
+export const legeEventWartelisteEintrag = (token, eintrag) =>
+  ruf('/api/event-warteliste/intern', { methode: 'POST', koerper: eintrag, token });
+
+/** Verstaendigen, Stand setzen, Notiz, entfernen. */
+export const sendeEventWartelisteAktion = (token, befehl) =>
+  ruf('/api/event-warteliste/aktion', { methode: 'POST', koerper: befehl, token });
+
+/** Die Abende beider Haeuser, wie sie die Eventseite liest. Oeffentlich. */
+export const holeTermine = () => ruf('/api/termine');

@@ -32,7 +32,18 @@ import {
 import {
   absage as absageMail, baueTermin, bestaetigung as bestaetigungsMail, brevoPaket,
   escapeHtml, newsletterFrage, sendeMail, tageszettelMail, termin_uid,
-  wartelisteFreiMail, wochenberichtMail, wochenkarte as wochenkarteMail, bestellBestaetigung, neueBestellungMail } from './mail.mjs';
+  wartelisteFreiMail, wochenberichtMail, wochenkarte as wochenkarteMail, bestellBestaetigung, neueBestellungMail,
+  eventWartelisteAufnahmeMail, eventWartelisteFreiMail } from './mail.mjs';
+import {
+  antwortVomGast, ausverkauftLautPreisen, entferneEintrag, merkeMail, nimmAufEvent, pruefeEventWartelisteEintrag,
+  raeumeEventWartelisteAb, setzeNotiz, setzeStatus, wartelisteUebersicht, wegAusTermin, wiederBuchbar
+} from './event-warteliste.mjs';
+import ticketistPreise from '../../site/data/ticketist-preise.json';
+
+// Ausverkauft laut Preisliste - dieselbe Momentaufnahme, die die Eventseite
+// liest. Einmal beim Start berechnet; die Datei aendert sich nur mit einem
+// neuen Stand aus dem Verwaltungsbereich.
+const AUSVERKAUFT_LAUT_PREISEN = ausverkauftLautPreisen(ticketistPreise?.preise);
 import {
   markiereInformiert, naechsterWartender, nimmAuf, pruefeWartelisteEintrag, raeumeWartelisteAb
 } from './warteliste.mjs';
@@ -662,6 +673,13 @@ export class Haus extends DurableObject {
       automatik: this.#lies('automatik', true) !== false,
       // Tag voll, blockierte Zeiten - die Wirt-App zeigt und schaltet sie.
       annahme: rolle === 'haus' ? this.#annahme() : undefined,
+      // Die Warteliste der Abende - nur fuer den Wirt, mit Uebersicht je Weg.
+      // Ohne die Geheimnisse der Gaeste: die stehen nur in ihren Mails.
+      eventWarteliste: rolle === 'haus'
+        ? this.eventWartelisteUebersicht().map(gruppe => ({
+          ...gruppe, eintraege: gruppe.eintraege.map(({ token, ...rest }) => rest)
+        }))
+        : undefined,
       // Ob der Gast seine Tischnummer erfaehrt. Standard: nein - sie ist intern.
       tischAnzeigen: this.#lies('tischAnzeigen', false) === true,
       // Schickt der Dienst eine SMS, wenn das Essen fertig ist? Standard:
@@ -1018,6 +1036,157 @@ export class Haus extends DurableObject {
   wartelisteZahl(datum) {
     return this.#lies('warteliste', []).filter(eintrag =>
       eintrag.datum === datum && eintrag.status === 'wartet').length;
+  }
+
+  // ---- Warteliste fuer ausverkaufte Abende ---------------------------------
+  //
+  // Die Liste liegt unter EINEM Schluessel, wie die Mittags-Warteliste: es
+  // sind wenige hundert Eintraege im Jahr, keine Tabelle wert. Vergangenes
+  // faellt bei jedem Lesen weg - mitsamt Adresse.
+
+  #eventWarteliste() {
+    return raeumeEventWartelisteAb(this.#lies('eventWarteliste', []), jetztImHaus().datum);
+  }
+
+  #eventWartelisteSchreib(liste) {
+    this.#schreib('eventWarteliste', liste);
+    this.#meldeAenderung();
+  }
+
+  /** Die Uebersicht fuer den Wirt - Wege mit Wartenden, samt Stand beim Ticketdienst. */
+  eventWartelisteUebersicht() {
+    return wartelisteUebersicht(this.#eventWarteliste(), this.#lies('termine', {}), jetztImHaus().datum, AUSVERKAUFT_LAUT_PREISEN);
+  }
+
+  /**
+   * Ein Gast (oder der Wirt am Telefon) traegt sich fuer einen oder mehrere
+   * Wege ein. Die Kennungen muessen beim Ticketdienst existieren; was der
+   * Dienst ueber den Abend weiss, kommt aus seinem Stand - nicht aus dem
+   * Browser des Gastes.
+   */
+  async eventWartelisteEintragen(roh, quelle = 'gast', basis = '') {
+    const geprueft = pruefeEventWartelisteEintrag(roh, new Set(KENNUNGEN));
+    if (!geprueft.ok) return geprueft;
+    // Der Stand des Ticketdienstes, damit Titel und Datum stimmen. Ist er
+    // leer (frischer Dienst), wird er hier gefuellt - der Gast wartet dann
+    // eine Sekunde laenger, dafuer steht beim Wirt der richtige Abend.
+    let termine = this.#lies('termine', {});
+    if (geprueft.eintrag.wege.some(weg => !termine[weg]?.termin)) {
+      await this.termine();
+      termine = this.#lies('termine', {});
+    }
+    const heute = jetztImHaus().datum;
+    const wegeInfo = {};
+    for (const weg of geprueft.eintrag.wege) {
+      const termin = termine[weg]?.termin;
+      if (termin && termin.date < heute) return { ok: false, grund: 'vergangen' };
+      wegeInfo[weg] = wegAusTermin(termin, weg, roh?.ersatz?.[weg] || {});
+    }
+    const neu = () => ({
+      id: `ew-${Date.now().toString(36)}-${Math.trunc(Math.random() * 1e6).toString(36)}`,
+      token: crypto.randomUUID().replace(/-/g, '')
+    });
+    const ergebnis = nimmAufEvent(this.#eventWarteliste(), geprueft.eintrag, wegeInfo, new Date().toISOString(), neu, quelle);
+    if (!ergebnis.ok) return { ok: false, grund: ergebnis.voll.length ? 'voll' : 'weg' };
+    this.#eventWartelisteSchreib(ergebnis.liste);
+
+    // Die Aufnahme bestaetigen - mit dem Link zum Austragen. Nur fuer neue
+    // Eintraege, und nur, wenn der Gast selbst kam: wer beim Wirt anruft,
+    // hat seine Bestaetigung schon am Telefon bekommen.
+    if (ergebnis.angelegt.length && quelle === 'gast') {
+      const absender = String(this.env?.BREVO_ABSENDER || '');
+      if (absender && basis) {
+        const inhalt = eventWartelisteAufnahmeMail({
+          name: geprueft.eintrag.name,
+          wege: ergebnis.angelegt.map(e => ({ titel: e.titel, datum: e.datum, zeit: e.zeit })),
+          austragLinks: ergebnis.angelegt.map(e => `${basis}/warteliste/antwort?t=${e.token}&a=austragen`)
+        });
+        this.ctx.waitUntil(sendeMail(this.env, brevoPaket({
+          absender, an: geprueft.eintrag.email, anName: geprueft.eintrag.name,
+          betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
+        })));
+      }
+    }
+    return {
+      ok: true,
+      neu: ergebnis.angelegt.map(e => ({ weg: e.weg, titel: e.titel, datum: e.datum })),
+      schon: ergebnis.schon,
+      voll: ergebnis.voll
+    };
+  }
+
+  /**
+   * Die Handgriffe des Wirts: verstaendigen (eine Mail, sofort, mit
+   * Zeitstempel), Stand setzen, Notiz, entfernen. `mail_alle` schickt an
+   * alle Wartenden eines Weges - in der Reihenfolge der Liste.
+   */
+  async eventWartelisteAktion(befehl, basis = '') {
+    const art = String(befehl?.art || '');
+    const liste = this.#eventWarteliste();
+    const jetzt = new Date().toISOString();
+
+    if (art === 'mail' || art === 'mail_alle') {
+      const ziele = art === 'mail'
+        ? liste.filter(e => e.id === befehl?.id)
+        : liste.filter(e => e.weg === String(befehl?.weg || '') && e.status === 'wartet');
+      if (!ziele.length) return { ok: false, grund: 'unbekannt' };
+      let stand = liste;
+      const ergebnisse = [];
+      for (const eintrag of ziele) {
+        const ergebnis = await this.#eventWartelisteVerstaendigen(eintrag, basis, befehl?.hinweis);
+        stand = merkeMail(stand, eintrag.id, ergebnis, new Date().toISOString());
+        ergebnisse.push({ id: eintrag.id, ok: ergebnis.ok === true, grund: ergebnis.grund || '' });
+      }
+      this.#eventWartelisteSchreib(stand);
+      const gelungen = ergebnisse.filter(e => e.ok).length;
+      return { ok: gelungen > 0, gesendet: gelungen, versucht: ergebnisse.length, ergebnisse, grund: gelungen ? '' : (ergebnisse[0]?.grund || 'fehler') };
+    }
+
+    const eintrag = liste.find(e => e.id === befehl?.id);
+    if (!eintrag) return { ok: false, grund: 'unbekannt' };
+    if (art === 'gebucht' || art === 'kein_bedarf' || art === 'wartet') {
+      this.#eventWartelisteSchreib(setzeStatus(liste, eintrag.id, art, { von: 'wirt', jetzt, notiz: befehl?.notiz }));
+      return { ok: true };
+    }
+    if (art === 'notiz') {
+      this.#eventWartelisteSchreib(setzeNotiz(liste, eintrag.id, befehl?.notiz));
+      return { ok: true };
+    }
+    if (art === 'entfernen') {
+      this.#eventWartelisteSchreib(entferneEintrag(liste, eintrag.id));
+      return { ok: true };
+    }
+    return { ok: false, grund: 'art' };
+  }
+
+  /** Die Mail "es gibt wieder Karten" an einen Wartenden. */
+  async #eventWartelisteVerstaendigen(eintrag, basis, hinweis) {
+    const absender = String(this.env?.BREVO_ABSENDER || '');
+    if (!absender || !basis) return { ok: false, grund: 'nicht_eingerichtet' };
+    const termin = this.#lies('termine', {})[eintrag.weg]?.termin;
+    const inhalt = eventWartelisteFreiMail({
+      name: eintrag.name,
+      titel: termin?.title || eintrag.titel,
+      datum: termin?.date || eintrag.datum,
+      zeit: termin?.zeit || eintrag.zeit,
+      personen: eintrag.personen,
+      ticketUrl: termin?.ticketUrl || `https://www.ticketist.io/events/${eintrag.weg}`,
+      gebuchtLink: `${basis}/warteliste/antwort?t=${eintrag.token}&a=gebucht`,
+      keinBedarfLink: `${basis}/warteliste/antwort?t=${eintrag.token}&a=kein_bedarf`,
+      hinweis: String(hinweis || '').trim().slice(0, 300)
+    });
+    return sendeMail(this.env, brevoPaket({
+      absender, an: eintrag.email, anName: eintrag.name,
+      betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
+    }));
+  }
+
+  /** Der Gast antwortet ueber den Link in seiner Mail. */
+  async eventWartelisteAntwort(token, art) {
+    const ergebnis = antwortVomGast(this.#eventWarteliste(), token, art, new Date().toISOString());
+    if (!ergebnis.ok) return ergebnis;
+    this.#eventWartelisteSchreib(ergebnis.liste);
+    return { ok: true, art, titel: ergebnis.eintrag.titel };
   }
 
   // ---- Geschlossene Tage ---------------------------------------------------
@@ -2069,7 +2238,22 @@ export class Haus extends DurableObject {
           ? { geholtAm: jetzt, termin }
           : { ...(frisch[kennung] || { termin: null }), geholtAm: jetzt };
       }
+      // Ist ein Abend mit Wartenden wieder buchbar geworden, klingelt es
+      // beim Haus: das ist der Moment, in dem der Wirt verstaendigen kann.
+      const alt = this.#lies('termine', {});
       this.#schreib('termine', frisch);
+      const wieder = wiederBuchbar(alt, frisch, this.#lies('eventWarteliste', []));
+      if (wieder.length) {
+        const wartende = this.#lies('eventWarteliste', []).filter(e => e.status === 'wartet' && wieder.includes(e.weg));
+        const titel = frisch[wieder[0]]?.termin?.title || wieder[0];
+        this.#meldeAenderung();
+        this.ctx.waitUntil(this.#pushHausAlle({
+          art: 'warteliste',
+          titel: `Wieder Karten: ${titel}`,
+          text: `${wartende.length} ${wartende.length === 1 ? 'Person wartet' : 'Personen warten'} – jetzt verständigen`,
+          datum: frisch[wieder[0]]?.termin?.date || ''
+        }));
+      }
     };
 
     const leer = !Object.values(stand).some(e => e?.termin);
@@ -2966,6 +3150,43 @@ export default {
 
       // Geschlossene Tage: lesen darf jeder (die Gaesteseite graut sie aus),
       // setzen nur das Haus.
+      // Warteliste fuer ausverkaufte Abende: der Gast traegt sich ein (ohne
+      // Schluessel), der Wirt liest, verstaendigt und raeumt (mit Schluessel).
+      if (url.pathname === '/api/event-warteliste' && request.method === 'POST') {
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.eventWartelisteEintragen(body, 'gast', url.origin), 200, kopf);
+      }
+      if (url.pathname === '/api/event-warteliste' && request.method === 'GET') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        return json({ ok: true, gruppen: await haus.eventWartelisteUebersicht() }, 200, kopf);
+      }
+      if (url.pathname === '/api/event-warteliste/intern' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.eventWartelisteEintragen(body, 'wirt', url.origin), 200, kopf);
+      }
+      if (url.pathname === '/api/event-warteliste/aktion' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const body = await request.json().catch(() => ({}));
+        return json(await haus.eventWartelisteAktion(body, url.origin), 200, kopf);
+      }
+      // Der Gast antwortet aus seiner Mail: gebucht, kein Bedarf, austragen.
+      // Ein Klick, eine Seite - das Geheimnis aus der Mail ist der Ausweis.
+      if (url.pathname === '/warteliste/antwort' && request.method === 'GET') {
+        const ergebnis = await haus.eventWartelisteAntwort(url.searchParams.get('t') || '', url.searchParams.get('a') || '');
+        if (!ergebnis.ok) {
+          return seite('Das ging nicht',
+            'Dieser Link ist abgelaufen oder der Eintrag ist schon weg. Wenn du weiter auf der Liste stehen willst, trag dich einfach neu ein.', null, 404);
+        }
+        const texte = {
+          gebucht: ['Danke, gute Wahl', `Wir haben vermerkt, dass du für „${ergebnis.titel}“ gebucht hast. Bis dann!`],
+          kein_bedarf: ['Alles klar', `Wir haben vermerkt, dass du für „${ergebnis.titel}“ keine Karten mehr brauchst. Dein Eintrag bleibt zur Nachvollziehbarkeit bis zum Abend stehen und wird danach gelöscht.`],
+          austragen: ['Ausgetragen', `Du stehst für „${ergebnis.titel}“ nicht mehr auf der Warteliste. Adresse und Telefonnummer sind gelöscht.`]
+        };
+        const [titel, text] = texte[ergebnis.art] || texte.austragen;
+        return seite(titel, text);
+      }
+
       if (url.pathname === '/api/geschlossen' && request.method === 'GET') {
         return json(await haus.geschlosseneTage(), 200, kopf);
       }

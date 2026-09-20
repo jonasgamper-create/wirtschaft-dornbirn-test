@@ -421,3 +421,51 @@ export function neueBestellungMail({ nummer, name, telefon, tag, zeit, posten, s
       + `${essen.join('\n')}\nSumme: ${preis(summe)}\nTelefon: ${telefon}\n${wirtLink ? `\n${wirtLink}` : ''}`
   };
 }
+
+// ---- Warteliste fuer ausverkaufte Abende -----------------------------------
+
+const langesDatumMitZeit = (tag, zeit) => `${tag ? langesDatum(tag) : 'noch offen'}${zeit ? `, ${zeit} Uhr` : ''}`;
+
+/**
+ * Die Aufnahme: der Gast weiss, wofuer er steht - und hat den Link, um
+ * sich wieder auszutragen. Ohne diesen Link waere die Liste ein Verteiler.
+ */
+export function eventWartelisteAufnahmeMail({ name, wege, austragLinks }) {
+  const zeilen = wege.map((weg, i) => `<tr><td style="padding:4px 28px;"><p style="margin:0;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#11110f;"><b>${escapeHtml(weg.titel)}</b><br><span style="color:#6a655c;">${escapeHtml(langesDatumMitZeit(weg.datum, weg.zeit))}</span>${austragLinks?.[i] ? ` · <a href="${escapeHtml(austragLinks[i])}" style="color:#8f887b;">austragen</a>` : ''}</p></td></tr>`).join('');
+  const html = rahmen('Du stehst auf der Warteliste', [
+    kopf('Warteliste', 'Du stehst auf der Warteliste'),
+    `<tr><td style="padding:12px 28px 8px;"><p style="margin:0;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#4a453d;">${escapeHtml(name)}, wir haben dich vorgemerkt für:</p></td></tr>`,
+    zeilen,
+    `<tr><td style="padding:14px 28px 18px;"><p style="margin:0;font:400 13px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">Sobald wieder Karten da sind, bekommst du eine Mail von uns – in der Reihenfolge der Eintragungen. Die Mail reserviert nichts: gekauft wird beim Ticketdienst, wer zuerst kommt, hat die Karten. Nach dem Abend löschen wir deinen Eintrag von selbst.</p></td></tr>`
+  ].join(''));
+  const text = `${name}, wir haben dich auf die Warteliste gesetzt für:\n\n`
+    + wege.map((weg, i) => `- ${weg.titel} (${langesDatumMitZeit(weg.datum, weg.zeit)})${austragLinks?.[i] ? `\n  austragen: ${austragLinks[i]}` : ''}`).join('\n')
+    + '\n\nSobald wieder Karten da sind, bekommst du eine Mail. Sie reserviert nichts - gekauft wird beim Ticketdienst.\n';
+  return { betreff: `Warteliste: ${wege.length === 1 ? wege[0].titel : `${wege.length} Abende vorgemerkt`}`, html, text };
+}
+
+/**
+ * Es gibt wieder Karten. Die Mail oeffnet die Tuer zum Ticketdienst - und
+ * traegt zwei Antworten, damit der Wirt weiss, was daraus wurde: "habe
+ * gebucht" und "brauche keine mehr". Beide sind ein Klick, kein Formular.
+ */
+export function eventWartelisteFreiMail({ name, titel, datum, zeit, personen, ticketUrl, gebuchtLink, keinBedarfLink, hinweis = '' }) {
+  const wann = langesDatumMitZeit(datum, zeit);
+  const html = rahmen('Es gibt wieder Karten', [
+    kopf('Warteliste', 'Es gibt wieder Karten!'),
+    `<tr><td style="padding:12px 28px 4px;"><p style="margin:0;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#4a453d;">${escapeHtml(name)}, du stehst für <b>${escapeHtml(titel)}</b> (${escapeHtml(wann)}) auf unserer Warteliste – und gerade sind wieder Karten da${personen ? `, du wolltest ${personen} ${personen === 1 ? 'Karte' : 'Karten'}` : ''}.</p>${hinweis ? `<p style="margin:10px 0 0;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#4a453d;">${escapeHtml(hinweis)}</p>` : ''}</td></tr>`,
+    ticketUrl ? knopf(ticketUrl, 'Jetzt Karten kaufen') : '',
+    `<tr><td style="padding:16px 28px 4px;"><p style="margin:0;font:400 13px/1.6 Helvetica,Arial,sans-serif;color:#4a453d;">Sag uns kurz Bescheid, damit wir die Liste sauber halten:</p></td></tr>`,
+    `<tr><td style="padding:8px 28px 4px;"><a href="${escapeHtml(gebuchtLink)}" style="display:inline-block;margin:0 8px 8px 0;padding:11px 18px;border:1px solid #244635;color:#244635;font:800 11px/1 Helvetica,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border-radius:999px;">Ich habe gebucht</a><a href="${escapeHtml(keinBedarfLink)}" style="display:inline-block;margin:0 0 8px;padding:11px 18px;border:1px solid #8f887b;color:#6a655c;font:800 11px/1 Helvetica,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border-radius:999px;">Brauche keine mehr</a></td></tr>`,
+    `<tr><td style="padding:12px 28px 18px;"><p style="margin:0;font:400 13px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">Die Karten sind nicht reserviert – wer zuerst kauft, hat sie. Klappt es nicht mehr, bleibt dein Eintrag auf der Liste.</p></td></tr>`
+  ].join(''));
+  return {
+    betreff: `Wieder Karten: ${titel} · ${datum ? langesDatum(datum) : ''}`.trim(),
+    html,
+    text: `${name}, für ${titel} (${wann}) sind wieder Karten da.\n\n`
+      + (ticketUrl ? `Jetzt kaufen: ${ticketUrl}\n\n` : '')
+      + (hinweis ? `${hinweis}\n\n` : '')
+      + `Ich habe gebucht: ${gebuchtLink}\nBrauche keine mehr: ${keinBedarfLink}\n\n`
+      + 'Die Karten sind nicht reserviert - wer zuerst kauft, hat sie.\n'
+  };
+}

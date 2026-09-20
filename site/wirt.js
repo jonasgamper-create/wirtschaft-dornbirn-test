@@ -13,10 +13,11 @@ import {
   holeHausPush, holePushSchluessel, meldeHausPushAb, meldeHausPushAn,
   legeZeitsperre, loescheZeitsperre, setzeAnnahme,
   setzeFertigWer, setzeToken,
-  stelleTagWiederHer
-} from './haus-api.js?v=fd2a5ef6';
+  stelleTagWiederHer,
+  holeTermine, legeEventWartelisteEintrag, sendeEventWartelisteAktion
+} from './haus-api.js?v=871d7746';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
-import { liesAnsicht, setzeHeuteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=a0244daa';
+import { liesAnsicht, setzeHeuteZahl, setzeWartelisteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=0d552f41';
 import { istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
@@ -128,6 +129,7 @@ async function start() {
   verdrahtePush();
   verdrahteAnnahme();
   verdrahteUnterreiter();
+  verdrahteWarteliste();
 }
 
 // ---- Online-Reservierungen: Tag voll, Zeiten blockieren --------------------
@@ -1040,6 +1042,325 @@ function male() {
   // Verlauf aus. Vorher lief er, bevor der Verlauf befuellt war - dort
   // stand dann eine Reservierung unter Takeaway.
   zeichneUnterreiter(eintraege, erledigte, nu);
+  maleWarteliste();
+}
+
+// ---- Warteliste der ausverkauften Abende -----------------------------------
+//
+// Die Gruppen kommen fertig ueber den Draht (stand.eventWarteliste): je Weg
+// beim Ticketdienst eine Gruppe mit Stand (ausverkauft / wieder buchbar)
+// und den Wartenden in der Reihenfolge ihrer Eintragung. Die Ansicht
+// rechnet nichts - sie zeigt, und jeder Knopf ist ein Aufruf beim Dienst.
+
+const WARTE_STATUS = {
+  wartet: 'wartet',
+  informiert: 'verständigt',
+  gebucht: 'hat gebucht',
+  kein_bedarf: 'kein bedarf mehr'
+};
+
+const stempel = iso => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return `${d.toLocaleDateString('de-AT', { weekday: 'short', day: '2-digit', month: '2-digit' }).replace(/\.$/, '')} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+const wartePlural = (n, eins, viele) => `${n} ${n === 1 ? eins : viele}`;
+
+// Welche Gruppen der Wirt aufgeklappt hat - sonst klappt jeder neue Stand
+// alles wieder so, wie es die Regel will.
+const warteOffen = new Map();
+
+function maleWarteliste() {
+  const wurzel = byId('warteGruppen');
+  const hinweis = byId('warteHinweis');
+  if (!wurzel || !stand) return;
+  const gruppen = Array.isArray(stand.eventWarteliste) ? stand.eventWarteliste : [];
+
+  const wartend = gruppen.reduce((n, g) => n + (g.wartend || 0), 0);
+  const zuTun = gruppen.filter(g => g.buchbar === true).reduce((n, g) => n + (g.wartend || 0), 0);
+  setzeWartelisteZahl(zuTun);
+  if (hinweis) {
+    hinweis.textContent = !gruppen.length
+      ? 'Gerade ist kein Abend ausverkauft. Sobald der Ticketdienst einen meldet, steht er hier – mit allen, die sich auf der Eventseite eintragen.'
+      : zuTun
+        ? `${wartePlural(zuTun, 'Person wartet', 'Personen warten')} auf einen Abend, für den es wieder Karten gibt – jetzt verständigen.`
+        : `${wartePlural(wartend, 'Person wartet', 'Personen warten')} auf ${wartePlural(gruppen.filter(g => g.eintraege?.length).length, 'Abend', 'Abende')}. Sobald es wieder Karten gibt, klingelt es hier und die Gruppe wird gold.`;
+  }
+
+  wurzel.textContent = '';
+  for (const gruppe of gruppen) {
+    const kasten = document.createElement('details');
+    kasten.className = 'warte-gruppe';
+    kasten.dataset.weg = gruppe.weg;
+    kasten.dataset.buchbar = gruppe.buchbar === true ? 'ja' : gruppe.buchbar === false ? 'nein' : 'unklar';
+    // Aufgeklappt, wenn jemand wartet oder Karten da sind; ein ausverkaufter
+    // Abend ohne Wartende bleibt zu - er steht nur da, damit man weiss, dass
+    // die Liste existiert.
+    const regel = Boolean(gruppe.eintraege?.length) || gruppe.buchbar === true;
+    kasten.open = warteOffen.has(gruppe.weg) ? warteOffen.get(gruppe.weg) : regel;
+    kasten.addEventListener('toggle', () => warteOffen.set(gruppe.weg, kasten.open));
+
+    const summary = document.createElement('summary');
+    const wann = document.createElement('span');
+    wann.className = 'warte-wann';
+    wann.textContent = gruppe.datum
+      ? new Date(`${gruppe.datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'short', day: '2-digit', month: '2-digit' }).replace(/\.$/, '') + (gruppe.zeit ? ` · ${gruppe.zeit}` : '')
+      : 'offen';
+    const titel = document.createElement('span');
+    titel.className = 'warte-titel';
+    titel.textContent = gruppe.titel + (gruppe.haus === 'kulturhaus' ? ' · kulturhaus' : '');
+    const standZeile = document.createElement('span');
+    standZeile.className = 'warte-stand';
+    const teile = [
+      gruppe.buchbar === true ? 'wieder karten da' : gruppe.buchbar === false ? 'ausverkauft' : 'stand unbekannt',
+      gruppe.eintraege?.length
+        ? `${wartePlural(gruppe.wartend, 'wartet', 'warten')}${gruppe.informiert ? `, ${gruppe.informiert} verständigt` : ''}${gruppe.personen ? ` · ${wartePlural(gruppe.personen, 'karte', 'karten')}` : ''}`
+        : 'noch niemand'
+    ];
+    standZeile.textContent = teile.join(' · ');
+    const pfeil = document.createElement('i');
+    pfeil.className = 'warte-pfeil';
+    pfeil.setAttribute('aria-hidden', 'true');
+    summary.append(wann, titel, standZeile, pfeil);
+    kasten.append(summary);
+
+    const inhalt = document.createElement('div');
+    if (gruppe.wartend > 1 || (gruppe.wartend === 1 && gruppe.buchbar === true)) {
+      const alle = document.createElement('div');
+      alle.className = 'warte-alle';
+      const text = document.createElement('p');
+      text.className = 'hinweis';
+      text.textContent = gruppe.buchbar === true
+        ? 'Alle Wartenden bekommen dieselbe Mail: Karten sind da, hier der Link.'
+        : 'Der Abend ist noch ausverkauft – verständigen geht trotzdem, etwa bei Rückläufern an der Kasse.';
+      const knopf = document.createElement('button');
+      knopf.type = 'button';
+      knopf.className = gruppe.buchbar === true ? 'knopf' : 'knopf leise';
+      knopf.textContent = `alle ${gruppe.wartend} verständigen`;
+      knopf.addEventListener('click', async () => {
+        knopf.disabled = true;
+        const antwort = await sendeEventWartelisteAktion(hausToken(), { art: 'mail_alle', weg: gruppe.weg });
+        knopf.disabled = false;
+        zeigeMailErgebnis(antwort);
+      });
+      alle.append(text, knopf);
+      inhalt.append(alle);
+    }
+
+    const liste = document.createElement('ul');
+    liste.className = 'haus-liste warte-liste';
+    if (!gruppe.eintraege?.length) {
+      const leer = document.createElement('li');
+      leer.className = 'leer';
+      leer.textContent = 'Noch niemand eingetragen. Der Knopf „auf die warteliste“ steht auf der Eventseite.';
+      liste.append(leer);
+    }
+    for (const eintrag of gruppe.eintraege || []) liste.append(warteZeile(eintrag, gruppe));
+    inhalt.append(liste);
+    kasten.append(inhalt);
+    wurzel.append(kasten);
+  }
+}
+
+function zeigeMailErgebnis(antwort) {
+  if (antwort?.ok) {
+    sag('warteInfo', antwort.gesendet > 1
+      ? `${antwort.gesendet} Mails sind hinausgegangen.`
+      : 'Die Mail ist hinausgegangen – der Zeitpunkt steht in der Zeile.', 'gut');
+    return;
+  }
+  const gruende = {
+    nicht_eingerichtet: 'Kein Mailversand eingerichtet – der Versuch steht in der Zeile. Bitte anrufen.',
+    abgelehnt: 'Der Mailversand hat die Nachricht abgelehnt – der Versuch steht in der Zeile.',
+    netz: 'Keine Verbindung zum Mailversand – gleich noch einmal.',
+    unbekannt: 'Diesen Eintrag gibt es nicht mehr.',
+    token: 'Kein Zugang – bitte den Einrichtungslink neu öffnen.'
+  };
+  sag('warteInfo', gruende[antwort?.grund] || 'Das hat nicht geklappt.', 'fehler');
+}
+
+function warteZeile(eintrag, gruppe) {
+  const li = document.createElement('li');
+  li.dataset.status = eintrag.status;
+  li.dataset.id = eintrag.id;
+
+  const wer = document.createElement('div');
+  wer.className = 'wer';
+  const name = document.createElement('b');
+  name.textContent = `${eintrag.name} · ${wartePlural(eintrag.personen, 'karte', 'karten')}`;
+  const wann = document.createElement('span');
+  wann.textContent = `eingetragen ${stempel(eintrag.eingetragen)}${eintrag.quelle === 'wirt' ? ' (vom Haus)' : ''}`;
+  const kontakt = document.createElement('span');
+  kontakt.textContent = [eintrag.email, eintrag.telefon].filter(Boolean).join(' · ');
+  wer.append(name, wann, kontakt);
+
+  // Der Verlauf: jede Mail mit Zeit und Ergebnis, dann die Rueckmeldung.
+  const verlauf = document.createElement('span');
+  verlauf.className = 'verlauf';
+  const mails = eintrag.mails || [];
+  const teile = mails.map(m => m.ok
+    ? `Mail ${stempel(m.um)}`
+    : `Mail ${stempel(m.um)} nicht zugestellt (${m.grund === 'nicht_eingerichtet' ? 'kein Versand eingerichtet' : m.grund || 'Fehler'})`);
+  if (eintrag.rueckmeldung) {
+    teile.push(`Rückmeldung ${stempel(eintrag.rueckmeldung.um)} ${eintrag.rueckmeldung.von === 'gast' ? 'per Mail-Link' : 'vom Haus'}: ${WARTE_STATUS[eintrag.rueckmeldung.art] || eintrag.rueckmeldung.art}`);
+  } else if (mails.some(m => m.ok)) {
+    teile.push('noch keine Rückmeldung');
+  }
+  if (teile.length) {
+    const i = document.createElement('i');
+    i.textContent = teile.join(' · ');
+    verlauf.append(i);
+    wer.append(verlauf);
+  }
+  if (eintrag.notiz) {
+    const notiz = document.createElement('span');
+    notiz.className = 'notiz';
+    notiz.textContent = `Notiz: ${eintrag.notiz}`;
+    wer.append(notiz);
+  }
+
+  const knoepfe = document.createElement('div');
+  knoepfe.className = 'warte-knoepfe';
+  const knopf = (text, klasse, aktion) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = klasse;
+    b.textContent = text;
+    b.addEventListener('click', aktion);
+    return b;
+  };
+  const tu = async (befehl, meldung) => {
+    const antwort = await sendeEventWartelisteAktion(hausToken(), { id: eintrag.id, ...befehl });
+    if (befehl.art === 'mail') return zeigeMailErgebnis(antwort);
+    if (!antwort?.ok) return sag('warteInfo', antwort?.grund === 'token' ? 'Kein Zugang – bitte den Einrichtungslink neu öffnen.' : 'Das hat nicht geklappt.', 'fehler');
+    if (meldung) sag('warteInfo', meldung, 'gut');
+  };
+
+  const offen = eintrag.status === 'wartet' || eintrag.status === 'informiert';
+  if (offen) {
+    knoepfe.append(knopf(mails.some(m => m.ok) ? 'nochmal verständigen' : 'verständigen',
+      gruppe.buchbar === true ? 'knopf' : 'knopf leise', () => tu({ art: 'mail' })));
+    knoepfe.append(knopf('hat gebucht', 'knopf leise', () => tu({ art: 'gebucht' }, `${eintrag.name}: hat gebucht.`)));
+    knoepfe.append(knopf('kein bedarf', 'knopf leise', () => tu({ art: 'kein_bedarf' }, `${eintrag.name}: kein Bedarf mehr.`)));
+  } else {
+    knoepfe.append(knopf('zurück auf wartend', 'knopf leise', () => tu({ art: 'wartet' }, `${eintrag.name} wartet wieder.`)));
+  }
+  knoepfe.append(knopf('notiz', 'knopf leise', () => {
+    if (li.querySelector('.warte-notiz-form')) return;
+    const form = document.createElement('form');
+    form.className = 'warte-notiz-form';
+    const feld = document.createElement('input');
+    feld.type = 'text';
+    feld.maxLength = 140;
+    feld.value = eintrag.notiz || '';
+    feld.placeholder = 'z. B. hat angerufen, will nur Kategorie 1';
+    const ok = document.createElement('button');
+    ok.type = 'submit';
+    ok.className = 'knopf';
+    ok.textContent = 'speichern';
+    form.append(feld, ok);
+    form.addEventListener('submit', ereignis => {
+      ereignis.preventDefault();
+      tu({ art: 'notiz', notiz: feld.value.trim() }, 'Notiz gespeichert.');
+    });
+    li.append(form);
+    feld.focus();
+  }));
+  knoepfe.append(knopf('entfernen', 'knopf leise', () => {
+    if (!window.confirm(`${eintrag.name} von der Warteliste nehmen? Adresse und Telefonnummer sind dann weg.`)) return;
+    tu({ art: 'entfernen' }, `${eintrag.name} ist von der Liste.`);
+  }));
+
+  li.append(wer, knoepfe);
+  return li;
+}
+
+/**
+ * Das Formular fuers Telefon: der Gast ruft an, der Wirt traegt ihn ein.
+ * Die Abende kommen vom Dienst - ausverkaufte zuerst, damit der richtige
+ * oben steht; die anderen darunter, denn wer anruft, will manchmal auch
+ * fuer einen Abend warten, den die Seite noch als buchbar zeigt (letzte
+ * Karte weg, Stand noch nicht nachgezogen).
+ */
+async function fuelleWarteAbende() {
+  const wahl = byId('warteNeuWeg');
+  if (!wahl) return;
+  const antwort = await holeTermine();
+  const termine = antwort?.termine || [];
+  const gruppen = Array.isArray(stand?.eventWarteliste) ? stand.eventWarteliste : [];
+  const ausverkauft = new Set(gruppen.filter(g => g.buchbar === false).map(g => g.weg));
+  const heute = heuteDatum();
+  const wege = [];
+  for (const termin of termine) {
+    if (!termin.date || termin.date < heute) continue;
+    const zweiWege = Boolean(termin.varianten?.length);
+    wege.push({ id: termin.id, titel: termin.title, datum: termin.date, zeit: termin.zeit || '', haus: termin.haus });
+    for (const v of termin.varianten || []) {
+      wege.push({ id: v.id, titel: `${termin.title} · ${v.label}`, datum: termin.date, zeit: v.zeit || '', haus: termin.haus });
+    }
+    void zweiWege;
+  }
+  wege.sort((a, b) => Number(ausverkauft.has(b.id)) - Number(ausverkauft.has(a.id)) || a.datum.localeCompare(b.datum) || a.zeit.localeCompare(b.zeit));
+  wahl.textContent = '';
+  for (const weg of wege) {
+    const option = document.createElement('option');
+    option.value = weg.id;
+    const tag = new Date(`${weg.datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'short', day: '2-digit', month: '2-digit' }).replace(/\.$/, '');
+    option.textContent = `${tag}${weg.zeit ? ` ${weg.zeit}` : ''} · ${weg.titel}${weg.haus === 'kulturhaus' ? ' (Kulturhaus)' : ''}${ausverkauft.has(weg.id) ? ' · ausverkauft' : ''}`;
+    wahl.append(option);
+  }
+  if (!wege.length) {
+    const option = document.createElement('option');
+    option.value = '';
+    option.textContent = 'Keine Abende bekannt – Termine werden noch geladen';
+    wahl.append(option);
+  }
+}
+
+function verdrahteWarteliste() {
+  const form = byId('warteNeuForm');
+  const zeigen = byId('warteNeuZeigen');
+  if (!form || !zeigen) return;
+  zeigen.addEventListener('click', async () => {
+    form.hidden = !form.hidden;
+    if (!form.hidden) { await fuelleWarteAbende(); byId('warteNeuName').focus(); }
+  });
+  byId('warteNeuWeg2').addEventListener('click', () => { form.hidden = true; });
+  form.addEventListener('submit', async ereignis => {
+    ereignis.preventDefault();
+    const eintrag = {
+      wege: [byId('warteNeuWeg').value],
+      name: byId('warteNeuName').value.trim(),
+      email: byId('warteNeuMail').value.trim(),
+      telefon: byId('warteNeuTelefon').value.trim(),
+      personen: Number(byId('warteNeuPersonen').value)
+    };
+    sag('warteInfo', 'Einen Moment …');
+    const antwort = await legeEventWartelisteEintrag(hausToken(), eintrag);
+    if (!antwort?.ok) {
+      const gruende = {
+        name: 'Der Name braucht mindestens zwei Zeichen.',
+        mail: 'Die E-Mail-Adresse sieht nicht richtig aus.',
+        personen: 'Karten: 1 bis 10.',
+        weg: 'Bitte einen Abend wählen.',
+        vergangen: 'Dieser Abend ist vorbei.',
+        voll: 'Die Liste für diesen Abend ist voll.',
+        token: 'Kein Zugang – bitte den Einrichtungslink neu öffnen.'
+      };
+      return sag('warteInfo', gruende[antwort?.grund] || 'Das hat nicht geklappt.', 'fehler');
+    }
+    if (!antwort.neu?.length && antwort.schon?.length) {
+      sag('warteInfo', 'Diese Adresse steht für den Abend schon auf der Liste.');
+    } else {
+      sag('warteInfo', `${eintrag.name} steht auf der Warteliste.`, 'gut');
+      byId('warteNeuName').value = '';
+      byId('warteNeuMail').value = '';
+      byId('warteNeuTelefon').value = '';
+      form.hidden = true;
+    }
+  });
 }
 
 // ---- Das Aktionsblatt: Zeile antippen, Blatt geht auf ----------------------

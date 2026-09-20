@@ -4,7 +4,7 @@
 // zurueckkommt. Die Anmeldung nach einer Reservierung und der
 // Dienst-Endpunkt bleiben davon unberuehrt.
 
-import { holeKarteInfo, holeTakeawayKarte, karteAdresse } from './haus-api.js?v=fd2a5ef6';
+import { holeKarteInfo, holeTakeawayKarte, karteAdresse } from './haus-api.js?v=871d7746';
 
 // ---- Die Mittagskarte als PDF, frisch vom Haus -----------------------------
 //

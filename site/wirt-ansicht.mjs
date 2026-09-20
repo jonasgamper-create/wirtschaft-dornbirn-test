@@ -41,12 +41,15 @@
 // -10: Fusszeile und "Tag leeren" als Block vor der Uebersicht.
 // -11: Tag voll / Zeiten blockieren stehen beim Kontingent unter haus,
 // direkt unter der Auslastung (Jonas, 07.09.).
-const SCHLUESSEL = 'wirtschaft-wirt-ansicht-11';
+// -12: vierter Reiter "warteliste" - die Wartenden der ausverkauften Abende
+// (Jonas, 20.09.: eigener Reiter, nicht irgendwo unter haus).
+const SCHLUESSEL = 'wirtschaft-wirt-ansicht-12';
 
 /** Die drei Reiter, in der Reihenfolge der Leiste unten. */
 export const REITER = [
   { id: 'heute', titel: 'heute' },
   { id: 'karte', titel: 'karte' },
+  { id: 'warteliste', titel: 'warteliste' },
   { id: 'haus', titel: 'haus' }
 ];
 
@@ -71,6 +74,11 @@ export const BLOECKE = [
   { id: 'planKasten', titel: 'Menüplan der Woche', an: true, reiter: 'karte' },
   { id: 'karteKasten', titel: 'Mittagskarte als PDF (Übergang)', an: false, reiter: 'karte' },
   { id: 'textKasten', titel: 'Gerichte als Textliste (Übergang)', an: false, reiter: 'karte' },
+
+  // warteliste - wer auf einen ausverkauften Abend wartet. Eigener Reiter:
+  // die Liste entsteht von selbst, sobald ein Abend ausverkauft ist, und
+  // der Wirt soll sie finden, ohne zu suchen (Jonas, 20.09.).
+  { id: 'wartelisteKasten', titel: 'Warteliste der ausverkauften Abende', an: true, reiter: 'warteliste' },
 
   // haus - alles, was man selten braucht und dann sofort finden muss.
   // Zahlen und Laufkundschaft: fuer den Alltag nicht interessant (Jonas,
@@ -197,6 +205,18 @@ export function verdrahteReiter(hollAnsicht = liesAnsicht) {
  */
 export function setzeHeuteZahl(anzahl) {
   const zeichen = document.getElementById('heuteZahl');
+  if (!zeichen) return;
+  zeichen.textContent = anzahl > 0 ? String(anzahl) : '';
+  zeichen.hidden = !(anzahl > 0);
+}
+
+/**
+ * Die Zahl am Reiter "warteliste": Wartende, fuer deren Abend es wieder
+ * Karten gibt - also die, die jetzt verstaendigt werden koennen. Solange
+ * ein Abend ausverkauft ist, gibt es nichts zu tun, und die Zahl schweigt.
+ */
+export function setzeWartelisteZahl(anzahl) {
+  const zeichen = document.getElementById('wartelisteZahl');
   if (!zeichen) return;
   zeichen.textContent = anzahl > 0 ? String(anzahl) : '';
   zeichen.hidden = !(anzahl > 0);

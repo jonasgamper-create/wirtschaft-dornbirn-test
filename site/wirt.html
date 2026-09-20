@@ -16,10 +16,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Wirt">
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
-  <link rel="stylesheet" href="wirt.css?v=d50282d6">
+  <link rel="stylesheet" href="wirt.css?v=a1c50610">
   <!-- Muss vor allen anderen laufen: setzt den Probemodus (siehe probe.js). -->
   <script src="probe.js?v=ddc3b38b" defer></script>
-  <script type="module" src="wirt.js?v=57fbd702"></script>
+  <script type="module" src="wirt.js?v=f66fcbcb"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -339,6 +339,33 @@
       <p class="lauf-ergebnis" id="pushInfo" role="status" aria-live="polite"></p>
     </details>
 
+    <!-- Die Warteliste der ausverkauften Abende. Sie entsteht von selbst:
+         sobald der Ticketdienst einen Abend als ausverkauft meldet, steht er
+         hier - mit allen, die sich auf der Eventseite eingetragen haben:
+         wann, wer, wie viele Karten, Mail, Telefon. Gibt es wieder Karten,
+         verstaendigt der Wirt mit einem Knopf; wann die Mail hinausging und
+         ob eine Antwort kam, steht in der Zeile. -->
+    <section class="warteliste" data-block="wartelisteKasten" aria-labelledby="warteTitel">
+      <div class="zeile-kopf">
+        <h2 id="warteTitel">Warteliste</h2>
+        <button class="knopf leise klein" type="button" id="warteNeuZeigen">+ eintragen</button>
+      </div>
+      <p class="hinweis" id="warteHinweis">Wird geladen …</p>
+      <form class="neu-form warte-neu" id="warteNeuForm" hidden>
+        <label class="warte-neu-weg">Abend<select id="warteNeuWeg" required></select></label>
+        <label>Name<input type="text" id="warteNeuName" maxlength="40" placeholder="z. B. Huber" required></label>
+        <label>E-Mail<input type="email" id="warteNeuMail" maxlength="120" inputmode="email" placeholder="name@beispiel.at" required></label>
+        <label>Telefon (optional)<input type="tel" id="warteNeuTelefon" maxlength="25" inputmode="tel" placeholder="+43 …"></label>
+        <label>Karten<input type="number" id="warteNeuPersonen" min="1" max="10" value="2" inputmode="numeric" required></label>
+        <div class="neu-knoepfe">
+          <button class="knopf" type="submit">Eintragen</button>
+          <button class="knopf leise" type="button" id="warteNeuWeg2">Abbrechen</button>
+        </div>
+      </form>
+      <p class="lauf-ergebnis" id="warteInfo" role="status" aria-live="polite"></p>
+      <div class="warte-gruppen" id="warteGruppen"></div>
+    </section>
+
     <details class="werkzeug" id="zettelKasten" data-block="zettelKasten">
       <summary>Küchenzettel – wie viel brauchen wir heute?</summary>
       <p class="hinweis" id="zettelKopf">Wird geladen …</p>
@@ -421,6 +448,9 @@
     </button>
     <button class="reiter-knopf" type="button" data-ziel="karte" role="tab" aria-selected="false">
       <span>karte</span>
+    </button>
+    <button class="reiter-knopf" type="button" data-ziel="warteliste" role="tab" aria-selected="false">
+      <span>warteliste</span><b class="reiter-zahl" id="wartelisteZahl" hidden></b>
     </button>
     <button class="reiter-knopf" type="button" data-ziel="haus" role="tab" aria-selected="false">
       <span>haus</span>

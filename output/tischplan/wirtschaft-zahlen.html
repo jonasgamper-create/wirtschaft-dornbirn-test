@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; style-src 'sha256-4RgxiogyCYvQ5HIwsZt63PB1ecJzJwKc0e1gG3OFM0k='; script-src 'sha256-tM0NIZBE/TO06hUfIE60jga8oOacP4Si1qfhl5+6BFE='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev wss://wirtschaft-reservierung-probe.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; style-src 'sha256-2KHlnsG3jHtEHwpZwHTpI1PLdQgaeI0p24U4o0u9IRw='; script-src 'sha256-EW6gujqaMLQZOPmsRNxDv4tXWPKYmWnyb5jIiiFpeW0='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev wss://wirtschaft-reservierung-probe.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#11110f">
   <title>Monatszahlen · Wirtschaft Dornbirn</title>
@@ -802,6 +802,63 @@ body.ohne-schluessel main{padding-bottom:64px}
   .haus-liste li[data-art="takeaway"] .wer{flex-basis:calc(100% - 70px)}
 }
 
+/* ---- Warteliste der ausverkauften Abende ----------------------------------
+   Je Abend eine aufklappbare Gruppe: was, wann, ausverkauft oder wieder
+   buchbar, wie viele warten. Darunter die Zeilen wie in der Tagesliste -
+   Name gross, Kontakt und Verlauf klein, Knoepfe rechts. Wieder buchbar
+   heisst: Goldrand, und der Verstaendigen-Knopf wird gruen. */
+.warte-gruppen{display:grid;gap:10px}
+.warte-gruppe{border:1px solid var(--linie);border-radius:12px;background:#fff;padding:0}
+.warte-gruppe[data-buchbar="ja"]{border-color:var(--gold-rand);background:var(--gold-flaeche)}
+.warte-gruppe>summary{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 12px;align-items:center;
+  min-height:56px;padding:12px 14px;list-style:none;cursor:pointer}
+.warte-gruppe>summary::-webkit-details-marker{display:none}
+.warte-gruppe .warte-wann{grid-row:1/3;grid-column:1;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;
+  padding:6px 10px;border:1px solid var(--linie);border-radius:8px;background:var(--paper);font-size:13.5px;line-height:1.3;text-align:center}
+.warte-gruppe .warte-titel{grid-row:1;grid-column:2;font-size:16px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.warte-gruppe .warte-stand{grid-row:2;grid-column:2;color:var(--muted);font-size:13px}
+.warte-gruppe[data-buchbar="ja"] .warte-stand{color:var(--gold-text);font-weight:700}
+.warte-gruppe .warte-pfeil{grid-row:1/3;grid-column:3;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin-right:4px}
+.warte-gruppe[open] .warte-pfeil{transform:rotate(-135deg)}
+.warte-gruppe>div{padding:0 14px 14px;display:grid;gap:10px}
+.warte-gruppe .warte-alle{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.warte-gruppe .warte-alle .hinweis{margin:0;flex:1 1 200px}
+.warte-liste li{flex-wrap:wrap;align-items:flex-start}
+.warte-liste li[data-status="gebucht"]{border-color:var(--green);background:var(--gruen-hell)}
+.warte-liste li[data-status="kein_bedarf"]{opacity:.6}
+.warte-liste li[data-status="informiert"]{border-color:var(--gold-rand)}
+.warte-liste .wer{flex:1 1 220px}
+.warte-liste .wer b{font-size:16px}
+.warte-liste .wer span{overflow-wrap:anywhere}
+.warte-liste .wer .verlauf{color:var(--ink);font-size:13px}
+.warte-liste .wer .verlauf i{font-style:normal;color:var(--muted)}
+.warte-liste .wer .verlauf b{font-size:13px;color:var(--green)}
+.warte-liste .wer .notiz{color:var(--gold-text);font-size:13px}
+.warte-liste .warte-knoepfe{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;flex:0 1 auto}
+.warte-liste .warte-knoepfe .knopf{min-height:38px;padding:0 12px;font-size:11.5px}
+.warte-liste .warte-notiz-form{flex:1 1 100%;display:flex;gap:8px}
+.warte-liste .warte-notiz-form input{flex:1;min-height:40px;padding:0 10px;border:1px solid var(--linie);border-radius:8px;font-size:15px}
+.warte-liste .warte-notiz-form .knopf{min-height:40px;padding:0 12px;font-size:11.5px}
+.warte-liste .leer{border-style:dashed;background:transparent;color:var(--muted);font-size:14px}
+.warte-neu .warte-neu-weg{grid-column:1/-1}
+.warte-neu select{min-height:48px;padding:8px 12px;border:1px solid var(--linie);border-radius:8px;background:#fff;color:var(--ink);font-size:16px;font-weight:400;letter-spacing:0;text-transform:none;width:100%}
+.warte-gruppe[data-buchbar="ja"] .warte-liste li{background:#fff}
+@media(max-width:560px){
+  .warte-gruppe .warte-wann{font-size:12.5px;padding:5px 8px}
+  .warte-liste .warte-knoepfe{justify-content:flex-start;flex:1 1 100%}
+}
+
+/* Vier Reiter statt drei: am Telefon muss "warteliste" in seine Spalte
+   passen, ohne zu stapeln oder umzubrechen. Enger gesetzt, nicht kleiner
+   gedacht. */
+@media(max-width:480px){
+  .reiter-knopf{padding:0 4px;gap:5px;font-size:12px;letter-spacing:.04em}
+  .reiter-zahl{min-width:19px;height:19px;padding:0 5px;font-size:11px}
+}
+@media(min-width:700px){
+  .reiter-leiste{width:min(520px,calc(100% - 36px))}
+}
+
   </style>
 </head>
 <body class="uebersicht-seite zahlen-seite">
@@ -1014,7 +1071,7 @@ window.WIRTSCHAFT_HAUS={"api":"https://wirtschaft-reservierung.jonas-gamper.work
 })();
 
 (() => {
-  // site/haus-api.js?v=fd2a5ef6
+  // site/haus-api.js?v=871d7746
   var KONFIG = "data/haus.json";
   var TOKEN_SCHLUESSEL = "wirtschaft-haus-token";
   var gemerkt = null;
