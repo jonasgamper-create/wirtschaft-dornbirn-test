@@ -3554,3 +3554,25 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
 .final-site .lunch-heute a{color:var(--gold);text-decoration-thickness:1px;text-underline-offset:4px;white-space:nowrap;
   padding:10px 0;margin:-10px 0}
 .final-site .lunch-heute a:hover{color:#f3efe6}
+
+/* ===== Ein Bildschirm je Abschnitt am Telefon: Einrasten =====
+   Die Hoehe allein (100dvh, seit 21.09.) reicht nicht: beim Scrollen bleibt
+   man irgendwo zwischen zwei Abschnitten stehen, und waehrend Safari seine
+   Leisten ein- und ausblendet, verschieben sich alle Kanten unter dem
+   Finger - die Seite deckte "beim Scrollen nie den ganzen Bildschirm"
+   (Jonas, 21.09.). Natives Einrasten laesst jeden Scroll an einer
+   Abschnittskante enden; nach dem Ein-/Ausblenden der Leisten rastet
+   Safari von selbst neu ein. Die Seite scrollt weiter nativ, es gibt keine
+   zweite Scroll-Engine (CLAUDE.md). Nur am Telefon - am Laptop liest man
+   frei, dort passt ohnehin alles auf einen Blick.
+   scroll-snap-stop:always: ein Wisch, ein Abschnitt - kein Ueberspringen
+   des Programms auf dem Weg nach unten. */
+@media(max-width:560px){
+  html{scroll-snap-type:y mandatory}
+  .final-site .final-prologue,
+  .final-site .concept-scene,
+  .final-site .catering-scene,
+  .final-site .voucher-scene,
+  .final-site .insta-strip{scroll-snap-align:start;scroll-snap-stop:always}
+  .final-site .site-footer{scroll-snap-align:end}
+}
