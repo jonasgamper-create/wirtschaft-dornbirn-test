@@ -128,6 +128,13 @@
       if (el === band || band.contains(el)) continue;
       const stand = getComputedStyle(el);
       if (stand.position !== 'fixed') continue;
+      // Wer oben angeschlagen ist, haengt nicht am unteren Rand - auch dann
+      // nicht, wenn seine berechnete Unterkante zufaellig klein aussieht.
+      // Ohne diese Zeile bekam die Kachel "aktuelles programm" auf der
+      // Startseite eine Unterkante gesetzt; da sie zugleich oben haengt,
+      // spannte sie sich ueber beides und wurde zu einer 719 px hohen
+      // beigen Pille quer ueber das Kopfbild (Jonas, 21.09., am iPhone).
+      if (stand.top !== 'auto') continue;
       const unten = parseFloat(stand.bottom);
       // "auto" oder weit oben: der Kasten haengt nicht am unteren Rand.
       if (!Number.isFinite(unten) || unten > hoch + 24) continue;
