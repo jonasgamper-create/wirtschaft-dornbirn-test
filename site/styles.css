@@ -50,7 +50,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .experience-bar{position:absolute;z-index:702;top:0;left:0;right:0;height:var(--bar-h);display:flex;align-items:center;gap:28px;padding:0 24px;border-bottom:1px solid #ffffff1d;background:#11110ff2;}
 .master-brand{display:flex;align-items:center;width:148px;height:44px;padding:7px 10px;border-radius:6px;background:var(--paper)}.master-brand img{width:100%;height:auto}.experience-bar p{margin:0;font-size:12px;letter-spacing:.06em;color:#bdbdb5}.experience-bar p strong{color:#fff}.experience-actions{margin-left:auto;display:flex;gap:9px;align-items:center}.icon-button,.primary-action,.experience-actions select{min-height:38px;border-radius:999px;border:1px solid #ffffff35;background:#ffffff0d;color:#fff;padding:0 15px;font-size:16px;letter-spacing:.08em;text-transform:lowercase}.primary-action{border-color:#fff;background:#fff;color:#11110f;font-weight:750}
 .experience-actions select{display:none}
-.concept-rail{position:fixed;z-index:650;top:50%;left:14px;max-height:calc(100svh - 92px);padding:2px;overflow-y:auto;transform:translateY(-50%);display:grid;gap:4px;scroll-behavior:smooth;scrollbar-width:none}.concept-rail::-webkit-scrollbar{display:none}.concept-rail a{display:flex;align-items:center;gap:10px;width:35px;height:35px;overflow:hidden;border:1px solid #ffffff28;border-radius:999px;background:#11110f99;text-decoration:none;transition:width .35s var(--ease),background .2s,color .2s}.concept-rail a span{display:grid;place-items:center;flex:0 0 33px;font-size:11.5px;font-weight:700}.concept-rail a b{white-space:nowrap;font-size:11px;text-transform:lowercase;letter-spacing:.08em}.concept-rail a:hover{width:120px;background:#fff;color:#11110f}.concept-rail a[aria-current="true"]{width:35px;background:#fff;color:#11110f;box-shadow:0 8px 40px #11110f44}.prologue,.concept-scene{position:relative;min-height:100svh;overflow:hidden;isolation:isolate}.prologue{display:flex;align-items:flex-end;background:#11110f}.prologue-media,.scene-media,.duo-media,.poster-photo{position:absolute;z-index:-4;inset:0;width:100%;height:100%;object-fit:cover}.prologue-media{transform:scale(1.03);animation:slowZoom 16s ease-in-out alternate infinite}.prologue-shade,.media-shade{position:absolute;z-index:-3;inset:0;background:linear-gradient(90deg,#11110fec 0%,#11110f9b 50%,#11110f2b 100%)}.prologue-shade:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#11110ffa,transparent 55%)}
+.concept-rail{position:fixed;z-index:650;top:50%;left:14px;max-height:calc(100svh - 92px);padding:2px;overflow-y:auto;transform:translateY(-50%);display:grid;gap:4px;scroll-behavior:smooth;scrollbar-width:none}.concept-rail::-webkit-scrollbar{display:none}.concept-rail a{display:flex;align-items:center;gap:10px;width:35px;height:35px;overflow:hidden;border:1px solid #ffffff28;border-radius:999px;background:#11110f99;text-decoration:none;transition:width .35s var(--ease),background .2s,color .2s}.concept-rail a span{display:grid;place-items:center;flex:0 0 33px;font-size:11.5px;font-weight:700}.concept-rail a b{white-space:nowrap;font-size:11px;text-transform:lowercase;letter-spacing:.08em}.concept-rail a:hover{width:120px;background:#fff;color:#11110f}.concept-rail a[aria-current="true"]{width:35px;background:#fff;color:#11110f;box-shadow:0 8px 40px #11110f44}.prologue,.concept-scene{position:relative;min-height:100dvh;overflow:hidden;isolation:isolate}.prologue{display:flex;align-items:flex-end;background:#11110f}.prologue-media,.scene-media,.duo-media,.poster-photo{position:absolute;z-index:-4;inset:0;width:100%;height:100%;object-fit:cover}.prologue-media{transform:scale(1.03);animation:slowZoom 16s ease-in-out alternate infinite}.prologue-shade,.media-shade{position:absolute;z-index:-3;inset:0;background:linear-gradient(90deg,#11110fec 0%,#11110f9b 50%,#11110f2b 100%)}.prologue-shade:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#11110ffa,transparent 55%)}
 .prologue-copy{width:min(850px,calc(100% - 64px));margin:0 max(7vw,70px) 9vh}.eyebrow{margin:0 0 18px;font-size:11px;font-weight:700;line-height:1.4;letter-spacing:.18em;text-transform:lowercase}.prologue h1{max-width:850px;margin:0;font-family:Montserrat,-apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;font-size:clamp(58px,8vw,122px);font-weight:600;line-height:.88;letter-spacing:-.015em}.prologue-copy>p:not(.eyebrow){max-width:650px;margin:28px 0 34px;color:#e2e2de;font-size:18px;line-height:1.6}.prologue-actions,.scene-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 20px;border:1px solid currentColor;border-radius:999px;background:transparent;text-decoration:none;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:lowercase;transition:transform .25s var(--ease),background .25s,color .25s}.button:hover{transform:translateY(-3px)}
 .button-dark{background:#11110f;color:#fff;border-color:#11110f}.button-ghost{color:#fff}.button-warm{background:var(--cream);color:#11110f;border-color:var(--cream)}.button-green{background:var(--green);color:#fff;border-color:var(--green)}
 
@@ -176,7 +176,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .prologue-actions .button.solid:hover{background:#fff;border-color:#fff}
 /* Am Telefon nicht auf volle Hoehe: 84 svh lassen den naechsten Abschnitt
    unten anblitzen - der Gast sieht, dass es weitergeht. */
-@media(max-width:520px){.final-prologue{min-height:84svh}.prologue-actions{gap:8px}.prologue-actions .button{flex:1 1 100%;min-height:46px}}.final-prologue .prologue-media{animation:none;transform:translate3d(0,var(--parallax,0),0) scale(var(--zoom,1.075));will-change:transform}.final-prologue .prologue-shade{background:linear-gradient(90deg,#11110ff7 0%,#11110fcf 48%,#11110f5e 76%,#11110f9c 100%)}.final-prologue .prologue-shade:after{background:linear-gradient(0deg,#11110ff2,transparent 58%)}.final-prologue .prologue-copy{position:relative;z-index:2;width:min(820px,calc(100% - 64px));margin-left:max(8vw,84px)}.final-prologue h1{font-size:clamp(54px,7.25vw,112px);line-height:.91;letter-spacing:-.052em}
+@media(max-width:520px){.final-prologue{min-height:100dvh}.prologue-actions{gap:8px}.prologue-actions .button{flex:1 1 100%;min-height:46px}}.final-prologue .prologue-media{animation:none;transform:translate3d(0,var(--parallax,0),0) scale(var(--zoom,1.075));will-change:transform}.final-prologue .prologue-shade{background:linear-gradient(90deg,#11110ff7 0%,#11110fcf 48%,#11110f5e 76%,#11110f9c 100%)}.final-prologue .prologue-shade:after{background:linear-gradient(0deg,#11110ff2,transparent 58%)}.final-prologue .prologue-copy{position:relative;z-index:2;width:min(820px,calc(100% - 64px));margin-left:max(8vw,84px)}.final-prologue h1{font-size:clamp(54px,7.25vw,112px);line-height:.91;letter-spacing:-.052em}
 
 
 
@@ -641,7 +641,7 @@ html{scroll-padding-top:0}
 .final-site .catering-scene-copy h2 em{color:var(--wine);font-style:normal}
 .final-site .catering-scene-copy>p:not(.eyebrow){max-width:470px;margin:22px 0 28px;font-size:17px;line-height:1.5}
 .final-site .catering-scene-copy .eyebrow{color:var(--wine)}
-.final-site .chapter-lunch .scene-shell{height:auto;min-height:100svh;padding-bottom:56px}
+.final-site .chapter-lunch .scene-shell{height:auto;min-height:100dvh;padding-bottom:56px}
 .final-site .chapter-lunch .lunch-card{margin-bottom:4vh}
 .lunch-menu{display:grid;gap:12px;margin:20px 0 14px}
 
@@ -3308,9 +3308,19 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
   .final-site .insta-band a:nth-child(n+4){display:none}
   .final-site .insta-band{grid-template-columns:repeat(3,1fr)}
   .final-site .insta-note{font-size:11px;color:#f3efe680}
-  /* bewegung: der kleine truck im kopfbild faellt weg, der catering-truck
-     (der jetzt sauber parkt) bleibt als einziges fahrendes element */
-  .final-site .hero-arrival{display:none}
+  /* Der kleine Truck faehrt auch am Telefon oben durch (Jonas, 21.09.).
+     Er war hier abgeschaltet; damit fehlte der Seite oben die einzige
+     Bewegung.
+
+     Zwei Abweichungen vom Laptop, beide noetig:
+     1. Er haengt am Kopfbild, nicht am Fenster. Fixiert bliebe er beim
+        Weiterscrollen stehen, waehrend die Hero-Schrift an ihm
+        vorbeizieht - also genau die bewegte Deko ueber Text, die die
+        Motion-Regel am Telefon verbietet. Im Kopfbild verankert faehrt
+        er oberhalb der Schrift durch und zieht mit ihr weg.
+     2. Breiter, sonst waere er auf 390 px ein Punkt. */
+  .final-site .hero-arrival{position:absolute!important;top:calc(var(--bar-h) + 15px);
+    width:min(210px,46vw)}
 }
 @media(max-width:560px){
   /* Die Kapitel waren am Telefon auf einen vollen Bildschirm festgelegt.
@@ -3318,9 +3328,15 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
      halb leer - ein Kapitel ist jetzt so hoch wie sein Inhalt, mit
      ruhigem Atemraum oben und unten. Das Kopfbild behaelt seine volle
      Hoehe. */
-  .final-site .concept-scene{min-height:auto}
+  /* Zurueck auf einen vollen Bildschirm je Kapitel (Jonas, 21.09.):
+     vorher sah man beim Scrollen immer schon den Anfang des naechsten
+     Abschnitts, und die Seite wirkte abgehackt. dvh statt svh, damit
+     es auch dann genau ein Bildschirm ist, wenn Safari seine Leisten
+     ein- oder ausblendet. Der Text bleibt unten angeschlagen, das
+     Kopfbild fuellt den Rest - dieselbe Form wie beim Mittagskapitel. */
+  .final-site .concept-scene{min-height:100dvh}
   .final-site .concept-scene .scene-shell,
-  .final-site .chapter-lunch .scene-shell{min-height:auto;padding-top:clamp(56px,12vh,96px);padding-bottom:clamp(56px,12vh,96px)}
+  .final-site .chapter-lunch .scene-shell{min-height:100dvh;padding-top:clamp(56px,12vh,96px);padding-bottom:clamp(56px,12vh,96px)}
 }
 
 /* ===== handy-ruhe: weniger gleichzeitig, mehr atem =====
@@ -3399,6 +3415,10 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
 .final-site .bar-news-bilder{position:relative;flex:0 0 auto;width:26px;height:26px;
   margin-left:-4px;border-radius:6px;overflow:hidden;background:#11110f14}
 .final-site .bar-news-bilder[hidden]{display:none}
+/* Gurt und Hosentraeger zum Fix in app.js: ein Bild ohne Quelle wird nie
+   gemalt. Sonst steht dort das Platzhalterzeichen des Browsers - am
+   iPhone ein Fragezeichen. */
+.final-site .bar-news-bilder img:not([src]){visibility:hidden}
 .final-site .bar-news-bilder img{position:absolute;inset:0;width:100%;height:100%;
   object-fit:cover;opacity:0;transition:opacity .42s ease}
 .final-site .bar-news-bilder img.vorne{opacity:1}

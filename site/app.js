@@ -666,6 +666,13 @@
           .map(item => `assets/events/${encodeURIComponent(item.id)}.webp`);
         if (!bilder.length) return;
         a.src = bilder[0];
+        // Auch das zweite Bild bekommt sofort eine Quelle. Es ist die
+        // Rueckseite der Ueberblendung und bekam seine erst beim ersten
+        // Wechsel - bis dahin stand im sichtbaren Kasten ein <img> ohne
+        // Quelle, und Safari malt dafuer sein Platzhalterzeichen: am
+        // iPhone ein Fragezeichen, das beim Scrollen aufblitzte
+        // (Jonas, 21.09.).
+        b.src = bilder[1] || bilder[0];
         a.classList.add('vorne');
         kasten.hidden = false;
         chip.dataset.mitBild = '';
