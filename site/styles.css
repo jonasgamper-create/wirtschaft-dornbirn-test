@@ -3526,5 +3526,11 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
 /* Das heutige Wochengericht im Mittag-Kapitel: eine Zeile, live vom
    Menueplan. Der Goldstrich ist das bestehende Hinweismuster des Hauses. */
 .final-site .lunch-heute{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:16px 0 0;padding:10px 14px;border-left:2px solid var(--gold);background:#ffffff12;font-size:15px;line-height:1.5;color:#f3efe6}
-.final-site .lunch-heute a{color:var(--gold);text-decoration-thickness:1px;text-underline-offset:4px;white-space:nowrap}
+/* Der Weg zum Takeaway aus dem Mittagshinweis. Am Telefon war er nur 23 px
+   hoch und damit die kleinste Tippflaeche der ganzen Seite (gemessen
+   21.09.). Dasselbe Mittel wie bei den Hinweistexten der Reservierung:
+   Polsterung nach oben und unten, mit negativem Aussenabstand wieder
+   hereingeholt - die Zeile bleibt, wo sie war, der Finger trifft. */
+.final-site .lunch-heute a{color:var(--gold);text-decoration-thickness:1px;text-underline-offset:4px;white-space:nowrap;
+  padding:10px 0;margin:-10px 0}
 .final-site .lunch-heute a:hover{color:#f3efe6}
