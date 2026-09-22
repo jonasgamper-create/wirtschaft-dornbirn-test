@@ -9,6 +9,10 @@ import { ladePlan, legende, wochenText, zeichneAlacarte, zeichneWoche } from './
 import { istFeiertag, istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 
 const byId = id => document.getElementById(id);
+// "Dienstag, 29. September" statt "2026-09-29" in der Erfolgsmeldung: der
+// Beleg darunter schreibt das Datum schon so, die Meldung soll nicht anders
+// klingen als der Beleg (gesehen 22.09.).
+const lesbaresDatum = tag => new Date(`${tag}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'long', day: 'numeric', month: 'long' });
 start();
 
 async function start() {
@@ -238,7 +242,7 @@ async function start() {
     byId('slotInfo').textContent = keineZeitenAngeboten
       ? 'An diesem Tag nehmen wir mittags keine Reservierung an. Wähl bitte einen anderen Tag.'
       : freie === 0
-      ? `Für ${personen} ${personen === 1 ? 'Person' : 'Personen'} ist an diesem Tag mittags leider alles belegt. Ruf uns an, wir schauen was geht: +43 (0)5572 20 540`
+      ? `Für ${personen} ${personen === 1 ? 'Person' : 'Personen'} ist an diesem Tag mittags leider alles belegt. Trag dich unten auf die Warteliste ein – wird etwas frei, bekommst du sofort eine Mail. Oder ruf uns an: +43 (0)5572 20 540`
       : `Grau hinterlegte Zeiten sind für ${personen} ${personen === 1 ? 'Person' : 'Personen'} schon belegt.`;
     // Voll ist der Moment der Warteliste - vorher waere sie Laerm.
     // ...und an einem Tag ohne Mittagsbetrieb auch keine Warteliste: warten
@@ -565,7 +569,7 @@ async function start() {
       zeigeBestaetigung({ wer, tag, zeit, gaeste, wohin });
       // Die Tischnummer erscheint nur, wenn das Haus sie ausdruecklich zeigt -
       // fuer den Gast zaehlt die Zusage, nicht die interne Nummer.
-      return sag(`Passt: ${wer}, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'} am ${tag} um ${zeit}. `
+      return sag(`Passt: ${wer}, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'} am ${lesbaresDatum(tag)} um ${zeit} Uhr. `
         + 'Dein Platz ist fix reserviert. Wir sehen uns – ein Anruf ist nicht mehr nötig.', 'gut');
     }
     if (antwort.automatik === false) {
@@ -578,7 +582,7 @@ async function start() {
       // also soll der Gast auch schwarz auf weiss sehen, was gilt. Ohne
       // diesen Aufruf blieb der Beleg im Modell A ganz aus.
       zeigeBestaetigung({ wer, tag, zeit, gaeste, wohin });
-      return sag(`Passt: ${wer}, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'} am ${tag} um ${zeit}. `
+      return sag(`Passt: ${wer}, ${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'} am ${lesbaresDatum(tag)} um ${zeit} Uhr. `
         + 'Dein Platz ist reserviert. Wir sehen uns – ein Anruf ist nicht nötig.', 'gut');
     }
     // Angenommen, aber kein Tisch: ehrlich sagen, dass sich jemand meldet.
