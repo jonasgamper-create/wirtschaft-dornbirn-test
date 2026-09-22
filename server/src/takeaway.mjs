@@ -317,7 +317,11 @@ export function pruefeBestellung(roh, { gerichte, heute, jetzt, bestehende = [],
     const gericht = karte.get(String(eintrag?.id || ''));
     const menge = Math.trunc(Number(eintrag?.menge));
     if (!gericht || !Number.isFinite(menge) || menge < 1) continue;
-    posten.push({ id: gericht.id, name: gericht.name, preis: gericht.preis, menge: Math.min(menge, MAX_PORTIONEN) });
+    // Mehr als das Hoechstmass in einer Zeile ist keine Bestellung, die still
+    // gekuerzt werden darf: der Gast glaubt sonst, zwoelf bestellt zu haben,
+    // und die Kueche macht zehn (gesehen 22.09.). Also ablehnen.
+    if (menge > MAX_PORTIONEN) return { ok: false, grund: 'zu_viel' };
+    posten.push({ id: gericht.id, name: gericht.name, preis: gericht.preis, menge });
   }
   if (!posten.length) return { ok: false, grund: 'leer' };
   const portionen = posten.reduce((sum, eintrag) => sum + eintrag.menge, 0);
