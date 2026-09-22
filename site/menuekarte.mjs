@@ -42,13 +42,6 @@ export function wochenText(plan) {
   return `${schreib(plan.montag)} – ${schreib(datumPlus(plan.montag, 4))}`;
 }
 
-/** "stand: 31. august 2026" - aus dem Zeitstempel des Plans. */
-export function standText(plan) {
-  const d = new Date(plan.stand || '');
-  if (Number.isNaN(d.getTime())) return '';
-  return `stand: ${d.getDate()}. ${MONATE[d.getMonth()]} ${d.getFullYear()}`;
-}
-
 /**
  * Der Plan: vom Dienst, wenn er einen hat. Hat der Dienst keinen Plan, aber
  * ein hochgeladenes PDF, IST das PDF die Karte - dann kommt seine Adresse
@@ -108,7 +101,9 @@ export function zeichneWoche(ziel, plan) {
   gruppenKopf(ziel, 'wochengerichte', plan.fenster, plan.hinweis);
   plan.tage.forEach((tag, i) => {
     tag.gerichte.forEach((gericht, n) => {
-      const praefix = n === 0 ? WOCHENTAGE[i] : `${WOCHENTAGE[i]} oder`;
+      // Das zweite Gericht eines Tages heisst schlicht "oder:", nicht
+      // "dienstag oder:" - so las es sich wie eine Frage (Kunde, 22.09.).
+      const praefix = n === 0 ? WOCHENTAGE[i] : 'oder';
       ziel.append(zeile(gericht, { praefix, preis: gericht.preis ?? plan.preise.mittag }));
     });
   });
