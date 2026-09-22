@@ -144,7 +144,13 @@
     }
   };
 
+  // Kein Band am unteren Rand mehr (Kunde, 22.09.: die Seite soll immer
+  // final aussehen, auch beim Herzeigen). Der Probemodus selbst bleibt:
+  // ?probe=1 schaltet den Tab auf den Testdienst, ein neuer Tab ist wieder
+  // Echtbetrieb. Wer wissen will, wo er ist: window.WIRTSCHAFT_PROBE.
+  const BAND_ZEIGEN = false;
   const zeige = () => {
+    if (!BAND_ZEIGEN) return;
     document.body.appendChild(band);
     engAnpassen();
     platz();

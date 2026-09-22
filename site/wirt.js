@@ -751,7 +751,7 @@ function zeichneAuslastung(plan, heute, nu) {
     .reduce((summe, party) => summe + (Number(party.guests) || 0), 0);
   const anteil = plaetze ? Math.min(100, Math.round(personen / plaetze * 100)) : 0;
   byId('auslastungTag').textContent = `${nu.datum === heuteDatum() ? 'Heute' : new Date(`${nu.datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'long', day: 'numeric', month: 'long' })} · Reservierungen gegen die Plätze im Haus`;
-  text.textContent = `${personen} ${personen === 1 ? 'Person' : 'Personen'} reserviert · ${plaetze} Plätze · ${anteil} %`;
+  text.textContent = `${personen}\u00a0${personen === 1 ? 'Person' : 'Personen'} reserviert · ${plaetze}\u00a0Plätze · ${anteil}\u00a0%`;
   const balken = byId('auslastungBalken');
   if (balken) { balken.style.width = `${anteil}%`; balken.dataset.stufe = anteil >= 90 ? 'voll' : anteil >= 70 ? 'eng' : ''; }
   // Die Tische nach Groesse: "2× 8er, 6× 4er" - Standard, nichts zugewiesen.
@@ -933,19 +933,20 @@ function male() {
     const [stunde, minute] = zeitVon.split(':').map(Number);
     const bis = stunde * 60 + minute + dauer(party);
     const bisText = `${pad(Math.floor(bis / 60) % 24)}:${pad(bis % 60)}`;
-    const personen = `${party.guests} P.`;
+    // Geschuetzte Leerzeichen: "2 P." bricht sonst zwischen Zahl und P.
+    const personen = `${party.guests}\u00a0P.`;
 
     if (party.left) {
       erledigte.push(zeile({
         zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz, gast: party.gast,
-        titel: `${party.name} · ${personen}`,
+        titel: `${party.name} ·\u00a0${personen}`,
         info: `fertig um ${party.left}`,
         knopfText: 'wieder offen', aktion: 'zurueck', erledigt: true, leiseKnopf: true
       }));
     } else if (party.arrived) {
       eintraege.push(zeile({
         zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz, gast: party.gast,
-        titel: `${party.name} · ${personen}`,
+        titel: `${party.name} ·\u00a0${personen}`,
         info: `im Haus seit ${party.arrived} · bis gegen ${bisText}`,
         knopfText: 'Fertig', aktion: 'abgang', ton: 'da'
       }));
@@ -956,7 +957,7 @@ function male() {
       const ueberfaellig = nu.datum === heuteDatum() && zeitVon < nu.zeit && !party.arrived;
       eintraege.push(zeile({
         zeit: zeitVon, id: party.id, partyId: party.id, notiz: party.notiz, gast: party.gast,
-        titel: `${party.name} · ${personen}`,
+        titel: `${party.name} ·\u00a0${personen}`,
         info: ueberfaellig ? 'überfällig' : 'erwartet',
         knopfText: 'Da', aktion: 'ankunft', ton: ueberfaellig ? 'spaet' : ''
       }));
@@ -965,7 +966,7 @@ function male() {
   for (const bestellung of takeaway) {
     const posten = bestellung.posten || [];
     const essen = posten.map(eintrag => `${eintrag.menge}× ${eintrag.name}`).join(', ');
-    const summe = `€ ${Number(bestellung.summe).toFixed(2).replace('.', ',')}`;
+    const summe = `€\u00a0${Number(bestellung.summe).toFixed(2).replace('.', ',')}`;
     // Kurzform fuer die Zeile: wie viel, was es kostet, und das Gericht mit
     // den meisten Portionen - beim Namen genuegt das Wort vor dem
     // Doppelpunkt ("mittagsgericht: hausgemachte lasagne" -> "lasagne").
@@ -1713,7 +1714,7 @@ function fuelleBlatt() {
   const policy = stand.floorplan.policy || {};
   const dauer = wer => durationFor(wer.guests, policy);
 
-  byId('blattName').textContent = `${party.name} · ${party.guests} P. · ${party.time} Uhr`;
+  byId('blattName').textContent = `${party.name} · ${party.guests}\u00a0P. · ${party.time}\u00a0Uhr`;
   const aktuelle = party.tableIds?.length
     ? `Tisch ${party.tableIds.map(id => plan.tables.find(t => t.id === id)?.number ?? '?').join(' + ')}`
     : 'noch ohne Tisch';
@@ -2130,8 +2131,8 @@ function zeigePlanStand(plan, entwurf) {
   const euro = p => p.toFixed(2).replace('.', ',');
   const spanne = menuePreise.length
     ? (Math.min(...menuePreise) === Math.max(...menuePreise)
-      ? ` · Menüs alle € ${euro(menuePreise[0])}`
-      : ` · Menüs € ${euro(Math.min(...menuePreise))} bis ${euro(Math.max(...menuePreise))}`)
+      ? ` · Menüs alle €\u00a0${euro(menuePreise[0])}`
+      : ` · Menüs €\u00a0${euro(Math.min(...menuePreise))} bis ${euro(Math.max(...menuePreise))}`)
     : '';
   const bis = new Date(`${plan.montag}T12:00:00`);
   bis.setDate(bis.getDate() + 4);

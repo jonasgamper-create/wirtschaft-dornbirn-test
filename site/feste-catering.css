@@ -540,3 +540,8 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
   .insta-note{font-size:11px;opacity:.72}
   .insta-strip{padding-top:32px}
 }
+
+/* Ruhige Umbrueche (22.09.): Ueberschriften ausgewogen, Absaetze ohne
+   Einzelwort in der letzten Zeile. */
+h1,h2,h3{text-wrap:balance}
+p,li,dd,small{text-wrap:pretty}
