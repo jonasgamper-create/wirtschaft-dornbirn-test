@@ -3576,3 +3576,22 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
   .final-site .insta-strip{scroll-snap-align:start;scroll-snap-stop:always}
   .final-site .site-footer{scroll-snap-align:end}
 }
+
+/* ===== Niedrige Telefone: der Hero muss in EINEN Bildschirm =====
+   Auf einem iPhone mit sichtbaren Safari-Leisten bleiben rund 550 px. Der
+   Hero-Text begann bei 194 px (Kopfleiste 110 px + 84 px) und endete mit
+   den zwei Knoepfen bei 597 px - der zweite Knopf war abgeschnitten, und
+   die Seite rastete nicht mehr sauber ein (gemessen 22.09., 375x553).
+   Hier wird nur zusammengerueckt, nichts entfernt: der Text beginnt direkt
+   unter der Truck-Bahn (Kopfleiste + 118 px), die Abstaende werden knapper,
+   die Ueberschrift zwei Stufen kleiner. Ab 640 px Hoehe gilt wieder die
+   normale Fassung. Die Auswahl ist so tief wie die bestehende Regel, damit
+   sie sich durchsetzt. */
+@media(max-width:560px) and (max-height:640px){
+  .final-site .final-prologue .prologue-copy{padding-top:calc(var(--bar-h) + 118px);margin-bottom:10px}
+  .final-site .final-prologue .prologue-copy .eyebrow{margin-bottom:10px}
+  .final-site .final-prologue .prologue-copy h1{font-size:38px;line-height:1.02;margin-bottom:4px}
+  .final-site .final-prologue .prologue-copy>p:not(.eyebrow){margin:10px 0 14px;font-size:16px;line-height:1.45}
+  .final-site .final-prologue .prologue-actions{margin-top:10px;gap:6px}
+  .final-site .final-prologue .prologue-actions .button{min-height:44px}
+}
