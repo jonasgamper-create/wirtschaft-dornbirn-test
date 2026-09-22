@@ -740,6 +740,17 @@ export class Haus extends DurableObject {
     const kontaktCheck = pruefeKontakt(roh?.kontakt || {});
     if (!kontaktCheck.ok) return { ok: false, grund: kontaktCheck.grund };
 
+    // Nur der Mittag: Die Seite bietet nur die Zeiten zwischen den
+    // Oeffnungszeiten an, aber die Seite ist nicht die Grenze. Ein Aufruf mit
+    // 20:00 Uhr wurde bis 22.09. angenommen - abends ist die "wirtschaft"
+    // aber zu (Tischreservierung nur mittags, abends zaehlt das Ticket).
+    const oeffnung = await this.oeffnung();
+    const minuten = wert => Number(String(wert).slice(0, 2)) * 60 + Number(String(wert).slice(3, 5));
+    const gewuenscht = minuten(gecheckt.anfrage.time);
+    if (gewuenscht < minuten(oeffnung.von) || gewuenscht > minuten(oeffnung.bis)) {
+      return { ok: false, grund: 'uhrzeit' };
+    }
+
     // Notbremse: Zaehler je angefangener Stunde, ohne irgendeine Kennung des
     // Absenders zu speichern. Eine IP zu hinterlegen waere mehr Datenhaltung,
     // als der Zweck rechtfertigt.
