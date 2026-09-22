@@ -824,19 +824,24 @@ function zeigeKarte() {
     zeile.className = 'ta-gericht';
     const name = document.createElement('span');
     name.className = 'ta-gericht-name';
-    name.textContent = gericht.name;
-    if (gericht.allergene?.length) {
-      const codes = document.createElement('small');
-      codes.className = 'ta-codes';
-      codes.textContent = gericht.allergene.join(', ');
-      codes.setAttribute('aria-label', `Allergene: ${gericht.allergene.map(code => allergenNamen[code] || code).join(', ')}`);
-      name.append(codes);
-    }
+    // "mittagsgericht:" steht schon ueber der Gruppe - in der Zeile ist es
+    // Rauschen. Vital und Vegi behalten ihr Wort, das unterscheidet sie.
+    // Bestellung, Beleg und Kuechenzettel tragen weiter den vollen Namen.
+    name.textContent = String(gericht.name).replace(/^mittagsgericht:\s*/i, '');
     if (gericht.beilage) {
       const beilage = document.createElement('small');
       beilage.className = 'ta-gericht-beilage';
       beilage.textContent = gericht.beilage;
       name.append(beilage);
+    }
+    // Allergene zuletzt, unter den Beilagen - wie auf der gedruckten Karte
+    // (Kunde, 22.09.): Gericht, Beilagen, Buchstaben.
+    if (gericht.allergene?.length) {
+      const codes = document.createElement('small');
+      codes.className = 'ta-codes';
+      codes.textContent = gericht.allergene.join(', ').toLowerCase();
+      codes.setAttribute('aria-label', `Allergene: ${gericht.allergene.map(code => allergenNamen[code] || code).join(', ')}`);
+      name.append(codes);
     }
     const preis = document.createElement('span');
     preis.className = 'ta-gericht-preis';
