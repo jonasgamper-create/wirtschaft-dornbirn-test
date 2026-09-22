@@ -53,6 +53,19 @@ h2,.werkzeug>summary{font-weight:600;letter-spacing:-.01em;text-transform:lowerc
 h2{font-size:clamp(20px,5vw,24px);margin-bottom:6px;text-wrap:balance}
 .vorzeile{margin:0 0 8px;color:var(--green);font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:lowercase}
 .hinweis{margin:0 0 14px;color:var(--muted);font-size:14.5px}
+/* Ruhige Umbrueche (Kunde, 22.09.): keine einzelnen Woerter in der letzten
+   Zeile, Ueberschriften ausgewogen, Zahl und Einheit bleiben zusammen. */
+h1,h3,.werkzeug>summary{text-wrap:balance}
+p,li,.hinweis,.wer b,.wer small,.lauf-ergebnis{text-wrap:pretty}
+.wer b{line-height:1.25}
+.annahme>summary .annahme-titel{flex:1 1 auto;min-width:0}
+.annahme>summary .annahme-kurz{flex:0 0 auto;margin-left:auto;white-space:nowrap}
+/* Am Handy steht der Erklaertext ueber dem Knopf statt eingequetscht daneben. */
+@media(max-width:560px){
+  .annahme .zeile-kopf{flex-wrap:wrap}
+  .annahme .zeile-kopf .hinweis{flex:1 1 100%}
+}
+.auslastung-zahl{line-height:1.3}
 
 /* Die drei Zahlen des Mittags: erwartet, im Haus, frei. Sie sind das Erste,
    was man sieht - und meistens das Einzige, was man wissen muss. */

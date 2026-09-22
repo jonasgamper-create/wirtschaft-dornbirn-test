@@ -405,3 +405,8 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
    lesen, dann zumachen. */
 .warte-form[data-fertig] .warte-kopf{order:-2}
 .warte-form[data-fertig] .warte-note{order:-1}
+
+/* Ruhige Umbrueche (22.09.): Ueberschriften ausgewogen, Absaetze ohne
+   Einzelwort in der letzten Zeile. */
+h1,h2,h3{text-wrap:balance}
+p,li,dd,small{text-wrap:pretty}
