@@ -112,7 +112,12 @@ function passeAnsBlattAn() {
    * getBoundingClientRect dagegen die verkleinerte Darstellung, was die
    * Messung von der Fensterbreite abhaengig gemacht haette.
    */
-  const zuVoll = () => haelften.some(h => h.scrollHeight > h.clientHeight + 1);
+  // Nicht nur die Haelfte messen, auch jede Gruppe darin: die Gruppe ist ein
+  // Flex-Kind mit min-height:0 und darf schrumpfen - ihre Zeilen laufen dann
+  // ueber die Fusszeile, waehrend die Haelfte selbst nie "zu voll" wird
+  // (gesehen 22.09.: a la carte 696 von 649 px, Schrift blieb bei 100 %).
+  const zuVoll = () => haelften.some(h => h.scrollHeight > h.clientHeight + 1
+    || [...h.querySelectorAll('.gruppe')].some(g => g.scrollHeight > g.clientHeight + 1));
   let stufe = 1;
   const messen = () => {
     // Bis 72 Prozent darf die Schrift schrumpfen. Das ist auf A5 immer noch
