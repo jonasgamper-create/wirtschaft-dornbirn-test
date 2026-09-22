@@ -181,7 +181,7 @@ export function takeawayAusPlan(plan, datum = '') {
     if (!liste.length) continue;
     gruppen.push({
       id: `tag-${i + 1}`,
-      titel: `wochengericht ${datum ? 'am ' : ''}${WOCHENTAGE[i]}`,
+      titel: `mittagsgericht ${datum ? 'am ' : ''}${WOCHENTAGE[i]}`,
       fenster,
       hinweis: liste.length > 1 ? 'zur wahl' : '',
       gerichte: liste.map(({ g, n }) => ({
@@ -193,7 +193,7 @@ export function takeawayAusPlan(plan, datum = '') {
   const vital = mit(plan.vital);
   if (vital.length) {
     gruppen.push({
-      id: 'vital', titel: 'vital & vegi', fenster, hinweis: '',
+      id: 'vital', titel: 'vitalgerichte', fenster, hinweis: '',
       gerichte: vital.map(({ g, n }) => ({
         id: `v${n + 1}`, name: `${g.titel}: ${g.name}`, beilage: g.beilage,
         preis: g.preis ?? plan.preise.vital, allergene: codes(g)

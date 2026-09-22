@@ -80,7 +80,7 @@
     // wozu der Preis gehoert.
     const zeile = (p, praefix = '') => `
       <li data-status="${p.frei === 0 ? 'ausverkauft' : 'buchbar'}">
-        <span class="tz-name">${escapeHtml(praefix ? `${praefix}: ${p.name}` : p.name)}</span>
+        <span class="tz-name">${escapeHtml(praefix && !String(p.name).toLowerCase().startsWith(praefix.toLowerCase()) ? `${praefix}: ${p.name}` : p.name)}</span>
         <span class="tz-detail">${escapeHtml(preis(p.preis))}${p.frei === 0 ? ' · ausverkauft' : ''}</span>
       </li>`;
     // Alle Posten eines Abends: die eigenen Kategorien und die des zweiten

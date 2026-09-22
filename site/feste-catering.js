@@ -5,8 +5,6 @@
 
   const form = document.getElementById('eventInquiryForm');
   const occasion = document.getElementById('occasion');
-  const customOccasionWrap = document.getElementById('customOccasionWrap');
-  const customOccasion = document.getElementById('customOccasion');
   const location = document.getElementById('location');
   const date = document.getElementById('eventDate');
   const dateExactWrap = document.getElementById('eventDateExactWrap');
@@ -53,16 +51,6 @@
   dateFlexible?.addEventListener('change', syncDateMode);
   syncDateMode();
 
-  function syncOccasionMode() {
-    if (!customOccasionWrap || !customOccasion) return;
-    const custom = occasion.value === 'Etwas anderes';
-    customOccasionWrap.hidden = !custom;
-    customOccasion.required = custom;
-    if (!custom) customOccasion.value = '';
-  }
-  occasion.addEventListener('change', syncOccasionMode);
-  syncOccasionMode();
-
   function chooseAndFocus(field, value) {
     field.value = value;
     document.getElementById('anfrage').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
@@ -76,7 +64,6 @@
     event.preventDefault();
     status.textContent = '';
     const required = [occasion, location, guests, name, email, flexibleDate() ? dateText : date];
-    if (occasion.value === 'Etwas anderes' && customOccasion) required.push(customOccasion);
     const missing = required.find(field => !field.value.trim());
     if (missing) {
       status.textContent = 'Bitte die markierten Pflichtangaben ergänzen.';
@@ -94,7 +81,7 @@
       return;
     }
     const formattedDate = flexibleDate() ? dateText.value.trim() : new Intl.DateTimeFormat('de-AT', { dateStyle: 'long' }).format(new Date(`${date.value}T12:00:00`));
-    const occasionLabel = occasion.value === 'Etwas anderes' && customOccasion ? customOccasion.value.trim() : occasion.value;
+    const occasionLabel = occasion.value;
     const body = [
       'Guten Tag liebes Team der Wirtschaft Dornbirn,', '',
       'ich möchte unverbindlich eine Veranstaltung anfragen:',

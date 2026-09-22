@@ -129,6 +129,27 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .lunch-live h3{margin:0 0 8px;font-size:clamp(24px,3vw,30px);line-height:1.1}
 .lunch-live-note{margin:0 0 16px;color:#57524a;font-size:var(--t-meta);line-height:1.5;max-width:52ch}
 .lunch-live-stand{display:block;margin-top:12px;color:#57524a;font-size:var(--t-label);letter-spacing:0;text-transform:lowercase}
+/* Die Karte im Aufklapper: Name und Preis in EINER Zeile, Beilagen klein
+   darunter, Gruppenkopf als Label. Vorher standen Name, Preis und Beilage
+   als drei lose Absaetze untereinander - am Telefon eine 2400 px lange
+   Textwand zwischen Formular und Fragen (gesehen 22.09.). */
+.lunch-live-auf{margin-top:4px}
+.lunch-live-auf>summary{display:inline-flex;align-items:center;gap:8px;min-height:44px;cursor:pointer;color:var(--green);font-size:var(--t-label);font-weight:700;letter-spacing:.1em;text-transform:lowercase;list-style:none}
+.lunch-live-auf>summary::-webkit-details-marker{display:none}
+.lunch-live-auf>summary::before{content:"+";display:inline-block;width:1em;text-align:center;font-weight:400}
+.lunch-live-auf[open]>summary::before{content:"–"}
+.lunch-live-auf>summary:focus-visible{outline:2px solid var(--green);outline-offset:4px}
+.lunch-karte{margin-top:14px}
+.lunch-karte .karte-gruppe{margin:18px 0 6px;padding-bottom:6px;border-bottom:1px solid #11110f24;font-size:var(--t-label);font-weight:700;letter-spacing:.12em;text-transform:lowercase}
+.lunch-karte .karte-fenster{margin-left:8px;color:#57524a;font-weight:400;letter-spacing:0}
+.lunch-karte .karte-hinweis{margin:0 0 8px;color:#57524a;font-size:var(--t-meta)}
+.lunch-karte .karte-zeile{display:grid;grid-template-columns:1fr auto;column-gap:14px;align-items:baseline;padding:8px 0;border-bottom:1px solid #11110f12}
+.lunch-karte .karte-zeile:last-child{border-bottom:0}
+.lunch-karte .karte-name{margin:0;font-weight:600;line-height:1.35}
+.lunch-karte .karte-praefix{font-weight:700;color:var(--green)}
+.lunch-karte .karte-allergene{font-weight:400;color:#57524a;font-size:var(--t-meta)}
+.lunch-karte .karte-preis{white-space:nowrap;font-weight:600}
+.lunch-karte .karte-beilage{grid-column:1/-1;margin:2px 0 0;color:#57524a;font-size:var(--t-meta);line-height:1.45}
 .done-newsletter{margin-top:16px;padding-top:14px;border-top:1px solid #11110f1a}
 .done-newsletter .contact-check{display:flex;align-items:flex-start;gap:10px;font-weight:400;letter-spacing:0;text-transform:lowercase}
 .done-newsletter .contact-check input{width:22px;height:22px;min-height:0;margin-top:2px;flex:0 0 auto;accent-color:var(--green)}

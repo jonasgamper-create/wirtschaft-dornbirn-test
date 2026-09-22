@@ -5,7 +5,7 @@
 import {
   apiAdresse, bestelleTakeaway, holeBestellStatus, holeMenueplan, holePushSchluessel,
   holeTakeawayKarte, meldePushAb, meldePushAn,
-  holeKarteAusDatei,
+  holeKarteAusDatei, meldeMittagskarte,
 } from './haus-api.js?v=42118de8';
 
 const byId = id => document.getElementById(id);
@@ -588,34 +588,18 @@ function uebernimmTag(antwort) {
   // durch" keine Erklaerung, sondern eine Belehrung.
   byId('taLeer').hidden = !vorbestellung || Boolean(wunschTag);
   if (vorbestellung && !wunschTag) {
-    // Welcher Tag das ist, weiss der Dienst - er kennt Feiertage und Sperren.
-    const zielTag = antwort.bestelltag || null;
-    // Der Grund ist nicht immer derselbe, und ein falscher Grund faellt auf:
-    // "Die Kueche ist fuer heute durch" stimmt am Sonntag nicht, da hat sie
-    // gar nicht angefangen. Sonntag und Samstag zuerst, dann die Uhr.
-    // Der Grund wird aus der Kalenderlage gelesen - sie ist auch im Browser
-    // eindeutig. Ob ueberhaupt vorbestellt wird, hat der Dienst entschieden.
-    const wochenende = !werktag;
-    const nachSchluss = werktag && minuten > BESTELLSCHLUSS;
-    const grund = wochenende
-      ? 'Am Wochenende kochen wir mittags nicht'
-      : (nachSchluss ? 'Die Küche ist für heute durch' : 'Heute bleibt die Küche zu');
-    // "auf den naechsten Tag, an dem wir kochen" statt nur "auf morgen":
-    // Liegt zwischen heute und dem Zieltag ein Feiertag oder ein zugesperrter
-    // Tag, wuerde ein blosses Datum den Gast raten lassen, warum es nicht
-    // frueher geht. Dieser Satz stimmt in jedem Fall.
-    byId('taLeer').textContent = zielTag
-      ? `${grund} – deine Bestellung geht auf den nächsten Tag, an dem wir kochen: `
-        + `${tagesName(zielTag)}. Wähl einfach die Abholzeit, wir haben es dann fertig.`
-      : `${grund} – deine Bestellung geht auf den nächsten Tag, an dem wir kochen. `
-        + 'Wähl einfach die Abholzeit, wir haben es dann fertig.';
+    // Ein Satz fuer alle Faelle (Kundentext vom 22.09.): ob nach
+    // Bestellschluss, am Wochenende oder an einem zugesperrten Tag - die
+    // Kueche ist heute zu, und der Gast sucht sich einen anderen Tag der
+    // Woche aus. Welcher Tag geht, zeigt der Wochenstreifen darunter; den
+    // Zieltag hat der Dienst schon gewaehlt (antwort.bestelltag).
+    byId('taLeer').textContent = 'Die Küche ist für heute geschlossen. '
+      + 'Gerne kannst du für einen anderen Tag der Woche bereits vorbestellen.';
   }
-  // Die Ueberschrift nennt den Tag nicht mehr (Kundentext vom 16.09.): sie
-  // steht fest, der Tag steht in der Tagesleiste und in der Frage darunter.
-  // Damit kann auch nicht mehr "Heute auf dem Teller" ueber einer Bestellung
-  // fuer naechsten Montag stehen.
-  const bestellTag = antwort.bestelltag || null;
-  if (bestellTag) byId('taBestellTitel').textContent = `Was darf’s ${tagesWort(bestellTag)} sein?`;
+  // Die Ueberschrift ist fest "Was darf’s sein?" (Kundentext vom 22.09.):
+  // kein "heute" oder "morgen" mehr, weil eine Bestellung nicht automatisch
+  // auf den naechsten Tag geht. Der Tag steht in der Tagesleiste und in der
+  // Frage darunter.
 
   byId('taSenden').hidden = false;
   zeigeZeiten(minuten);
@@ -773,22 +757,6 @@ async function waehleTag(wert) {
  * oder hat der Wirt ihn zugesperrt, sagte die Seite "morgen", waehrend die
  * Bestellung laengst auf Dienstag lag.
  */
-/**
- * Die kurze Form fuer Ueberschriften: "heute", "morgen", "am Montag".
- * Sie muss sich in einen Satz einfuegen lassen - deshalb keine Datumsangabe.
- */
-function tagesWort(datum) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(datum || ''))) return 'demnächst';
-  const zweistellig = zahl => String(zahl).padStart(2, '0');
-  const jetzt = new Date();
-  const heute = `${jetzt.getFullYear()}-${zweistellig(jetzt.getMonth() + 1)}-${zweistellig(jetzt.getDate())}`;
-  const morgenDatum = new Date(jetzt);
-  morgenDatum.setDate(morgenDatum.getDate() + 1);
-  const morgen = `${morgenDatum.getFullYear()}-${zweistellig(morgenDatum.getMonth() + 1)}-${zweistellig(morgenDatum.getDate())}`;
-  if (datum === heute) return 'heute';
-  if (datum === morgen) return 'morgen';
-  return `am ${new Date(`${datum}T12:00:00`).toLocaleDateString('de-AT', { weekday: 'long' })}`;
-}
 
 
 function tagesName(datum, { lang = false } = {}) {
@@ -1135,6 +1103,14 @@ byId('taBestellen')?.addEventListener('click', async () => {
   const antwort = await bestelleTakeaway({ name, telefon, email, posten: posten(), abholung, datum: wunschTag });
   knopfSenden.disabled = false;
   if (antwort?.ok) dankeAmKnopf();
+  // Das Haekchen fuer die Mittagskarte war bis 22.09. an nichts angeschlossen:
+  // der Gast setzte es, und nichts geschah. Jetzt geht die Anmeldung nach
+  // einer gelungenen Bestellung mit - nur mit Adresse, nur mit Haken, und
+  // gueltig erst mit dem Klick in der Bestaetigungsmail (Liste Mittagskarte,
+  // wie auf der Reservierungsseite). Eine misslungene Anmeldung darf die
+  // gelungene Bestellung nicht wie einen Fehlschlag aussehen lassen.
+  const willKarte = Boolean(byId('taNewsletter')?.checked) && Boolean(email);
+  if (antwort?.ok && willKarte) meldeMittagskarte(email, 'seite').catch(() => null);
 
   if (!antwort?.ok) {
     const gruende = {

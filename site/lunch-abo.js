@@ -22,7 +22,6 @@ async function zeigeKartenKnopf() {
   if (!adresse) return;
   knopf.href = adresse;
   knopf.hidden = false;
-  if (info.stand) knopf.title = `Stand: ${info.stand}`;
 }
 zeigeKartenKnopf();
 
