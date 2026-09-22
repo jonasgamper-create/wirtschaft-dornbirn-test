@@ -3569,11 +3569,19 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
    des Programms auf dem Weg nach unten. */
 @media(max-width:560px){
   html{scroll-snap-type:y mandatory}
+  /* scroll-margin-top zaehlt auch beim Einrasten mit: die Abschnitte tragen
+     ueber ihre id einen Rand von Kopfleiste + 6 px (Regel 6, Sprungmarken),
+     und die Seite rastete deshalb 116 px VOR dem Kapitelanfang ein - oben
+     blieb ein Streifen des vorigen Kapitels stehen (gemessen 22.09. bei
+     402x874, am iPhone rund 180 pt, weil die Leiste beim Scrollen abtritt).
+     Hier ist der Rand null: jedes Kapitel bringt seinen Abstand zur Leiste
+     schon als eigenes padding-top mit, ein Sprung aus der Navigation landet
+     damit ebenfalls genau am Kapitelanfang. */
   .final-site .final-prologue,
   .final-site .concept-scene,
   .final-site .catering-scene,
   .final-site .voucher-scene,
-  .final-site .insta-strip{scroll-snap-align:start;scroll-snap-stop:always}
+  .final-site .insta-strip{scroll-snap-align:start;scroll-snap-stop:always;scroll-margin-top:0}
   .final-site .site-footer{scroll-snap-align:end}
 }
 
