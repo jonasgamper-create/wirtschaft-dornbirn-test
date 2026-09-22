@@ -77,12 +77,11 @@ function zeile(gericht, { praefix = '', preis = null } = {}) {
   name.append(gericht.name);
   block.append(name);
   if (preis !== null) block.append(el('span', 'karte-preis', alsPreis(preis)));
-  // Die Allergene gehoeren an den Namen, nicht unter die Beilagen: wer nach
-  // ihnen sucht, liest die fette Zeile und nicht das Kleingedruckte darunter
-  // (Jonas, 11.09.). Sie stehen mager hinter dem Namen, damit die Zeile
-  // trotzdem ruhig bleibt.
-  if (gericht.allergene) name.append(' ', el('span', 'karte-allergene', `(${gericht.allergene})`));
   if (gericht.beilage) block.append(el('p', 'karte-beilage', gericht.beilage));
+  // Die Allergene stehen als letzte Zeile unter den Beilagen - genau wie auf
+  // der gedruckten Karte (Kunde, 22.09.): Gericht, Beilagen, Buchstaben.
+  // Vorher hingen sie in Klammern am Namen und machten die fette Zeile lang.
+  if (gericht.allergene) block.append(el('p', 'karte-allergene', String(gericht.allergene).toLowerCase()));
   return block;
 }
 

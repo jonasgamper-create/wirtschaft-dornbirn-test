@@ -147,7 +147,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .lunch-karte .karte-zeile:last-child{border-bottom:0}
 .lunch-karte .karte-name{margin:0;font-weight:600;line-height:1.35}
 .lunch-karte .karte-praefix{font-weight:700;color:var(--green)}
-.lunch-karte .karte-allergene{font-weight:400;color:#57524a;font-size:var(--t-meta)}
+.lunch-karte .karte-allergene{grid-column:1/-1;margin:3px 0 0;color:#57524a;font-size:var(--t-label);font-weight:400;letter-spacing:.06em}
 .lunch-karte .karte-preis{white-space:nowrap;font-weight:600}
 .lunch-karte .karte-beilage{grid-column:1/-1;margin:2px 0 0;color:#57524a;font-size:var(--t-meta);line-height:1.45}
 .done-newsletter{margin-top:16px;padding-top:14px;border-top:1px solid #11110f1a}
@@ -369,7 +369,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .ta-gericht{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px 22px;align-items:center;padding:18px 20px;border-top:1px solid #11110f14}
 .ta-gericht:first-child{border-top:0}
 .ta-gericht-name{font-size:var(--t-listitem);font-weight:400;letter-spacing:0;text-transform:lowercase;line-height:1.4}
-.ta-gericht-name .ta-codes{margin-left:8px;color:#8f887b;font-size:12px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+/* Allergene als letzte Zeile unter den Beilagen, wie auf der gedruckten
+   Karte (Kunde, 22.09.) - nicht mehr hinter dem Namen. */
+.ta-gericht-name .ta-codes{display:block;margin-top:4px;color:#8f887b;font-size:12px;font-weight:700;letter-spacing:.1em}
 .ta-gericht-preis{color:var(--ink);font-size:var(--t-body);font-variant-numeric:tabular-nums;white-space:nowrap;justify-self:end}
 /* Die Allergen-Legende: nur die Buchstaben, die heute vorkommen. */
 .ta-allergene{margin:12px 0 0;color:#57524a;font-size:13px;line-height:1.65;max-width:76ch}
