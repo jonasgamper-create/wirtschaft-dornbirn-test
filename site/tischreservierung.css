@@ -772,6 +772,11 @@ a.button,
   line-height:1.45;font-weight:400;text-transform:lowercase}
 @media(max-width:560px){
   .ta-tag{flex:1 1 calc(50% - 4px);padding:12px 14px 14px}
+  /* Vergangene Tage am Telefon nur als Zeile: Tag und Datum, keine Gerichte.
+     Sonst stehen drei volle Karten ueber dem Tag, den man bestellen kann. */
+  .ta-tag:disabled{grid-template-columns:auto 1fr;column-gap:10px;align-items:baseline;padding:8px 14px}
+  .ta-tag:disabled .ta-tag-gericht{display:none}
+  .ta-tag:disabled>span{margin:0}
   .ta-gruppe h3 span{display:block;white-space:normal}
 }
 
