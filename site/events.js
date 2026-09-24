@@ -199,6 +199,7 @@
     // die Kennung an den frischen Termin.
     const dazu = new Map(hinterlegt.map(t => [t.id, {
       bild: t.bild || '',
+      bild2x: t.bild2x || '',
       preise: t.preise || [],
       varianten: new Map((t.varianten || []).map(v => [v.id, v.preise || []]))
     }]));
@@ -209,6 +210,7 @@
       return {
         ...termin,
         bild: eigen.bild,
+        bild2x: eigen.bild2x,
         preise: eigen.preise,
         varianten: (termin.varianten || []).map(v => ({ ...v, preise: eigen.varianten.get(v.id) || [] }))
       };
