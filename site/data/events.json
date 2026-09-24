@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-20T12:00:00+02:00",
+  "updatedAt": "2026-09-24T12:00:00+02:00",
   "maxAgeHours": 48,
   "sourceUrl": "https://www.ticketist.io/",
   "pause": {
@@ -15,13 +15,13 @@
       "date": "2026-09-22",
       "title": "helden reisen, gäste speisen!",
       "type": "4 comedians in verschiedenen haltestellen",
-      "status": "scheduled",
+      "status": "sold_out",
       "tickets": [
         {
           "name": "dinner & comedy (sitzplatz)",
           "preis": 88,
           "beginn": "18:45",
-          "status": "buchbar"
+          "status": "ausverkauft"
         }
       ],
       "ticketUrl": "https://www.ticketist.io/events/comedynacht-05-2026-1"

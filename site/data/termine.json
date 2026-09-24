@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-20",
+  "updatedAt": "2026-09-24",
   "quelle": "https://www.ticketist.io/events/<kennung>",
   "kennungen": [
     "comedynacht-05-2026-1",
@@ -63,7 +63,7 @@
       "adresse": "Bahnhofstraße 24, Dornbirn",
       "beschreibung": "an einem abend verschiedene comedians, zauberer und auch kabarettisten zu erleben und dabei auch kulinarisch verwöhnt zu werden, ist in der „wirtschaft“ in dornbirn nichts neues mehr. nun schicken wir unsere „helden“ zwischen ihren kurzauftritten auf die reise! in unseren 4 haltestellen – falstaff bregenz, sarah kocht, oxa hittisau und „wirtschaft“ dornbirn - werden am gleichen abend die gleichen 4 comedians ihr können zeigen! die entscheidung ist nun lediglich, in welcher haltestelle sie ihren gaumen zum jubilieren bringen möchten?! nach dem vorbild des comic strip live clubs in new york, des",
       "ticketUrl": "https://www.ticketist.io/events/comedynacht-05-2026-1",
-      "buchbar": true,
+      "buchbar": false,
       "preise": [
         {
           "name": "dinner & comedy (sitzplatz)",
@@ -71,7 +71,8 @@
           "frei": 24
         }
       ],
-      "bild": "assets/events/ticketist/comedynacht-05-2026-1.webp"
+      "bild": "assets/events/ticketist/comedynacht-05-2026-1.webp",
+      "bild2x": "assets/events/ticketist/comedynacht-05-2026-1@2x.webp"
     },
     {
       "id": "comedynacht-06-2026-1",
@@ -93,7 +94,8 @@
           "frei": 41
         }
       ],
-      "bild": "assets/events/ticketist/comedynacht-06-2026-1.webp"
+      "bild": "assets/events/ticketist/comedynacht-06-2026-1.webp",
+      "bild2x": "assets/events/ticketist/comedynacht-06-2026-1@2x.webp"
     },
     {
       "id": "kulis-02-2026",
@@ -120,7 +122,8 @@
           "frei": 0
         }
       ],
-      "bild": "assets/events/ticketist/kulis-02-2026.webp"
+      "bild": "assets/events/ticketist/kulis-02-2026.webp",
+      "bild2x": "assets/events/ticketist/kulis-02-2026@2x.webp"
     },
     {
       "id": "kulis-03-2026",
@@ -147,7 +150,8 @@
           "frei": 77
         }
       ],
-      "bild": "assets/events/ticketist/kulis-03-2026.webp"
+      "bild": "assets/events/ticketist/kulis-03-2026.webp",
+      "bild2x": "assets/events/ticketist/kulis-03-2026@2x.webp"
     },
     {
       "id": "luis-2026",
@@ -179,7 +183,8 @@
           "frei": 0
         }
       ],
-      "bild": "assets/events/ticketist/luis-2026.webp"
+      "bild": "assets/events/ticketist/luis-2026.webp",
+      "bild2x": "assets/events/ticketist/luis-2026@2x.webp"
     },
     {
       "id": "dinner-comedy-04-2026",
@@ -202,6 +207,7 @@
         }
       ],
       "bild": "assets/events/ticketist/dinner-comedy-04-2026.webp",
+      "bild2x": "assets/events/ticketist/dinner-comedy-04-2026@2x.webp",
       "varianten": [
         {
           "id": "dinner-comedy-04-only-2026",
@@ -249,7 +255,8 @@
           "frei": 2
         }
       ],
-      "bild": "assets/events/ticketist/luis-02-2026.webp"
+      "bild": "assets/events/ticketist/luis-02-2026.webp",
+      "bild2x": "assets/events/ticketist/luis-02-2026@2x.webp"
     },
     {
       "id": "spoerk-2026",
@@ -272,6 +279,7 @@
         }
       ],
       "bild": "assets/events/ticketist/spoerk-2026.webp",
+      "bild2x": "assets/events/ticketist/spoerk-2026@2x.webp",
       "varianten": [
         {
           "id": "spoerk-2026-only",
@@ -309,7 +317,8 @@
           "frei": 18
         }
       ],
-      "bild": "assets/events/ticketist/neuschmid-voegel-02-2026.webp"
+      "bild": "assets/events/ticketist/neuschmid-voegel-02-2026.webp",
+      "bild2x": "assets/events/ticketist/neuschmid-voegel-02-2026@2x.webp"
     },
     {
       "id": "rock4-2026",
@@ -332,6 +341,7 @@
         }
       ],
       "bild": "assets/events/ticketist/rock4-2026.webp",
+      "bild2x": "assets/events/ticketist/rock4-2026@2x.webp",
       "varianten": [
         {
           "id": "rock4-2026-only",
@@ -369,7 +379,8 @@
           "frei": 0
         }
       ],
-      "bild": "assets/events/ticketist/ullitroy-menue-2026.webp"
+      "bild": "assets/events/ticketist/ullitroy-menue-2026.webp",
+      "bild2x": "assets/events/ticketist/ullitroy-menue-2026@2x.webp"
     },
     {
       "id": "ullitroy-brunch-2026",
@@ -391,7 +402,8 @@
           "frei": 77
         }
       ],
-      "bild": "assets/events/ticketist/ullitroy-brunch-2026.webp"
+      "bild": "assets/events/ticketist/ullitroy-brunch-2026.webp",
+      "bild2x": "assets/events/ticketist/ullitroy-brunch-2026@2x.webp"
     },
     {
       "id": "kellner-2026",
@@ -414,6 +426,7 @@
         }
       ],
       "bild": "assets/events/ticketist/kellner-2026.webp",
+      "bild2x": "assets/events/ticketist/kellner-2026@2x.webp",
       "varianten": [
         {
           "id": "kellner-2026-only",
@@ -451,7 +464,8 @@
           "frei": 263
         }
       ],
-      "bild": "assets/events/ticketist/kulturimhaus-h2026.webp"
+      "bild": "assets/events/ticketist/kulturimhaus-h2026.webp",
+      "bild2x": "assets/events/ticketist/kulturimhaus-h2026@2x.webp"
     },
     {
       "id": "hader-02-2026",
@@ -478,7 +492,8 @@
           "frei": 12
         }
       ],
-      "bild": "assets/events/ticketist/hader-02-2026.webp"
+      "bild": "assets/events/ticketist/hader-02-2026.webp",
+      "bild2x": "assets/events/ticketist/hader-02-2026@2x.webp"
     },
     {
       "id": "singmit-konzertonly",
@@ -500,7 +515,8 @@
           "frei": 624
         }
       ],
-      "bild": "assets/events/ticketist/singmit-konzertonly.webp"
+      "bild": "assets/events/ticketist/singmit-konzertonly.webp",
+      "bild2x": "assets/events/ticketist/singmit-konzertonly@2x.webp"
     },
     {
       "id": "meyle-2026",
@@ -532,7 +548,8 @@
           "frei": 64
         }
       ],
-      "bild": "assets/events/ticketist/meyle-2026.webp"
+      "bild": "assets/events/ticketist/meyle-2026.webp",
+      "bild2x": "assets/events/ticketist/meyle-2026@2x.webp"
     },
     {
       "id": "dinner-comedy-05-2026",
@@ -555,6 +572,7 @@
         }
       ],
       "bild": "assets/events/ticketist/dinner-comedy-05-2026.webp",
+      "bild2x": "assets/events/ticketist/dinner-comedy-05-2026@2x.webp",
       "varianten": [
         {
           "id": "dinner-comedy-05-only-2026",
@@ -597,7 +615,8 @@
           "frei": 0
         }
       ],
-      "bild": "assets/events/ticketist/landert-2026.webp"
+      "bild": "assets/events/ticketist/landert-2026.webp",
+      "bild2x": "assets/events/ticketist/landert-2026@2x.webp"
     },
     {
       "id": "philippsmusikzimmer-02-2026",
@@ -620,6 +639,7 @@
         }
       ],
       "bild": "assets/events/ticketist/philippsmusikzimmer-02-2026.webp",
+      "bild2x": "assets/events/ticketist/philippsmusikzimmer-02-2026@2x.webp",
       "varianten": [
         {
           "id": "philippsmusikzimmer-02-only-2026",
@@ -658,6 +678,7 @@
         }
       ],
       "bild": "assets/events/ticketist/hanskaspasenkel-2026.webp",
+      "bild2x": "assets/events/ticketist/hanskaspasenkel-2026@2x.webp",
       "varianten": [
         {
           "id": "hanskaspasenkel-2026-only",
@@ -696,6 +717,7 @@
         }
       ],
       "bild": "assets/events/ticketist/notenlos-2026.webp",
+      "bild2x": "assets/events/ticketist/notenlos-2026@2x.webp",
       "varianten": [
         {
           "id": "notenlos-2026-only",
@@ -743,7 +765,8 @@
           "frei": 114
         }
       ],
-      "bild": "assets/events/ticketist/luis-03-2026.webp"
+      "bild": "assets/events/ticketist/luis-03-2026.webp",
+      "bild2x": "assets/events/ticketist/luis-03-2026@2x.webp"
     },
     {
       "id": "krauthobel-2026",
@@ -766,6 +789,7 @@
         }
       ],
       "bild": "assets/events/ticketist/krauthobel-2026.webp",
+      "bild2x": "assets/events/ticketist/krauthobel-2026@2x.webp",
       "varianten": [
         {
           "id": "krauthobel-2026-only",
@@ -804,6 +828,7 @@
         }
       ],
       "bild": "assets/events/ticketist/rebeltell-2026.webp",
+      "bild2x": "assets/events/ticketist/rebeltell-2026@2x.webp",
       "varianten": [
         {
           "id": "rebeltell-2026-only",
@@ -842,6 +867,7 @@
         }
       ],
       "bild": "assets/events/ticketist/themonroes-2026.webp",
+      "bild2x": "assets/events/ticketist/themonroes-2026@2x.webp",
       "varianten": [
         {
           "id": "themonroes-2026-only",
@@ -880,6 +906,7 @@
         }
       ],
       "bild": "assets/events/ticketist/dinner-comedy-06-2026.webp",
+      "bild2x": "assets/events/ticketist/dinner-comedy-06-2026@2x.webp",
       "varianten": [
         {
           "id": "dinner-comedy-06-only-2026",
@@ -918,6 +945,7 @@
         }
       ],
       "bild": "assets/events/ticketist/dinner-comedy-07-2026.webp",
+      "bild2x": "assets/events/ticketist/dinner-comedy-07-2026@2x.webp",
       "varianten": [
         {
           "id": "dinner-comedy-07-only-2026",
@@ -956,6 +984,7 @@
         }
       ],
       "bild": "assets/events/ticketist/dabado-charity.webp",
+      "bild2x": "assets/events/ticketist/dabado-charity@2x.webp",
       "varianten": [
         {
           "id": "dabado-charity-dinner",
@@ -994,6 +1023,7 @@
         }
       ],
       "bild": "assets/events/ticketist/einarsson-stehplatz-2027.webp",
+      "bild2x": "assets/events/ticketist/einarsson-stehplatz-2027@2x.webp",
       "varianten": [
         {
           "id": "einarsson-sitzplatz-2027",
@@ -1051,7 +1081,8 @@
           "frei": 65
         }
       ],
-      "bild": "assets/events/ticketist/genussroute.webp"
+      "bild": "assets/events/ticketist/genussroute.webp",
+      "bild2x": "assets/events/ticketist/genussroute@2x.webp"
     }
   ]
 }

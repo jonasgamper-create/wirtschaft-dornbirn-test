@@ -31,11 +31,37 @@ const kennungen = [...KENNUNGEN].sort();
 
 await mkdir(bilderOrdner, { recursive: true });
 const vorhanden = new Set(await readdir(bilderOrdner).catch(() => []));
+/** 1200er-Fassung -> 2x-Fassung, damit geteilte Aufnahmen beide bekommen. */
+const zweifach = new Map();
 
 /** Aus einem geladenen Bild ein webp machen; ohne cwebp bleibt das Original. */
 function alsWebp(rohdatei, zieldatei) {
   try {
     execFileSync('cwebp', ['-quiet', '-q', '72', '-resize', '1200', '0', rohdatei, '-o', zieldatei]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Die scharfe Fassung fuer Retina-Bildschirme (Jonas, 24.09.: "1500x3000"):
+ * hoechstens 1500 px hoch und 3000 px breit, nie hochgerechnet. Die Kachel
+ * laedt sie nur auf Bildschirmen, die die Pixel auch zeigen (srcset 2x); am
+ * Telefon bleibt die 1200er-Fassung, damit die Seite leicht bleibt.
+ */
+function alsWebp2x(rohdatei, zieldatei) {
+  try {
+    let breite = 0; let hoehe = 0;
+    try {
+      const mass = execFileSync('sips', ['-g', 'pixelWidth', '-g', 'pixelHeight', rohdatei]).toString();
+      breite = Number(/pixelWidth:\s*(\d+)/.exec(mass)?.[1] || 0);
+      hoehe = Number(/pixelHeight:\s*(\d+)/.exec(mass)?.[1] || 0);
+    } catch { /* ohne sips: Groesse unbekannt, dann Hoehe 1500 als Ziel */ }
+    const groesse = hoehe > 1500 ? ['-resize', '0', '1500']
+      : breite > 3000 ? ['-resize', '3000', '0']
+      : (breite && hoehe) ? [] : ['-resize', '0', '1500'];
+    execFileSync('cwebp', ['-quiet', '-q', '60', ...groesse, rohdatei, '-o', zieldatei]);
     return true;
   } catch {
     return false;
@@ -78,18 +104,26 @@ for (const kennung of kennungen) {
     // Dieselbe Aufnahme für mehrere Abende (die drei Luis-Termine teilen
     // sich ein Pressefoto): einmal holen genügt.
     const schon = nachQuelle.get(termin.bildQuelle);
-    if (schon) termin.bild = schon;
+    if (schon) { termin.bild = schon; if (zweifach.get(schon)) termin.bild2x = zweifach.get(schon); }
     else {
       const name = `${kennung}.webp`;
+      const name2x = `${kennung}@2x.webp`;
       termin.bild = `assets/events/ticketist/${name}`;
       nachQuelle.set(termin.bildQuelle, termin.bild);
-      if (!vorhanden.has(name)) {
+      if (vorhanden.has(name2x)) { termin.bild2x = `assets/events/ticketist/${name2x}`; zweifach.set(termin.bild, termin.bild2x); }
+      // Auch holen, wenn nur die scharfe Fassung fehlt (seit 24.09.).
+      if (!vorhanden.has(name) || !vorhanden.has(name2x)) {
         try {
           const antwort = await fetch(termin.bildQuelle);
           if (!antwort.ok) throw new Error(String(antwort.status));
           const roh = path.join(bilderOrdner, `${kennung}.roh`);
           await writeFile(roh, Buffer.from(await antwort.arrayBuffer()));
-          if (alsWebp(roh, path.join(bilderOrdner, name))) await rm(roh, { force: true });
+          const klein = vorhanden.has(name) || alsWebp(roh, path.join(bilderOrdner, name));
+          if (klein && alsWebp2x(roh, path.join(bilderOrdner, name2x))) {
+            termin.bild2x = `assets/events/ticketist/${name2x}`;
+            zweifach.set(termin.bild, termin.bild2x);
+          }
+          if (klein) await rm(roh, { force: true });
           else {
             const ersatz = `${kennung}.jpg`;
             await rename(roh, path.join(bilderOrdner, ersatz));

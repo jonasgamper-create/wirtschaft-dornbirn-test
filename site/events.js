@@ -148,7 +148,7 @@
     return `
     <article class="event-kachel" data-haus="${escapeHtml(termin.haus || 'wirtschaft')}" data-status="${vorbei ? 'vorbei' : ausverkauft(termin) ? 'sold_out' : 'buchbar'}"${vorbei ? ' data-vorbei="ja"' : ''}>
       <div class="kachel-medien">
-        <img src="${escapeHtml(bild)}" width="1200" height="750" loading="lazy" decoding="async"
+        <img src="${escapeHtml(bild)}"${termin.bild2x ? ` srcset="${escapeHtml(bild)} 1x, ${escapeHtml(termin.bild2x)} 2x"` : ''} width="1200" height="750" loading="lazy" decoding="async"
              alt="${escapeHtml(termin.title)}" data-fallback="${fallback}">
         ${video && !vorbei ? `<video preload="metadata" playsinline muted hidden src="${video}"></video>
         <button class="kachel-hoerprobe" type="button">Hörprobe ▶</button>` : ''}
