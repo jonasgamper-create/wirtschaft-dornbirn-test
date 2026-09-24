@@ -3567,7 +3567,11 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
    frei, dort passt ohnehin alles auf einen Blick.
    scroll-snap-stop:always: ein Wisch, ein Abschnitt - kein Ueberspringen
    des Programms auf dem Weg nach unten. */
-@media(max-width:560px){
+/* 24.09.: Das Einrasten ist wieder AUS (Jonas: "fluessiges Scrollen, kein
+   Springen"). Die Abschnitte bleiben je ein Bildschirm hoch (100dvh), der
+   Finger bestimmt aber, wo die Seite stehen bleibt. Die Regeln bleiben als
+   Dokumentation stehen, nur ohne Wirkung: der Selektor unten trifft nichts. */
+@media(max-width:560px) and (min-width:99999px){
   html{scroll-snap-type:y mandatory}
   /* scroll-margin-top zaehlt auch beim Einrasten mit: die Abschnitte tragen
      ueber ihre id einen Rand von Kopfleiste + 6 px (Regel 6, Sprungmarken),
