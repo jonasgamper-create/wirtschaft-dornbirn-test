@@ -62,6 +62,7 @@ import {
   statistik, VORAUS_TAGE
 } from './takeaway.mjs';
 import { fortgeschrieben, montagDanach, naechsteWoche, normalisiereMenueplan, takeawayAusPlan } from './menueplan.mjs';
+import { TABELLEN, pruefeSicherung, zeileNachAussen, zeileNachInnen, SICHERUNG_VERSION } from './sicherung.mjs';
 
 const HAUS = 'wirtschaft-dornbirn';
 
@@ -1599,6 +1600,49 @@ export class Haus extends DurableObject {
   // Mittagskarte zum Ansehen (mittagskarte.html) und die Faltkarte. Liegt
   // ein Plan vor, hat er Vorrang vor PDF und Textliste; fehlt er, gilt
   // weiter das Alte - der Uebergang bricht nichts.
+
+  // ---- Sicherung: der ganze Bestand als eine Datei --------------------------
+  // Eingefuehrt am 30.09.2026 fuer die Uebergabe an den Kunden: ein Durable
+  // Object laesst sich nicht zwischen Konten verschieben, also muss der
+  // Bestand als Datei hinaus und im neuen Konto wieder hinein. Dieselbe
+  // Datei ist danach das Backup, das es bis dahin nicht gab (docs/uebergabe.md).
+
+  async sicherung() {
+    const tabellen = {};
+    for (const name of Object.keys(TABELLEN)) {
+      tabellen[name] = this.ctx.storage.sql.exec(`SELECT * FROM ${name}`).toArray()
+        .map(row => zeileNachAussen(name, row));
+    }
+    return { version: SICHERUNG_VERSION, erstellt: new Date().toISOString(), dienst: 'wirtschaft-dornbirn', tabellen };
+  }
+
+  /**
+   * Eine Sicherung einspielen. Nur mit `ersetzen: true` - dann wird jede
+   * Tabelle geleert und neu befuellt, in EINER Transaktion: entweder steht
+   * danach der ganze Bestand aus der Datei, oder es hat sich nichts geruehrt.
+   * Ein Zusammenmischen von altem und neuem Bestand gibt es absichtlich
+   * nicht; das ist die Art Bequemlichkeit, die Wochen spaeter niemand mehr
+   * erklaeren kann.
+   */
+  async wiederherstellen(roh, { ersetzen = false } = {}) {
+    if (!ersetzen) return { ok: false, grund: 'ersetzen_fehlt' };
+    const geprueft = pruefeSicherung(roh);
+    if (!geprueft.ok) return geprueft;
+    this.ctx.storage.transactionSync(() => {
+      for (const [name, spalten] of Object.entries(TABELLEN)) {
+        this.ctx.storage.sql.exec(`DELETE FROM ${name}`);
+        const platzhalter = spalten.map(() => '?').join(', ');
+        for (const zeile of roh.tabellen[name]) {
+          this.ctx.storage.sql.exec(
+            `INSERT INTO ${name} (${spalten.join(', ')}) VALUES (${platzhalter})`,
+            ...zeileNachInnen(name, zeile)
+          );
+        }
+      }
+    });
+    this.#meldeAenderung();
+    return { ok: true, eingespielt: geprueft.zaehler, erstellt: roh.erstellt || null };
+  }
 
   async menueplan() {
     return {
@@ -3261,6 +3305,28 @@ export default {
       if (url.pathname === '/api/stand' && request.method === 'GET') {
         if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
         return json({ ok: true, stand: await haus.stand() }, 200, kopf);
+      }
+
+      // Sicherung: alles hinaus (GET) und alles hinein (POST, nur mit
+      // ?ersetzen=1). Nur mit Hausschluessel - das ist der ganze Bestand.
+      if (url.pathname === '/api/sicherung' && request.method === 'GET') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const datei = await haus.sicherung();
+        return new Response(JSON.stringify(datei), {
+          status: 200,
+          headers: {
+            ...kopf,
+            'content-type': 'application/json; charset=utf-8',
+            'content-disposition': `attachment; filename="wirtschaft-sicherung-${datei.erstellt.slice(0, 10)}.json"`,
+            'cache-control': 'no-store'
+          }
+        });
+      }
+      if (url.pathname === '/api/sicherung' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const roh = await request.json().catch(() => null);
+        const ergebnis = await haus.wiederherstellen(roh, { ersetzen: url.searchParams.get('ersetzen') === '1' });
+        return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
       }
 
       if (url.pathname === '/api/tisch/sperre' && request.method === 'POST') {
