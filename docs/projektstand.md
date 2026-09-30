@@ -14,6 +14,7 @@ Spezialdokumenten, auf die hier verwiesen wird.
 | Wirt-Ansicht | `/tischplan/wirt.html` | im täglichen Gebrauch, hinter Hausschlüssel |
 | Termine | ticketist.io, 46 Kennungen | live gelesen, 31 Abende |
 | Testumgebung | zweiter Worker, `?probe=1` | seit 17.09., siehe [testumgebung.md](testumgebung.md) |
+| Sicherung | `GET/POST /api/sicherung` | seit 30.09., alle sieben Tabellen als Datei; siehe [betriebshandbuch.md](betriebshandbuch.md) §6 |
 
 ## Was seit dem Kundendokument vom 16.09. passiert ist
 
@@ -99,6 +100,8 @@ In dieser Reihenfolge, weil jeder Schritt den nächsten möglich macht:
 
 ## Wo was steht
 
+- [betriebshandbuch.md](betriebshandbuch.md) – **der Einstieg für den Programmierer**: Bausteine, Konten, Ausrollen, Daten, Zeitpläne, Störungen
+- [uebergabe.md](uebergabe.md) – Übergabeprotokoll: Inventar, Reihenfolge, Abnahme, Belege
 - [adresse.md](adresse.md) – wo die Seite steht und wie sie veröffentlicht wird
 - [testumgebung.md](testumgebung.md) – der Probemodus zum Herzeigen
 - [abschaltung-alte-seiten.md](abschaltung-alte-seiten.md) – Abhängigkeiten der alten Seiten
