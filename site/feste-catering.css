@@ -332,7 +332,10 @@ a.button,
    tippt man mit dem Daumen, um anzurufen oder zu schreiben. Sie lagen bei
    40 px. Im Fliesstext bleiben Links unangetastet - dort wuerde eine
    Mindesthoehe die Zeilenabstaende auseinanderziehen. */
-.site-footer a{display:inline-flex;align-items:center;min-height:44px}
+/* flex statt inline-flex (30.09.): inline standen die Links einer Spalte
+   nebeneinander und klebten zusammen ("impressumdatenschutz", Termine,
+   Locations, Agentur). Jeder Link ist eine eigene Zeile. */
+.site-footer a{display:flex;align-items:center;min-height:44px;width:fit-content}
 /* Ausser im Fliesstext: dort wuerde eine Mindesthoehe die Zeilen
    auseinanderziehen, und angetippt wird ohnehin das ganze Wort. */
 .site-footer p a,
