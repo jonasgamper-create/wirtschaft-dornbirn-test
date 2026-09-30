@@ -116,7 +116,7 @@
   };
   // "Restkarten" statt "Warteliste", wenn nur eine Kategorie weg ist: es gibt
   // an dem Abend noch etwas zu holen, und genau das soll der Knopf sagen.
-  const eventStatusLabel = status => ({ scheduled: 'Tickets', teilweise: 'Restkarten', sold_out: 'Ausverkauft', waitlist: 'Warteliste', cancelled: 'Abgesagt', paused: 'Pausiert' }[status] || 'Details');
+  const eventStatusLabel = status => ({ scheduled: 'Tickets', teilweise: 'Restkarten', sold_out: 'Ausverkauft', vorverkauf: 'Vorverkauf', waitlist: 'Warteliste', cancelled: 'Abgesagt', paused: 'Pausiert' }[status] || 'Details');
 
   function syncServiceStatus() {
     const today = new Date();
@@ -906,6 +906,7 @@
     if (!event) { ticketDetail.innerHTML = ''; return; }
     const statusNote = {
       teilweise: 'Eine Kategorie ist ausverkauft – dafür gibt es unsere Warteliste. Die übrigen sind buchbar.',
+      vorverkauf: event.verkaufsstart ? `Der Vorverkauf startet am ${new Intl.DateTimeFormat('de-AT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }).format(new Date(event.verkaufsstart))} Uhr.` : 'Der Vorverkauf startet in Kürze.',
       waitlist: 'Für diesen Abend gibt es unsere Warteliste.',
       sold_out: 'Dieser Abend ist ausverkauft. Trag dich auf unsere Warteliste ein – sobald wieder Karten da sind, bekommst du eine Mail.',
       cancelled: 'Dieser Termin wurde abgesagt.'

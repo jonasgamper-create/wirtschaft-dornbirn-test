@@ -19,7 +19,17 @@
   // Ausverkauft heisst: keine der Kategorien hat noch etwas frei. Die Zahl
   // stammt aus dem Ticketdienst; sagt der Veranstalter es zusaetzlich im
   // Text, zaehlt auch das (termin.buchbar).
+  // Der Vorverkauf hat noch nicht begonnen: kein "ausverkauft", keine
+  // Warteliste - ein Knopf, der sagt, ab wann es Karten gibt.
+  const vorverkauf = weg => Boolean(weg?.verkaufsstart) && Date.parse(weg.verkaufsstart) > Date.now();
+  const vorverkaufText = weg => {
+    const d = new Date(weg.verkaufsstart);
+    const tag = new Intl.DateTimeFormat('de-AT', { weekday: 'short', day: '2-digit', month: '2-digit' }).format(d);
+    const uhr = new Intl.DateTimeFormat('de-AT', { hour: '2-digit', minute: '2-digit' }).format(d);
+    return `vorverkauf ab ${tag}, ${uhr}`;
+  };
   const ausverkauft = weg => {
+    if (vorverkauf(weg)) return false;
     if (weg.buchbar === false) return true;
     const preise = weg.preise || [];
     return preise.length > 0 && preise.every(p => p.frei === 0);
@@ -130,7 +140,9 @@
     // Bei einem Weg genuegt "ausverkauft"; bei zweien muss dabeistehen,
     // WELCHER weg ist - sonst weiss der Gast nicht, ob der andere noch geht.
     const zweiWege = Boolean(termin.varianten?.length);
-    const knopf = (weg, beschriftung, art) => ausverkauft(weg)
+    const knopf = (weg, beschriftung, art) => vorverkauf(weg)
+      ? `<a class="button ${art} kachel-vorverkauf" href="${escapeHtml(weg.ticketUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(zweiWege ? `${beschriftung} · ${vorverkaufText(weg)}` : vorverkaufText(weg))}</a>`
+      : ausverkauft(weg)
       ? `<span class="button ${art} kachel-ausverkauft" aria-disabled="true">${escapeHtml(zweiWege ? `${beschriftung} · ausverkauft` : 'ausverkauft')}</span>`
       : `<button class="button ${art}" type="button" data-buchen="${escapeHtml(weg.ticketUrl)}" data-titel="${escapeHtml(termin.title)}">${escapeHtml(beschriftung)}</button>`;
 
