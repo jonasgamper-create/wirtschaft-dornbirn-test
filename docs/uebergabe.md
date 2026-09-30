@@ -12,7 +12,9 @@ der Stand der Technik für eine saubere Übergabe – und das ist, was dieses
 Protokoll festhält.
 
 **Übergeber:** Jonas Gamper
+
 **Übernehmer:** Programmierer des Kunden (Name, E-Mail: ______________)
+
 **Auftraggeber:** Wolfgang Preuß, „wirtschaft“ / Emma & Eugen
 
 ---
@@ -74,7 +76,7 @@ ist so gewählt, dass zu keinem Zeitpunkt Gäste vor einer toten Seite stehen.
 - [ ] D2 Jonas' Lesezugriff auf das Repository entfernt
 - [ ] D3 Alter Dienst, alte Probe und altes Pages-Projekt in Jonas' Cloudflare-Konto **gelöscht**; Brevo-Domain in Jonas' Konto entfernt
 - [ ] D4 Jonas' lokale Kopien gelöscht: `server/.haus-token`, alle Sicherungsdateien, Klon des Repositorys
-- [ ] D5 Unterschriften (Abschnitt 5)
+- [ ] D5 Unterschriften (Abschnitt 6)
 
 ---
 

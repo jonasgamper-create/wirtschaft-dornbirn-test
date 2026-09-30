@@ -327,4 +327,5 @@ im Code nach Hauszeit verzweigen (so wurde 06:00/12:00 gelöst).
 | `floorplan-model.md` | Tischplan-Datenmodell |
 | `event-data.md` | Termine-Daten und Status |
 | `launch-checklist.md` | Abhakliste für den Starttag |
+| `docs/pdf/` | die Dokumente als PDF – neu bauen mit `node scripts/build-doku-pdf.mjs docs/<datei>.md docs/pdf/<Name>.pdf` (braucht nur Chrome) |
 | **veraltet, nur Historie:** `README.md`, `onboarding-kollege.md`, `final-cloud-handoff.md`, `host-cockpit-architecture.md`, `claude-*.md` | Stand August, vor Dienst und Wirt-Ansicht |
