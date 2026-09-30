@@ -121,6 +121,8 @@ export function leseTermin(html, kennung) {
     .replace(/[\u2028\u2029]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+  const verkaufsstart = String(roh.salesStartAt || '').trim();
+  const vorverkauf = Boolean(verkaufsstart) && Number.isFinite(Date.parse(verkaufsstart)) && Date.parse(verkaufsstart) > Date.now();
 
   return {
     id: kennung,
@@ -144,7 +146,12 @@ export function leseTermin(html, kennung) {
     // ist ("Diese Veranstaltung ist ausverkauft"). Beim Luis-Abend am
     // 13.10. stand der Satz da, waehrend der Schalter noch auf offen
     // stand; eine Kachel mit "Tickets buchen" waere eine Luege gewesen.
-    buchbar: roh.canTicketsBePurchased !== false && !/^diese veranstaltung ist ausverkauft/i.test(beschreibung)
+    buchbar: (roh.canTicketsBePurchased !== false || vorverkauf) && !/^diese veranstaltung ist ausverkauft/i.test(beschreibung),
+    // Der Vorverkauf hat noch nicht begonnen (salesStartAt liegt in der
+    // Zukunft): der Schalter steht dann auf "zu", aber der Abend ist nicht
+    // ausverkauft - er ist noch nicht dran. Ohne dieses Feld stand ein neuer
+    // Abend bis zum Verkaufsstart als "ausverkauft" mit Warteliste da.
+    verkaufsstart: verkaufsstart || null
   };
 }
 

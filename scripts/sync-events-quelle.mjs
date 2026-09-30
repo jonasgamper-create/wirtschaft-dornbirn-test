@@ -64,7 +64,9 @@ function alsEvent(termin, id) {
     // das Haus - "Dinner & Comedy" sagt mehr als nichts, und wo gespielt
     // wird, ist die naechstbeste Auskunft.
     type: termin.untertitel || (termin.haus === 'kulturhaus' ? 'Kulturhaus Dornbirn' : 'In der „wirtschaft“'),
-    status: alleWeg ? 'sold_out' : eineWeg ? 'teilweise' : 'scheduled',
+    status: (termin.verkaufsstart && Date.parse(termin.verkaufsstart) > Date.now()) ? 'vorverkauf'
+      : alleWeg ? 'sold_out' : eineWeg ? 'teilweise' : 'scheduled',
+    verkaufsstart: termin.verkaufsstart || undefined,
     tickets: brauchbar,
     ticketUrl: termin.ticketUrl
   };
