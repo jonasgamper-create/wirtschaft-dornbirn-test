@@ -188,6 +188,7 @@
    * und nicht zweimal "tickets buchen".
    */
   function erstesWort(termin) {
+    if (termin.wegLabel) return termin.wegLabel;
     const name = (termin.preise || [])[0]?.name || '';
     const ohneKlammer = name.replace(/\s*\([^)]*\)\s*$/, '').trim();
     return ohneKlammer || 'tickets buchen';

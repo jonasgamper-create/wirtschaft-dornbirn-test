@@ -21,13 +21,19 @@ import { mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promise
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { gruppiere, holeTermin, KENNUNGEN } from '../server/src/ticketist.mjs';
+import { entdecke, gruppiere, holeTermin, KENNUNGEN } from '../server/src/ticketist.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ziel = path.join(root, 'site', 'data', 'termine.json');
 const bilderOrdner = path.join(root, 'site', 'assets', 'events', 'ticketist');
 
-const kennungen = [...KENNUNGEN].sort();
+// Feste Kennungen plus alles, was die eigenen Eventseiten des Hauses auf
+// den Ticketdienst verlinken (30.09.): ein neuer Abend braucht keinen
+// Eintrag im Code mehr, um mit Bild auf die Seite zu kommen.
+const gefunden = await entdecke({}, { hoechstens: 40 }).catch(() => ({ kennungen: [] }));
+const neuGefunden = gefunden.kennungen.filter(k => !KENNUNGEN.includes(k));
+if (neuGefunden.length) console.log(`  Auf den eigenen Eventseiten neu gefunden: ${neuGefunden.join(', ')}`);
+const kennungen = [...new Set([...KENNUNGEN, ...gefunden.kennungen])].sort();
 
 await mkdir(bilderOrdner, { recursive: true });
 const vorhanden = new Set(await readdir(bilderOrdner).catch(() => []));
