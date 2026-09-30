@@ -1363,12 +1363,16 @@ function verdrahteWarteliste() {
     }
     const jetzt = (antwort.gruppen || []).reduce((n, g) => n + (g.zurueck || 0), 0);
     const offen = (antwort.gruppen || []).filter(g => g.buchbar === true).length;
-    sag('warteInfo', jetzt > vorher
+    const neu = antwort.neueAbende || [];
+    const neuSatz = neu.length
+      ? `Neu auf der Seite: ${neu.map(a => a.titel).filter(Boolean).join(', ')}. `
+      : '';
+    sag('warteInfo', neuSatz + (jetzt > vorher
       ? `${jetzt - vorher} ${jetzt - vorher === 1 ? 'Karte ist' : 'Karten sind'} zurückgekommen.`
       : offen
         ? `${antwort.geprueft} Abende nachgesehen – bei ${offen} gibt es Karten.`
-        : `${antwort.geprueft} Abende nachgesehen – alles unverändert ausverkauft.`,
-      jetzt > vorher || offen ? 'gut' : '');
+        : `${antwort.geprueft} Abende nachgesehen – alles unverändert ausverkauft.`),
+      neu.length || jetzt > vorher || offen ? 'gut' : '');
   });
   zeigen.addEventListener('click', async () => {
     form.hidden = !form.hidden;

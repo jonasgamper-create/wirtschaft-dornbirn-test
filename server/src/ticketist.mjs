@@ -30,6 +30,7 @@
  * und der Dienst holt den Rest selbst.
  */
 export const KENNUNGEN = [
+  'faschingsball', 'faschingsball-only', 'comedynacht-01-2027', 'comedynacht-02-2027',
   'comedynacht-05-2026-1', 'comedynacht-06-2026-1', 'dabado-charity',
   'dabado-charity-dinner', 'dinner-comedy-04-2026', 'dinner-comedy-04-only-2026',
   'dinner-comedy-05-2026', 'dinner-comedy-05-only-2026', 'dinner-comedy-06-2026',
@@ -220,6 +221,30 @@ export function gruppiere(termine) {
           buchbar: anderer.buchbar
         });
       }
+      // Geschwister ohne gemeinsamen Hauptnamen (30.09., Faschingsball):
+      // "Faschingsball | Sitzplatz" und "Faschingsball | Stehplatz" - keiner
+      // ist der Anfang des anderen, beide teilen aber den Teil vor dem
+      // Trennzeichen. Dann heisst der Abend wie dieser Teil, und jeder Weg
+      // traegt seinen Rest als Beschriftung.
+      if (!varianten.length) {
+        const [basis, ...eigen] = haupt.title.split(TRENNER);
+        if (eigen.length) {
+          for (const anderer of sortiert) {
+            if (vergeben.has(anderer.id)) continue;
+            const [ab, ...ar] = anderer.title.split(TRENNER);
+            if (!ar.length || normal(ab) !== normal(basis)) continue;
+            vergeben.add(anderer.id);
+            varianten.push({
+              id: anderer.id, label: ar.join(' | ').trim(), zeit: anderer.zeit,
+              ticketUrl: anderer.ticketUrl, buchbar: anderer.buchbar
+            });
+          }
+          if (varianten.length) {
+            raus.push({ ...haupt, title: basis.trim(), wegLabel: eigen.join(' | ').trim(), varianten });
+            continue;
+          }
+        }
+      }
       raus.push(varianten.length ? { ...haupt, varianten } : haupt);
     }
   }
@@ -284,4 +309,66 @@ export function kennungAusLink(wert) {
   const ausLink = text.match(/\/events\/([a-z0-9-]+)/);
   const kennung = (ausLink ? ausLink[1] : text).toLowerCase();
   return /^[a-z0-9-]{3,60}$/.test(kennung) ? kennung : '';
+}
+
+/**
+ * Neue Abende finden, ohne beim Ticketdienst herumzusuchen (Jonas, 30.09.).
+ * Der Ticketdienst hat keine oeffentliche Liste je Veranstalter. Die eigenen
+ * Eventseiten des Hauses verlinken aber jeden Abend auf seine Ticketseite -
+ * dort steht die Kennung. Gelesen werden nur diese eigenen Seiten und ihre
+ * Unterseiten, nie fremde Kennungen durchprobiert.
+ */
+export const QUELLSEITEN = [
+  'https://wirtschaft-dornbirn.at/event/',
+  'https://www.eugen.family/event/'
+];
+
+/** Alle Ticketist-Kennungen, die in einem Stueck HTML verlinkt sind. */
+export function kennungenIn(html) {
+  return [...new Set([...String(html || '').matchAll(/ticketist\.io\/events\/([a-zA-Z0-9-]{3,60})/g)]
+    .map(m => m[1].toLowerCase()))];
+}
+
+/** Die Unterseiten einer Eventliste (gleicher Host, unter /event/). */
+export function unterseitenIn(html, basis) {
+  const host = new URL(basis).host.replace(/^www\./, '');
+  const raus = new Set();
+  for (const m of String(html || '').matchAll(/href="(https?:\/\/[^"#?]+\/event\/[^"#?]+)"/g)) {
+    try {
+      const u = new URL(m[1]);
+      if (u.host.replace(/^www\./, '') === host && u.pathname.replace(/\/+$/, '') !== '/event') raus.add(u.href);
+    } catch { /* kaputter Link, weiter */ }
+  }
+  return [...raus];
+}
+
+/**
+ * Die Quellseiten lesen und alle verlinkten Kennungen zurueckgeben.
+ * `gesehen` ist ein Merker Unterseite -> Kennungen: Unterseiten, die schon
+ * einmal gelesen wurden, werden nicht noch einmal geholt - so bleibt ein
+ * Durchgang bei zwei Abrufen, wenn nichts Neues dazugekommen ist.
+ */
+export async function entdecke(gesehen = {}, { hol = fetch, hoechstens = 20 } = {}) {
+  const lies = async url => {
+    try {
+      const antwort = await hol(url, { headers: { 'user-agent': 'Mozilla/5.0 (Wirtschaft Dornbirn Terminabgleich)' } });
+      return antwort.ok ? await antwort.text() : '';
+    } catch { return ''; }
+  };
+  const kennungen = new Set();
+  const merker = { ...gesehen };
+  let neuGelesen = 0;
+  for (const liste of QUELLSEITEN) {
+    const html = await lies(liste);
+    kennungenIn(html).forEach(k => kennungen.add(k));
+    for (const seite of unterseitenIn(html, liste)) {
+      if (!Array.isArray(merker[seite])) {
+        if (neuGelesen >= hoechstens) continue;
+        merker[seite] = kennungenIn(await lies(seite));
+        neuGelesen += 1;
+      }
+      merker[seite].forEach(k => kennungen.add(k));
+    }
+  }
+  return { kennungen: [...kennungen], gesehen: merker, neuGelesen };
 }

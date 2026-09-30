@@ -51,7 +51,7 @@ import {
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
 import {
   FRISCH_MS as TICKETIST_FRISCH_MS, gruppiere, holeTermin, holeVerkauft, kennungAusLink,
-  KENNUNGEN, terminGueltig
+  KENNUNGEN, terminGueltig, entdecke
 } from './ticketist.mjs';
 import {
   bestellungText, erinnerungText, fertigText, nummerFuerSms, reservierungText, sendeSms
@@ -2465,10 +2465,39 @@ export class Haus extends DurableObject {
     return this.wartelisteAuffrischen();
   }
 
+  /**
+   * Neue Abende von den eigenen Eventseiten des Hauses aufnehmen (30.09.).
+   * Laeuft um 06:00 und 12:00 und beim Knopf "jetzt nachsehen". Jede neue
+   * Kennung geht durch kennungAufnehmen - also nur, wenn es den Abend beim
+   * Ticketdienst wirklich gibt. Das Haus bekommt eine Meldung aufs Telefon.
+   */
+  async entdeckeAbende() {
+    const { kennungen, gesehen, neuGelesen } = await entdecke(this.#lies('quellSeiten', {}), { hoechstens: 12 });
+    this.#schreib('quellSeiten', gesehen);
+    const bekannt = new Set(this.#alleKennungen());
+    const neu = kennungen.filter(k => !bekannt.has(k)).slice(0, 6);
+    const aufgenommen = [];
+    for (const kennung of neu) {
+      const antwort = await this.kennungAufnehmen({ kennung }).catch(() => null);
+      if (antwort?.ok && !antwort.schon) aufgenommen.push({ kennung, ...(antwort.termin || {}) });
+    }
+    if (aufgenommen.length) {
+      const erster = aufgenommen[0];
+      this.ctx.waitUntil(this.#pushHausAlle({
+        art: 'warteliste',
+        titel: aufgenommen.length === 1 ? `Neuer Abend auf der Seite: ${erster.titel}` : `${aufgenommen.length} neue Abende auf der Seite`,
+        text: aufgenommen.map(a => `${a.titel} · ${a.datum}`).join(' – ').slice(0, 160),
+        datum: erster.datum || ''
+      }));
+    }
+    return { gefunden: kennungen.length, neuGelesen, aufgenommen };
+  }
+
   async wartelisteAuffrischen() {
+    const entdeckt = await this.entdeckeAbende().catch(() => ({ aufgenommen: [] }));
     const wege = [...new Set(this.eventWartelisteUebersicht().map(g => g.weg))].slice(0, 12);
     if (wege.length) await this.#holeAbende(wege);
-    return { ok: true, geprueft: wege.length, gruppen: this.eventWartelisteUebersicht() };
+    return { ok: true, geprueft: wege.length, neueAbende: entdeckt.aufgenommen, gruppen: this.eventWartelisteUebersicht() };
   }
 
   async termine() {
