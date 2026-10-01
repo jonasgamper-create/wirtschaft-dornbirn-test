@@ -67,8 +67,12 @@ check('Adresse einer Kennung', seiteFuer('spoerk-2026') === 'https://www.ticketi
 
 // --- Die Liste und der hinterlegte Stand -----------------------------------
 const datei = JSON.parse(await readFile(path.join(root, 'site', 'data', 'termine.json'), 'utf8'));
-check('Kennungen im Dienst und in der Datei sind dieselben',
-  JSON.stringify([...datei.kennungen].sort()) === JSON.stringify([...KENNUNGEN].sort()));
+// Seit 30.09. darf die Datei mehr Kennungen tragen als der Code: was auf den
+// eigenen Eventseiten des Hauses verlinkt ist, holt sync-termine dazu. Jede
+// feste Kennung muss aber drin sein, und jede zusaetzliche muss gueltig sein.
+check('Jede feste Kennung steht in der Datei', KENNUNGEN.every(k => datei.kennungen.includes(k)));
+check('Zusaetzliche Kennungen sind gueltig',
+  datei.kennungen.every(k => KENNUNGEN.includes(k) || /^[a-z0-9-]{3,60}$/.test(k)));
 check('Keine doppelte Kennung', new Set(KENNUNGEN).size === KENNUNGEN.length);
 check('Rueckfall-Datei hat Termine', Array.isArray(datei.termine) && datei.termine.length > 0);
 check('Rueckfall-Termine sind vollstaendig', datei.termine.every(terminGueltig));
