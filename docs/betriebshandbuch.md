@@ -1,6 +1,6 @@
 # Betriebshandbuch · Website und Dienst der „wirtschaft“ Dornbirn
 
-Stand 30. September 2026. Geschrieben für den Programmierer, der die Seite
+Stand 1. Oktober 2026. Geschrieben für den Programmierer, der die Seite
 übernimmt. Es beschreibt, was heute läuft, wo es läuft, wie man es
 ausrollt und was regelmäßig zu tun ist. Die älteren Einstiegsdokumente
 (`README.md`, `onboarding-kollege.md`, `final-cloud-handoff.md`, alle vom
@@ -20,7 +20,9 @@ Regel ändert, ändert den Kommentar daneben mit.
 | **Dienst** | Ein Cloudflare Worker mit einem Durable Object (SQLite). Nimmt Reservierungen, Takeaway-Bestellungen, Wartelisten und Newsletter-Anmeldungen an, hält Wochenkarte und Tischplan, liest die Termine beim Ticketdienst, verschickt Mails, hat fünf Zeitpläne | `wirtschaft-reservierung.jonas-gamper.workers.dev` |
 | **Probe-Dienst** | Derselbe Code als zweite Umgebung mit eigener Datenbank, ohne Mails, ohne Zeitpläne. Die Seite spricht ihn an, wenn sie mit `?probe=1` geöffnet wurde | `wirtschaft-reservierung-probe.jonas-gamper.workers.dev` |
 | **Wirt-Ansicht** | Werkzeuge fürs Haus als Einzeldateien: `wirt.html` (Alltag), `kueche.html`, `uebersicht.html`, `einrichten.html` (Tischplan), `zahlen.html`, `screen.html` (Bildschirm am Eingang) | unter `/tischplan/…` neben der Gästeseite, geschützt durch den Hausschlüssel im Link (`#k=…`) |
-| **Termine** | Alle Abende beider Häuser (Wirtschaft und Kulturhaus) kommen vom Ticketdienst ticketist.io. Der Dienst liest jede Eventseite alle 12 h; Preise stehen in einer Datei im Projekt | `server/src/ticketist.mjs`, `site/data/termine.json`, `site/data/ticketist-preise.json` |
+| **Termine** | Alle Abende beider Häuser (Wirtschaft und Kulturhaus) kommen vom Ticketdienst ticketist.io. Neue Abende findet der Dienst selbst auf den eigenen Eventseiten des Hauses (§8); Preise stehen in einer Datei im Projekt | `server/src/ticketist.mjs`, `site/data/termine.json`, `site/data/ticketist-preise.json` |
+| **Anfragen** | Formulare auf Locations und Agentur → Dienst → Mail ans Haus + automatische Bestätigung an den Gast; Liste in der Wirt-Ansicht | `server/src/anfrage.mjs`, `site/anfrage-senden.js` |
+| **Abgleich** | Täglicher Lauf auf GitHub: steht jeder Abend der Eventseiten auf der Webseite? Mail bei Fehlschlag | `.github/workflows/termine-abgleich.yml`, `scripts/check-termine-live.mjs` |
 | **Mails** | Über Brevo (SMTP-API): Bestätigungen, Absagen, Wartelisten, Tageszettel, Wochenbericht, Wochenkarte | Brevo-Konto, Absender heute `jonas.gamper@aon.at` (siehe §9) |
 | **Push** | Web-Push an die Wirt-Ansicht („neue Bestellung“, „wieder Karten“) | VAPID-Schlüsselpaar im Dienst |
 
@@ -128,6 +130,7 @@ drei Tage lang gingen keine Mails hinaus. Seither: zählen.
 | `GAESTE_SEITE` | Adresse der Gästeseite – daraus entstehen Links in Mails, Kalendereinträgen, Push. |
 | `DIENST_BASIS` | Eigene Adresse des Dienstes, für Links in Mails, die ohne Anfrage entstehen (Wochenkarte). |
 | `WIRT_MAIL` | Wohin Tageszettel, Wochenbericht und Bestellungen gehen. **Heute `jonas.gamper@aon.at` – auf die Adresse des Wirts umstellen.** |
+| `ANFRAGE_MAIL` | Wohin Anfragen aus Locations und Agentur gehen (seit 01.10.). `willkommen@wirtschaft-dornbirn.at`. „Antworten“ in dieser Mail geht direkt an den Gast (`replyTo`). |
 | `ALT_RESERVIERUNG`, `ALT_TAKEAWAY` | Brücke ins Altsystem; leer heißt aus. Nach der Abschaltung der alten Seite beide leer. |
 | `OFFEN` | `"ja"` öffnet die Wirt-Ansicht **ohne** Hausschlüssel für jeden. Nur für Testphasen. Steht auf `"nein"`. |
 | `VAPID_OEFFENTLICH`, `VAPID_KONTAKT` | Öffentlicher Teil des Push-Ausweises (kein Geheimnis). |
@@ -223,10 +226,30 @@ im Code nach Hauszeit verzweigen (so wurde 06:00/12:00 gelöst).
 
 ## 8. Termine und Ticketdienst
 
-- Die Liste der Abende ist `KENNUNGEN` in `server/src/ticketist.mjs` (46
-  Kennungen, Stand 14.09.) **plus** die Kennungen, die der Wirt selbst in der
-  Wirt-Ansicht einträgt (Reiter „warteliste“, Kasten unten → `eigeneKennungen`
-  im Dienst). Ein neuer Abend braucht also **keinen Deploy**.
+- **Neue Abende kommen von selbst** (seit 30.09./01.10.). Ticketist hat keine
+  öffentliche Liste je Veranstalter. Die eigenen Eventseiten des Hauses
+  (`QUELLSEITEN` in `ticketist.mjs`: `wirtschaft-dornbirn.at/event/` samt
+  Blätterseiten `/page/N/`, `eugen.family/event/`) verlinken aber jeden Abend
+  auf `ticketist.io/events/<kennung>`. `entdecke()` liest diese Listen –
+  Blätterseiten **jedes Mal**, einzelne Abendseiten nur einmal (Merker
+  `quellSeiten`). Der Dienst ruft das um 06:00, 12:00 und beim Knopf „Jetzt
+  nachsehen“ auf und merkt neue Kennungen in `eigeneKennungen` vor.
+  **Achtung Domainumzug:** Wird `wirtschaft-dornbirn.at` unsere Seite, gibt
+  es `/event/` nicht mehr – dann `QUELLSEITEN` anpassen (eugen.family bleibt,
+  oder eine Ticketist-Verwaltungsschnittstelle, falls verfügbar).
+- **Abgleich:** Nach jeder Suche prüft der Dienst, ob jede gefundene Kennung
+  gelesen ist; fehlt eine zwei Durchgänge lang, kommt **eine** Push-Meldung.
+  Ergebnis in der Wirt-Ansicht über den Abenden. Von außen prüft
+  `npm run check:live` (Eventseiten gegen Dienst und Live-Seite) – täglich
+  07:30 Wien als GitHub-Workflow `termine-abgleich.yml`; schlägt er fehl,
+  mailt GitHub dem Besitzer des Repositorys.
+- **Pressefotos** neuer Abende: `npm run sync:termine` nutzt dieselbe Suche,
+  lädt die Bilder (1200 px und `@2x` bis 3000×1500) und schreibt
+  `termine.json`. Bis dahin zeigt die Kachel ein Ersatzbild.
+- **Vorverkauf:** `salesStartAt` in der Zukunft = Zustand „Vorverkauf“
+  (Kachel „vorverkauf ab …“), nicht „ausverkauft“.
+- Feste Kennungen stehen weiter in `KENNUNGEN` (50, Stand 01.10.); dazu die,
+  die der Wirt in der Wirt-Ansicht von Hand einträgt.
 - Der Dienst liest jede Eventseite `ticketist.io/events/<kennung>` alle 12 h
   (`window.event` im Quelltext: Name, Datum, Ort, Bild, Beschreibung,
   Verkaufsschalter) und `ticketist.io/api/events/<nummer>` für die verkauften
@@ -262,6 +285,18 @@ im Code nach Hauszeit verzweigen (so wurde 06:00/12:00 gelöst).
   Dienst (Tabelle `newsletter`), nicht bei Brevo.
 - Push: VAPID-Paar; der öffentliche Teil steht in `wrangler.jsonc`, der
   private als Geheimnis. Neues Paar erzeugen ⇒ alle Geräte melden sich neu an.
+- **Automatische Antworten an Gäste** (alle über Brevo, alle mit dem
+  Absender aus `BREVO_ABSENDER`): Reservierung (mit Absage-Link und .ics),
+  Takeaway (Bestätigung, später „fertig“), Anfrage Locations/Agentur
+  (Bestätigung mit den Angaben, seit 01.10.), Event-Warteliste (Aufnahme,
+  „wieder Karten“), Mittags-Warteliste („Tisch frei“), Newsletter
+  (Double-Opt-in). Ohne Brevo-Schlüssel wird nichts verschickt, alles andere
+  läuft – Anfragen und Reservierungen stehen trotzdem in der Wirt-Ansicht.
+- **Brevo-Gratisstufe: 300 Mails am Tag.** Reicht für den Alltag; ein
+  Newsletter an viele Abonnenten kann an einem Tag darüber gehen.
+- Mails direkt an `willkommen@…` laufen nicht über den Dienst. Eine
+  Eingangsbestätigung dafür ist ein Autoresponder im Postfach (Hetzner),
+  Textvorschlag in `handbuch-haus.md` §4.
 
 ---
 
@@ -291,7 +326,9 @@ im Code nach Hauszeit verzweigen (so wurde 06:00/12:00 gelöst).
 | Wann | Was | Wo | Wenn es unterbleibt |
 |---|---|---|---|
 | jede Woche (bis Sonntag) | Wochenkarte der kommenden Woche eintragen oder den Freitag-Entwurf bestätigen | Wirt-Ansicht → karte | Der Dienst schreibt die alte Karte mit neuem Datum fort – Gäste sehen keine alte Woche, aber auch keine neue Gerichte |
-| bei jedem neuen Abend | Ticketist-Link in der Wirt-Ansicht einfügen | Reiter warteliste, Kasten unten | Der Abend fehlt auf der Seite |
+| bei jedem neuen Abend | nichts – kommt von selbst; Abgleich-Zeile im Reiter warteliste prüfen | Reiter warteliste | – |
+| nach neuen Abenden | `npm run sync:termine`, PR – bringt die Pressefotos | Repository | Kachel mit Ersatzbild |
+| bei Anfragen | beantworten (auf die Mail antworten), „erledigt“ | Wirt-Ansicht → haus → Anfragen | – |
 | bei Preisänderungen | `ticketist-preise.json` nachtragen, `npm run sync:termine`, PR | Repository | Falsche Preise auf den Kacheln |
 | täglich mittags | Reservierungen und Bestellungen abarbeiten, Wartende verständigen | Wirt-Ansicht → heute | – |
 | bei Bedarf | Tag voll melden, Zeiten sperren, Tag absagen | Wirt-Ansicht → heute / haus | Der Dienst nimmt weiter an |
@@ -316,6 +353,7 @@ im Code nach Hauszeit verzweigen (so wurde 06:00/12:00 gelöst).
 
 | Dokument | Inhalt |
 |---|---|
+| **`handbuch-haus.md`** | **Für Wolfgang und das Team: was das Haus selbst ändert, was automatisch passiert** |
 | `projektstand.md` | Gesamtübersicht, offene Entscheidungen |
 | `uebergabe.md` | Übergabeprotokoll mit Abnahme und Belegen |
 | `umzug-domain-plan.md` | Der Umzug auf `wirtschaft-dornbirn.at`, DNS, Access |

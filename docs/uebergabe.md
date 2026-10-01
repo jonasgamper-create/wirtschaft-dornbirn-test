@@ -1,6 +1,6 @@
 # Übergabeprotokoll · Website und Dienst der „wirtschaft“ Dornbirn
 
-Stand 30. September 2026. Dieses Dokument regelt, wie die Website, der
+Stand 1. Oktober 2026. Dieses Dokument regelt, wie die Website, der
 Dienst und alles, was daran hängt, von Jonas Gamper an den Kunden und dessen
 Programmierer übergehen – so, dass danach **nichts mehr bei Jonas liegt**:
 kein Konto, kein Schlüssel, keine Pflicht.
@@ -33,6 +33,9 @@ Protokoll festhält.
 | 8 | `WIRT_MAIL` (Tageszettel, Wochenbericht, Bestellungen) | `jonas.gamper@aon.at` | Adresse des Wirts | Übernehmer |
 | 9 | Domain `wirtschaft-dornbirn.at` | Kunde (Hetzner) | Kunde; Zone zu Cloudflare empfohlen | Kunde |
 | 10 | Dokumentation | `docs/` im Repository | geht mit dem Repository | – |
+| 10a | **Handbuch fürs Haus** (`docs/handbuch-haus.md`, PDF) | – | an Wolfgang und das Team, ausgedruckt | Übernehmer |
+| 10b | GitHub-Workflow „Termine-Abgleich“ (täglich, Mail bei Fehler) | Mails an Jonas | geht mit dem Repository; Mails an den neuen Besitzer | – |
+| 10c | Anfragen-Postfach `ANFRAGE_MAIL` | willkommen@wirtschaft-dornbirn.at | bleibt; Autoresponder im Postfach optional | Kunde |
 | 11 | Gedruckte QR-Codes (Faltkarten) | zeigen auf `wirtschaft-dornbirn.at/…` | stimmen nach dem Domainumzug; vorher nichts drucken | Kunde |
 
 Nicht übergeben werden: Jonas' Claude-Konto und die dort veröffentlichten
@@ -76,7 +79,7 @@ ist so gewählt, dass zu keinem Zeitpunkt Gäste vor einer toten Seite stehen.
 - [ ] D2 Jonas' Lesezugriff auf das Repository entfernt
 - [ ] D3 Alter Dienst, alte Probe und altes Pages-Projekt in Jonas' Cloudflare-Konto **gelöscht**; Brevo-Domain in Jonas' Konto entfernt
 - [ ] D4 Jonas' lokale Kopien gelöscht: `server/.haus-token`, alle Sicherungsdateien, Klon des Repositorys
-- [ ] D5 Unterschriften (Abschnitt 6)
+- [ ] D5 Unterschriften (Abschnitt 8)
 
 ---
 
@@ -102,6 +105,10 @@ Jonas. Nachweis = Datum und Kürzel in der letzten Spalte.
 | 13 | Hausschlüssel rotiert | alter Link öffnet die Wirt-Ansicht **nicht** mehr | 401 | |
 | 14 | Keine Jonas-Adresse mehr | `grep -rn "jonas" server/wrangler.jsonc site/data` | leer | |
 | 15 | Sicherung durch den Übernehmer | `GET /api/sicherung` → Datei, Zeilenzahlen plausibel | ja | |
+| 16 | Anfrage end-to-end | Locations-Formular absenden → Haus bekommt Mail, „Antworten“ geht an den Gast → Gast bekommt Bestätigung → steht in Wirt-Ansicht → haus → Anfragen | alle vier | |
+| 17 | Hinweis auf der Startseite | Wirt-Ansicht → haus → Hinweis setzen → Startseite zeigt ihn statt „Dornbirn · Vorarlberg“ → entfernen | ja | |
+| 18 | Termine-Abgleich | GitHub → Actions → Termine-Abgleich → „Run workflow“ | grün | |
+| 19 | Neuer Abend kommt von selbst | Abend auf der eigenen Eventseite verlinken → Wirt-Ansicht „Jetzt nachsehen“ → Kachel auf der Seite | ja | |
 
 ---
 
@@ -117,6 +124,8 @@ Jonas. Nachweis = Datum und Kürzel in der letzten Spalte.
 | 22.09. | Oberflächen-Sweep | alle Seiten live ohne Konsolenfehler, 42 externe Links, Gaststrecken über die Oberfläche (Probe) |
 | 30.09. | Sicherung | Export/Import auf der Probe: 55 Reservierungen, 20 Einstellungen, 5 Abonnenten, 14 Takeaway, 51 Zahlen – nach der Rundreise identisch bis auf den Änderungszähler. Erste echte Sicherung gezogen (22 / 35 / 1 / 20 / 90 / 0 / 1 Zeilen) |
 | 30.09. | Echtdienst | ausgerollt, fünf Zeitpläne bestätigt, `api/gesundheit` beider Dienste und beider Seitenadressen 200 |
+| 01.10. | Programm 2027 | 28 neue Ticketwege von den eigenen Eventseiten automatisch gefunden, auf Seite und Startseite; Abgleich im Dienst 56/56, `check:live` grün, Gegentest gegen die Probe rot mit allen fehlenden Wegen; GitHub-Workflow grün |
+| 01.10. | Anfragen und Hinweis | im Testdienst: Anfrage über Locations und Agentur gespeichert und in der Wirt-Ansicht, Fangfeld verwirft Spam, Hinweis nur mit Hausschlüssel (401 ohne), auf der Startseite sichtbar. Mailversand im Echtbetrieb nicht mit echter Adresse getestet – Abnahme Nr. 16 |
 
 **Was nicht nachgewiesen ist** – und der Übernehmer in Phase C selbst
 prüft: echtes iOS-Safari auf einem iPhone (nur Simulator/Chromium),
@@ -139,7 +148,66 @@ ein kompletter Wochenwechsel im Haus (der gespeicherte Plan ist seit
 
 ---
 
-## 6. Abschluss
+## 6. Domain und Mails – Schritt für Schritt
+
+Die vollständige Fassung mit allen Einträgen steht in `umzug-domain-plan.md`
+und `mail-absender.md`. Hier die Reihenfolge an einem Stück, so wie sie am
+Umzugstag abläuft.
+
+**Vorher (Kunde):** Zugang zur DNS-Verwaltung von `wirtschaft-dornbirn.at`
+bei Hetzner; Entscheidung, ob die Zone zu Cloudflare umzieht (empfohlen –
+nur dann sind Hauptdomain und Cloudflare Access ohne Umweg möglich).
+
+**Brevo im Kundenkonto einrichten**
+1. Konto auf brevo.com anlegen (Gratisstufe). Unter *SMTP & API* einen
+   **API-Schlüssel** erzeugen – er wird genau einmal angezeigt.
+2. *Senders, Domains & Dedicated IPs → Domains → Add a domain*:
+   `wirtschaft-dornbirn.at`. Brevo zeigt vier Einträge (zwei DKIM-CNAME,
+   einen `brevo-code`-TXT, einen DMARC-TXT). **Die Werte sind kontoeigen** –
+   die in `mail-absender.md` gehören zu Jonas' Konto und gelten im neuen
+   Konto nicht.
+3. Absender `willkommen@wirtschaft-dornbirn.at` anlegen.
+
+**DNS (Hetzner oder Cloudflare), in einem Rutsch**
+4. Die vier Brevo-Einträge setzen. Den bestehenden SPF-Eintrag **ändern,
+   nicht verdoppeln**: `v=spf1 a mx include:spf.brevo.com ~all`.
+5. Für die Seite: Custom Domain im Cloudflare-Pages-Projekt anlegen, die
+   angezeigten Ziele eintragen (`umzug-domain-plan.md` §2a).
+6. Warten, bis die Einträge sichtbar sind (`dig +short …`), dann in Brevo
+   „Authenticate“ – oder `GET /api/mail/domain`.
+
+**Dienst umstellen**
+7. `secret put BREVO_KEY` (aus Schritt 1) und **erst jetzt**
+   `secret put BREVO_ABSENDER willkommen@wirtschaft-dornbirn.at`.
+8. `wrangler.jsonc`: `ALLOWED_ORIGINS`, `GAESTE_SEITE`, `WIRT_MAIL`;
+   `QUELLSEITEN` in `ticketist.mjs` prüfen (die alte `/event/`-Seite fällt
+   weg); `npm run ci`; PR; Deploy (fünf `schedule:` zählen).
+9. Probe: eine Reservierung, eine Anfrage, eine Takeaway-Bestellung an eine
+   eigene Gmail-Adresse – jeweils `GET /api/mail/pruefung?email=…` →
+   `delivered`.
+
+## 7. Fallen und Tricks – alles, was schon einmal schiefging
+
+| Falle | Was passiert | Was hilft |
+|---|---|---|
+| Probe-Deploy ohne `"crons": []` | löscht die fünf Zeitpläne des Echtbetriebs (17.09.: drei Tage keine Mails) | nach **jedem** Deploy die `schedule:`-Zeilen zählen |
+| `HAUS_TOKEN` der Probe | ein Deploy der Probe kann das Geheimnis verlieren | danach `secret put HAUS_TOKEN --env probe` erneut |
+| `deploy.sh` ohne Terminal | hängt bei `secret put` | Befehle einzeln, Schlüssel per `printf … \|` |
+| Cloudflare Pages | veröffentlicht nicht von selbst | `npm run deploy:seite` nach jedem Merge, oder Repository im Dashboard verbinden |
+| `npm run ci` rot, trotzdem gemergt | Befehlsketten mit `;` laufen weiter | erst Ergebnis prüfen, dann committen (01.10. passiert) |
+| Alter Stand im Browser | CSS/JS ohne neuen `?v=`-Hash | `npm run ci` (schreibt `sync:versions`) |
+| Brevo-Absender zu früh umgestellt | Brevo verschickt **gar nichts** mehr | erst beglaubigen, dann `BREVO_ABSENDER` |
+| Absender `@aon.at` | aon.at hat DMARC `p=reject` – Gmail/Outlook weisen ab | Absender auf die eigene, beglaubigte Domain |
+| Testadressen `@example.at` | Brevo verbucht sie als unzustellbar | harmlos, Statistik nicht verwechseln |
+| Neue Abende auf Blätterseiten | der Merker hielt `/page/2/` für erledigt (01.10.) | Listen werden jedes Mal gelesen – bei neuer Quelle daran denken |
+| Abende ohne Preise | fehlten bis 01.10. auf der Startseite | Preise in `ticketist-preise.json` nachtragen, wenn bekannt |
+| Ticketist-Schalter „nicht kaufbar“ | heißt nicht ausverkauft (Vorverkauf, Rückläufer) | Regel in `event-warteliste.md` |
+| Probemodus ohne Band | man sieht einem Tab nicht an, ob er im Testdienst ist | neuer Tab = Echtbetrieb; `window.WIRTSCHAFT_PROBE` |
+| Lokale Tests über `127.0.0.1` | Dienst kennt die Herkunft nicht (CORS) – Felder bleiben leer | `localhost` benutzen oder die Live-Seite mit `?probe=1` |
+| Abruf-Limit des Dienstes | ~50 Abrufe je Durchgang (Gratisstufe) | Suche liest Listen, holt höchstens 6 neue Abende sofort |
+| Hetzner und Hauptdomain | kein CNAME auf `@` | Zone zu Cloudflare oder A-Einträge |
+
+## 8. Abschluss
 
 Mit den Unterschriften bestätigen die Beteiligten: Phase A–D sind abgehakt,
 die Abnahme (Abschnitt 3) ist vollständig, Jonas Gamper hat keinen Zugang,
