@@ -870,3 +870,8 @@ body.ohne-schluessel main{padding-bottom:64px}
 .warte-gruppe .warte-zurueck{color:var(--gold-text);font-weight:700}
 
 .warte-kopf-knoepfe{display:flex;gap:8px;flex:0 0 auto;flex-wrap:wrap;justify-content:flex-end}
+
+/* Abgleich mit den eigenen Eventseiten (01.10.) */
+.hinweis.abgleich{margin-top:-6px;font-size:13.5px}
+.hinweis.abgleich[data-art="gut"]{color:var(--green)}
+.hinweis.abgleich[data-art="warnung"]{color:var(--wine);font-weight:600}

@@ -1094,6 +1094,19 @@ function maleWarteliste() {
         : `${wartePlural(wartend, 'Person wartet', 'Personen warten')} auf ${wartePlural(gruppen.filter(g => g.eintraege?.length).length, 'Abend', 'Abende')}. Sobald es wieder Karten gibt, klingelt es hier und die Gruppe wird gold.`;
   }
 
+  // Der Abgleich mit den eigenen Eventseiten (01.10.): eine Zeile, die sagt,
+  // ob alles auf der Webseite steht - und wenn nicht, was fehlt.
+  const abgleichZeile = byId('warteAbgleich');
+  const ab = stand.abgleich;
+  if (abgleichZeile && ab?.zeit) {
+    const um = new Date(ab.zeit).toLocaleString('de-AT', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    abgleichZeile.hidden = false;
+    abgleichZeile.dataset.art = ab.dauerhaft?.length ? 'warnung' : 'gut';
+    abgleichZeile.textContent = ab.dauerhaft?.length
+      ? `Abgleich ${um}: ${ab.dauerhaft.length} ${ab.dauerhaft.length === 1 ? 'Abend fehlt' : 'Abende fehlen'} auf der Webseite – ${ab.dauerhaft.join(', ')}. Bitte bei Ticketist prüfen.`
+      : `Abgleich ${um}: alle ${ab.aufSeiten} Ticketwege eurer Eventseiten stehen auf der Webseite (${ab.kommend} kommende).`;
+  }
+
   wurzel.textContent = '';
   for (const gruppe of gruppen) {
     const kasten = document.createElement('details');

@@ -46,7 +46,8 @@
     "sync:termine": "node scripts/sync-termine.mjs",
     "check:termine": "node scripts/check-termine.mjs",
     "check:event-warteliste": "node scripts/check-event-warteliste.mjs",
-    "check:sicherung": "node scripts/check-sicherung.mjs"
+    "check:sicherung": "node scripts/check-sicherung.mjs",
+    "check:live": "node scripts/check-termine-live.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.1",
