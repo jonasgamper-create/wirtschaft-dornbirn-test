@@ -1,5 +1,9 @@
 # Übergabeprotokoll · Website und Dienst der „wirtschaft“ Dornbirn
 
+> Für Hannah und Wolfgang gibt es die verständliche Fassung mit dem
+> Umzugsablauf: **`uebergabe-wirtschaft.md`**. Dieses Protokoll ist die
+> technische Abnahme dazu.
+
 Stand 1. Oktober 2026. Dieses Dokument regelt, wie die Website, der
 Dienst und alles, was daran hängt, von Jonas Gamper an den Kunden und dessen
 Programmierer übergehen – so, dass danach **nichts mehr bei Jonas liegt**:
