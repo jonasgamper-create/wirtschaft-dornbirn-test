@@ -1,0 +1,24 @@
+name: Termine-Abgleich
+
+# Jeden Morgen um 07:30 (Wien) und auf Knopfdruck: steht jeder Abend, den
+# die eigenen Eventseiten auf Ticketist verlinken, auch auf der Webseite?
+# Schlaegt der Lauf fehl, schickt GitHub eine Mail an den Besitzer des Repos.
+on:
+  schedule:
+    - cron: '30 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  abgleich:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Live-Abgleich
+        run: node scripts/check-termine-live.mjs

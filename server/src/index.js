@@ -682,6 +682,7 @@ export class Haus extends DurableObject {
       // Die selbst aufgenommenen Abende - damit der Wirt sieht, was er
       // hinzugefuegt hat, und es wieder hergeben kann.
       eigeneKennungen: rolle === 'haus' ? this.#lies('eigeneKennungen', []) : undefined,
+      abgleich: rolle === 'haus' ? this.#lies('abgleich', null) : undefined,
       // Die Mittags-Warteliste - nur fuers Haus. Sie stand bisher nirgends,
       // obwohl sich Gaeste laengst eintragen konnten.
       mittagWarteliste: rolle === 'haus' ? this.mittagWarteliste() : undefined,
@@ -2528,7 +2529,6 @@ export class Haus extends DurableObject {
     if (neu.length) {
       const eigene = this.#lies('eigeneKennungen', []);
       this.#schreib('eigeneKennungen', [...new Set([...(Array.isArray(eigene) ? eigene : []), ...neu])].slice(-120));
-      this.ctx.waitUntil(this.#holeAbende(neu.slice(0, 6)).then(() => this.#meldeAenderung()).catch(() => {}));
       this.ctx.waitUntil(this.#pushHausAlle({
         art: 'warteliste',
         titel: neu.length === 1 ? 'Neuer Abend auf der Seite' : `${neu.length} neue Abende auf der Seite`,
@@ -2537,14 +2537,56 @@ export class Haus extends DurableObject {
       }));
     }
     const aufgenommen = neu.map(kennung => ({ kennung }));
-    return { gefunden: kennungen.length, neuGelesen, aufgenommen };
+    return { gefunden: kennungen.length, kennungen, neuGelesen, aufgenommen };
+  }
+
+  /**
+   * Der Abgleich (01.10.): steht jeder Abend, den die eigenen Eventseiten
+   * verlinken, auch auf der Webseite? Fehlt einer, wird er sofort beim
+   * Ticketdienst gelesen. Fehlt er danach in zwei Durchgaengen hintereinander,
+   * bekommt das Haus eine Meldung - einmal, nicht bei jedem Durchgang.
+   * Das Ergebnis steht in der Wirt-Ansicht ueber den Abenden.
+   */
+  async #abgleich(aufSeiten) {
+    if (!Array.isArray(aufSeiten) || !aufSeiten.length) return this.#lies('abgleich', null);
+    const heute = jetztImHaus().datum;
+    let stand = this.#lies('termine', {});
+    const ohne = aufSeiten.filter(k => !stand[k]?.termin);
+    if (ohne.length) {
+      await this.#holeAbende(ohne.slice(0, 6)).catch(() => {});
+      stand = this.#lies('termine', {});
+    }
+    const fehlen = aufSeiten.filter(k => !stand[k]?.termin);
+    const vorher = this.#lies('abgleich', null);
+    const dauerhaft = fehlen.filter(k => (vorher?.fehlen || []).includes(k));
+    const kommend = aufSeiten.filter(k => stand[k]?.termin && stand[k].termin.date >= heute).length;
+    const ergebnis = {
+      zeit: new Date().toISOString(), aufSeiten: aufSeiten.length, kommend,
+      fehlen, dauerhaft, gemeldet: vorher?.gemeldet || []
+    };
+    if (dauerhaft.length && JSON.stringify(dauerhaft) !== JSON.stringify(ergebnis.gemeldet)) {
+      ergebnis.gemeldet = dauerhaft;
+      this.ctx.waitUntil(this.#pushHausAlle({
+        art: 'warteliste',
+        titel: `${dauerhaft.length} ${dauerhaft.length === 1 ? 'Abend fehlt' : 'Abende fehlen'} auf der Webseite`,
+        text: `Auf den Eventseiten verlinkt, beim Ticketdienst aber nicht lesbar: ${dauerhaft.join(', ')}`.slice(0, 160),
+        datum: ''
+      }));
+    }
+    if (!dauerhaft.length) ergebnis.gemeldet = [];
+    this.#schreib('abgleich', ergebnis);
+    return ergebnis;
   }
 
   async wartelisteAuffrischen() {
-    const entdeckt = await this.entdeckeAbende().catch(() => ({ aufgenommen: [] }));
-    const wege = [...new Set(this.eventWartelisteUebersicht().map(g => g.weg))].slice(0, 12);
+    const entdeckt = await this.entdeckeAbende().catch(() => ({ aufgenommen: [], kennungen: [] }));
+    const abgleich = await this.#abgleich(entdeckt.kennungen).catch(() => null);
+    // Zehn statt zwoelf: Suche und Abgleich brauchen auch Abrufe, und ein
+    // Durchgang darf nicht mehr als rund fuenfzig machen.
+    const wege = [...new Set(this.eventWartelisteUebersicht().map(g => g.weg))].slice(0, 10);
     if (wege.length) await this.#holeAbende(wege);
-    return { ok: true, geprueft: wege.length, neueAbende: entdeckt.aufgenommen, gruppen: this.eventWartelisteUebersicht() };
+    this.#meldeAenderung();
+    return { ok: true, geprueft: wege.length, neueAbende: entdeckt.aufgenommen, abgleich, gruppen: this.eventWartelisteUebersicht() };
   }
 
   async termine() {
