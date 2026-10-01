@@ -450,5 +450,13 @@ export const frischeWarteliste = token =>
   ruf('/api/event-warteliste/auffrischen', { methode: 'POST', koerper: {}, token });
 
 /** Mittags-Warteliste: verstaendigen, Stand setzen, entfernen. */
+/** Der Hinweis auf der Startseite (01.10.): lesen fuer alle, setzen nur das Haus. */
+export const holeHinweis = () => ruf('/api/hinweis');
+export const setzeHinweis = (token, text, bis) =>
+  ruf('/api/hinweis', { methode: 'POST', koerper: { text, bis: bis || '' }, token });
+/** Anfragen aus Locations und Agentur abhaken oder entfernen. */
+export const sendeAnfrageAktion = (token, befehl) =>
+  ruf('/api/anfrage/aktion', { methode: 'POST', koerper: befehl, token });
+
 export const sendeMittagWartelisteAktion = (token, befehl) =>
   ruf('/api/warteliste/aktion', { methode: 'POST', koerper: befehl, token });

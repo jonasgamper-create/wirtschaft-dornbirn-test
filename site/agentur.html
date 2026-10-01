@@ -6,7 +6,7 @@
   <meta name="description" content="Künstleragentur der Wirtschaft Dornbirn: Wolfgang Preuß vermittelt Musik, Comedy und Shows für Hochzeiten, Firmenfeiern und Feste – persönlich ausgewählt.">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self' https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev wss://wirtschaft-reservierung-probe.jonas-gamper.workers.dev; form-action 'self' mailto:; upgrade-insecure-requests">
   <meta name="theme-color" content="#17130f">
   <meta property="og:title" content="Künstleragentur · Wirtschaft Dornbirn">
   <meta property="og:description" content="Musik, Comedy und Shows für euren Anlass – persönlich vermittelt von Wolfgang Preuß.">
@@ -23,8 +23,11 @@
   <link rel="preload" as="image" href="assets/agentur-buehne.webp" imagesrcset="assets/agentur-buehne-900.webp 900w, assets/agentur-buehne.webp 1600w" imagesizes="100vw" fetchpriority="high">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-600-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="feste-catering.css?v=9bac05f8">
-  <script src="agentur.js?v=553568b1" defer></script>
+  <link rel="stylesheet" href="feste-catering.css?v=134582e7">
+  <!-- Muss vor allen anderen laufen: setzt den Probemodus (siehe probe.js). -->
+  <script src="probe.js?v=a48a382b" defer></script>
+  <script src="anfrage-senden.js?v=6c8a8530" defer></script>
+  <script src="agentur.js?v=5951d98f" defer></script>
 </head>
 <body data-bg="4">
   <a class="skip-link" href="#content">Zum Inhalt springen</a>
@@ -90,7 +93,8 @@
           <label class="wide">Was schwebt euch vor?<textarea id="agNachricht" name="nachricht" rows="4" placeholder="Stimmung, Vorbilder, Budgetrahmen – alles hilft."></textarea></label>
         </div>
         <p class="consent"><input type="checkbox" id="agConsent" required><label for="agConsent">Die Angaben werden nur zur Beantwortung dieser Anfrage verwendet. Es gilt die <a href="datenschutz-sicherheit.html">Datenschutzerklärung</a>.</label></p>
-        <button class="submit-button" type="submit">Anfrage per E-Mail senden<span>→</span></button>
+        <label class="fangfeld" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+        <button class="submit-button" type="submit">Anfrage senden<span>→</span></button>
         <p class="form-status" id="agStatus" role="status" aria-live="polite"></p>
       </form>
     </section>

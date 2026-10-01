@@ -8,7 +8,7 @@
 // fertige SVG-Dateien im Repo (scripts/build-qr.mjs) - gedruckt heisst
 // dauerhaft, deshalb haengt hier nichts an einer Bibliothek im Browser.
 
-import { ladePlan, legende, wochenText, zeichneAlacarte, zeichneFussnote, zeichneWoche } from './menuekarte.mjs?v=4a4c9874';
+import { ladePlan, legende, wochenText, zeichneAlacarte, zeichneFussnote, zeichneWoche } from './menuekarte.mjs?v=18832d27';
 
 const byId = id => document.getElementById(id);
 

@@ -1057,6 +1057,19 @@
         };
       };
 
+      // Der Hinweis des Hauses (01.10.): ersetzt die Zeile ueber der grossen
+      // Ueberschrift ("Dornbirn · Vorarlberg") - dieselbe Stelle, dieselbe
+      // Hoehe, nichts verschiebt sich. Ohne Hinweis bleibt alles, wie es ist.
+      fetch(`${basis}/api/hinweis`, { cache: 'no-store' })
+        .then(antwort => antwort.json())
+        .then(hinweis => {
+          const zeile = document.querySelector('.final-prologue .prologue-copy .eyebrow');
+          if (!zeile || !hinweis?.text) return;
+          zeile.textContent = hinweis.text;
+          zeile.classList.add('haus-hinweis');
+        })
+        .catch(() => {});
+
       const programm = fetch(`${basis}/api/termine`, { cache: 'no-store' })
         .then(antwort => antwort.json())
         .then(liste => {

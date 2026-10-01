@@ -33,7 +33,8 @@ import {
   absage as absageMail, baueTermin, bestaetigung as bestaetigungsMail, brevoPaket,
   escapeHtml, newsletterFrage, sendeMail, tageszettelMail, termin_uid,
   wartelisteFreiMail, wochenberichtMail, wochenkarte as wochenkarteMail, bestellBestaetigung, neueBestellungMail,
-  eventWartelisteAufnahmeMail, eventWartelisteFreiMail } from './mail.mjs';
+  eventWartelisteAufnahmeMail, eventWartelisteFreiMail, anfrageAnsHaus, anfrageBestaetigung } from './mail.mjs';
+import { ANFRAGEN_PRO_STUNDE, hinweisAktiv, pruefeAnfrageFormular, pruefeHinweis, raeumeAnfragenAuf } from './anfrage.mjs';
 import {
   antwortVomGast, ausverkauftLautPreisen, entferneEintrag, merkeMail, nimmAufEvent, pruefeEventWartelisteEintrag,
   raeumeEventWartelisteAb, setzeNotiz, setzeStatus, wartelisteUebersicht, wegAusTermin, wegStand, wiederBuchbar
@@ -683,6 +684,8 @@ export class Haus extends DurableObject {
       // hinzugefuegt hat, und es wieder hergeben kann.
       eigeneKennungen: rolle === 'haus' ? this.#lies('eigeneKennungen', []) : undefined,
       abgleich: rolle === 'haus' ? this.#lies('abgleich', null) : undefined,
+      anfragen: rolle === 'haus' ? this.anfragen() : undefined,
+      hausHinweis: rolle === 'haus' ? this.#lies('hausHinweis', null) : undefined,
       // Die Mittags-Warteliste - nur fuers Haus. Sie stand bisher nirgends,
       // obwohl sich Gaeste laengst eintragen konnten.
       mittagWarteliste: rolle === 'haus' ? this.mittagWarteliste() : undefined,
@@ -1415,6 +1418,76 @@ export class Haus extends DurableObject {
    * Freitext: Viertelstunden-Raster, zwischen 10:00 und 16:00, mindestens
    * eine Stunde - ein Vertipper wie 01:30 soll nie den Mittag "sperren".
    */
+  // ---- Anfragen (Locations, Agentur) und Hinweis auf der Startseite -------
+
+  /**
+   * Eine Anfrage annehmen (01.10.): speichern, ans Haus mailen ("Antworten"
+   * geht an den Gast), dem Gast automatisch bestaetigen, aufs Telefon melden.
+   * Gespeichert wird zuerst - so geht keine Anfrage verloren, auch wenn die
+   * Mail nicht ankommt; sie steht in der Wirt-Ansicht unter "haus".
+   */
+  async anfrageAnnehmen(roh) {
+    const geprueft = pruefeAnfrageFormular(roh);
+    if (!geprueft.ok) return geprueft.grund === 'spam' ? { ok: true } : geprueft;
+    const fenster = new Date().toISOString().slice(0, 13);
+    const zaehler = this.#lies('anfrageFenster', { fenster: '', anzahl: 0 });
+    const anzahl = zaehler.fenster === fenster ? zaehler.anzahl : 0;
+    if (anzahl >= ANFRAGEN_PRO_STUNDE) return { ok: false, grund: 'zu_viele' };
+    this.#schreib('anfrageFenster', { fenster, anzahl: anzahl + 1 });
+
+    const anfrage = { id: `an-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+      zeit: new Date().toISOString(), status: 'neu', ...geprueft.anfrage };
+    this.#schreib('anfragen', raeumeAnfragenAuf([...this.#lies('anfragen', []), anfrage]));
+    this.#meldeAenderung();
+
+    const absender = String(this.env?.BREVO_ABSENDER || '');
+    const ans = String(this.env?.ANFRAGE_MAIL || 'willkommen@wirtschaft-dornbirn.at');
+    let mailHaus = { ok: false, grund: 'nicht_eingerichtet' };
+    if (absender) {
+      const anHaus = anfrageAnsHaus(anfrage);
+      mailHaus = await sendeMail(this.env, brevoPaket({ absender, an: ans, betreff: anHaus.betreff, html: anHaus.html, text: anHaus.text,
+        antwortAn: { email: anfrage.email, name: anfrage.name } }));
+      const anGast = anfrageBestaetigung(anfrage);
+      this.ctx.waitUntil(sendeMail(this.env, brevoPaket({ absender, an: anfrage.email, anName: anfrage.name,
+        betreff: anGast.betreff, html: anGast.html, text: anGast.text, antwortAn: { email: ans } })));
+    }
+    this.ctx.waitUntil(this.#pushHausAlle({
+      art: 'warteliste', titel: `Neue Anfrage: ${anfrage.betreff}`.slice(0, 80),
+      text: `${anfrage.name} · ${anfrage.email}`, datum: ''
+    }));
+    return { ok: true, mail: Boolean(mailHaus?.ok) };
+  }
+
+  anfragen() {
+    const liste = raeumeAnfragenAuf(this.#lies('anfragen', []));
+    return liste.slice().reverse();
+  }
+
+  async anfrageAktion(befehl) {
+    const liste = raeumeAnfragenAuf(this.#lies('anfragen', []));
+    const i = liste.findIndex(a => a.id === befehl?.id);
+    if (i < 0) return { ok: false, grund: 'unbekannt' };
+    if (befehl.art === 'entfernen') liste.splice(i, 1);
+    else if (befehl.art === 'erledigt' || befehl.art === 'neu') liste[i] = { ...liste[i], status: befehl.art };
+    else return { ok: false, grund: 'art' };
+    this.#schreib('anfragen', liste);
+    this.#meldeAenderung();
+    return { ok: true };
+  }
+
+  hinweis() {
+    const h = this.#lies('hausHinweis', null);
+    return hinweisAktiv(h, jetztImHaus().datum) ? { ok: true, text: h.text, bis: h.bis } : { ok: true, text: '', bis: null, gespeichert: h || null };
+  }
+
+  async setzeHinweis(roh) {
+    const geprueft = pruefeHinweis(roh);
+    if (!geprueft.ok) return geprueft;
+    this.#schreib('hausHinweis', geprueft.hinweis);
+    this.#meldeAenderung();
+    return { ok: true, ...this.hinweis() };
+  }
+
   async oeffnung() {
     const roh = this.#lies('oeffnungszeiten', null);
     return { ok: true, von: roh?.von || '11:30', bis: roh?.bis || '13:30' };
@@ -3602,6 +3675,28 @@ export default {
       // Oeffnungszeiten: lesen darf jeder (die Gaesteseite zeigt sie an),
       // setzen nur das Haus. Sie steuern die Anzeige - die Buchung selbst
       // laeuft ueber die verlinkte Reservierungsseite.
+      // Anfragen aus Locations und Agentur: oeffentlich, mit Fangfeld und
+      // Stundendeckel. Lesen und abhaken nur mit Hausschluessel.
+      if (url.pathname === '/api/anfrage' && request.method === 'POST') {
+        const roh = await request.json().catch(() => ({}));
+        const ergebnis = await haus.anfrageAnnehmen(roh);
+        return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
+      }
+      if (url.pathname === '/api/anfrage/aktion' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const ergebnis = await haus.anfrageAktion(await request.json().catch(() => ({})));
+        return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
+      }
+      // Der Hinweis auf der Startseite ("Am 24.12. geschlossen"): lesen darf
+      // jeder, setzen nur das Haus.
+      if (url.pathname === '/api/hinweis' && request.method === 'GET') {
+        return json(await haus.hinweis(), 200, kopf);
+      }
+      if (url.pathname === '/api/hinweis' && request.method === 'POST') {
+        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const ergebnis = await haus.setzeHinweis(await request.json().catch(() => ({})));
+        return json(ergebnis, ergebnis.ok ? 200 : 400, kopf);
+      }
       if (url.pathname === '/api/oeffnung' && request.method === 'GET') {
         return json(await haus.oeffnung(), 200, kopf);
       }

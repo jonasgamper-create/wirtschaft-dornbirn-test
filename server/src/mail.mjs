@@ -242,7 +242,7 @@ export function wochenkarte({ karteLink, abmeldeLink }) {
 }
 
 /** Das Paket, das an Brevo geht. Getrennt gebaut, damit es pruefbar bleibt. */
-export function brevoPaket({ absender, absenderName, an, anName, betreff, html, text, anhang = null }) {
+export function brevoPaket({ absender, absenderName, an, anName, betreff, html, text, anhang = null, antwortAn = null }) {
   const paket = {
     sender: { email: absender, name: absenderName || 'Wirtschaft Dornbirn' },
     to: [anName ? { email: an, name: anName } : { email: an }],
@@ -250,6 +250,8 @@ export function brevoPaket({ absender, absenderName, an, anName, betreff, html, 
     htmlContent: html,
     textContent: text
   };
+  // "Antworten" im Postfach des Hauses geht direkt an den Gast (Anfragen).
+  if (antwortAn?.email) paket.replyTo = antwortAn.name ? { email: antwortAn.email, name: antwortAn.name } : { email: antwortAn.email };
   if (anhang) paket.attachment = [{ name: anhang.name, content: alsBase64(anhang.inhalt) }];
   return paket;
 }
@@ -467,5 +469,49 @@ export function eventWartelisteFreiMail({ name, titel, datum, zeit, personen, ti
       + (hinweis ? `${hinweis}\n\n` : '')
       + `Ich habe gebucht: ${gebuchtLink}\nBrauche keine mehr: ${keinBedarfLink}\n\n`
       + 'Die Karten sind nicht reserviert - wer zuerst kauft, hat sie.\n'
+  };
+}
+
+/**
+ * Anfragen von Locations (Feste & Catering) und Agentur (01.10.). Vorher
+ * oeffneten beide Formulare nur das Mailprogramm des Gastes - ohne
+ * Bestaetigung, und ohne Mailprogramm am Handy ging die Anfrage verloren.
+ */
+const ANFRAGE_ART = {
+  feste: { wort: 'Feste & Catering', dank: 'Eure Anfrage für ein Fest oder Catering ist bei uns angekommen.' },
+  agentur: { wort: 'Künstler & Agentur', dank: 'Eure Anfrage an unsere Agentur ist bei uns angekommen.' }
+};
+
+/** An das Haus: die Anfrage, "Antworten" geht direkt an den Gast. */
+export function anfrageAnsHaus({ art, betreff, name, email, telefon, zeilen }) {
+  const was = ANFRAGE_ART[art]?.wort || 'Anfrage';
+  const html = rahmen(`Neue Anfrage · ${was}`, [
+    kopf(`Neue Anfrage · ${was}`, betreff),
+    ...zeilen.map(z => absatz(z)),
+    absatz(`Von: ${name} · ${email}${telefon ? ` · ${telefon}` : ''}`),
+    absatz('Einfach auf diese Mail antworten – die Antwort geht direkt an den Gast. Der Gast hat eine automatische Bestätigung bekommen.')
+  ].join(''));
+  return {
+    betreff: `Anfrage ${was}: ${betreff}`,
+    html,
+    text: `Neue Anfrage · ${was}\n${betreff}\n\n${zeilen.join('\n')}\n\nVon: ${name} · ${email}${telefon ? ` · ${telefon}` : ''}\n\nAuf diese Mail antworten = Antwort an den Gast.\n`
+  };
+}
+
+/** An den Gast: die automatische Bestaetigung mit seinen eigenen Angaben. */
+export function anfrageBestaetigung({ art, name, zeilen }) {
+  const dank = ANFRAGE_ART[art]?.dank || 'Eure Anfrage ist bei uns angekommen.';
+  const html = rahmen('Danke für eure Anfrage', [
+    kopf('Anfrage erhalten', `Danke, ${name}!`),
+    absatz(dank),
+    absatz('Wir schauen sie uns persönlich an und melden uns bei euch. Hier noch einmal, was ihr uns geschickt habt:'),
+    ...zeilen.map(z => absatz(z)),
+    absatz('Fragen zwischendurch? Einfach auf diese Mail antworten oder anrufen: +43 664 230 65 87.'),
+    absatz('Herzliche Grüße aus der „wirtschaft“ – Emma & Eugen')
+  ].join(''));
+  return {
+    betreff: 'Danke für eure Anfrage – „wirtschaft“ Dornbirn',
+    html,
+    text: `Danke, ${name}!\n\n${dank}\nWir schauen sie uns persönlich an und melden uns bei euch.\n\nEure Angaben:\n${zeilen.join('\n')}\n\nFragen? Auf diese Mail antworten oder anrufen: +43 664 230 65 87.\n\nHerzliche Grüße aus der „wirtschaft“ – Emma & Eugen\n`
   };
 }

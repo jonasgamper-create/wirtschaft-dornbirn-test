@@ -19,7 +19,9 @@ const site = path.join(root, 'site');
 // geblieben. Aufgefallen ist das beim Nachtragen des Testdienstes.
 const SEITEN = [
   'screen.html', 'gastgeber-tischplan.html', 'events.html', 'wirt.html',
-  'uebersicht.html', 'kueche.html', 'zahlen.html', 'einrichten.html'
+  'uebersicht.html', 'kueche.html', 'zahlen.html', 'einrichten.html',
+  // Seit 01.10. schicken auch die Anfrageformulare an den Dienst.
+  'feste-catering.html', 'agentur.html'
 ];
 
 const konfig = JSON.parse(await readFile(path.join(site, 'data', 'haus.json'), 'utf8'));

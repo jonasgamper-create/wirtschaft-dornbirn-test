@@ -89,6 +89,7 @@
     // Wohin Tageszettel und Wochenbericht gehen. In der Testumgebung an
     // Jonas; im echten Betrieb die Adresse des Wirts.
     "WIRT_MAIL": "jonas.gamper@aon.at",
+    "ANFRAGE_MAIL": "willkommen@wirtschaft-dornbirn.at",
     // Die Gaesteseite - fuer Links in Mails (Warteliste).
     "GAESTE_SEITE": "https://wirtschaft-dornbirn.pages.dev"
   },
@@ -150,6 +151,7 @@
         "VAPID_OEFFENTLICH": "BPLEbe0YGZChaS1PY-NtqMLW32AC_PVQ2QTDAYhwnqd6iyQ9V28etINQVmUloVHlLgwQPtiUwCjwnSCtlnvPQTw",
         "VAPID_KONTAKT": "mailto:willkommen@wirtschaft-dornbirn.at",
         "WIRT_MAIL": "jonas.gamper@aon.at",
+    "ANFRAGE_MAIL": "willkommen@wirtschaft-dornbirn.at",
         "GAESTE_SEITE": "https://wirtschaft-dornbirn.pages.dev"
       }
     }

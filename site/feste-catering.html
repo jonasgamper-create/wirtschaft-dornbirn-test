@@ -6,7 +6,7 @@
   <meta name="description" content="Hochzeiten, Feste, Firmenfeiern und Catering mit der Wirtschaft Dornbirn – im Haus, im Kulturhaus Dornbirn oder an einem Wunschort anfragen.">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; form-action 'self' mailto:; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self' https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev wss://wirtschaft-reservierung-probe.jonas-gamper.workers.dev; form-action 'self' mailto:; upgrade-insecure-requests">
   <meta name="theme-color" content="#17130f">
   <meta property="og:title" content="Locations · Feste & Catering · Wirtschaft Dornbirn">
   <meta property="og:description" content="Bis 120 Gäste in der Wirtschaft, 120–600 im Kulturhaus – das Catering läuft immer über die Wirtschaft.">
@@ -23,9 +23,12 @@
   <link rel="preload" as="image" href="assets/kulturhaus-saal.webp" imagesrcset="assets/kulturhaus-saal-900.webp 900w, assets/kulturhaus-saal.webp 1170w" imagesizes="100vw" fetchpriority="high">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-400-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-latin-600-normal.woff2" crossorigin>
-  <link rel="stylesheet" href="feste-catering.css?v=9bac05f8">
+  <link rel="stylesheet" href="feste-catering.css?v=134582e7">
   <link rel="stylesheet" href="feste-catering-legal.css?v=f5164866">
-  <script src="feste-catering.js?v=e248765b" defer></script>
+  <!-- Muss vor allen anderen laufen: setzt den Probemodus (siehe probe.js). -->
+  <script src="probe.js?v=a48a382b" defer></script>
+  <script src="anfrage-senden.js?v=6c8a8530" defer></script>
+  <script src="feste-catering.js?v=34a9cd53" defer></script>
   <script src="measurement-hooks.js?v=4e60ff58" defer></script>
 </head>
 <body>
@@ -102,8 +105,9 @@
           <label class="wide">Telefon, wenn Rückruf gewünscht<input id="contactPhone" name="phone" type="tel" autocomplete="tel"></label>
           <label class="wide">Was sollen wir noch wissen?<textarea id="eventMessage" name="message" rows="5" placeholder="Anlass, Zeitrahmen, besondere Wünsche, Wunschort …"></textarea></label>
         </div>
-        <label class="consent"><input id="inquiryConsent" type="checkbox" required><span>Ich habe die <a href="datenschutz-sicherheit.html" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> zur Kenntnis genommen. Die Anfrage wird fertig ausgefüllt im E-Mail-Programm geöffnet und erst dort versendet.</span></label>
-        <button class="submit-button" type="submit">Anfrage per E-Mail senden <span>↗</span></button>
+        <label class="consent"><input id="inquiryConsent" type="checkbox" required><span>Ich habe die <a href="datenschutz-sicherheit.html" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> zur Kenntnis genommen. Die Anfrage geht direkt an uns, ihr bekommt eine Bestätigung per E-Mail.</span></label>
+        <label class="fangfeld" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+        <button class="submit-button" type="submit">Anfrage senden <span>→</span></button>
         <p class="form-status" id="inquiryStatus" role="status" aria-live="polite"></p>
       </form>
     </section>

@@ -4,8 +4,8 @@
 // wie bisher und leitet auf den offiziellen Anbieter weiter. Erst wenn der
 // Dienst laeuft, wird aus dem Formular eine echte Buchung.
 
-import { apiAdresse, buche, holeAmpel, holeFrei, holeGeschlossen, holeKarteInfo, holeTakeawayKarte, karteAdresse, meldeMittagskarte, trageWartelisteEin } from './haus-api.js?v=42118de8';
-import { ladePlan, legende, wochenText, zeichneAlacarte, zeichneWoche } from './menuekarte.mjs?v=4a4c9874';
+import { apiAdresse, buche, holeAmpel, holeFrei, holeGeschlossen, holeKarteInfo, holeTakeawayKarte, karteAdresse, meldeMittagskarte, trageWartelisteEin } from './haus-api.js?v=a0e6cbed';
+import { ladePlan, legende, wochenText, zeichneAlacarte, zeichneWoche } from './menuekarte.mjs?v=18832d27';
 import { istFeiertag, istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 
 const byId = id => document.getElementById(id);
