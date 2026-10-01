@@ -358,17 +358,32 @@ export async function entdecke(gesehen = {}, { hol = fetch, hoechstens = 20 } = 
   const kennungen = new Set();
   const merker = { ...gesehen };
   let neuGelesen = 0;
-  for (const liste of QUELLSEITEN) {
-    const html = await lies(liste);
-    kennungenIn(html).forEach(k => kennungen.add(k));
-    for (const seite of unterseitenIn(html, liste)) {
-      if (!Array.isArray(merker[seite])) {
-        if (neuGelesen >= hoechstens) continue;
-        merker[seite] = kennungenIn(await lies(seite));
-        neuGelesen += 1;
+  // Blaetterseiten (/event/page/2/ ...) sind Listen, keine Abende: ihr Inhalt
+  // rutscht weiter, sobald vorne ein Abend dazukommt. Sie werden JEDES Mal
+  // gelesen (01.10.: 28 neue Abende standen auf page/2-4, die der Merker
+  // fuer erledigt hielt). Gemerkt werden nur einzelne Abendseiten.
+  const istListe = url => /\/page\/\d+\/?$/.test(new URL(url).pathname);
+  for (const start of QUELLSEITEN) {
+    const listen = [start];
+    const besucht = new Set();
+    while (listen.length && besucht.size < 10) {
+      const liste = listen.shift();
+      if (besucht.has(liste)) continue;
+      besucht.add(liste);
+      const html = await lies(liste);
+      kennungenIn(html).forEach(k => kennungen.add(k));
+      for (const seite of unterseitenIn(html, start)) {
+        if (istListe(seite)) { if (!besucht.has(seite)) listen.push(seite); continue; }
+        if (!Array.isArray(merker[seite])) {
+          if (neuGelesen >= hoechstens) continue;
+          merker[seite] = kennungenIn(await lies(seite));
+          neuGelesen += 1;
+        }
+        merker[seite].forEach(k => kennungen.add(k));
       }
-      merker[seite].forEach(k => kennungen.add(k));
     }
   }
+  // Alte Eintraege fuer Blaetterseiten aus dem Merker raeumen.
+  for (const url of Object.keys(merker)) { try { if (istListe(url)) delete merker[url]; } catch { delete merker[url]; } }
   return { kennungen: [...kennungen], gesehen: merker, neuGelesen };
 }

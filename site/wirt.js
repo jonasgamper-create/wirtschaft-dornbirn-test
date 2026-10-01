@@ -1365,7 +1365,7 @@ function verdrahteWarteliste() {
     const offen = (antwort.gruppen || []).filter(g => g.buchbar === true).length;
     const neu = antwort.neueAbende || [];
     const neuSatz = neu.length
-      ? `Neu auf der Seite: ${neu.map(a => a.titel).filter(Boolean).join(', ')}. `
+      ? `${neu.length} ${neu.length === 1 ? 'neuer Abend' : 'neue Abende'} auf der Seite. `
       : '';
     sag('warteInfo', neuSatz + (jetzt > vorher
       ? `${jetzt - vorher} ${jetzt - vorher === 1 ? 'Karte ist' : 'Karten sind'} zurückgekommen.`
