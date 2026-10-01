@@ -1,6 +1,6 @@
 # Handbuch fürs Haus · Was ihr selbst an der Webseite ändert
 
-Stand 1. Oktober 2026. Für Wolfgang, Hanna und alle im Haus. Ohne Technik:
+Stand 1. Oktober 2026. Für Wolfgang, Hannah und alle im Haus. Ohne Technik:
 alles hier geht in der **Wirt-Ansicht** am Handy, Tablet oder Laptop. Für
 alles, was hier nicht steht (Texte, Bilder, Aufbau der Seite), gibt es den
 Programmierer – wie ihr ihn beauftragt, steht in Abschnitt 6.

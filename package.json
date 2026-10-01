@@ -48,7 +48,10 @@
     "check:event-warteliste": "node scripts/check-event-warteliste.mjs",
     "check:sicherung": "node scripts/check-sicherung.mjs",
     "check:live": "node scripts/check-termine-live.mjs",
-    "check:anfrage": "node scripts/check-anfrage.mjs"
+    "check:anfrage": "node scripts/check-anfrage.mjs",
+    "check:umzug": "node scripts/check-umzug.mjs",
+    "check:uebergabe": "node scripts/check-uebergabe.mjs",
+    "umstellen": "node scripts/umstellen.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.1",

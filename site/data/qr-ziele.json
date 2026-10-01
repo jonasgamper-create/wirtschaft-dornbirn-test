@@ -1,11 +1,11 @@
 {
-  "_hinweis": "Die Ziele der beiden QR-Codes auf der Faltkarte. Gedruckt heisst dauerhaft: seit 13.09. zeigen beide auf die eigene Seite, weil die alte Wirtschaft-Seite abgeloest und geloescht wird. Nach einer Aenderung hier: npm run ci (erzeugt die Codes neu).",
+  "_hinweis": "Die Ziele der beiden QR-Codes auf der Faltkarte. Gedruckt heisst dauerhaft: seit 13.09. zeigen beide auf die eigene Seite, weil die alte Wirtschaft-Seite abgeloest und geloescht wird. Nach einer Aenderung hier: npm run ci (erzeugt die Codes neu). 01.10.: von github.io auf pages.dev (github.io endet mit der Uebertragung des Repositorys). Am Umzugstag stellt scripts/umstellen.mjs sie auf wirtschaft-dornbirn.at - erst danach neu drucken.",
   "events": {
-    "url": "https://jonasgamper-create.github.io/wirtschaft-dornbirn-test/events.html",
+    "url": "https://wirtschaft-dornbirn.pages.dev/events",
     "text": "hier geht es zu den aktuellen events"
   },
   "takeaway": {
-    "url": "https://jonasgamper-create.github.io/wirtschaft-dornbirn-test/takeaway.html",
+    "url": "https://wirtschaft-dornbirn.pages.dev/takeaway",
     "text": "hier geht es zum takeaway"
   }
 }

@@ -65,7 +65,7 @@
     // alte Testadresse bleibt in der Liste, solange beide laufen; beim
     // Umzug auf wirtschaft-dornbirn.at kommt sie hierher und die anderen
     // koennen weg.
-    "ALLOWED_ORIGINS": "https://wirtschaft-dornbirn.pages.dev,https://jonasgamper-create.github.io,http://localhost:4321,http://localhost:4322,http://localhost:4323",
+    "ALLOWED_ORIGINS": "https://wirtschaft-dornbirn.at,https://www.wirtschaft-dornbirn.at,https://neu.wirtschaft-dornbirn.at,https://wirtschaft-dornbirn.pages.dev,https://jonasgamper-create.github.io,http://localhost:4321,http://localhost:4322,http://localhost:4323",
 
     // Die eigene Adresse fuer Links in automatisch versendeten Mails - der
     // Wochenkarten-Versand hat keine Anfrage, aus der er sie lesen koennte.
@@ -145,13 +145,13 @@
         // draussen zeigen, was echte Bestellungen entgegennimmt.
         "ALT_RESERVIERUNG": "",
         "ALT_TAKEAWAY": "",
-        "ALLOWED_ORIGINS": "https://wirtschaft-dornbirn.pages.dev,https://jonasgamper-create.github.io,http://localhost:4321,http://localhost:4322,http://localhost:4323",
+        "ALLOWED_ORIGINS": "https://wirtschaft-dornbirn.at,https://www.wirtschaft-dornbirn.at,https://neu.wirtschaft-dornbirn.at,https://wirtschaft-dornbirn.pages.dev,https://jonasgamper-create.github.io,http://localhost:4321,http://localhost:4322,http://localhost:4323",
         "DIENST_BASIS": "https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev",
         "OFFEN": "nein",
         "VAPID_OEFFENTLICH": "BPLEbe0YGZChaS1PY-NtqMLW32AC_PVQ2QTDAYhwnqd6iyQ9V28etINQVmUloVHlLgwQPtiUwCjwnSCtlnvPQTw",
         "VAPID_KONTAKT": "mailto:willkommen@wirtschaft-dornbirn.at",
         "WIRT_MAIL": "jonas.gamper@aon.at",
-    "ANFRAGE_MAIL": "willkommen@wirtschaft-dornbirn.at",
+        "ANFRAGE_MAIL": "willkommen@wirtschaft-dornbirn.at",
         "GAESTE_SEITE": "https://wirtschaft-dornbirn.pages.dev"
       }
     }

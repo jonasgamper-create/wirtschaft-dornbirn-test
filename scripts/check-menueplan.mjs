@@ -179,7 +179,9 @@ for (const name of ['events', 'takeaway']) {
   const ziel = ziele[name]?.url || '';
   // Die eigene Domain oder die Seite selbst - nie ein fremder Dienst.
   check(`QR-Ziel ${name} liegt auf der eigenen Seite`,
-    /^https:\/\/([\w-]+\.)*wirtschaft-dornbirn\.at\//.test(ziel) || /^https:\/\/jonasgamper-create\.github\.io\/wirtschaft-dornbirn-test\//.test(ziel), ziel);
+    // Eigene Domain, oder bis zum Umzug die Seite auf Cloudflare Pages
+    // (github.io endet mit der Uebertragung des Repositorys, 01.10.).
+    /^https:\/\/([\w-]+\.)*wirtschaft-dornbirn\.at\//.test(ziel) || /^https:\/\/wirtschaft-dornbirn\.pages\.dev\//.test(ziel), ziel);
   check(`QR-Ziel ${name} hat einen Text`, typeof ziele[name]?.text === 'string' && ziele[name].text.length > 5);
   try {
     const svg = await readFile(path.join(root, `site/assets/qr/${name}.svg`), 'utf8');
