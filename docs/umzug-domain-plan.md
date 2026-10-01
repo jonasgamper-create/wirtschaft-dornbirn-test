@@ -1,5 +1,9 @@
 # Umzug auf wirtschaft-dornbirn.at – der Plan
 
+> **Seit 01.10. gilt `uebergabe-wirtschaft.md` als Ablauf** (mit Generalprobe,
+> Absicherung der Unterdomains und Rückweg). Dieses Dokument bleibt als
+> technische Ergänzung.
+
 Stand 22. September 2026. Die Seite ist fertig getestet (siehe Abschnitt 5)
 und läuft unter `wirtschaft-dornbirn.pages.dev`. Dieses Dokument ist die
 Reihenfolge, in der sie auf die echte Domain kommt – und was dabei mit den
@@ -52,9 +56,10 @@ Cloudflare zeigt dann genau diese Ziele an (sie lauten immer so):
   Apex ein Klick, Access (Abschnitt 4) wird möglich, und Mail-Einträge werden
   1:1 mitgenommen. Cloudflare importiert die bestehende Zone automatisch;
   vorher trotzdem alle heutigen Einträge exportieren (MX, `mail.`, TXT).
-- **Ohne Umzug:** `@` als A-Eintrag auf die Cloudflare-Pages-IPs und `www`
-  als CNAME; die IPs stehen im Pages-Dashboard unter der Custom Domain.
-  Funktioniert, aber Access bleibt dann verwehrt.
+- **Ohne Umzug geht es nicht** (korrigiert 01.10.): Cloudflare Pages nimmt
+  die Hauptdomain ohne `www` nur an, wenn die Zone bei Cloudflare liegt;
+  feste IP-Adressen für Pages gibt es nicht. Unterdomains (`www`, `neu`)
+  gehen auch mit Hetzner per CNAME. Ablauf: `uebergabe-wirtschaft.md`, Etappe 6.
 
 Bis der Kunde sich entschieden hat: **Variante 1 vorschlagen.** Die Domain
 bleibt beim Registrar, nur die Nameserver ändern sich. Der Mailserver

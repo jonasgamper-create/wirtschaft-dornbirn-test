@@ -353,6 +353,7 @@ im Code nach Hauszeit verzweigen (so wurde 06:00/12:00 gelöst).
 
 | Dokument | Inhalt |
 |---|---|
+| **`uebergabe-wirtschaft.md`** | **Die Übergabe für Hannah und Wolfgang: Konten, sieben Etappen mit Rückweg, Domainumzug, Änderungen ohne KI** |
 | **`handbuch-haus.md`** | **Für Wolfgang und das Team: was das Haus selbst ändert, was automatisch passiert** |
 | `projektstand.md` | Gesamtübersicht, offene Entscheidungen |
 | `uebergabe.md` | Übergabeprotokoll mit Abnahme und Belegen |
