@@ -8,7 +8,7 @@ const file = path.join(root, 'site', 'data', 'events.json');
 // der haeufigste Fall im Haus (Dinner voll, Stehplatz frei). Frueher gab es
 // dafuer nur "waitlist" fuer den ganzen Abend, und ein Gast las "Warteliste",
 // obwohl er ein Stehplatzticket bekommen haette.
-const allowedStatuses = new Set(['scheduled', 'teilweise', 'sold_out', 'waitlist', 'cancelled', 'paused']);
+const allowedStatuses = new Set(['scheduled', 'teilweise', 'sold_out', 'vorverkauf', 'waitlist', 'cancelled', 'paused']);
 const ticketStatuses = new Set(['buchbar', 'ausverkauft', 'unbekannt']);
 const isoDate = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -68,7 +68,9 @@ for (const [index, event] of events.entries()) {
 
   // Die Ticketarten sind die eigentliche Wahrheit ueber die Verfuegbarkeit.
   const tickets = Array.isArray(event.tickets) ? event.tickets : [];
-  if (!tickets.length) fail(`${prefix}.tickets fehlt - ohne Ticketart keine Verfuegbarkeit.`);
+  // Ohne Ticketarten (neue Abende ohne hinterlegte Preise, 01.10.) ist der
+  // Abend erlaubt, wenn er zum Ticketdienst fuehrt - die Preise stehen dort.
+  if (!tickets.length && !/ticketist\.io/.test(String(event.ticketUrl || ''))) fail(`${prefix}.tickets fehlt und kein Ticketlink.`);
   for (const [t, ticket] of tickets.entries()) {
     const tp = `${prefix}.tickets[${t}]`;
     if (!ticket?.name?.trim()) fail(`${tp}.name fehlt.`);
@@ -83,7 +85,7 @@ for (const [index, event] of events.entries()) {
   const zustaende = tickets.map(ticket => ticket.status);
   const alleWeg = zustaende.length > 0 && zustaende.every(s => s === 'ausverkauft');
   const eineWeg = zustaende.some(s => s === 'ausverkauft');
-  if (event.status === 'sold_out' && !alleWeg) {
+  if (event.status === 'sold_out' && tickets.length && !alleWeg) {
     fail(`${prefix}.status ist "sold_out", aber nicht jede Ticketart ist ausverkauft.`);
   }
   if (event.status === 'teilweise' && !(eineWeg && !alleWeg)) {

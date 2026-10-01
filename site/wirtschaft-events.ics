@@ -226,12 +226,192 @@ LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
+UID:event-2027-01-09@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270109T190000
+DTEND;TZID=Europe/Vienna:20270109T230000
+SUMMARY:EMMA & EUGEN Faschingsball
+DESCRIPTION:Motto: 20er Jahre | Bludenz Big Band Union + Philu. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-01-12@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270112T190000
+DTEND;TZID=Europe/Vienna:20270112T230000
+SUMMARY:helden reisen\, gäste speisen!
+DESCRIPTION:4 comedians in verschiedenen haltestellen. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-01-13@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270113T190000
+DTEND;TZID=Europe/Vienna:20270113T230000
+SUMMARY:helden reisen\, gäste speisen!
+DESCRIPTION:4 comedians in verschiedenen haltestellen. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-02-02@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270202T190000
+DTEND;TZID=Europe/Vienna:20270202T230000
+SUMMARY:naturally 7
+DESCRIPTION:programm: expect the unexpected. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-02-04@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270204T190000
+DTEND;TZID=Europe/Vienna:20270204T230000
+SUMMARY:love and theft
+DESCRIPTION:In der „wirtschaft“. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-02-18@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270218T190000
+DTEND;TZID=Europe/Vienna:20270218T230000
+SUMMARY:tobias gnacke
+DESCRIPTION:programm: voll auf die ohren!!. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-02-24@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270224T190000
+DTEND;TZID=Europe/Vienna:20270224T230000
+SUMMARY:dinner & comedy
+DESCRIPTION:3 comedians | an einem abend | auf einer bühne. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-03-10@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270310T190000
+DTEND;TZID=Europe/Vienna:20270310T230000
+SUMMARY:notenlos
+DESCRIPTION:das wunschkonzert der extraklasse. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
 UID:event-2027-03-13@wirtschaft-dornbirn.at
 DTSTAMP:20261001T120000Z
 DTSTART;TZID=Europe/Vienna:20270313T200000
 DTEND;TZID=Europe/Vienna:20270313T230000
 SUMMARY:Thorsteinn Einarsson
 DESCRIPTION:SOLSTICE Tour 2027. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-03-17@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270317T190000
+DTEND;TZID=Europe/Vienna:20270317T230000
+SUMMARY:dinner & comedy
+DESCRIPTION:3 comedians | an einem abend | auf einer bühne. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-04-07@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270407T190000
+DTEND;TZID=Europe/Vienna:20270407T230000
+SUMMARY:gabriel castañeda
+DESCRIPTION:programm: el besto of - die comedy highlights der letzten jahre. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-04-08@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270408T190000
+DTEND;TZID=Europe/Vienna:20270408T230000
+SUMMARY:gansch & breinschmid
+DESCRIPTION:mit hirn\, harn und melone - philosophische betrachtungen im 7/8-takt. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-04-14@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270414T190000
+DTEND;TZID=Europe/Vienna:20270414T230000
+SUMMARY:dinner & comedy
+DESCRIPTION:3 comedians | an einem abend | auf einer bühne. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-04-15@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270415T190000
+DTEND;TZID=Europe/Vienna:20270415T230000
+SUMMARY:maxjoseph
+DESCRIPTION:programm: lagom. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-04-21@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270421T190000
+DTEND;TZID=Europe/Vienna:20270421T230000
+SUMMARY:schick sisters
+DESCRIPTION:liebe • love • l‘amour: eine musikalische hommage an das stärkste aller gefühle. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-04-22@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270422T190000
+DTEND;TZID=Europe/Vienna:20270422T230000
+SUMMARY:arn & arn
+DESCRIPTION:In der „wirtschaft“. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-04-23@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270423T190000
+DTEND;TZID=Europe/Vienna:20270423T230000
+SUMMARY:kernölamazonen
+DESCRIPTION:programm: best of. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-05-18@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270518T190000
+DTEND;TZID=Europe/Vienna:20270518T230000
+SUMMARY:helden reisen\, gäste speisen!
+DESCRIPTION:4 comedians in verschiedenen haltestellen. Tickets und Details: wirtschaft-dornbirn.at
+LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:event-2027-05-19@wirtschaft-dornbirn.at
+DTSTAMP:20261001T120000Z
+DTSTART;TZID=Europe/Vienna:20270519T190000
+DTEND;TZID=Europe/Vienna:20270519T230000
+SUMMARY:helden reisen\, gäste speisen!
+DESCRIPTION:4 comedians in verschiedenen haltestellen. Tickets und Details: wirtschaft-dornbirn.at
 LOCATION:Wirtschaft Dornbirn\, Bahnhofstraße 24\, 6850 Dornbirn
 STATUS:CONFIRMED
 END:VEVENT
