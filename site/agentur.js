@@ -54,7 +54,7 @@
     const antwort = qaMode ? { ok: false } : await (window.wirtschaftAnfrage?.({
       art: 'agentur', betreff: `${anlass.value} · ${feld('agDatum').value.trim()}`,
       name: feld('agName').value.trim(), email: feld('agMail').value.trim(), telefon: feld('agTel').value.trim(),
-      zeilen: zeilen.map(z => z.trim()).filter(Boolean), einwilligung: true,
+      zeilen: zeilen.map(z => z.trim()).filter(z => z && !/^(Name|E-Mail|Telefon):/.test(z)), einwilligung: true,
       website: form.querySelector('[name="website"]')?.value || ''
     }) || { ok: false });
     if (knopf) knopf.disabled = false;

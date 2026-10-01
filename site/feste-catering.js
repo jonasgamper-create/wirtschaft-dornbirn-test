@@ -97,7 +97,9 @@
     const knopf = form.querySelector('button[type="submit"]');
     if (knopf) knopf.disabled = true;
     status.textContent = 'Einen Moment, die Anfrage wird gesendet …';
-    const zeilen = body.split('\n').filter(z => z && !/^(Guten Tag|ich möchte|Bitte melden|Vielen Dank)/.test(z));
+    // Name, Mail und Telefon gehen als eigene Felder mit - in den Zeilen
+    // stuenden sie sonst doppelt.
+    const zeilen = body.split('\n').filter(z => z && !/^(Guten Tag|ich möchte|Bitte melden|Vielen Dank|Name:|E-Mail:|Telefon:)/.test(z));
     const antwort = qaMode ? { ok: false } : await (window.wirtschaftAnfrage?.({
       art: 'feste', betreff: `${occasionLabel} · ${formattedDate} · ${guests.value} Gäste`,
       name: name.value.trim(), email: email.value.trim(), telefon: phone.value.trim(),
