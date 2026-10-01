@@ -1,0 +1,39 @@
+# Weiterleitungen der alten WordPress-Adressen (Stand 01.10.2026).
+# Cloudflare Pages liest diese Datei; die erste passende Zeile gilt.
+# Geprueft von scripts/check-umzug.mjs gegen site/data/alte-adressen.json.
+# Wer eine Zeile aendert: npm run check:umzug laufen lassen.
+
+/event                        /events                 301
+/event/*                      /events                 301
+/veranstaltungskalender       /events                 301
+/veranstaltungskalender/      /events                 301
+/comedynacht                  /events                 301
+/comedynacht/                 /events                 301
+/heiraten                     /feste-catering         301
+/heiraten/                    /feste-catering         301
+/kuenstleragentur             /agentur                301
+/kuenstleragentur/            /agentur                301
+/datenschutz                  /datenschutz-sicherheit 301
+/datenschutz/                 /datenschutz-sicherheit 301
+/impressum/                   /impressum              301
+/kontakt                      /impressum              301
+/kontakt/                     /impressum              301
+/die-gutscheine               https://gutscheine.wirtschaft-dornbirn.at/ 302
+/die-gutscheine/              https://gutscheine.wirtschaft-dornbirn.at/ 302
+/lieferservice                https://lieferservice.wirtschaft-dornbirn.at/ 302
+/lieferservice/               https://lieferservice.wirtschaft-dornbirn.at/ 302
+/takeaway/                    /takeaway               301
+/mittagstisch                 /tischreservierung      301
+/mittagstisch/                /tischreservierung      301
+/reservierung                 /tischreservierung      301
+/reservierung/                /tischreservierung      301
+/tischreservierung/           /tischreservierung      301
+/speisekarte                  /mittagskarte           301
+/speisekarte/                 /mittagskarte           301
+/das-konzept                  /                       301
+/das-konzept/                 /                       301
+/sponsoren                    /                       301
+/sponsoren/                   /                       301
+/stellenausschreibung-koch-2025   /                   301
+/stellenausschreibung-koch-2025/  /                   301
+/category/*                   /                       301
