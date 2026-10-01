@@ -53,7 +53,10 @@ function alsEvent(termin, id) {
   for (const v of termin.varianten || []) nimm(v.preise, v.buchbar !== false, v.label);
 
   const brauchbar = arten.filter(a => a.preis > 0);
-  const alleWeg = brauchbar.length > 0 && brauchbar.every(a => a.status === 'ausverkauft');
+  // Ohne Preise (neue Abende, 01.10.): der Schalter des Ticketdienstes
+  // entscheidet allein. Geschlossen heisst ausverkauft, sonst buchbar.
+  const ohnePreisZu = !brauchbar.length && termin.buchbar === false;
+  const alleWeg = ohnePreisZu || (brauchbar.length > 0 && brauchbar.every(a => a.status === 'ausverkauft'));
   const eineWeg = brauchbar.some(a => a.status === 'ausverkauft');
 
   return {
@@ -82,10 +85,8 @@ for (const termin of [...quelle.termine].sort((a, b) => a.date.localeCompare(b.d
   const zahl = (vergeben.get(termin.date) || 0) + 1;
   vergeben.set(termin.date, zahl);
   const event = alsEvent(termin, zahl === 1 ? `event-${termin.date}` : `event-${termin.date}-${zahl}`);
-  if (!event.tickets.length) {
-    console.warn(`  Ohne Preis, deshalb ausgelassen: ${termin.date} ${termin.title}`);
-    continue;
-  }
+  // Abende ohne Preise kommen trotzdem auf die Startseite (01.10.): der
+  // Knopf fuehrt zum Ticketdienst, die Preise stehen dort.
   events.push(event);
 }
 

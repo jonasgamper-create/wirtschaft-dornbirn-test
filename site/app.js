@@ -95,7 +95,25 @@
       { id: "event-2026-12-15", date: "2026-12-15", title: "dinner & comedy", type: "3 comedians | an einem abend | auf einer bühne", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & comedy (sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "comedy only: comedy only (stehplatz)", preis: 28, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/dinner-comedy-06-2026" },
       { id: "event-2026-12-16", date: "2026-12-16", title: "dinner & comedy", type: "3 comedians | an einem abend | auf einer bühne", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & comedy (sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "comedy only: comedy only (stehplatz)", preis: 28, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/dinner-comedy-07-2026" },
       { id: "event-2026-12-19", date: "2026-12-19", title: "Dabado Charity • Clubbing II", type: "Kulturhaus Dornbirn", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Stehplatz (Parterre)", preis: 27, beginn: "19:00", status: "buchbar" }, { name: "Dinner & Konzert: Sitzplatz mit 3-Gänge-Menü (Galerie)", preis: 68, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/dabado-charity" },
+      { id: "event-2027-01-09", date: "2027-01-09", title: "EMMA & EUGEN Faschingsball", type: "Motto: 20er Jahre | Bludenz Big Band Union + Philu", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/faschingsball" },
+      { id: "event-2027-01-12", date: "2027-01-12", title: "helden reisen, gäste speisen!", type: "4 comedians in verschiedenen haltestellen", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/comedynacht-01-2027" },
+      { id: "event-2027-01-13", date: "2027-01-13", title: "helden reisen, gäste speisen!", type: "4 comedians in verschiedenen haltestellen", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/comedynacht-02-2027" },
+      { id: "event-2027-02-02", date: "2027-02-02", title: "naturally 7", type: "programm: expect the unexpected", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/naturally7-2027" },
+      { id: "event-2027-02-04", date: "2027-02-04", title: "love and theft", type: "In der „wirtschaft“", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/loveandtheft-2027" },
+      { id: "event-2027-02-18", date: "2027-02-18", title: "tobias gnacke", type: "programm: voll auf die ohren!!", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/tobiasgnacke-2027" },
+      { id: "event-2027-02-24", date: "2027-02-24", title: "dinner & comedy", type: "3 comedians | an einem abend | auf einer bühne", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/comedy-01-2027" },
+      { id: "event-2027-03-10", date: "2027-03-10", title: "notenlos", type: "das wunschkonzert der extraklasse", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/notenlos-2027" },
       { id: "event-2027-03-13", date: "2027-03-13", title: "Thorsteinn Einarsson", type: "SOLSTICE Tour 2027", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Stehplatz (Parterre)", preis: 28, beginn: "20:00", status: "buchbar" }, { name: "Sitzplatz: Sitzplatz", preis: 38, beginn: "20:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/einarsson-stehplatz-2027" },
+      { id: "event-2027-03-17", date: "2027-03-17", title: "dinner & comedy", type: "3 comedians | an einem abend | auf einer bühne", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/comedy-02-2027" },
+      { id: "event-2027-04-07", date: "2027-04-07", title: "gabriel castañeda", type: "programm: el besto of - die comedy highlights der letzten jahre", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/gabrielcastaneda-2027" },
+      { id: "event-2027-04-08", date: "2027-04-08", title: "gansch & breinschmid", type: "mit hirn, harn und melone - philosophische betrachtungen im 7/8-takt", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/ganschbreinschmid-2027" },
+      { id: "event-2027-04-14", date: "2027-04-14", title: "dinner & comedy", type: "3 comedians | an einem abend | auf einer bühne", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/comedy-03-2027" },
+      { id: "event-2027-04-15", date: "2027-04-15", title: "maxjoseph", type: "programm: lagom", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/maxjoseph-2027" },
+      { id: "event-2027-04-21", date: "2027-04-21", title: "schick sisters", type: "liebe • love • l‘amour: eine musikalische hommage an das stärkste aller gefühle", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/schicksisters-2027" },
+      { id: "event-2027-04-22", date: "2027-04-22", title: "arn & arn", type: "In der „wirtschaft“", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/arnarn-2027" },
+      { id: "event-2027-04-23", date: "2027-04-23", title: "kernölamazonen", type: "programm: best of", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/kernoelamazonen-2027" },
+      { id: "event-2027-05-18", date: "2027-05-18", title: "helden reisen, gäste speisen!", type: "4 comedians in verschiedenen haltestellen", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/comedynacht-03-2027" },
+      { id: "event-2027-05-19", date: "2027-05-19", title: "helden reisen, gäste speisen!", type: "4 comedians in verschiedenen haltestellen", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/comedynacht-04-2027" },
       { id: "event-2027-05-20", date: "2027-05-20", title: "Genussroute 6850", type: "5 heimische Gastronomen | 6 Live-Bands | 6 Speisegänge im Kleinformat", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Start-Location: \"wirtschaft\"", preis: 88, beginn: "18:00", status: "buchbar" }, { name: "Start-Location: Gasthaus Schiffle", preis: 88, beginn: "18:00", status: "buchbar" }, { name: "Start-Location: Gasthaus Gemsle", preis: 88, beginn: "18:00", status: "buchbar" }, { name: "Start-Location: Panoramarestaurant Karren", preis: 88, beginn: "18:00", status: "buchbar" }, { name: "Start-Location: Emma&Eugen im Kulturhaus", preis: 88, beginn: "18:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/genussroute" },
   // [events:auto-ende]
     ]
@@ -1022,15 +1040,18 @@
         };
         nimm(termin.preise, termin.buchbar !== false, '');
         for (const v of termin.varianten || []) nimm(v.preise, v.buchbar !== false, v.label);
-        if (!arten.length) return null;
-        const alleWeg = arten.every(a => a.status === 'ausverkauft');
+        // Ohne Preise (neue Abende): der Schalter des Ticketdienstes
+        // entscheidet allein - siehe scripts/sync-events-quelle.mjs.
+        const vorverkauf = termin.verkaufsstart && Date.parse(termin.verkaufsstart) > Date.now();
+        const alleWeg = arten.length ? arten.every(a => a.status === 'ausverkauft') : (termin.buchbar === false && !vorverkauf);
         const eineWeg = arten.some(a => a.status === 'ausverkauft');
         return {
           id,
           date: termin.date,
           title: termin.title,
           type: termin.untertitel || (termin.haus === 'kulturhaus' ? 'Kulturhaus Dornbirn' : 'In der „wirtschaft“'),
-          status: alleWeg ? 'sold_out' : eineWeg ? 'teilweise' : 'scheduled',
+          status: vorverkauf ? 'vorverkauf' : alleWeg ? 'sold_out' : eineWeg ? 'teilweise' : 'scheduled',
+          verkaufsstart: termin.verkaufsstart || undefined,
           tickets: arten,
           ticketUrl: termin.ticketUrl
         };

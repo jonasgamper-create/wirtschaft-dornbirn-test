@@ -632,6 +632,83 @@
       "ticketUrl": "https://www.ticketist.io/events/dabado-charity"
     },
     {
+      "id": "event-2027-01-09",
+      "date": "2027-01-09",
+      "title": "EMMA & EUGEN Faschingsball",
+      "type": "Motto: 20er Jahre | Bludenz Big Band Union + Philu",
+      "status": "scheduled",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/faschingsball"
+    },
+    {
+      "id": "event-2027-01-12",
+      "date": "2027-01-12",
+      "title": "helden reisen, gäste speisen!",
+      "type": "4 comedians in verschiedenen haltestellen",
+      "status": "scheduled",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/comedynacht-01-2027"
+    },
+    {
+      "id": "event-2027-01-13",
+      "date": "2027-01-13",
+      "title": "helden reisen, gäste speisen!",
+      "type": "4 comedians in verschiedenen haltestellen",
+      "status": "scheduled",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/comedynacht-02-2027"
+    },
+    {
+      "id": "event-2027-02-02",
+      "date": "2027-02-02",
+      "title": "naturally 7",
+      "type": "programm: expect the unexpected",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/naturally7-2027"
+    },
+    {
+      "id": "event-2027-02-04",
+      "date": "2027-02-04",
+      "title": "love and theft",
+      "type": "In der „wirtschaft“",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/loveandtheft-2027"
+    },
+    {
+      "id": "event-2027-02-18",
+      "date": "2027-02-18",
+      "title": "tobias gnacke",
+      "type": "programm: voll auf die ohren!!",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/tobiasgnacke-2027"
+    },
+    {
+      "id": "event-2027-02-24",
+      "date": "2027-02-24",
+      "title": "dinner & comedy",
+      "type": "3 comedians | an einem abend | auf einer bühne",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/comedy-01-2027"
+    },
+    {
+      "id": "event-2027-03-10",
+      "date": "2027-03-10",
+      "title": "notenlos",
+      "type": "das wunschkonzert der extraklasse",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/notenlos-2027"
+    },
+    {
       "id": "event-2027-03-13",
       "date": "2027-03-13",
       "title": "Thorsteinn Einarsson",
@@ -652,6 +729,106 @@
         }
       ],
       "ticketUrl": "https://www.ticketist.io/events/einarsson-stehplatz-2027"
+    },
+    {
+      "id": "event-2027-03-17",
+      "date": "2027-03-17",
+      "title": "dinner & comedy",
+      "type": "3 comedians | an einem abend | auf einer bühne",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/comedy-02-2027"
+    },
+    {
+      "id": "event-2027-04-07",
+      "date": "2027-04-07",
+      "title": "gabriel castañeda",
+      "type": "programm: el besto of - die comedy highlights der letzten jahre",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/gabrielcastaneda-2027"
+    },
+    {
+      "id": "event-2027-04-08",
+      "date": "2027-04-08",
+      "title": "gansch & breinschmid",
+      "type": "mit hirn, harn und melone - philosophische betrachtungen im 7/8-takt",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/ganschbreinschmid-2027"
+    },
+    {
+      "id": "event-2027-04-14",
+      "date": "2027-04-14",
+      "title": "dinner & comedy",
+      "type": "3 comedians | an einem abend | auf einer bühne",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/comedy-03-2027"
+    },
+    {
+      "id": "event-2027-04-15",
+      "date": "2027-04-15",
+      "title": "maxjoseph",
+      "type": "programm: lagom",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/maxjoseph-2027"
+    },
+    {
+      "id": "event-2027-04-21",
+      "date": "2027-04-21",
+      "title": "schick sisters",
+      "type": "liebe • love • l‘amour: eine musikalische hommage an das stärkste aller gefühle",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/schicksisters-2027"
+    },
+    {
+      "id": "event-2027-04-22",
+      "date": "2027-04-22",
+      "title": "arn & arn",
+      "type": "In der „wirtschaft“",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/arnarn-2027"
+    },
+    {
+      "id": "event-2027-04-23",
+      "date": "2027-04-23",
+      "title": "kernölamazonen",
+      "type": "programm: best of",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/kernoelamazonen-2027"
+    },
+    {
+      "id": "event-2027-05-18",
+      "date": "2027-05-18",
+      "title": "helden reisen, gäste speisen!",
+      "type": "4 comedians in verschiedenen haltestellen",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/comedynacht-03-2027"
+    },
+    {
+      "id": "event-2027-05-19",
+      "date": "2027-05-19",
+      "title": "helden reisen, gäste speisen!",
+      "type": "4 comedians in verschiedenen haltestellen",
+      "status": "scheduled",
+      "verkaufsstart": "2026-10-01T09:00:00+02:00",
+      "tickets": [],
+      "ticketUrl": "https://www.ticketist.io/events/comedynacht-04-2027"
     },
     {
       "id": "event-2027-05-20",
