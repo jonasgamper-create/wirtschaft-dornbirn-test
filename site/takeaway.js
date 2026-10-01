@@ -6,7 +6,7 @@ import {
   apiAdresse, bestelleTakeaway, holeBestellStatus, holeMenueplan, holePushSchluessel,
   holeTakeawayKarte, meldePushAb, meldePushAn,
   holeKarteAusDatei, meldeMittagskarte,
-} from './haus-api.js?v=42118de8';
+} from './haus-api.js?v=a0e6cbed';
 
 const byId = id => document.getElementById(id);
 

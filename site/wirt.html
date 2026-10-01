@@ -16,10 +16,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Wirt">
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
-  <link rel="stylesheet" href="wirt.css?v=cb04ee65">
+  <link rel="stylesheet" href="wirt.css?v=a6ba1298">
   <!-- Muss vor allen anderen laufen: setzt den Probemodus (siehe probe.js). -->
   <script src="probe.js?v=a48a382b" defer></script>
-  <script type="module" src="wirt.js?v=5c0db05d"></script>
+  <script type="module" src="wirt.js?v=2b63f5dc"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -262,6 +262,28 @@
       <p class="lauf-ergebnis" id="bestandInfo" role="status" aria-live="polite"></p>
       <p class="hinweis">Etagen, Tischordnungen und Betriebszeiten stellst du im
         <a href="gastgeber-tischplan.html" id="einrichtenLink">Einrichten</a> ein – genauso einfach wie hier.</p>
+    </details>
+
+    <details class="werkzeug" id="hinweisKasten" data-block="hinweisKasten">
+      <summary>Hinweis auf der Startseite</summary>
+      <p class="hinweis">Eine kurze Zeile ganz oben auf der Startseite, zum Beispiel
+        „Am 24. Dezember geschlossen“ oder „Heute Abend ausverkauft“. Höchstens
+        90 Zeichen. Mit Enddatum verschwindet sie danach von selbst.</p>
+      <form class="zu-form hinweis-form" id="hinweisForm">
+        <label class="hinweis-text">Text<input type="text" id="hinweisText" maxlength="90" placeholder="z. B. Am 24. Dezember geschlossen"></label>
+        <label>Bis einschließlich<input type="date" id="hinweisBis"></label>
+        <button class="knopf leise" type="submit">Speichern</button>
+        <button class="knopf leise" type="button" id="hinweisWeg">Entfernen</button>
+      </form>
+      <p class="lauf-ergebnis" id="hinweisInfo" role="status" aria-live="polite"></p>
+    </details>
+
+    <details class="werkzeug" id="anfrageKasten" data-block="anfrageKasten">
+      <summary>Anfragen – Feste, Catering, Künstler <b class="reiter-zahl" id="anfrageZahl" hidden></b></summary>
+      <p class="hinweis">Was Gäste über die Seiten Locations und Agentur schicken. Jede Anfrage
+        kommt zusätzlich per Mail; der Gast hat eine automatische Bestätigung bekommen.
+        Nach 90 Tagen löscht der Dienst sie von selbst.</p>
+      <div id="anfrageListe" class="anfrage-liste"></div>
     </details>
 
     <details class="werkzeug" id="oeffnungKasten" data-block="oeffnungKasten">

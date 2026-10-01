@@ -548,3 +548,6 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
    Einzelwort in der letzten Zeile. */
 h1,h2,h3{text-wrap:balance}
 p,li,dd,small{text-wrap:pretty}
+
+/* Fangfeld fuer Skripte (01.10.): fuer Menschen unsichtbar. */
+.fangfeld{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}

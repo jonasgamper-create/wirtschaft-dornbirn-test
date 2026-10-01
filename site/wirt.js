@@ -15,10 +15,11 @@ import {
   setzeFertigWer, setzeToken,
   stelleTagWiederHer,
   holeTermine, legeEventWartelisteEintrag, sendeEventWartelisteAktion,
-  frischeWarteliste, gibAbendHer, nimmAbendAuf, sendeMittagWartelisteAktion
-} from './haus-api.js?v=42118de8';
+  frischeWarteliste, gibAbendHer, nimmAbendAuf, sendeMittagWartelisteAktion,
+  holeHinweis, setzeHinweis, sendeAnfrageAktion
+} from './haus-api.js?v=a0e6cbed';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
-import { liesAnsicht, setzeHeuteZahl, setzeWartelisteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=815106c6';
+import { liesAnsicht, setzeHeuteZahl, setzeWartelisteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=360a8673';
 import { istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
@@ -126,6 +127,7 @@ async function start() {
   verdrahteSperren();
   verdrahteZu();
   verdrahteOeffnung();
+  verdrahteHinweis();
   verdrahteBestand();
   verdrahtePush();
   verdrahteAnnahme();
@@ -1048,6 +1050,7 @@ function male() {
   maleWarteliste();
   maleMittagWarteliste();
   maleAbende();
+  maleAnfragen();
 }
 
 // ---- Warteliste der ausverkauften Abende -----------------------------------
@@ -2515,6 +2518,93 @@ async function maleZu() {
 // Die Oeffnungszeiten-Karte: zwei Zeiten, ein Speichern. Der Dienst haelt
 // die Leitplanken (Raster, Rahmen, Mindestdauer) - hier wird nur gemeldet,
 // was er dazu sagt.
+// ---- Hinweis auf der Startseite (01.10.) ----------------------------------
+async function verdrahteHinweis() {
+  const form = byId('hinweisForm');
+  if (!form) return;
+  const stand = await holeHinweis();
+  const gespeichert = stand?.text ? stand : stand?.gespeichert;
+  if (gespeichert?.text) {
+    byId('hinweisText').value = gespeichert.text;
+    byId('hinweisBis').value = gespeichert.bis || '';
+    sag('hinweisInfo', stand?.text ? 'Steht gerade auf der Startseite.' : 'Abgelaufen – steht nicht mehr auf der Startseite.', stand?.text ? 'gut' : '');
+  }
+  const speichere = async (text, bis) => {
+    const antwort = await setzeHinweis(hausToken(), text, bis);
+    if (!antwort?.ok) return sag('hinweisInfo', antwort?.grund === 'bis' ? 'Das Datum passt nicht.' : 'Das hat nicht geklappt.', 'fehler');
+    sag('hinweisInfo', antwort.text
+      ? `Gespeichert – steht ab sofort auf der Startseite${antwort.bis ? `, bis ${new Date(`${antwort.bis}T12:00:00`).toLocaleDateString('de-AT')}` : ''}.`
+      : 'Entfernt – auf der Startseite steht wieder „Dornbirn · Vorarlberg“.', 'gut');
+  };
+  form.addEventListener('submit', ereignis => {
+    ereignis.preventDefault();
+    speichere(byId('hinweisText').value.trim(), byId('hinweisBis').value);
+  });
+  byId('hinweisWeg')?.addEventListener('click', () => {
+    byId('hinweisText').value = '';
+    byId('hinweisBis').value = '';
+    speichere('', '');
+  });
+}
+
+// ---- Anfragen aus Locations und Agentur (01.10.) ---------------------------
+function maleAnfragen() {
+  const wurzel = byId('anfrageListe');
+  if (!wurzel || !stand) return;
+  const liste = Array.isArray(stand.anfragen) ? stand.anfragen : [];
+  const neu = liste.filter(a => a.status === 'neu').length;
+  const zahl = byId('anfrageZahl');
+  if (zahl) { zahl.hidden = !neu; zahl.textContent = String(neu); }
+  wurzel.textContent = '';
+  if (!liste.length) {
+    const leer = document.createElement('p');
+    leer.className = 'hinweis';
+    leer.textContent = 'Noch keine Anfragen.';
+    wurzel.append(leer);
+    return;
+  }
+  for (const a of liste) {
+    const karte = document.createElement('article');
+    karte.className = 'anfrage';
+    karte.dataset.status = a.status;
+    const kopf = document.createElement('b');
+    kopf.textContent = a.betreff;
+    const wann = document.createElement('small');
+    wann.textContent = `${a.art === 'agentur' ? 'Agentur' : 'Feste & Catering'} · ${new Date(a.zeit).toLocaleString('de-AT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}${a.status === 'erledigt' ? ' · erledigt' : ''}`;
+    const wer = document.createElement('p');
+    const mail = document.createElement('a');
+    mail.href = `mailto:${a.email}?subject=${encodeURIComponent(`Re: ${a.betreff}`)}`;
+    mail.textContent = a.email;
+    wer.append(`${a.name} · `, mail);
+    if (a.telefon) {
+      const tel = document.createElement('a');
+      tel.href = `tel:${a.telefon.replace(/\s+/g, '')}`;
+      tel.textContent = a.telefon;
+      wer.append(' · ', tel);
+    }
+    const text = document.createElement('p');
+    text.className = 'anfrage-text';
+    text.textContent = (a.zeilen || []).join('\n');
+    const knoepfe = document.createElement('div');
+    knoepfe.className = 'warte-knoepfe';
+    const knopf = (wort, art) => {
+      const k = document.createElement('button');
+      k.type = 'button';
+      k.className = 'knopf leise klein';
+      k.textContent = wort;
+      k.addEventListener('click', async () => {
+        if (art === 'entfernen' && !confirm('Diese Anfrage endgültig entfernen?')) return;
+        k.disabled = true;
+        await sendeAnfrageAktion(hausToken(), { id: a.id, art });
+      });
+      return k;
+    };
+    knoepfe.append(a.status === 'erledigt' ? knopf('wieder offen', 'neu') : knopf('erledigt', 'erledigt'), knopf('entfernen', 'entfernen'));
+    karte.append(kopf, wann, wer, text, knoepfe);
+    wurzel.append(karte);
+  }
+}
+
 async function verdrahteOeffnung() {
   const form = byId('oeffnungForm');
   if (!form) return;

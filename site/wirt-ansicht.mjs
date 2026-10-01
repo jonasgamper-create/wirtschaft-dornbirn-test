@@ -45,7 +45,7 @@
 // (Jonas, 20.09.: eigener Reiter, nicht irgendwo unter haus).
 // -13: der Reiter hat zwei Abschnitte - Abende und Mittagstisch (Jonas,
 // 21.09.). Die Mittagsliste gab es laengst, sie stand nur nirgends.
-const SCHLUESSEL = 'wirtschaft-wirt-ansicht-13';
+const SCHLUESSEL = 'wirtschaft-wirt-ansicht-14';
 
 /** Die drei Reiter, in der Reihenfolge der Leiste unten. */
 export const REITER = [
@@ -87,6 +87,10 @@ export const BLOECKE = [
   // Zahlen und Laufkundschaft: fuer den Alltag nicht interessant (Jonas,
   // 05.09.), deshalb aus - wer sie will, setzt den Haken.
   { id: 'pushKasten', titel: 'Klingeln bei neuer Bestellung', an: true, reiter: 'haus' },
+  // 01.10.: was das Haus selbst auf der Webseite aendert, und die Anfragen
+  // aus Locations und Agentur - beide oben, weil man sie oft braucht.
+  { id: 'hinweisKasten', titel: 'Hinweis auf der Startseite', an: true, reiter: 'haus' },
+  { id: 'anfrageKasten', titel: 'Anfragen – Feste, Catering, Künstler', an: true, reiter: 'haus' },
   { id: 'zahlen', titel: 'Zahlen des Tages', an: false, reiter: 'haus' },
   { id: 'laufkunde', titel: 'Laufkundschaft eintragen', an: false, reiter: 'haus' },
   { id: 'zettelKasten', titel: 'Küchenzettel', an: true, reiter: 'haus' },

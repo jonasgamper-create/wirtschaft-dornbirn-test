@@ -60,7 +60,7 @@
   document.querySelectorAll('[data-occasion]').forEach(button => button.addEventListener('click', () => chooseAndFocus(occasion, button.dataset.occasion)));
   document.querySelectorAll('[data-location]').forEach(button => button.addEventListener('click', () => chooseAndFocus(location, button.dataset.location)));
 
-  form.addEventListener('submit', event => {
+  form.addEventListener('submit', async event => {
     event.preventDefault();
     status.textContent = '';
     const required = [occasion, location, guests, name, email, flexibleDate() ? dateText : date];
@@ -92,6 +92,24 @@
     ].filter(Boolean).join('\n');
     const mailto = `mailto:willkommen@wirtschaft-dornbirn.at?subject=${encodeURIComponent(`Anfrage ${occasionLabel} · ${formattedDate}`)}&body=${encodeURIComponent(body)}`;
     window.__LAST_INQUIRY_MAILTO__ = mailto;
+    // Zuerst an den eigenen Dienst: er bestaetigt dem Gast automatisch.
+    // Nur wenn er nicht antwortet, oeffnet sich das Mailprogramm.
+    const knopf = form.querySelector('button[type="submit"]');
+    if (knopf) knopf.disabled = true;
+    status.textContent = 'Einen Moment, die Anfrage wird gesendet …';
+    const zeilen = body.split('\n').filter(z => z && !/^(Guten Tag|ich möchte|Bitte melden|Vielen Dank)/.test(z));
+    const antwort = qaMode ? { ok: false } : await (window.wirtschaftAnfrage?.({
+      art: 'feste', betreff: `${occasionLabel} · ${formattedDate} · ${guests.value} Gäste`,
+      name: name.value.trim(), email: email.value.trim(), telefon: phone.value.trim(),
+      zeilen, einwilligung: true, website: form.querySelector('[name="website"]')?.value || ''
+    }) || { ok: false });
+    if (knopf) knopf.disabled = false;
+    if (antwort?.ok) {
+      const an = email.value.trim();
+      form.reset();
+      status.textContent = `Danke! Eure Anfrage ist bei uns angekommen. Ihr bekommt gleich eine Bestätigung an ${an} – wir melden uns persönlich.`;
+      return;
+    }
     status.textContent = `Die Anfrage für ${guests.value} Gäste am ${formattedDate} wurde im E-Mail-Programm vorbereitet. Bitte dort noch absenden.`;
     if (!qaMode) window.location.href = mailto;
   });

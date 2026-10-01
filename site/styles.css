@@ -3607,3 +3607,8 @@ a,button,summary,label,input,select,textarea{-webkit-tap-highlight-color:transpa
   .final-site .final-prologue .prologue-actions{margin-top:10px;gap:6px}
   .final-site .final-prologue .prologue-actions .button{min-height:44px}
 }
+
+/* Hinweis des Hauses in der Zeile ueber der Ueberschrift (01.10.): Gold wie
+   die Augenbraue, darf zweizeilig werden, ohne den Strich davor. */
+.final-site .final-prologue .eyebrow.haus-hinweis{color:var(--gold);white-space:normal;text-wrap:balance;max-width:34ch}
+.final-site .final-prologue .eyebrow.haus-hinweis:before{display:none}
