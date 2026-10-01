@@ -2516,24 +2516,27 @@ export class Haus extends DurableObject {
    * Ticketdienst wirklich gibt. Das Haus bekommt eine Meldung aufs Telefon.
    */
   async entdeckeAbende() {
-    const { kennungen, gesehen, neuGelesen } = await entdecke(this.#lies('quellSeiten', {}), { hoechstens: 12 });
+    const { kennungen, gesehen, neuGelesen } = await entdecke(this.#lies('quellSeiten', {}), { hoechstens: 2 });
     this.#schreib('quellSeiten', gesehen);
     const bekannt = new Set(this.#alleKennungen());
-    const neu = kennungen.filter(k => !bekannt.has(k)).slice(0, 6);
-    const aufgenommen = [];
-    for (const kennung of neu) {
-      const antwort = await this.kennungAufnehmen({ kennung }).catch(() => null);
-      if (antwort?.ok && !antwort.schon) aufgenommen.push({ kennung, ...(antwort.termin || {}) });
-    }
-    if (aufgenommen.length) {
-      const erster = aufgenommen[0];
+    const neu = kennungen.filter(k => !bekannt.has(k)).slice(0, 60);
+    // Sofort vormerken statt jeden einzeln beim Ticketdienst zu pruefen
+    // (01.10.: 28 neue Abende auf einmal). Die Kennungen stammen von den
+    // eigenen Seiten des Hauses; gelesen werden sie beim naechsten Abruf
+    // der Termine, wie jeder andere Abend auch. Gibt es einen beim
+    // Ticketdienst nicht, bleibt er unsichtbar (terminGueltig).
+    if (neu.length) {
+      const eigene = this.#lies('eigeneKennungen', []);
+      this.#schreib('eigeneKennungen', [...new Set([...(Array.isArray(eigene) ? eigene : []), ...neu])].slice(-120));
+      this.ctx.waitUntil(this.#holeAbende(neu.slice(0, 6)).then(() => this.#meldeAenderung()).catch(() => {}));
       this.ctx.waitUntil(this.#pushHausAlle({
         art: 'warteliste',
-        titel: aufgenommen.length === 1 ? `Neuer Abend auf der Seite: ${erster.titel}` : `${aufgenommen.length} neue Abende auf der Seite`,
-        text: aufgenommen.map(a => `${a.titel} · ${a.datum}`).join(' – ').slice(0, 160),
-        datum: erster.datum || ''
+        titel: neu.length === 1 ? 'Neuer Abend auf der Seite' : `${neu.length} neue Abende auf der Seite`,
+        text: 'Gefunden auf den eigenen Eventseiten – sie stehen jetzt unter Termine & Tickets.',
+        datum: ''
       }));
     }
+    const aufgenommen = neu.map(kennung => ({ kennung }));
     return { gefunden: kennungen.length, neuGelesen, aufgenommen };
   }
 
