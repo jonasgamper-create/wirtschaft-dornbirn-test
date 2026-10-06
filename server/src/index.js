@@ -860,6 +860,11 @@ export class Haus extends DurableObject {
     }));
 
     if (!result.ok) {
+      // Ohne Tischautomatik ("von Hand", seit 07.09.) ist die Reservierung
+      // trotzdem fix - und der Gast bekommt seine Bestaetigung. Bis 06.10.
+      // stieg der Dienst hier VOR dem Versand aus: kein Gast bekam eine
+      // Bestaetigungsmail, obwohl die Seite sie versprach.
+      this.#bestaetigeGast(party, { tisch: null, etage: null, basis });
       return {
         ok: true, angenommen: true, tisch: null, grund: result.reason, automatik,
         alternativen: (result.alternatives || []).map(entry => entry.startsAt.slice(11)),
@@ -878,24 +883,7 @@ export class Haus extends DurableObject {
     // Die Bestaetigung geht raus, nachdem die Antwort beim Gast ist. Ein
     // langsamer oder gestoerter Mailversand darf die Reservierung nicht
     // aufhalten und schon gar nicht scheitern lassen.
-    this.ctx.waitUntil(this.#schickeBestaetigung(party, {
-      tisch: tischText,
-      etage: etageText,
-      basis
-    }));
-
-    // Eine SMS nur, wenn keine Mailadresse da ist. Sonst traegt die
-    // Bestaetigungsmail dieselbe Auskunft, und die SMS waere ein zweites Mal
-    // dasselbe - auf Kosten des Hauses. Wer nur eine Nummer hinterlaesst,
-    // bekam bisher gar nichts und musste auf einen Anruf warten.
-    if (!party.kontakt?.email && party.kontakt?.telefon) {
-      this.ctx.waitUntil(this.#schickeSms(party.kontakt.telefon, reservierungText({
-        datum: new Intl.DateTimeFormat('de-AT', { day: '2-digit', month: '2-digit' })
-          .format(new Date(`${party.date}T12:00:00Z`)),
-        zeit: party.time,
-        personen: party.guests
-      })));
-    }
+    this.#bestaetigeGast(party, { tisch: tischText, etage: etageText, basis });
 
     return {
       ok: true, angenommen: true, fix: true,
@@ -906,6 +894,22 @@ export class Haus extends DurableObject {
   }
 
   // ---- Mail: Bestaetigung und Absage --------------------------------------
+
+  /** Mail an den Gast - oder, ohne Mail, eine SMS an seine Nummer. */
+  #bestaetigeGast(party, { tisch, etage, basis }) {
+    this.ctx.waitUntil(this.#schickeBestaetigung(party, { tisch, etage, basis }));
+    // Eine SMS nur, wenn keine Mailadresse da ist. Sonst traegt die
+    // Bestaetigungsmail dieselbe Auskunft, und die SMS waere ein zweites Mal
+    // dasselbe - auf Kosten des Hauses.
+    if (!party.kontakt?.email && party.kontakt?.telefon) {
+      this.ctx.waitUntil(this.#schickeSms(party.kontakt.telefon, reservierungText({
+        datum: new Intl.DateTimeFormat('de-AT', { day: '2-digit', month: '2-digit' })
+          .format(new Date(`${party.date}T12:00:00Z`)),
+        zeit: party.time,
+        personen: party.guests
+      })));
+    }
+  }
 
   async #schickeBestaetigung(party, { tisch, etage, basis }) {
     if (!party.kontakt?.email) return { ok: false, grund: 'keine_mail' };
@@ -3133,11 +3137,11 @@ export class Haus extends DurableObject {
  * fuer die Ampel zaehlt aber, wie spaet es in Dornbirn ist - sonst meldet sie
  * im Sommer eine Stunde lang "vorbei", obwohl noch gekocht wird.
  */
-function jetztImHaus() {
+function jetztImHaus(zeitpunkt = Date.now()) {
   const teile = new Intl.DateTimeFormat('de-AT', {
     timeZone: 'Europe/Vienna', hourCycle: 'h23',
     year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
-  }).formatToParts(new Date());
+  }).formatToParts(new Date(zeitpunkt));
   const wert = art => teile.find(teil => teil.type === art)?.value || '00';
   const datum = `${wert('year')}-${wert('month')}-${wert('day')}`;
   return {
@@ -3172,7 +3176,11 @@ export default {
    * beiden der echte ist - der andere Lauf endet hier sofort.
    */
   async scheduled(event, env, ctx) {
-    const uhr = jetztImHaus();
+    // Die GEPLANTE Zeit des Laufs, nicht die Uhr beim Start: Cloudflare
+    // startet einen Zeitplan manchmal einige Sekunden spaeter. Gemessen an
+    // Date.now() war es dann schon 08:01, und der Tageszettel fiel still aus
+    // (02., 05. und 06.10.2026 fehlten).
+    const uhr = jetztImHaus(event?.scheduledTime || Date.now());
 
     // Zweimal am Tag beim Ticketdienst nachsehen: frueh um sechs, bevor
     // jemand aufsperrt, und mittags um zwoelf. Dazwischen liegt der
