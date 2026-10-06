@@ -324,6 +324,7 @@ export class Haus extends DurableObject {
       const inhalt = bestellBestaetigung({
         nummer: bestellung.nummer, name: bestellung.name, tag: bestellung.date, zeit: bestellung.abholzeit,
         posten: bestellung.posten, summe: bestellung.summe, vorbestellung: bestellung.vorbestellung,
+        telefon: bestellung.telefon || '', email: bestellung.email || '',
         statusLink: seite ? `${seite}/takeaway.html?bestellung=${bestellung.token}` : ''
       });
       arbeiten.push(sendeMail(this.env, brevoPaket({ absender, an: bestellung.email, anName: bestellung.name, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text })));
@@ -935,6 +936,8 @@ export class Haus extends DurableObject {
       tisch,
       etage,
       absageLink: `${basis}/absage?t=${party.token}`,
+      telefon: party.kontakt?.telefon || '',
+      email: party.kontakt?.email || '',
       events: stumm ? [] : naechsteEvents(party.date),
       widerspruchLink: stumm ? '' : `${basis}/termine/aus?t=${party.token}`
     });
@@ -1201,7 +1204,12 @@ export class Haus extends DurableObject {
       if (absender && basis) {
         const inhalt = eventWartelisteAufnahmeMail({
           name: geprueft.eintrag.name,
-          wege: ergebnis.angelegt.map(e => ({ titel: e.titel, datum: e.datum, zeit: e.zeit })),
+          wege: ergebnis.angelegt.map(e => ({ titel: e.titel, datum: e.datum, zeit: e.zeit,
+            // Die Kategorie aus der hinterlegten Preisliste ("dinner & konzert
+            // (sitzplatz)", "Kategorie 1 / Kategorie 2").
+            kategorie: (ticketistPreise?.preise?.[e.weg] || []).map(p => p.name).filter(Boolean).join(' / ') })),
+          telefon: geprueft.eintrag.telefon || '', email: geprueft.eintrag.email || '',
+          personen: geprueft.eintrag.personen || 0,
           austragLinks: ergebnis.angelegt.map(e => `${basis}/warteliste/antwort?t=${e.token}&a=austragen`)
         });
         this.ctx.waitUntil(sendeMail(this.env, brevoPaket({

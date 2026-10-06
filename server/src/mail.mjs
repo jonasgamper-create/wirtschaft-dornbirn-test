@@ -140,17 +140,27 @@ function eventBlock(events, widerspruchLink) {
     </td></tr>`;
 }
 
-export function bestaetigung({ name, tag, zeit, gaeste, tisch, etage, absageLink, events = [], widerspruchLink = '' }) {
-  const personen = `${gaeste} ${gaeste === 1 ? 'Person' : 'Personen'}`;
+/**
+ * Die Bestaetigung einer Reservierung. Wortlaut vom Haus (06.10.2026):
+ * Dank, Ueberblick (Name, Telefon, E-Mail, Zeit, Personen), Gruss. Dazu
+ * bleibt, was der Gast braucht: der Absage-Link und der Kalendereintrag.
+ */
+export function bestaetigung({ name, tag, zeit, gaeste, tisch, etage, absageLink, events = [], widerspruchLink = '', telefon = '', email = '' }) {
+  const personen = `${gaeste} ${gaeste === 1 ? 'person' : 'personen'}`;
+  const wann = `${langesDatum(tag)}, ${zeit} Uhr`;
+  const ueberblick = [
+    ['name', name], ['telefon', telefon], ['e-mail', email],
+    ['reservierungszeit', wann], ['personenanzahl', personen],
+    ...(tisch ? [['platz', `tisch ${tisch}${etage ? ` · ${etage}` : ''}`]] : [])
+  ].filter(([, wert]) => wert);
   const html = rahmen('Reservierung bestätigt', [
-    kopf('Reserviert', 'Dein Tisch steht.'),
-    `<tr><td style="padding:12px 28px 4px;"><p style="margin:0;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#4a453d;">Wir haben deinen Tisch fest eingeteilt. Den Termin für den Kalender findest du im Anhang.</p></td></tr>`,
-    zeile('Name', name),
-    zeile('Wann', `${langesDatum(tag)}, ${zeit} Uhr`),
-    zeile('Für', personen),
-    tisch ? zeile('Platz', `Tisch ${tisch}${etage ? ` · ${etage}` : ''}`) : '',
+    kopf('Mittagstisch', 'vielen dank für die reservierung!'),
+    absatz('deine reservierung im überblick:'),
+    ...ueberblick.map(([was, wert]) => zeile(was, wert)),
+    absatz('wir bedanken uns für die reservierung & wünschen bald einen guten appetit!'),
+    absatz('die „wirtschaft“ dornbirn'),
     knopf(absageLink, 'Leider absagen', '#8c292b'),
-    `<tr><td style="padding:10px 28px 8px;"><p style="margin:0;font:400 12px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">Der Link gilt nur für diese Reservierung. Ein Anruf tut es genauso.</p></td></tr>`,
+    `<tr><td style="padding:10px 28px 8px;"><p style="margin:0;font:400 12px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">Den Termin für deinen Kalender findest du im Anhang. Der Absage-Link gilt nur für diese Reservierung – ein Anruf tut es genauso.</p></td></tr>`,
     eventBlock(events, widerspruchLink)
   ].join(''));
   const naechste = (Array.isArray(events) ? events : []).slice(0, 3);
@@ -159,10 +169,12 @@ export function bestaetigung({ name, tag, zeit, gaeste, tisch, etage, absageLink
       + `\nKeine Terminhinweise mehr: ${widerspruchLink}\n`
     : '';
   return {
-    betreff: `Tisch reserviert: ${langesDatum(tag)}, ${zeit} Uhr`,
+    betreff: `Tisch reserviert: ${wann}`,
     html,
-    text: `Dein Tisch steht.\n\n${name}\n${langesDatum(tag)}, ${zeit} Uhr\n${personen}\n`
-      + `${tisch ? `Tisch ${tisch}${etage ? ` (${etage})` : ''}\n` : ''}\nLeider absagen: ${absageLink}\nOder anrufen: +43 5572 20540\n`
+    text: 'vielen dank für die reservierung!\n\ndeine reservierung im überblick:\n'
+      + ueberblick.map(([was, wert]) => `${was}: ${wert}`).join('\n')
+      + '\n\nwir bedanken uns für die reservierung & wünschen bald einen guten appetit!\ndie „wirtschaft“ dornbirn\n'
+      + `\nLeider absagen: ${absageLink}\nOder anrufen: +43 5572 20540\n`
       + terminText
   };
 }
@@ -372,37 +384,46 @@ const preis = wert => `€ ${Number(wert).toFixed(2).replace('.', ',')}`;
 const postenZeilen = posten => (posten || []).map(p => `${p.menge}× ${p.name}`);
 /* Mehrere Gerichte, jedes auf seiner Zeile. `zeile` schuetzt den Wert als
    Text - ein <br> darin kaeme als Buchstaben an, nicht als Umbruch. */
-const essenZeile = essen => `<tr><td style="padding:2px 28px;"><p style="margin:0;font:400 15px/1.7 Helvetica,Arial,sans-serif;color:#11110f;">`
-  + `<span style="color:#6a655c;">Essen:</span> ${essen.map(escapeHtml).join('<br>')}</p></td></tr>`;
+const essenZeile = (essen, was = 'Essen') => `<tr><td style="padding:2px 28px;"><p style="margin:0;font:400 15px/1.7 Helvetica,Arial,sans-serif;color:#11110f;">`
+  + `<span style="color:#6a655c;">${escapeHtml(was)}:</span> ${essen.map(escapeHtml).join('<br>')}</p></td></tr>`;
 const absatz = text => `<tr><td style="padding:12px 28px 4px;"><p style="margin:0;font:400 15px/1.7 Helvetica,Arial,sans-serif;color:#11110f;">${escapeHtml(text)}</p></td></tr>`;
 
-/** An den Gast: "Wir haben deine Bestellung." */
-export function bestellBestaetigung({ nummer, name, tag, zeit, posten, summe, vorbestellung, statusLink }) {
-  const wann = `${langesDatum(tag)}, ca. ${zeit} Uhr`;
+/**
+ * An den Gast: die Bestellung. Wortlaut vom Haus (06.10.2026): Dank,
+ * Ueberblick (Speisen, Name, Telefon, E-Mail, Abholzeit, Bezahlart,
+ * Gesamtpreis), Gruss. Die Nummer bleibt - am Tresen fragt man danach.
+ */
+export function bestellBestaetigung({ nummer, name, tag, zeit, posten, summe, vorbestellung, statusLink, telefon = '', email = '' }) {
+  const wann = `${vorbestellung ? langesDatum(tag) : 'heute'}, ca. ${zeit} Uhr`;
   const essen = postenZeilen(posten);
-  const vorname = String(name || '').trim().split(/\s+/)[0] || '';
-  const gruss = vorname ? `Danke für deine Bestellung, ${vorname}!` : 'Danke für deine Bestellung!';
-  const lage = vorbestellung ? 'Wir kochen sie am Abholtag frisch für dich.' : 'Sie ist in der Küche.';
+  const ueberblick = [
+    ['bestellnummer', String(nummer)],
+    ['name', name], ['telefon', telefon], ['e-mail', email],
+    ['abholzeit', wann],
+    ['bezahlart', 'bei der abholung, bar oder mit karte'],
+    ['gesamtpreis', preis(summe)]
+  ].filter(([, wert]) => wert);
   const html = rahmen('Bestellung angenommen', [
-    kopf(`Bestellung Nr. ${nummer}`, gruss),
-    absatz(`${lage} Sag am Tresen einfach deine Nummer – bezahlt wird beim Abholen, bar oder mit Karte.`),
-    zeile('Nummer', String(nummer)),
-    zeile('Name', name),
-    zeile('Abholen', wann),
-    essenZeile(essen),
-    zeile('Summe', preis(summe)),
-    zeile('Wo', 'wirtschaft, Bahnhofstraße 24, 6850 Dornbirn'),
+    kopf(`Takeaway · Nr. ${nummer}`, 'vielen dank für die bestellung!'),
+    absatz('deine bestellung im überblick:'),
+    essenZeile(essen, 'speisen'),
+    ...ueberblick.map(([was, wert]) => zeile(was, wert)),
+    zeile('abholort', '„wirtschaft“, Bahnhofstraße 24, 6850 Dornbirn'),
+    absatz('wir bedanken uns für die bestellung & wünschen einen guten appetit!'),
+    absatz('die „wirtschaft“ dornbirn'),
     statusLink ? knopf(statusLink, 'Wann ist es fertig?', '#244635') : '',
     `<tr><td style="padding:10px 28px 8px;"><p style="margin:0;font:400 12px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">`
-      + `Etwas vergessen oder ein Sonderwunsch? Gerne auch anrufen: +43 5572 20 540. Bis gleich – deine wirtschaft.</p></td></tr>`
+      + `Etwas vergessen oder ein Sonderwunsch? Gerne anrufen: +43 5572 20 540.</p></td></tr>`
   ].join(''));
   return {
-    betreff: `Danke für deine Bestellung – Nr. ${nummer}, ${vorbestellung ? langesDatum(tag) : 'heute'} ca. ${zeit} Uhr`,
+    betreff: `Danke für deine Bestellung – Nr. ${nummer}, ${wann}`,
     html,
-    text: `${gruss}\n${lage} Sag am Tresen einfach deine Nummer – bezahlt wird beim Abholen, bar oder mit Karte.\n\n`
-      + `Nummer: ${nummer}\nName: ${name}\nAbholen: ${wann}\n\n${essen.join('\n')}\nSumme: ${preis(summe)}\n\n`
-      + `wirtschaft, Bahnhofstraße 24, 6850 Dornbirn\n`
-      + `${statusLink ? `Wann ist es fertig: ${statusLink}\n` : ''}Etwas vergessen oder ein Sonderwunsch? Gerne auch anrufen: +43 5572 20 540.\nBis gleich – deine wirtschaft.`
+    text: 'vielen dank für die bestellung!\n\ndeine bestellung im überblick:\n'
+      + `${essen.join('\n')}\n`
+      + ueberblick.map(([was, wert]) => `${was}: ${wert}`).join('\n')
+      + '\nabholort: „wirtschaft“, Bahnhofstraße 24, 6850 Dornbirn\n'
+      + '\nwir bedanken uns für die bestellung & wünschen einen guten appetit!\ndie „wirtschaft“ dornbirn\n'
+      + `${statusLink ? `\nWann ist es fertig: ${statusLink}\n` : ''}Etwas vergessen? Gerne anrufen: +43 5572 20 540.\n`
   };
 }
 
@@ -429,20 +450,42 @@ export function neueBestellungMail({ nummer, name, telefon, tag, zeit, posten, s
 const langesDatumMitZeit = (tag, zeit) => `${tag ? langesDatum(tag) : 'noch offen'}${zeit ? `, ${zeit} Uhr` : ''}`;
 
 /**
- * Die Aufnahme: der Gast weiss, wofuer er steht - und hat den Link, um
- * sich wieder auszutragen. Ohne diesen Link waere die Liste ein Verteiler.
+ * Die Aufnahme auf die Warteliste. Wortlaut vom Haus (06.10.2026): Dank,
+ * ausverkauft, keine Garantie, Ueberblick je Abend (Veranstaltung, Datum,
+ * Name, Telefon, E-Mail, Ticketkategorie, Anzahl). Der Austrag-Link bleibt -
+ * ohne ihn waere die Liste ein Verteiler.
  */
-export function eventWartelisteAufnahmeMail({ name, wege, austragLinks }) {
-  const zeilen = wege.map((weg, i) => `<tr><td style="padding:4px 28px;"><p style="margin:0;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#11110f;"><b>${escapeHtml(weg.titel)}</b><br><span style="color:#6a655c;">${escapeHtml(langesDatumMitZeit(weg.datum, weg.zeit))}</span>${austragLinks?.[i] ? ` · <a href="${escapeHtml(austragLinks[i])}" style="color:#8f887b;">austragen</a>` : ''}</p></td></tr>`).join('');
+export function eventWartelisteAufnahmeMail({ name, wege, austragLinks, telefon = '', email = '', personen = 0 }) {
+  const anzahl = personen ? `${personen} ${personen === 1 ? 'ticket' : 'tickets'}` : '';
+  const block = (weg, i) => {
+    const felder = [
+      ['veranstaltung', weg.titel],
+      ['datum', langesDatumMitZeit(weg.datum, weg.zeit)],
+      ['name', name], ['telefon', telefon], ['e-mail', email],
+      ['ticketkategorie', weg.kategorie || ''],
+      ['anzahl', anzahl]
+    ].filter(([, wert]) => wert);
+    return { felder, austragen: austragLinks?.[i] || '' };
+  };
+  const bloecke = wege.map(block);
+  const einleitung = 'vielen dank für deinen eintrag auf der warteliste. diese veranstaltung ist ausverkauft. '
+    + 'du hast dir einen platz auf unserer warteliste gesichert – wir melden uns, falls wieder tickets verfügbar sind. '
+    + 'bitte beachte, dass dies nicht garantiert werden kann.';
   const html = rahmen('Du stehst auf der Warteliste', [
-    kopf('Warteliste', 'Du stehst auf der Warteliste'),
-    `<tr><td style="padding:12px 28px 8px;"><p style="margin:0;font:400 15px/1.6 Helvetica,Arial,sans-serif;color:#4a453d;">${escapeHtml(name)}, wir haben dich vorgemerkt für:</p></td></tr>`,
-    zeilen,
-    `<tr><td style="padding:14px 28px 18px;"><p style="margin:0;font:400 13px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">Sobald wieder Karten da sind, bekommst du eine Mail von uns – in der Reihenfolge der Eintragungen. Die Mail reserviert nichts: gekauft wird beim Ticketdienst, wer zuerst kommt, hat die Karten. Nach dem Abend löschen wir deinen Eintrag von selbst.</p></td></tr>`
+    kopf('Warteliste', 'vielen dank für deinen eintrag!'),
+    absatz(einleitung),
+    absatz(bloecke.length === 1 ? 'dein eintrag im überblick:' : 'deine einträge im überblick:'),
+    ...bloecke.map((b, i) => [
+      i ? '<tr><td style="padding:10px 28px 0;"><hr style="border:0;border-top:1px solid #e6e0d4;margin:0;"></td></tr>' : '',
+      ...b.felder.map(([was, wert]) => zeile(was, wert)),
+      b.austragen ? `<tr><td style="padding:4px 28px 0;"><p style="margin:0;font:400 12px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;"><a href="${escapeHtml(b.austragen)}" style="color:#8f887b;">von der warteliste austragen</a></p></td></tr>` : ''
+    ].join('')),
+    absatz('die „wirtschaft“ dornbirn'),
+    `<tr><td style="padding:6px 28px 18px;"><p style="margin:0;font:400 12px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">Gekauft wird beim Ticketdienst – wer zuerst kommt, hat die Karten. Nach der Veranstaltung löschen wir deinen Eintrag von selbst.</p></td></tr>`
   ].join(''));
-  const text = `${name}, wir haben dich auf die Warteliste gesetzt für:\n\n`
-    + wege.map((weg, i) => `- ${weg.titel} (${langesDatumMitZeit(weg.datum, weg.zeit)})${austragLinks?.[i] ? `\n  austragen: ${austragLinks[i]}` : ''}`).join('\n')
-    + '\n\nSobald wieder Karten da sind, bekommst du eine Mail. Sie reserviert nichts - gekauft wird beim Ticketdienst.\n';
+  const text = `${einleitung}\n\n${bloecke.length === 1 ? 'dein eintrag im überblick:' : 'deine einträge im überblick:'}\n\n`
+    + bloecke.map(b => b.felder.map(([was, wert]) => `${was}: ${wert}`).join('\n') + (b.austragen ? `\naustragen: ${b.austragen}` : '')).join('\n\n')
+    + '\n\ndie „wirtschaft“ dornbirn\n';
   return { betreff: `Warteliste: ${wege.length === 1 ? wege[0].titel : `${wege.length} Abende vorgemerkt`}`, html, text };
 }
 
