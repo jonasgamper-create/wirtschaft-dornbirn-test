@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-01",
+  "updatedAt": "2026-10-08",
   "quelle": "https://www.ticketist.io/events/<kennung>",
   "kennungen": [
     "arnarn-2027",
@@ -39,6 +39,8 @@
     "hader-02-2026",
     "hanskaspasenkel-2026",
     "hanskaspasenkel-2026-only",
+    "italiantribute-2027",
+    "italiantribute-only-2027",
     "kellner-2026",
     "kellner-2026-only",
     "kernoelamazonen-2027",
@@ -64,6 +66,8 @@
     "notenlos-2026-only",
     "notenlos-2027",
     "notenlos-only-2027",
+    "philippsmusikzimmer-01-2027",
+    "philippsmusikzimmer-01-only-2027",
     "philippsmusikzimmer-02-2026",
     "philippsmusikzimmer-02-only-2026",
     "rebeltell-2026",
@@ -1028,7 +1032,7 @@
       "eventId": 1723,
       "date": "2026-12-19",
       "zeit": "19:00",
-      "title": "Dabado Charity • Clubbing II",
+      "title": "Dabado Charity • Clubbing",
       "untertitel": "",
       "ort": "Kulturhaus Dornbirn",
       "haus": "kulturhaus",
@@ -1241,6 +1245,34 @@
       ]
     },
     {
+      "id": "philippsmusikzimmer-01-2027",
+      "eventId": 1790,
+      "date": "2027-03-03",
+      "zeit": "19:00",
+      "title": "philipp lingg's musikzimmer",
+      "untertitel": "das musikalische blind date",
+      "ort": "\"wirtschaft\" Dornbirn",
+      "haus": "wirtschaft",
+      "adresse": "Bahnhofstraße 24, Dornbirn",
+      "beschreibung": "willkommen in philipp lingg’s musikzimmer - dem neuen, intimen konzertformat des bregenzerwälder singer-songwriters, bei dem echte emotionen und besondere musikalische begegnungen im vordergrund stehen. wenn sich die tür zu philipp’s musikzimmer öffnet, wissen die besucher:innen nicht, was sie erwartet - und vor allem nicht, wer auf der bühne stehen wird. zwei auserlesene musiker:innen - ob bekannte stimme oder vielversprechender geheimtipp - treten ans mikrofon und sorgen für gänsehautmomente, die lange nachklingen. philipp lingg führt durch den abend, erzählt, spielt, singt und begeistert - ",
+      "ticketUrl": "https://www.ticketist.io/events/philippsmusikzimmer-01-2027",
+      "buchbar": true,
+      "verkaufsstart": null,
+      "preise": [],
+      "bild": "assets/events/ticketist/philippsmusikzimmer-01-2027.webp",
+      "bild2x": "assets/events/ticketist/philippsmusikzimmer-01-2027@2x.webp",
+      "varianten": [
+        {
+          "id": "philippsmusikzimmer-01-only-2027",
+          "label": "konzert only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/philippsmusikzimmer-01-only-2027",
+          "buchbar": true,
+          "preise": []
+        }
+      ]
+    },
+    {
       "id": "notenlos-2027",
       "eventId": 1779,
       "date": "2027-03-10",
@@ -1278,7 +1310,7 @@
       "ort": "Kulturhaus Dornbirn",
       "haus": "kulturhaus",
       "adresse": "Rathausplatz 1, Dornbirn",
-      "beschreibung": "Support: emma Mit „SOLSTICE“ veröffentlicht Thorsteinn Einarsson im März 2027 sein mittlerweile fünftes Studioalbum – und eröffnet damit eines der bisher spannendsten Kapitel seiner Karriere. Inspiriert von der Mitternachtssonne seiner isländischen Heimat erzählt „SOLSTICE“ von einer langen, hellen und positiven Phase in Thorsteinns Leben: nach vielen Höhen und Tiefen, beschreibt Thorsteinn die letzten 2 Jahre wie “einen sehr langen, sehr schönen Tag”, ein Gefühl, das sich „wie ein nie endender Sommertag“ anfühlt. Musikalisch vereint das Album alles, wofür Thorsteinn Einarsson seit Jahren steh",
+      "beschreibung": "Mit „SOLSTICE“ veröffentlicht Thorsteinn Einarsson im März 2027 sein mittlerweile fünftes Studioalbum – und eröffnet damit eines der bisher spannendsten Kapitel seiner Karriere. Inspiriert von der Mitternachtssonne seiner isländischen Heimat erzählt „SOLSTICE“ von einer langen, hellen und positiven Phase in Thorsteinns Leben: nach vielen Höhen und Tiefen, beschreibt Thorsteinn die letzten 2 Jahre wie “einen sehr langen, sehr schönen Tag”, ein Gefühl, das sich „wie ein nie endender Sommertag“ anfühlt. Musikalisch vereint das Album alles, wofür Thorsteinn Einarsson seit Jahren steht: große Pop-M",
       "ticketUrl": "https://www.ticketist.io/events/einarsson-stehplatz-2027",
       "buchbar": true,
       "verkaufsstart": null,
@@ -1443,6 +1475,34 @@
           "label": "konzert only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/maxjoseph-only-2027",
+          "buchbar": true,
+          "preise": []
+        }
+      ]
+    },
+    {
+      "id": "italiantribute-2027",
+      "eventId": 1788,
+      "date": "2027-04-16",
+      "zeit": "19:30",
+      "title": "Italian Tribute Night",
+      "untertitel": "Dove c’è Musica - Eros Ramazzotti Tribute & OI&B Zucchero Tribute",
+      "ort": "Kulturhaus Dornbirn",
+      "haus": "kulturhaus",
+      "adresse": "Rathausplatz 1, Dornbirn",
+      "beschreibung": "Mit „Dove c’è Musica - Eros Ramazzotti Tribute“ und „OI&B Zucchero Tribute“ treffen die unvergesslichen Melodien von Eros Ramazzotti auf den rauen Charme und die mitreißenden Rhythmen von Zucchero. Gefühlvolle Balladen, große Hits und leidenschaftliche Live-Musik lassen Erinnerungen wach werden und laden zum gemeinsamen Feiern ein. Erst genießen, dann mitfühlen und mitsingen: Wer den Abend genussvoll beginnen möchte, kann sich vor dem Konzert mit einem feinen 3-Gänge-Menü verwöhnen lassen. Anschließend bringt die Italian Tribute Night italienisches Lebensgefühl ins Kulturhaus Dornbirn. ❗️Für d",
+      "ticketUrl": "https://www.ticketist.io/events/italiantribute-2027",
+      "buchbar": true,
+      "verkaufsstart": null,
+      "preise": [],
+      "bild": "assets/events/ticketist/italiantribute-2027.webp",
+      "bild2x": "assets/events/ticketist/italiantribute-2027@2x.webp",
+      "varianten": [
+        {
+          "id": "italiantribute-only-2027",
+          "label": "Konzert Only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/italiantribute-only-2027",
           "buchbar": true,
           "preise": []
         }
