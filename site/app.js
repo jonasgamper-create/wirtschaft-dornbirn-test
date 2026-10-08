@@ -855,12 +855,15 @@
     if (!officialTicketLink) return;
     // Seit 13.09.: kein Weg mehr auf die alte Seite. Gibt es einen
     // Ticketweg, fuehrt der Knopf dorthin - sonst auf unsere Terminseite.
-    officialTicketLink.href = chosenEvent?.ticketUrl || 'events.html';
     // Die Beschriftung sagt, wohin der Knopf fuehrt (08.10.): mit Ticketweg
-    // zum Kauf dieses Abends, sonst zur Terminseite. Vorher stand bei jedem
-    // Abend "Alle Termine ansehen", obwohl der Knopf zum Ticketkauf ging.
+    // zum Kauf dieses Abends; ausverkauft auf unsere Warteliste; sonst zur
+    // Terminseite. Vorher stand bei jedem Abend "Alle Termine ansehen",
+    // obwohl der Knopf zum Ticketkauf ging.
+    const kennung = (String(chosenEvent?.ticketUrl || '').match(/\/events\/([a-z0-9-]+)/) || [])[1] || '';
+    const ausverkauft = chosenEvent?.status === 'sold_out' && kennung;
     const zuKaufen = Boolean(chosenEvent?.ticketUrl) && !['sold_out', 'cancelled'].includes(chosenEvent?.status);
-    officialTicketLink.textContent = zuKaufen ? 'Tickets buchen ↗' : 'Alle Termine ansehen';
+    officialTicketLink.href = ausverkauft ? `events.html?warteliste=${kennung}` : zuKaufen ? chosenEvent.ticketUrl : 'events.html';
+    officialTicketLink.textContent = ausverkauft ? 'Auf die Warteliste' : zuKaufen ? 'Tickets buchen ↗' : 'Alle Termine ansehen';
     if (zuKaufen) {
       officialTicketLink.target = '_blank';
       officialTicketLink.rel = 'noopener noreferrer';
