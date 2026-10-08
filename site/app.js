@@ -94,7 +94,7 @@
       { id: "event-2026-12-10", date: "2026-12-10", title: "the monroes", type: "live‑kings des rock’n’roll", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & konzert (sitzplatz)", preis: 78, beginn: "19:00", status: "buchbar" }, { name: "konzert only: konzert only (stehplatz)", preis: 38, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/themonroes-2026" },
       { id: "event-2026-12-15", date: "2026-12-15", title: "dinner & comedy", type: "3 comedians | an einem abend | auf einer bühne", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & comedy (sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "comedy only: comedy only (stehplatz)", preis: 28, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/dinner-comedy-06-2026" },
       { id: "event-2026-12-16", date: "2026-12-16", title: "dinner & comedy", type: "3 comedians | an einem abend | auf einer bühne", status: "scheduled", officialUrl: undefined, tickets: [{ name: "dinner & comedy (sitzplatz)", preis: 68, beginn: "19:00", status: "buchbar" }, { name: "comedy only: comedy only (stehplatz)", preis: 28, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/dinner-comedy-07-2026" },
-      { id: "event-2026-12-19", date: "2026-12-19", title: "Dabado Charity • Clubbing II", type: "Kulturhaus Dornbirn", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Stehplatz (Parterre)", preis: 27, beginn: "19:00", status: "buchbar" }, { name: "Dinner & Konzert: Sitzplatz mit 3-Gänge-Menü (Galerie)", preis: 68, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/dabado-charity" },
+      { id: "event-2026-12-19", date: "2026-12-19", title: "Dabado Charity • Clubbing", type: "Kulturhaus Dornbirn", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Stehplatz (Parterre)", preis: 27, beginn: "19:00", status: "buchbar" }, { name: "Dinner & Konzert: Sitzplatz mit 3-Gänge-Menü (Galerie)", preis: 68, beginn: "19:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/dabado-charity" },
       { id: "event-2027-01-09", date: "2027-01-09", title: "EMMA & EUGEN Faschingsball", type: "Motto: 20er Jahre | Bludenz Big Band Union + Philu", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/faschingsball" },
       { id: "event-2027-01-12", date: "2027-01-12", title: "helden reisen, gäste speisen!", type: "4 comedians in verschiedenen haltestellen", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/comedynacht-01-2027" },
       { id: "event-2027-01-13", date: "2027-01-13", title: "helden reisen, gäste speisen!", type: "4 comedians in verschiedenen haltestellen", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/comedynacht-02-2027" },
@@ -102,6 +102,7 @@
       { id: "event-2027-02-04", date: "2027-02-04", title: "love and theft", type: "In der „wirtschaft“", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/loveandtheft-2027" },
       { id: "event-2027-02-18", date: "2027-02-18", title: "tobias gnacke", type: "programm: voll auf die ohren!!", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/tobiasgnacke-2027" },
       { id: "event-2027-02-24", date: "2027-02-24", title: "dinner & comedy", type: "3 comedians | an einem abend | auf einer bühne", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/comedy-01-2027" },
+      { id: "event-2027-03-03", date: "2027-03-03", title: "philipp lingg's musikzimmer", type: "das musikalische blind date", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/philippsmusikzimmer-01-2027" },
       { id: "event-2027-03-10", date: "2027-03-10", title: "notenlos", type: "das wunschkonzert der extraklasse", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/notenlos-2027" },
       { id: "event-2027-03-13", date: "2027-03-13", title: "Thorsteinn Einarsson", type: "SOLSTICE Tour 2027", status: "scheduled", officialUrl: undefined, tickets: [{ name: "Stehplatz (Parterre)", preis: 28, beginn: "20:00", status: "buchbar" }, { name: "Sitzplatz: Sitzplatz", preis: 38, beginn: "20:00", status: "buchbar" }], ticketUrl: "https://www.ticketist.io/events/einarsson-stehplatz-2027" },
       { id: "event-2027-03-17", date: "2027-03-17", title: "dinner & comedy", type: "3 comedians | an einem abend | auf einer bühne", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/comedy-02-2027" },
@@ -109,6 +110,7 @@
       { id: "event-2027-04-08", date: "2027-04-08", title: "gansch & breinschmid", type: "mit hirn, harn und melone - philosophische betrachtungen im 7/8-takt", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/ganschbreinschmid-2027" },
       { id: "event-2027-04-14", date: "2027-04-14", title: "dinner & comedy", type: "3 comedians | an einem abend | auf einer bühne", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/comedy-03-2027" },
       { id: "event-2027-04-15", date: "2027-04-15", title: "maxjoseph", type: "programm: lagom", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/maxjoseph-2027" },
+      { id: "event-2027-04-16", date: "2027-04-16", title: "Italian Tribute Night", type: "Dove c’è Musica - Eros Ramazzotti Tribute & OI&B Zucchero Tribute", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/italiantribute-2027" },
       { id: "event-2027-04-21", date: "2027-04-21", title: "schick sisters", type: "liebe • love • l‘amour: eine musikalische hommage an das stärkste aller gefühle", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/schicksisters-2027" },
       { id: "event-2027-04-22", date: "2027-04-22", title: "arn & arn", type: "In der „wirtschaft“", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/arnarn-2027" },
       { id: "event-2027-04-23", date: "2027-04-23", title: "kernölamazonen", type: "programm: best of", status: "scheduled", officialUrl: undefined, tickets: [], ticketUrl: "https://www.ticketist.io/events/kernoelamazonen-2027" },
@@ -854,6 +856,17 @@
     // Seit 13.09.: kein Weg mehr auf die alte Seite. Gibt es einen
     // Ticketweg, fuehrt der Knopf dorthin - sonst auf unsere Terminseite.
     officialTicketLink.href = chosenEvent?.ticketUrl || 'events.html';
+    // Die Beschriftung sagt, wohin der Knopf fuehrt (08.10.): mit Ticketweg
+    // zum Kauf dieses Abends, sonst zur Terminseite. Vorher stand bei jedem
+    // Abend "Alle Termine ansehen", obwohl der Knopf zum Ticketkauf ging.
+    const zuKaufen = Boolean(chosenEvent?.ticketUrl) && !['sold_out', 'cancelled'].includes(chosenEvent?.status);
+    officialTicketLink.textContent = zuKaufen ? 'Tickets buchen ↗' : 'Alle Termine ansehen';
+    if (zuKaufen) {
+      officialTicketLink.target = '_blank';
+      officialTicketLink.rel = 'noopener noreferrer';
+    } else {
+      officialTicketLink.removeAttribute('target');
+    }
   }
 
   function escapeCalendarValue(value) {
@@ -951,7 +964,7 @@
     ticketDetail.innerHTML = `<p class="ticket-detail-date">${escapeHtml(formatEventDate(event.date))} · ${escapeHtml(event.type)}</p>
       <p class="ticket-detail-title">${escapeHtml(event.title)}</p>
       ${statusNote ? `<p class="ticket-detail-status">${escapeHtml(statusNote)}</p>` : ''}
-      ${ticketZeilen ? `<ul class="ticket-arten">${ticketZeilen}</ul>` : ''}
+      ${ticketZeilen ? `<ul class="ticket-arten">${ticketZeilen}</ul>` : (event.ticketUrl ? '<p class="ticket-detail-status">Kategorien und Preise siehst du direkt beim Ticketdienst.</p>' : '')}
       ${wartelisteLink}
       <p class="ticket-detail-note">Buchung und Einlasszeiten laufen über den Ticketdienst; die Warteliste führen wir selbst.</p>`;
   }
