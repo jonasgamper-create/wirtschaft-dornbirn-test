@@ -34,7 +34,7 @@ form.acroForm.dict.set(PDFName.of('NeedAppearances'), PDFBool.True);
 
 // Der Quelltext ist bewusst ASCII; beim Zeichnen werden ae/oe/ue (nach
 // Konsonant oder am Wortanfang) und bekannte ss-Woerter in Umlaute gewandelt.
-const SS = { muessen: 'müssen', Preuss: 'Preuß', weiss: 'weiß', laesst: 'lässt', Fuss: 'Fuß', schliesst: 'schließt', gross: 'groß' };
+const SS = { geaendert: 'geändert', muessen: 'müssen', Preuss: 'Preuß', weiss: 'weiß', laesst: 'lässt', Fuss: 'Fuß', schliesst: 'schließt', gross: 'groß' };
 function u(t) {
   let a = String(t);
   for (const [k, v] of Object.entries(SS)) a = a.replaceAll(k, v);
@@ -89,20 +89,42 @@ function abschnitt(nummer, text) {
   platz(44);
   y -= 6;
   seite.drawRectangle({ x: RAND, y: y - 6, width: BREITE, height: 24, color: CREAM });
-  seite.drawText(`${nummer}`, { x: RAND + 8, y: y + 1, size: 12, font: fett, color: WINE });
-  seite.drawText(u(text), { x: RAND + 30, y: y + 1, size: 12, font: fett, color: INK });
+  if (nummer) seite.drawText(`${nummer}`, { x: RAND + 8, y: y + 1, size: 12, font: fett, color: WINE });
+  seite.drawText(u(text), { x: RAND + (nummer ? 30 : 8), y: y + 1, size: 12, font: fett, color: INK });
   y -= 30;
 }
 
 let nr = 0;
-function frage(text, warum) {
+// Frage mit Erklaerung (warum), Anleitung (was eintragen) und Beispiel.
+function frage(text, warum, beispiel) {
   nr += 1;
   const z = zeilen(`${nr}.  ${text}`, fett, 10.5, BREITE);
-  const w = warum ? zeilen(warum, schrift, 8.5, BREITE - 16) : [];
-  platz(z.length * 14 + w.length * 11 + 8);
+  const w = warum ? zeilen(warum, schrift, 9, BREITE - 16) : [];
+  const b = beispiel ? zeilen(`Beispiel: ${beispiel}`, schrift, 8.5, BREITE - 16) : [];
+  platz(z.length * 14 + w.length * 11.5 + b.length * 11 + 10);
   for (const t of z) { seite.drawText(t, { x: RAND, y, size: 10.5, font: fett, color: INK }); y -= 14; }
-  for (const t of w) { seite.drawText(t, { x: RAND + 16, y, size: 8.5, font: schrift, color: GREEN }); y -= 11; }
+  for (const t of w) { seite.drawText(t, { x: RAND + 16, y, size: 9, font: schrift, color: INK }); y -= 11.5; }
+  for (const t of b) { seite.drawText(t, { x: RAND + 16, y, size: 8.5, font: schrift, color: GREEN }); y -= 11; }
   y -= 4;
+}
+
+// Begriff: fett links, Erklaerung rechts
+function begriff(wort, text) {
+  const z = zeilen(text, schrift, 9, BREITE - 110);
+  platz(z.length * 11.5 + 6);
+  seite.drawText(u(wort), { x: RAND, y, size: 9, font: fett, color: WINE });
+  let yy = y;
+  for (const t of z) { seite.drawText(t, { x: RAND + 110, y: yy, size: 9, font: schrift, color: INK }); yy -= 11.5; }
+  y -= z.length * 11.5 + 5;
+}
+
+function schritt(n, text) {
+  const z = zeilen(text, schrift, 9.5, BREITE - 22);
+  platz(z.length * 12 + 4);
+  seite.drawText(`${n}.`, { x: RAND, y, size: 9.5, font: fett, color: WINE });
+  let yy = y;
+  for (const t of z) { seite.drawText(t, { x: RAND + 20, y: yy, size: 9.5, font: schrift, color: INK }); yy -= 12; }
+  y -= z.length * 12 + 4;
 }
 
 const feldStil = { borderColor: GOLD, backgroundColor: WEISS, textColor: INK, borderWidth: 1 };
@@ -158,13 +180,41 @@ function hinweis(text) {
   y -= 8;
 }
 
-// ---------------------------------------------------------------- Seite 1
+// ---------------------------------------------------------------- Seite 1: Bevor ihr anfangt
 neueSeite();
 titel('Mailadressen - was wohin geht');
-absatz('Liebe Hannah, lieber Wolfgang - bevor die Webseite ganz auf euch uebergeht, muessen wir einmal festlegen, welche Mailadresse wofuer gilt. Das ist der wichtigste Punkt der Uebergabe: An diese Adressen gehen kuenftig Reservierungen, Bestellungen, Anfragen und die Rechnungen der Anbieter. Alles andere (Domain, Hosting) haengt daran.', { groesse: 10 });
-absatz('So geht es: Am Handy oder Computer oeffnen, ankreuzen, eintragen, speichern, an Jonas zurueckschicken. Dauer etwa 15 Minuten. Wo eine Empfehlung steht, ist sie bereits angekreuzt - ihr muesst nur aendern, was anders sein soll.', { groesse: 10 });
-hinweis('Alle Adressen muessen echte, gelesene Postfaecher sein. Eine Adresse, die niemand liest, ist schlimmer als keine: Der Gast glaubt, er wurde gehoert.');
+absatz('Liebe Hannah, lieber Wolfgang, dieses Blatt kommt von Jonas. Es ist der erste und wichtigste Schritt, bevor die neue Webseite ganz in eure Haende uebergeht. Es geht nur um eine Frage: Welche Mailadresse soll wofuer gelten? Sobald das feststeht, tragen wir es ein - und ab dann kommen Reservierungen, Takeaway-Bestellungen, Anfragen und die Post der Anbieter dort an, wo ihr sie haben wollt. Ihr muesst nichts kaufen, nichts anmelden und nichts installieren.', { groesse: 10 });
 
+abschnitt('', 'Worum es geht - in fuenf Saetzen');
+absatz('Die neue Webseite macht vieles von selbst: Sie nimmt Reservierungen fuer den Mittagstisch an, Takeaway-Bestellungen, Wartelisten fuer ausverkaufte Abende und Anfragen fuer Feste und die Agentur. Zu jedem dieser Vorgaenge schickt sie dem Gast sofort eine Bestaetigung per Mail - und euch eine Nachricht. Jede dieser Mails braucht eine Absenderadresse (die der Gast sieht) und eine Empfaengeradresse (wo sie bei euch ankommt). Heute stehen an diesen Stellen noch Adressen von Jonas, weil er die Seite gebaut und getestet hat. Mit diesem Blatt legt ihr fest, welche Adressen des Hauses dort stehen sollen.', { groesse: 9.5 });
+
+abschnitt('', 'Was ihr schon habt - und warum hier "Hetzner" steht');
+absatz('Ihr habt bereits eine Domain: wirtschaft-dornbirn.at. Das ist eure Adresse im Internet, und sie gehoert bereits zum Haus - es muss keine neue angemeldet werden. Jonas hat am 1. Oktober 2026 nachgesehen, wie diese Domain eingerichtet ist. Das geht oeffentlich, ohne Zugangsdaten, so wie man im Telefonbuch nachschlagen kann. Dabei kam heraus:', { groesse: 9.5 });
+absatz('- Die Verwaltung eurer Domain liegt bei der Firma Hetzner (ein grosser deutscher Anbieter fuer Internetadressen, Server und Postfaecher). Die sogenannten Nameserver heissen hydrogen.ns.hetzner.com, oxygen.ns.hetzner.com und helium.ns.hetzner.de.', { groesse: 9.5, einzug: 10 });
+absatz('- Eure bisherige Webseite (WordPress) und euer Mailserver (mail.wirtschaft-dornbirn.at) laufen auf demselben Hetzner-Server.', { groesse: 9.5, einzug: 10 });
+absatz('- Das Postfach willkommen@wirtschaft-dornbirn.at gibt es also sehr wahrscheinlich bei Hetzner.', { groesse: 9.5, einzug: 10 });
+absatz('Wer eure Webseite vor Jahren gebaut hat, hat das damals bei Hetzner eingerichtet - vielleicht in eurem Namen, vielleicht im Namen einer Agentur. Deshalb fragt dieses Blatt, wer sich dort anmelden kann und wer auf der Rechnung steht. Wenn euch "Hetzner" nichts sagt: Das ist in Ordnung und genau der Grund fuer die Fragen 2, 3, 13 und 14. "Weiss ich nicht" ist eine gute Antwort - dann sucht Jonas mit euch weiter.', { groesse: 9.5 });
+
+abschnitt('', 'Die Begriffe, die vorkommen');
+begriff('Domain', 'Eure Adresse im Internet: wirtschaft-dornbirn.at. Sie gehoert dem, der auf der Rechnung steht, und wird jaehrlich bezahlt (etwa 15 bis 30 Euro). Alle Mailadressen @wirtschaft-dornbirn.at haengen an ihr.');
+begriff('Registrar', 'Die Firma, bei der die Domain gekauft wurde und jaehrlich bezahlt wird. Bei euch vermutlich Hetzner. Steht auf der Rechnung.');
+begriff('Postfach', 'Eine Mailadresse, in der Mails wirklich ankommen und gelesen werden, z. B. willkommen@wirtschaft-dornbirn.at. Postfaecher werden beim Mailanbieter angelegt - bei euch vermutlich Hetzner.');
+begriff('Weiterleitung', 'Eine Mailadresse ohne eigenes Postfach, die alles an eine andere Adresse weiterreicht. Reicht fuer z. B. web@, wenn Hannah das in ihrem Postfach lesen soll.');
+begriff('Hetzner', 'Der Anbieter, bei dem eure Domain, eure Postfaecher und die alte Webseite liegen (siehe oben). Hat eine Verwaltungsoberflaeche (konsoleH), in der man Postfaecher anlegt. Jemand hat dafuer Zugangsdaten.');
+begriff('Brevo', 'Der Dienst, der die automatischen Mails der neuen Webseite verschickt (Bestaetigungen an Gaeste). Kostenlos bis 300 Mails am Tag. Damit er in eurem Namen senden darf, muessen vier kleine Eintraege bei eurer Domain gemacht werden - das macht der Programmierer, dafuer braucht er Zugang zu Hetzner.');
+begriff('Der Dienst', 'Das Programm hinter der Webseite, das Reservierungen, Bestellungen und Wartelisten verwaltet. Ihr bedient es ueber die Wirt-Ansicht am Handy.');
+begriff('Programmierer', 'Die Person, die die Webseite kuenftig technisch betreut. Jonas uebergibt an sie. Kann auch vorerst Jonas bleiben.');
+
+abschnitt('', 'So fuellt ihr das Blatt aus');
+schritt(1, 'Am Handy: Die PDF-Datei aus der Mail oeffnen. Am iPhone geht das direkt in der Vorschau oder in der App "Dateien"; am Android-Handy in "Google Drive" oder "Adobe Acrobat Reader" (kostenlos). Am Computer: in Vorschau (Mac) oder Acrobat Reader (Windows).');
+schritt(2, 'Auf einen Kreis tippen, um ihn anzukreuzen. Bei vielen Fragen ist unsere Empfehlung schon angekreuzt - wenn ihr einverstanden seid, muesst ihr nichts tun. Wollt ihr etwas anderes, tippt den anderen Kreis an.');
+schritt(3, 'Auf ein weisses Feld tippen, dann erscheint die Tastatur. Eintragen, fertig.');
+schritt(4, 'Am Ende Frage 18 mit eurem Namen ausfuellen. Dann speichern (das Handy fragt meist von selbst) und die Datei per Mail oder WhatsApp an Jonas zurueckschicken: ueber "Teilen" bzw. den Pfeil nach oben.');
+schritt(5, 'Wenn eine Frage unklar ist: "weiss ich nicht" ankreuzen oder leer lassen. Lieber eine ehrliche Luecke als eine geratene Adresse.');
+hinweis('Die wichtigste Regel: Jede Adresse, die ihr eintragt, muss ein echtes Postfach sein, das jemand regelmaessig liest. Eine Adresse, die niemand liest, ist schlimmer als keine - der Gast glaubt dann, er wurde gehoert.');
+
+// ---------------------------------------------------------------- Fragen
+y -= 6;
 textfeld('ausgefuellt_von', 'Ausgefuellt von (Name)', { breite: 240 });
 y += 26; // Datum daneben
 {
@@ -176,106 +226,136 @@ y += 26; // Datum daneben
 }
 
 abschnitt('A', 'Was es heute gibt');
-frage('Welche Postfaecher hat das Haus bei Hetzner (oder anderswo)?', 'Wir wissen von willkommen@wirtschaft-dornbirn.at. Bitte alle eintragen, auch Weiterleitungen - und wer sie liest.');
-textfeld('A1_postfaecher', 'Je Zeile: Adresse - wer liest sie - wie oft (z. B. "willkommen@ - Service - taeglich")', { hoehe: 56, mehrzeilig: true, vorgabe: 'willkommen@wirtschaft-dornbirn.at - ' });
-frage('Wo liegen die Postfaecher?', 'Das bestimmt, wo der Autoresponder und spaeter die vier Brevo-Eintraege gemacht werden.');
+frage('Welche Mailadressen @wirtschaft-dornbirn.at gibt es heute, und wer liest sie?',
+  'Wir kennen nur willkommen@wirtschaft-dornbirn.at, weil sie auf eurer alten Webseite steht. Vielleicht gibt es weitere (eine fuer Wolfgang, eine fuer die Kueche, eine alte der Agentur). Bitte alle eintragen, die ihr kennt - auch solche, die niemand mehr liest. So wissen wir, was wir weiterverwenden koennen und was aufgeraeumt gehoert.',
+  'willkommen@wirtschaft-dornbirn.at - Service und Buero - taeglich / wolfgang@wirtschaft-dornbirn.at - Wolfgang - wenn Zeit ist');
+textfeld('A1_postfaecher', 'Je Zeile eine Adresse: Adresse - wer liest sie - wie oft', { hoehe: 60, mehrzeilig: true, vorgabe: 'willkommen@wirtschaft-dornbirn.at - ' });
+frage('Wo werden diese Mailadressen verwaltet?',
+  'Dort muessen spaeter neue Adressen angelegt und eine automatische Antwort eingestellt werden. Nach allem, was oeffentlich sichtbar ist, liegt euer Mailserver bei Hetzner (siehe Seite 1). Falls ihr Mails ueber ein anderes Programm oder einen anderen Anbieter abruft, hier eintragen. "Weiss ich nicht" ist in Ordnung.',
+  'Wenn ihr Mails im Browser unter webmail.wirtschaft-dornbirn.at lest, ist es Hetzner.');
 auswahl('A2_mailanbieter', [
-  { wert: 'hetzner', text: 'bei Hetzner (zusammen mit Domain und alter Webseite) - vermutlich' },
-  { wert: 'andere', text: 'woanders, naemlich:', feld: true },
-  { wert: 'unbekannt', text: 'weiss ich nicht - Jonas soll nachsehen (braucht Zugang zur Hetzner-Verwaltung)' }
+  { wert: 'hetzner', text: 'bei Hetzner - vermutlich, so wie Jonas es aus der Domain abgelesen hat' },
+  { wert: 'andere', text: 'bei einem anderen Anbieter (z. B. Google, GMX, A1), naemlich:', feld: true },
+  { wert: 'unbekannt', text: 'weiss ich nicht - Jonas soll mit uns nachsehen' }
 ]);
-frage('Wer kann sich heute bei Hetzner anmelden (Domain, Postfaecher, DNS)?', 'Ohne diesen Zugang kann niemand Postfaecher anlegen oder die Domain umziehen.');
-textfeld('A3_hetzner_zugang', 'Name(n) - und ob die Zugangsdaten im Haus liegen', { hoehe: 36, mehrzeilig: true });
+frage('Wer kann sich heute bei Hetzner anmelden - also Postfaecher anlegen und die Domain verwalten?',
+  'Diese Zugangsdaten sind der Schluessel zu eurer Domain und zu allen Postfaechern. Ohne sie kann niemand ein Postfach web@ anlegen, keine Eintraege fuer Brevo machen und die Webseite nicht auf wirtschaft-dornbirn.at umziehen. Oft liegen sie bei der Agentur, die die alte Seite gebaut hat, oder in einer alten Mail. Bitte nachforschen - das ist der Punkt, der am laengsten dauern kann.',
+  '"Wolfgang hat die Zugangsdaten in einer Mail von 2019 von der Agentur XY" oder "wissen wir nicht - die Agentur war Firma XY, Kontakt: ..."');
+textfeld('A3_hetzner_zugang', 'Wer hat die Zugangsdaten - oder: wer koennte sie haben (Name, Firma, Kontakt)', { hoehe: 46, mehrzeilig: true });
 
-// ---------------------------------------------------------------- Entscheidungen
 abschnitt('B', 'Die Entscheidungen - welche Adresse wofuer');
-absatz('Jede Zeile ist eine Stelle im System, an der eine Adresse eingetragen wird. Empfehlung ist vorangekreuzt.', { groesse: 9 });
+absatz('Jede der folgenden Fragen steht fuer eine Stelle im System, an der eine Mailadresse eingetragen wird. Was dort steht, bekommt die Post. Unsere Empfehlung ist schon angekreuzt; ihr muesst nur aendern, was anders sein soll.', { groesse: 9 });
 
-frage('Absender aller automatischen Mails an Gaeste', 'Bestaetigungen fuer Reservierung, Takeaway, Warteliste, Newsletter. Der Gast sieht "Wirtschaft Dornbirn <diese Adresse>" und antwortet darauf. Muss eine Adresse der Domain wirtschaft-dornbirn.at sein, sonst landen die Mails im Spam.');
+frage('Absender aller automatischen Mails an Gaeste',
+  'Wenn ein Gast reserviert, bestellt oder sich auf die Warteliste setzt, bekommt er sofort eine Bestaetigung. Darin steht als Absender "Wirtschaft Dornbirn" mit dieser Adresse. Antwortet der Gast auf die Bestaetigung ("kann ich auf 18 Uhr aendern?"), landet seine Antwort hier. Die Adresse muss auf @wirtschaft-dornbirn.at enden - mit einer fremden Adresse (gmx, aon, gmail) landen die Mails bei den Gaesten im Spam. Genau das passiert heute noch mit der Testadresse von Jonas.',
+  'Gast sieht: "Wirtschaft Dornbirn <willkommen@wirtschaft-dornbirn.at>"');
 auswahl('B1_absender', [
   { wert: 'willkommen', text: 'willkommen@wirtschaft-dornbirn.at  (Empfehlung)' },
-  { wert: 'andere', text: 'andere Adresse @wirtschaft-dornbirn.at:', feld: true }
+  { wert: 'andere', text: 'eine andere Adresse @wirtschaft-dornbirn.at:', feld: true }
 ]);
 
-frage('Empfaenger der Anfragen von Locations (Feste, Catering) und Agentur', 'Jede Anfrage kommt als Mail mit allen Angaben; "Antworten" geht direkt an den Gast. Zusaetzlich in der Wirt-Ansicht unter haus > Anfragen.');
+frage('Wohin sollen Anfragen fuer Feste, Catering (Seite "Locations") und fuer die Agentur gehen?',
+  'Wer auf der Webseite das Anfrageformular ausfuellt, loest zwei Mails aus: Der Gast bekommt eine Bestaetigung, und ihr bekommt die Anfrage mit allen Angaben (Datum, Personen, Wunsch). Auf eure Mail koennt ihr einfach "Antworten" druecken - die Antwort geht direkt an den Gast. Es sollte eine Adresse sein, die die Person liest, die Feste plant.',
+  'Betreff bei euch: "Anfrage Feste: Geburtstag 40 Personen im Maerz"');
 auswahl('B2_anfragen', [
   { wert: 'willkommen', text: 'willkommen@wirtschaft-dornbirn.at  (Empfehlung)' },
-  { wert: 'andere', text: 'andere Adresse:', feld: true }
+  { wert: 'andere', text: 'eine andere Adresse:', feld: true }
 ]);
 
-frage('Tageszettel (werktags 08:00) und Wochenbericht (Freitag 15:00)', 'Wer kommt heute, was ist vorbestellt, fehlt die Wochenkarte. Soll bei der Person landen, die den Mittag plant.');
+frage('Wohin sollen der Tageszettel (werktags um 08:00) und der Wochenbericht (Freitag 15:00) gehen?',
+  'Der Tageszettel ist eine Mail mit allem, was fuer den Mittag ansteht: welche Reservierungen, wie viele Personen, welche Takeaway-Vorbestellungen - und eine Warnung, wenn die Wochenkarte noch fehlt. Der Wochenbericht fasst die Woche zusammen (Gaeste, Portionen). Beides sollte bei der Person ankommen, die den Mittag plant. Es kann willkommen@ sein; wenn ihr das Postfach nicht mit Dienstmails fuellen wollt, legen wir ein eigenes an.',
+  'buero@wirtschaft-dornbirn.at (neu) - liest Hannah jeden Morgen');
 auswahl('B3_tageszettel', [
   { wert: 'willkommen', text: 'willkommen@wirtschaft-dornbirn.at' },
-  { wert: 'buero', text: 'ein eigenes Postfach, neu anlegen (z. B. buero@ oder kueche@):', feld: true },
-  { wert: 'person', text: 'die Adresse einer Person:', feld: true }
+  { wert: 'buero', text: 'ein eigenes, neues Postfach - Wunschname eintragen (z. B. buero@ oder kueche@):', feld: true },
+  { wert: 'person', text: 'die bestehende Adresse einer Person:', feld: true }
 ]);
 
-frage('Meldung jeder Takeaway-Bestellung (sofort, mit Speisen und Abholzeit)', 'Zusaetzlich klingelt das Handy mit der Wirt-Ansicht. Die Mail ist der Beleg fuer die Kueche.');
+frage('Wohin soll die Meldung jeder einzelnen Takeaway-Bestellung gehen?',
+  'Bei jeder Bestellung ueber die Webseite geht sofort eine Mail mit Bestellnummer, Name, Speisen und Abholzeit raus - der Beleg fuer die Kueche. Zusaetzlich klingelt das Handy mit der Wirt-Ansicht und die Bestellung steht dort in der Liste. Die Mail ist die Sicherheit, falls das Handy stumm ist.',
+  'dieselbe Adresse wie beim Tageszettel - dann liegt alles an einem Ort');
 auswahl('B4_takeaway', [
-  { wert: 'wie3', text: 'dieselbe Adresse wie beim Tageszettel  (Empfehlung)' },
-  { wert: 'andere', text: 'andere Adresse:', feld: true }
+  { wert: 'wie3', text: 'dieselbe Adresse wie beim Tageszettel (Frage 6)  (Empfehlung)' },
+  { wert: 'andere', text: 'eine andere Adresse:', feld: true }
 ]);
 
-frage('Inhaber-Adresse fuer die Konten GitHub, Cloudflare, Brevo (und die Domain)', 'Dorthin gehen Rechnungen, Warnungen, Passwort-Zuruecksetzen. Darf an keiner Person haengen, die gehen koennte. Empfehlung: web@ neu anlegen als Weiterleitung an Hannah.');
+frage('Mit welcher Mailadresse sollen die Konten der Webseite angelegt werden?',
+  'Die neue Webseite braucht drei kostenlose Konten: GitHub (dort liegt der Quellcode), Cloudflare (dort laeuft die Seite) und Brevo (verschickt die Mails). Heute laufen sie auf Jonas. Hannah legt sie neu an, damit alles dem Haus gehoert. Die Adresse dafuer bekommt Rechnungen (0 Euro), Sicherheitswarnungen und die Mails zum Zuruecksetzen des Passworts - sie ist der Generalschluessel. Deshalb soll sie nicht an einer Person haengen, die das Haus verlassen koennte, und nicht zwischen Gaestemails untergehen. Unsere Empfehlung: eine neue Adresse web@, die an Hannah weitergeleitet wird.',
+  'web@wirtschaft-dornbirn.at - Weiterleitung an Hannah; Wolfgang kennt das Passwort');
 auswahl('B5_inhaber', [
-  { wert: 'web', text: 'web@wirtschaft-dornbirn.at - Hannah legt es als Postfach oder Weiterleitung an  (Empfehlung)' },
-  { wert: 'willkommen', text: 'willkommen@wirtschaft-dornbirn.at (dann liegen Rechnungen zwischen Gaestemails)' },
-  { wert: 'andere', text: 'andere Adresse:', feld: true }
+  { wert: 'web', text: 'web@wirtschaft-dornbirn.at neu anlegen, als Weiterleitung an Hannah  (Empfehlung)' },
+  { wert: 'willkommen', text: 'willkommen@wirtschaft-dornbirn.at (geht, aber Rechnungen und Warnungen liegen dann zwischen Gaestemails)' },
+  { wert: 'andere', text: 'eine andere Adresse:', feld: true }
 ]);
 
-frage('Zweite Person mit vollem Zugang zu allen Konten', 'Faellt eine Person aus, ist das Haus nicht ausgesperrt. Diese Person bekommt die Einladungen und die Wiederherstellungscodes.');
-textfeld('B6_zweite_person', 'Name und Mailadresse', { breite: BREITE });
+frage('Wer ist die zweite Person mit vollem Zugang zu diesen Konten?',
+  'Faellt die erste Person aus (Urlaub, Krankheit, Ausscheiden), darf das Haus nicht ausgesperrt sein. Die zweite Person bekommt zu jedem Konto eine Einladung und bewahrt die Wiederherstellungscodes mit auf. Meist ist das Wolfgang.',
+  'Wolfgang Preuss - wolfgang@wirtschaft-dornbirn.at');
+textfeld('B6_zweite_person', 'Name und Mailadresse der zweiten Person');
 
-frage('Programmierer, der die Webseite kuenftig betreut', 'Er wird in die Konten eingeladen und bekommt die Fehlermails der taeglichen Pruefung (nur wenn etwas schiefgeht).');
-textfeld('B7_programmierer', 'Name, Mailadresse, Telefon - oder "noch offen, Jonas soll vorschlagen"', { hoehe: 36, mehrzeilig: true });
+frage('Wer soll die Webseite kuenftig technisch betreuen (Programmierer)?',
+  'Diese Person wird in die drei Konten eingeladen und bekommt eine Mail, wenn die taegliche automatische Pruefung einen Fehler findet (sonst nie). Ihr koennt jeden Webentwickler nehmen - alle Anleitungen liegen bei. Wenn ihr noch niemanden habt, kann Jonas vorerst bleiben oder jemanden vorschlagen.',
+  '"Max Muster, max@firma.at, 0664 ..." oder "noch offen - Jonas soll vorerst bleiben"');
+textfeld('B7_programmierer', 'Name, Mailadresse, Telefon - oder "noch offen"', { hoehe: 36, mehrzeilig: true });
 
-frage('Veranstalter-Kontakt bei den Abenden (Fuss der Seite: "emma & eugen")', 'Heute: uri@eugen.family und +43 664 230 65 87. Steht auf sechs Seiten und bei jedem Abend.');
+frage('Soll der Veranstalter-Kontakt bei den Abenden so bleiben?',
+  'Im Fuss der Webseite und bei jedem Abend steht als Veranstalter "emma & eugen" mit uri@eugen.family und +43 664 230 65 87 - weil die Abende ueber Ticketist im Namen von Emma & Eugen verkauft werden. Das haben wir von eurer bisherigen Eventseite uebernommen. Bitte mit Uri abstimmen.',
+  'bleibt so');
 auswahl('B8_veranstalter', [
-  { wert: 'bleibt', text: 'bleibt so  (Empfehlung, mit Uri abgestimmt)' },
-  { wert: 'andere', text: 'aendern in:', feld: true }
+  { wert: 'bleibt', text: 'bleibt so  (Empfehlung, wenn Uri einverstanden ist)' },
+  { wert: 'andere', text: 'aendern in (Adresse und Telefon):', feld: true }
 ]);
 
-frage('Automatische Antwort auf Mails, die direkt an willkommen@ geschrieben werden', 'Die Webseite kann das nicht - nur das Postfach selbst (Autoresponder bei Hetzner). Vorschlag: eine kurze Eingangsbestaetigung mit den drei Online-Wegen, ohne Antwortzeit zu versprechen.');
+frage('Soll das Postfach willkommen@ eine automatische Antwort schicken, wenn jemand direkt hinschreibt?',
+  'Alles bisher betrifft Mails, die die Webseite ausloest. Schreibt ein Gast einfach selbst eine Mail an willkommen@, sieht die Webseite das nicht - nur das Postfach selbst kann automatisch antworten ("Autoresponder"). Das stellt man bei Hetzner ein; der Programmierer hilft dabei. Vorschlag fuer den Text: "Danke fuer deine Nachricht an die wirtschaft! Wir lesen jede Mail persoenlich und melden uns so bald wie moeglich. Tisch fuer mittags reservieren geht sofort online: wirtschaft-dornbirn.at/tischreservierung - Takeaway: wirtschaft-dornbirn.at/takeaway - Tickets: wirtschaft-dornbirn.at/events". Wir raten davon ab, eine Antwortzeit zu versprechen.',
+  'ja, mit dem Vorschlag - oder eigenen Text unten eintragen');
 auswahl('B9_autoresponder', [
-  { wert: 'vorschlag', text: 'ja, mit dem vorgeschlagenen Text (siehe Handbuch fuers Haus, Abschnitt 4)  (Empfehlung)' },
+  { wert: 'vorschlag', text: 'ja, mit dem oben vorgeschlagenen Text  (Empfehlung)' },
   { wert: 'eigen', text: 'ja, mit eigenem Text (unten eintragen)' },
   { wert: 'nein', text: 'nein, keine automatische Antwort' }
 ]);
-textfeld('B9_text', 'Eigener Text (falls gewuenscht)', { hoehe: 46, mehrzeilig: true });
+textfeld('B9_text', 'Eigener Text fuer die automatische Antwort (nur wenn gewuenscht)', { hoehe: 46, mehrzeilig: true });
 
-// ---------------------------------------------------------------- Domain
-abschnitt('C', 'Die Domain wirtschaft-dornbirn.at');
-absatz('Nichts Neues muss registriert werden. Aber: Wem die Domain gehoert, dem gehoert die Adresse der Webseite und aller Postfaecher. Bitte auf der letzten Rechnung nachsehen.', { groesse: 9.5 });
-frage('Wer steht als Inhaber der Domain auf der Rechnung?');
+abschnitt('C', 'Eure Domain wirtschaft-dornbirn.at');
+absatz('Die Domain habt ihr bereits; sie muss nicht neu angemeldet werden. Aber wem sie gehoert, dem gehoert die Adresse der Webseite und aller Postfaecher. Wenn sie noch auf eine Agentur oder eine frueher zustaendige Person laeuft, sollte das vor dem Umzug der Webseite geaendert werden - das dauert Wochen, deshalb fragen wir jetzt. Bitte die letzte Rechnung fuer die Domain heraussuchen (Betreff meist "Domain", "Webhosting" oder "Hetzner", einmal im Jahr).', { groesse: 9.5 });
+frage('Wer steht auf dieser Rechnung als Kunde bzw. Inhaber?',
+  'Richtig ist: euer Betrieb. Steht dort eine Agentur oder ein Name, der nicht mehr zum Haus gehoert, muss die Domain auf euch uebertragen werden ("Inhaberwechsel"). Das geht, braucht aber die Mitwirkung des Eingetragenen.',
+  '"wirtschaft" cafe restaurant bar Wolfgang Preuss e.U.');
 auswahl('C1_inhaber', [
-  { wert: 'haus', text: '"wirtschaft" cafe restaurant bar Wolfgang Preuss e.U.  (so soll es sein)' },
+  { wert: 'haus', text: '"wirtschaft" cafe restaurant bar Wolfgang Preuss e.U. - so soll es sein' },
   { wert: 'person', text: 'eine Privatperson, naemlich:', feld: true },
-  { wert: 'agentur', text: 'eine Agentur oder Firma, naemlich:', feld: true },
-  { wert: 'unbekannt', text: 'weiss ich nicht - Rechnung liegt nicht vor' }
+  { wert: 'agentur', text: 'eine Agentur oder andere Firma, naemlich:', feld: true },
+  { wert: 'unbekannt', text: 'weiss ich nicht - keine Rechnung gefunden' }
 ]);
-frage('Bei wem wird die Domain bezahlt (Registrar)?');
+frage('Von welcher Firma kommt diese Rechnung (der Registrar)?',
+  'Dort wird die Domain jaehrlich bezahlt und dort kann man die Kontaktadresse und die automatische Verlaengerung einstellen. Vermutlich Hetzner.',
+  'Hetzner Online GmbH');
 auswahl('C2_registrar', [
   { wert: 'hetzner', text: 'Hetzner' },
-  { wert: 'andere', text: 'woanders:', feld: true },
+  { wert: 'andere', text: 'eine andere Firma:', feld: true },
   { wert: 'unbekannt', text: 'weiss ich nicht' }
 ]);
-frage('Wann wurde die Domain zuletzt bezahlt, und laeuft die Verlaengerung automatisch?');
-textfeld('C3_verlaengerung', 'z. B. "Rechnung Maerz 2026, 1 Jahr, automatisch" - oder "unbekannt"');
-frage('Welche Mailadresse soll beim Registrar als Kontakt stehen?', 'Dorthin kommt die Warnung, bevor die Domain ablaeuft. Zwei Adressen: eine des Hauses und eine private als Reserve.');
+frage('Wann wurde die Domain zuletzt bezahlt, und verlaengert sie sich automatisch?',
+  'Laeuft eine Domain ab, weil die Rechnung uebersehen wurde, sind Webseite und alle Postfaecher von einem Tag auf den anderen weg. Automatische Verlaengerung mit gueltiger Zahlungsart verhindert das.',
+  '"Rechnung vom Maerz 2026, fuer ein Jahr, Lastschrift" - oder "unbekannt"');
+textfeld('C3_verlaengerung', 'Datum der letzten Rechnung, Laufzeit, Zahlungsart');
+frage('Welche Mailadressen sollen beim Registrar als Kontakt hinterlegt sein?',
+  'Dorthin kommt die Warnung, bevor die Domain ablaeuft, und die Rechnung. Zwei Adressen sind sicherer als eine: eine des Hauses und eine private als Reserve - falls die Hausadresse gerade nicht funktioniert, weil genau die Domain das Problem ist.',
+  'web@wirtschaft-dornbirn.at, hannah.privat@gmail.com');
 textfeld('C4_kontakt', 'Zwei Adressen, mit Komma getrennt', { vorgabe: 'web@wirtschaft-dornbirn.at, ' });
 
-// ---------------------------------------------------------------- Abschluss
 abschnitt('D', 'Zum Schluss');
-frage('Was ist euch am Ganzen am wichtigsten?', 'Damit die Reihenfolge der naechsten Wochen stimmt. Mehrere Kreuze moeglich.');
-haken('D1_mails', 'dass die Bestaetigungen an Gaeste sicher ankommen (nicht im Spam)');
-haken('D1_domain', 'dass die Webseite bald unter wirtschaft-dornbirn.at laeuft');
-haken('D1_konten', 'dass alles dem Haus gehoert und nichts an Jonas haengt');
+frage('Was ist euch am Ganzen am wichtigsten?',
+  'Damit wir die naechsten Wochen in der richtigen Reihenfolge angehen. Mehrere Haken sind erlaubt; die Reihenfolge der Haken ist egal.');
+haken('D1_mails', 'dass die Bestaetigungen bei den Gaesten sicher ankommen (nicht im Spam)');
+haken('D1_domain', 'dass die neue Webseite bald unter wirtschaft-dornbirn.at erreichbar ist');
+haken('D1_konten', 'dass alles dem Haus gehoert und nichts mehr an Jonas haengt');
 haken('D1_einfach', 'dass wir im Alltag moeglichst wenig damit zu tun haben');
-haken('D1_kosten', 'dass es nichts kostet');
-textfeld('D2_sonst', 'Sonst noch wichtig, Fragen an Jonas, Wuensche', { hoehe: 56, mehrzeilig: true });
-frage('Freigabe');
-absatz('Mit dem Zurueckschicken dieses Blattes beauftragt ihr Jonas, die angekreuzten Adressen in den Dienst, bei Brevo und - sobald Zugang besteht - bei Hetzner einzutragen. Nichts davon ist endgueltig; jede Adresse laesst sich spaeter in fuenf Minuten aendern.', { groesse: 9 });
-textfeld('D3_freigabe', 'Name (gilt als Unterschrift)', { breite: 300 });
+haken('D1_kosten', 'dass es nichts kostet (heute: 0 Euro im Monat, nur die Domain wie bisher)');
+textfeld('D2_sonst', 'Was sonst noch wichtig ist, Fragen an Jonas, Wuensche', { hoehe: 56, mehrzeilig: true });
+frage('Freigabe',
+  'Mit dem Zurueckschicken dieses Blattes beauftragt ihr Jonas, die angekreuzten Adressen in die Webseite, bei Brevo und - sobald Zugang besteht - bei Hetzner einzutragen. Nichts davon ist endgueltig: Jede Adresse laesst sich spaeter in fuenf Minuten aendern.');
+textfeld('D3_freigabe', 'Euer Name (gilt als Unterschrift)', { breite: 300 });
 
 form.updateFieldAppearances(schrift);
 fs.mkdirSync(path.dirname(ziel), { recursive: true });
