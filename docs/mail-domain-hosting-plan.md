@@ -63,7 +63,17 @@ Konfiguration des Dienstes (`server/wrangler.jsonc`, beide Umgebungen).
 `npm run check:uebergabe` zeigt diese Punkte als Ampel; heute 7 von 7
 offen, wie erwartet vor der Übergabe.
 
-### 2.3 Welche Postfächer das Haus braucht – nicht mehr
+### 2.3 Das Entscheidungsblatt – zuerst ausfüllen
+
+Bevor irgendetwas eingetragen wird, füllen Hannah und Wolfgang das
+**Entscheidungsblatt** aus: `docs/pdf/Mailadressen-Entscheidungsblatt-wirtschaft.pdf`
+(am Handy oder Computer ankreuzen, speichern, an Jonas zurück; 18 Fragen,
+etwa 15 Minuten; Empfehlungen sind vorangekreuzt). Erzeugt mit
+`npm run formular:mail`. Daraus übernimmt der Programmierer die Adressen
+für `WIRT_MAIL`, `ANFRAGE_MAIL`, den Brevo-Absender, die Konten und den
+Registrar – nichts wird geraten.
+
+### 2.4 Welche Postfächer das Haus braucht – nicht mehr
 
 | Postfach | Wozu | Wer liest |
 |---|---|---|

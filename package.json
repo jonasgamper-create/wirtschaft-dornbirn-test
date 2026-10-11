@@ -51,10 +51,12 @@
     "check:anfrage": "node scripts/check-anfrage.mjs",
     "check:umzug": "node scripts/check-umzug.mjs",
     "check:uebergabe": "node scripts/check-uebergabe.mjs",
-    "umstellen": "node scripts/umstellen.mjs"
+    "umstellen": "node scripts/umstellen.mjs",
+    "formular:mail": "node scripts/build-formular-mail.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.1",
+    "pdf-lib": "^1.17.1",
     "qrcode": "^1.5.4"
   }
 }
