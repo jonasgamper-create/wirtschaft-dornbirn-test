@@ -264,6 +264,8 @@ ihr keinen Programmierer und keine KI.
 Hinweis ganz oben auf der Startseite („Am 24. Dezember geschlossen“),
 Wochenkarte, Öffnungszeiten, Zusperren, Tag voll, eigene Termine. Alles
 wirkt sofort. Ausführlich im **Handbuch fürs Haus** (`handbuch-haus.md`).
+Welche Mailadresse wo hinterlegt ist und wo alles laufen soll:
+`mail-domain-hosting-plan.md`.
 
 ### Weg 2 · Einen Text auf der Seite ändern – im Browser, für Hannah
 
