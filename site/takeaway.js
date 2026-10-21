@@ -126,7 +126,7 @@ function zeigeStatus(stand) {
   // richtig da, wenn der Gast ueber seinen gemerkten Link zurueckkommt - und
   // es weiss vom Dienst, ob dieses Geraet schon angemeldet ist.
   // Ist alles vorbei, ist auch die Frage vorbei.
-  if (abgeholt) byId('taPush').hidden = true;
+  if (abgeholt && byId('taPush')) byId('taPush').hidden = true;
   else if (!pushAngebotSteht) {
     pushAngebotSteht = true;
     zeigePushAngebot(laufenderSchluessel, stand.pushAn === true);

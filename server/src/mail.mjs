@@ -147,7 +147,7 @@ function eventBlock(events, widerspruchLink) {
  */
 export function bestaetigung({ name, tag, zeit, gaeste, tisch, etage, absageLink, events = [], widerspruchLink = '', telefon = '', email = '' }) {
   const personen = `${gaeste} ${gaeste === 1 ? 'person' : 'personen'}`;
-  const wann = `${langesDatum(tag)}, ${zeit} Uhr`;
+  const wann = `${langesDatum(tag).toLowerCase()}, ${zeit} Uhr`;
   const ueberblick = [
     ['name', name], ['telefon', telefon], ['e-mail', email],
     ['reservierungszeit', wann], ['personenanzahl', personen],
@@ -394,7 +394,7 @@ const absatz = text => `<tr><td style="padding:12px 28px 4px;"><p style="margin:
  * Gesamtpreis), Gruss. Die Nummer bleibt - am Tresen fragt man danach.
  */
 export function bestellBestaetigung({ nummer, name, tag, zeit, posten, summe, vorbestellung, statusLink, telefon = '', email = '' }) {
-  const wann = `${vorbestellung ? langesDatum(tag) : 'heute'}, ca. ${zeit} Uhr`;
+  const wann = `${vorbestellung ? langesDatum(tag).toLowerCase() : 'heute'}, ca. ${zeit} Uhr`;
   const essen = postenZeilen(posten);
   const ueberblick = [
     ['bestellnummer', String(nummer)],
@@ -408,10 +408,9 @@ export function bestellBestaetigung({ nummer, name, tag, zeit, posten, summe, vo
     absatz('deine bestellung im überblick:'),
     essenZeile(essen, 'speisen'),
     ...ueberblick.map(([was, wert]) => zeile(was, wert)),
-    zeile('abholort', '„wirtschaft“, Bahnhofstraße 24, 6850 Dornbirn'),
+    zeile('abholort', '„wirtschaft“, bahnhofstraße 24, 6850 dornbirn'),
     absatz('wir bedanken uns für die bestellung & wünschen einen guten appetit!'),
     absatz('die „wirtschaft“ dornbirn'),
-    statusLink ? knopf(statusLink, 'Wann ist es fertig?', '#244635') : '',
     `<tr><td style="padding:10px 28px 8px;"><p style="margin:0;font:400 12px/1.6 Helvetica,Arial,sans-serif;color:#8f887b;">`
       + `Etwas vergessen oder ein Sonderwunsch? Gerne anrufen: +43 5572 20 540.</p></td></tr>`
   ].join(''));
@@ -421,9 +420,9 @@ export function bestellBestaetigung({ nummer, name, tag, zeit, posten, summe, vo
     text: 'vielen dank für die bestellung!\n\ndeine bestellung im überblick:\n'
       + `${essen.join('\n')}\n`
       + ueberblick.map(([was, wert]) => `${was}: ${wert}`).join('\n')
-      + '\nabholort: „wirtschaft“, Bahnhofstraße 24, 6850 Dornbirn\n'
+      + '\nabholort: „wirtschaft“, bahnhofstraße 24, 6850 dornbirn\n'
       + '\nwir bedanken uns für die bestellung & wünschen einen guten appetit!\ndie „wirtschaft“ dornbirn\n'
-      + `${statusLink ? `\nWann ist es fertig: ${statusLink}\n` : ''}Etwas vergessen? Gerne anrufen: +43 5572 20 540.\n`
+      + 'Etwas vergessen? Gerne anrufen: +43 5572 20 540.\n'
   };
 }
 
@@ -460,7 +459,7 @@ export function eventWartelisteAufnahmeMail({ name, wege, austragLinks, telefon 
   const block = (weg, i) => {
     const felder = [
       ['veranstaltung', weg.titel],
-      ['datum', langesDatumMitZeit(weg.datum, weg.zeit)],
+      ['datum', langesDatumMitZeit(weg.datum, weg.zeit).toLowerCase()],
       ['name', name], ['telefon', telefon], ['e-mail', email],
       ['ticketkategorie', weg.kategorie || ''],
       ['anzahl', anzahl]

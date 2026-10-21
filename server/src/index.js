@@ -1574,7 +1574,9 @@ export class Haus extends DurableObject {
     this.#newsletterSichere(eintrag);
 
     this.ctx.waitUntil((async () => {
-      const absender = String(this.env?.BREVO_ABSENDER || '');
+      // Die Terminliste ist Sache von Emma & Eugen: sie bekommt ihren eigenen
+      // Absender (EVENTS_ABSENDER, muss bei Brevo bestaetigt sein), sonst den des Hauses.
+      const absender = String((eintrag.liste === 'events' && this.env?.EVENTS_ABSENDER) || this.env?.BREVO_ABSENDER || '');
       if (!absender) return;
       const inhalt = newsletterFrage({
         jaLink: `${basis}/newsletter/ja?t=${eintrag.token}`,
@@ -1586,6 +1588,12 @@ export class Haus extends DurableObject {
       }));
     })());
     return { ok: true, gefragt: true };
+  }
+
+  /** Zu welcher Liste ein Token gehoert - fuer den Wortlaut der Bestaetigungsseite. */
+  newsletterListe(token) {
+    const eintrag = this.#newsletterEiner('token', String(token || ''));
+    return eintrag ? (eintrag.liste || 'mittagskarte') : 'mittagskarte';
   }
 
   /** Der Klick in der Bestaetigungsmail. Erst hier entsteht die Einwilligung. */
@@ -2237,9 +2245,13 @@ export class Haus extends DurableObject {
     const zaehlerJeTag = this.#lies('taNummern', {});
     const inDerListe = this.#takeawayAlle()
       .filter(eintrag => eintrag.date === abholtag)
-      .reduce((groesste, b) => Math.max(groesste, Number(b.nummer) || 0), 0);
+      .reduce((groesste, b) => Math.max(groesste, Number(b.lauf ?? b.nummer) || 0), 0);
     const tagesnummer = Math.max(Number(zaehlerJeTag[abholtag]) || 0, inDerListe) + 1;
     zaehlerJeTag[abholtag] = tagesnummer;
+    // Gerufen wird 51 bis 60, dann wieder 51 (Haus, 21.10.): keine Eins am
+    // Tresen, und zweistellig hoert man besser. 'lauf' bleibt die echte
+    // Zaehlung je Tag - nur sie bestimmt die naechste Nummer.
+    const nummer = 51 + ((tagesnummer - 1) % 10);
     // Vergangene Tage fallen aus dem Zaehler, sonst waechst er ewig.
     for (const alterTag of Object.keys(zaehlerJeTag)) {
       if (alterTag < heute) delete zaehlerJeTag[alterTag];
@@ -2250,7 +2262,8 @@ export class Haus extends DurableObject {
       id: `t-${Date.now().toString(36)}-${String(laufend).padStart(4, '0')}`,
       // Die Nummer des Tages - sie wird am Tresen gerufen und steht auf dem
       // Bildschirm im Eingang.
-      nummer: tagesnummer,
+      nummer,
+      lauf: tagesnummer,
       // Der Schluessel zur eigenen Statusseite. Er steht in genau einer
       // Adresse und sonst nirgends - ohne ihn koennte jeder mit einer
       // geratenen Nummer fremde Bestellungen mitlesen.
@@ -3334,9 +3347,15 @@ export default {
         const token = request.method === 'POST'
           ? await tokenAusKoerper(request)
           : url.searchParams.get('t') || '';
+        // Die Seite muss sagen, WOFUER bestaetigt wird: wer sich fuer die
+        // Termine eingetragen hat, las hier bisher "Mittagskarte" (Haus, 21.10.).
+        const liste = await haus.newsletterListe(token);
+        const was = liste === 'events'
+          ? { ding: 'unsere Veranstaltungstermine', danach: 'Du erfährst ab jetzt per E-Mail, wenn neue Termine feststehen.' }
+          : { ding: 'die Mittagskarte', danach: 'Du bekommst die Mittagskarte ab jetzt per E-Mail.' };
         if (request.method === 'GET') {
           return seite('Anmeldung bestätigen',
-            'Bestätige hier, dass du die Mittagskarte per E-Mail bekommen möchtest. '
+            `Bestätige hier, dass du ${was.ding} per E-Mail bekommen möchtest. `
             + 'Abmelden kannst du dich jederzeit mit einem Klick in jeder Mail.',
             { ziel: '/newsletter/ja', token, text: 'Ja, bitte schicken' });
         }
@@ -3346,8 +3365,7 @@ export default {
           return seite('Das ging nicht',
             'Dieser Link ist abgelaufen oder wurde schon benutzt. Trag dich einfach neu ein.', null, 404);
         }
-        return seite('Danke, das war es schon',
-          'Du bekommst die Mittagskarte ab jetzt per E-Mail. In jeder Mail steht ein Abmeldelink.');
+        return seite('Danke, das war es schon', `${was.danach} In jeder Mail steht ein Abmeldelink.`);
       }
 
       if (url.pathname === '/newsletter/weg') {

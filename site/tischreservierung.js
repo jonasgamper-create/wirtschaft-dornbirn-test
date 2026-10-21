@@ -155,7 +155,7 @@
           detail = pause.reopen ? `Ab ${dateLong(pause.reopen)} wieder geöffnet` : 'Zurzeit geschlossen';
         } else if (!weekday) {
           name = 'Am Wochenende';
-          detail = 'Kein Mittagstisch · abends nur Events';
+          detail = 'Kein Mittagstisch';
         } else if (minutes < toMinutes(openAt)) {
           name = 'Heute geöffnet';
           detail = `Küche ab ${openAt} Uhr`;
