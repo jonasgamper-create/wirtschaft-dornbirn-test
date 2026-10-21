@@ -63,7 +63,7 @@ const bestaetigt = bestaetigung({
   name: 'Huber & Söhne', tag: '2026-08-20', zeit: '12:00', gaeste: 4, tisch: '3', etage: 'Gaststube',
   absageLink: 'https://dienst.example/absage?t=abc'
 });
-check('Bestaetigung nennt den Tag', bestaetigt.betreff.includes('20. August'));
+check('Bestaetigung nennt den Tag (klein, wie das Haus schreibt)', bestaetigt.betreff.includes('20. august'));
 check('Bestaetigung hat einen Absageweg', bestaetigt.html.includes('https://dienst.example/absage?t=abc'));
 check('Bestaetigung hat auch Text ohne HTML', bestaetigt.text.includes('Huber & Söhne'));
 check('Zeichen werden im HTML geschuetzt',
