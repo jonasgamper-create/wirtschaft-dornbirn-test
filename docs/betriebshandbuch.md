@@ -355,6 +355,8 @@ im Code nach Hauszeit verzweigen (so wurde 06:00/12:00 gelöst).
 |---|---|
 | **`uebergabe-wirtschaft.md`** | **Die Übergabe für Hannah und Wolfgang: Konten, sieben Etappen mit Rückweg, Domainumzug, Änderungen ohne KI** |
 | **`handbuch-haus.md`** | **Für Wolfgang und das Team: was das Haus selbst ändert, was automatisch passiert** |
+| **`mail-domain-hosting-plan.md`** | **Welche Mailadresse wo hinterlegt ist, was bei einer Anfrage automatisch passiert, Domain, Hosting-Top-3, Plan für die nächsten Jahre** |
+| **`mailadressen-uebersicht.md`** | **Welche Adresse wo hinterlegt ist, alle Mail-Szenarien (Absender, Antwort-an, Empfänger), Änderungsliste mit Ort/heute/neu, Datenhaltung** |
 | `projektstand.md` | Gesamtübersicht, offene Entscheidungen |
 | `uebergabe.md` | Übergabeprotokoll mit Abnahme und Belegen |
 | `umzug-domain-plan.md` | Der Umzug auf `wirtschaft-dornbirn.at`, DNS, Access |
