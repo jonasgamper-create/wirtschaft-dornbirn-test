@@ -90,6 +90,7 @@
     // Jonas; im echten Betrieb die Adresse des Wirts.
     "WIRT_MAIL": "jonas.gamper@aon.at",
     "ANFRAGE_MAIL": "willkommen@wirtschaft-dornbirn.at",
+    "EVENTS_ABSENDER": "",
     // Die Gaesteseite - fuer Links in Mails (Warteliste).
     "GAESTE_SEITE": "https://wirtschaft-dornbirn.pages.dev"
   },
@@ -152,6 +153,7 @@
         "VAPID_KONTAKT": "mailto:willkommen@wirtschaft-dornbirn.at",
         "WIRT_MAIL": "jonas.gamper@aon.at",
         "ANFRAGE_MAIL": "willkommen@wirtschaft-dornbirn.at",
+        "EVENTS_ABSENDER": "",
         "GAESTE_SEITE": "https://wirtschaft-dornbirn.pages.dev"
       }
     }

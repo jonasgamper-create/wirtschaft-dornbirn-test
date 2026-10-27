@@ -331,7 +331,8 @@
 
   const kurzesDatum = (datum, zeit) => {
     const d = new Date(`${datum}T12:00:00`);
-    const tag = new Intl.DateTimeFormat('de-AT', { weekday: 'short', day: '2-digit', month: '2-digit' }).format(d).replace(/\.$/, '');
+    // Kleinschreibung wie der Rest der Seite (Haus, 21.10.).
+    const tag = new Intl.DateTimeFormat('de-AT', { weekday: 'short', day: '2-digit', month: '2-digit' }).format(d).replace(/\.$/, '').toLowerCase();
     return zeit ? `${tag} · ${zeit} Uhr` : tag;
   };
 
