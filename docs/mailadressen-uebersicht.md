@@ -1,67 +1,71 @@
 # Mailadressen der Webseite · Wer bekommt was, und was ihr jetzt tun müsst
 
-Stand 22. Oktober 2026. Für Hannah, Wolfgang und den Programmierer.
+Stand 27. Oktober 2026. Für Hannah, Wolfgang und den Programmierer.
 Dieses Blatt kommt von Jonas und erklärt alles selbst – ihr braucht nichts
-dazu. Alles darin ist am 21./22. Oktober im Code und im laufenden Betrieb
-nachgeprüft, nichts ist geraten.
+dazu. Alles darin ist im Code und im laufenden Betrieb nachgeprüft, nichts
+ist geraten.
+
+**Das Entscheidungsblatt ist ausgefüllt** (Hannah, 27.10.2026). Was
+entschieden wurde, steht in `docs/mailadressen-entscheidung.md` – das ist ab
+jetzt die Quelle. Dieses Blatt erklärt das Drumherum.
 
 ---
 
 ## In einem Satz
 
 Die neue Webseite schickt Gästen automatisch Mails (Bestätigungen) und euch
-Mails (Bestellungen, Anfragen, Tageszettel). **An drei Stellen steht dafür
-heute noch die Adresse von Jonas** – die muss durch Adressen des Hauses
-ersetzt werden. Was dafür zu tun ist, steht auf dieser Seite; alles andere
-ist Erklärung zum Nachschlagen.
+Mails (Bestellungen, Anfragen, Tageszettel). **Wohin die Mails an euch
+gehen, ist jetzt richtig eingestellt.** Offen ist nur noch der **Absender**:
+die Mails an die Gäste gehen weiterhin von der Testadresse von Jonas los und
+landen darum oft im Spam. Das lässt sich erst ändern, wenn die Domain bei
+Brevo beglaubigt ist – dafür müssen vier Einträge bei Hetzner gesetzt
+werden.
 
 ---
 
 ## Was wer zu tun hat – die Aufgabenliste
 
-**Hannah** (etwa eine Stunde, verteilt auf einige Tage)
+**Hannah** (etwa eine halbe Stunde)
 
-1. **Das Entscheidungsblatt ausfüllen** (eigene PDF-Datei, am Handy
-   ankreuzen) und an Jonas zurückschicken. Darin sagt ihr, welche Adresse
-   wofür gelten soll. Ohne dieses Blatt geht nichts weiter.
-2. **Eine neue Mailadresse `web@wirtschaft-dornbirn.at` anlegen** – als
-   Weiterleitung an dein eigenes Postfach. Das geht bei Hetzner, dort wo
-   auch `willkommen@` liegt (Erklärung „Warum Hetzner“ weiter unten). Wer
-   die Zugangsdaten nicht hat: siehe Aufgabe 3.
-3. **Herausfinden, wer sich bei Hetzner anmelden kann** – meist die Agentur,
-   die die alte Webseite gebaut hat, oder eine alte Mail mit Zugangsdaten.
-4. **Die letzte Domain-Rechnung heraussuchen** und prüfen: Steht
-   „Wolfgang Preuß e.U.“ als Kunde drauf? (Steht dort eine Agentur, sagt es
-   Jonas – das muss vor dem Umzug der Webseite geändert werden.)
-5. **Im Postfach `willkommen@` eine automatische Antwort einstellen** (bei
-   Hetzner, „Autoresponder“; Textvorschlag im Handbuch fürs Haus). Der
-   Programmierer hilft, wenn gewünscht.
-6. **Drei kostenlose Konten anlegen** mit der Adresse `web@`: GitHub,
-   Cloudflare, Brevo. Anleitung: Übergabe-Dokument, Etappe 1. Wolfgang als
-   zweite Person eintragen.
+1. ~~Das Entscheidungsblatt ausfüllen~~ – **erledigt am 27.10.2026.**
+2. **Bei Hetzner das Passwort ändern.** Es stand im ausgefüllten Blatt und
+   hat damit den Weg über Download-Ordner und Chat genommen. Der Zugang
+   selbst ist vorhanden (Sarah) – das war die eigentliche Frage.
+3. **Drei kostenlose Konten anlegen** mit der Adresse
+   `veranstaltungen@wirtschaft-dornbirn.at`: GitHub, Cloudflare, Brevo.
+   Anleitung: Übergabe-Dokument, Etappe 1. Sarah als zweite Person
+   eintragen.
+4. **Bei Brevo die Domain `wirtschaft-dornbirn.at` anlegen.** Brevo zeigt
+   dann vier Einträge an, die bei Hetzner in die Domain müssen. Das setzt
+   der Programmierer; ihr braucht nur den Zugang.
 
-**Wolfgang** (zehn Minuten)
+Ein Postfach `web@` wird **nicht** angelegt – so entschieden. Eine
+automatische Antwort in `willkommen@` ist ebenfalls **nicht** gewünscht.
+Die Domain gehört dem Haus und ist bis August 2027 bezahlt; dort ist nichts
+zu tun.
 
-1. Entscheiden: Sollen Tageszettel und Takeaway-Bestellungen in
-   `willkommen@` landen oder in ein eigenes Postfach (z. B. `buero@`)?
-   → Frage 6 im Entscheidungsblatt.
-2. Mit Uri abstimmen: Darf die Terminliste („Bleibt auf dem Laufenden“)
-   künftig als `uri@eugen.family` versenden? Dann bekommt Uri von Brevo eine
-   Mail mit einem Bestätigungslink, den er anklicken muss.
+**Wolfgang** (fünf Minuten)
+
+1. Mit Uri abstimmen: Darf die Terminliste („Bleibt auf dem Laufenden“)
+   künftig als `uri@eugen.family` versenden, und die Warteliste der
+   Kulturhaus-Abende als `tickets@eugen.family`? Dafür muss die Domain
+   `eugen.family` bei Brevo eigens beglaubigt werden – das kann nur Uri
+   veranlassen.
 
 **Programmierer** (zwei bis drei Stunden, sobald die Konten des Hauses bestehen)
 
 1. Dienst im Konto des Hauses ausrollen (Übergabe, Etappe 3).
-2. Die Adresse für Tageszettel/Bestellungen eintragen (`WIRT_MAIL`), laut
-   Entscheidungsblatt.
+2. ~~Die Adresse für Tageszettel und Bestellungen eintragen~~ – **erledigt**,
+   Tageszettel an `veranstaltungen@`, Bestellmeldung an `service@`.
 3. Die Domain `wirtschaft-dornbirn.at` bei Brevo bestätigen: vier Einträge,
    die Brevo anzeigt, bei Hetzner in die Domain eintragen (Etappe 4).
 4. **Erst danach** den Absender aller Mails auf `willkommen@` stellen
    (`BREVO_ABSENDER`). Vorher würde alles im Spam landen.
-5. Wenn Uri bestätigt hat: `uri@eugen.family` als Absender der Terminliste
-   eintragen (`EVENTS_ABSENDER`).
+5. **Dann** die vier Absender je Zweck füllen: `ABSENDER_SERVICE`,
+   `ABSENDER_WARTELISTE`, `ABSENDER_KULTURHAUS`, `EVENTS_ABSENDER`. Welcher
+   Wert wohin: `docs/mailadressen-entscheidung.md`, Abschnitt 5.
 6. Probe: Testreservierung mit einer Gmail-Adresse → Mail muss im
-   Posteingang liegen, Absender „Wirtschaft Dornbirn ‹willkommen@…›“.
+   Posteingang liegen, Absender „Wirtschaft Dornbirn ‹service@…›“.
 7. Testeinträge mit „TEST“ im Namen aus dem Betrieb löschen.
 
 ---
@@ -71,10 +75,10 @@ ist Erklärung zum Nachschlagen.
 | Adresse | Was sie ist | Gibt es sie schon? |
 |---|---|---|
 | **willkommen@wirtschaft-dornbirn.at** | **Die Adresse für Gäste.** Steht auf der Webseite. Bekommt alle Anfragen. Wird der Absender aller automatischen Mails – antwortet ein Gast auf eine Bestätigung, landet es hier. | ja – liest der Service / das Büro täglich |
-| **web@wirtschaft-dornbirn.at** | **Die Adresse für die Technik.** Inhaberin der drei Konten (GitHub, Cloudflare, Brevo), Kontakt für die Domain-Rechnung. Hierhin kommen Rechnungen (0 €), Warnungen und „Passwort zurücksetzen“. Kein Gast sieht sie. | **nein – Hannah legt sie an** (Weiterleitung an sich selbst) |
+| **veranstaltungen@wirtschaft-dornbirn.at** | **Die Adresse für die Technik** (so entschieden am 27.10.). Inhaberin der drei Konten (GitHub, Cloudflare, Brevo). Hierhin kommen Rechnungen (0 €), Warnungen und „Passwort zurücksetzen“ – und der Tageszettel. Kein Gast sieht sie. | **ja, gibt es schon** (liest Hannah) |
 | **buero@wirtschaft-dornbirn.at** *(optional)* | **Die Adresse für den Mittag.** Tageszettel um 08:00, Wochenbericht, jede Takeaway-Bestellung. Nur nötig, wenn das nicht in `willkommen@` liegen soll. | nein – Wolfgang entscheidet (Frage 6) |
 | **uri@eugen.family** | **Die Adresse von Emma & Eugen.** Steht als Veranstalter der Abende im Fuß der Seite. Soll künftig die Terminliste versenden. | ja – gehört Uri |
-| jonas.gamper@aon.at | **Die Adresse, die weg muss.** Steht heute als Empfänger von Tageszettel und Bestellungen und als Absender aller Mails – weil Jonas die Seite gebaut und getestet hat. | ja – wird ersetzt |
+| jonas.gamper@aon.at | **Die Adresse, die weg muss.** Als Empfänger ist sie seit 27.10.2026 ersetzt. Sie steht nur noch als **Absender** aller Mails – weil Jonas die Seite gebaut und getestet hat. | ja – wird ersetzt, sobald die Domain bei Brevo beglaubigt ist |
 
 **Warum eine fremde Adresse als Absender schadet:** aon.at erlaubt nicht, dass
 andere (hier: Brevo für die Webseite) in seinem Namen Mails schicken. Gmail
@@ -123,7 +127,7 @@ automatische Mail, landet die Antwort beim Absender.
 ### … ein Gast Takeaway bestellt
 
 - **Der Gast** bekommt sofort *„Danke für deine Bestellung – Nr. 53, …“* mit Speisen, Abholzeit, Bezahlart, Gesamtpreis, Abholort.
-- **Ihr** bekommt eine **Mail** *„Takeaway Nr. 53: Name, 12:30 Uhr – Speisen“* – an die Mittags-Adresse (`WIRT_MAIL`, heute Jonas). Dazu Klingeln und die Bestellung im Reiter *heute → takeaway*.
+- **Ihr** bekommt eine **Mail** *„Takeaway Nr. 53: Name, 12:30 Uhr – Speisen“* – an `service@` (`TAKEAWAY_MAIL`). Dazu Klingeln und die Bestellung im Reiter *heute → takeaway*.
 - Die Nummern laufen 51 bis 60, dann wieder 51. Ab der elften Bestellung eines Tages gibt es eine Nummer also zweimal – am Tresen Name **und** Nummer rufen.
 
 ### … ein Abend ausverkauft ist und sich ein Gast auf die Warteliste setzt
@@ -154,12 +158,12 @@ automatische Mail, landet die Antwort beim Absender.
 
 | Wann | Was | Wohin |
 |---|---|---|
-| werktags 08:00 | **Tageszettel**: wer kommt, was vorbestellt ist, Warnung „KARTE FEHLT“ | Mittags-Adresse (`WIRT_MAIL`) |
+| werktags 08:00 | **Tageszettel**: wer kommt, was vorbestellt ist, Warnung „KARTE FEHLT“ | `veranstaltungen@` (`WIRT_MAIL`) |
 | Freitag 15:00 | **Wochenbericht**: Gäste, Portionen | Mittags-Adresse |
 | sofort | jede Takeaway-Bestellung | Mittags-Adresse |
 | sofort | jede Anfrage | `willkommen@` |
 | sofort | Klingeln am Handy: Bestellung, Reservierung, Anfrage, „wieder Karten“, neuer Abend | jedes Gerät, auf dem „Klingeln“ eingeschaltet ist |
-| nur bei Fehler | *„termine-abgleich failed“* von GitHub | Technik-Adresse (`web@`; heute Jonas) |
+| nur bei Fehler | *„termine-abgleich failed“* von GitHub | Technik-Adresse (`veranstaltungen@`; heute Jonas) |
 | selten | Warnungen von Cloudflare oder Brevo (Limit, Sicherheit) | Technik-Adresse |
 
 ### … ein Gast einfach selbst an willkommen@ schreibt
@@ -180,16 +184,18 @@ unsere Empfehlung.
 
 | # | Stelle | Heute | Neu | Wer |
 |---|---|---|---|---|
-| 1 | Postfach `web@` bei Hetzner | gibt es nicht | Weiterleitung an Hannah | Hannah |
-| 2 | Inhaber der Konten GitHub, Cloudflare, Brevo | Jonas | `web@`, Zwei-Faktor, Wolfgang als zweite Person | Hannah; Jonas überträgt |
-| 3 | `WIRT_MAIL` in `server/wrangler.jsonc` (Produktion **und** Probe) | jonas.gamper@aon.at | `willkommen@` oder `buero@` (Frage 6) | Programmierer |
+| 1 | ~~Postfach `web@` bei Hetzner~~ | – | **entfällt**: es wird `veranstaltungen@` genommen (27.10.) | – |
+| 2 | Inhaber der Konten GitHub, Cloudflare, Brevo | Jonas | `veranstaltungen@`, Zwei-Faktor, Sarah als zweite Person | Hannah; Jonas überträgt |
+| 3 | `WIRT_MAIL` in `server/wrangler.jsonc` (Produktion **und** Probe) | ~~jonas.gamper@aon.at~~ | **erledigt**: `veranstaltungen@` (Tageszettel, Wochenbericht) | – |
 | 4 | `ANFRAGE_MAIL` ebenda | `willkommen@` | bleibt | – |
+| 4b | `TAKEAWAY_MAIL` ebenda (**neu**) | – | **erledigt**: `service@` (jede Bestellmeldung) | – |
 | 5 | Domain bei Brevo bestätigen: *Senders & Domains → Domain hinzufügen*, die vier Einträge bei Hetzner (DNS) anlegen, ggf. SPF um `include:spf.brevo.com` ergänzen | Domain angelegt, Einträge fehlen | bestätigt | Programmierer + Hannah (Hetzner-Zugang) |
 | 6 | `BREVO_ABSENDER` (Geheimnis des Dienstes, `wrangler secret put`) | jonas.gamper@aon.at | `willkommen@wirtschaft-dornbirn.at` – **erst nach #5** | Programmierer |
 | 7 | `EVENTS_ABSENDER` in `server/wrangler.jsonc` | leer (= Hausabsender) | `uri@eugen.family` – erst nach Uris Bestätigung bei Brevo | Programmierer |
+| 7b | `ABSENDER_SERVICE`, `ABSENDER_WARTELISTE`, `ABSENDER_KULTURHAUS` (**neu**) | leer (= Hausabsender) | `service@`, `veranstaltungen@`, `tickets@eugen.family` – erst nach #5 bzw. Uris Bestätigung | Programmierer |
 | 8 | `BREVO_KEY` (Geheimnis) | Schlüssel aus Jonas' Konto | neuer Schlüssel aus dem Konto des Hauses | Programmierer |
-| 9 | Fehlermail von GitHub | an Jonas | an `web@` (ergibt sich mit #2) | – |
-| 10 | Kontaktadresse beim Registrar der Domain (Hetzner-Kundenkonto) | unbekannt | `web@` + eine private Reserve | Hannah |
+| 9 | Fehlermail von GitHub | an Jonas | an `veranstaltungen@` (ergibt sich mit #2) | – |
+| 10 | Kontaktadresse beim Registrar der Domain (Hetzner-Kundenkonto) | unbekannt | `willkommen@` + die private Reserveadresse von Hannah (entschieden am 27.10.; die Adresse selbst steht im Entscheidungsblatt, nicht hier) | Hannah |
 | 11 | Automatische Antwort im Postfach `willkommen@` | keine | Vorschlagstext (Frage 12) | Hannah |
 | 12 | Veranstalter-Kontakt `uri@` im Fuß der Seite und in `termine.json` | uri@eugen.family | bleibt (Frage 11) | – |
 | 13 | Testeinträge „TEST“ im Betrieb | vorhanden | gelöscht | Programmierer |
@@ -236,12 +242,12 @@ Webseite sagt dasselbe für Gäste.
 | **Domain** | eure Adresse im Internet: wirtschaft-dornbirn.at. Gehört dem, der auf der Rechnung steht. Alle Mailadressen @wirtschaft-dornbirn.at hängen an ihr. |
 | **Registrar** | die Firma, bei der die Domain jährlich bezahlt wird – vermutlich Hetzner. |
 | **Hetzner** | der Anbieter, bei dem Domain, Postfächer und die alte Webseite liegen. Hat eine Verwaltungsoberfläche mit Zugangsdaten. |
-| **Postfach / Weiterleitung** | ein Postfach hat eigene Mails; eine Weiterleitung reicht alles an eine andere Adresse weiter (reicht für `web@`). |
+| **Postfach / Weiterleitung** | ein Postfach hat eigene Mails; eine Weiterleitung reicht alles an eine andere Adresse weiter. |
 | **Brevo** | der Dienst, der die automatischen Mails verschickt. Kostenlos bis 300 Mails am Tag. |
 | **Absender** | die Adresse, die der Gast als „Von“ sieht und auf die er antwortet. |
 | **Der Dienst** | das Programm hinter der Webseite (Reservierungen, Bestellungen, Wartelisten). Bedient über die **Wirt-Ansicht** am Handy. |
 | **Wirt-Ansicht** | `…/tischplan/wirt.html` – eure tägliche Oberfläche mit den Reitern heute · karte · warteliste · haus. |
-| `WIRT_MAIL`, `ANFRAGE_MAIL`, `EVENTS_ABSENDER`, `BREVO_ABSENDER` | die vier Einstellungen im Dienst, in denen Mailadressen stehen. Nur der Programmierer ändert sie. |
+| `WIRT_MAIL`, `TAKEAWAY_MAIL`, `ANFRAGE_MAIL`, `BREVO_ABSENDER`, `ABSENDER_SERVICE`, `ABSENDER_WARTELISTE`, `ABSENDER_KULTURHAUS`, `EVENTS_ABSENDER` | die Einstellungen im Dienst, in denen Mailadressen stehen. Nur der Programmierer ändert sie. |
 | **Double-Opt-in** | Anmeldung erst nach Klick in einer Bestätigungsmail – Pflicht für Newsletter. |
 | **DNS-Einträge** | kleine Zeilen in der Verwaltung der Domain, mit denen man z. B. Brevo erlaubt, in eurem Namen zu senden. |
 
@@ -252,6 +258,6 @@ Webseite sagt dasselbe für Gäste.
 - **Gäste schreiben an und antworten auf:** `willkommen@` *(sobald Programmierer-Aufgabe 4 erledigt ist – bis dahin noch Jonas)*
 - **Anfragen kommen an:** `willkommen@` – „Antworten“ geht an den Gast
 - **Tageszettel, Wochenbericht, Bestellungen:** `willkommen@` oder `buero@` – Wolfgang entscheidet
-- **Technik, Rechnungen, Passwörter:** `web@` – Hannah legt sie an
+- **Technik, Rechnungen, Passwörter:** `veranstaltungen@` – gibt es schon
 - **Terminliste sendet als:** `uri@eugen.family` – sobald Uri bestätigt hat
 - **Tickets:** Ticketist, nie wir

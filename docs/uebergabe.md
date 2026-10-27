@@ -34,7 +34,7 @@ Protokoll festhält.
 | 5 | Gästeseite auf Cloudflare Pages `wirtschaft-dornbirn.pages.dev` | Cloudflare-Konto Jonas | Pages-Projekt im Kundenkonto (oder nur GitHub Pages bis zum Domainumzug) | Übernehmer |
 | 6 | Mails (Brevo) | Brevo-Konto Jonas, Absender `jonas.gamper@aon.at` | Brevo-Konto des Kunden, Absender `willkommen@wirtschaft-dornbirn.at`, Domain beglaubigt | Übernehmer + Kunde (DNS) |
 | 7 | Geheimnisse: `HAUS_TOKEN`, `BREVO_KEY`, `BREVO_ABSENDER`, `VAPID_PRIVAT` (+ öffentlicher Teil) | von Jonas erzeugt | **neu erzeugt** vom Übernehmer; Jonas' Kopien gelöscht | Übernehmer |
-| 8 | `WIRT_MAIL` (Tageszettel, Wochenbericht, Bestellungen) | `jonas.gamper@aon.at` | Adresse des Wirts | Übernehmer |
+| 8 | `WIRT_MAIL` (Tageszettel, Wochenbericht), `TAKEAWAY_MAIL` (Bestellmeldungen) | ~~`jonas.gamper@aon.at`~~ | **erledigt 27.10.2026**: `veranstaltungen@` bzw. `service@` | – |
 | 9 | Domain `wirtschaft-dornbirn.at` | Kunde (Hetzner) | Kunde; Zone zu Cloudflare empfohlen | Kunde |
 | 10 | Dokumentation | `docs/` im Repository | geht mit dem Repository | – |
 | 10a | **Handbuch fürs Haus** (`docs/handbuch-haus.md`, PDF) | – | an Wolfgang und das Team, ausgedruckt | Übernehmer |
@@ -64,7 +64,7 @@ ist so gewählt, dass zu keinem Zeitpunkt Gäste vor einer toten Seite stehen.
 ### Phase B – Übertragung (gemeinsam, ~½ Tag)
 
 - [ ] B1 **Repository übertragen** (GitHub → Settings → Transfer ownership). GitHub Pages danach im neuen Konto aktivieren (`pages.yml`, Quelle „GitHub Actions“). Die alte Adresse `jonasgamper-create.github.io/…` leitet GitHub für eine Weile weiter, ist aber nicht mehr die Adresse zum Teilen.
-- [ ] B2 **Neue Geheimnisse** im Kundenkonto: `bash server/schluessel.sh` für den Hausschlüssel; VAPID-Paar neu; Brevo-Schlüssel aus A3. `wrangler.jsonc`: `VAPID_OEFFENTLICH` auf das neue Paar, `WIRT_MAIL` auf den Wirt.
+- [ ] B2 **Neue Geheimnisse** im Kundenkonto: `bash server/schluessel.sh` für den Hausschlüssel; VAPID-Paar neu; Brevo-Schlüssel aus A3. `wrangler.jsonc`: `VAPID_OEFFENTLICH` auf das neue Paar. `WIRT_MAIL` und `TAKEAWAY_MAIL` stehen schon richtig (27.10.2026).
 - [ ] B3 **Dienst ausrollen** im Kundenkonto: `npx wrangler@4 deploy` und `--env probe`. Ausgabe: fünf `schedule:`-Zeilen beim Echtbetrieb, keine bei der Probe. Neue Adressen notieren (`wirtschaft-reservierung.<kundenkonto>.workers.dev`).
 - [ ] B4 **Bestand übernehmen**: Jonas zieht `GET /api/sicherung` vom alten Dienst (Datei bleibt bei den beiden Beteiligten, wird nach Abschluss gelöscht); Übernehmer spielt sie mit `POST …?ersetzen=1` in den neuen Dienst. Antwort enthält die Zeilenzahlen je Tabelle – mit der Datei vergleichen.
 - [ ] B5 **Seite umstellen**: `site/data/haus.json` auf die neuen Dienstadressen; `ALLOWED_ORIGINS`/`GAESTE_SEITE`/`DIENST_BASIS` in `wrangler.jsonc`; `npm run ci`; PR; Merge. Cloudflare-Pages-Projekt im Kundenkonto anlegen und `npm run deploy:seite` (oder das Repository im Dashboard verbinden).

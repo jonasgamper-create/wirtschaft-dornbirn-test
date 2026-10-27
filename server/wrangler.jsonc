@@ -86,10 +86,35 @@
     // Adresse, unter der der Push-Dienst den Absender erreicht, wenn
     // etwas schiefgeht. RFC 8292 verlangt sie.
     "VAPID_KONTAKT": "mailto:willkommen@wirtschaft-dornbirn.at",
-    // Wohin Tageszettel und Wochenbericht gehen. In der Testumgebung an
-    // Jonas; im echten Betrieb die Adresse des Wirts.
-    "WIRT_MAIL": "jonas.gamper@aon.at",
+    // Wohin Tageszettel (werktags 08:00) und Wochenbericht (Freitag 15:00)
+    // gehen. Hausentscheid vom 27.10.2026 (Entscheidungsblatt Frage 6,
+    // Hannah Preuss): die Veranstaltungs-Adresse.
+    "WIRT_MAIL": "veranstaltungen@wirtschaft-dornbirn.at",
+    // Wohin die Meldung JEDER EINZELNEN Takeaway-Bestellung geht - der Beleg
+    // fuer die Kueche. Hausentscheid 27.10.2026 (Frage 7): nicht dieselbe
+    // Adresse wie der Tageszettel, sondern der Service. Leer heisst:
+    // es gilt WIRT_MAIL.
+    "TAKEAWAY_MAIL": "service@wirtschaft-dornbirn.at",
     "ANFRAGE_MAIL": "willkommen@wirtschaft-dornbirn.at",
+
+    // ---- Absender je Zweck (Hausentscheid 27.10.2026, Frage 4) ----------
+    //
+    // Gewuenscht ist nicht ein Absender fuer alles, sondern einer je Zweck:
+    //   Reservierung + Takeaway   -> service@wirtschaft-dornbirn.at
+    //   Warteliste "wirtschaft"   -> veranstaltungen@wirtschaft-dornbirn.at
+    //   Warteliste Kulturhaus     -> tickets@eugen.family
+    //   Terminliste (Newsletter)  -> uri@eugen.family
+    //
+    // ALLE VIER BLEIBEN LEER, BIS DIE DOMAIN BEI BREVO BEGLAUBIGT IST.
+    // Brevo verschickt nur von Adressen, deren Domain dort bestaetigt wurde
+    // (vier DNS-Eintraege bei Hetzner, siehe docs/mail-absender.md). Steht
+    // hier zu frueh eine Adresse, versendet der Dienst GAR NICHTS mehr -
+    // schlimmer als der heutige Zustand. Leer heisst: es gilt der
+    // Hausabsender BREVO_ABSENDER.
+    // Reihenfolge und Werte: docs/mailadressen-entscheidung.md.
+    "ABSENDER_SERVICE": "",
+    "ABSENDER_WARTELISTE": "",
+    "ABSENDER_KULTURHAUS": "",
     "EVENTS_ABSENDER": "",
     // Die Gaesteseite - fuer Links in Mails (Warteliste).
     "GAESTE_SEITE": "https://wirtschaft-dornbirn.pages.dev"
@@ -151,8 +176,14 @@
         "OFFEN": "nein",
         "VAPID_OEFFENTLICH": "BPLEbe0YGZChaS1PY-NtqMLW32AC_PVQ2QTDAYhwnqd6iyQ9V28etINQVmUloVHlLgwQPtiUwCjwnSCtlnvPQTw",
         "VAPID_KONTAKT": "mailto:willkommen@wirtschaft-dornbirn.at",
-        "WIRT_MAIL": "jonas.gamper@aon.at",
+        // Wie in der Produktion (Hausentscheid 27.10.2026). Die Probe
+        // versendet ohnehin nichts: ihr fehlen die Brevo-Geheimnisse.
+        "WIRT_MAIL": "veranstaltungen@wirtschaft-dornbirn.at",
+        "TAKEAWAY_MAIL": "service@wirtschaft-dornbirn.at",
         "ANFRAGE_MAIL": "willkommen@wirtschaft-dornbirn.at",
+        "ABSENDER_SERVICE": "",
+        "ABSENDER_WARTELISTE": "",
+        "ABSENDER_KULTURHAUS": "",
         "EVENTS_ABSENDER": "",
         "GAESTE_SEITE": "https://wirtschaft-dornbirn.pages.dev"
       }

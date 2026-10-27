@@ -46,14 +46,16 @@ unberührt bleibt.
 ## 3. Die Konten – wer was anlegt
 
 Alle neuen Konten legt **Hannah** an, mit einer Adresse des Hauses, nicht
-mit einer privaten. Vorschlag: `web@wirtschaft-dornbirn.at` als eigenes
-Postfach oder Weiterleitung bei Hetzner. So hängt nichts an einer Person.
+mit einer privaten. Entschieden am 27.10.2026:
+**`veranstaltungen@wirtschaft-dornbirn.at`** – das Postfach besteht schon.
+So hängt nichts an einer Person. Zweite Person mit vollem Zugang ist
+**Sarah** (`sarah.preuss@wirtschaft-dornbirn.at`).
 
 | Konto | Anlegen | Mit welcher Adresse | Was der Programmierer bekommt | Kosten |
 |---|---|---|---|---|
-| **GitHub** (Quellcode) | github.com → Sign up, danach eine **Organisation** „wirtschaft-dornbirn“ (Free) | web@ | Mitglied der Organisation mit Rolle *Owner* | 0 € |
-| **Cloudflare** (Seite, Dienst, später DNS) | dash.cloudflare.com → Sign up | web@ | *Members → Invite*, Rolle *Administrator* | 0 € |
-| **Brevo** (Mails) | brevo.com → Sign up (Free) | web@ | Zugang als Benutzer oder den API-Schlüssel | 0 € (300 Mails am Tag) |
+| **GitHub** (Quellcode) | github.com → Sign up, danach eine **Organisation** „wirtschaft-dornbirn“ (Free) | veranstaltungen@ | Mitglied der Organisation mit Rolle *Owner* | 0 € |
+| **Cloudflare** (Seite, Dienst, später DNS) | dash.cloudflare.com → Sign up | veranstaltungen@ | *Members → Invite*, Rolle *Administrator* | 0 € |
+| **Brevo** (Mails) | brevo.com → Sign up (Free) | veranstaltungen@ | Zugang als Benutzer oder den API-Schlüssel | 0 € (300 Mails am Tag) |
 | **Hetzner** (Domain, Postfächer, WordPress) | besteht schon | – | Zugang zur **DNS-Verwaltung** (konsoleH / DNS Console) | wie bisher |
 | **ticketist.io** | besteht schon | – | nichts | wie bisher |
 
@@ -85,7 +87,7 @@ Rückweg. Bis Etappe 6 sehen Gäste keinen Unterschied.
 
 ### Etappe 1 · Konten anlegen (Hannah, ½ Stunde)
 
-- [ ] Haus-Adresse `web@wirtschaft-dornbirn.at` angelegt
+- [x] Haus-Adresse: `veranstaltungen@wirtschaft-dornbirn.at` – besteht bereits (27.10.2026)
 - [ ] GitHub-Konto und Organisation „wirtschaft-dornbirn“; Programmierer eingeladen
 - [ ] Cloudflare-Konto; Programmierer als Administrator eingeladen
 - [ ] Brevo-Konto; Programmierer eingeladen
@@ -141,6 +143,8 @@ Gmail oder Outlook oft im Spam. Danach kommen sie von
   `mail-absender.md` gelten nicht mehr.
 - [ ] Den SPF-Eintrag **ändern, nicht verdoppeln**: `v=spf1 a mx include:spf.brevo.com ~all`
 - [ ] In Brevo „Authenticate“; erst danach im Dienst `BREVO_ABSENDER = willkommen@wirtschaft-dornbirn.at`
+- [ ] **Dann** die Absender je Zweck füllen: `ABSENDER_SERVICE = service@`, `ABSENDER_WARTELISTE = veranstaltungen@` (Hausentscheid 27.10.2026, `docs/mailadressen-entscheidung.md`)
+- [ ] `ABSENDER_KULTURHAUS = tickets@eugen.family` und `EVENTS_ABSENDER = uri@eugen.family` erst, wenn Uri die Domain `eugen.family` bei Brevo beglaubigt hat
 - [ ] Probemail an eine eigene Gmail-Adresse: kommt im Posteingang an
 
 **Was das berührt:** nur neue Einträge und eine Ergänzung der SPF-Zeile.

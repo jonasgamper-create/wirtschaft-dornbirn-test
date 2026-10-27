@@ -13,7 +13,8 @@ const ticketist = await lies('server/src/ticketist.mjs');
 const punkte = [
   ['Dienst im Konto des Kunden (haus.json)', !/jonas-gamper\.workers\.dev/.test(JSON.stringify(haus))],
   ['Dienst-Variablen ohne Jonas-Konto (DIENST_BASIS)', !/jonas-gamper\.workers\.dev/.test(wrangler)],
-  ['Tageszettel an den Wirt, nicht an Jonas (WIRT_MAIL)', !/jonas\.gamper@aon\.at/.test(wrangler)],
+  ['Tageszettel an das Haus, nicht an Jonas (WIRT_MAIL)', !/jonas\.gamper@aon\.at/.test(wrangler)],
+  ['Bestellmeldung an den Service (TAKEAWAY_MAIL)', /"TAKEAWAY_MAIL": "service@wirtschaft-dornbirn\.at"/.test(wrangler)],
   ['Seite unter der eigenen Domain (GAESTE_SEITE)', /"GAESTE_SEITE": "https:\/\/(www\.)?wirtschaft-dornbirn\.at"/.test(wrangler)],
   ['Keine Test- oder GitHub-Adresse mehr erlaubt (ALLOWED_ORIGINS)', !/pages\.dev|github\.io/.test((wrangler.match(/"ALLOWED_ORIGINS": "([^"]*)"/) || [])[1] || '')],
   ['QR-Codes zeigen auf die eigene Domain', /wirtschaft-dornbirn\.at\//.test(qr) && !/pages\.dev|github\.io/.test(qr)],

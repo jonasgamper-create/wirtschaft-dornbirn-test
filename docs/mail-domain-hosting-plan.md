@@ -19,8 +19,8 @@ heute und in den nächsten Jahren?**
 | 🟢 | Alle automatischen Antworten an Gäste | sieben Texte im Wortlaut des Hauses, geprüft mit echten Testmails |
 | 🟢 | Laufende Kosten | 0 € im Monat; nur die Domain wie bisher |
 | 🟡 | **Absenderadresse der automatischen Mails** | heute `jonas.gamper@aon.at` → muss `willkommen@wirtschaft-dornbirn.at` werden (Abschnitt 4, braucht vier DNS-Einträge) |
-| 🟡 | **Tageszettel, Wochenbericht, Bestellmeldungen ans Haus** | gehen heute an Jonas → auf eine Hausadresse umstellen (Abschnitt 2) |
-| 🟡 | Konten (GitHub, Cloudflare, Brevo) | gehören heute Jonas → Hannah legt sie mit `web@` neu an (Etappe 1 der Übergabe) |
+| 🟢 | **Tageszettel, Wochenbericht, Bestellmeldungen ans Haus** | seit 27.10.2026 an `veranstaltungen@` bzw. `service@` (Hausentscheid) |
+| 🟡 | Konten (GitHub, Cloudflare, Brevo) | gehören heute Jonas → Hannah legt sie mit `veranstaltungen@` neu an (Etappe 1 der Übergabe) |
 | 🔴 | Domain zeigt noch auf die alte WordPress-Seite | Umzug ist vorbereitet (Etappe 6), noch nicht gemacht |
 
 Nichts davon ist ein Fehler im Code. Die drei gelben und der rote Punkt sind
@@ -54,9 +54,10 @@ Konfiguration des Dienstes (`server/wrangler.jsonc`, beide Umgebungen).
 
 | Adresse / Konto | Wo | Wozu | Ziel |
 |---|---|---|---|
-| **jonas.gamper@aon.at** | Dienst, Variable `WIRT_MAIL` (Produktion und Probe) | Empfänger von Tageszettel (werktags 08:00), Wochenbericht (Freitag 15:00) und jeder Takeaway-Bestellung | → `willkommen@wirtschaft-dornbirn.at` oder ein eigenes Postfach `buero@` – **Etappe 3** |
+| ~~jonas.gamper@aon.at~~ | Dienst, Variable `WIRT_MAIL` (Produktion und Probe) | Empfänger von Tageszettel (werktags 08:00) und Wochenbericht (Freitag 15:00) | **erledigt 27.10.2026**: `veranstaltungen@wirtschaft-dornbirn.at` |
+| – | Dienst, Variable `TAKEAWAY_MAIL` (**neu**) | Empfänger jeder einzelnen Takeaway-Bestellung | **erledigt 27.10.2026**: `service@wirtschaft-dornbirn.at` |
 | **jonas.gamper@aon.at** | Dienst, Geheimnis `BREVO_ABSENDER` | **Absender** aller automatischen Mails. aon.at verbietet fremden Versand (DMARC „reject“) – darum landen Mails heute bei Gmail und Outlook oft im Spam oder gar nicht | → `willkommen@wirtschaft-dornbirn.at`, sobald die Domain bei Brevo bestätigt ist – **Etappe 4** |
-| Konto Cloudflare `jonas-gamper` | Dienst läuft unter `…jonas-gamper.workers.dev`, Seite unter `wirtschaft-dornbirn.pages.dev` | Betrieb | → Konto des Hauses mit `web@` – **Etappen 1 und 3** |
+| Konto Cloudflare `jonas-gamper` | Dienst läuft unter `…jonas-gamper.workers.dev`, Seite unter `wirtschaft-dornbirn.pages.dev` | Betrieb | → Konto des Hauses mit `veranstaltungen@` – **Etappen 1 und 3** |
 | Konto GitHub `jonasgamper-create` | Quellcode, tägliche Prüfung 07:30 (Fehlermail an den Besitzer des Repositories) | Betrieb | → Organisation „wirtschaft-dornbirn“ – **Etappe 2** |
 | Konto Brevo | Mailversand, Schlüssel `BREVO_KEY` | Betrieb | → Konto des Hauses – **Etappe 1 und 4** |
 
@@ -78,8 +79,8 @@ Registrar – nichts wird geraten.
 | Postfach | Wozu | Wer liest |
 |---|---|---|
 | **willkommen@wirtschaft-dornbirn.at** | besteht. Gästekontakt, Anfragen von Locations/Agentur, Antwortadresse aller automatischen Mails | täglich: Service / Büro |
-| **web@wirtschaft-dornbirn.at** | neu anlegen (Postfach oder Weiterleitung an Hannah). Inhaber aller Konten (GitHub, Cloudflare, Brevo), Rechnungen, Warnmails der Anbieter | Hannah; Wolfgang als Vertretung |
-| *(optional)* **buero@** | wenn Tageszettel und Bestellmeldungen nicht in `willkommen@` liegen sollen | Küche / Büro |
+| **veranstaltungen@wirtschaft-dornbirn.at** | besteht. Inhaber aller Konten (GitHub, Cloudflare, Brevo), Rechnungen, Warnmails der Anbieter – und Empfänger des Tageszettels (Hausentscheid 27.10.2026) | Hannah; Sarah als Vertretung |
+| **service@wirtschaft-dornbirn.at** | besteht. Tischreservierungen und Take Away; Empfänger jeder Bestellmeldung | Service |
 
 Mehr braucht es nicht. Kein Google Workspace, kein Microsoft 365 – die
 Postfächer bei Hetzner sind im bestehenden Paket enthalten.
@@ -116,11 +117,11 @@ gelesen wird.
 
 | Wann | Was | An |
 |---|---|---|
-| sofort | Takeaway-Bestellung | `WIRT_MAIL` |
+| sofort | Takeaway-Bestellung | `TAKEAWAY_MAIL` (`service@`) |
 | sofort | Anfrage Locations/Agentur (Antwortadresse = Gast) | `ANFRAGE_MAIL` |
 | werktags 08:00 | Tageszettel: Reservierungen, Vorbestellungen, Hinweis „KARTE FEHLT“ | `WIRT_MAIL` |
 | Freitag 15:00 | Wochenbericht: Gäste, Portionen | `WIRT_MAIL` |
-| täglich 07:30 | nur bei Fehler: Prüfmail von GitHub | Besitzer des Repositories (künftig `web@`) |
+| täglich 07:30 | nur bei Fehler: Prüfmail von GitHub | Besitzer des Repositories (künftig `veranstaltungen@`) |
 | sofort | Push aufs Handy: Bestellung, Reservierung, Anfrage, „wieder Karten“, neuer Abend | jedes Gerät mit „Klingeln“ |
 
 Geprüft am 06.–08.10.: Reservierungsbestätigung und Tageszettel kamen
@@ -144,7 +145,11 @@ und läuft weiter wie bisher. Was fehlt, sind Einträge *in* der Domain.
       .at-Domains über den Registrar, Formular der nic.at). Das ist der
       wichtigste Punkt dieses Blattes: wem die Domain gehört, dem gehört
       die Adresse der Webseite.
-- [ ] **Kontaktadresse beim Registrar** auf `web@wirtschaft-dornbirn.at`
+- [x] **Kontaktadresse beim Registrar**: entschieden am 27.10.2026 auf
+      `willkommen@wirtschaft-dornbirn.at` und eine private Reserveadresse von
+      Hannah (sie steht im ausgefüllten Entscheidungsblatt, nicht in diesem
+      öffentlichen Verzeichnis).
+      Ursprünglich vorgeschlagen war `web@wirtschaft-dornbirn.at`
       stellen – dorthin kommen Verlängerungsrechnungen und Warnungen.
       Niemals eine Adresse der eigenen Domain *allein*: ist die Domain weg,
       ist das Postfach weg. Als zweite Adresse eine private von Hannah
@@ -200,7 +205,7 @@ Vercel/Netlify (gleichwertig, aber ein dritter Anbieter neben Cloudflare).
 | 2 | Brevo Starter | ab ca. 9 €/Monat | gleiche Technik, kein Tageslimit, kein Hinweis; **nur umschalten**, kein Code | – |
 | 3 | Resend oder Postmark | 0 € bis 3 000/Monat bzw. ca. 15 $/Monat | sehr gute Zustellung | Programmierer muss `mail.mjs` anpassen (ein halber Tag) |
 
-### 5.3 Postfächer (willkommen@, web@)
+### 5.3 Postfächer
 
 Bleiben bei **Hetzner** – im Paket enthalten, 0 € zusätzlich. Ein Wechsel
 zu Google Workspace oder Microsoft 365 (ab ca. 6–7 € je Postfach und Monat)
@@ -221,7 +226,7 @@ bringt nichts, was das Haus braucht.
 
 ### Jetzt – Oktober bis November 2026
 
-- [ ] Etappe 1: Hannah legt `web@` und die drei Konten an, mit
+- [ ] Etappe 1: Hannah legt die drei Konten auf `veranstaltungen@` an, mit
       Zwei-Faktor-Anmeldung und zwei Personen je Konto
 - [ ] Etappen 2–4: Programmierer übernimmt Code, Dienst, Daten; stellt
       `WIRT_MAIL` auf die Hausadresse und den Brevo-Absender auf `willkommen@`
@@ -316,9 +321,9 @@ Programmierer eine KI einsetzen, gibt es einen fertigen Arbeitsauftrag in
 
 **Hannah**
 
-- [ ] Postfach oder Weiterleitung `web@wirtschaft-dornbirn.at` bei Hetzner
+- [x] ~~Postfach `web@wirtschaft-dornbirn.at`~~ – entfällt, es wird `veranstaltungen@` genommen (27.10.2026)
 - [ ] Domain-Prüfung (Inhaber, Kontaktadresse, Verlängerung) – Abschnitt 4.1
-- [ ] Konten GitHub, Cloudflare, Brevo mit `web@`, Zwei-Faktor, zwei Personen
+- [ ] Konten GitHub, Cloudflare, Brevo mit `veranstaltungen@`, Zwei-Faktor, zwei Personen (Hannah, Sarah)
 - [ ] Programmierer einladen (GitHub Owner, Cloudflare Administrator, Brevo Benutzer, Hetzner DNS)
 - [ ] Autoresponder im Postfach `willkommen@` einstellen
 - [ ] Generalprobe unter `neu.` mit Wolfgang durchspielen
@@ -328,7 +333,7 @@ Programmierer eine KI einsetzen, gibt es einen fertigen Arbeitsauftrag in
 
 - [ ] Repository übernehmen, `npm run ci` grün
 - [ ] Dienst im Konto des Hauses ausrollen, Daten einspielen, Geheimnisse neu
-- [ ] `WIRT_MAIL` → Hausadresse; `ANFRAGE_MAIL` bleibt `willkommen@`
+- [x] `WIRT_MAIL` → `veranstaltungen@`, `TAKEAWAY_MAIL` → `service@`; `ANFRAGE_MAIL` bleibt `willkommen@` (27.10.2026)
 - [ ] Brevo: Domain bestätigen (vier Einträge), `BREVO_ABSENDER` → `willkommen@`;
       Testmail an eine Gmail-Adresse: kommt im Posteingang an, nicht im Spam
 - [ ] Testeinträge „TEST“ aus der Produktion entfernen
