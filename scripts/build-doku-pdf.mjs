@@ -10,7 +10,7 @@
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, statSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
@@ -140,11 +140,25 @@ await mkdir(path.dirname(ziel), { recursive: true });
 
 const chrome = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', 'google-chrome', 'chromium', 'chromium-browser']
   .find(k => k.startsWith('/') ? existsSync(k) : true);
+// Chrome beendet sich auch nach erfolgreichem Druck gelegentlich mit einem
+// Fehlercode (beobachtet am 27.10.2026). Darum entscheidet nicht der
+// Ausstiegscode, sondern die Datei: liegt am Ziel ein gueltiges PDF, das
+// nach dem Start dieses Laufs geschrieben wurde, hat es geklappt.
+const begonnen = Date.now();
+let gestartet = null;
 try {
   execFileSync(chrome, ['--headless=new', '--disable-gpu', '--no-sandbox', '--no-pdf-header-footer',
     '--virtual-time-budget=8000', `--print-to-pdf=${path.resolve(ziel)}`, `file://${htmlPfad}`], { stdio: 'ignore' });
-  console.log(`PDF: ${ziel} (aus ${quelle})`);
 } catch (fehler) {
-  console.error(`Chrome nicht gefunden oder Druck fehlgeschlagen - HTML liegt unter ${htmlPfad}. ${fehler.message}`);
+  gestartet = fehler;
+}
+const gedruckt = existsSync(ziel)
+  && statSync(ziel).mtimeMs >= begonnen - 1000
+  && readFileSync(ziel).subarray(0, 5).toString() === '%PDF-';
+if (gedruckt) {
+  console.log(`PDF: ${ziel} (aus ${quelle})`);
+} else {
+  console.error(`Chrome nicht gefunden oder Druck fehlgeschlagen - HTML liegt unter ${htmlPfad}.`
+    + (gestartet ? ` ${gestartet.message}` : ' Es entstand keine PDF-Datei.'));
   process.exit(1);
 }

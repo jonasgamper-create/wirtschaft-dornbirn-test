@@ -134,6 +134,15 @@ drei Tage lang gingen keine Mails hinaus. Seither: zählen.
 | `ABSENDER_SERVICE`, `ABSENDER_WARTELISTE`, `ABSENDER_KULTURHAUS` | Absender je Zweck (Reservierung/Takeaway, Warteliste „wirtschaft“, Warteliste Kulturhaus). **Alle leer, bis die jeweilige Domain bei Brevo beglaubigt ist** – eine unbeglaubigte Adresse lässt Brevo gar nichts versenden. Leer heißt: es gilt `BREVO_ABSENDER`. |
 | `ANFRAGE_MAIL` | Wohin Anfragen aus Locations und Agentur gehen (seit 01.10.). `willkommen@wirtschaft-dornbirn.at`. „Antworten“ in dieser Mail geht direkt an den Gast (`replyTo`). |
 | `ALT_RESERVIERUNG`, `ALT_TAKEAWAY` | Brücke ins Altsystem; leer heißt aus. Nach der Abschaltung der alten Seite beide leer. |
+
+**Erzeugte Dateien im Verzeichnis.** `npm run ci` baut `site/index.html`
+(Terminliste und Zeitstrahl), `output/tischplan/*.html` und `dist/` neu. Weil
+die Terminliste nur kommende Abende enthält, **ändert sich `site/index.html`
+jeden Tag von selbst** – nach einem Lauf zeigt `git status` sie als geändert,
+auch wenn niemand etwas getippt hat. Das ist richtig und kein Fehler: einfach
+mitschicken oder mit `git checkout -- site/index.html` verwerfen. Die
+veröffentlichte Seite ist davon nie betroffen, weil `npm run deploy:seite`
+ohnehin zuerst neu baut.
 | `OFFEN` | `"ja"` öffnet die Wirt-Ansicht **ohne** Hausschlüssel für jeden. Nur für Testphasen. Steht auf `"nein"`. |
 | `VAPID_OEFFENTLICH`, `VAPID_KONTAKT` | Öffentlicher Teil des Push-Ausweises (kein Geheimnis). |
 
