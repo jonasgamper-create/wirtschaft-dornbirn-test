@@ -314,9 +314,33 @@ export class Haus extends DurableObject {
     return sendeSms(this.env, { an, text });
   }
 
+  /**
+   * Welcher Absender zu welcher Mail gehoert. Hausentscheid vom 27.10.2026
+   * (Entscheidungsblatt Frage 4, Hannah Preuss): nicht eine Adresse fuer
+   * alles, sondern eine je Zweck - Reservierung und Takeaway kommen vom
+   * Service, die Warteliste eines Abends von den Veranstaltungen, die eines
+   * Kulturhaus-Abends von Emma & Eugen. Antwortet der Gast, landet die
+   * Antwort bei den Richtigen.
+   *
+   * Fehlt die Adresse fuer einen Zweck, bleibt es beim Hausabsender
+   * (BREVO_ABSENDER). Genau das ist der Stand, solange die Domain bei Brevo
+   * nicht beglaubigt ist: eine unbeglaubigte Absenderadresse laesst Brevo
+   * gar nichts versenden.
+   *
+   * @param zweck 'service' (Reservierung, Takeaway, Mittags-Warteliste)
+   *              oder 'warteliste' (Warteliste fuer einen Abend)
+   * @param haus  bei 'warteliste': 'kulturhaus' oder 'wirtschaft'
+   */
+  #absender(zweck, haus = 'wirtschaft') {
+    const wahl = zweck === 'warteliste'
+      ? (haus === 'kulturhaus' ? this.env?.ABSENDER_KULTURHAUS : this.env?.ABSENDER_WARTELISTE)
+      : this.env?.ABSENDER_SERVICE;
+    return String(wahl || this.env?.BREVO_ABSENDER || '');
+  }
+
   /** Beleg an den Gast (wenn er eine Adresse angegeben hat) und Bestellung ans Haus. */
   async #bestellMails(bestellung) {
-    const absender = String(this.env?.BREVO_ABSENDER || '');
+    const absender = this.#absender('service');
     if (!absender) return;
     const seite = String(this.env?.GAESTE_SEITE || '').replace(/\/+$/, '');
     const arbeiten = [];
@@ -329,7 +353,9 @@ export class Haus extends DurableObject {
       });
       arbeiten.push(sendeMail(this.env, brevoPaket({ absender, an: bestellung.email, anName: bestellung.name, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text })));
     }
-    const haus = String(this.env?.WIRT_MAIL || '');
+    // Frage 7 vom 27.10.2026: die Bestellmeldung geht an den Service, nicht
+    // an die Adresse des Tageszettels. Leer heisst: wie bisher WIRT_MAIL.
+    const haus = String(this.env?.TAKEAWAY_MAIL || this.env?.WIRT_MAIL || '');
     if (haus) {
       const inhalt = neueBestellungMail({
         nummer: bestellung.nummer, name: bestellung.name, telefon: bestellung.telefon, tag: bestellung.date,
@@ -913,7 +939,7 @@ export class Haus extends DurableObject {
 
   async #schickeBestaetigung(party, { tisch, etage, basis }) {
     if (!party.kontakt?.email) return { ok: false, grund: 'keine_mail' };
-    const absender = String(this.env?.BREVO_ABSENDER || '');
+    const absender = this.#absender('service');
     if (!absender) return { ok: false, grund: 'nicht_eingerichtet' };
 
     const termin = baueTermin({
@@ -963,7 +989,7 @@ export class Haus extends DurableObject {
    */
   async #schickeAbsage(party, { grund, vomHaus }) {
     if (!party.kontakt?.email) return { ok: false, grund: 'keine_mail' };
-    const absender = String(this.env?.BREVO_ABSENDER || '');
+    const absender = this.#absender('service');
     if (!absender) return { ok: false, grund: 'nicht_eingerichtet' };
 
     const termin = baueTermin({
@@ -1046,7 +1072,7 @@ export class Haus extends DurableObject {
     const liste = raeumeWartelisteAb(this.#lies('warteliste', []), heute);
     const dran = naechsterWartender(liste, datum, freiePersonen);
     if (!dran) { this.#schreib('warteliste', liste); return; }
-    const absender = String(this.env?.BREVO_ABSENDER || '');
+    const absender = this.#absender('service');
     const seite = String(this.env?.GAESTE_SEITE || '');
     if (!absender || !seite) return;
     this.#schreib('warteliste', markiereInformiert(liste, dran, new Date().toISOString()));
@@ -1112,7 +1138,7 @@ export class Haus extends DurableObject {
 
   /** Die Mail "ein Tisch ist frei geworden" - von Hand ausgeloest. */
   async #mittagVerstaendigen(eintrag) {
-    const absender = String(this.env?.BREVO_ABSENDER || '');
+    const absender = this.#absender('service');
     const seite = String(this.env?.GAESTE_SEITE || '').replace(/\/+$/, '');
     if (!absender || !seite) return { ok: false, grund: 'nicht_eingerichtet' };
     const inhalt = wartelisteFreiMail({
@@ -1204,7 +1230,10 @@ export class Haus extends DurableObject {
     // Eintraege, und nur, wenn der Gast selbst kam: wer beim Wirt anruft,
     // hat seine Bestaetigung schon am Telefon bekommen.
     if (ergebnis.angelegt.length && quelle === 'gast') {
-      const absender = String(this.env?.BREVO_ABSENDER || '');
+      // Deckt der Eintrag nur Kulturhaus-Abende ab, kommt die Mail von Emma
+      // & Eugen; sobald ein Abend in der "wirtschaft" dabei ist, von dort.
+      const nurKulturhaus = ergebnis.angelegt.every(e => e.haus === 'kulturhaus');
+      const absender = this.#absender('warteliste', nurKulturhaus ? 'kulturhaus' : 'wirtschaft');
       if (absender && basis) {
         const inhalt = eventWartelisteAufnahmeMail({
           name: geprueft.eintrag.name,
@@ -1288,7 +1317,7 @@ export class Haus extends DurableObject {
 
   /** Die Mail "es gibt wieder Karten" an einen Wartenden. */
   async #eventWartelisteVerstaendigen(eintrag, basis, hinweis) {
-    const absender = String(this.env?.BREVO_ABSENDER || '');
+    const absender = this.#absender('warteliste', eintrag.haus);
     if (!absender || !basis) return { ok: false, grund: 'nicht_eingerichtet' };
     const termin = this.#lies('termine', {})[eintrag.weg]?.termin;
     const inhalt = eventWartelisteFreiMail({

@@ -17,7 +17,7 @@
     "check:lunch-menu": "node scripts/check-lunch-menu.mjs",
     "check:floorplan": "node scripts/check-floorplan.mjs",
     "check:assignment": "node scripts/check-table-assignment.mjs",
-    "ci": "npm run build && npm run sync:csp && npm run sync:versions && npm run sync:eventmedien && npm run sync:events-quelle && npm run sync:events && npm run sync:qr && npm run check:event-data && npm run check:copy && npm run check:optimization && npm run build:tischplan && npm run build:public && npm run check:public && npm run check:privacy && npm run check:interactions && npm run check:lunch-menu && npm run check:floorplan && npm run check:assignment && npm run check:dienst && npm run check:gast && npm run check:sms && npm run check:mail && npm run check:karte && npm run check:takeaway && npm run check:push && npm run check:eigene-events && npm run check:feiertage && npm run check:warteliste && npm run check:event-warteliste && npm run check:termine && npm run check:menueplan && npm run check:sicherung && npm run check:anfrage",
+    "ci": "npm run build && npm run sync:csp && npm run sync:versions && npm run sync:eventmedien && npm run sync:events-quelle && npm run sync:events && npm run sync:qr && npm run check:event-data && npm run check:copy && npm run check:optimization && npm run build:tischplan && npm run build:public && npm run check:public && npm run check:privacy && npm run check:interactions && npm run check:lunch-menu && npm run check:floorplan && npm run check:assignment && npm run check:dienst && npm run check:gast && npm run check:sms && npm run check:mail && npm run check:karte && npm run check:takeaway && npm run check:push && npm run check:eigene-events && npm run check:feiertage && npm run check:warteliste && npm run check:event-warteliste && npm run check:termine && npm run check:menueplan && npm run check:sicherung && npm run check:anfrage && npm run check:absender",
     "deploy:seite": "npm run ci && npx --yes wrangler@4 pages deploy ./dist --project-name=wirtschaft-dornbirn --branch=main --commit-dirty=true",
     "report:decision": "bash scripts/run_pdf_tool.sh scripts/build-decision-pdf.py",
     "report:performance": "bash scripts/run_pdf_tool.sh scripts/build_performance_audit_pdf.py",
@@ -29,6 +29,7 @@
     "sync:csp": "node scripts/sync-csp.mjs",
     "check:dienst": "node scripts/check-dienst.mjs",
     "check:mail": "node scripts/check-mail.mjs",
+    "check:absender": "node scripts/check-absender.mjs",
     "check:karte": "node scripts/check-karte.mjs",
     "check:takeaway": "node scripts/check-takeaway.mjs",
     "check:push": "node scripts/check-push.mjs",
@@ -52,7 +53,8 @@
     "check:umzug": "node scripts/check-umzug.mjs",
     "check:uebergabe": "node scripts/check-uebergabe.mjs",
     "umstellen": "node scripts/umstellen.mjs",
-    "formular:mail": "node scripts/build-formular-mail.mjs"
+    "formular:mail": "node scripts/build-formular-mail.mjs",
+    "formular:lesen": "node scripts/lese-formular-mail.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.1",

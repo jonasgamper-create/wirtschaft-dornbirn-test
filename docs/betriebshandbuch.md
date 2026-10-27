@@ -129,7 +129,9 @@ drei Tage lang gingen keine Mails hinaus. Seither: zählen.
 | `ALLOWED_ORIGINS` | Herkünfte, die den Dienst aus dem Browser ansprechen dürfen. Nach dem Domainumzug: nur noch `https://wirtschaft-dornbirn.at,https://www.wirtschaft-dornbirn.at`. |
 | `GAESTE_SEITE` | Adresse der Gästeseite – daraus entstehen Links in Mails, Kalendereinträgen, Push. |
 | `DIENST_BASIS` | Eigene Adresse des Dienstes, für Links in Mails, die ohne Anfrage entstehen (Wochenkarte). |
-| `WIRT_MAIL` | Wohin Tageszettel, Wochenbericht und Bestellungen gehen. **Heute `jonas.gamper@aon.at` – auf die Adresse des Wirts umstellen.** |
+| `WIRT_MAIL` | Wohin Tageszettel und Wochenbericht gehen. Seit 27.10.2026 `veranstaltungen@wirtschaft-dornbirn.at` (Hausentscheid, `docs/mailadressen-entscheidung.md`). |
+| `TAKEAWAY_MAIL` | Wohin die Meldung jeder einzelnen Takeaway-Bestellung geht: `service@wirtschaft-dornbirn.at`. Leer heißt: es gilt `WIRT_MAIL`. |
+| `ABSENDER_SERVICE`, `ABSENDER_WARTELISTE`, `ABSENDER_KULTURHAUS` | Absender je Zweck (Reservierung/Takeaway, Warteliste „wirtschaft“, Warteliste Kulturhaus). **Alle leer, bis die jeweilige Domain bei Brevo beglaubigt ist** – eine unbeglaubigte Adresse lässt Brevo gar nichts versenden. Leer heißt: es gilt `BREVO_ABSENDER`. |
 | `ANFRAGE_MAIL` | Wohin Anfragen aus Locations und Agentur gehen (seit 01.10.). `willkommen@wirtschaft-dornbirn.at`. „Antworten“ in dieser Mail geht direkt an den Gast (`replyTo`). |
 | `ALT_RESERVIERUNG`, `ALT_TAKEAWAY` | Brücke ins Altsystem; leer heißt aus. Nach der Abschaltung der alten Seite beide leer. |
 | `OFFEN` | `"ja"` öffnet die Wirt-Ansicht **ohne** Hausschlüssel für jeden. Nur für Testphasen. Steht auf `"nein"`. |
@@ -215,7 +217,7 @@ Lauf was tut. Deshalb stehen für Sommer- und Winterzeit je zwei Stunden.
 |---|---|---|
 | `15 5 * * 1`, `15 6 * * 1` | Montag 07:15 | Wochenkarte an die Abonnenten – nur, wenn seit dem letzten Versand eine neue Karte kam |
 | `*/15 8-12 * * 1-5` | Mo–Fr 10:00–14:45 | Tischerinnerungen (Push/Mail) vor der Reservierung |
-| `0 4,5,6,7,10,11 * * *` | 06:00 · 08:00 · 12:00 | 06:00 und 12:00 Termine/Wartelisten beim Ticketdienst auffrischen; 08:00 Tageszettel an `WIRT_MAIL` |
+| `0 4,5,6,7,10,11 * * *` | 06:00 · 08:00 · 12:00 | 06:00 und 12:00 Termine/Wartelisten beim Ticketdienst auffrischen; 08:00 Tageszettel an `WIRT_MAIL` (`veranstaltungen@`) |
 | `0 13,14,18,19 * * 5` | Freitag 15:00 · 20:00 | 15:00 Wochenbericht; 20:00 Entwurf der nächsten Wochenkarte anlegen |
 
 Mehr als fünf geht auf der Gratisstufe nicht. Braucht es einen weiteren

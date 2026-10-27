@@ -6,7 +6,9 @@
 //     --seite https://wirtschaft-dornbirn.at \
 //     --dienst https://wirtschaft-reservierung.<konto>.workers.dev \
 //     --probe https://wirtschaft-reservierung-probe.<konto>.workers.dev \
-//     --wirt-mail wolfgang@… --anfrage-mail willkommen@wirtschaft-dornbirn.at \
+//     --wirt-mail veranstaltungen@wirtschaft-dornbirn.at \
+//     --takeaway-mail service@wirtschaft-dornbirn.at \
+//     --anfrage-mail willkommen@wirtschaft-dornbirn.at \
 //     [--schreiben]
 //
 // Danach: npm run ci, Pull Request, Dienst neu ausrollen (beide Umgebungen),
@@ -21,14 +23,15 @@ const dienst = ohneSchraegstrich(arg('dienst'));
 const probe = ohneSchraegstrich(arg('probe'));
 const wirtMail = arg('wirt-mail');
 const anfrageMail = arg('anfrage-mail');
-if (!seite && !dienst && !probe && !wirtMail && !anfrageMail) {
+const takeawayMail = arg('takeaway-mail');
+if (!seite && !dienst && !probe && !wirtMail && !anfrageMail && !takeawayMail) {
   console.error('Nichts zu tun. Aufruf siehe Kopf von scripts/umstellen.mjs.');
   process.exit(1);
 }
 for (const [n, w] of [['seite', seite], ['dienst', dienst], ['probe', probe]]) {
   if (w && !/^https:\/\/[a-z0-9.-]+$/i.test(w)) { console.error(`--${n} muss eine https-Adresse ohne Pfad sein: ${w}`); process.exit(1); }
 }
-for (const [n, w] of [['wirt-mail', wirtMail], ['anfrage-mail', anfrageMail]]) {
+for (const [n, w] of [['wirt-mail', wirtMail], ['anfrage-mail', anfrageMail], ['takeaway-mail', takeawayMail]]) {
   if (w && !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(w)) { console.error(`--${n} ist keine Mailadresse: ${w}`); process.exit(1); }
 }
 
@@ -69,6 +72,9 @@ await datei('server/wrangler.jsonc', text => {
   });
   if (wirtMail) t = t.replace(/"WIRT_MAIL": "[^"]*"/g, `"WIRT_MAIL": "${wirtMail}"`);
   if (anfrageMail) t = t.replace(/"ANFRAGE_MAIL": "[^"]*"/g, `"ANFRAGE_MAIL": "${anfrageMail}"`);
+  // TAKEAWAY_MAIL (seit 27.10.2026) wandert mit WIRT_MAIL, solange nichts
+  // anderes verlangt wird: wer die eine umstellt, meint beide.
+  if (takeawayMail) t = t.replace(/"TAKEAWAY_MAIL": "[^"]*"/g, `"TAKEAWAY_MAIL": "${takeawayMail}"`);
   return t;
 });
 
