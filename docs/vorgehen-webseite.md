@@ -32,7 +32,37 @@ Dieser Link darf an jeden weitergegeben werden, der mitschauen soll.
 
 ---
 
-## Was die Testseite ist – und was nicht
+## Drei Adressen, drei Rollen
+
+Damit keine Verwirrung entsteht, gleich zu Beginn die Landkarte. Es gibt am
+Ende drei Adressen, und jede hat eine klare Aufgabe.
+
+**Die Sandkiste** – `probe-wirtschaft-dornbirn.pages.dev`, gibt es schon.
+Dort ist nichts echt. Eigene leere Datenbank, kein Mailversand, rotes Band am
+unteren Rand. Zum Ausprobieren und Kaputtmachen. Kostet nichts, berührt eure
+Domain nicht.
+
+**Die neue Seite unter eurem Namen** – `neu.wirtschaft-dornbirn.at`, kommt
+später dazu. Das ist **keine Probe mehr**, sondern die echte Seite: echte
+Reservierungen, echte Bestellungen, echte Mails. Sie steht nur noch nicht
+unter der Hauptadresse. Wer dort bucht, hat gebucht, und ihr seht es in der
+Wirt-Ansicht.
+
+Dafür braucht es **einen einzigen zusätzlichen Eintrag** in eurer Domain.
+Das ist wichtig zu verstehen: Einen Namen hinzuzufügen ist etwas völlig
+anderes, als `www` umzustellen. Die laufende Seite bleibt davon unberührt,
+Wort für Wort. Wer `neu.` nicht kennt, merkt nichts.
+
+**Die Hauptadresse** – `wirtschaft-dornbirn.at`, ganz zum Schluss. Wenn die
+Seite unter `neu.` ein paar Wochen im echten Betrieb gelaufen ist, ist der
+letzte Schritt nur noch eine Umbenennung.
+
+Das ist der eigentliche Trick an diesem Vorgehen: Am Tag des Umzugs wird
+nichts Neues ausprobiert. Es wird nur noch umbenannt, was längst läuft.
+
+---
+
+## Was die Sandkiste ist – und was nicht
 
 Es ist **dieselbe Seite**. Datei für Datei dasselbe, was später unter eurem
 Namen stehen wird. Es gibt keine zweite Fassung, die irgendwann anders aussieht
@@ -362,6 +392,34 @@ Die drei eigenen Einträge aus dem Abschnitt über den Platzhalter anlegen, dann
 prüfen, ob alle drei weiter antworten. Erst wenn das sauber ist, geht es
 weiter.
 
+### Schritt 6b · Die Seite unter eurem Namen aufsperren
+
+*Wer: Hannah öffnet die Domainverwaltung, der Programmierer macht den Rest.
+Dauer: eine halbe Stunde, plus Wartezeit aufs Zertifikat.*
+
+Jetzt kommt der Schritt, der aus der Probe Ernst macht – und er ist
+ungefährlich. Ein einziger neuer Eintrag:
+
+| Typ | Name | Wert |
+| --- | --- | --- |
+| CNAME | `neu` | `wirtschaft-dornbirn.pages.dev` |
+
+Vorher im Cloudflare-Dashboard unter *Pages → wirtschaft-dornbirn → Custom
+domains* `neu.wirtschaft-dornbirn.at` hinzufügen. Das Zertifikat stellt
+Cloudflare selbst aus, das dauert Minuten.
+
+Ab diesem Moment läuft die neue Seite unter eurem eigenen Namen, mit eurer
+echten Datenbank und euren echten Mails. Sie steht nur nicht unter der
+Hauptadresse, und Google bekommt sie noch nicht zu sehen.
+
+**An der laufenden Seite ändert sich nichts.** Ihr fügt einen Namen hinzu,
+ihr stellt keinen um. Wer `wirtschaft-dornbirn.at` eintippt, sieht weiter
+die alte Seite. Rückgängig machen heißt: den Eintrag löschen.
+
+Von hier an dürft ihr `neu.` benutzen wie die richtige Seite. Gäste
+anrufen und bitten, dort zu reservieren. Den Link in eine Instagram-Story
+stellen. Was dort passiert, ist echt.
+
 ### Schritt 7 · Die Abnahme
 
 *Wer: alle. Dauer: ein gemeinsamer Vormittag.*
@@ -417,8 +475,19 @@ prüfen.
 Zum Schluss eine echte Reservierung mit einer privaten Adresse. Kommt die
 Bestätigung im Posteingang an, ist es geschafft.
 
-**Eine Kleinigkeit, die der Programmierer wissen muss:** Nach jedem Ausrollen
-die Zeitpläne zählen. Es müssen fünf sein. Sind es weniger, ist der Abgleich an
+**Der eine Handgriff, den man zu leicht vergisst:** Solange die Seite nicht
+unter der Hauptadresse liegt, ist sie für Google **gesperrt**. Das ist
+richtig so – ein zweiter Abzug derselben Seite soll nicht neben dem Original
+im Suchergebnis stehen. Diese Sperre muss am Umzugstag aufgehoben werden,
+und sie hebt sich nicht von selbst auf.
+
+Passiert das nicht, geht die Seite live und ist für Google unsichtbar.
+Niemand merkt es, bis die Gäste ausbleiben. Seit dem 29. Oktober schlägt die
+Prüfung `check:umzug` genau dann Alarm, wenn die echte Domain noch gesperrt
+ist.
+
+**Eine zweite Kleinigkeit, die der Programmierer wissen muss:** Nach jedem
+Ausrollen die Zeitpläne zählen. Es müssen fünf sein. Sind es weniger, ist der Abgleich an
 einer Kontogrenze gescheitert, und Tageszettel und Wochenbericht bleiben still
 aus. Das ist genau so schon einmal passiert.
 
@@ -622,3 +691,13 @@ annimmt. Die zweite sagt, was noch an Jonas hängt.
 - Die alte Seite am Umhängetag abschalten. Damit ist der Rückweg weg.
 - Takeaway im Echtbetrieb testen. `ALT_TAKEAWAY` leitet an den echten
   Lieferdienst weiter, daraus entsteht eine echte Bestellung.
+- Am Umzugstag die Indexsperre vergessen. Ohne `PUBLIC_ENV=production` baut
+  `build-public.mjs` die Seite mit `noindex` und einer robots.txt, die alles
+  sperrt. Richtig:
+
+  ```bash
+  PUBLIC_ENV=production npm run deploy:seite
+  SEITE=https://wirtschaft-dornbirn.at npm run check:umzug
+  ```
+
+  Die Prüfung sagt es, wenn es vergessen wurde.
