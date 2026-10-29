@@ -3,19 +3,25 @@
 //
 //   npm run check:unterdomains
 //
-// Der Befund, der diese Pruefung ausgeloest hat: gutscheine.,
-// lieferservice. und tischreservierung.wirtschaft-dornbirn.at sind KEINE
-// eigenstaendigen Eintraege. Sie zeigen per CNAME auf www, und www zeigt auf
-// den alten Webserver. Wer www auf die neue Seite stellt, nimmt alle drei
-// mit - und damit Gutscheinverkauf, Lieferdienst und das alte
-// Reservierungssystem vom Netz, ohne sie angefasst zu haben.
+// Der Befund, der diese Pruefung ausgeloest hat (29.10.2026): In der Zone
+// steht ein PLATZHALTER. Jeder erdenkliche Name unter der Domain zeigt auf
+// www, und www zeigt auf den alten Webserver - auch Namen, die nie jemand
+// angelegt hat. Nachweisbar daran, dass ein ausgedachter Name antwortet.
 //
-// Die Seite verlinkt den Lieferdienst sogar selbst (ALT_TAKEAWAY), der
-// Ausfall fiele also sofort Gaesten auf.
+// Fuer den Umzug heisst das: Es gibt keine einzelnen Eintraege, die man
+// nacheinander umstellen koennte. Wer www auf die neue Seite stellt, nimmt
+// ALLES mit, was heute ueber den Platzhalter laeuft - Gutscheinverkauf,
+// Lieferdienst, das alte Reservierungssystem und jeden Namen, an den gerade
+// niemand denkt. Die neue Seite verlinkt den Lieferdienst sogar selbst
+// (ALT_TAKEAWAY), der Ausfall fiele also sofort Gaesten auf.
 //
-// Diese Pruefung sagt zweierlei:
-//   1. Antwortet jede der drei Adressen noch?
-//   2. Haengt sie noch an www - oder ist sie schon losgebunden?
+// Der Ausweg: fuer jede Adresse, die gebraucht wird, VOR dem Umzug einen
+// eigenen Eintrag anlegen. Ein eigener Eintrag sticht den Platzhalter.
+//
+// Diese Pruefung sagt dreierlei:
+//   1. Gibt es den Platzhalter (noch)?
+//   2. Antwortet jede gebrauchte Adresse?
+//   3. Hat sie schon einen eigenen Eintrag - oder haengt sie am Platzhalter?
 
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -45,6 +51,18 @@ async function antwortet(name) {
 }
 
 console.log(`Unterdomain-Prüfung für ${DOMAIN}\n`);
+
+// Zuerst der Platzhalter. Ein ausgedachter Name, den niemand angelegt haben
+// kann: antwortet er, faengt ein Platzhalter alles ab.
+const erfunden = `gibtsnicht-${Date.now().toString(36)}`;
+const platzhalter = (await kette(`${erfunden}.${DOMAIN}`)).length > 0;
+if (platzhalter) {
+  console.log(`  ⚠ PLATZHALTER in der Zone: auch "${erfunden}" löst auf.`);
+  console.log('    Jeder Name unter der Domain folgt damit www. Zieht www um,');
+  console.log('    zieht alles mit - auch was hier gar nicht aufgezählt ist.\n');
+} else {
+  console.log('  ✓ Kein Platzhalter: es lösen nur angelegte Namen auf.\n');
+}
 for (const kurz of UNTERDOMAINS) {
   const name = `${kurz}.${DOMAIN}`;
   const eintraege = await kette(name);
@@ -53,19 +71,19 @@ for (const kurz of UNTERDOMAINS) {
   zeile(status === 200, `${name} antwortet (${status})`);
   if (ueberWww) {
     haengtNochAnWww += 1;
-    console.log(`    ⚠ zeigt auf ${HAUPT} – zieht www um, geht diese Adresse mit unter`);
+    console.log(`    ⚠ folgt ${HAUPT} – zieht www um, geht diese Adresse mit unter`);
   } else {
-    console.log(`    losgebunden: ${eintraege.join(' → ') || '(kein Eintrag)'}`);
+    console.log(`    eigener Eintrag: ${eintraege.join(' → ') || '(kein Eintrag)'}`);
   }
 }
 
 console.log();
 if (haengtNochAnWww) {
-  console.log(`${haengtNochAnWww} von ${UNTERDOMAINS.length} Adressen hängen noch an ${HAUPT}.`);
-  console.log('VOR dem Umzug lösen: je einen A-Eintrag direkt auf die Adresse des alten');
-  console.log('Servers setzen, dann diese Prüfung wiederholen. Siehe docs/testlauf-und-umzug.md,');
-  console.log('Stufe 4, Schritt 2.');
+  console.log(`${haengtNochAnWww} von ${UNTERDOMAINS.length} Adressen haben noch keinen eigenen Eintrag.`);
+  console.log('VOR dem Umzug anlegen: je einen A-Eintrag direkt auf die Adresse des alten');
+  console.log('Servers, dann diese Prüfung wiederholen. Ein eigener Eintrag sticht den');
+  console.log('Platzhalter. Siehe docs/vorgehen-webseite.md, Schritt 6.');
 } else {
-  console.log('Alle Adressen sind von www losgebunden – der Umzug kann sie nicht mitreißen.');
+  console.log('Jede Adresse hat ihren eigenen Eintrag – der Umzug kann sie nicht mitreißen.');
 }
 if (fehler) { console.error(`\n${fehler} Adresse(n) antworten nicht.`); process.exit(1); }

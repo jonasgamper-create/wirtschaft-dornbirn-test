@@ -51,7 +51,7 @@
   // vor dem Domainumzug unter neu.<domain> veroeffentlicht, soll dort nie im
   // echten Bestand landen - auch dann nicht, wenn jemand den Link ohne
   // ?probe=1 weitergibt, ihn speichert oder ihn einem Gast schickt. Darauf
-  // ruht der Testlauf vor dem Umzug (docs/testlauf-und-umzug.md): echte
+  // ruht der Testlauf vor dem Umzug (docs/vorgehen-webseite.md): echte
   // Adresse, echtes HTTPS, echte Wege - aber eigene Datenbank und kein
   // Mailversand.
   //
@@ -60,7 +60,25 @@
   // keinen Fehlgriff in die andere Richtung geben. Zweite Schranke ist der
   // Dienst selbst: der ECHTE Dienst nimmt eine Testadresse gar nicht an,
   // der Probe-Dienst schon (ALLOWED_ORIGINS in server/wrangler.jsonc).
-  const istTestseite = /^(neu|test|probe|staging)\./i.test(window.location.hostname || '');
+  // Gesucht wird in JEDEM Namensteil, nicht nur im ersten. Zwei Gruende:
+  //
+  //   neu.wirtschaft-dornbirn.at                    -> Teil 1
+  //   probe-wirtschaft-dornbirn.pages.dev           -> Teil 1
+  //   f2afe30d.probe-wirtschaft-dornbirn.pages.dev  -> Teil 2
+  //
+  // Der dritte Fall ist der wichtige. Cloudflare haengt jeder einzelnen
+  // Veroeffentlichung eine eigene Adresse mit Kennung davor. Wer so einen
+  // Link weitergibt - und das passiert, er steht in jeder Ausgabe des
+  // Veroeffentlichens -, landete sonst auf einer Seite, die sich fuer die
+  // echte haelt.
+  //
+  // Die echten Namen bestehen aus wirtschaft-dornbirn, www, pages, dev, at,
+  // jonasgamper-create, github, io. Keiner davon faengt mit einem der vier
+  // Testwoerter an, ein Fehlgriff in die andere Richtung ist also nicht
+  // moeglich. Geprueft wird das bei jedem Lauf, an echten und an Testnamen
+  // (scripts/check-testseite.mjs).
+  const TESTWORT = /^(neu|test|probe|staging)(-|$)/i;
+  const istTestseite = String(window.location.hostname || '').split('.').some(teil => TESTWORT.test(teil));
 
   const an = istTestseite || ausAdresse() || lies();
   if (ausAdresse()) merke(true);
