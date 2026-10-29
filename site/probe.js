@@ -6,9 +6,11 @@
 // eigenem Namen, mit eigener Datenbank und ohne Mailversand. Welcher der
 // beiden angesprochen wird, entscheidet allein diese Datei.
 //
-// Eingeschaltet wird er ueber die Adresse:
+// Eingeschaltet wird er auf zwei Wegen:
 //
-//   .../index.html?probe=1
+//   1. Ueber die Adresse: .../index.html?probe=1
+//   2. Von selbst, wenn die Seite unter einem Testnamen liegt
+//      (neu./test./probe./staging.<domain>) - dann IMMER, ohne Ausstieg.
 //
 // Danach bleibt er fuer diesen Tab erhalten - auch beim Weiterklicken auf
 // Reservierung oder Takeaway. Ein neuer Tab faengt wieder im Echtbetrieb an;
@@ -45,9 +47,25 @@
     } catch { /* privater Modus: dann gilt nur die Adresse */ }
   };
 
-  const an = ausAdresse() || lies();
+  // Eine Testseite erkennt sich an ihrem EIGENEN NAMEN. Wer die neue Seite
+  // vor dem Domainumzug unter neu.<domain> veroeffentlicht, soll dort nie im
+  // echten Bestand landen - auch dann nicht, wenn jemand den Link ohne
+  // ?probe=1 weitergibt, ihn speichert oder ihn einem Gast schickt. Darauf
+  // ruht der Testlauf vor dem Umzug (docs/testlauf-und-umzug.md): echte
+  // Adresse, echtes HTTPS, echte Wege - aber eigene Datenbank und kein
+  // Mailversand.
+  //
+  // Die echten Namen fangen mit keinem dieser Woerter an
+  // (wirtschaft-dornbirn.at, www., *.pages.dev, *.github.io), es kann also
+  // keinen Fehlgriff in die andere Richtung geben. Zweite Schranke ist der
+  // Dienst selbst: der ECHTE Dienst nimmt eine Testadresse gar nicht an,
+  // der Probe-Dienst schon (ALLOWED_ORIGINS in server/wrangler.jsonc).
+  const istTestseite = /^(neu|test|probe|staging)\./i.test(window.location.hostname || '');
+
+  const an = istTestseite || ausAdresse() || lies();
   if (ausAdresse()) merke(true);
   window.WIRTSCHAFT_PROBE = an;
+  window.WIRTSCHAFT_TESTSEITE = istTestseite;
   if (!an) return;
 
   // Das Band. Es steht ueber allem und bleibt stehen: wer eine Viertelstunde
@@ -65,14 +83,22 @@
   band.setAttribute('role', 'status');
 
   const titel = document.createElement('b');
-  titel.textContent = 'Probemodus';
+  titel.textContent = istTestseite ? 'Testseite' : 'Probemodus';
   const satz = document.createElement('span');
-  satz.textContent = 'Alles, was du hier einträgst, landet im Testdienst '
-    + '– keine echte Reservierung, keine Bestellung, keine Mail.';
+  satz.textContent = istTestseite
+    ? 'Das ist die Probe vor dem Umzug. Alles funktioniert wie auf der '
+      + 'späteren Seite – aber nichts davon ist echt: keine Reservierung, '
+      + 'keine Bestellung, keine Mail. Die laufende Seite ist unberührt.'
+    : 'Alles, was du hier einträgst, landet im Testdienst '
+      + '– keine echte Reservierung, keine Bestellung, keine Mail.';
   const raus = document.createElement('button');
   raus.type = 'button';
   raus.textContent = 'Zurück zum Echtbetrieb';
-  band.append(titel, satz, raus);
+  // Auf einer Testseite gibt es keinen Ausstieg: dort entscheidet der Name
+  // der Adresse, nicht der Besucher. Ein Knopf, der scheinbar zum echten
+  // Betrieb fuehrt, waere genau die Verwechslung, die wir verhindern.
+  band.append(titel, satz);
+  if (!istTestseite) band.append(raus);
 
   Object.assign(band.style, {
     position: 'fixed', left: '0', right: '0', bottom: '0', zIndex: '2147483000',
@@ -148,7 +174,11 @@
   // final aussehen, auch beim Herzeigen). Der Probemodus selbst bleibt:
   // ?probe=1 schaltet den Tab auf den Testdienst, ein neuer Tab ist wieder
   // Echtbetrieb. Wer wissen will, wo er ist: window.WIRTSCHAFT_PROBE.
-  const BAND_ZEIGEN = false;
+  // Auf einer TESTSEITE wird es gezeigt, und zwar gerade deswegen: wer eine
+  // Woche lang auf neu.<domain> klickt, muss jederzeit sehen, dass es die
+  // Probe ist. Das ist kein Widerspruch zum Wunsch vom 22.09. - der galt der
+  // Seite, die man Gaesten zeigt.
+  const BAND_ZEIGEN = istTestseite;
   const zeige = () => {
     if (!BAND_ZEIGEN) return;
     document.body.appendChild(band);
