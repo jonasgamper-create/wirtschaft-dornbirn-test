@@ -66,12 +66,12 @@
     // Umzug auf wirtschaft-dornbirn.at kommt sie hierher und die anderen
     // koennen weg.
     //
-    // Seit 29.10.2026 steht neu.wirtschaft-dornbirn.at hier ABSICHTLICH
-    // NICHT mehr. Die Testseite vor dem Umzug gehoert an den Probe-Dienst,
-    // nicht an den echten. Die Seite schaltet schon selbst um (site/probe.js
-    // erkennt den Namen); diese Liste ist die zweite Schranke fuer den Fall,
-    // dass sie es nicht tut. Siehe docs/vorgehen-webseite.md.
-    "ALLOWED_ORIGINS": "https://wirtschaft-dornbirn.at,https://www.wirtschaft-dornbirn.at,https://wirtschaft-dornbirn.pages.dev,https://jonasgamper-create.github.io,http://localhost:4321,http://localhost:4322,http://localhost:4323",
+    // neu.wirtschaft-dornbirn.at gehoert hierher, nicht zur Probe: das ist
+    // die ECHTE neue Seite unter dem eigenen Namen des Hauses, nur noch
+    // nicht unter der Hauptadresse. Wer dort bucht, hat gebucht.
+    // Die Sandkiste heisst dagegen probe-wirtschaft-dornbirn.pages.dev und
+    // steht unten bei der Probe. Siehe docs/vorgehen-webseite.md.
+    "ALLOWED_ORIGINS": "https://wirtschaft-dornbirn.at,https://www.wirtschaft-dornbirn.at,https://neu.wirtschaft-dornbirn.at,https://wirtschaft-dornbirn.pages.dev,https://jonasgamper-create.github.io,http://localhost:4321,http://localhost:4322,http://localhost:4323",
 
     // Die eigene Adresse fuer Links in automatisch versendeten Mails - der
     // Wochenkarten-Versand hat keine Anfrage, aus der er sie lesen koennte.
@@ -180,12 +180,11 @@
         // Hier stehen die TESTNAMEN. Die Testseite spricht den Probe-Dienst
         // an, nicht den echten (29.10.2026).
         //
-        // probe-wirtschaft-dornbirn.pages.dev ist die Testadresse, die OHNE
-        // jeden Eingriff in die echte Domain auskommt. Sie kostet nichts und
-        // ist der Ort, an dem vor dem Umzug alles durchgespielt wird.
-        // neu.wirtschaft-dornbirn.at kommt erst spaeter dazu, wenn das Haus
-        // die Probe unter dem eigenen Namen sehen will.
-        "ALLOWED_ORIGINS": "https://probe-wirtschaft-dornbirn.pages.dev,https://neu.wirtschaft-dornbirn.at,https://test.wirtschaft-dornbirn.at,https://staging.wirtschaft-dornbirn.at,https://wirtschaft-dornbirn.at,https://www.wirtschaft-dornbirn.at,https://wirtschaft-dornbirn.pages.dev,https://jonasgamper-create.github.io,http://localhost:4321,http://localhost:4322,http://localhost:4323",
+        // probe-wirtschaft-dornbirn.pages.dev ist die Sandkiste: eigene
+        // leere Datenbank, keine Mails, kein Eingriff in die echte Domain.
+        // neu.wirtschaft-dornbirn.at steht BEWUSST nicht hier - das ist die
+        // echte Seite und gehoert oben zum echten Dienst.
+        "ALLOWED_ORIGINS": "https://probe-wirtschaft-dornbirn.pages.dev,https://test.wirtschaft-dornbirn.at,https://staging.wirtschaft-dornbirn.at,https://wirtschaft-dornbirn.at,https://www.wirtschaft-dornbirn.at,https://wirtschaft-dornbirn.pages.dev,https://jonasgamper-create.github.io,http://localhost:4321,http://localhost:4322,http://localhost:4323",
         "DIENST_BASIS": "https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev",
         "OFFEN": "nein",
         "VAPID_OEFFENTLICH": "BPLEbe0YGZChaS1PY-NtqMLW32AC_PVQ2QTDAYhwnqd6iyQ9V28etINQVmUloVHlLgwQPtiUwCjwnSCtlnvPQTw",

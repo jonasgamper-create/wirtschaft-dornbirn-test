@@ -51,16 +51,68 @@ for (const [name, ziel] of Object.entries(qr).filter(([k]) => !k.startsWith('_')
   zeile(r.ok, `${name}: ${pfad} → ${r.ziel} (${r.status})`);
 }
 
+// Eine Testadresse muss vom ECHTEN Dienst abgewiesen werden - das ist die
+// zweite Schranke gegen eine Probe, die im echten Bestand landet. Fuer eine
+// echte Adresse gilt das Gegenteil. Darum haengt die Erwartung daran, was
+// hier geprueft wird.
+const istTestadresse = new URL(SEITE).hostname.split('.')
+  .some(teil => /^(test|probe|staging)(-|$)/i.test(teil));
+
 console.log('\nDienst');
 for (const [art, adresse] of [['Echtbetrieb', haus.api], ['Probe', haus.probe]]) {
   if (!adresse) continue;
+  const sollAnnehmen = art === 'Probe' ? istTestadresse : !istTestadresse;
   try {
     const antwort = await fetch(`${adresse.replace(/\/+$/, '')}/api/gesundheit`, { headers: { origin: SEITE } });
     const erlaubt = antwort.headers.get('access-control-allow-origin');
-    zeile(antwort.ok && erlaubt === SEITE, `${art}: erreichbar ${antwort.status}, nimmt ${SEITE} ${erlaubt === SEITE ? 'an' : 'NICHT an – ALLOWED_ORIGINS ergänzen und neu ausrollen'}`);
+    const nimmtAn = erlaubt === SEITE;
+    if (sollAnnehmen) {
+      zeile(antwort.ok && nimmtAn,
+        `${art}: erreichbar ${antwort.status}, nimmt ${SEITE} ${nimmtAn ? 'an' : 'NICHT an – ALLOWED_ORIGINS ergaenzen und neu ausrollen'}`);
+    } else {
+      zeile(!nimmtAn,
+        `${art}: weist ${SEITE} ${nimmtAn ? 'NICHT ab – das waere die falsche Richtung' : 'ab (richtig so)'}`);
+    }
   } catch (e) {
     zeile(false, `${art}: nicht erreichbar (${e.message})`);
   }
+}
+
+// ---- Sichtbarkeit bei Google ------------------------------------------------
+//
+// Die stillste Falle des ganzen Umzugs: Solange die Seite nicht unter der
+// echten Domain liegt, traegt JEDE Seite "noindex" und robots.txt sperrt
+// alles. Das ist richtig - ein zweiter Abzug der Seite soll nicht neben dem
+// Original im Suchergebnis stehen.
+//
+// Umgelegt wird das erst im Build, und zwar nur mit PUBLIC_ENV=production
+// (scripts/build-public.mjs). Vergisst das jemand am Umzugstag, geht die
+// Seite live und ist fuer Google unsichtbar. Niemand merkt es, bis die
+// Gaeste ausbleiben.
+//
+// Darum prueft das hier in BEIDE Richtungen: auf einer Testadresse muss die
+// Sperre stehen, auf der echten Domain muss sie weg sein.
+
+const echteDomain = /^https:\/\/(www\.)?wirtschaft-dornbirn\.at$/.test(SEITE);
+console.log('\nSichtbarkeit bei Google');
+try {
+  const seite = await (await fetch(SEITE + '/')).text();
+  const robots = await (await fetch(SEITE + '/robots.txt')).text();
+  const gesperrt = /<meta\s+name="robots"\s+content="[^"]*noindex/i.test(seite);
+  const robotsZu = /^\s*Disallow:\s*\/\s*$/m.test(robots);
+  if (echteDomain) {
+    zeile(!gesperrt, 'Startseite ist fuer Google freigegeben (kein noindex)');
+    zeile(!robotsZu, 'robots.txt sperrt nicht die ganze Seite');
+    if (gesperrt || robotsZu) {
+      console.log('     → Der Build lief ohne PUBLIC_ENV=production.');
+      console.log('       Richtig: PUBLIC_ENV=production npm run deploy:seite');
+    }
+  } else {
+    zeile(gesperrt, 'Testadresse traegt noindex (darf nicht im Suchergebnis stehen)');
+    zeile(robotsZu, 'Testadresse sperrt per robots.txt');
+  }
+} catch (e) {
+  zeile(false, `Sichtbarkeit nicht pruefbar (${e.message})`);
 }
 
 if (fehler) { console.error(`\nUmzugspruefung: ${fehler} Punkt(e) offen.`); process.exit(1); }

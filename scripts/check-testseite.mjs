@@ -56,7 +56,7 @@ const FAELLE = [
   ['067146d4.wirtschaft-dornbirn.pages.dev', '', false, false],
   ['jonasgamper-create.github.io', '', false, false],
   ['wirtschaft-dornbirn.at', '?probe=1', true, false],
-  ['neu.wirtschaft-dornbirn.at', '', true, true],
+  ['neu.wirtschaft-dornbirn.at', '', false, false],
   ['test.wirtschaft-dornbirn.at', '', true, true],
   ['staging.wirtschaft-dornbirn.at', '', true, true],
   ['probe-wirtschaft-dornbirn.pages.dev', '', true, true],
@@ -86,12 +86,14 @@ const listen = [...wrangler.matchAll(/"ALLOWED_ORIGINS": "([^"]*)"/g)].map(m => 
 pruefe(`ALLOWED_ORIGINS steht nicht genau zweimal (gefunden: ${listen.length})`, listen.length === 2);
 if (listen.length === 2) {
   const [echt, probeListe] = listen;
-  const testnamen = /\/\/(neu|test|probe|staging)\./;
+  const testnamen = /\/\/(test|probe|staging)[-.]/;
   for (const herkunft of echt.split(',')) {
     pruefe(`Der ECHTE Dienst erlaubt eine Testadresse: ${herkunft}`, !testnamen.test(herkunft));
   }
-  pruefe('Der Probe-Dienst erlaubt neu.wirtschaft-dornbirn.at nicht',
-    probeListe.includes('https://neu.wirtschaft-dornbirn.at'));
+  pruefe('Der ECHTE Dienst erlaubt neu.wirtschaft-dornbirn.at nicht - das ist die echte neue Seite',
+    echt.includes('https://neu.wirtschaft-dornbirn.at'));
+  pruefe('Der Probe-Dienst erlaubt neu.wirtschaft-dornbirn.at - das gehoert zum echten Dienst',
+    !probeListe.includes('https://neu.wirtschaft-dornbirn.at'));
   pruefe('Der Probe-Dienst erlaubt die kostenlose Testadresse nicht',
     probeListe.includes('https://probe-wirtschaft-dornbirn.pages.dev'));
 }

@@ -60,9 +60,18 @@
   // keinen Fehlgriff in die andere Richtung geben. Zweite Schranke ist der
   // Dienst selbst: der ECHTE Dienst nimmt eine Testadresse gar nicht an,
   // der Probe-Dienst schon (ALLOWED_ORIGINS in server/wrangler.jsonc).
+  // ACHTUNG, Unterscheidung vom 29.10.2026: "neu" gehoert NICHT dazu.
+  //
+  //   neu.wirtschaft-dornbirn.at  ist die ECHTE neue Seite unter dem
+  //   eigenen Namen des Hauses - echte Datenbank, echte Mails, echte
+  //   Reservierungen. Nur eben noch nicht unter der Hauptadresse. Wer dort
+  //   bucht, hat gebucht. Spaeter wird daraus die Hauptadresse, und das ist
+  //   dann nur noch eine Umbenennung.
+  //
+  // Testseite ist, was test/probe/staging heisst. Dort ist nichts echt.
+  //
   // Gesucht wird in JEDEM Namensteil, nicht nur im ersten. Zwei Gruende:
   //
-  //   neu.wirtschaft-dornbirn.at                    -> Teil 1
   //   probe-wirtschaft-dornbirn.pages.dev           -> Teil 1
   //   f2afe30d.probe-wirtschaft-dornbirn.pages.dev  -> Teil 2
   //
@@ -72,12 +81,12 @@
   // Veroeffentlichens -, landete sonst auf einer Seite, die sich fuer die
   // echte haelt.
   //
-  // Die echten Namen bestehen aus wirtschaft-dornbirn, www, pages, dev, at,
-  // jonasgamper-create, github, io. Keiner davon faengt mit einem der vier
-  // Testwoerter an, ein Fehlgriff in die andere Richtung ist also nicht
+  // Die echten Namen bestehen aus wirtschaft-dornbirn, neu, www, pages, dev,
+  // at, jonasgamper-create, github, io. Keiner davon faengt mit einem der
+  // drei Testwoerter an, ein Fehlgriff in die andere Richtung ist also nicht
   // moeglich. Geprueft wird das bei jedem Lauf, an echten und an Testnamen
   // (scripts/check-testseite.mjs).
-  const TESTWORT = /^(neu|test|probe|staging)(-|$)/i;
+  const TESTWORT = /^(test|probe|staging)(-|$)/i;
   const istTestseite = String(window.location.hostname || '').split('.').some(teil => TESTWORT.test(teil));
 
   const an = istTestseite || ausAdresse() || lies();
