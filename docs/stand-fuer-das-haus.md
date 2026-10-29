@@ -113,27 +113,29 @@ Beglaubigung. Das kann nur Uri veranlassen.
 Namen eintippen, die alte Seite.
 
 **Das machen wir nicht in einem Zug.** Dafür liegt ein eigenes Blatt bei:
-*Testlauf und Domainumzug*. Kurz gefasst – vier Stufen, und erst die letzte
-ist unumkehrbar:
+*Die neue Webseite in Betrieb nehmen*. Dort steht der ganze Weg Schritt für
+Schritt. Kurz gefasst, und erst der letzte Schritt ist unumkehrbar:
 
 1. **Die Mails in Ordnung bringen.** Geht sofort, unabhängig von allem
    anderen, und die laufende Seite merkt nichts davon.
-2. **Die fertige Seite unter `neu.wirtschaft-dornbirn.at`** veröffentlichen.
-   Ein einziger Eintrag in der Domain. Die alte Seite läuft weiter.
+2. **Die fertige Seite unter einer eigenen Testadresse** ansehen. Die gibt es
+   schon: `probe-wirtschaft-dornbirn.pages.dev`. Sie kostet nichts, und an
+   eurer Domain wurde dafür **nichts** geändert.
 3. **Eine Woche abnehmen.** Jeder im Haus probiert alles aus. Auf dieser
    Testseite kann nichts kaputtgehen: sie schreibt in eine eigene, leere
    Datenbank und verschickt keine Mail. Sie erkennt das an ihrer eigenen
    Adresse, ganz von selbst, und sagt es unten am Bildschirmrand.
 4. **Umschalten** – an einem ruhigen Vormittag, mit Rückweg.
 
-**Ein Fund, den ihr kennen solltet.** Beim Schreiben dieses Ablaufs ist
-aufgefallen: `gutscheine.`, `lieferservice.` und `tischreservierung.`
-sind keine eigenständigen Adressen. Sie hängen an `www`. Wer `www` auf die
-neue Seite stellt, ohne das vorher zu lösen, nimmt alle drei mit – dann
-stehen Gutscheinverkauf, Lieferdienst und das alte Reservierungssystem
-still, ohne dass sie jemand angefasst hat. Im Ablauf ist das Lösen jetzt der
-allererste Schritt, mit eigenem Tag und eigener Prüfung. **Gefunden, bevor
-es passiert ist** – genau dafür ist so ein Ablauf da.
+**Ein Fund, den ihr kennen solltet.** In eurer Domain steht ein Platzhalter:
+ein Eintrag, der jeden erdenklichen Namen zum alten Webserver schickt, auch
+Namen, die nie jemand angelegt hat. `gutscheine.`, `lieferservice.` und
+`tischreservierung.` funktionieren nur deshalb. Wer `www` auf die neue Seite
+stellt, ohne das vorher zu regeln, nimmt alle drei mit – dann stehen
+Gutscheinverkauf, Lieferdienst und das alte Reservierungssystem still, ohne
+dass sie jemand angefasst hat. Im Ablauf hat das jetzt einen eigenen Schritt
+an einem eigenen Tag, mit eigener Prüfung. **Gefunden, bevor es passiert
+ist** – genau dafür macht man so einen Ablauf.
 
 ## 5 Was ihr jetzt tun müsst
 
@@ -162,11 +164,11 @@ es passiert ist** – genau dafür ist so ein Ablauf da.
 
 **Der Programmierer** (zwei bis drei Stunden, sobald die Konten stehen)
 
-Zwei Blätter liegen bei: *Testlauf und Domainumzug* ist die Reihenfolge,
-`docs/uebergabe-wirtschaft.md` die Übergabe im Einzelnen. Kurz: die drei
-Unterdomains lösen, Seite und Dienst ins Konto des Hauses umziehen, die vier
-Einträge bei Hetzner setzen, dann der Absender, dann die Absender je Zweck –
-und dazwischen die Testseite.
+Das Blatt *Die neue Webseite in Betrieb nehmen* ist der Ablauf, mit einem
+Anhang, in dem jeder Befehl steht. Kurz: die drei Adressen absichern, Seite
+und Dienst ins Konto des Hauses umziehen, die vier Einträge bei Hetzner
+setzen, dann der Absender, dann die Absender je Zweck – und das Ganze zuerst
+auf der Testseite.
 
 ## 6 Vier Fragen, die wir von euch brauchen
 

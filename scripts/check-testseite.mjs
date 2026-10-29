@@ -1,7 +1,7 @@
 // Testseiten-Pruefung (29.10.2026): kann eine Probe vor dem Domainumzug
 // jemals im echten Bestand landen?
 //
-// Der Testlauf vor dem Umzug (docs/testlauf-und-umzug.md) stellt die fertige
+// Der Testlauf vor dem Umzug (docs/vorgehen-webseite.md) stellt die fertige
 // Seite unter einen Testnamen - neu.wirtschaft-dornbirn.at -, waehrend die
 // alte Seite weiterlaeuft. Damit dort niemand aus Versehen einen echten Tisch
 // belegt, gibt es ZWEI Schranken:
@@ -23,24 +23,8 @@ const pruefe = (was, ok) => { if (!ok) fehler.push(was); };
 
 // ---- Schranke 1: die Seite erkennt sich selbst -----------------------------
 
-const gefunden = probe.match(/const istTestseite = (\/.+?\/i)\.test\(/);
-pruefe('site/probe.js erkennt keine Testnamen mehr', Boolean(gefunden));
-
-if (gefunden) {
-  // Den Abgleich wirklich ausfuehren, nicht nur danebenstehen und nicken.
-  const muster = new RegExp(gefunden[1].slice(1, -2), 'i');
-  const ECHT = [
-    'wirtschaft-dornbirn.at', 'www.wirtschaft-dornbirn.at',
-    'wirtschaft-dornbirn.pages.dev', '067146d4.wirtschaft-dornbirn.pages.dev',
-    'jonasgamper-create.github.io', 'localhost'
-  ];
-  const TEST = [
-    'neu.wirtschaft-dornbirn.at', 'test.wirtschaft-dornbirn.at',
-    'probe.wirtschaft-dornbirn.at', 'staging.wirtschaft-dornbirn.at'
-  ];
-  for (const name of ECHT) pruefe(`ECHTER Name wuerde als Testseite gelten: ${name}`, !muster.test(name));
-  for (const name of TEST) pruefe(`Testname wird NICHT erkannt: ${name}`, muster.test(name));
-}
+pruefe('site/probe.js prueft nicht mehr jeden Namensteil',
+  /split\('\.'\)\.some\(teil => TESTWORT\.test\(teil\)\)/.test(probe));
 
 // ---- Und zwar wirklich: die Datei laufen lassen --------------------------
 //
@@ -74,7 +58,10 @@ const FAELLE = [
   ['wirtschaft-dornbirn.at', '?probe=1', true, false],
   ['neu.wirtschaft-dornbirn.at', '', true, true],
   ['test.wirtschaft-dornbirn.at', '', true, true],
-  ['staging.wirtschaft-dornbirn.at', '', true, true]
+  ['staging.wirtschaft-dornbirn.at', '', true, true],
+  ['probe-wirtschaft-dornbirn.pages.dev', '', true, true],
+  ['f2afe30d.probe-wirtschaft-dornbirn.pages.dev', '', true, true],
+  ['localhost', '', false, false]
 ];
 for (const [host, suche, erwartetProbe, erwartetTest] of FAELLE) {
   let ergebnis;
@@ -105,6 +92,8 @@ if (listen.length === 2) {
   }
   pruefe('Der Probe-Dienst erlaubt neu.wirtschaft-dornbirn.at nicht',
     probeListe.includes('https://neu.wirtschaft-dornbirn.at'));
+  pruefe('Der Probe-Dienst erlaubt die kostenlose Testadresse nicht',
+    probeListe.includes('https://probe-wirtschaft-dornbirn.pages.dev'));
 }
 
 if (fehler.length) {

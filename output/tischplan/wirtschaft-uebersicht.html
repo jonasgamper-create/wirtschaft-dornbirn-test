@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; style-src 'sha256-n8GNAcpDa8RTw9c7OiUB+W40BiulpKis0E+Vw6Wfw+U='; script-src 'sha256-7gxvAT0udi1pe1MuakmARKGqh01Cwb8eGXEp59F98a8='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev wss://wirtschaft-reservierung-probe.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; style-src 'sha256-n8GNAcpDa8RTw9c7OiUB+W40BiulpKis0E+Vw6Wfw+U='; script-src 'sha256-EmBO1VNhoKIAJiS34486fW75tQQr15//VvwelwqYlyk='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev wss://wirtschaft-reservierung-probe.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#11110f">
   <title>Übersicht · Wirtschaft Dornbirn</title>
@@ -1000,7 +1000,7 @@ window.WIRTSCHAFT_HAUS={"api":"https://wirtschaft-reservierung.jonas-gamper.work
   // vor dem Domainumzug unter neu.<domain> veroeffentlicht, soll dort nie im
   // echten Bestand landen - auch dann nicht, wenn jemand den Link ohne
   // ?probe=1 weitergibt, ihn speichert oder ihn einem Gast schickt. Darauf
-  // ruht der Testlauf vor dem Umzug (docs/testlauf-und-umzug.md): echte
+  // ruht der Testlauf vor dem Umzug (docs/vorgehen-webseite.md): echte
   // Adresse, echtes HTTPS, echte Wege - aber eigene Datenbank und kein
   // Mailversand.
   //
@@ -1009,7 +1009,25 @@ window.WIRTSCHAFT_HAUS={"api":"https://wirtschaft-reservierung.jonas-gamper.work
   // keinen Fehlgriff in die andere Richtung geben. Zweite Schranke ist der
   // Dienst selbst: der ECHTE Dienst nimmt eine Testadresse gar nicht an,
   // der Probe-Dienst schon (ALLOWED_ORIGINS in server/wrangler.jsonc).
-  const istTestseite = /^(neu|test|probe|staging)\./i.test(window.location.hostname || '');
+  // Gesucht wird in JEDEM Namensteil, nicht nur im ersten. Zwei Gruende:
+  //
+  //   neu.wirtschaft-dornbirn.at                    -> Teil 1
+  //   probe-wirtschaft-dornbirn.pages.dev           -> Teil 1
+  //   f2afe30d.probe-wirtschaft-dornbirn.pages.dev  -> Teil 2
+  //
+  // Der dritte Fall ist der wichtige. Cloudflare haengt jeder einzelnen
+  // Veroeffentlichung eine eigene Adresse mit Kennung davor. Wer so einen
+  // Link weitergibt - und das passiert, er steht in jeder Ausgabe des
+  // Veroeffentlichens -, landete sonst auf einer Seite, die sich fuer die
+  // echte haelt.
+  //
+  // Die echten Namen bestehen aus wirtschaft-dornbirn, www, pages, dev, at,
+  // jonasgamper-create, github, io. Keiner davon faengt mit einem der vier
+  // Testwoerter an, ein Fehlgriff in die andere Richtung ist also nicht
+  // moeglich. Geprueft wird das bei jedem Lauf, an echten und an Testnamen
+  // (scripts/check-testseite.mjs).
+  const TESTWORT = /^(neu|test|probe|staging)(-|$)/i;
+  const istTestseite = String(window.location.hostname || '').split('.').some(teil => TESTWORT.test(teil));
 
   const an = istTestseite || ausAdresse() || lies();
   if (ausAdresse()) merke(true);
