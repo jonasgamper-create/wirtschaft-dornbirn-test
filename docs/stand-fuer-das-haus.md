@@ -112,9 +112,28 @@ Beglaubigung. Das kann nur Uri veranlassen.
 `wirtschaft-dornbirn.pages.dev`. Solange das so ist, sehen Gäste, die den
 Namen eintippen, die alte Seite.
 
-Das Umlegen ist vorbereitet und in `docs/umzug-domain-plan.md` Schritt für
-Schritt beschrieben. Es ist **kein** Schritt, den man zwischendurch macht:
-Danach läuft alles über die neue Seite. Wann es passiert, entscheidet ihr.
+**Das machen wir nicht in einem Zug.** Dafür liegt ein eigenes Blatt bei:
+*Testlauf und Domainumzug*. Kurz gefasst – vier Stufen, und erst die letzte
+ist unumkehrbar:
+
+1. **Die Mails in Ordnung bringen.** Geht sofort, unabhängig von allem
+   anderen, und die laufende Seite merkt nichts davon.
+2. **Die fertige Seite unter `neu.wirtschaft-dornbirn.at`** veröffentlichen.
+   Ein einziger Eintrag in der Domain. Die alte Seite läuft weiter.
+3. **Eine Woche abnehmen.** Jeder im Haus probiert alles aus. Auf dieser
+   Testseite kann nichts kaputtgehen: sie schreibt in eine eigene, leere
+   Datenbank und verschickt keine Mail. Sie erkennt das an ihrer eigenen
+   Adresse, ganz von selbst, und sagt es unten am Bildschirmrand.
+4. **Umschalten** – an einem ruhigen Vormittag, mit Rückweg.
+
+**Ein Fund, den ihr kennen solltet.** Beim Schreiben dieses Ablaufs ist
+aufgefallen: `gutscheine.`, `lieferservice.` und `tischreservierung.`
+sind keine eigenständigen Adressen. Sie hängen an `www`. Wer `www` auf die
+neue Seite stellt, ohne das vorher zu lösen, nimmt alle drei mit – dann
+stehen Gutscheinverkauf, Lieferdienst und das alte Reservierungssystem
+still, ohne dass sie jemand angefasst hat. Im Ablauf ist das Lösen jetzt der
+allererste Schritt, mit eigenem Tag und eigener Prüfung. **Gefunden, bevor
+es passiert ist** – genau dafür ist so ein Ablauf da.
 
 ## 5 Was ihr jetzt tun müsst
 
@@ -143,9 +162,11 @@ Danach läuft alles über die neue Seite. Wann es passiert, entscheidet ihr.
 
 **Der Programmierer** (zwei bis drei Stunden, sobald die Konten stehen)
 
-Die vollständige Anleitung liegt bei (`docs/uebergabe-wirtschaft.md`). Kurz:
-Seite und Dienst ins Konto des Hauses umziehen, die vier Einträge bei Hetzner
-setzen, dann der Absender, dann die Absender je Zweck.
+Zwei Blätter liegen bei: *Testlauf und Domainumzug* ist die Reihenfolge,
+`docs/uebergabe-wirtschaft.md` die Übergabe im Einzelnen. Kurz: die drei
+Unterdomains lösen, Seite und Dienst ins Konto des Hauses umziehen, die vier
+Einträge bei Hetzner setzen, dann der Absender, dann die Absender je Zweck –
+und dazwischen die Testseite.
 
 ## 6 Vier Fragen, die wir von euch brauchen
 
