@@ -90,6 +90,12 @@ Sie gehören in die Zone von `wirtschaft-dornbirn.at`. Die liegt bei **Hetzner**
 (Nameserver `oxygen.ns.hetzner.com`, `helium.ns.hetzner.de`,
 `hydrogen.ns.hetzner.com`).
 
+**Stand 03.11.2026:** gesetzt – für `wirtschaft-dornbirn.at` und
+`eugen.family`, beide im Brevo-Konto der „wirtschaft“. Der `brevo-code`
+unten ist der alte aus Jonas’ Konto; der gültige steht live in der Zone.
+Falls Brevo zusätzlich eine Marken-Subdomain verlangt: `post`, nie `mail`
+(dort läuft der Hetzner-Mailserver, Ziel des MX).
+
 | Nr. | Typ | Name | Wert |
 |---|---|---|---|
 | 1 | CNAME | `brevo1._domainkey` | `b1.wirtschaft-dornbirn-at.dkim.brevo.com` |

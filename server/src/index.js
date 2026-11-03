@@ -2044,6 +2044,12 @@ export class Haus extends DurableObject {
     const an = String(this.env?.WIRT_MAIL || '');
     const absender = String(this.env?.BREVO_ABSENDER || '');
     if (!an || !absender) return { ok: false, grund: 'nicht_eingerichtet' };
+    // Hausentscheid 03.11.2026 (Antwort auf Frage 2): die technische
+    // Betreuung bekommt eine Kopie - der Tageszettel ist ihr Lebenszeichen,
+    // dass der Dienst laeuft. Die Adresse ist ein Geheimnis
+    // (`wrangler secret put WIRT_MAIL_KOPIE`), weil sie privat ist und das
+    // Repository oeffentlich. Leer heisst: keine Kopie.
+    const kopie = String(this.env?.WIRT_MAIL_KOPIE || '');
     const heute = jetztImHaus().datum;
     const parties = this.#amTag(heute).filter(party => party.status !== 'storniert');
     const vorbestellungen = this.#takeawayAlle().filter(bestellung =>
@@ -2060,7 +2066,7 @@ export class Haus extends DurableObject {
       geschlossen: this.#geschlossen().includes(heute)
     });
     const ergebnis = await sendeMail(this.env, brevoPaket({
-      absender, an, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
+      absender, an, kopie, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
     }));
     return { ok: ergebnis.ok === true };
   }
@@ -2073,6 +2079,8 @@ export class Haus extends DurableObject {
     const an = String(this.env?.WIRT_MAIL || '');
     const absender = String(this.env?.BREVO_ABSENDER || '');
     if (!an || !absender) return { ok: false, grund: 'nicht_eingerichtet' };
+    // Dieselbe Kopie wie beim Tageszettel (siehe dort).
+    const kopie = String(this.env?.WIRT_MAIL_KOPIE || '');
     const heute = new Date(`${jetztImHaus().datum}T12:00:00Z`);
     // Zurueck zum Montag dieser Woche.
     const montag = new Date(heute);
@@ -2115,7 +2123,7 @@ export class Haus extends DurableObject {
       umsatz: Math.round(umsatz * 100) / 100, bestseller
     });
     const ergebnis = await sendeMail(this.env, brevoPaket({
-      absender, an, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
+      absender, an, kopie, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
     }));
     return { ok: ergebnis.ok === true };
   }

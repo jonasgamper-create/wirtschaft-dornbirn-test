@@ -64,6 +64,16 @@ pruefe('Tageszettel geht nicht an die Veranstaltungs-Adresse',
   (wrangler.match(/"WIRT_MAIL": "([^"]*)"/) || [])[1] === 'veranstaltungen@wirtschaft-dornbirn.at');
 pruefe('Bestellmeldung geht nicht an den Service',
   (wrangler.match(/"TAKEAWAY_MAIL": "([^"]*)"/) || [])[1] === 'service@wirtschaft-dornbirn.at');
+// Hausentscheid 03.11.2026: Anfragen an Emma & Eugen, nicht an die "wirtschaft".
+for (const [, wert] of wrangler.matchAll(/"ANFRAGE_MAIL": "([^"]*)"/g)) {
+  pruefe(`Anfragen gehen nicht an Emma & Eugen: ${wert}`, wert === 'uri@eugen.family');
+}
+// Die Kopie fuer die technische Betreuung ist ein Geheimnis, keine Variable:
+// die Adresse ist privat, das Repository oeffentlich.
+pruefe('WIRT_MAIL_KOPIE steht als Variable in wrangler.jsonc (gehoert als Geheimnis gesetzt)',
+  !/"WIRT_MAIL_KOPIE":/.test(wrangler));
+pruefe('Tageszettel und Wochenbericht nehmen die Kopie nicht mit',
+  (quelle.match(/env\?\.WIRT_MAIL_KOPIE/g) || []).length === 2 && (quelle.match(/absender, an, kopie, betreff/g) || []).length === 2);
 for (const name of ['ABSENDER_SERVICE', 'ABSENDER_WARTELISTE', 'ABSENDER_KULTURHAUS', 'EVENTS_ABSENDER']) {
   for (const [, wert] of wrangler.matchAll(new RegExp(`"${name}": "([^"]*)"`, 'g'))) {
     // Leer ist richtig, solange nicht beglaubigt. Steht etwas da, muss es

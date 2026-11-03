@@ -69,6 +69,12 @@ bleibt beim Registrar, nur die Nameserver ändern sich. Der Mailserver
 
 Aus [mail-absender.md](mail-absender.md), unverändert gültig:
 
+**Stand 03.11.2026:** gesetzt – für `wirtschaft-dornbirn.at` und
+`eugen.family`, beide im Brevo-Konto der „wirtschaft“. Der `brevo-code`
+unten ist der alte aus Jonas’ Konto; der gültige steht live in der Zone.
+Falls Brevo zusätzlich eine Marken-Subdomain verlangt: `post`, nie `mail`
+(dort läuft der Hetzner-Mailserver, Ziel des MX).
+
 | Typ | Name | Wert |
 |---|---|---|
 | CNAME | `brevo1._domainkey` | `b1.wirtschaft-dornbirn-at.dkim.brevo.com` |

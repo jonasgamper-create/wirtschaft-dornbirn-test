@@ -8,7 +8,7 @@
 //     --probe https://wirtschaft-reservierung-probe.<konto>.workers.dev \
 //     --wirt-mail veranstaltungen@wirtschaft-dornbirn.at \
 //     --takeaway-mail service@wirtschaft-dornbirn.at \
-//     --anfrage-mail willkommen@wirtschaft-dornbirn.at \
+//     --anfrage-mail uri@eugen.family \
 //     [--schreiben]
 //
 // Danach: npm run ci, Pull Request, Dienst neu ausrollen (beide Umgebungen),

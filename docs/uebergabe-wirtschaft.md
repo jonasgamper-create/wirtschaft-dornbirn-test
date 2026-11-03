@@ -123,7 +123,7 @@ Der Befehl zum Umstellen:
 ```bash
 npm run umstellen -- --dienst https://wirtschaft-reservierung.<konto>.workers.dev \
   --probe https://wirtschaft-reservierung-probe.<konto>.workers.dev \
-  --wirt-mail <adresse von wolfgang> --anfrage-mail willkommen@wirtschaft-dornbirn.at
+  --wirt-mail <adresse von wolfgang> --anfrage-mail uri@eugen.family
 # sieht gut aus? dann dasselbe mit --schreiben, danach npm run ci
 ```
 
@@ -136,15 +136,18 @@ Heute kommen die Mails von einer privaten aon.at-Adresse und landen bei
 Gmail oder Outlook oft im Spam. Danach kommen sie von
 `willkommen@wirtschaft-dornbirn.at` und werden als echt erkannt.
 
-- [ ] In Brevo: *Senders, Domains & Dedicated IPs → Domains → Add a domain* → `wirtschaft-dornbirn.at`
-- [ ] Die **vier Einträge, die Brevo anzeigt**, bei Hetzner eintragen (zwei
-  `brevo…._domainkey`-CNAME, ein `brevo-code`-TXT, ein `_dmarc`-TXT). Die
-  Werte gehören zum Brevo-Konto der „wirtschaft“ – die alten in
+- [x] In Brevo: *Senders, Domains & Dedicated IPs → Domains → Add a domain* → `wirtschaft-dornbirn.at` **und** `eugen.family` (Hannah, 02.11.2026, ein Konto für beide)
+- [x] Die **vier Einträge, die Brevo anzeigt**, bei Hetzner eintragen (zwei
+  `brevo…._domainkey`-CNAME, ein `brevo-code`-TXT, ein `_dmarc`-TXT) – für
+  beide Domains gesetzt (Hannah mit Markus, 02.11.), von außen geprüft am
+  03.11. Die Werte gehören zum Brevo-Konto der „wirtschaft“ – die alten in
   `mail-absender.md` gelten nicht mehr.
-- [ ] Den SPF-Eintrag **ändern, nicht verdoppeln**: `v=spf1 a mx include:spf.brevo.com ~all`
-- [ ] In Brevo „Authenticate“; erst danach im Dienst `BREVO_ABSENDER = willkommen@wirtschaft-dornbirn.at`
+- [x] Den SPF-Eintrag **ändern, nicht verdoppeln**: `v=spf1 a mx include:spf.brevo.com ~all` – gesetzt, bei beiden Domains genau ein SPF-Eintrag
+- [ ] **Falls Brevo eine Marken-Subdomain verlangt** (Hinweis von Markus): nicht `mail` – das ist der Hetzner-Mailserver (A-Eintrag, Ziel des MX), und ein CNAME dort nimmt dem Haus die Post. Stattdessen `post` (`post.wirtschaft-dornbirn.at`, `post.eugen.family`). Für die Beglaubigung ist der Schritt nicht nötig.
+- [ ] In Brevo „Authenticate“ (Hannah oder Jonas mit Benutzerzugang); erst danach im Dienst `BREVO_ABSENDER = willkommen@wirtschaft-dornbirn.at`
 - [ ] **Dann** die Absender je Zweck füllen: `ABSENDER_SERVICE = service@`, `ABSENDER_WARTELISTE = veranstaltungen@` (Hausentscheid 27.10.2026, `docs/mailadressen-entscheidung.md`)
-- [ ] `ABSENDER_KULTURHAUS = tickets@eugen.family` und `EVENTS_ABSENDER = uri@eugen.family` erst, wenn Uri die Domain `eugen.family` bei Brevo beglaubigt hat
+- [ ] `ABSENDER_KULTURHAUS = tickets@eugen.family` und `EVENTS_ABSENDER = uri@eugen.family`, sobald `eugen.family` in Brevo grün ist (die Einträge sind gesetzt; Uri muss nichts mehr tun)
+- [ ] `npx wrangler secret put WIRT_MAIL_KOPIE` mit der Adresse von Jonas (Kopie von Tageszettel und Wochenbericht, Hausentscheid 03.11.2026)
 - [ ] Probemail an eine eigene Gmail-Adresse: kommt im Posteingang an
 
 **Was das berührt:** nur neue Einträge und eine Ergänzung der SPF-Zeile.
