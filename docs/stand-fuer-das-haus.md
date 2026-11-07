@@ -7,6 +7,10 @@ am laufenden Dienst und an der Domain nachgeprüft, nichts ist geraten.
 Es sagt dreierlei: **was fertig ist**, **was aus euren Antworten geworden
 ist** und **was jetzt noch zu tun ist** – das ist kurz.
 
+**Erneut geprüft am 7. November:** Einträge beider Domains, Dienst, Wirt-Ansicht,
+Seite und Anfrageweg – alles unverändert in Ordnung. Offen ist weiterhin nur
+der Klick auf *Authenticate* in Brevo.
+
 **Neu seit dem Blatt vom 27. Oktober:** Die Konten bei Brevo und GitHub sind
 angelegt, die Einträge für die Mails sind bei Hetzner gesetzt – für beide
 Domains, geprüft am 3. November. Eure vier Antworten sind eingebaut. Was
