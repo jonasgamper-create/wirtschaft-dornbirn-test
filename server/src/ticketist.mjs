@@ -395,7 +395,8 @@ export function leseKategorien(daten, eventId) {
  * "frei". Fehlen die Zahlen ueberall (der Ticketdienst aendert sein Format),
  * gilt der bisherige Stand bzw. die hinterlegte Liste - sonst stuenden alle
  * ausverkauften Abende auf einen Schlag als buchbar da. Dieselbe Regel steht
- * in site/events.js (lesbar) und site/app.js.
+ * in site/events.js (gelesen) und scripts/sync-termine.mjs; die Startseite
+ * bekommt ueber mitPreisen nur Listen, die sie erfuellen.
  */
 export function kategorienLesbar(liste) {
   return Array.isArray(liste) && liste.length > 0 && liste.some(k => Number.isInteger(k?.frei));

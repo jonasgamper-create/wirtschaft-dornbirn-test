@@ -105,10 +105,13 @@ for (const [index, event] of events.entries()) {
       fail(`${prefix}.tickets[${t}] hat eine Warteliste, ist aber nicht ausverkauft.`);
     }
   }
-  if (event.status === 'sold_out' && tickets.length && !alleWeg) {
-    fail(`${prefix}.status ist "sold_out", aber nicht jede Ticketart ist ausverkauft.`);
+  // Ein offener Weg ohne eigene Kategorien (neu, oder beim Abgleich ohne
+  // Antwort) steht nicht in den tickets - er zeigt sich nur am Kaufweg.
+  const offenerWeg = Boolean(event.kaufUrl);
+  if (event.status === 'sold_out' && ((tickets.length && !alleWeg) || offenerWeg)) {
+    fail(`${prefix}.status ist "sold_out", aber es gibt noch einen buchbaren Weg.`);
   }
-  if (event.status === 'teilweise' && !(mitWarteliste && !alleWeg)) {
+  if (event.status === 'teilweise' && !(mitWarteliste && (!alleWeg || offenerWeg))) {
     fail(`${prefix}.status ist "teilweise", aber kein ganzer Ticketweg ist ausverkauft.`);
   }
   if (event.status === 'scheduled' && mitWarteliste) {

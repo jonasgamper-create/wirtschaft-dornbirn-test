@@ -22,7 +22,7 @@ import { mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promise
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { entdecke, gruppiere, holeKategorien, holeTermin, KENNUNGEN } from '../server/src/ticketist.mjs';
+import { entdecke, gruppiere, holeKategorien, holeTermin, kategorienLesbar, KENNUNGEN } from '../server/src/ticketist.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ziel = path.join(root, 'site', 'data', 'termine.json');
@@ -154,12 +154,19 @@ for (const kennung of kennungen) {
     await new Promise(fertig => setTimeout(fertig, 1000));
     kategorien = await holeKategorien(termin.eventId);
   }
-  if (Array.isArray(kategorien) && kategorien.length) {
+  if (kategorienLesbar(kategorien)) {
     neuePreise[kennung] = kategorien;
     kategorienGelesen += 1;
   } else {
+    // Keine Antwort, eine leere oder eine ganz ohne Zahl "frei" (dieselbe
+    // Regel wie im Dienst): der bisherige Eintrag bleibt. Gab es keinen,
+    // zeigt eine Liste ohne Zahlen wenigstens die Preise.
     ohneKategorien.push(kennung);
-    if (Array.isArray(preise[kennung]) && preise[kennung].length) neuePreise[kennung] = preise[kennung];
+    const bisherLesbar = kategorienLesbar(preise[kennung]) ? preise[kennung] : null;
+    const ersatz = bisherLesbar
+      || (Array.isArray(kategorien) && kategorien.length ? kategorien : null)
+      || (Array.isArray(preise[kennung]) && preise[kennung].length ? preise[kennung] : null);
+    if (ersatz) neuePreise[kennung] = ersatz;
   }
   termin.preise = neuePreise[kennung] || [];
 
@@ -227,11 +234,27 @@ const gerettet = [];
 for (const kennung of fehlend) {
   const alt = bisherNachId.get(kennung);
   if (alt && alt.date >= heute) {
-    // Ein geretteter Abend bringt seine zweiten Wege mit. Wurde einer davon
-    // frisch gelesen, stuende er sonst zweimal da - einmal als eigener Abend.
+    // Ein geretteter Abend bringt seine zweiten Wege mit. Frisch gelesene
+    // Teile DESSELBEN Abends (gleicher Tag) gehen in ihn auf - sonst stuende
+    // ein zweiter Weg doppelt da, einmal als eigener Abend. Ihre Preise und
+    // Schalter sind neuer und gelten, und ein Weg, den der gerettete Abend
+    // noch nicht kannte, geht nicht verloren. Steht ein zweiter Weg frisch
+    // an einem ANDEREN Tag, ist er verschoben: er bleibt dort, und der
+    // gerettete Abend fuehrt ihn nicht mehr.
     const seine = new Set((alt.varianten || []).map(v => v.id));
-    for (let i = abende.length - 1; i >= 0; i -= 1) if (seine.has(abende[i].id)) abende.splice(i, 1);
-    abende.push(alt);
+    const teile = abende.filter(a => seine.has(a.id) && a.date === alt.date);
+    const verschoben = new Set(abende.filter(a => seine.has(a.id) && a.date !== alt.date).map(a => a.id));
+    for (const teil of teile) abende.splice(abende.indexOf(teil), 1);
+    const zusammen = { ...alt, varianten: (alt.varianten || []).filter(v => !verschoben.has(v.id)) };
+    for (const teil of teile) {
+      const i = zusammen.varianten.findIndex(v => v.id === teil.id);
+      if (i >= 0) {
+        zusammen.varianten[i] = { ...zusammen.varianten[i], zeit: teil.zeit, ticketUrl: teil.ticketUrl,
+          buchbar: teil.buchbar, preise: teil.preise?.length ? teil.preise : zusammen.varianten[i].preise };
+      }
+      for (const v of teil.varianten || []) if (!zusammen.varianten.some(x => x.id === v.id)) zusammen.varianten.push(v);
+    }
+    abende.push(zusammen);
     gerettet.push(kennung);
   } else {
     const teil = bisherVariante.get(kennung);

@@ -42,6 +42,7 @@ const jsZeile = e => {
   const tickets = e.tickets.map(t =>
     `{ name: ${JSON.stringify(t.name)}, preis: ${t.preis}, beginn: ${JSON.stringify(t.beginn)}, status: ${JSON.stringify(t.status)}${t.warteliste ? ', warteliste: true' : ''} }`).join(', ');
   const dazu = [
+    e.haus ? `, haus: ${JSON.stringify(e.haus)}` : '',
     e.ticketUrl ? `, ticketUrl: ${JSON.stringify(e.ticketUrl)}` : '',
     e.kaufUrl ? `, kaufUrl: ${JSON.stringify(e.kaufUrl)}` : '',
     e.wartelisteKennung ? `, wartelisteKennung: ${JSON.stringify(e.wartelisteKennung)}` : '',
