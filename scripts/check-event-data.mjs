@@ -65,6 +65,17 @@ for (const [index, event] of events.entries()) {
   if (event.ticketUrl && !/^https:\/\/(www\.)?ticketist\.io\//i.test(event.ticketUrl)) {
     fail(`${prefix}.ticketUrl muss auf ticketist.io zeigen.`);
   }
+  // Der Kaufweg, wenn der Hauptweg ausverkauft ist und ein zweiter Weg noch
+  // Karten hat (10.11.2026) - ebenso nur zum Ticketdienst.
+  if (event.kaufUrl && !/^https:\/\/(www\.)?ticketist\.io\//i.test(event.kaufUrl)) {
+    fail(`${prefix}.kaufUrl muss auf ticketist.io zeigen.`);
+  }
+  if (event.wartelisteKennung !== undefined && !/^[a-z0-9-]{3,60}$/.test(String(event.wartelisteKennung))) {
+    fail(`${prefix}.wartelisteKennung ist keine Kennung.`);
+  }
+  if (event.haus !== undefined && !['wirtschaft', 'kulturhaus'].includes(event.haus)) {
+    fail(`${prefix}.haus ist weder wirtschaft noch kulturhaus.`);
+  }
 
   // Die Ticketarten sind die eigentliche Wahrheit ueber die Verfuegbarkeit.
   const tickets = Array.isArray(event.tickets) ? event.tickets : [];
@@ -82,17 +93,26 @@ for (const [index, event] of events.entries()) {
   // Pruefung behauptet die Gaesteseite irgendwann "ausverkauft", waehrend in
   // den Daten eine buchbare Kategorie steht - genau der Fehler, der hier
   // schon einmal drin war.
+  //
+  // Seit 10.11.2026 je Ticketweg: "teilweise" heisst, ein GANZER Weg ist weg
+  // (dafuer gibt es die Warteliste, wartelisteKennung); eine einzelne leere
+  // Kategorie eines sonst buchbaren Weges ist kein Grund dafuer.
   const zustaende = tickets.map(ticket => ticket.status);
   const alleWeg = zustaende.length > 0 && zustaende.every(s => s === 'ausverkauft');
-  const eineWeg = zustaende.some(s => s === 'ausverkauft');
+  const mitWarteliste = tickets.some(ticket => ticket.warteliste === true) || Boolean(event.wartelisteKennung);
+  for (const [t, ticket] of tickets.entries()) {
+    if (ticket.warteliste === true && ticket.status !== 'ausverkauft') {
+      fail(`${prefix}.tickets[${t}] hat eine Warteliste, ist aber nicht ausverkauft.`);
+    }
+  }
   if (event.status === 'sold_out' && tickets.length && !alleWeg) {
     fail(`${prefix}.status ist "sold_out", aber nicht jede Ticketart ist ausverkauft.`);
   }
-  if (event.status === 'teilweise' && !(eineWeg && !alleWeg)) {
-    fail(`${prefix}.status ist "teilweise", passt aber nicht zu den Ticketarten.`);
+  if (event.status === 'teilweise' && !(mitWarteliste && !alleWeg)) {
+    fail(`${prefix}.status ist "teilweise", aber kein ganzer Ticketweg ist ausverkauft.`);
   }
-  if (event.status === 'scheduled' && eineWeg) {
-    fail(`${prefix}.status ist "scheduled", obwohl eine Ticketart ausverkauft ist.`);
+  if (event.status === 'scheduled' && mitWarteliste) {
+    fail(`${prefix}.status ist "scheduled", obwohl ein ganzer Ticketweg ausverkauft ist.`);
   }
 }
 

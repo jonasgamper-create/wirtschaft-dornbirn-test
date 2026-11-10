@@ -38,32 +38,43 @@ const bisher = JSON.parse(await readFile(datei('events.json'), 'utf8').catch(() 
  * Liste, es gebe noch Karten in einer Kategorie eines geschlossenen Abends.
  */
 function alsEvent(termin, id) {
+  const vorverkauf = Boolean(termin.verkaufsstart) && Date.parse(termin.verkaufsstart) > Date.now();
+  // Je Ticketweg (Hauptweg und zweite Wege) dieselbe Regel wie auf der
+  // Eventseite (site/events.js, ausverkauft): ein Weg ist weg, wenn sein
+  // Schalter zu ist oder alle seine Kategorien 0 frei haben - im Vorverkauf
+  // nie. Nur fuer einen GANZ ausverkauften Weg gibt es die Warteliste; eine
+  // einzelne leere Kategorie (Luis 25.11.: Kat. 1 und 3 weg, Kat. 2 frei)
+  // ist "ausverkauft", aber kein Grund fuer eine Warteliste (10.11.2026).
+  const wege = [{ ...termin, label: '' }, ...(termin.varianten || [])].map(weg => {
+    const preise = (weg.preise || []).filter(p => Number(p.preis) > 0);
+    const zu = !vorverkauf && (weg.buchbar === false || (preise.length > 0 && preise.every(p => p.frei === 0)));
+    return { weg, preise, zu };
+  });
   const arten = [];
-  // Beim zweiten Weg: sein Name davor, ausser die Kategorie heisst schon so
-  // ("comedy only (stehplatz)" statt "comedy only: comedy only ..."), und
-  // SEINE Uhrzeit - "comedy only" beginnt um 21:00, nicht um 19:00.
-  // Dieselbe Regel steht in site/app.js (alsEvent) - beide gleich halten.
-  const nimm = (preise, buchbar, praefix = '', zeit = '') => {
-    for (const p of preise || []) {
+  for (const { weg, preise, zu } of wege) {
+    // Beim zweiten Weg: sein Name davor, ausser die Kategorie heisst schon
+    // so ("comedy only (stehplatz)" statt "comedy only: comedy only ..."),
+    // und SEINE Uhrzeit - "comedy only" beginnt um 21:00, nicht um 19:00.
+    const praefix = weg.label || '';
+    for (const p of preise) {
       const doppelt = praefix && String(p.name).toLowerCase().startsWith(String(praefix).toLowerCase());
       arten.push({
         name: praefix && !doppelt ? `${praefix}: ${p.name}` : p.name,
-        preis: Number(p.preis) || 0,
-        beginn: zeit || termin.zeit || '19:00',
-        status: !buchbar || p.frei === 0 ? 'ausverkauft' : 'buchbar'
+        preis: Number(p.preis),
+        beginn: weg.zeit || termin.zeit || '19:00',
+        status: weg.buchbar === false || p.frei === 0 ? 'ausverkauft' : 'buchbar',
+        ...(zu ? { warteliste: true } : {})
       });
     }
-  };
-  nimm(termin.preise, termin.buchbar !== false, '', termin.zeit);
-  for (const v of termin.varianten || []) nimm(v.preise, v.buchbar !== false, v.label, v.zeit);
-
-  const brauchbar = arten.filter(a => a.preis > 0);
-  // Ohne Preise (der Ticketdienst nennt fuer den Abend keine Kategorien):
-  // sein Schalter entscheidet allein. Geschlossen heisst ausverkauft,
-  // sonst buchbar.
-  const ohnePreisZu = !brauchbar.length && termin.buchbar === false;
-  const alleWeg = ohnePreisZu || (brauchbar.length > 0 && brauchbar.every(a => a.status === 'ausverkauft'));
-  const eineWeg = brauchbar.some(a => a.status === 'ausverkauft');
+  }
+  // Ohne Kategorien entscheidet je Weg sein Schalter allein.
+  const alleWeg = wege.every(w => w.zu);
+  const eineWeg = wege.some(w => w.zu);
+  // Wohin "Tickets" fuehrt: zum ersten Weg, der noch Karten hat - nicht zum
+  // ausverkauften Hauptweg (dinner & comedy: Dinner weg, comedy only frei).
+  const offen = wege.find(w => !w.zu);
+  const leer = wege.find(w => w.zu);
+  const kennungVon = url => (String(url || '').match(/\/events\/([a-z0-9-]+)/) || [])[1] || '';
 
   return {
     id,
@@ -73,11 +84,14 @@ function alsEvent(termin, id) {
     // das Haus - "Dinner & Comedy" sagt mehr als nichts, und wo gespielt
     // wird, ist die naechstbeste Auskunft.
     type: termin.untertitel || (termin.haus === 'kulturhaus' ? 'Kulturhaus Dornbirn' : 'In der „wirtschaft“'),
-    status: (termin.verkaufsstart && Date.parse(termin.verkaufsstart) > Date.now()) ? 'vorverkauf'
-      : alleWeg ? 'sold_out' : eineWeg ? 'teilweise' : 'scheduled',
+    // Wo gespielt wird - fuer Kalender und Suchmaschinen (sync-events.mjs).
+    haus: termin.haus === 'kulturhaus' ? 'kulturhaus' : 'wirtschaft',
+    status: vorverkauf ? 'vorverkauf' : alleWeg ? 'sold_out' : eineWeg ? 'teilweise' : 'scheduled',
     verkaufsstart: termin.verkaufsstart || undefined,
-    tickets: brauchbar,
-    ticketUrl: termin.ticketUrl
+    tickets: arten,
+    ticketUrl: termin.ticketUrl,
+    ...(offen && offen.weg.ticketUrl && offen.weg.ticketUrl !== termin.ticketUrl ? { kaufUrl: offen.weg.ticketUrl } : {}),
+    ...(leer && kennungVon(leer.weg.ticketUrl) ? { wartelisteKennung: kennungVon(leer.weg.ticketUrl) } : {})
   };
 }
 

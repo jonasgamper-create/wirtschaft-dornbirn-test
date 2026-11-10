@@ -17,6 +17,8 @@
 // Diese Datei rechnet nur - kein Netz, kein Speicher, keine Uhr. Genau
 // deshalb laesst sie sich in Node pruefen (scripts/check-event-warteliste.mjs).
 
+import { kategorienLesbar } from './ticketist.mjs';
+
 const MAIL = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
 const KENNUNG = /^[a-z0-9-]{3,60}$/;
 const DATUM = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
@@ -292,7 +294,7 @@ export function wegStand(eintrag, kennung, lautPreisen = new Set()) {
   const hoechstens = Number.isFinite(eintrag?.verkauftMax) ? eintrag.verkauftMax : null;
   const zurueck = verkauft !== null && hoechstens !== null ? Math.max(0, hoechstens - verkauft) : 0;
   if (!termin) return { buchbar: null, zurueck, verkauft };
-  const live = Array.isArray(eintrag?.preise) && eintrag.preise.length ? eintrag.preise : null;
+  const live = kategorienLesbar(eintrag?.preise) ? eintrag.preise : null;
   if (live) {
     const buchbar = termin.buchbar !== false && !alleAus(live);
     return { buchbar, zurueck: buchbar ? zurueck : 0, verkauft };

@@ -52,8 +52,8 @@ import {
 } from './warteliste.mjs';
 import { inTeile, karteKopf, pruefeKarte, zusammen } from './karte.mjs';
 import {
-  FRISCH_MS as TICKETIST_FRISCH_MS, gruppiere, holeKategorien, holeTermin, holeVerkauft, kennungAusLink,
-  KENNUNGEN, mitPreisen, terminGueltig, entdecke
+  FRISCH_MS as TICKETIST_FRISCH_MS, gruppiere, holeKategorien, holeTermin, holeVerkauft, kategorienLesbar,
+  kennungAusLink, KENNUNGEN, mitPreisen, terminGueltig, entdecke
 } from './ticketist.mjs';
 import {
   bestellungText, erinnerungText, fertigText, nummerFuerSms, reservierungText, sendeSms
@@ -2594,7 +2594,11 @@ export class Haus extends DurableObject {
       // Stand behalten. Sonst fragt jeder Aufruf erneut nach einer Seite,
       // die es nicht gibt.
       if (!terminGueltig(termin)) {
-        frisch[kennung] = { ...(frisch[kennung] || { termin: null }), geholtAm: jetzt };
+        const alt = frisch[kennung] || { termin: null };
+        // Auch die Kategorien gelten dann als versucht (null): sonst hielte
+        // termine() einen frueher gelesenen Abend ohne 'preise' bei jedem
+        // Aufruf fuer veraltet und fragte ihn immer wieder an.
+        frisch[kennung] = { ...alt, geholtAm: jetzt, ...(mitKategorien && alt.preise === undefined ? { preise: null } : {}) };
         continue;
       }
       // Wie viele Karten verkauft sind. Faellt die Zahl spaeter unter
@@ -2609,10 +2613,17 @@ export class Haus extends DurableObject {
       // Ticketdienst nicht, gilt der zuletzt gelesene Stand; gab es noch
       // keinen, steht null da ("versucht, nichts bekommen") - so fragt nicht
       // jeder Aufruf aufs Neue, sondern erst wieder nach zwoelf Stunden.
+      // Eine LEERE Antwort ersetzt eine gelesene Liste nicht: sonst fiele der
+      // Weg fuer einen Abruf auf die hinterlegte Liste zurueck, und ein live
+      // ausverkaufter Abend meldete sich als "wieder buchbar" (wie
+      // scripts/sync-termine.mjs: leer heisst, der bisherige Eintrag bleibt).
       let preise = vorher.preise;
       if (mitKategorien) {
         const kategorien = await holeKategorien(termin.eventId);
-        preise = Array.isArray(kategorien) ? kategorien : (Array.isArray(vorher.preise) ? vorher.preise : null);
+        // Ebenso eine Antwort ganz ohne Zahlen "frei" (kategorienLesbar).
+        const bisherGelesen = kategorienLesbar(vorher.preise) ? vorher.preise : null;
+        preise = kategorienLesbar(kategorien) ? kategorien
+          : (bisherGelesen || (Array.isArray(kategorien) ? kategorien : null));
       }
       frisch[kennung] = {
         geholtAm: jetzt,
@@ -2672,7 +2683,7 @@ export class Haus extends DurableObject {
    * Ticketdienst wirklich gibt. Das Haus bekommt eine Meldung aufs Telefon.
    */
   async entdeckeAbende() {
-    const { kennungen, gesehen, neuGelesen } = await entdecke(this.#lies('quellSeiten', {}), { hoechstens: 2 });
+    const { kennungen, gesehen, neuGelesen, abrufe } = await entdecke(this.#lies('quellSeiten', {}), { hoechstens: 2 });
     this.#schreib('quellSeiten', gesehen);
     const bekannt = new Set(this.#alleKennungen());
     const neu = kennungen.filter(k => !bekannt.has(k)).slice(0, 60);
@@ -2692,7 +2703,7 @@ export class Haus extends DurableObject {
       }));
     }
     const aufgenommen = neu.map(kennung => ({ kennung }));
-    return { gefunden: kennungen.length, kennungen, neuGelesen, aufgenommen };
+    return { gefunden: kennungen.length, kennungen, neuGelesen, aufgenommen, abrufe };
   }
 
   /**
@@ -2737,19 +2748,28 @@ export class Haus extends DurableObject {
   }
 
   async wartelisteAuffrischen() {
-    const entdeckt = await this.entdeckeAbende().catch(() => ({ aufgenommen: [], kennungen: [] }));
+    const entdeckt = await this.entdeckeAbende().catch(() => ({ aufgenommen: [], kennungen: [], abrufe: 0 }));
+    const vorher = this.#lies('termine', {});
+    const zuHolen = Math.min(6, (entdeckt.kennungen || []).filter(k => !vorher[k]?.termin).length);
     const abgleich = await this.#abgleich(entdeckt.kennungen).catch(() => null);
     // Ein Durchgang darf nicht mehr als rund fuenfzig Abrufe machen (Grenze
-    // des kostenlosen Tarifs). Die Suche auf den alten Seiten braucht heute
-    // vier Listen und hoechstens zwei neue Abende, der Abgleich hoechstens
-    // sechs Abende zu je zwei Abrufen; jeder Weg hier kostet drei (Termin,
-    // verkaufte Karten, Kategorien). Acht Wege: 6 + 12 + 24 = 42, Luft fuer
-    // die Meldungen ans Haus. Wege, auf die jemand wartet, kommen zuerst -
-    // fuer sie ist der Durchgang da; die uebrigen ausverkauften folgen, und
-    // was nicht mehr hineinpasst, frischt die Eventseite alle zwoelf Stunden
-    // ohnehin auf.
+    // des kostenlosen Tarifs). Gezaehlt wird, was schon verbraucht ist: die
+    // Suche auf den alten Seiten (heute vier Listen, dazu hoechstens zwei
+    // neue Abende), der Abgleich (je fehlendem Abend zwei Abrufe) - und jede
+    // Meldung ans Haus, die einen Abruf JE GERAET kostet: "neuer Abend",
+    // "Abende fehlen" und am Ende "Wieder Karten". Was uebrig bleibt, geht an
+    // die Wege, je Weg drei Abrufe (Termin, verkaufte Karten, Kategorien),
+    // hoechstens acht. Wege, auf die jemand wartet, kommen zuerst - fuer sie
+    // ist der Durchgang da; was nicht hineinpasst, frischt die Eventseite
+    // alle zwoelf Stunden ohnehin auf.
+    const geraete = Math.min(20, (this.#lies('pushHaus', []) || []).length);
+    const verbraucht = (Number.isFinite(entdeckt.abrufe) ? entdeckt.abrufe : 6)
+      + (entdeckt.aufgenommen?.length ? geraete : 0)
+      + 2 * zuHolen + (zuHolen ? geraete : 0);
+    const uebrig = 48 - verbraucht - geraete;
+    const wieViele = Math.max(1, Math.min(8, Math.floor(uebrig / 3)));
     const gruppen = this.eventWartelisteUebersicht();
-    const wege = [...new Set([...gruppen.filter(g => g.wartend > 0), ...gruppen].map(g => g.weg))].slice(0, 8);
+    const wege = [...new Set([...gruppen.filter(g => g.wartend > 0), ...gruppen].map(g => g.weg))].slice(0, wieViele);
     if (wege.length) await this.#holeAbende(wege);
     this.#meldeAenderung();
     return { ok: true, geprueft: wege.length, neueAbende: entdeckt.aufgenommen, abgleich, gruppen: this.eventWartelisteUebersicht() };
@@ -2788,8 +2808,17 @@ export class Haus extends DurableObject {
       // bei uns, und niemand soll versehentlich von aussen nachladen.
       .map(({ bildQuelle, ...rest }) => rest);
 
-    // Mit den Kategorien je Weg (Name, Preis, frei) - wo sie gelesen sind.
-    return { ok: true, termine: mitPreisen(gruppiere(gelesen), aktuell), kennungen: this.#alleKennungen().length };
+    // Mit den Kategorien je Weg (Name, Preis, frei): live gelesen, sonst die
+    // hinterlegte Liste. Dazu, wie viele Wege schon live gelesen sind - die
+    // Zahl zeigt nach dem Ausrollen, wie weit das Nachholen ist.
+    const abende = mitPreisen(gruppiere(gelesen), aktuell, ticketistPreise?.preise || {});
+    const wege = abende.flatMap(a => [a.id, ...(a.varianten || []).map(v => v.id)]);
+    return {
+      ok: true,
+      termine: abende,
+      kennungen: this.#alleKennungen().length,
+      kategorien: { wege: wege.length, live: wege.filter(k => kategorienLesbar(aktuell[k]?.preise)).length }
+    };
   }
 
   /** Der Wirt legt einen Termin an. Die Liste haelt sich selbst sortiert. */

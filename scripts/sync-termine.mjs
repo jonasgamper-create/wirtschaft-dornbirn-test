@@ -35,16 +35,20 @@ const gefunden = await entdecke({}, { hoechstens: 40 }).catch(() => ({ kennungen
 const neuGefunden = gefunden.kennungen.filter(k => !KENNUNGEN.includes(k));
 if (neuGefunden.length) console.log(`  Auf den eigenen Eventseiten neu gefunden: ${neuGefunden.join(', ')}`);
 
-// Was die Seite schon kennt, bleibt (10.11.2026): jeder kommende Abend aus
-// dem bisherigen Stand und jeder Abend, den der Dienst im Haus fuehrt - auch
-// die, die das Haus selbst aufgenommen hat und die auf keiner alten Seite
-// (mehr) verlinkt sind. Sonst fiele ein Abend aus dem Rueckfall, sobald die
-// Suche ihn nicht mehr findet (italiantribute-2027 am 10.11.), und nach der
-// Abschaltung der alten Seiten fielen alle gefundenen auf einmal weg.
+// Was die Seite schon kennt, bleibt (10.11.2026): jeder Abend, den der
+// Dienst im Haus fuehrt - auch die, die das Haus selbst aufgenommen hat und
+// die auf keiner alten Seite (mehr) verlinkt sind. Sonst fiele ein Abend aus
+// dem Rueckfall, sobald die Suche ihn nicht mehr findet (italiantribute-2027
+// am 10.11.), und nach der Abschaltung der alten Seiten fielen alle
+// gefundenen auf einmal weg. Die Liste des Dienstes ist dabei die Wahrheit:
+// ein Abend, den das Haus dort wieder entfernt hat, kommt nicht zurueck. Nur
+// wenn der Dienst nicht antwortet, gilt ersatzweise der bisherige Stand.
 const bisher = await readFile(ziel, 'utf8').then(JSON.parse).catch(() => ({ termine: [] }));
-const heuteIso = new Date().toISOString().slice(0, 10);
+// Dasselbe Fenster wie der Dienst: ein Abend bleibt eine Woche nach seinem
+// Datum stehen ("verpasst"), damit geteilte Links nicht ins Leere fuehren.
+const nachlaufIso = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString().slice(0, 10);
 const wegeVon = abende => (abende || []).flatMap(t => [t?.id, ...(t?.varianten || []).map(v => v?.id)]);
-const ausBisher = wegeVon((bisher.termine || []).filter(t => String(t.date || '') >= heuteIso));
+const ausBisher = wegeVon((bisher.termine || []).filter(t => String(t.date || '') >= nachlaufIso));
 const ausDienst = await (async () => {
   try {
     const haus = JSON.parse(await readFile(path.join(root, 'site', 'data', 'haus.json'), 'utf8'));
@@ -57,10 +61,12 @@ const ausDienst = await (async () => {
   }
 })();
 const gueltig = k => typeof k === 'string' && /^[a-z0-9-]{3,60}$/.test(k);
-const dazu = [...new Set([...ausBisher, ...ausDienst])]
+const zusaetzlich = ausDienst.length ? ausDienst : ausBisher;
+if (!ausDienst.length) console.warn('  Der Dienst antwortet nicht - ersatzweise gilt der bisherige Stand.');
+const dazu = [...new Set(zusaetzlich)]
   .filter(k => gueltig(k) && !KENNUNGEN.includes(k) && !gefunden.kennungen.includes(k));
-if (dazu.length) console.log(`  Aus dem bisherigen Stand und vom Dienst: ${dazu.join(', ')}`);
-const kennungen = [...new Set([...KENNUNGEN, ...gefunden.kennungen, ...ausBisher, ...ausDienst])].filter(gueltig).sort();
+if (dazu.length) console.log(`  ${ausDienst.length ? 'Vom Dienst' : 'Aus dem bisherigen Stand'}: ${dazu.join(', ')}`);
+const kennungen = [...new Set([...KENNUNGEN, ...gefunden.kennungen, ...zusaetzlich])].filter(gueltig).sort();
 
 await mkdir(bilderOrdner, { recursive: true });
 const vorhanden = new Set(await readdir(bilderOrdner).catch(() => []));
@@ -122,6 +128,11 @@ let kategorienGelesen = 0;
 // passiert - der Abend am 22.09. war nach einem einzigen misslungenen
 // Abruf weg, ohne dass es jemandem aufgefallen waere.
 const bisherNachId = new Map((bisher.termine || []).map(t => [t.id, t]));
+// Auch die zweiten Wege (10.11.2026): faellt nur "comedy only" aus, haengt
+// sein bisheriger Eintrag wieder am frisch gelesenen Abend - sonst stuende
+// der Abend ohne ihn da und mit ausverkauftem Dinner als ganz ausverkauft.
+const bisherVariante = new Map((bisher.termine || []).flatMap(t =>
+  (t.varianten || []).map(v => [v.id, { abendId: t.id, variante: v }])));
 
 const termine = [];
 const fehlend = [];
@@ -215,7 +226,21 @@ const heute = new Date().toISOString().slice(0, 10);
 const gerettet = [];
 for (const kennung of fehlend) {
   const alt = bisherNachId.get(kennung);
-  if (alt && alt.date >= heute) { abende.push(alt); gerettet.push(kennung); }
+  if (alt && alt.date >= heute) {
+    // Ein geretteter Abend bringt seine zweiten Wege mit. Wurde einer davon
+    // frisch gelesen, stuende er sonst zweimal da - einmal als eigener Abend.
+    const seine = new Set((alt.varianten || []).map(v => v.id));
+    for (let i = abende.length - 1; i >= 0; i -= 1) if (seine.has(abende[i].id)) abende.splice(i, 1);
+    abende.push(alt);
+    gerettet.push(kennung);
+  } else {
+    const teil = bisherVariante.get(kennung);
+    const abend = teil && abende.find(a => a.id === teil.abendId);
+    if (abend && abend.date >= heute && !(abend.varianten || []).some(v => v.id === kennung)) {
+      abend.varianten = [...(abend.varianten || []), teil.variante];
+      gerettet.push(kennung);
+    }
+  }
   // Seine Preise bleiben ebenso im Rueckfall stehen.
   if (!neuePreise[kennung] && Array.isArray(preise[kennung]) && preise[kennung].length) neuePreise[kennung] = preise[kennung];
 }
@@ -231,7 +256,11 @@ if (fehlend.length) {
 
 // Mehr als eine Handvoll Ausfaelle heisst: beim Ticketdienst klemmt etwas.
 // Dann wird die gute Datei NICHT durch eine halbe ersetzt.
-const verloren = fehlend.filter(k => !gerettet.includes(k));
+// Verloren ist, was am Ende weder als Abend noch als zweiter Weg dasteht -
+// auch ein zweiter Weg, der mit seinem geretteten Abend zurueckkam, zaehlt
+// als vorhanden.
+const stehtDa = new Set(abende.flatMap(a => [a.id, ...(a.varianten || []).map(v => v.id)]));
+const verloren = fehlend.filter(k => !stehtDa.has(k));
 if (fehlend.length > 5) {
   console.error(`sync-termine FEHLER: ${fehlend.length} Abende nicht lesbar - die alte Datei bleibt stehen.`);
   process.exit(1);
@@ -242,6 +271,17 @@ if (verloren.length) {
 if (!termine.length) {
   console.error('sync-termine FEHLER: kein einziger Termin gelesen - die alte Datei bleibt stehen.');
   process.exit(1);
+}
+
+// Kein Weg doppelt - weder zwei Abende mit derselben Kennung noch ein Abend,
+// der zugleich zweiter Weg eines anderen ist. Sonst lieber die alte Datei.
+{
+  const alle = abende.flatMap(a => [a.id, ...(a.varianten || []).map(v => v.id)]);
+  const doppelt = alle.filter((k, i) => alle.indexOf(k) !== i);
+  if (doppelt.length) {
+    console.error(`sync-termine FEHLER: doppelt eingetragen: ${[...new Set(doppelt)].join(', ')} - die alte Datei bleibt stehen.`);
+    process.exit(1);
+  }
 }
 
 await writeFile(ziel, JSON.stringify({

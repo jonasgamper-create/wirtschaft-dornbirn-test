@@ -36,9 +36,18 @@ async function ersetzeZwischenMarken(datei, anfang, ende, inhalt) {
 
 // --- 1. Ersatzliste in app.js ---------------------------------------------
 const jsZeile = e => {
+  // Dieselben Felder wie aus dem Dienst (app.js, alsEvent): "warteliste" je
+  // Kategorie eines ganz ausverkauften Weges, der Kaufweg (kaufUrl), der Weg
+  // fuer die Warteliste und der Verkaufsstart im Vorverkauf.
   const tickets = e.tickets.map(t =>
-    `{ name: ${JSON.stringify(t.name)}, preis: ${t.preis}, beginn: ${JSON.stringify(t.beginn)}, status: ${JSON.stringify(t.status)} }`).join(', ');
-  return `      { id: ${JSON.stringify(e.id)}, date: ${JSON.stringify(e.date)}, title: ${JSON.stringify(e.title)}, type: ${JSON.stringify(e.type)}, status: ${JSON.stringify(e.status)}, officialUrl: ${JSON.stringify(e.officialUrl)}, tickets: [${tickets}]${e.ticketUrl ? `, ticketUrl: ${JSON.stringify(e.ticketUrl)}` : ''} },`;
+    `{ name: ${JSON.stringify(t.name)}, preis: ${t.preis}, beginn: ${JSON.stringify(t.beginn)}, status: ${JSON.stringify(t.status)}${t.warteliste ? ', warteliste: true' : ''} }`).join(', ');
+  const dazu = [
+    e.ticketUrl ? `, ticketUrl: ${JSON.stringify(e.ticketUrl)}` : '',
+    e.kaufUrl ? `, kaufUrl: ${JSON.stringify(e.kaufUrl)}` : '',
+    e.wartelisteKennung ? `, wartelisteKennung: ${JSON.stringify(e.wartelisteKennung)}` : '',
+    e.verkaufsstart ? `, verkaufsstart: ${JSON.stringify(e.verkaufsstart)}` : ''
+  ].join('');
+  return `      { id: ${JSON.stringify(e.id)}, date: ${JSON.stringify(e.date)}, title: ${JSON.stringify(e.title)}, type: ${JSON.stringify(e.type)}, status: ${JSON.stringify(e.status)}, officialUrl: ${JSON.stringify(e.officialUrl)}, tickets: [${tickets}]${dazu} },`;
 };
 await ersetzeZwischenMarken('app.js',
   '// [events:auto-start] wird von scripts/sync-events.mjs aus data/events.json erzeugt - hier nichts von Hand aendern.',
@@ -59,7 +68,7 @@ const schuetzeHtml = wert => String(wert ?? '')
 // Dieselben Beschriftungen wie in app.js: "Restkarten", wenn nur eine
 // Kategorie weg ist - an dem Abend gibt es noch etwas zu holen.
 const statusWort = status => ({
-  scheduled: 'Tickets', teilweise: 'Restkarten', sold_out: 'Ausverkauft',
+  scheduled: 'Tickets', teilweise: 'Restkarten', sold_out: 'Ausverkauft', vorverkauf: 'Vorverkauf',
   waitlist: 'Warteliste', cancelled: 'Abgesagt', paused: 'Pausiert'
 }[status] || 'Details');
 
@@ -67,13 +76,13 @@ const monatKurz = datum => new Intl.DateTimeFormat('de-AT', { month: 'short' })
   .format(new Date(`${datum}T12:00:00`)).replace('.', '').toUpperCase();
 
 const zeileHtml = e => {
-  // Der Ticketweg des Hauses ist Ticketist; die eigene Eventseite ist der
-  // Rueckfall, wenn kein Ticketlink hinterlegt ist.
-  const ziel = e.ticketUrl;
+  // Der Ticketweg des Hauses ist Ticketist - zum Weg, der noch Karten hat
+  // (kaufUrl: dinner & comedy mit ausverkauftem Dinner fuehrt zu comedy only).
+  const ziel = e.kaufUrl || e.ticketUrl;
   // Ausverkauft: nicht zum Ticketdienst, wo nichts mehr zu holen ist,
   // sondern auf die eigene Warteliste - die Eventseite oeffnet sie fuer
   // genau diesen Weg (events.js liest ?warteliste=<kennung>).
-  const kennung = (String(ziel || '').match(/\/events\/([a-z0-9-]+)/) || [])[1] || '';
+  const kennung = (String(e.ticketUrl || '').match(/\/events\/([a-z0-9-]+)/) || [])[1] || '';
   const ticket = e.status === 'sold_out' && kennung
     ? `<a class="event-ticket-link event-status-sold_out" href="events.html?warteliste=${schuetzeHtml(kennung)}">Ausverkauft · Warteliste</a>`
     : ziel
@@ -98,6 +107,15 @@ await ersetzeZwischenMarken('index.html',
   '<!-- [events:select-ende] -->',
   kommende.map(e => `<option value="${schuetzeHtml(e.id)}">${tagMonat(e.date)} \u00b7 ${schuetzeHtml(e.title)}</option>`).join(''));
 
+// Wo gespielt wird. Bis 10.11.2026 stand bei jedem Abend die Bahnhofstrasse -
+// auch bei den Abenden im Kulturhaus; wer den Kalendereintrag nutzte, fuhr
+// zur falschen Adresse.
+const ORTE = {
+  wirtschaft: { name: 'Wirtschaft Dornbirn', strasse: 'Bahnhofstraße 24' },
+  kulturhaus: { name: 'Kulturhaus Dornbirn', strasse: 'Rathausplatz 1' }
+};
+const ortVon = e => ORTE[e.haus] || ORTE.wirtschaft;
+
 // --- 2. Kalenderdatei ------------------------------------------------------
 const schuetzeIcs = wert => String(wert)
   .replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
@@ -116,7 +134,7 @@ for (const e of events) {
     `DTEND;TZID=Europe/Vienna:${d}T230000`,
     `SUMMARY:${schuetzeIcs(e.title)}`,
     `DESCRIPTION:${schuetzeIcs(`${e.type}. Tickets und Details: wirtschaft-dornbirn.at`)}`,
-    `LOCATION:${schuetzeIcs('Wirtschaft Dornbirn, Bahnhofstraße 24, 6850 Dornbirn')}`,
+    `LOCATION:${schuetzeIcs(`${ortVon(e).name}, ${ortVon(e).strasse}, 6850 Dornbirn`)}`,
     'STATUS:CONFIRMED', 'END:VEVENT');
 }
 icsZeilen.push('END:VCALENDAR');
@@ -149,14 +167,20 @@ const schemaEvents = events
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     location: {
-      '@type': 'Place', name: 'Wirtschaft Dornbirn',
-      address: { '@type': 'PostalAddress', streetAddress: 'Bahnhofstraße 24', postalCode: '6850', addressLocality: 'Dornbirn', addressCountry: 'AT' }
+      '@type': 'Place', name: ortVon(e).name,
+      address: { '@type': 'PostalAddress', streetAddress: ortVon(e).strasse, postalCode: '6850', addressLocality: 'Dornbirn', addressCountry: 'AT' }
     },
     organizer: { '@type': 'Organization', name: 'Wirtschaft Dornbirn', url: 'https://wirtschaft-dornbirn.at' },
     ...(e.ticketUrl && e.status !== 'sold_out' ? {
       offers: {
-        '@type': 'Offer', url: e.ticketUrl, priceCurrency: 'EUR',
-        price: Math.min(...e.tickets.map(t => t.preis)),
+        '@type': 'Offer', url: e.kaufUrl || e.ticketUrl, priceCurrency: 'EUR',
+        // Der guenstigste Preis, der noch zu HABEN ist - nicht der einer
+        // ausverkauften Kategorie (Luis 25.11.: 33 € weg, 36 € frei).
+        ...(() => {
+          const kaufbar = e.tickets.filter(t => t.status === 'buchbar');
+          const preise = (kaufbar.length ? kaufbar : e.tickets).map(t => t.preis);
+          return preise.length ? { price: Math.min(...preise) } : {};
+        })(),
         availability: e.status === 'teilweise' ? 'https://schema.org/LimitedAvailability' : 'https://schema.org/InStock'
       }
     } : {})

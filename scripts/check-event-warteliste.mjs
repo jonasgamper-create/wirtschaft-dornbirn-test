@@ -164,7 +164,12 @@ check('Live: alle Kategorien auf 0 heisst ausverkauft, auch bei offenem Schalter
 check('Live: eine Kategorie mit Karten heisst buchbar', wegStand({ ...offen, preise: kat(0, 2) }, 'x').buchbar === true);
 check('Live sticht die hinterlegte Liste', wegStand({ ...offen, preise: kat(5) }, 'x', new Set(['x'])).buchbar === true);
 check('Live: Schalter zu bleibt zu, auch wenn Kategorien frei sind', wegStand({ ...zu, preise: kat(5) }, 'x').buchbar === false);
-check('Live: unbekannte Zahl ist nicht ausverkauft', wegStand({ ...offen, preise: kat(undefined) }, 'x').buchbar === true);
+check('Live: unbekannte Zahl ist nicht ausverkauft', wegStand({ ...offen, preise: kat(0, undefined) }, 'x').buchbar === true);
+// Fehlen die Zahlen ueberall (der Ticketdienst aendert sein Format), sagt die
+// Liste nichts ueber freie Karten - dann gilt der Rueckfall, und kein
+// ausverkaufter Abend springt auf einmal auf buchbar.
+check('Ohne jede Zahl "frei" entscheidet die Liste nicht',
+  wegStand({ ...offen, preise: kat(undefined, undefined) }, 'x', new Set(['x'])).buchbar === false);
 check('Leere oder nicht gelesene Kategorien: die hinterlegte Liste gilt',
   wegStand({ ...offen, preise: [] }, 'x', new Set(['x'])).buchbar === false
   && wegStand({ ...offen, preise: null }, 'x', new Set(['x'])).buchbar === false

@@ -219,7 +219,9 @@
       varianten: new Map((t.varianten || []).map(v => [v.id, v.preise || []]))
     }]));
 
-    const gelesen = preise => Array.isArray(preise) && preise.length > 0;
+    // Nur eine Liste, die etwas ueber freie Karten sagt, ersetzt die
+    // hinterlegte - dieselbe Regel wie im Dienst (kategorienLesbar).
+    const gelesen = preise => Array.isArray(preise) && preise.length > 0 && preise.some(p => Number.isInteger(p?.frei));
     const ergaenze = termin => {
       const eigen = dazu.get(termin.id);
       if (!eigen) return termin;

@@ -390,17 +390,36 @@ export function leseKategorien(daten, eventId) {
 }
 
 /**
+ * Sagt eine Kategorienliste etwas ueber freie Karten? Nur dann darf sie
+ * entscheiden: nicht leer, und mindestens eine Kategorie mit einer Zahl
+ * "frei". Fehlen die Zahlen ueberall (der Ticketdienst aendert sein Format),
+ * gilt der bisherige Stand bzw. die hinterlegte Liste - sonst stuenden alle
+ * ausverkauften Abende auf einen Schlag als buchbar da. Dieselbe Regel steht
+ * in site/events.js (lesbar) und site/app.js.
+ */
+export function kategorienLesbar(liste) {
+  return Array.isArray(liste) && liste.length > 0 && liste.some(k => Number.isInteger(k?.frei));
+}
+
+/**
  * Die Kategorien an die zusammengelegten Abende haengen: an den Hauptweg und
  * an jeden zweiten Weg, je unter seiner eigenen Kennung ("comedy only" hat
- * eigene). Nur was wirklich gelesen ist - eine nicht leere Liste. Sonst
- * bleibt das Feld weg, und die Seite nimmt ihren hinterlegten Stand.
+ * eigene). Zuerst, was live gelesen ist (kategorienLesbar); fehlt das fuer
+ * einen Weg (gleich nach dem Ausrollen, oder der Ticketdienst schwieg), die
+ * hinterlegte Liste - dieselbe, mit der die Warteliste dann rechnet. So
+ * bekommen Eventseite UND Startseite fuer jeden Weg dieselbe Auskunft, und
+ * die Startseite stellt keinen Abend als ausverkauft hin, nur weil einem
+ * seiner Wege gerade die Zahlen fehlen. Ohne beides bleibt das Feld weg.
  *
- * `stand` ist der Speicher des Dienstes (Kennung -> { termin, preise }).
+ * `stand` ist der Speicher des Dienstes (Kennung -> { termin, preise }),
+ * `rueckfall` die hinterlegte Liste (Kennung -> Kategorien).
  */
-export function mitPreisen(abende, stand) {
+export function mitPreisen(abende, stand, rueckfall = {}) {
   const von = kennung => {
     const liste = stand?.[kennung]?.preise;
-    return Array.isArray(liste) && liste.length ? liste.map(p => ({ ...p })) : null;
+    if (kategorienLesbar(liste)) return liste.map(p => ({ ...p }));
+    const hinterlegt = rueckfall?.[kennung];
+    return kategorienLesbar(hinterlegt) ? hinterlegt.map(p => ({ ...p })) : null;
   };
   return (abende || []).map(abend => {
     const eigene = von(abend?.id);
@@ -461,7 +480,11 @@ export function unterseitenIn(html, basis) {
  * Durchgang bei zwei Abrufen, wenn nichts Neues dazugekommen ist.
  */
 export async function entdecke(gesehen = {}, { hol = fetch, hoechstens = 20 } = {}) {
+  // Wie viele Abrufe dieser Durchgang macht - der Dienst rechnet damit sein
+  // Abrufbudget (rund fuenfzig je Aufruf im kostenlosen Tarif).
+  let abrufe = 0;
   const lies = async url => {
+    abrufe += 1;
     try {
       const antwort = await hol(url, { headers: { 'user-agent': 'Mozilla/5.0 (Wirtschaft Dornbirn Terminabgleich)' } });
       return antwort.ok ? await antwort.text() : '';
@@ -497,5 +520,5 @@ export async function entdecke(gesehen = {}, { hol = fetch, hoechstens = 20 } = 
   }
   // Alte Eintraege fuer Blaetterseiten aus dem Merker raeumen.
   for (const url of Object.keys(merker)) { try { if (istListe(url)) delete merker[url]; } catch { delete merker[url]; } }
-  return { kennungen: [...kennungen], gesehen: merker, neuGelesen };
+  return { kennungen: [...kennungen], gesehen: merker, neuGelesen, abrufe };
 }

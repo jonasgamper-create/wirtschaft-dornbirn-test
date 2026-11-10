@@ -10,7 +10,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   ausZeitpunkt, hausAusOrt, kennungAusLink, KENNUNGEN, leseTermin, schneideJson, seiteFuer, terminGueltig, kennungenIn, unterseitenIn, gruppiere,
-  holeKategorien, holeVerkauft, leseKategorien, mitPreisen
+  holeKategorien, holeVerkauft, kategorienLesbar, leseKategorien, mitPreisen
 } from '../server/src/ticketist.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -150,6 +150,9 @@ check('Kategorien: ohne Zahlen bleibt frei unbekannt, nicht 0',
 check('Kategorien: Rabatte bleiben beim Dienst', kategorien.every(k => Object.keys(k).every(f => ['name', 'preis', 'frei'].includes(f))));
 check('Kategorien: kaputte Antwort heisst nicht gelesen', leseKategorien({ fehler: 1 }) === null && leseKategorien(null) === null);
 check('Kategorien: leere Liste ist eine Antwort', JSON.stringify(leseKategorien({ items: [] })) === '[]');
+check('Lesbar ist nur eine Liste mit mindestens einer Zahl frei',
+  kategorienLesbar([{ name: 'A', preis: 1, frei: 0 }]) && kategorienLesbar([{ name: 'A', preis: 1 }, { name: 'B', preis: 2, frei: 3 }])
+  && !kategorienLesbar([{ name: 'A', preis: 1 }]) && !kategorienLesbar([]) && !kategorienLesbar(null));
 
 {
   const gefragt = [];
@@ -179,15 +182,21 @@ check('Kategorien: leere Liste ist eine Antwort', JSON.stringify(leseKategorien(
   const stand = {
     a: { termin: {}, preise: [{ name: 'Sitzplatz', preis: 68, frei: 3 }] },
     'a-only': { termin: {}, preise: [{ name: 'Stehplatz', preis: 28, frei: 0 }] },
-    'a-zwei': { termin: {}, preise: [] },
+    'a-zwei': { termin: {}, preise: [{ name: 'Ohne Zahl', preis: 10 }] },
     b: { termin: {}, preise: null }
   };
   const mit = mitPreisen(abende, stand);
   check('Antwort: Hauptweg traegt seine Kategorien', mit[0].preise?.[0]?.preis === 68);
   check('Antwort: der zweite Weg seine eigenen', mit[0].varianten[0].preise?.[0]?.name === 'Stehplatz');
-  check('Antwort: ohne gelesene Kategorien bleibt das Feld weg',
+  check('Antwort: ohne lesbare Kategorien bleibt das Feld weg',
     !('preise' in mit[0].varianten[1]) && !('preise' in mit[1]));
   check('Antwort: der Stand im Speicher bleibt unberuehrt', stand.a.preise[0] !== mit[0].preise[0]);
+  // Fehlen einem Weg die Live-Kategorien, kommt die hinterlegte Liste mit -
+  // live geht vor, sonst bekaeme die Startseite fuer diesen Weg nichts.
+  const rueck = { b: [{ name: 'Hinterlegt', preis: 30, frei: 4 }], a: [{ name: 'Alt', preis: 1, frei: 0 }] };
+  const mitRueck = mitPreisen(abende, stand, rueck);
+  check('Antwort: ohne Live-Kategorien die hinterlegte Liste', mitRueck[1].preise?.[0]?.name === 'Hinterlegt');
+  check('Antwort: live geht vor hinterlegt', mitRueck[0].preise?.[0]?.name === 'Sitzplatz');
 }
 
 check('Ausverkauft im Text zaehlt als ausverkauft',
