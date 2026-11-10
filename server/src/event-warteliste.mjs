@@ -222,8 +222,10 @@ export function wiederBuchbar(alterStand, neuerStand, liste, lautPreisen = new S
     // jedem Durchgang aufs Neue, solange Karten da sind.
     if (vorher.buchbar === false && jetzt.buchbar === true) {
       raus.push({ weg: kennung, zurueck: jetzt.zurueck });
-    } else if (jetzt.zurueck > vorher.zurueck) {
+    } else if (jetzt.buchbar === true && jetzt.zurueck > vorher.zurueck) {
       // Noch mehr Karten zurueck als beim letzten Mal - auch das ist neu.
+      // Aber nur, wenn auch etwas zu haben ist: sagen die Kategorien "0
+      // frei", ist eine gesunkene Verkaufszahl keine Meldung wert (10.11.).
       raus.push({ weg: kennung, zurueck: jetzt.zurueck - vorher.zurueck });
     }
   }
@@ -231,35 +233,56 @@ export function wiederBuchbar(alterStand, neuerStand, liste, lautPreisen = new S
 }
 
 /**
- * Ausverkauft laut der hinterlegten Preisliste: alle Kategorien eines Weges
- * mit 0 frei. Die Zahl ist eine Momentaufnahme aus dem Verwaltungsbereich
- * des Ticketdienstes (site/data/ticketist-preise.json) - dieselbe Regel, mit
- * der die Eventseite ihre Kacheln grau stellt. Der Schalter des Dienstes
- * ("canTicketsBePurchased") sagt naemlich nur, ob der Verkauf offen ist,
- * nicht, ob noch etwas da ist: Kulis am 07.10. war am 14.09. mit 0 frei
- * eingetragen, der Schalter stand weiter auf offen.
+ * Alle Kategorien eines Weges mit 0 frei - nichts mehr zu haben. Dieselbe
+ * Regel, mit der die Eventseite ihre Kacheln grau stellt (site/events.js,
+ * ausverkauft()). Eine Kategorie ohne Zahl zaehlt NICHT als leer:
+ * unbekannt ist nicht ausverkauft.
+ */
+export function alleAus(kategorien) {
+  return Array.isArray(kategorien) && kategorien.length > 0 && kategorien.every(k => k?.frei === 0);
+}
+
+/**
+ * Ausverkauft laut der hinterlegten Kartenliste (site/data/ticketist-preise.json).
+ * Sie ist nur noch der Rueckfall: seit 10.11.2026 liest der Dienst die
+ * Kategorien live (holeKategorien), und wo er sie hat, gelten sie - siehe
+ * wegStand. Der Schalter des Dienstes ("canTicketsBePurchased") sagt
+ * naemlich nur, ob der Verkauf offen ist, nicht, ob noch etwas da ist:
+ * Kulis am 07.10. hatte 0 frei, der Schalter stand weiter auf offen.
  */
 export function ausverkauftLautPreisen(preise) {
   const raus = new Set();
   for (const [kennung, kategorien] of Object.entries(preise || {})) {
-    if (Array.isArray(kategorien) && kategorien.length && kategorien.every(k => Number(k?.frei) === 0)) raus.add(kennung);
+    if (alleAus(kategorien)) raus.add(kennung);
   }
   return raus;
 }
 
 /**
  * Der Stand EINES Weges - die einzige Stelle, an der entschieden wird, ob
- * etwas zu haben ist. Drei Quellen, in dieser Reihenfolge:
+ * etwas zu haben ist.
  *
- *  1. Karten sind zurueckgekommen. Wie viele Karten verkauft sind, gibt
- *     der Ticketdienst oeffentlich heraus; faellt die Zahl unter ihren
- *     Hoechststand, hat jemand storniert. Das sticht alles andere - es ist
- *     die einzige Quelle, die LIVE ist und aus der Wirklichkeit kommt.
+ * Seit 10.11.2026 liest der Dienst die Kategorien live (eintrag.preise,
+ * mit jedem Abruf frisch). Wo er sie hat, entscheiden sie zusammen mit dem
+ * Schalter: buchbar, solange der Verkauf offen ist und eine Kategorie
+ * noch etwas frei hat. Das ist dieselbe Auskunft, die der Gast an der
+ * Kasse bekommt - und dieselbe Regel wie auf der Eventseite.
+ *
+ * Nur solange fuer einen Weg noch keine Kategorien gelesen sind, gelten
+ * die drei alten Quellen, in dieser Reihenfolge:
+ *
+ *  1. Karten sind zurueckgekommen: die Zahl der verkauften Karten faellt
+ *     unter ihren Hoechststand.
  *  2. Der Schalter des Dienstes (Verkauf geschlossen, oder der Satz
  *     "Diese Veranstaltung ist ausverkauft" im Text).
  *  3. Die hinterlegte Kartenliste: alle Kategorien des Weges auf 0.
- *     Eine Momentaufnahme aus dem Verwaltungsbereich - sie faengt den Fall,
- *     in dem der Schalter offen steht, obwohl nichts mehr da ist.
+ *
+ * `zurueck` (so viele Karten weniger verkauft als zum Hoechststand) ist der
+ * Hinweis fuer den Wirt, dass storniert wurde. Mit Kategorien zaehlt er nur,
+ * solange auch etwas frei ist: die Verkaufszahl des Dienstes ist nicht die
+ * Summe der Kategorien (10.11.2026: bei 39 von 67 Wegen hoeher) und kann
+ * fallen, ohne dass eine Karte zu haben ist. "2 karten zurueck" bei "0
+ * frei" waere eine falsche Auskunft.
  *
  * buchbar === null heisst: der Abend ist dem Dienst (noch) nicht bekannt.
  */
@@ -269,6 +292,11 @@ export function wegStand(eintrag, kennung, lautPreisen = new Set()) {
   const hoechstens = Number.isFinite(eintrag?.verkauftMax) ? eintrag.verkauftMax : null;
   const zurueck = verkauft !== null && hoechstens !== null ? Math.max(0, hoechstens - verkauft) : 0;
   if (!termin) return { buchbar: null, zurueck, verkauft };
+  const live = Array.isArray(eintrag?.preise) && eintrag.preise.length ? eintrag.preise : null;
+  if (live) {
+    const buchbar = termin.buchbar !== false && !alleAus(live);
+    return { buchbar, zurueck: buchbar ? zurueck : 0, verkauft };
+  }
   if (zurueck > 0) return { buchbar: true, zurueck, verkauft };
   const zu = termin.buchbar === false || (lautPreisen instanceof Set ? lautPreisen.has(kennung) : false);
   return { buchbar: !zu, zurueck, verkauft };

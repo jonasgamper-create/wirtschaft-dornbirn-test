@@ -90,7 +90,10 @@
       message.value.trim() ? `Weitere Wünsche: ${message.value.trim()}` : '', '',
       'Bitte melden Sie sich für die persönliche Abstimmung bei mir.', '', 'Vielen Dank!'
     ].filter(Boolean).join('\n');
-    const mailto = `mailto:willkommen@wirtschaft-dornbirn.at?subject=${encodeURIComponent(`Anfrage ${occasionLabel} · ${formattedDate}`)}&body=${encodeURIComponent(body)}`;
+    // Rueckfall, wenn der Dienst nicht antwortet: dieselbe Adresse wie
+    // ANFRAGE_MAIL im Dienst - Anfragen gehen an Emma & Eugen (Hausentscheid
+    // 03.11.2026; scripts/check-absender.mjs haelt beide gleich).
+    const mailto = `mailto:uri@eugen.family?subject=${encodeURIComponent(`Anfrage ${occasionLabel} · ${formattedDate}`)}&body=${encodeURIComponent(body)}`;
     window.__LAST_INQUIRY_MAILTO__ = mailto;
     // Zuerst an den eigenen Dienst: er bestaetigt dem Gast automatisch.
     // Nur wenn er nicht antwortet, oeffnet sich das Mailprogramm.

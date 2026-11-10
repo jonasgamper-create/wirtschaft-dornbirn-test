@@ -2,7 +2,7 @@
 // Genau diese Funktionen laufen im Dienst - hier ohne Netz, ohne Speicher.
 
 import {
-  HOECHSTENS_JE_WEG, antwortVomGast, ausverkauftLautPreisen, entferneEintrag, merkeMail, nimmAufEvent,
+  HOECHSTENS_JE_WEG, alleAus, antwortVomGast, ausverkauftLautPreisen, entferneEintrag, merkeMail, nimmAufEvent,
   pruefeEventWartelisteEintrag, raeumeEventWartelisteAb, setzeStatus,
   wartelisteUebersicht, wegAusTermin, wegStand, wiederBuchbar, zuVerstaendigen
 } from '../server/src/event-warteliste.mjs';
@@ -148,6 +148,55 @@ check('Kommt eine vierte zurueck, ist das neu',
   wiederBuchbar(retour, { 'kulis-02-2026': { ...retour['kulis-02-2026'], verkauft: 770 } }, liste)[0].zurueck === 1);
 check('Die Uebersicht zeigt die zurueckgekommenen Karten',
   wartelisteUebersicht(liste, retour, heute).find(g => g.weg === 'kulis-02-2026')?.zurueck === 3);
+
+// ---- 5c. Live-Kategorien (seit 10.11.2026) ---------------------------------
+// Der Dienst liest die Kategorien bei jedem Abruf mit. Wo er sie hat,
+// entscheiden sie zusammen mit dem Schalter - dieselbe Regel wie auf der
+// Eventseite. Hinterlegte Liste und Verkaufszahl sind nur noch Rueckfall.
+
+const kat = (...frei) => frei.map((f, i) => (f === undefined
+  ? { name: `Kat ${i + 1}`, preis: 40 }
+  : { name: `Kat ${i + 1}`, preis: 40, frei: f }));
+check('Nichts frei heisst: alle Kategorien auf 0', alleAus(kat(0, 0)) && !alleAus(kat(0, 1)) && !alleAus([]) && !alleAus(null));
+check('Eine Kategorie ohne Zahl ist nicht ausverkauft', !alleAus(kat(0, undefined)));
+check('Live: alle Kategorien auf 0 heisst ausverkauft, auch bei offenem Schalter',
+  wegStand({ ...offen, preise: kat(0, 0) }, 'x').buchbar === false);
+check('Live: eine Kategorie mit Karten heisst buchbar', wegStand({ ...offen, preise: kat(0, 2) }, 'x').buchbar === true);
+check('Live sticht die hinterlegte Liste', wegStand({ ...offen, preise: kat(5) }, 'x', new Set(['x'])).buchbar === true);
+check('Live: Schalter zu bleibt zu, auch wenn Kategorien frei sind', wegStand({ ...zu, preise: kat(5) }, 'x').buchbar === false);
+check('Live: unbekannte Zahl ist nicht ausverkauft', wegStand({ ...offen, preise: kat(undefined) }, 'x').buchbar === true);
+check('Leere oder nicht gelesene Kategorien: die hinterlegte Liste gilt',
+  wegStand({ ...offen, preise: [] }, 'x', new Set(['x'])).buchbar === false
+  && wegStand({ ...offen, preise: null }, 'x', new Set(['x'])).buchbar === false
+  && wegStand({ ...offen, preise: null }, 'x').buchbar === true);
+// Die Verkaufszahl des Dienstes ist nicht die Summe der Kategorien (10.11.:
+// bei 39 von 67 Wegen hoeher). Faellt sie, waehrend alle Kategorien auf 0
+// stehen, ist nichts zu haben - und nichts zu melden.
+const zahlFaellt = { ...offen, verkauft: 770, verkauftMax: 774, preise: kat(0) };
+check('Live auf 0 sticht eine gefallene Verkaufszahl', wegStand(zahlFaellt, 'x').buchbar === false);
+check('Und meldet dann keine Karten zurueck', wegStand(zahlFaellt, 'x').zurueck === 0);
+check('Mit freien Karten zaehlt die gefallene Zahl als zurueck', wegStand({ ...zahlFaellt, preise: kat(4) }, 'x').zurueck === 4);
+{
+  const basis = termine['kulis-02-2026'];
+  const offenLive = termin => ({ ...basis, termin: { ...basis.termin, buchbar: true }, ...termin });
+  const leer = { 'kulis-02-2026': offenLive({ preise: kat(0, 0) }) };
+  const wiederDa = { 'kulis-02-2026': offenLive({ preise: kat(0, 2) }) };
+  check('Live: von 0 auf frei meldet sich beim Wirt',
+    wiederBuchbar(leer, wiederDa, liste).map(w => w.weg).join() === 'kulis-02-2026');
+  check('Live: gleichbleibend frei meldet sich nicht zweimal', wiederBuchbar(wiederDa, wiederDa, liste).length === 0);
+  const zahlRunter = { 'kulis-02-2026': offenLive({ preise: kat(0, 0), verkauft: 770, verkauftMax: 774 }) };
+  check('Live: gefallene Zahl bei 0 frei meldet nichts', wiederBuchbar(leer, zahlRunter, liste).length === 0);
+  // Der erste Abruf nach der Umstellung: vorher nur die hinterlegte Liste
+  // (ausverkauft), jetzt live ebenfalls 0 - kein falscher Alarm.
+  const ohneLive = { 'kulis-02-2026': offenLive({}) };
+  check('Umstellung: hinterlegt ausverkauft, live ausverkauft - keine Meldung',
+    wiederBuchbar(ohneLive, leer, liste, new Set(['kulis-02-2026'])).length === 0);
+  check('Uebersicht: mit live freien Karten steht der Weg als buchbar da',
+    wartelisteUebersicht(liste, { ...termine, ...wiederDa }, heute).find(g => g.weg === 'kulis-02-2026')?.buchbar === true);
+  check('Uebersicht: live ausverkauft steht er als ausverkauft da, ohne Rueckgaben',
+    (() => { const g = wartelisteUebersicht(liste, { ...termine, ...zahlRunter }, heute).find(x => x.weg === 'kulis-02-2026');
+      return g?.buchbar === false && g?.zurueck === 0; })());
+}
 
 liste = merkeMail(liste, 'ew-1', { ok: true }, '2026-09-19T09:00:00Z');
 check('Mail merkt sich Zeit und Erfolg',

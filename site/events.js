@@ -61,9 +61,10 @@
    * Eine Kachel - fuer beide Haeuser dieselbe Form.
    *
    * Die Daten kommen vom Ticketdienst: Name, Untertitel, Tag und Uhrzeit,
-   * Ort, Bild und ob noch gekauft werden kann. Preise kennt er nicht; wo
-   * wir eigene haben (data/events.json), stehen sie darunter, sonst nicht.
-   * Geraten wird nichts.
+   * Ort, Bild, ob noch gekauft werden kann, und seit 10.11.2026 auch die
+   * Kategorien mit Preis und freien Karten. Fehlen sie einmal, gilt die
+   * hinterlegte Liste (data/termine.json); ohne beides steht kein Preis
+   * da. Geraten wird nichts.
    *
    * Der Ort entscheidet ueber die Farbe: die Abende im Kulturhaus sind
    * beige, die im eigenen Haus dunkel (Jonas, 11.09.). Eine Liste, zwei
@@ -206,10 +207,11 @@
       .then(a => a.json()).then(d => d?.termine || []).catch(() => []);
     const hinterlegt = await ausDatei();
 
-    // Was bei uns liegt und was der Dienst NICHT liefern kann: die Bilder
-    // (sie sollen nicht von aussen nachgeladen werden) und die Preise (der
-    // Ticketdienst gibt sie oeffentlich nicht heraus). Beides kommt ueber
-    // die Kennung an den frischen Termin.
+    // Was bei uns liegt: die Bilder (sie sollen nicht von aussen
+    // nachgeladen werden) und die zuletzt hinterlegten Preise. Die Preise
+    // liefert der Dienst seit 10.11.2026 selbst mit, frisch vom
+    // Ticketdienst; die hinterlegten springen nur ein, wo er (noch) keine
+    // hat. Beides kommt ueber die Kennung an den frischen Termin.
     const dazu = new Map(hinterlegt.map(t => [t.id, {
       bild: t.bild || '',
       bild2x: t.bild2x || '',
@@ -217,6 +219,7 @@
       varianten: new Map((t.varianten || []).map(v => [v.id, v.preise || []]))
     }]));
 
+    const gelesen = preise => Array.isArray(preise) && preise.length > 0;
     const ergaenze = termin => {
       const eigen = dazu.get(termin.id);
       if (!eigen) return termin;
@@ -224,8 +227,11 @@
         ...termin,
         bild: eigen.bild,
         bild2x: eigen.bild2x,
-        preise: eigen.preise,
-        varianten: (termin.varianten || []).map(v => ({ ...v, preise: eigen.varianten.get(v.id) || [] }))
+        preise: gelesen(termin.preise) ? termin.preise : eigen.preise,
+        varianten: (termin.varianten || []).map(v => ({
+          ...v,
+          preise: gelesen(v.preise) ? v.preise : (eigen.varianten.get(v.id) || [])
+        }))
       };
     };
 

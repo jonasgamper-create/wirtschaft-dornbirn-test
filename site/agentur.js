@@ -44,7 +44,10 @@
       feld('agTel').value.trim() ? `Telefon: ${feld('agTel').value.trim()}` : '',
       feld('agNachricht').value.trim() ? `\n${feld('agNachricht').value.trim()}` : ''
     ].filter(Boolean);
-    const mailto = `mailto:willkommen@wirtschaft-dornbirn.at?subject=${encodeURIComponent(`Künstler-Anfrage · ${anlass.value} · ${feld('agDatum').value.trim()}`)}&body=${encodeURIComponent(zeilen.join('\n'))}`;
+    // Rueckfall, wenn der Dienst nicht antwortet: dieselbe Adresse wie
+    // ANFRAGE_MAIL im Dienst - Anfragen gehen an Emma & Eugen (Hausentscheid
+    // 03.11.2026; scripts/check-absender.mjs haelt beide gleich).
+    const mailto = `mailto:uri@eugen.family?subject=${encodeURIComponent(`Künstler-Anfrage · ${anlass.value} · ${feld('agDatum').value.trim()}`)}&body=${encodeURIComponent(zeilen.join('\n'))}`;
     window.__LAST_INQUIRY_MAILTO__ = mailto;
     // Zuerst an den eigenen Dienst (automatische Bestaetigung an den Gast);
     // nur ohne Antwort oeffnet sich das Mailprogramm.

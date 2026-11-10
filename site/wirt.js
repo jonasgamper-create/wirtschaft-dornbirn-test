@@ -1135,8 +1135,9 @@ function maleWarteliste() {
     const standZeile = document.createElement('span');
     standZeile.className = 'warte-stand';
     // Zurueckgekommene Karten stehen zuerst: sie sind das, was der Wirt
-    // wissen muss. Der Ticketdienst meldet sie nicht - die Zahl der
-    // verkauften Karten schon, und sie ist gefallen.
+    // wissen muss. Der Ticketdienst meldet sie nicht eigens - die Zahl der
+    // verkauften Karten ist gefallen, und laut Kategorien ist auch etwas
+    // frei (der Dienst zaehlt sie nur dann, seit 10.11.2026).
     const lage = gruppe.zurueck > 0
       ? `${wartePlural(gruppe.zurueck, 'karte zurück', 'karten zurück')}`
       : gruppe.buchbar === true ? 'wieder karten da'

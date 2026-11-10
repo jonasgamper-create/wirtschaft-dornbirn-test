@@ -39,22 +39,28 @@ const bisher = JSON.parse(await readFile(datei('events.json'), 'utf8').catch(() 
  */
 function alsEvent(termin, id) {
   const arten = [];
-  const nimm = (preise, buchbar, praefix = '') => {
+  // Beim zweiten Weg: sein Name davor, ausser die Kategorie heisst schon so
+  // ("comedy only (stehplatz)" statt "comedy only: comedy only ..."), und
+  // SEINE Uhrzeit - "comedy only" beginnt um 21:00, nicht um 19:00.
+  // Dieselbe Regel steht in site/app.js (alsEvent) - beide gleich halten.
+  const nimm = (preise, buchbar, praefix = '', zeit = '') => {
     for (const p of preise || []) {
+      const doppelt = praefix && String(p.name).toLowerCase().startsWith(String(praefix).toLowerCase());
       arten.push({
-        name: praefix ? `${praefix}: ${p.name}` : p.name,
+        name: praefix && !doppelt ? `${praefix}: ${p.name}` : p.name,
         preis: Number(p.preis) || 0,
-        beginn: termin.zeit || '19:00',
+        beginn: zeit || termin.zeit || '19:00',
         status: !buchbar || p.frei === 0 ? 'ausverkauft' : 'buchbar'
       });
     }
   };
-  nimm(termin.preise, termin.buchbar !== false);
-  for (const v of termin.varianten || []) nimm(v.preise, v.buchbar !== false, v.label);
+  nimm(termin.preise, termin.buchbar !== false, '', termin.zeit);
+  for (const v of termin.varianten || []) nimm(v.preise, v.buchbar !== false, v.label, v.zeit);
 
   const brauchbar = arten.filter(a => a.preis > 0);
-  // Ohne Preise (neue Abende, 01.10.): der Schalter des Ticketdienstes
-  // entscheidet allein. Geschlossen heisst ausverkauft, sonst buchbar.
+  // Ohne Preise (der Ticketdienst nennt fuer den Abend keine Kategorien):
+  // sein Schalter entscheidet allein. Geschlossen heisst ausverkauft,
+  // sonst buchbar.
   const ohnePreisZu = !brauchbar.length && termin.buchbar === false;
   const alleWeg = ohnePreisZu || (brauchbar.length > 0 && brauchbar.every(a => a.status === 'ausverkauft'));
   const eineWeg = brauchbar.some(a => a.status === 'ausverkauft');

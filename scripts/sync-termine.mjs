@@ -5,7 +5,8 @@
 // Gelesen wird beim Ticketdienst - eine Kennung je Abend, dieselbe, unter
 // der dort verkauft wird. Die Liste der Kennungen steht in
 // site/data/termine.json und ist das Einzige, was von Hand gepflegt wird;
-// alles andere (Name, Untertitel, Tag, Uhrzeit, Ort, Bild, Beschreibung)
+// alles andere (Name, Untertitel, Tag, Uhrzeit, Ort, Bild, Beschreibung,
+// und seit 10.11.2026 die Ticketkategorien mit Preis und freien Karten)
 // kommt vom Dienst.
 //
 // Der Dienst im Haus liest dieselbe Liste selbst und mehrmals täglich - auf
@@ -21,7 +22,7 @@ import { mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promise
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { entdecke, gruppiere, holeTermin, KENNUNGEN } from '../server/src/ticketist.mjs';
+import { entdecke, gruppiere, holeKategorien, holeTermin, KENNUNGEN } from '../server/src/ticketist.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ziel = path.join(root, 'site', 'data', 'termine.json');
@@ -33,7 +34,33 @@ const bilderOrdner = path.join(root, 'site', 'assets', 'events', 'ticketist');
 const gefunden = await entdecke({}, { hoechstens: 40 }).catch(() => ({ kennungen: [] }));
 const neuGefunden = gefunden.kennungen.filter(k => !KENNUNGEN.includes(k));
 if (neuGefunden.length) console.log(`  Auf den eigenen Eventseiten neu gefunden: ${neuGefunden.join(', ')}`);
-const kennungen = [...new Set([...KENNUNGEN, ...gefunden.kennungen])].sort();
+
+// Was die Seite schon kennt, bleibt (10.11.2026): jeder kommende Abend aus
+// dem bisherigen Stand und jeder Abend, den der Dienst im Haus fuehrt - auch
+// die, die das Haus selbst aufgenommen hat und die auf keiner alten Seite
+// (mehr) verlinkt sind. Sonst fiele ein Abend aus dem Rueckfall, sobald die
+// Suche ihn nicht mehr findet (italiantribute-2027 am 10.11.), und nach der
+// Abschaltung der alten Seiten fielen alle gefundenen auf einmal weg.
+const bisher = await readFile(ziel, 'utf8').then(JSON.parse).catch(() => ({ termine: [] }));
+const heuteIso = new Date().toISOString().slice(0, 10);
+const wegeVon = abende => (abende || []).flatMap(t => [t?.id, ...(t?.varianten || []).map(v => v?.id)]);
+const ausBisher = wegeVon((bisher.termine || []).filter(t => String(t.date || '') >= heuteIso));
+const ausDienst = await (async () => {
+  try {
+    const haus = JSON.parse(await readFile(path.join(root, 'site', 'data', 'haus.json'), 'utf8'));
+    const basis = String(haus?.api || '').trim().replace(/\/+$/, '');
+    if (!/^https:\/\//.test(basis)) return [];
+    const antwort = await fetch(`${basis}/api/termine`);
+    return antwort.ok ? wegeVon((await antwort.json())?.termine) : [];
+  } catch {
+    return [];
+  }
+})();
+const gueltig = k => typeof k === 'string' && /^[a-z0-9-]{3,60}$/.test(k);
+const dazu = [...new Set([...ausBisher, ...ausDienst])]
+  .filter(k => gueltig(k) && !KENNUNGEN.includes(k) && !gefunden.kennungen.includes(k));
+if (dazu.length) console.log(`  Aus dem bisherigen Stand und vom Dienst: ${dazu.join(', ')}`);
+const kennungen = [...new Set([...KENNUNGEN, ...gefunden.kennungen, ...ausBisher, ...ausDienst])].filter(gueltig).sort();
 
 await mkdir(bilderOrdner, { recursive: true });
 const vorhanden = new Set(await readdir(bilderOrdner).catch(() => []));
@@ -74,20 +101,26 @@ function alsWebp2x(rohdatei, zieldatei) {
   }
 }
 
-// Die Preise stehen nicht auf der oeffentlichen Eventseite - der Dienst gibt
-// sie nur im Verwaltungsbereich heraus. Sie liegen deshalb als eigene Datei
-// im Projekt (site/data/ticketist-preise.json, gelesen am 14.09.) und werden
-// hier zu den Terminen gelegt. Preise aendern sich selten; ob noch Karten da
-// sind, kommt live von der Eventseite.
-const preisDatei = JSON.parse(await readFile(path.join(root, 'site', 'data', 'ticketist-preise.json'), 'utf8'));
+// Die Preise: Kategorien, Preis und freie Karten stehen nicht auf der
+// Eventseite, aber oeffentlich unter /api/ticket-categories?eventId=<nummer>
+// (seit 10.11.2026; bis dahin eine Abschrift vom 14.09., der die 20 Abende
+// ab Jaenner 2027 fehlten). Dieses Skript liest sie je Abend und schreibt
+// sie nach site/data/ticketist-preise.json. Die Datei ist der Rueckfall fuer
+// Seite und Dienst, wenn der Ticketdienst einmal nicht antwortet; im
+// Betrieb liest der Dienst die Kategorien selbst. Antwortet er hier nicht,
+// bleibt fuer diesen Abend der bisherige Eintrag.
+const preisPfad = path.join(root, 'site', 'data', 'ticketist-preise.json');
+const preisDatei = JSON.parse(await readFile(preisPfad, 'utf8'));
 const preise = preisDatei.preise || {};
+const neuePreise = {};
+const ohneKategorien = [];
+let kategorienGelesen = 0;
 
 // Der bisherige Stand. Er ist der Rueckfall fuer jeden Abend, der sich
 // gerade nicht lesen laesst: ein Aussetzer beim Ticketdienst darf keinen
 // kommenden Abend aus der Datei loeschen. Genau das ist am 20.09.2026
 // passiert - der Abend am 22.09. war nach einem einzigen misslungenen
 // Abruf weg, ohne dass es jemandem aufgefallen waere.
-const bisher = await readFile(ziel, 'utf8').then(JSON.parse).catch(() => ({ termine: [] }));
 const bisherNachId = new Map((bisher.termine || []).map(t => [t.id, t]));
 
 const termine = [];
@@ -104,7 +137,20 @@ for (const kennung of kennungen) {
     termin = await holeTermin(kennung);
   }
   if (!termin) { fehlend.push(kennung); continue; }
-  termin.preise = preise[kennung] || [];
+  // Auch hier zwei Versuche - ohne Antwort gilt der bisherige Eintrag.
+  let kategorien = await holeKategorien(termin.eventId);
+  if (!Array.isArray(kategorien)) {
+    await new Promise(fertig => setTimeout(fertig, 1000));
+    kategorien = await holeKategorien(termin.eventId);
+  }
+  if (Array.isArray(kategorien) && kategorien.length) {
+    neuePreise[kennung] = kategorien;
+    kategorienGelesen += 1;
+  } else {
+    ohneKategorien.push(kennung);
+    if (Array.isArray(preise[kennung]) && preise[kennung].length) neuePreise[kennung] = preise[kennung];
+  }
+  termin.preise = neuePreise[kennung] || [];
 
   if (termin.bildQuelle) {
     // Dieselbe Aufnahme für mehrere Abende (die drei Luis-Termine teilen
@@ -159,7 +205,7 @@ const abende = gruppiere(termine);
 // ein zweiter Weg mit 0 frei stand auf der Seite als buchbar (rock4,
 // 22.10.: "konzert only" war laut Liste weg, der Knopf sagte "buchbar").
 for (const abend of abende) {
-  for (const v of abend.varianten || []) v.preise = preise[v.id] || [];
+  for (const v of abend.varianten || []) v.preise = neuePreise[v.id] || preise[v.id] || [];
 }
 
 // Was auch beim zweiten Versuch nicht kam: den bisherigen Eintrag behalten,
@@ -170,6 +216,8 @@ const gerettet = [];
 for (const kennung of fehlend) {
   const alt = bisherNachId.get(kennung);
   if (alt && alt.date >= heute) { abende.push(alt); gerettet.push(kennung); }
+  // Seine Preise bleiben ebenso im Rueckfall stehen.
+  if (!neuePreise[kennung] && Array.isArray(preise[kennung]) && preise[kennung].length) neuePreise[kennung] = preise[kennung];
 }
 if (gerettet.length) {
   abende.sort((a, b) => a.date.localeCompare(b.date) || String(a.zeit).localeCompare(String(b.zeit)));
@@ -204,8 +252,26 @@ await writeFile(ziel, JSON.stringify({
   termine: abende
 }, null, 2) + '\n');
 
+// Die Rueckfall-Liste nur neu schreiben, wenn wirklich gelesen wurde: ohne
+// eine einzige Antwort bliebe sonst der alte Stand mit neuem Datum stehen.
+if (kategorienGelesen) {
+  await writeFile(preisPfad, JSON.stringify({
+    _hinweis: 'Preise und freie Karten je Ticketkategorie, gelesen aus der oeffentlichen Schnittstelle des Ticketdienstes '
+      + '(/api/ticket-categories?eventId=<nummer>) von scripts/sync-termine.mjs - nicht von Hand aendern. Rueckfall fuer '
+      + 'Eventseite, Startseite und Dienst, wenn der Ticketdienst nicht antwortet; im Betrieb liest der Dienst die Kategorien '
+      + "selbst. 'frei' ist der Stand vom Datum unten - eine Kategorie mit 0 ist ausverkauft.",
+    stand: heute,
+    quelle: 'https://www.ticketist.io/api/ticket-categories?eventId=<nummer>',
+    preise: Object.fromEntries(Object.entries(neuePreise).sort(([a], [b]) => a.localeCompare(b)))
+  }, null, 2) + '\n');
+} else {
+  console.warn('  Keine einzige Kategorie gelesen - site/data/ticketist-preise.json bleibt, wie sie ist.');
+}
+if (ohneKategorien.length) console.warn(`  Ohne frisch gelesene Kategorien: ${ohneKategorien.join(', ')}`);
+
 const haeuser = abende.reduce((zahl, t) => ({ ...zahl, [t.haus]: (zahl[t.haus] || 0) + 1 }), {});
 const zweiWege = abende.filter(a => a.varianten?.length).length;
 console.log(`Termine: ${abende.length} Abende (${termine.length} Veranstaltungen, ${zweiWege} mit zweitem Ticketweg)`
   + ` (${Object.entries(haeuser).map(([h, n]) => `${n}× ${h}`).join(', ')}), `
-  + `${geholt} Bilder neu geholt${fehlend.length ? `, ${fehlend.length} ohne Treffer` : ''}.`);
+  + `${geholt} Bilder neu geholt, ${kategorienGelesen} mit frisch gelesenen Kategorien`
+  + `${fehlend.length ? `, ${fehlend.length} ohne Treffer` : ''}.`);

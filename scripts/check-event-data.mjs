@@ -68,8 +68,8 @@ for (const [index, event] of events.entries()) {
 
   // Die Ticketarten sind die eigentliche Wahrheit ueber die Verfuegbarkeit.
   const tickets = Array.isArray(event.tickets) ? event.tickets : [];
-  // Ohne Ticketarten (neue Abende ohne hinterlegte Preise, 01.10.) ist der
-  // Abend erlaubt, wenn er zum Ticketdienst fuehrt - die Preise stehen dort.
+  // Ohne Ticketarten (der Ticketdienst nennt fuer den Abend keine
+  // Kategorien) ist der Abend erlaubt, wenn er zum Ticketdienst fuehrt.
   if (!tickets.length && !/ticketist\.io/.test(String(event.ticketUrl || ''))) fail(`${prefix}.tickets fehlt und kein Ticketlink.`);
   for (const [t, ticket] of tickets.entries()) {
     const tp = `${prefix}.tickets[${t}]`;
