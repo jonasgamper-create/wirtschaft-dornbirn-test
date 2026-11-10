@@ -254,7 +254,7 @@ export function wochenkarte({ karteLink, abmeldeLink }) {
 }
 
 /** Das Paket, das an Brevo geht. Getrennt gebaut, damit es pruefbar bleibt. */
-export function brevoPaket({ absender, absenderName, an, anName, betreff, html, text, anhang = null, antwortAn = null }) {
+export function brevoPaket({ absender, absenderName, an, anName, betreff, html, text, anhang = null, antwortAn = null, kopie = null }) {
   const paket = {
     sender: { email: absender, name: absenderName || 'Wirtschaft Dornbirn' },
     to: [anName ? { email: an, name: anName } : { email: an }],
@@ -262,6 +262,9 @@ export function brevoPaket({ absender, absenderName, an, anName, betreff, html, 
     htmlContent: html,
     textContent: text
   };
+  // Eine Kopie (Tageszettel, Wochenbericht an die technische Betreuung).
+  // Nie dieselbe Adresse wie der Empfaenger - Brevo weist das Paket sonst ab.
+  if (kopie && kopie !== an) paket.cc = [{ email: kopie }];
   // "Antworten" im Postfach des Hauses geht direkt an den Gast (Anfragen).
   if (antwortAn?.email) paket.replyTo = antwortAn.name ? { email: antwortAn.email, name: antwortAn.name } : { email: antwortAn.email };
   if (anhang) paket.attachment = [{ name: anhang.name, content: alsBase64(anhang.inhalt) }];

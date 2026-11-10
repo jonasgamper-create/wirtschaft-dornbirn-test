@@ -101,7 +101,13 @@
     // Adresse wie der Tageszettel, sondern der Service. Leer heisst:
     // es gilt WIRT_MAIL.
     "TAKEAWAY_MAIL": "service@wirtschaft-dornbirn.at",
-    "ANFRAGE_MAIL": "willkommen@wirtschaft-dornbirn.at",
+    // Wohin die Anfragen der beiden Formulare ("Locations - Feste &
+    // Catering" und "Agentur") gehen. Hausentscheid 03.11.2026 (Antwort auf
+    // Frage 1): an Emma & Eugen, nicht mehr an die "wirtschaft" - das Haus
+    // hat die "wirtschaft" nur bis Sommer 2028, die Agentur und die
+    // Locations bleiben. Zurueck zur Wirtschaft: willkommen@wirtschaft-dornbirn.at.
+    // "Antworten" auf eine Anfrage geht weiterhin direkt an den Gast.
+    "ANFRAGE_MAIL": "uri@eugen.family",
 
     // ---- Absender je Zweck (Hausentscheid 27.10.2026, Frage 4) ----------
     //
@@ -133,6 +139,10 @@
   // der Schluessel darf nie in einer Datei dieses Verzeichnisses landen:
   //   npx wrangler secret put BREVO_KEY        (API-Schluessel aus dem Brevo-Konto)
   //   npx wrangler secret put BREVO_ABSENDER   (verifizierte Absenderadresse)
+  //   npx wrangler secret put WIRT_MAIL_KOPIE  (Kopie von Tageszettel und
+  //        Wochenbericht an die technische Betreuung; Hausentscheid
+  //        03.11.2026. Ein Geheimnis, weil die Adresse privat ist und das
+  //        Repository oeffentlich. Fehlt es, gibt es keine Kopie.)
   //
   // Fehlt eines von beiden, wird schlicht nichts versendet. Reservierung,
   // Zuteilung und Kalendereintrag im Browser laufen unveraendert weiter -
@@ -193,7 +203,7 @@
         // versendet ohnehin nichts: ihr fehlen die Brevo-Geheimnisse.
         "WIRT_MAIL": "veranstaltungen@wirtschaft-dornbirn.at",
         "TAKEAWAY_MAIL": "service@wirtschaft-dornbirn.at",
-        "ANFRAGE_MAIL": "willkommen@wirtschaft-dornbirn.at",
+        "ANFRAGE_MAIL": "uri@eugen.family",
         "ABSENDER_SERVICE": "",
         "ABSENDER_WARTELISTE": "",
         "ABSENDER_KULTURHAUS": "",

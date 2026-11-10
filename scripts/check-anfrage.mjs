@@ -28,6 +28,10 @@ check('Bestaetigung an den Gast nennt ihn und seine Angaben', gast.text.includes
 const paket = brevoPaket({ absender: 'a@b.at', an: 'haus@b.at', betreff: 'x', html: 'x', text: 'x', antwortAn: { email: 'anna@example.at', name: 'Anna' } });
 check('Antworten geht an den Gast (replyTo)', paket.replyTo?.email === 'anna@example.at');
 check('Ohne antwortAn kein replyTo', !brevoPaket({ absender: 'a@b.at', an: 'c@d.at', betreff: 'x', html: 'x', text: 'x' }).replyTo);
+const mitKopie = brevoPaket({ absender: 'a@b.at', an: 'haus@b.at', kopie: 'technik@c.at', betreff: 'x', html: 'x', text: 'x' });
+check('Kopie landet im cc', mitKopie.cc?.[0]?.email === 'technik@c.at' && mitKopie.to[0].email === 'haus@b.at');
+check('Ohne Kopie kein cc', !brevoPaket({ absender: 'a@b.at', an: 'c@d.at', betreff: 'x', html: 'x', text: 'x' }).cc);
+check('Kopie gleich Empfaenger: kein cc', !brevoPaket({ absender: 'a@b.at', an: 'c@d.at', kopie: 'c@d.at', betreff: 'x', html: 'x', text: 'x' }).cc);
 
 check('Hinweis: Text gekuerzt auf 90', pruefeHinweis({ text: 'x'.repeat(200) }).hinweis.text.length === 90);
 check('Hinweis: leerer Text = entfernen', pruefeHinweis({ text: '  ' }).hinweis === null);
