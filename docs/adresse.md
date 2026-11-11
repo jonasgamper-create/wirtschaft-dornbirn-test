@@ -1,17 +1,18 @@
 # Die Adresse der Seite
 
-Stand 17. September 2026. Die Seite hat seit heute eine eigene Adresse, die
-nichts kostet und sich herzeigen lässt.
+Stand 17. September 2026; die Tabelle ist nachgetragen am 11. November 2026.
+Die Seite hat seit dem 17. September eine eigene Adresse, die nichts kostet.
 
 ## Wo die Seite steht
 
 | Adresse | Was sie ist | Kosten |
 |---|---|---|
-| **wirtschaft-dornbirn.pages.dev** | die Adresse zum Herzeigen | keine |
-| jonasgamper-create.github.io/wirtschaft-dornbirn-test/ | dieselbe Seite, alter Weg | keine |
+| **wirtschaft-dornbirn.pages.dev** | die neue Seite am echten Dienst – was dort gebucht wird, ist echt; nicht zum Ausprobieren | keine |
+| **probe-wirtschaft-dornbirn.pages.dev** | die Testseite zum Herzeigen und Ausprobieren, immer Testbetrieb ([testumgebung.md](testumgebung.md)) | keine |
+| jonasgamper-create.github.io/wirtschaft-dornbirn-test/ | dieselbe Seite wie die neue, alter Weg – spricht mit dem echten Dienst, kein Testlink | keine |
 | wirtschaft-dornbirn.at | die echte Domain, noch die alte Seite | läuft bereits |
 
-Beide Adressen zeigen denselben Stand. Die alte bleibt vorerst erreichbar,
+Die neue Seite und die GitHub-Kopie zeigen denselben Stand. Die alte bleibt vorerst erreichbar,
 damit geteilte Links nicht ins Leere laufen – auch die QR-Codes auf den
 gedruckten Karten zeigen noch dorthin.
 
@@ -50,10 +51,15 @@ Dauerhaft lösen lässt sich das auf zwei Arten, beide einmalig:
 
 ## Was beim Umzug auf die echte Domain zu tun ist
 
+Maßgeblich ist heute [umzug-domain-plan.md](umzug-domain-plan.md); hier nur
+die Kurzfassung vom September.
+
 1. DNS: `wirtschaft-dornbirn.at` und `www` auf Cloudflare Pages zeigen lassen
    (oder auf GitHub Pages – dann entfällt Cloudflare Pages wieder).
-2. `ALLOWED_ORIGINS` im Dienst auf die neue Adresse setzen, die alten
-   Testadressen entfernen (`server/wrangler.jsonc`, beide Umgebungen).
+2. `ALLOWED_ORIGINS` im Dienst auf die neue Adresse setzen und die alten
+   Testadressen entfernen (`server/wrangler.jsonc`); in der Probe bleibt
+   `https://probe-wirtschaft-dornbirn.pages.dev` erlaubt, sonst steht die
+   Testseite still.
 3. `GAESTE_SEITE` ebenfalls – daraus entstehen die Links in den Mails.
 4. QR-Codes neu erzeugen: `site/data/qr-ziele.json` und die beiden SVG unter
    `site/assets/qr/` tragen die alte Adresse.

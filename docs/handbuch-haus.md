@@ -1,6 +1,6 @@
 # Handbuch fürs Haus · Was ihr selbst an der Webseite ändert
 
-Stand 1. Oktober 2026. Für Wolfgang, Hannah und alle im Haus. Ohne Technik:
+Stand 11. November 2026. Für Wolfgang, Hannah und alle im Haus. Ohne Technik:
 alles hier geht in der **Wirt-Ansicht** am Handy, Tablet oder Laptop. Für
 alles, was hier nicht steht (Texte, Bilder, Aufbau der Seite), gibt es den
 Programmierer – wie ihr ihn beauftragt, steht in Abschnitt 6.
@@ -41,6 +41,12 @@ der Dienst jeden Abend, den ihr auf euren Eventseiten (wirtschaft-dornbirn.at/ev
 eugen.family/event) auf Ticketist verlinkt, um 06:00 und 12:00 von selbst auf
 die Webseite. Wer nicht warten will: warteliste → „Jetzt nachsehen“.
 
+Genauso die **Ticketkategorien und Preise** der Abende: Seit 11.11.2026 liest
+die Seite sie selbst bei Ticketist, eine Änderung steht spätestens nach zwölf
+Stunden auf der Webseite. Ihr ändert sie nur in Ticketist – schicken müsst
+ihr niemandem etwas. Antwortet Ticketist einmal nicht, nimmt die Seite eine
+hinterlegte Liste als Rückfall.
+
 ---
 
 ## 3. Der Alltag
@@ -62,9 +68,14 @@ die Webseite. Wer nicht warten will: warteliste → „Jetzt nachsehen“.
 
 **Anfragen (Reiter haus → Anfragen)**
 - Was Gäste über **Locations** (Feste, Catering) und **Agentur** schicken.
-- Jede Anfrage kommt zusätzlich per Mail an willkommen@wirtschaft-dornbirn.at.
+- Jede Anfrage kommt zusätzlich per Mail an **uri@eugen.family** (so
+  entschieden am 3.11., eingestellt seit 10.11.2026).
   **Auf diese Mail einfach antworten** – die Antwort geht direkt an den Gast.
-- Der Gast hat schon eine automatische Bestätigung bekommen.
+- Der Gast hat schon eine automatische Bestätigung bekommen. Antwortet er
+  darauf, landet das ebenfalls bei uri@eugen.family.
+- Ist der Dienst einmal nicht erreichbar, öffnet das Formular beim Gast
+  stattdessen eine Mail an uri@eugen.family.
+- willkommen@wirtschaft-dornbirn.at bleibt die Kontaktadresse auf der Seite.
 - „erledigt“ tippen, wenn beantwortet. Nach 90 Tagen löscht der Dienst sie.
 
 ---
@@ -87,17 +98,10 @@ die Webseite. Wer nicht warten will: warteliste → „Jetzt nachsehen“.
 | 06:00 und 12:00 | neue Abende von den Eventseiten holen, Abgleich, Wartelisten prüfen | – |
 | täglich 07:30 | Abgleich von außen (GitHub); bei einem Fehler Mail an den Programmierer | Programmierer |
 
-**Automatische Antwort auf Mails an willkommen@:** Mails, die Gäste direkt
-an willkommen@wirtschaft-dornbirn.at schreiben, gehen nicht durch die
-Webseite. Eine Abwesenheits- oder Eingangsnotiz dafür stellt ihr im
-Postfach selbst ein (bei Hetzner im Kundenbereich beim Postfach unter
-„Autoresponder“; die Bezeichnung kann je nach Oberfläche abweichen).
-Vorschlag für den Text:
-
-> Danke für deine Nachricht an die „wirtschaft“! Wir lesen jede Mail
-> persönlich und melden uns so bald wie möglich. Tisch für mittags
-> reservieren geht sofort online: wirtschaft-dornbirn.at/tischreservierung ·
-> Takeaway: wirtschaft-dornbirn.at/takeaway · Tickets: wirtschaft-dornbirn.at/events
+**Mails, die Gäste direkt an willkommen@ schreiben,** gehen nicht durch die
+Webseite und bekommen keine automatische Antwort – so habt ihr es
+entschieden (keine automatische Antwort im Postfach). Sie kommen ganz normal
+im Postfach an, und ihr beantwortet sie wie bisher selbst.
 
 ---
 
@@ -114,8 +118,9 @@ Vorschlag für den Text:
 ## 6. Was der Programmierer macht – und wie ihr ihn beauftragt
 
 Alles, was nicht in Abschnitt 2 steht, ändert der Programmierer im Code:
-Texte auf den Seiten, Bilder, Aufbau, neue Seiten, Preise der Abende
-(Ticketist gibt sie nicht öffentlich heraus), Weiterleitungen, Fehler.
+Texte auf den Seiten, Bilder, Aufbau, neue Seiten, Weiterleitungen, Fehler.
+Preise und Kategorien der Abende gehören nicht mehr dazu – die kommen von
+selbst aus Ticketist (Abschnitt 2).
 
 So beauftragt ihr ihn am saubersten:
 

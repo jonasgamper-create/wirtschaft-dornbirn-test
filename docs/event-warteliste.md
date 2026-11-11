@@ -1,6 +1,6 @@
 # Die Wartelisten: ausverkaufte Abende und voller Mittagstisch
 
-Eingerichtet am 20. September 2026.
+Eingerichtet am 20. September 2026; Stand 11. November 2026.
 
 **Zweck.** Wer für einen ausverkauften Abend Karten will oder an einem vollen
 Tag einen Tisch braucht, soll nicht ins Leere klicken. Und das Haus soll
@@ -114,8 +114,9 @@ für die Mail („bitte bis Freitag buchen“) und einer Rückfrage vor dem Vers
 **Zwei Knöpfe oben:**
 
 - **Jetzt nachsehen** — fragt sofort beim Ticketdienst nach, für die Abende,
-  um die es geht (höchstens zwölf; gemessen 2,7 Sekunden für neun). Von selbst
-  sieht der Dienst alle zwölf Stunden nach.
+  um die es geht (seit 11.11.2026 höchstens acht, Wege mit Wartenden zuerst,
+  weil je Weg auch die Kategorien gelesen werden; gemessen am 20.09.:
+  2,7 Sekunden für neun). Von selbst sieht der Dienst alle zwölf Stunden nach.
 - **+ eintragen** — der Gast ruft an, der Wirt trägt ihn ein. Abende aus dem
   Dienst, ausverkaufte zuerst. Keine Bestätigungsmail — die hatte er am
   Telefon; stattdessen liefert die Antwort die drei Antwortlinks des Gastes
@@ -161,7 +162,7 @@ als jede Momentaufnahme.
 | Nummer des Abends beim Dienst (`eventId`) | ebenda | ebenda |
 | Verkauf offen / geschlossen | ebenda (`canTicketsBePurchased` und der Satz „Diese Veranstaltung ist ausverkauft“) | ebenda |
 | **Verkaufte Karten** (`ticketCount`) | öffentliche Schnittstelle `ticketist.io/api/events/<nummer>` | ebenda |
-| Preise je Kategorie, freie Karten je Kategorie | `site/data/ticketist-preise.json` — von Hand aus dem Verwaltungsbereich gelesen | Momentaufnahme (zuletzt 14.09.2026) |
+| Preise je Kategorie, freie Karten je Kategorie | öffentliche Schnittstelle `ticketist.io/api/ticket-categories?eventId=<nummer>` (seit 11.11.2026); Rückfall `site/data/ticketist-preise.json`, erzeugt von `npm run sync:termine` aus derselben Schnittstelle | mit den Eventdaten, alle 12 Stunden oder auf Knopfdruck; die Datei hat den Stand ihres letzten Laufs |
 | Welche Abende es gibt | `KENNUNGEN` in `server/src/ticketist.mjs` **plus** die selbst aufgenommenen im Dienst | fest bzw. sofort |
 | Name, Mail, Telefon, Kartenzahl der Wartenden | der Gast selbst (oder der Wirt am Telefon) | sofort |
 | Mailverlauf, Rückmeldungen | der Dienst | sofort |
@@ -175,20 +176,29 @@ eigenen Dienst; fällt der aus, gilt die hinterlegte Datei
 ## 6. Was „ausverkauft“ heißt: drei Quellen, eine Regel
 
 Entschieden wird an genau einer Stelle im Code (`wegStand` in
-`server/src/event-warteliste.mjs`), in dieser Reihenfolge:
+`server/src/event-warteliste.mjs`).
+
+**Seit 11.11.2026, wo die Kategorien gelesen sind:** Sie entscheiden
+zusammen mit dem Schalter. Buchbar ist ein Weg, solange der Verkauf offen
+ist und mindestens eine Kategorie noch etwas frei hat; alle Kategorien auf
+0 frei heißt ausverkauft. Die Zahl der verkauften Karten bleibt ein Hinweis
+auf Stornierungen, gilt aber nur, wenn auch etwas frei ist.
+
+**Ohne gelesene Kategorien** gelten die alten Regeln, in dieser Reihenfolge:
 
 1. **Karten sind zurückgekommen** — die Zahl der verkauften Karten liegt unter
-   ihrem bisherigen Höchststand. Das sticht alles andere: es ist die einzige
-   Quelle, die live ist und aus der Wirklichkeit kommt.
+   ihrem bisherigen Höchststand. Das sticht dann alles andere: es ist die
+   Quelle, die Stornierungen sofort zeigt.
 2. **Der Schalter des Ticketdienstes** — Verkauf geschlossen, oder der Satz
    „Diese Veranstaltung ist ausverkauft“ in der Beschreibung.
-3. **Die hinterlegte Kartenliste** — alle Kategorien dieses Weges auf 0 frei.
+3. **Die hinterlegte Kartenliste** (`ticketist-preise.json`, der Rückfall) —
+   alle Kategorien dieses Weges auf 0 frei.
 
-Warum drei und nicht eine: der Schalter allein genügt nicht. Gernot Kulis am
-07.10. stand am 20.09. auf „Verkauf offen“, obwohl seit dem 14.09. null freie
-Karten eingetragen sind. Die Kartenliste allein genügt auch nicht: sie ist
-eine Momentaufnahme und weiß von Stornierungen nichts. Zusammen decken sie
-sich gegenseitig ab.
+Warum nicht eine Quelle allein: der Schalter genügt nicht. Gernot Kulis am
+07.10. stand am 20.09. auf „Verkauf offen“, obwohl laut Kartenliste null
+Karten frei waren. Die hinterlegte Kartenliste genügt auch nicht: sie ist
+der Stand ihres letzten Laufs und weiß von Stornierungen danach nichts.
+Deshalb liest der Dienst die Kategorien seit 11.11.2026 selbst.
 
 Dieselbe Regel gilt auf der Eventseite und im Dienst. Die Gruppen beim Wirt
 sind deshalb exakt dieselben Wege, die auf der Seite einen Wartelisten-Knopf
@@ -218,13 +228,22 @@ Höchststand. Fällt die Zahl darunter, hat jemand storniert:
   Personen warten“).
 - Wird nachgekauft, steigt die Zahl wieder auf den Höchststand, und der Abend
   gilt wieder als ausverkauft. Das korrigiert sich von selbst.
+- Seit 11.11.2026 gilt „karten zurück“ nur, wenn laut Kategorien auch etwas
+  frei ist. Eine gesunkene Verkaufszahl bei 0 freien Karten ist keine
+  Meldung wert.
 
-Das ist der einzige öffentlich verfügbare Hinweis auf Rückläufer. Ohne ihn
+Das ist – neben den freien Karten je Kategorie, die der Dienst seit
+11.11.2026 mitliest – ein öffentlicher Hinweis auf Rückläufer. Ohne beides
 müsste man warten, bis jemand im Haus den Verkauf wieder aufmacht.
 
 ---
 
 ## 8. Ein neuer Abend: was von selbst geht, was ein Handgriff ist
+
+**Seit 30.09. meist gar keiner:** Abende, die auf den eigenen Eventseiten
+des Hauses verlinkt sind, findet der Dienst von selbst (`QUELLSEITEN`,
+`betriebshandbuch.md` §8). Einfügen muss man nur einen Abend, der dort nicht
+steht.
 
 **Der eine Handgriff: den Link einfügen.**
 Wirt-App → Reiter *warteliste* → *Neuen Abend aufnehmen* → Link vom
@@ -241,6 +260,7 @@ automatisch**:
 | Ticketknopf | führt auf die richtige Seite |
 | Warteliste | entsteht, sobald der Abend ausverkauft ist |
 | Verkaufte Karten | werden ab sofort mitgezählt, Rückläufer werden erkannt |
+| Preise und freie Karten je Kategorie | werden sofort mitgelesen (seit 11.11.2026) |
 | Zweiter Weg („comedy only“) | wird als eigener Abend aufgenommen und automatisch mit dem ersten zusammengelegt |
 
 Kein Programmieren, keine Veröffentlichung, kein Warten. Geprüft am 20.09.:
@@ -248,12 +268,15 @@ Link eingefügt → der Abend stand sofort im Programm (47 statt 46 Kennungen)
 → die Warteliste nahm Eintragungen dafür an → entfernt → sofort wieder weg
 und die Warteliste lehnte ab.
 
-**Was der Abend ohne weiteres Zutun nicht hat:** Preise. Die stehen nicht
-öffentlich beim Ticketdienst, sondern in `site/data/ticketist-preise.json`.
-Ohne Eintrag zeigt die Kachel schlicht keine Preiszeilen — geraten wird
-nichts. Sold-out erkennt der Dienst trotzdem, über Schalter und Rückläufer.
+**Preise kommen von selbst** (seit 11.11.2026): Kategorien, Preise und freie
+Karten gibt der Ticketdienst öffentlich heraus, der Dienst liest sie mit dem
+Abend. Hat ein Abend beim Ticketdienst keine Kategorien, zeigt die Kachel
+schlicht keine Preiszeilen — geraten wird nichts. Sold-out erkennt der Dienst
+dann trotzdem, über Schalter und Rückläufer.
 
-**Empfehlung fürs Haus:** Wenn ein Abend ausverkauft ist, im Ticketdienst
+**Empfehlung fürs Haus:** Stehen alle Kategorien auf 0 frei, erkennt der
+Dienst „ausverkauft“ seit 11.11.2026 von selbst. Sonst gilt weiter: Wenn ein
+Abend ausverkauft ist, im Ticketdienst
 entweder den Verkauf schließen **oder** in die Beschreibung den Satz
 „Diese Veranstaltung ist ausverkauft“ schreiben. Beides erkennt unser Dienst
 von selbst, innerhalb von zwölf Stunden oder sofort auf Knopfdruck. Das ist
@@ -282,22 +305,27 @@ der zuverlässigste Weg und kostet nichts.
 
 **Nicht garantiert, mit Grund:**
 
-- **Ein Abend, dessen Kennung niemand eingefügt hat, existiert für uns nicht.**
-  Das betrifft nicht nur die Warteliste, sondern die ganze Seite — er fehlt
-  dann auch im Programm. Es gibt beim Ticketdienst keine öffentliche Liste
+- **Ein Abend, der weder auf den eigenen Eventseiten verlinkt ist noch
+  eingefügt wurde, existiert für uns nicht.** Das betrifft nicht nur die
+  Warteliste, sondern die ganze Seite — er fehlt dann auch im Programm.
+  (Die auf den Eventseiten verlinkten Abende kommen seit 30.09. von selbst.)
+  Es gibt beim Ticketdienst keine öffentliche Liste
   aller Abende eines Veranstalters (geprüft am 20.09.: `/api/events/<nummer>`
   ist öffentlich, Sammlungen und Veranstalterseiten sind es nicht).
-- **Sofortige Erkennung von „ausverkauft“ bei einem brandneuen Abend**, wenn
-  der Verkauf offen bleibt und in der Beschreibung nichts steht und keine
-  Kartenliste hinterlegt ist. Dann sieht der Dienst erst dann etwas, wenn
-  Karten zurückkommen oder jemand im Haus den Schalter umlegt. Deshalb die
-  Empfehlung oben.
-- **Freie Karten je Kategorie in Echtzeit.** Öffentlich gibt es nur die
-  verkauften Karten, nicht das Platzangebot je Kategorie. Das Platzangebot
-  lernt der Dienst erst, wenn ein Weg einmal ausverkauft war.
+- **Sofortige Erkennung von „ausverkauft“ bei einem Abend ohne gelesene
+  Kategorien**, wenn der Verkauf offen bleibt und in der Beschreibung nichts
+  steht. Dann sieht der Dienst erst dann etwas, wenn Karten zurückkommen
+  oder jemand im Haus den Schalter umlegt. Deshalb die Empfehlung oben.
+- **Freie Karten je Kategorie in Echtzeit.** Öffentlich lesbar sind sie, und
+  seit 11.11.2026 liest der Dienst sie – aber mit dem Abruf, also je Abend
+  spätestens alle zwölf Stunden oder auf Knopfdruck, nicht im Augenblick des
+  Verkaufs.
 - **Zustellung der Mails.** Solange der Absender nicht auf einer Domain liegt,
-  die bei Brevo beglaubigt ist, weist aon.at jede Mail ab. Das ist ein
-  bekanntes, offenes Thema und hängt am Domain-Zugang.
+  die bei Brevo beglaubigt ist, werden viele Mails abgewiesen (die heutige
+  Absenderadresse ist die private Adresse von Jonas, deren Anbieter per DMARC
+  `p=reject` verlangt, fremd versandte Mails abzuweisen). Die Einträge beider
+  Domains stehen; offen sind *Authenticate* im Brevo-Konto des Hauses und
+  dessen API-Schlüssel im Dienst – erst dann wird der Absender umgestellt.
 
 ---
 
@@ -305,14 +333,12 @@ der zuverlässigste Weg und kostet nichts.
 
 | Zugang | Was er löst | Ohne ihn |
 |---|---|---|
-| **Veranstalter-Zugang / API-Schlüssel bei ticketist.io** | Abende und freie Karten je Kategorie automatisch und in Echtzeit lesen. Damit fiele der letzte Handgriff weg — neue Abende kämen von selbst, ausverkauft wäre sofort und je Kategorie erkennbar | ein eingefügter Link je neuem Abend; sold-out über drei Quellen |
-| **Domain bei Cloudflare + beglaubigter Absender** | Die Wartelisten-Mails kommen tatsächlich an. Das betrifft alle Mails des Hauses, nicht nur diese | Mails werden versucht und der Fehlversuch steht ehrlich in der Zeile |
-| Zugang zum Verwaltungsbereich von ticketist (nur lesend) | die Kartenliste `ticketist-preise.json` frisch halten | Momentaufnahme vom 14.09., ergänzt durch Schalter und Rückläufer |
+| **Veranstalter-Zugang / API-Schlüssel bei ticketist.io** | eine Liste aller Abende des Veranstalters. Für freie Karten je Kategorie braucht es ihn nicht mehr: die gibt Ticketist öffentlich heraus, der Dienst liest sie seit 11.11.2026 | neue Abende von den eigenen Eventseiten (seit 30.09.), sonst ein eingefügter Link je Abend; ausverkauft über Kategorien und Schalter |
+| **Beglaubigter Absender** (Brevo-Konto des Hauses: *Authenticate*, dann dessen Schlüssel im Dienst) | Die Wartelisten-Mails kommen tatsächlich an. Das betrifft alle Mails des Hauses, nicht nur diese | Mails werden versucht und der Fehlversuch steht ehrlich in der Zeile |
 
-Der erste ist der einzige, der die Struktur verändert. Die anderen beiden
-verbessern, was schon läuft. **Wenn du bei ticketist.io nach einem
-Veranstalter-Zugang mit API-Schlüssel fragst, lohnt sich das** — alles andere
-ist dann nur noch Anschluss.
+Für Kategorien, Preise und freie Karten ist **kein Zugang** bei ticketist.io
+nötig – die Schnittstelle ist öffentlich. Beim Ticketdienst fehlt nur eine
+öffentliche Liste aller Abende eines Veranstalters (Abschnitt 9).
 
 Nicht gebaut, bewusst: das Abklappern der Nummern bei `/api/events/<nummer>`,
 um neue Abende zu finden. Es läge technisch nahe, liest aber die Daten anderer
@@ -382,10 +408,10 @@ Die Abende kommen vom Ticketdienst. Wie oft nachgesehen wird, entscheidet
 
 | Wann | Was | Wie viele Abende |
 |---|---|---|
-| **06:00 im Haus, täglich** | Termine und Wartelisten-Stand auffrischen | die ausverkauften und die mit Wartenden, höchstens zwölf |
+| **06:00 im Haus, täglich** | Termine und Wartelisten-Stand auffrischen | die ausverkauften und die mit Wartenden, Wartende zuerst; höchstens acht (seit 11.11.2026, weil je Weg auch die Kategorien gelesen werden) |
 | **12:00 im Haus, täglich** | dasselbe | dasselbe |
 | laufend, alle 12 Stunden | jeder Abend, sobald sein Stand veraltet ist | im Hintergrund, sechs je Aufruf |
-| **Knopf „Jetzt nachsehen“** | sofort | dieselben zwölf; gemessen 2,7 Sekunden für neun |
+| **Knopf „Jetzt nachsehen“** | sofort | dieselben, höchstens acht; gemessen am 20.09.: 2,7 Sekunden für neun |
 | beim Aufnehmen eines Abends | sofort dieser eine | einer |
 
 Der Mittagstisch braucht keinen Takt: seine Einträge entstehen im eigenen
@@ -564,7 +590,7 @@ Die Gruppen beim Wirt sind exakt dieselben acht Wege.
 |---|---|
 | `server/src/event-warteliste.mjs` | Abende: Eingabenprüfung, Aufnahme, `wegStand` (die Ausverkauft-Regel), Übersicht, Rückläufer-Erkennung, Aufräumen |
 | `server/src/warteliste.mjs` | Mittagstisch: Eingabenprüfung, Aufnahme, wer als Nächstes dran ist, Übersicht fürs Haus, Aufräumen |
-| `server/src/ticketist.mjs` | Lesen beim Ticketdienst, `holeVerkauft`, `kennungAusLink`, Zusammenlegen zweier Wege |
+| `server/src/ticketist.mjs` | Lesen beim Ticketdienst, `holeVerkauft`, `holeKategorien` (Kategorien, Preise, freie Karten), `kennungAusLink`, Zusammenlegen zweier Wege |
 | `scripts/check-event-warteliste.mjs` | goldene Testfälle, Teil von `npm run ci` |
 | `scripts/check-termine.mjs` | Testfälle fürs Lesen, für `kennungAusLink` und die Nummern |
 
@@ -589,7 +615,7 @@ Die Gruppen beim Wirt sind exakt dieselben acht Wege.
 |---|---|
 | `eventWarteliste` | die Einträge; höchstens 200 je Weg, 8 Wege je Eintragung |
 | `eigeneKennungen` | die selbst aufgenommenen Abende, höchstens 80 |
-| `termine` | je Kennung `{ geholtAm, termin, verkauft, verkauftMax }` |
+| `termine` | je Kennung `{ geholtAm, termin, verkauft, verkauftMax, preise }` – `preise` sind die gelesenen Kategorien |
 | `warteliste` | die Mittags-Einträge; höchstens 30 je Tag |
 | `wartelisteTakt` | Merker gegen Doppelläufe um 06:00 und 12:00 |
 
@@ -609,9 +635,8 @@ nichts, sie zeigt.
   der Fall vorkommt und wie viele Karten dabei üblich sind.
 - **Erinnerung nach drei Tagen ohne Rückmeldung**, danach automatisch auf
   „kein Bedarf“. Bewusst noch nicht: das Ende des Abends räumt ohnehin auf.
-- **Kartenliste halbautomatisch** — ein Feld in der Wirt-App, in das die
-  freien Karten je Kategorie eingetragen werden, statt der Datei im
-  Projekt. Lohnt sich, sobald klar ist, wie oft das gebraucht wird.
+- ~~Kartenliste halbautomatisch~~ — **entfällt** (11.11.2026): die freien
+  Karten je Kategorie liest der Dienst selbst beim Ticketdienst.
 - **Veranstalter-Zugang bei ticketist** (siehe
-  [Abschnitt 10](#10-welche-zugänge-noch-etwas-bringen-würden)) — der einzige
-  Schritt, der den letzten Handgriff abschafft.
+  [Abschnitt 10](#10-welche-zugänge-noch-etwas-bringen-würden)) — nicht mehr
+  für Kategorien und freie Karten, nur noch für eine Liste aller Abende.

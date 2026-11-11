@@ -1,7 +1,7 @@
 # Die neue Webseite in Betrieb nehmen
 
 Eine Anleitung für Hannah, Wolfgang und den Programmierer.
-Stand 29. Oktober 2026.
+Stand 11. November 2026.
 
 ---
 
@@ -24,7 +24,7 @@ Erst wenn jeder einmal darauf geklickt hat und zufrieden ist, hängen wir die
 Domain um. Das dauert dann eine halbe Stunde, und wir wissen vorher, dass es
 funktioniert.
 
-**Die Testseite gibt es schon.** Sie ist heute entstanden und liegt hier:
+**Die Testseite gibt es schon.** Sie ist am 29. Oktober entstanden und liegt hier:
 
 ## https://probe-wirtschaft-dornbirn.pages.dev
 
@@ -82,7 +82,7 @@ zweite Absicherung weist der echte Dienst eine Anfrage von der Testadresse
 rundheraus ab. Beides wird bei jeder Änderung an der Seite automatisch
 nachgeprüft.
 
-Nachgewiesen wurde das heute so: Auf der Testseite wurde eine Reservierung für
+Nachgewiesen wurde das am 29. Oktober so: Auf der Testseite wurde eine Reservierung für
 den 5. November angelegt. Sie steht in der Testdatenbank. In der echten
 Datenbank steht sie nicht.
 
@@ -119,20 +119,27 @@ Drei Dinge laufen gut, zwei sind offen. Ehrlich der Reihe nach.
 
 **Gut:** Die Seite ist fertig und seit Wochen im echten Betrieb erprobt –
 Reservierungen, Bestellungen, Wartelisten, Anfragen, die Wirt-Ansicht am Handy.
-Die laufenden Kosten sind null. Nicht gestundet, nicht im ersten Jahr gratis,
-sondern dauerhaft null. Und seit dem 27. Oktober steht fest, welche Mailadresse
-wofür zuständig ist, weil Hannah das Entscheidungsblatt ausgefüllt hat.
+Die laufenden Kosten der neuen Seite sind null. Nicht gestundet, nicht im
+ersten Jahr gratis, sondern null in den Gratisstufen von Cloudflare, Brevo und
+GitHub, von deren Grenzen wir weit entfernt sind – heute und nach dem Umzug.
+Hetzner und Ticketist kosten wie bisher. Und seit dem 27. Oktober steht fest,
+welche Mailadresse wofür zuständig ist, weil Hannah das Entscheidungsblatt
+ausgefüllt hat.
 
 **Offen, und das ist das Dringende:** Die Bestätigungen an eure Gäste gehen
-noch von einer fremden Adresse los, nämlich der Testadresse von Jonas bei
-aon.at. Dieser Anbieter sagt allen Mailprogrammen der Welt ausdrücklich:
+noch von einer fremden Adresse los, nämlich der privaten Adresse von Jonas.
+Deren Anbieter sagt allen Mailprogrammen der Welt ausdrücklich:
 *„Mails, die in meinem Namen von woanders kommen, bitte abweisen."* Gmail, GMX
 und Outlook halten sich daran. Darum landen Bestätigungen heute oft im
 Spam-Ordner oder kommen gar nicht an.
 
-Das ist ärgerlich, aber es lässt sich **sofort** beheben, ganz unabhängig vom
-Rest. Es braucht vier Einträge in eurer Domain, die nur die Mails betreffen.
-Die laufende Webseite merkt davon nichts.
+Das ist ärgerlich, aber es lässt sich beheben, ganz unabhängig vom Rest. Die
+Einträge in euren Domains, die nur die Mails betreffen, sind gesetzt: Sarah
+hat sie Anfang November mit Markus eingetragen, am 10. November wurden sie von
+außen nachgeprüft. Es fehlen noch zwei Handgriffe im Brevo-Konto des Hauses:
+*Authenticate* drücken und einen Schlüssel für den Dienst erzeugen
+(Schritt 4). Erst danach wird der Absender umgestellt. Die laufende Webseite
+merkt davon nichts.
 
 **Offen, aber ungefährlich:** `wirtschaft-dornbirn.at` zeigt noch auf die alte
 Seite. Das bleibt so, bis ihr sagt, dass es umgestellt werden soll.
@@ -141,7 +148,8 @@ Seite. Das bleibt so, bis ihr sagt, dass es umgestellt werden soll.
 
 ## Was ihr ab heute tun könnt, ohne die Domain anzufassen
 
-Diese fünf Dinge gehen jetzt sofort. Keines davon berührt die laufende Seite.
+Diese fünf Dinge gehen ohne die Domain, einige davon sind schon erledigt.
+Keines davon berührt die laufende Seite.
 
 **1. Auf der Testseite klicken.** Der Link steht oben. Kostet nichts, ändert
 nichts, braucht niemanden.
@@ -152,19 +160,27 @@ ist vorhanden – das war die eigentliche Frage, und sie ist beantwortet. Aber
 das Passwort gehört gewechselt.
 
 **3. Die drei Konten anlegen.** GitHub, Cloudflare und Brevo, alle drei auf
-`veranstaltungen@wirtschaft-dornbirn.at`, alle drei kostenlos. Bei jedem Konto
-Sarah als zweite Person eintragen und die Wiederherstellungscodes ausdrucken.
-Warum: Heute laufen diese Konten auf Jonas. Solange das so ist, gehört dem Haus
-die Webseite nicht wirklich.
+`veranstaltungen@wirtschaft-dornbirn.at`, alle drei kostenlos. Brevo und
+GitHub hat Sarah Anfang November angelegt, offen ist noch **Cloudflare**. Bei
+GitHub und Cloudflare eine zweite Person eintragen, bei Brevo nicht: Dort
+kostet ein zweiter Benutzer laut Brevo-Preisliste 9 € im Monat, die
+Zugangsdaten gehören wie alle in den Passwortmanager des Hauses, und der
+Dienst bekommt einen Schlüssel. Bei allen dreien die Wiederherstellungscodes
+ausdrucken. Warum: Heute laufen Seite, Dienst und Mailversand noch über die
+Konten von Jonas. Solange das so ist, gehört dem Haus die Webseite nicht
+wirklich.
 
-**4. Bei Brevo die Domain eintragen.** Brevo ist der Dienst, der die Mails
-verschickt. Dort `wirtschaft-dornbirn.at` eintragen; Brevo zeigt dann vier
-Einträge an, die bei Hetzner gesetzt werden müssen. Das Eintragen allein ändert
-noch nichts.
+**4. Bei Brevo die Domains beglaubigen lassen.** Brevo ist der Dienst, der die
+Mails verschickt. `wirtschaft-dornbirn.at` und `eugen.family` sind dort
+eingetragen, die Einträge bei Hetzner sind für beide gesetzt – erledigt. Offen
+sind im Brevo-Konto des Hauses noch zwei Handgriffe: der Klick auf
+*Authenticate* und danach ein Schlüssel für den Dienst (Schritt 4). Bis dahin
+ändert sich am Versand nichts.
 
-**5. Mit Uri sprechen.** Zwei der Mailadressen aus eurem Entscheidungsblatt
-gehören zu `eugen.family`, nicht zu eurer Domain. Für die braucht es dieselbe
-Prozedur noch einmal, und veranlassen kann das nur Uri.
+**5. `eugen.family` – erledigt, ohne Uri.** Zwei der Mailadressen aus eurem
+Entscheidungsblatt gehören zu `eugen.family`, nicht zu eurer Domain. Die
+Einträge dafür sind ebenfalls gesetzt; `eugen.family` ist genauso weit wie
+`wirtschaft-dornbirn.at`. Mit Uri ist nichts mehr zu klären.
 
 ---
 
@@ -178,13 +194,13 @@ Sie liegen alle bei Hetzner, zusammen mit der Domain.
 
 | Adresse | Wofür | Wer liest |
 | --- | --- | --- |
-| `willkommen@` | Anfragen und Allgemeines | Wolfgang, Hannah |
+| `willkommen@` | Gästekontakt und Allgemeines (die Formular-Anfragen gehen seit 10.11. an `uri@eugen.family`) | Wolfgang, Hannah |
 | `veranstaltungen@` | Marketing, Veranstaltungen, Warteliste | Hannah |
 | `service@` | Tischreservierungen, Take Away | Service |
 | `gewinnspiel@` | Gewinnspiele | Hannah |
 | `sarah.preuss@` | Marketing | Sarah |
 | `kueche@` | wird nicht benutzt | – |
-| `uri@eugen.family` | Kulturhaus, Allgemeines | Wolfgang, Hannah |
+| `uri@eugen.family` | Kulturhaus, Allgemeines; seit 10.11. alle Anfragen aus Locations und Agentur | Wolfgang, Hannah |
 | `tickets@eugen.family` | Kulturhaus, Warteliste | Hannah |
 
 ### Was die Webseite damit macht
@@ -193,18 +209,34 @@ Es gibt zwei Richtungen, und die werden gerne verwechselt. **Empfänger** heißt
 Dorthin schickt die Webseite euch eine Nachricht. **Absender** heißt: Das sieht
 der Gast, und dorthin geht seine Antwort, wenn er auf „Antworten" drückt.
 
-Die Empfänger sind seit dem 27. Oktober eingestellt und laufen:
+Die Empfänger sind eingestellt und laufen – seit dem 27. Oktober, die Anfragen
+an `uri@eugen.family` seit dem 10. November:
 
 | Wenn das passiert | geht eine Mail an |
 | --- | --- |
 | Jemand bestellt Takeaway | `service@` |
-| Jemand schickt eine Anfrage für Feste, Catering oder Agentur | `willkommen@` |
+| Jemand schickt eine Anfrage für Feste, Catering oder Agentur | `uri@eugen.family` |
 | Werktags um 8 Uhr: der Tageszettel | `veranstaltungen@` |
 | Freitag um 15 Uhr: der Wochenbericht | `veranstaltungen@` |
 
 Bei der Anfrage ist eine Kleinigkeit eingebaut, die im Alltag viel wert ist:
 Ihr könnt in eurem Postfach einfach auf „Antworten" drücken, und die Antwort
 geht direkt an den Gast, nicht an die Webseite.
+
+**Anfragen gehen an `uri@eugen.family`**, nicht mehr an `willkommen@` –
+entschieden am 3. November, eingestellt seit dem 10. November. Antwortet ein
+Gast auf seine Bestätigung, landet das ebenfalls dort. Auch der Notweg zeigt
+seit dem 11. November dorthin: Ist der Dienst einmal nicht erreichbar, öffnet
+das Formular ersatzweise eine Mail an dieselbe Adresse. `willkommen@` bleibt
+die Kontaktadresse auf der Seite. Seit der Umstellung kam noch keine echte
+Anfrage – bitte schickt einmal über die neue Seite unter
+`https://wirtschaft-dornbirn.pages.dev` eine Testanfrage (auf der Testseite
+geht keine Mail hinaus) und schaut nach, ob sie bei `uri@eugen.family`
+ankommt.
+
+**Die Kopie von Tageszettel und Wochenbericht** an Jonas ist vorbereitet, aber
+noch nicht aktiv: Sie kommt erst, wenn Jonas seine Adresse im Dienst
+hinterlegt hat. Bis dahin gehen beide nur an `veranstaltungen@`.
 
 Die Absender sind **noch nicht** umgestellt. So soll es werden:
 
@@ -217,7 +249,7 @@ Die Absender sind **noch nicht** umgestellt. So soll es werden:
 | „Bleibt auf dem Laufenden", Terminliste | `uri@eugen.family` |
 | alles Übrige | `willkommen@` |
 
-Heute steht bei allen sechs noch die Testadresse von Jonas. Das ist der Punkt,
+Heute steht bei allen sechs noch die private Adresse von Jonas. Das ist der Punkt,
 den wir als Erstes angehen.
 
 ### Was sonst noch wo steht
@@ -247,11 +279,15 @@ war die größte offene Frage.
 Seite und der kleine Dienst dahinter, der Reservierungen und Bestellungen
 verwaltet. Kostenlos in dem Umfang, den wir brauchen.
 
-**Brevo** – gehört heute Jonas, soll dem Haus gehören. Verschickt die Mails.
-Kostenlos bis 300 Mails am Tag; wir liegen weit darunter.
+**Brevo** – verschickt die Mails. Das Konto des Hauses hat Sarah Anfang
+November angelegt; der Dienst verschickt aber noch über das Konto von Jonas,
+bis der Schlüssel aus dem Konto des Hauses hinterlegt ist (Schritt 4).
+Kostenlos bis 300 Mails am Tag; ein voller Tag braucht 40 bis 80.
 
 **Ticketist** – gehört euch, bleibt unberührt. Die Webseite liest dort
-automatisch die Abende und ihre Verfügbarkeit.
+automatisch die Abende und ihre Verfügbarkeit, seit dem 11. November auch die
+Ticketkategorien mit Preisen und freien Plätzen. Ticketist gibt das alles
+öffentlich heraus; einen Zugang dort braucht es nicht.
 
 Dazu kommen die drei Adressen, die heute auf dem alten Hetzner-Webspace liegen
 und mit der neuen Seite nichts zu tun haben: `gutscheine.`, `lieferservice.`
@@ -319,58 +355,68 @@ Link ist oben. Was zu tun ist, steht oben. Aufschreiben, was auffällt.
 
 ### Schritt 2 · Die drei Konten anlegen
 
-*Wer: Hannah. Dauer: eine halbe Stunde.*
+*Wer: Sarah. Dauer: eine halbe Stunde. Brevo und GitHub hat sie Anfang
+November angelegt, offen ist noch Cloudflare.*
 
-GitHub, Cloudflare, Brevo – alle auf `veranstaltungen@`, alle mit Sarah als
-zweiter Person, alle mit ausgedruckten Wiederherstellungscodes. Die genauen
+GitHub, Cloudflare, Brevo – alle auf `veranstaltungen@`, alle mit
+ausgedruckten Wiederherstellungscodes; GitHub und Cloudflare mit einer
+zweiten Person (bei Brevo nicht, ein zweiter Benutzer kostet dort 9 € im
+Monat). Die genauen
 Klickwege stehen im Übergabedokument.
 
 Warum zuerst: Alles Weitere wird in diesen Konten eingerichtet. Solange sie
 Jonas gehören, hängt das Haus an einer Person.
 
-### Schritt 3 · Die Mails in Ordnung bringen
+### Schritt 3 · Die Mails in Ordnung bringen – erledigt
 
-*Wer: Hannah öffnet die Domainverwaltung, der Programmierer setzt die
-Einträge. Dauer: eine Stunde, plus Wartezeit.*
+*Wer: Sarah mit Markus, Anfang November. Von außen nachgeprüft am
+10.11.2026.*
 
 Das ist der Schritt, der echten Schaden behebt. Vier Einträge, die nur die
-Mails betreffen:
-
-**Stand 03.11.2026:** gesetzt – für `wirtschaft-dornbirn.at` und
-`eugen.family`, beide im Brevo-Konto der „wirtschaft“. Der `brevo-code`
-unten ist der alte aus Jonas’ Konto; der gültige steht live in der Zone.
-Falls Brevo zusätzlich eine Marken-Subdomain verlangt: `post`, nie `mail`
-(dort läuft der Hetzner-Mailserver, Ziel des MX).
+Mails betreffen – gesetzt für `wirtschaft-dornbirn.at` und `eugen.family`,
+beide im Brevo-Konto der „wirtschaft“. Falls Brevo zusätzlich eine
+Marken-Subdomain verlangt: `post`, nie `mail` (dort läuft der
+Hetzner-Mailserver, Ziel des MX). Für die Beglaubigung genügen die gesetzten
+Einträge.
 
 | Typ | Name | Wert |
 | --- | --- | --- |
 | CNAME | `brevo1._domainkey` | `b1.wirtschaft-dornbirn-at.dkim.brevo.com` |
 | CNAME | `brevo2._domainkey` | `b2.wirtschaft-dornbirn-at.dkim.brevo.com` |
-| TXT | `@` | `brevo-code:12ab66d15bb7d93634c32a1a25ca728d` |
+| TXT | `@` | `brevo-code:…` (aus dem Brevo-Konto der „wirtschaft“) |
 | TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com` |
 
-Dazu der bestehende Eintrag, der heute `v=spf1 a mx ~all` lautet. Der wird
-**geändert**, nicht ergänzt, auf:
+Die Werte gelten für `wirtschaft-dornbirn.at`, bei `eugen.family` stehen die
+entsprechenden. Dazu wurde der bestehende Eintrag, der vorher
+`v=spf1 a mx ~all` lautete, **geändert**, nicht ergänzt. Bei beiden Domains
+steht jetzt genau einer:
 
 ```
 v=spf1 a mx include:spf.brevo.com ~all
 ```
 
-Zwei solche Einträge nebeneinander sind ungültig. Dann kommt gar nichts mehr
-an – schlimmer als heute.
+Zwei solche Einträge nebeneinander wären ungültig. Dann käme gar nichts mehr
+an – schlimmer als vorher.
 
 **Vorsicht an einer Stelle:** In derselben Liste stehen die Einträge für eure
 Postfächer (`MX` und `mail.`). Die bleiben, wie sie sind. Wer sie aus Versehen
 löscht, nimmt dem Haus die Post. Deshalb vorher die ganze Liste exportieren und
 die Datei an zwei Orten ablegen.
 
-### Schritt 4 · Warten und beglaubigen lassen
+### Schritt 4 · Beglaubigen lassen und den Schlüssel hinterlegen
 
-*Wer: der Programmierer. Dauer: Minuten bis Stunden.*
+*Wer: Sarah im Brevo-Konto des Hauses, gemeinsam mit Jonas. Dauer: Minuten
+bis Stunden.*
 
-Wenn die Einträge sichtbar sind, in Brevo auf *Authenticate* drücken und warten,
-bis alles grün ist. Nachsehen geht auch von außen; der Befehl steht in den
-technischen Unterlagen.
+Die Einträge sind von außen sichtbar. Jetzt im Brevo-Konto des Hauses bei
+beiden Domains auf *Authenticate* drücken und warten, bis alles grün ist.
+Maßgeblich ist, was dieses Konto anzeigt.
+
+Danach im selben Konto einen API-Schlüssel erzeugen. Jonas hinterlegt ihn im
+Dienst – gemeinsam, nicht per Mail oder Chat. Warum: Heute verschickt der
+Dienst noch über das Brevo-Konto von Jonas, und dort sind eure Domains nicht
+beglaubigt. Ein Schlüssel statt eines zweiten Benutzers, weil ein zweiter
+Benutzer laut Brevo-Preisliste 9 € im Monat kostet.
 
 Warum das nicht übersprungen werden darf: Brevo verschickt nur von Adressen,
 deren Domain es beglaubigt hat.
@@ -379,16 +425,19 @@ deren Domain es beglaubigt hat.
 
 *Wer: der Programmierer. Dauer: zehn Minuten.*
 
-Erst jetzt, keinen Schritt früher. Zuerst die Hauptadresse auf `willkommen@`,
-dann die Absender je Zweck aus der Tabelle weiter oben.
+Erst jetzt, keinen Schritt früher: wenn beide Domains grün sind und der
+Brevo-Schlüssel des Hauses im Dienst liegt. Umgekehrt verschickt Brevo gar
+nichts mehr. Zuerst die Hauptadresse auf `willkommen@`, dann die Absender je
+Zweck aus der Tabelle weiter oben.
 
 Danach eine echte Probe: eine Reservierung auf der laufenden Seite anlegen, mit
 einer privaten Gmail-Adresse. Die Bestätigung muss im **Posteingang** liegen,
 nicht im Spam. Damit ist das Mailproblem erledigt, und zwar lange bevor die
 Domain umgehängt wird.
 
-Für `tickets@eugen.family` und `uri@eugen.family` läuft dasselbe noch einmal,
-sobald Uri seine Domain bei Brevo eingetragen hat.
+Für `tickets@eugen.family` und `uri@eugen.family` gilt dasselbe, sobald
+`eugen.family` im Brevo-Konto des Hauses grün ist. Mit Uri ist dafür nichts
+mehr zu klären.
 
 ### Schritt 6 · Die drei Adressen absichern
 
@@ -400,8 +449,9 @@ weiter.
 
 ### Schritt 6b · Die Seite unter eurem Namen aufsperren
 
-*Wer: Hannah öffnet die Domainverwaltung, der Programmierer macht den Rest.
-Dauer: eine halbe Stunde, plus Wartezeit aufs Zertifikat.*
+*Wer: Sarah (sie hat den Zugang zu Hetzner) öffnet die Domainverwaltung, der
+Programmierer macht den Rest. Dauer: eine halbe Stunde, plus Wartezeit aufs
+Zertifikat.*
 
 Jetzt kommt der Schritt, der aus der Probe Ernst macht – und er ist
 ungefährlich. Ein einziger neuer Eintrag:
@@ -502,9 +552,10 @@ aus. Das ist genau so schon einmal passiert.
 Die alte Seite bleibt stehen. Solange sie steht, ist der Rückweg kurz: Man
 stellt den Verweis zurück, und die alte Seite ist wieder da.
 
-Erst nach zwei ruhigen Wochen wird sie abgeschaltet und der Webspace gekündigt.
-Was dort in der Zwischenzeit bezahlt wird, ist der Preis für den Rückweg. Er
-ist ihn wert.
+Erst nach zwei ruhigen Wochen wird sie abgeschaltet. Das Hetzner-Paket fällt
+damit nicht ganz weg: Die Postfächer bleiben dort, `gutscheine.` und
+`lieferservice.` laufen dort weiter. Höchstens reicht danach ein kleineres
+Paket.
 
 ---
 
@@ -512,11 +563,13 @@ ist ihn wert.
 
 Ohne diese Dinge geht es nicht weiter.
 
-1. **Zugang zur Domainverwaltung bei Hetzner.** Für die Schritte 3, 6 und 9.
-   Wer sich dort anmelden kann, steht in eurem Entscheidungsblatt.
-2. **Die drei Konten**, angelegt auf `veranstaltungen@`, mit Sarah als zweiter
-   Person. Schritt 2.
-3. **Antwort von Uri**, ob `eugen.family` bei Brevo eingetragen wird.
+1. **Zugang zur Domainverwaltung bei Hetzner.** Für die Schritte 6, 6b und 9;
+   Schritt 3 ist erledigt. Wer sich dort anmelden kann, steht in eurem
+   Entscheidungsblatt.
+2. **Das Cloudflare-Konto**, angelegt auf `veranstaltungen@`, mit einer
+   zweiten Person. Brevo und GitHub stehen schon. Schritt 2.
+3. **Den Klick auf Authenticate und den API-Schlüssel** aus dem Brevo-Konto
+   des Hauses. Schritt 4.
 4. **Auskunft zu den drei alten Adressen**: Werden `gutscheine.`,
    `lieferservice.` und `tischreservierung.` noch gebraucht?
 5. **Ein Termin für Schritt 9.** Kein Freitag, kein Veranstaltungstag.
@@ -532,17 +585,26 @@ Ohne diese Dinge geht es nicht weiter.
 | 4 | Bleibt die Tischeinteilung von Hand? | Die ersten zwei Wochen ja, dann neu entscheiden. |
 | 5 | Wann wird die alte Seite abgeschaltet? | Zwei ruhige Wochen nach Schritt 9. |
 
-Dazu vier kleinere Fragen, die beim Durchgehen des Entscheidungsblatts offen
-geblieben sind:
+Die vier kleineren Fragen, die beim Durchgehen des Entscheidungsblatts offen
+geblieben waren, hat Hannah am 3. November beantwortet:
 
-- Für Anfragen ans Kulturhaus gibt es auf der Webseite kein Formular. Im Fuß
-  der Termineseite steht `uri@eugen.family`. Reicht das?
-- Der Tageszettel geht jetzt nur an `veranstaltungen@`. Soll der Programmierer
-  eine Kopie bekommen, damit er merkt, wenn etwas hängt?
-- Von 37 kommenden Abenden haben 20 keine hinterlegten Ticketkategorien, fast
-  alles ab Januar. Die Abende werden normal angezeigt und verlinken zum
-  Ticketdienst; nur die Zeile mit Kategorie und Preis fehlt. Nachliefern?
-- `kueche@` wird nicht benutzt. Löschen oder behalten?
+- **Anfragen ans Kulturhaus:** kein eigenes Formular. Im Formular
+  „Locations · Feste & Catering" ist das Kulturhaus als Ort wählbar, und die
+  Anfragen aus beiden Formularen gehen an `uri@eugen.family`.
+- **Kopie des Tageszettels:** ja, an Jonas als technische Betreuung.
+  Vorbereitet, aber noch nicht aktiv – Jonas hinterlegt seine Adresse selbst
+  im Dienst.
+- **Ticketkategorien:** Hannah hatte recht – Ticketist gibt Kategorien, Preise
+  und freie Plätze öffentlich heraus. Seit dem 11. November liest die Seite sie
+  selbst mit den Eventdaten, alle kommenden Abende haben ihre Preise, auch die
+  20 ab Januar 2027. Niemand muss etwas schicken.
+- **`kueche@`:** bleibt.
+
+Neu offen ist eine Kleinigkeit: Die Zeile „Lieber direkt?" über den beiden
+Anfrageformularen nennt weiter Telefonnummer und `willkommen@`, und die
+Bestätigungsmail an den Gast und die Datenschutzseite sprechen weiter von der
+„wirtschaft". Soll das so bleiben, obwohl die Anfragen jetzt an
+`uri@eugen.family` gehen?
 
 ---
 
@@ -607,7 +669,8 @@ von Cloudflare, Testnamen und `?probe=1` – und sieht nach, was dabei
 herauskommt. Läuft bei jedem `npm run ci` mit.
 
 Die Erkennung sitzt in `site/probe.js`: Jeder Namensteil wird gegen
-`neu|test|probe|staging` geprüft. Die zweite Schranke steht in
+`test|probe|staging` geprüft – `neu` gehört nicht dazu, denn
+`neu.wirtschaft-dornbirn.at` wird die echte Seite. Die zweite Schranke steht in
 `server/wrangler.jsonc`: Testnamen stehen nur in `ALLOWED_ORIGINS` der Probe,
 nicht in der Produktion.
 
@@ -629,15 +692,25 @@ curl -s -H "x-haus-token: <Hausschlüssel>" \
   https://wirtschaft-reservierung.jonas-gamper.workers.dev/api/mail/domain
 
 # Kommt eine Mail an einer echten Adresse an?
-curl -s "https://wirtschaft-reservierung.jonas-gamper.workers.dev/api/mail/pruefung?email=<Adresse>"
+curl -s -H "x-haus-token: <Hausschlüssel>" \
+  "https://wirtschaft-reservierung.jonas-gamper.workers.dev/api/mail/pruefung?email=<Adresse>"
 ```
 
-Erwartet wird `"authenticated": true` beziehungsweise `delivered`.
+Erwartet wird `"authenticated": true` beziehungsweise `delivered`. Beide
+Abfragen lesen das Brevo-Konto, dessen Schlüssel im Dienst liegt: Bis der
+Brevo-Schlüssel des Hauses hinterlegt ist, zeigen sie das Konto von Jonas,
+nicht das des Hauses. Maßgeblich für *Authenticate* ist die Anzeige im
+Brevo-Konto des Hauses.
 
 ### Den Absender umstellen – erst nach der Beglaubigung
 
+Zuerst den API-Schlüssel aus dem Brevo-Konto des Hauses als `BREVO_KEY`
+hinterlegen (gemeinsam mit dem Haus, nie per Mail oder Chat), erst danach den
+Absender:
+
 ```bash
 cd server
+npx wrangler@4 secret put BREVO_KEY
 printf '%s' "willkommen@wirtschaft-dornbirn.at" | npx wrangler@4 secret put BREVO_ABSENDER
 ```
 
@@ -682,13 +755,15 @@ annimmt. Die zweite sagt, was noch an Jonas hängt.
 | `server/wrangler.jsonc` | alle Einstellungen des Dienstes, beide Umgebungen |
 | `site/probe.js` | entscheidet, ob eine Seite Testseite ist |
 | `site/data/haus.json` | die zwei Dienstadressen |
+| `site/data/ticketist-preise.json` | nur der Rückfall für Ticketkategorien und Preise, wenn Ticketist nicht antwortet; erzeugt von `npm run sync:termine`, nicht von Hand |
 | `docs/mailadressen-entscheidung.md` | welche Adresse wofür, Hausentscheid |
 | `docs/uebergabe-wirtschaft.md` | Konten, Übergabe, Etappen |
 | `docs/betriebshandbuch.md` | Betrieb im Einzelnen, alle Einstellungen |
 
 ### Was nie passieren darf
 
-- Den Absender umstellen, bevor Brevo die Domain beglaubigt hat. Dann
+- Den Absender umstellen, bevor Brevo die Domain im Konto des Hauses
+  beglaubigt hat und der Brevo-Schlüssel dieses Kontos im Dienst liegt. Dann
   verschickt der Dienst gar nichts mehr.
 - `www` umhängen, bevor die drei Adressen eigene Einträge haben. Dann sind
   Gutscheine, Lieferdienst und das alte Reservierungssystem weg.

@@ -1,12 +1,14 @@
 # Damit die Mails ankommen: Absenderdomain beglaubigen
 
-Stand 20. September 2026.
+Stand 11. November 2026.
 
 **Worum es geht.** Der Dienst verschickt Bestätigungen, Absagen, den
-Tageszettel und die Wartelisten-Mails über Brevo. Absender ist heute
-`jonas.gamper@aon.at`. Das ist die Ursache aller Zustellprobleme, und es ist
-in einer halben Stunde behoben — aber nur von jemandem, der an die DNS-Zone
-von `wirtschaft-dornbirn.at` kommt.
+Tageszettel und die Wartelisten-Mails über Brevo. Absender ist heute die
+private Adresse von Jonas, ein Postfach bei seinem privaten Mailanbieter. Das ist die Ursache
+aller Zustellprobleme. Die Einträge in der DNS-Zone stehen inzwischen für
+`wirtschaft-dornbirn.at` und `eugen.family` (Abschnitt 4); es fehlen
+*Authenticate* und ein API-Schlüssel aus dem Brevo-Konto des Hauses, erst
+dann wird der Absender umgestellt (Abschnitt 5).
 
 ---
 
@@ -29,19 +31,21 @@ Empfängers.
 
 ### Warum
 
-`aon.at` sagt im DNS ausdrücklich, wer in seinem Namen senden darf:
+Der Anbieter dieser Adresse sagt im DNS ausdrücklich, wer in seinem Namen
+senden darf (sinngemäß, ohne den Anbieter zu nennen – das Repository ist
+öffentlich):
 
 ```
-aon.at         TXT  "v=spf1 include:aspf.a1.net -all"
-_dmarc.aon.at  TXT  "v=DMARC1; p=reject; rua=mailto:dmarc-reports@a1.net"
+<anbieter>         TXT  "v=spf1 include:<nur die eigenen Server> -all"
+_dmarc.<anbieter>  TXT  "v=DMARC1; p=reject; …"
 ```
 
 `-all` heißt: alles andere ist gefälscht. `p=reject` heißt: dann bitte
-abweisen. Brevo gehört nicht zu A1, also verstößt jede Mail gegen beide
-Regeln. Dass überhaupt etwas ankommt, liegt nur daran, dass A1 bei Post an
-die eigenen Kunden manchmal ein Auge zudrückt.
+abweisen. Brevo gehört nicht zu diesem Anbieter, also verstößt jede Mail
+gegen beide Regeln. Dass überhaupt etwas ankommt, liegt nur daran, dass der
+Anbieter bei Post an die eigenen Kunden manchmal ein Auge zudrückt.
 
-**Der wichtigere Teil:** Gästemails gehen nicht an A1, sondern an Gmail, GMX,
+**Der wichtigere Teil:** Gästemails gehen meist nicht an diesen Anbieter, sondern an Gmail, GMX,
 Outlook. Die halten sich an `p=reject` ohne Ausnahme. Eine
 Reservierungsbestätigung oder eine Wartelisten-Mail an einen Gast mit
 Gmail-Adresse hat so kaum eine Chance.
@@ -57,25 +61,35 @@ DNS-Zone, egal bei wem die liegt.
 
 ## 2. Die Lösung in einem Satz
 
-Nicht mehr als `@aon.at` senden, sondern als `@wirtschaft-dornbirn.at`, und
+Nicht mehr von der privaten Adresse senden, sondern als `@wirtschaft-dornbirn.at`, und
 diese Domain bei Brevo beglaubigen.
 
 ---
 
 ## 3. Was schon erledigt ist
 
-Am 20.09.2026 im Brevo-Konto angelegt:
+Am 20.09.2026 im Brevo-Konto **von Jonas** angelegt (überholt, siehe unten):
 
 | | |
 |---|---|
 | Domain | `wirtschaft-dornbirn.at` |
 | Kennung bei Brevo | `6ab039cd4425575044081d0e` |
-| Stand | angelegt, **noch nicht beglaubigt** — die DNS-Einträge fehlen |
+| Stand | angelegt, nicht beglaubigt |
 
-Brevo hat dazu die vier Einträge ausgegeben, die unten stehen. Sie sind
-kontoeigen: kein anderes Brevo-Konto hat dieselben.
+Brevo hat dazu die vier Einträge ausgegeben, die unten stehen. Kontoeigen
+ist davon nur der `brevo-code`; die DKIM- und DMARC-Einträge hängen an der
+Domain und stimmen mit denen überein, die heute in der Zone stehen.
 
-Abfragen lässt sich der Stand jederzeit über den Dienst:
+**Seit Anfang November gilt das Brevo-Konto des Hauses.** Sarah hat es
+angelegt und mit Markus die Einträge beider Domains bei Hetzner gesetzt.
+Der `brevo-code` in der Zone ist auf `wirtschaft-dornbirn.at` und
+`eugen.family` gleich – also ein Konto, das des Hauses.
+
+Abfragen lässt sich der Stand über den Dienst – aber nur für das Konto,
+dessen Schlüssel im Dienst steht. Bis der Schlüssel des Hauses hinterlegt
+ist (Abschnitt 5), zeigt die Abfrage das Konto von Jonas, nicht das des
+Hauses. Maßgeblich für *Authenticate* ist die Anzeige im Brevo-Konto des
+Hauses.
 
 ```bash
 curl -s -H "x-haus-token: <Hausschlüssel>" \
@@ -90,11 +104,15 @@ Sie gehören in die Zone von `wirtschaft-dornbirn.at`. Die liegt bei **Hetzner**
 (Nameserver `oxygen.ns.hetzner.com`, `helium.ns.hetzner.de`,
 `hydrogen.ns.hetzner.com`).
 
-**Stand 03.11.2026:** gesetzt – für `wirtschaft-dornbirn.at` und
-`eugen.family`, beide im Brevo-Konto der „wirtschaft“. Der `brevo-code`
-unten ist der alte aus Jonas’ Konto; der gültige steht live in der Zone.
+**Nachgeprüft am 10.11.2026 von außen:** gesetzt – für
+`wirtschaft-dornbirn.at` und `eugen.family` (Sarah mit Markus), beide im
+Brevo-Konto des Hauses: DKIM `brevo1`/`brevo2._domainkey`, `brevo-code`,
+SPF und `_dmarc` wie unten. MX `10 mail.<domain>` und der A-Eintrag von
+`mail.` sind unberührt. Der `brevo-code` unten ist der alte aus Jonas’
+Konto; der gültige steht live in der Zone.
 Falls Brevo zusätzlich eine Marken-Subdomain verlangt: `post`, nie `mail`
-(dort läuft der Hetzner-Mailserver, Ziel des MX).
+(dort läuft der Hetzner-Mailserver, Ziel des MX). Für die Beglaubigung
+genügen die gesetzten Einträge.
 
 | Nr. | Typ | Name | Wert |
 |---|---|---|---|
@@ -103,20 +121,19 @@ Falls Brevo zusätzlich eine Marken-Subdomain verlangt: `post`, nie `mail`
 | 3 | TXT | `@` (die Domain selbst) | `brevo-code:12ab66d15bb7d93634c32a1a25ca728d` |
 | 4 | TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com` |
 
-**Zu Nummer 4:** Es gibt dort schon einen Eintrag, nämlich `v=DMARC1; p=none;`.
-Der neue ersetzt ihn und ändert an der Strenge nichts (`p=none` bleibt) — er
-fügt nur die Adresse hinzu, an die Berichte gehen. Wer das nicht will, lässt
-Nummer 4 weg; die Beglaubigung geht auch ohne.
+**Zu Nummer 4:** Vorher stand dort `v=DMARC1; p=none;`. Der neue Eintrag hat
+ihn ersetzt und ändert an der Strenge nichts (`p=none` bleibt) — er fügt nur
+die Adresse hinzu, an die Berichte gehen.
 
-### Empfohlen, nicht zwingend: SPF ergänzen
+### SPF ergänzt
 
-Heute steht dort:
+Vorher stand dort:
 
 ```
 wirtschaft-dornbirn.at  TXT  "v=spf1 a mx ~all"
 ```
 
-Besser wäre:
+Gesetzt ist jetzt (nachgeprüft am 10.11.2026, auf beiden Domains gleich):
 
 ```
 wirtschaft-dornbirn.at  TXT  "v=spf1 a mx include:spf.brevo.com ~all"
@@ -132,34 +149,49 @@ bestehenden ändern, keinen zweiten anlegen.
 ## 5. Die Schritte, in dieser Reihenfolge
 
 1. **Die vier Einträge setzen** (Hetzner DNS-Konsole, oder wer immer die Zone
-   verwaltet). Dauer: fünf Minuten.
-2. **Warten**, bis sie sichtbar sind. Meist Minuten, laut Hetzner bis zu einer
-   Stunde. Gegenprobe:
+   verwaltet) – **erledigt** für beide Domains (Sarah mit Markus).
+2. **Warten**, bis sie sichtbar sind – **erledigt**, sie sind sichtbar
+   (nachgeprüft am 10.11.2026). Gegenprobe:
    ```bash
    dig +short CNAME brevo1._domainkey.wirtschaft-dornbirn.at
    dig +short TXT wirtschaft-dornbirn.at
    ```
-3. **Brevo prüfen lassen** — im Konto unter *Senders, Domains & Dedicated IPs*
-   → *Domains* → *Authenticate*. Oder über den Dienst nachsehen, ob alle vier
-   auf `status: true` stehen.
-4. **Absender umstellen.** Erst danach, keinesfalls vorher:
+3. **Brevo prüfen lassen** — im Brevo-Konto **des Hauses** (Sarah) unter
+   *Senders, Domains & Dedicated IPs* → *Domains* → *Authenticate*, für beide
+   Domains. **Noch offen.** Über den Dienst lässt sich das erst nach Schritt 4
+   nachsehen (alle vier auf `status: true`); bis dahin zeigt er das Konto
+   von Jonas.
+4. **Den Schlüssel des Hauses hinterlegen.** Im Brevo-Konto des Hauses unter
+   *SMTP & API* einen API-Schlüssel erzeugen; Jonas hinterlegt ihn gemeinsam
+   mit dem Haus als Geheimnis `BREVO_KEY` – nicht per Mail oder Chat:
+   ```bash
+   cd server
+   npx wrangler@4 secret put BREVO_KEY
+   ```
+   Grund: Der Dienst sendet heute über das Brevo-Konto von Jonas, und dort
+   sind die Domains des Hauses nicht beglaubigt. Ein zweiter Benutzer im
+   Brevo-Konto kostet laut Brevo-Preisliste 9 € im Monat – deshalb ein
+   Schlüssel statt eines Benutzerzugangs.
+5. **Absender umstellen.** Erst danach, keinesfalls vorher:
    ```bash
    cd server
    printf '%s' "willkommen@wirtschaft-dornbirn.at" | npx wrangler@4 secret put BREVO_ABSENDER
    ```
-   Die Adresse ist ein Vorschlag — sie steht schon als Kontaktadresse in der
-   Push-Einrichtung. `reservierung@` oder `hallo@` gingen genauso; sie muss
-   nicht als Postfach existieren, aber es ist besser, wenn Antworten
-   irgendwo ankommen.
-5. **Probe.** Eine Reservierung über die Seite anlegen und nachsehen, ob die
+   Die Adresse ist entschieden: `willkommen@` wird der Hausabsender, dazu
+   kommen die Absender je Zweck (`ABSENDER_SERVICE`, `ABSENDER_WARTELISTE`,
+   `ABSENDER_KULTURHAUS`, `EVENTS_ABSENDER` in `server/wrangler.jsonc`;
+   Werte in `mailadressen-entscheidung.md`). Umgekehrt – Absender vor
+   Beglaubigung und Schlüssel – verschickt Brevo gar nichts mehr.
+6. **Probe.** Eine Reservierung über die Seite anlegen und nachsehen, ob die
    Bestätigung als `delivered` verbucht wird:
    ```bash
    curl -s -H "x-haus-token: <Hausschlüssel>" \
      "https://wirtschaft-reservierung.jonas-gamper.workers.dev/api/mail/pruefung?email=<Adresse>"
    ```
 
-Schritt 1 ist der einzige, der nicht aus diesem Projekt heraus geht. Alles
-andere kann der Dienst selbst.
+Die Schritte 1 und 2 sind erledigt. Schritt 3 geht nur im Brevo-Konto des
+Hauses, Schritt 4 nur gemeinsam mit dem Haus; den Rest kann der Dienst
+selbst.
 
 ---
 
@@ -195,13 +227,11 @@ muss, ist der von Montag, 21.09., um 08:00.
 
 | Schritt | Wer |
 |---|---|
-| Domain bei Brevo anlegen | erledigt |
-| DNS-Einträge setzen | **wer Zugang zur Zone hat** — laut `docs/adresse.md` gehört die Domain dem Kunden |
-| Beglaubigung prüfen | der Dienst, auf Zuruf |
-| Absender umstellen | der Dienst, nach der Beglaubigung |
+| Domain bei Brevo anlegen | erledigt – beide Domains, im Brevo-Konto des Hauses (von Sarah angelegt) |
+| DNS-Einträge setzen | erledigt – Sarah mit Markus, bei Hetzner |
+| *Authenticate* | Sarah, im Brevo-Konto des Hauses |
+| API-Schlüssel des Hauses als `BREVO_KEY` | Jonas, gemeinsam mit dem Haus |
+| Absender umstellen | der Dienst, nach Beglaubigung und Schlüssel |
 | Probe fahren | der Dienst |
 
-Wenn der Zugang zur Zone nicht zu bekommen ist, gibt es genau eine
-Ausweichmöglichkeit: eine eigene Domain, die das Haus selbst hält, und von
-dort senden. Das kostet ein paar Euro im Jahr und dieselben vier Einträge —
-nur eben in einer Zone, in die man hineinkommt.
+Der Zugang zur Zone ist da; eine Ausweichdomain braucht es nicht.
