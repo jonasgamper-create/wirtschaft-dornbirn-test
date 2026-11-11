@@ -7,12 +7,15 @@ Kurzanleitung zum Weitergeben. Ausführlicher Hintergrund steht in
 
 | Zweck | Link |
 |---|---|
-| Testseite ansehen | <https://jonasgamper-create.github.io/wirtschaft-dornbirn-test/> |
+| Testseite ansehen | <https://probe-wirtschaft-dornbirn.pages.dev> |
 | Code und Aufgaben | <https://github.com/jonasgamper-create/wirtschaft-dornbirn-test> |
 | Offizielle Eventquelle | <https://wirtschaft-dornbirn.at/event/> |
 
 Die Testseite steht bewusst auf `noindex` und ist kein Produktivsystem: keine
-echten Reservierungen, keine Zahlungen, keine Gästedaten.
+echten Reservierungen, keine Zahlungen, keine Gästedaten. Sie ist immer
+Testbetrieb (eigener Testdienst, keine Mails). Die Kopie auf GitHub Pages
+(`jonasgamper-create.github.io/wirtschaft-dornbirn-test/`) spricht dagegen
+mit dem echten Dienst – sie ist kein Testlink mehr.
 
 ## Einmalige Einrichtung
 
@@ -58,7 +61,8 @@ npm run ci
 4. Pull Request eröffnen. Die zweite Person prüft Diff, Mobile (390 px),
    Buchungswege, Datenschutz und CI. Erst dann wird gemergt.
 
-**Niemals direkt auf `main` pushen.** `main` veröffentlicht die Testseite.
+**Niemals direkt auf `main` pushen.** `main` veröffentlicht die Kopie auf
+GitHub Pages, und die spricht mit dem echten Dienst.
 
 ## Sicherheit und DSGVO – nicht verhandelbar
 
@@ -67,8 +71,11 @@ npm run ci
 - Keine Secrets im Repository; ausschließlich GitHub Actions Secrets.
 - Keine Tracker oder Marketing-Skripte ohne geprüfte Einwilligung.
 - Reservierung und Tickets bleiben Weiterleitungen zu den offiziellen Anbietern.
-- Eventdaten nur aus `site/data/events.json`, verifiziert gegen die offizielle
-  Eventseite. Nichts erfinden – kein Status, kein Preis, keine Verfügbarkeit.
+- Eventdaten, Preise und freie Karten kommen vom Ticketdienst: der Dienst
+  liest sie bei Ticketist; `site/data/termine.json` und
+  `site/data/ticketist-preise.json` sind der Rückfall und entstehen mit
+  `npm run sync:termine`, nicht von Hand. Nichts erfinden – kein Status,
+  kein Preis, keine Verfügbarkeit.
 - Große Rohbilder und Videos in den geschützten Drive-Ordner, nicht ins Repo.
 
 ## Ablage außerhalb des Codes

@@ -17,7 +17,7 @@ Alle liegen bei **Hetzner** (Frage A2 bestätigt, was Jonas aus der
 
 | Postfach | Wofür | Wer liest |
 | --- | --- | --- |
-| `willkommen@wirtschaft-dornbirn.at` | Anfragen und Allgemeines „wirtschaft“ | Wolfgang, Hannah |
+| `willkommen@wirtschaft-dornbirn.at` | Anfragen und Allgemeines „wirtschaft“ (die Formular-Anfragen gehen seit 10.11.2026 an `uri@eugen.family`, siehe B2) | Wolfgang, Hannah |
 | `veranstaltungen@wirtschaft-dornbirn.at` | Marketing, Veranstaltungen, Warteliste „wirtschaft“ | Hannah |
 | `service@wirtschaft-dornbirn.at` | Tischreservierungen, Take Away | Service |
 | `gewinnspiel@wirtschaft-dornbirn.at` | Gewinnspiele zu Veranstaltungen | Hannah |
@@ -36,7 +36,7 @@ Blatt vorgeschlagen, das Haus hat anders entschieden (Fragen B5 und C4).
 | B1 | **Absender** Reservierung und Take Away | `service@wirtschaft-dornbirn.at` |
 | B1 | **Absender** Warteliste eines Abends in der „wirtschaft“ | `veranstaltungen@wirtschaft-dornbirn.at` |
 | B1 | **Absender** Warteliste eines Kulturhaus-Abends | `tickets@eugen.family` |
-| B2 | **Empfänger** Anfragen Feste, Catering, Agentur | `willkommen@wirtschaft-dornbirn.at` – **geändert am 03.11.2026 auf `uri@eugen.family`** (siehe Abschnitt 7) |
+| B2 | **Empfänger** Anfragen Feste, Catering, Agentur | `willkommen@wirtschaft-dornbirn.at` – **geändert auf `uri@eugen.family`** (entschieden 03.11., eingestellt seit 10.11.2026; siehe Abschnitt 7) |
 | B2 | **Empfänger** Anfragen Kulturhaus | `uri@eugen.family` (über das Formular Locations, dort ist das Kulturhaus als Ort wählbar) |
 | B3 | **Empfänger** Tageszettel (werktags 08:00) und Wochenbericht (Freitag 15:00) | `veranstaltungen@wirtschaft-dornbirn.at` |
 | B4 | **Empfänger** jeder einzelnen Take-away-Bestellung | `service@wirtschaft-dornbirn.at` |
@@ -69,12 +69,19 @@ Antwort. „Empfänger“ heißt: dorthin schickt die Webseite die Meldung.
 Alles, was ohne Vorbedingung geht, steht im Dienst (`server/wrangler.jsonc`,
 Produktion **und** Probe):
 
-| Einstellung | Wert | Wirkung |
-| --- | --- | --- |
-| `WIRT_MAIL` | `veranstaltungen@wirtschaft-dornbirn.at` | Tageszettel und Wochenbericht (B3) |
-| `TAKEAWAY_MAIL` | `service@wirtschaft-dornbirn.at` | jede Bestellmeldung (B4) – **neu**, vorher lief sie über `WIRT_MAIL` mit |
-| `ANFRAGE_MAIL` | `uri@eugen.family` | Anfragen (B2); seit 03.11.2026 an Emma & Eugen, weil die „wirtschaft“ nur bis Sommer 2028 läuft |
-| `WIRT_MAIL_KOPIE` (Geheimnis) | Adresse von Jonas | Kopie von Tageszettel und Wochenbericht an die technische Betreuung (Antwort 03.11.2026); kein Eintrag in `wrangler.jsonc`, weil privat |
+- `WIRT_MAIL` = `veranstaltungen@wirtschaft-dornbirn.at`: Tageszettel und
+  Wochenbericht (B3).
+- `TAKEAWAY_MAIL` = `service@wirtschaft-dornbirn.at`: jede Bestellmeldung
+  (B4) – **neu**, vorher lief sie über `WIRT_MAIL` mit.
+- `ANFRAGE_MAIL` = `uri@eugen.family`: Anfragen (B2) an Emma & Eugen, weil
+  die „wirtschaft“ nur bis Sommer 2028 läuft – entschieden 03.11., eingestellt
+  seit 10.11.2026. Seit 11.11. zeigen auch der Notweg der Formulare (Mail, wenn
+  der Dienst nicht antwortet) und die Vorgabe im Dienst dorthin;
+  `scripts/check-absender.mjs` hält alle drei gleich.
+- `WIRT_MAIL_KOPIE` (Geheimnis) = Adresse von Jonas: Kopie von Tageszettel und
+  Wochenbericht an die technische Betreuung (Antwort 03.11.2026).
+  **Vorbereitet, noch nicht gesetzt** – ohne das Geheimnis gibt es keine
+  Kopie. Kein Eintrag in `wrangler.jsonc`, weil privat.
 
 Dazu kennt der Dienst jetzt **einen Absender je Zweck** statt einem für
 alles: `ABSENDER_SERVICE`, `ABSENDER_WARTELISTE`, `ABSENDER_KULTURHAUS` und
@@ -90,20 +97,31 @@ nur von Adressen, deren Domain dort beglaubigt ist. Wird eine Adresse zu
 früh eingetragen, versendet der Dienst **gar nichts** mehr – schlechter als
 heute. Reihenfolge:
 
-1. Bei Brevo die Domain `wirtschaft-dornbirn.at` anlegen und die vier
-   DNS-Einträge bei Hetzner setzen (`docs/mail-absender.md`). Beglaubigung
-   abwarten.
-2. Dann `BREVO_ABSENDER` auf `willkommen@wirtschaft-dornbirn.at` setzen –
-   damit hört der heutige Spam-Effekt auf (`jonas.gamper@aon.at` verbietet
-   fremden Versand, DMARC `p=reject`).
-3. Dann `ABSENDER_SERVICE` = `service@wirtschaft-dornbirn.at` und
-   `ABSENDER_WARTELISTE` = `veranstaltungen@wirtschaft-dornbirn.at`.
-4. `ABSENDER_KULTURHAUS` = `tickets@eugen.family` und `EVENTS_ABSENDER` =
-   `uri@eugen.family` brauchen eine **eigene** Beglaubigung der Domain
-   `eugen.family`. Das kann nur Uri veranlassen.
+1. ~~Bei Brevo die Domains anlegen und die DNS-Einträge bei Hetzner
+   setzen~~ – **erledigt** für `wirtschaft-dornbirn.at` und `eugen.family`
+   (Sarah mit Markus, im Brevo-Konto des Hauses; von außen geprüft am
+   10.11.2026). Offen: *Authenticate* für beide Domains im Brevo-Konto des
+   Hauses.
+2. Einen **API-Schlüssel aus dem Brevo-Konto des Hauses** als Geheimnis
+   `BREVO_KEY` im Dienst hinterlegen (gemeinsam, nicht per Mail oder Chat).
+   Grund: Der Dienst sendet heute noch über das Brevo-Konto von Jonas, und
+   dort sind die Domains des Hauses nicht beglaubigt. Ein zweiter Benutzer
+   im Brevo-Konto kostet laut Brevo 9 € im Monat – der Schlüssel nichts.
+3. Dann `BREVO_ABSENDER` auf `willkommen@wirtschaft-dornbirn.at` setzen –
+   damit hört der heutige Spam-Effekt auf (die private Adresse von Jonas
+   liegt bei einem Anbieter, der fremden Versand verbietet, DMARC
+   `p=reject`).
+4. Dann `ABSENDER_SERVICE` = `service@wirtschaft-dornbirn.at`,
+   `ABSENDER_WARTELISTE` = `veranstaltungen@wirtschaft-dornbirn.at`,
+   `ABSENDER_KULTURHAUS` = `tickets@eugen.family` und `EVENTS_ABSENDER` =
+   `uri@eugen.family`. Für `eugen.family` ist nichts mehr mit Uri zu
+   klären: die Einträge stehen wie bei `wirtschaft-dornbirn.at`.
 
 Prüfen nach jedem Schritt: `GET /api/mail/pruefung?email=<eigene Adresse>`
-muss `delivered` melden.
+(mit dem Hausschlüssel im Kopf `x-haus-token`) muss `delivered` melden. Achtung: Bis Schritt 2 erledigt ist, zeigen
+`/api/mail/pruefung` und `/api/mail/domain` das Brevo-Konto von **Jonas**,
+nicht das des Hauses. Maßgeblich für *Authenticate* ist die Anzeige im
+Brevo-Konto des Hauses.
 
 ## 6 Zugangsdaten
 
@@ -129,17 +147,25 @@ beantwortet. Stand danach:
 1. **Anfragen fürs Kulturhaus** (B2): kein eigenes Formular – im Formular
    „Locations · Feste & Catering“ ist das Kulturhaus als Wunschort wählbar.
    Weil das Haus die „wirtschaft“ nur bis Sommer 2028 hat, gehen Anfragen
-   aus **beiden** Formularen (Locations und Agentur) seit 03.11. an
-   `uri@eugen.family` statt an `willkommen@`. Umgesetzt als `ANFRAGE_MAIL`
-   in beiden Umgebungen; `replyTo` bleibt der Gast. Rückweg: eine Zeile.
+   aus **beiden** Formularen (Locations und Agentur) an `uri@eugen.family`
+   statt an `willkommen@`. Umgesetzt als `ANFRAGE_MAIL` in beiden
+   Umgebungen, live seit 10.11.2026, der Notweg der Formulare seit 11.11.; `replyTo`
+   bleibt der Gast. Offen beim Haus: die Zeile „Lieber direkt?“ über den
+   Formularen (nennt weiter `willkommen@`) und der Auftritt der
+   Bestätigungsmail und der Datenschutzseite („wirtschaft“). Rückweg: eine
+   Zeile.
 2. **Tageszettel**: Kopie an Jonas, solange er den technischen Support
-   macht. Umgesetzt als `cc` an das Geheimnis `WIRT_MAIL_KOPIE`
-   (Tageszettel und Wochenbericht). Fällt der Support weg:
-   `npx wrangler secret delete WIRT_MAIL_KOPIE`.
-3. **`eugen.family` bei Brevo**: erledigt, ohne Uri. Hannah und Markus haben
-   am 02.11. die Einträge beider Domains bei Hetzner gesetzt (von außen
-   geprüft am 03.11.: DKIM, Brevo-Code, DMARC, SPF, beide Domains im selben
-   Brevo-Konto). Es fehlt nur noch *Authenticate* in Brevo.
+   macht. Vorbereitet als `cc` an das Geheimnis `WIRT_MAIL_KOPIE`
+   (Tageszettel und Wochenbericht) – **noch nicht gesetzt**, also noch
+   keine Kopie. Setzen: `npx wrangler secret put WIRT_MAIL_KOPIE` im Ordner
+   `server`. Fällt der Support weg: `npx wrangler secret delete
+   WIRT_MAIL_KOPIE`.
+3. **`eugen.family` bei Brevo**: erledigt, ohne Uri. Sarah hat das
+   Brevo-Konto des Hauses angelegt und mit Markus die Einträge beider
+   Domains bei Hetzner gesetzt (von außen geprüft am 10.11.2026: DKIM,
+   Brevo-Code, DMARC, SPF, beide Domains im selben Brevo-Konto). Es fehlen
+   *Authenticate* in Brevo und danach der API-Schlüssel aus diesem Konto
+   (Abschnitt 5).
 4. **`kueche@wirtschaft-dornbirn.at`** bleibt bestehen. Keine Änderung.
 5. **`gewinnspiel@` und `sarah.preuss@`** kommen in der Webseite nicht vor.
    Das ist in Ordnung – nur zur Bestätigung festgehalten.
@@ -147,14 +173,15 @@ beantwortet. Stand danach:
 Dazu aus derselben Antwort, nicht Teil der vier Fragen:
 
 - **Ticketkategorien**: Hannah hat sie in Ticketist bei allen Abenden
-  hinterlegt und vermutet einen Übertragungsfehler. Es gibt keine
-  Übertragung: Ticketist gibt Kategorien und Preise nicht öffentlich heraus
-  (geprüft 03.11.: weder `window.event` noch `/api/events/<id>` enthalten
-  sie, erst das Kassenfenster lädt sie). Preise stehen in
-  `site/data/events.json` und werden von Hand nachgetragen; 20 Abende ab
-  Januar 2027 fehlen. Weg: Hannah schickt die Kategorien, Jonas trägt sie
-  ein; mit Markus kurz klären, ob Ticketist eine nicht-öffentliche
-  Schnittstelle dafür hat.
+  hinterlegt – und ihr Hinweis stimmte. Ticketist gibt Kategorien, Preise
+  und freie Plätze öffentlich heraus (`/api/ticket-categories?eventId=<nummer>`);
+  am 03.11. waren nur `window.event` und `/api/events/<id>` geprüft worden,
+  die Aussage „gibt Ticketist nicht heraus“ war falsch. Seit 11.11.2026
+  liest der Dienst die Kategorien mit den Eventdaten,
+  `site/data/ticketist-preise.json` ist nur noch der Rückfall und wird von
+  `npm run sync:termine` erzeugt. Alle kommenden Abende haben ihre Preise,
+  auch die 20 ab Jänner 2027. Hannah schickt nichts, mit Markus ist nichts
+  zu klären.
 - **Marken-Subdomain bei Brevo** (Hinweis von Markus): Brevo schlägt eine
   Sende-Subdomain vor; `mail.` ist bei beiden Domains der Hetzner-Mailserver
   (A-Eintrag, Ziel des MX) und darf kein CNAME werden. Festgelegt: `post.`

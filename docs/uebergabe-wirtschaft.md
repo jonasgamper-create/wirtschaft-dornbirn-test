@@ -1,6 +1,6 @@
 # Übergabe der Webseite an die „wirtschaft“
 
-Stand 1. Oktober 2026. Für Hannah, Wolfgang und den Programmierer, der die
+Stand 11. November 2026. Für Hannah, Wolfgang und den Programmierer, der die
 Seite betreut. Dieses Dokument erklärt in einfacher Sprache, wie die
 „wirtschaft“ die Webseite, den Reservierungsdienst und alle Konten
 übernimmt, wie die Seite auf **https://wirtschaft-dornbirn.at** umzieht –
@@ -13,9 +13,9 @@ und warum dabei nichts kaputtgehen kann.
 | | |
 |---|---|
 | **Ziel** | Die neue Seite steht unter `wirtschaft-dornbirn.at`. Alle Konten gehören der „wirtschaft“. Jonas hat danach keinen Zugang mehr. |
-| **Wer übernimmt** | **Hannah** als Verantwortliche und Inhaberin der Konten; ein **Programmierer** für die technischen Schritte; **Wolfgang** entscheidet und nimmt ab |
+| **Wer übernimmt** | **Hannah** als Verantwortliche; die Konten gehören dem Haus (Brevo und GitHub hat **Sarah** Anfang November angelegt); ein **Programmierer** für die technischen Schritte; **Wolfgang** entscheidet und nimmt ab |
 | **Dauer** | rund zwei Wochen, davon zwei bis vier Stunden echte Arbeit; der Rest ist Warten und Beobachten |
-| **Kosten** | 0 € laufend (Gratisstufen von GitHub, Cloudflare, Brevo); die Domain läuft wie bisher |
+| **Kosten** | 0 € laufend für Seite, Dienst, Testseite und Mailversand (Gratisstufen von GitHub, Cloudflare, Brevo), heute und nach dem Umzug. Wie bisher: das Hetzner-Paket (Domain, Postfächer, alte Seite) und die Ticketist-Gebühren. Nach dem Umzug fällt das Hetzner-Paket nicht ganz weg, höchstens wird es kleiner |
 | **KI nötig?** | Nein. Ein Browser reicht. Abschnitt 7 erklärt, wie ihr ohne KI Änderungen macht |
 | **Grundsatz** | **Nichts wird überschrieben, bevor das Neue geprüft ist. Jeder Schritt hat einen Rückweg.** |
 
@@ -23,9 +23,11 @@ und warum dabei nichts kaputtgehen kann.
 gelöscht und nicht verändert. Sie bleibt auf dem Server bei Hetzner. Beim
 Umzug ändert sich nur, **wohin der Name `wirtschaft-dornbirn.at` zeigt**.
 Zeigt er auf die neue Seite und etwas stimmt nicht, zeigt er mit einem
-Klick wieder auf die alte. Das dauert fünf Minuten. Vorher gibt es eine
-Generalprobe unter `neu.wirtschaft-dornbirn.at`, bei der die echte Domain
-unberührt bleibt.
+Klick wieder auf die alte. Das dauert fünf Minuten. Vorher läuft die neue
+Seite eine Zeit lang unter `neu.wirtschaft-dornbirn.at` (ab Etappe 5) – echt,
+nur noch nicht unter der Hauptadresse –, und die alte Seite bleibt dabei
+unberührt. Ohne Folgen ausprobieren lässt sich die Seite auf der Testseite
+**https://probe-wirtschaft-dornbirn.pages.dev** (Abschnitt 6).
 
 ---
 
@@ -36,28 +38,29 @@ unberührt bleibt.
 | **Gästeseite** | Startseite, Termine & Tickets, Mittagstisch, Takeaway, Locations, Agentur, Impressum, Datenschutz | Cloudflare Pages (`wirtschaft-dornbirn.pages.dev`) | Cloudflare-Konto der „wirtschaft“, unter `wirtschaft-dornbirn.at` |
 | **Reservierungsdienst** | nimmt Reservierungen, Bestellungen, Wartelisten, Anfragen an; schickt Mails; holt neue Abende | Cloudflare Worker im Konto von Jonas | Cloudflare-Konto der „wirtschaft“ |
 | **Wirt-Ansicht** | das Werkzeug fürs Haus (heute · karte · warteliste · haus) | Teil der Gästeseite, geschützt durch den Hausschlüssel | mit der Gästeseite |
-| **Quellcode** | alles oben, dazu die Anleitungen | GitHub, Konto von Jonas | GitHub-Konto der „wirtschaft“ |
-| **Mails** | Bestätigungen, Tageszettel, Anfragen | Brevo, Konto von Jonas | Brevo-Konto der „wirtschaft“ |
+| **Quellcode** | alles oben, dazu die Anleitungen | GitHub, Konto von Jonas | GitHub-Konto der „wirtschaft“ (von Sarah angelegt) |
+| **Mails** | Bestätigungen, Tageszettel, Anfragen | Brevo; der Dienst sendet noch über das Konto von Jonas | Brevo-Konto der „wirtschaft“ (von Sarah angelegt) |
 | **Domain, Mailpostfächer, WordPress** | `wirtschaft-dornbirn.at`, `willkommen@…`, alte Seite, Gutscheine, Lieferservice | Hetzner, Konto der „wirtschaft“ | bleibt, wie es ist |
-| **Tickets** | alle Abende | ticketist.io | bleibt, wie es ist |
+| **Tickets** | alle Abende mit Ticketkategorien und Preisen – der Dienst liest sie öffentlich mit | ticketist.io | bleibt, wie es ist |
 
 ---
 
 ## 3. Die Konten – wer was anlegt
 
-Alle neuen Konten legt **Hannah** an, mit einer Adresse des Hauses, nicht
+Alle neuen Konten legt das Haus an, mit einer Adresse des Hauses, nicht
 mit einer privaten. Entschieden am 27.10.2026:
 **`veranstaltungen@wirtschaft-dornbirn.at`** – das Postfach besteht schon.
 So hängt nichts an einer Person. Zweite Person mit vollem Zugang ist
-**Sarah** (`sarah.preuss@wirtschaft-dornbirn.at`).
+**Sarah** (`sarah.preuss@wirtschaft-dornbirn.at`). Brevo und GitHub hat
+Sarah Anfang November angelegt; offen ist noch Cloudflare.
 
 | Konto | Anlegen | Mit welcher Adresse | Was der Programmierer bekommt | Kosten |
 |---|---|---|---|---|
-| **GitHub** (Quellcode) | github.com → Sign up, danach eine **Organisation** „wirtschaft-dornbirn“ (Free) | veranstaltungen@ | Mitglied der Organisation mit Rolle *Owner* | 0 € |
+| **GitHub** (Quellcode) | angelegt (Sarah); danach eine **Organisation** „wirtschaft-dornbirn“ (Free) | veranstaltungen@ | Mitglied der Organisation mit Rolle *Owner* | 0 € |
 | **Cloudflare** (Seite, Dienst, später DNS) | dash.cloudflare.com → Sign up | veranstaltungen@ | *Members → Invite*, Rolle *Administrator* | 0 € |
-| **Brevo** (Mails) | brevo.com → Sign up (Free) | veranstaltungen@ | Zugang als Benutzer oder den API-Schlüssel | 0 € (300 Mails am Tag) |
+| **Brevo** (Mails) | angelegt (Sarah), Free | veranstaltungen@ | den API-Schlüssel, keinen Benutzerzugang (ein zweiter Benutzer kostet laut Brevo 9 € im Monat) | 0 € (300 Mails am Tag) |
 | **Hetzner** (Domain, Postfächer, WordPress) | besteht schon | – | Zugang zur **DNS-Verwaltung** (konsoleH / DNS Console) | wie bisher |
-| **ticketist.io** | besteht schon | – | nichts | wie bisher |
+| **ticketist.io** | besteht schon | – | nichts – Abende, Kategorien und Preise sind öffentlich, ein Zugang ist nicht nötig | wie bisher |
 
 **Für jedes Konto, ohne Ausnahme:**
 
@@ -85,12 +88,13 @@ So hängt nichts an einer Person. Zweite Person mit vollem Zugang ist
 Jede Etappe hat ein Häkchen, einen Verantwortlichen und – wo nötig – einen
 Rückweg. Bis Etappe 6 sehen Gäste keinen Unterschied.
 
-### Etappe 1 · Konten anlegen (Hannah, ½ Stunde)
+### Etappe 1 · Konten anlegen (Sarah, ½ Stunde)
 
 - [x] Haus-Adresse: `veranstaltungen@wirtschaft-dornbirn.at` – besteht bereits (27.10.2026)
-- [ ] GitHub-Konto und Organisation „wirtschaft-dornbirn“; Programmierer eingeladen
+- [x] GitHub-Konto angelegt (Sarah, Anfang November)
+- [ ] Organisation „wirtschaft-dornbirn“; Programmierer eingeladen
 - [ ] Cloudflare-Konto; Programmierer als Administrator eingeladen
-- [ ] Brevo-Konto; Programmierer eingeladen
+- [x] Brevo-Konto angelegt (Sarah, Anfang November); statt einer Einladung bekommt der Dienst einen API-Schlüssel aus diesem Konto (Etappe 4)
 - [ ] Programmierer hat Zugang zur DNS-Verwaltung bei Hetzner
 - [ ] überall Zwei-Faktor an, Wiederherstellungscodes abgelegt
 
@@ -123,40 +127,45 @@ Der Befehl zum Umstellen:
 ```bash
 npm run umstellen -- --dienst https://wirtschaft-reservierung.<konto>.workers.dev \
   --probe https://wirtschaft-reservierung-probe.<konto>.workers.dev \
-  --wirt-mail <adresse von wolfgang> --anfrage-mail uri@eugen.family
+  --wirt-mail veranstaltungen@wirtschaft-dornbirn.at --anfrage-mail uri@eugen.family
 # sieht gut aus? dann dasselbe mit --schreiben, danach npm run ci
 ```
 
 **Rückweg:** Solange Etappe 6 nicht erfolgt ist, nutzen Gäste den alten
 Dienst. Die neue Umgebung kann man jederzeit verwerfen und neu aufsetzen.
 
-### Etappe 4 · Mails richtig absenden (Programmierer + Hannah, ½ Stunde, dann warten)
+### Etappe 4 · Mails richtig absenden (Programmierer + Sarah, ½ Stunde, dann warten)
 
-Heute kommen die Mails von einer privaten aon.at-Adresse und landen bei
+Heute kommen die Mails von der privaten Adresse von Jonas und landen bei
 Gmail oder Outlook oft im Spam. Danach kommen sie von
 `willkommen@wirtschaft-dornbirn.at` und werden als echt erkannt.
 
-- [x] In Brevo: *Senders, Domains & Dedicated IPs → Domains → Add a domain* → `wirtschaft-dornbirn.at` **und** `eugen.family` (Hannah, 02.11.2026, ein Konto für beide)
+- [x] In Brevo: *Senders, Domains & Dedicated IPs → Domains → Add a domain* → `wirtschaft-dornbirn.at` **und** `eugen.family` (Sarah, Anfang November, ein Konto für beide – das des Hauses)
 - [x] Die **vier Einträge, die Brevo anzeigt**, bei Hetzner eintragen (zwei
   `brevo…._domainkey`-CNAME, ein `brevo-code`-TXT, ein `_dmarc`-TXT) – für
-  beide Domains gesetzt (Hannah mit Markus, 02.11.), von außen geprüft am
-  03.11. Die Werte gehören zum Brevo-Konto der „wirtschaft“ – die alten in
-  `mail-absender.md` gelten nicht mehr.
+  beide Domains gesetzt (Sarah mit Markus, Anfang November), von außen
+  nachgeprüft am 10.11.2026. Kontoeigen ist nur der `brevo-code`: Gültig ist
+  der aus dem Brevo-Konto der „wirtschaft“, der alte in `mail-absender.md`
+  nicht mehr. DKIM, DMARC und SPF dort stimmen mit der Zone überein.
 - [x] Den SPF-Eintrag **ändern, nicht verdoppeln**: `v=spf1 a mx include:spf.brevo.com ~all` – gesetzt, bei beiden Domains genau ein SPF-Eintrag
 - [ ] **Falls Brevo eine Marken-Subdomain verlangt** (Hinweis von Markus): nicht `mail` – das ist der Hetzner-Mailserver (A-Eintrag, Ziel des MX), und ein CNAME dort nimmt dem Haus die Post. Stattdessen `post` (`post.wirtschaft-dornbirn.at`, `post.eugen.family`). Für die Beglaubigung ist der Schritt nicht nötig.
-- [ ] In Brevo „Authenticate“ (Hannah oder Jonas mit Benutzerzugang); erst danach im Dienst `BREVO_ABSENDER = willkommen@wirtschaft-dornbirn.at`
+- [ ] Im Brevo-Konto des Hauses bei beiden Domains „Authenticate“ drücken, bis beide grün sind (Sarah). Maßgeblich ist die Anzeige in diesem Konto – die Mail-Abfragen des Dienstes zeigen bis zum nächsten Punkt noch das Konto von Jonas
+- [ ] Im selben Konto einen **API-Schlüssel** erzeugen; Jonas hinterlegt ihn als Geheimnis `BREVO_KEY` im Dienst – gemeinsam, nicht per Mail oder Chat. Grund: Der Dienst sendet heute über das Brevo-Konto von Jonas, und dort sind eure Domains nicht beglaubigt. Schlüssel statt Benutzerzugang, weil ein zweiter Benutzer laut Brevo 9 € im Monat kostet
+- [ ] **Erst danach** im Dienst `BREVO_ABSENDER = willkommen@wirtschaft-dornbirn.at` – umgekehrt verschickt Brevo gar nichts mehr
 - [ ] **Dann** die Absender je Zweck füllen: `ABSENDER_SERVICE = service@`, `ABSENDER_WARTELISTE = veranstaltungen@` (Hausentscheid 27.10.2026, `docs/mailadressen-entscheidung.md`)
 - [ ] `ABSENDER_KULTURHAUS = tickets@eugen.family` und `EVENTS_ABSENDER = uri@eugen.family`, sobald `eugen.family` in Brevo grün ist (die Einträge sind gesetzt; Uri muss nichts mehr tun)
-- [ ] `npx wrangler secret put WIRT_MAIL_KOPIE` mit der Adresse von Jonas (Kopie von Tageszettel und Wochenbericht, Hausentscheid 03.11.2026)
+- [ ] `npx wrangler secret put WIRT_MAIL_KOPIE` im Ordner `server`, mit der Adresse von Jonas (Kopie von Tageszettel und Wochenbericht, Hausentscheid 03.11.2026). Vorbereitet, noch nicht gesetzt – bis dahin gibt es keine Kopie
 - [ ] Probemail an eine eigene Gmail-Adresse: kommt im Posteingang an
 
 **Was das berührt:** nur neue Einträge und eine Ergänzung der SPF-Zeile.
 Postfächer, WordPress und Webseite bleiben unverändert.
 
-### Etappe 5 · Generalprobe unter neu.wirtschaft-dornbirn.at (Programmierer, ½ Stunde; Hannah und Wolfgang schauen)
+### Etappe 5 · Die neue Seite unter neu.wirtschaft-dornbirn.at (Programmierer, ½ Stunde; Hannah und Wolfgang schauen)
 
 Die neue Seite läuft unter einer echten Adresse eurer Domain – die alte
 Seite unter `wirtschaft-dornbirn.at` bleibt dabei genau so, wie sie ist.
+Das ist keine Probe: Unter `neu.` läuft der echte Dienst, wer dort bucht,
+hat gebucht. Ausprobieren ohne Folgen geht auf der Testseite (Abschnitt 6).
 
 - [ ] Cloudflare Pages → Projekt → *Custom domains* → `neu.wirtschaft-dornbirn.at` hinzufügen (**zuerst** hier, dann DNS)
 - [ ] Bei Hetzner **einen** neuen Eintrag: `neu` · CNAME · `<projekt>.pages.dev`
@@ -225,7 +234,9 @@ WordPress-Seite ist sofort wieder da, denn sie wurde nie angefasst.
 
 - **WordPress bleibt auf dem Server bei Hetzner**, unverändert, nur nicht
   mehr unter `wirtschaft-dornbirn.at`. Wer sie irgendwann nicht mehr
-  braucht, kündigt das Paket – nicht vorher.
+  braucht, wechselt höchstens auf ein kleineres Paket – nicht vorher. Ganz
+  weg fällt das Hetzner-Paket nicht: Die Postfächer bleiben dort, und
+  Gutscheine und Lieferservice laufen dort weiter.
 - **Gutscheine** (`gutscheine.wirtschaft-dornbirn.at`) und **Lieferservice**
   (`lieferservice.wirtschaft-dornbirn.at`) laufen weiter auf dem alten
   Server. Der Dienst gibt Takeaway-Bestellungen heute noch an den
@@ -251,13 +262,18 @@ WordPress-Seite ist sofort wieder da, denn sie wurde nie angefasst.
 
 | Was | Adresse | Wofür |
 |---|---|---|
+| **Testseite** | `https://probe-wirtschaft-dornbirn.pages.dev` | der Link zum Herzeigen und Ausprobieren: immer Testbetrieb, auch in einem neuen Tab – eigener Testdienst, eigene Daten, keine Mails, kein Push, weinrotes Band „Testseite“ |
 | **Probemodus** | jede Seite mit `?probe=1`, z. B. `…/?probe=1` | Reservieren, Bestellen, Anfragen ausprobieren, ohne dass etwas Echtes passiert: eigener Testdienst, keine Mails |
 | **Wirt-Ansicht im Probemodus** | `…/tischplan/wirt.html?probe=1` | sehen, was die Tests ausgelöst haben |
-| **Generalprobe** | `neu.wirtschaft-dornbirn.at` (ab Etappe 5) | die neue Seite unter eurer Domain, bevor die Hauptadresse umzieht |
 | **Umzugsprüfung** | `npm run check:umzug` | prüft jede alte Adresse, alle Hauptseiten, QR-Codes und den Dienst |
 
-Ein neuer Browser-Tab ist immer Echtbetrieb. Der Probemodus gilt nur in
-dem Tab, in dem `?probe=1` geöffnet wurde.
+Auf der echten Seite (heute `https://wirtschaft-dornbirn.pages.dev`) ist ein
+neuer Browser-Tab immer Echtbetrieb: Der Probemodus gilt nur in dem Tab, in
+dem `?probe=1` geöffnet wurde. Die Testseite dagegen ist immer Testbetrieb.
+
+Nicht zur Testumgebung gehören `neu.wirtschaft-dornbirn.at` – ab Etappe 5
+die echte neue Seite, keine Probe – und die Kopie der Seite auf GitHub Pages:
+Sie spricht mit dem echten Dienst und ist kein Testlink mehr.
 
 ---
 
@@ -300,7 +316,7 @@ Wird die Prüfung rot: nicht zusammenführen, den Programmierer fragen.
 
 ### Weg 3 · Programmierer – alles andere
 
-Neue Seiten, Bilder, Aufbau, Preise der Abende, Fehler. Jeder
+Neue Seiten, Bilder, Aufbau, Fehler. Jeder
 Webentwickler kann das übernehmen; er braucht keine besonderen Werkzeuge
 und keine KI. Alles, was er wissen muss, steht im Repository:
 
@@ -310,6 +326,10 @@ und keine KI. Alles, was er wissen muss, steht im Repository:
 
 Am besten beauftragt ihr ihn per Mail: Seite, Stelle (Screenshot), was
 stattdessen dort stehen soll – ein Wunsch je Punkt.
+
+**Preise und Ticketkategorien** der Abende brauchen keinen Programmierer:
+Die pflegt ihr in Ticketist, und die Seite übernimmt sie von selbst,
+spätestens nach zwölf Stunden.
 
 ---
 
@@ -357,7 +377,7 @@ stattdessen dort stehen soll – ein Wunsch je Punkt.
 
 ---
 
-## Anhang · Die DNS-Einträge heute (gelesen am 01.10.2026)
+## Anhang · Die DNS-Einträge heute (gelesen am 01.10.2026, Mail-Einträge nachgeprüft am 10.11.2026)
 
 Bei Hetzner (Nameserver `hydrogen.ns.hetzner.com`, `oxygen.ns.hetzner.com`,
 `helium.ns.hetzner.de`), TTL meist 86400 Sekunden (ein Tag):
@@ -370,10 +390,10 @@ Bei Hetzner (Nameserver `hydrogen.ns.hetzner.com`, `oxygen.ns.hetzner.com`,
 | `*` (Platzhalter) | CNAME | `www` | **A `78.47.8.180`** (Teil A), DNS only |
 | `gutscheine`, `lieferservice`, `webmail`, `autodiscover`, `ftp`, `shop`, `test` … | CNAME (über den Platzhalter) | `www` | **A `78.47.8.180`**, DNS only |
 | `@` | MX | `10 mail.wirtschaft-dornbirn.at` | **unverändert** |
-| `@` | TXT | `v=spf1 a mx ~all` | `v=spf1 a mx include:spf.brevo.com ~all` |
-| `_dmarc` | TXT | `v=DMARC1; p=none;` | Wert aus Brevo |
-| `brevo1._domainkey`, `brevo2._domainkey` | CNAME | – | neu, Werte aus Brevo |
-| `@` | TXT | – | neu: `brevo-code:…` aus Brevo |
+| `@` | TXT | `v=spf1 a mx include:spf.brevo.com ~all` (seit Anfang November, vorher `v=spf1 a mx ~all`) | **unverändert** |
+| `_dmarc` | TXT | `v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com` | **unverändert** |
+| `brevo1._domainkey`, `brevo2._domainkey` | CNAME | `b1.wirtschaft-dornbirn-at.dkim.brevo.com`, `b2.wirtschaft-dornbirn-at.dkim.brevo.com` | **unverändert**, DNS only |
+| `@` | TXT | `brevo-code:…` (Brevo-Konto der „wirtschaft“) | **unverändert** |
 | `neu` | CNAME | – | ab Etappe 5: `<projekt>.pages.dev` |
 
 Vor Etappe 6 diese Tabelle mit der Hetzner-Verwaltung vergleichen – dort

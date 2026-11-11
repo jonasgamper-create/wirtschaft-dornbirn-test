@@ -22,11 +22,13 @@ if (!quelle) {
 
 const schuetze = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-/** Zeileninhalt: Code, fett, kursiv, Links - in dieser Reihenfolge. */
+/** Zeileninhalt: Code, durchgestrichen, fett, kursiv, Links - in dieser Reihenfolge. */
 function inline(t) {
   const codes = [];
   let s = schuetze(t).replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return `\u0000${codes.length - 1}\u0000`; });
-  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  // Durchgestrichen (~~erledigt~~) - stand vorher woertlich mit Tilden im PDF.
+  s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/(^|[^*])\*([^*]+)\*(?!\*)/g, '$1<em>$2</em>')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
     .replace(/(^|\s)- \[ \]/g, '$1☐')
@@ -117,6 +119,7 @@ const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>
   li.haken{list-style:none; margin-left:-5mm; padding-left:6.5mm; position:relative}
   li.haken .kasten{position:absolute; left:0; top:.9mm; width:3.4mm; height:3.4mm; border:1.2px solid var(--ink); border-radius:.6mm; background:#fff}
   li.haken .kasten.voll{background:var(--ink)}
+  del{text-decoration:line-through; text-decoration-thickness:1px; color:var(--leise)}
   table{width:100%; border-collapse:collapse; margin:2mm 0 6mm; font-size:9.3pt; break-inside:auto}
   th{font-family:var(--sans); font-size:8pt; font-weight:700; letter-spacing:.06em; text-transform:lowercase; text-align:left; color:var(--leise); padding:1.6mm 2mm; border-bottom:1.2px solid var(--ink)}
   td{padding:1.8mm 2mm; border-bottom:1px solid var(--linie); vertical-align:top}

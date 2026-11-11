@@ -1,6 +1,7 @@
 # Prüfung: Was passiert, wenn die alten Seiten gelöscht werden
 
-Stand 13. September 2026, geprüft am Zweig `kulturhaus-eventseite` (PR #204).
+Stand 11. November 2026. Geprüft am 13. September 2026 am Zweig
+`kulturhaus-eventseite` (PR #204).
 
 Die Frage war: **Bleibt nach dem Löschen von wirtschaft-dornbirn.at und
 eugen.family irgendwo eine Fehlermeldung stehen?** Geprüft wurde jede Datei
@@ -27,7 +28,7 @@ Verweise aller 18 Termine, die Betreiberlinks in den Fußzeilen.
 über eugen.family zu kaufen waren, haben im Ticketdienst eigene Kennungen –
 sie standen dort unter anderem Namen (`ullitroy-menue-2026`,
 `ullitroy-brunch-2026`, `singmit-konzertonly`, `einarsson-stehplatz-2027`,
-`einarsson-sitzplatz-2027`). Gelesen im Verwaltungsbereich des Dienstes.
+`einarsson-sitzplatz-2027`).
 Damit führt **kein einziger Ticketknopf** mehr auf eine der alten Seiten.
 
 **Entscheidung nötig:** Wird der Gutscheinshop weiter betrieben? Wenn ja,
@@ -48,9 +49,12 @@ Die Gästeseiten rufen zur Laufzeit genau zwei fremde Adressen auf:
 | `wirtschaft-reservierung.jonas-gamper.workers.dev` | unser eigener Dienst | nein |
 | `www.ticketist.io` | Ticketkauf im Fenster | nein |
 
-Der Dienst selbst ruft nur noch `api.brevo.com` (Mails) und
-`www.ticketist.io` (Termine) auf. **eugen.family kommt nirgends mehr vor** –
-weder im Browser des Gastes noch im Dienst.
+Der Dienst selbst ruft `api.brevo.com` (Mails) und `www.ticketist.io`
+(Termine) auf, dazu seit 30.09. die Eventseiten `wirtschaft-dornbirn.at/event/`
+und `eugen.family/event/`, um neue Abende zu finden (`QUELLSEITEN`,
+`betriebshandbuch.md` §8) – fallen diese Seiten weg, ist `QUELLSEITEN`
+anzupassen. `eugen.family` kommt außerdem als Mailadresse vor: Anfragen
+gehen seit 10.11.2026 an `uri@eugen.family` (Abschnitt 6).
 
 ### 4. Der gedruckte QR-Code auf der Faltkarte
 
@@ -73,10 +77,12 @@ beim Teilen in Messengern.
 
 ### 6. E-Mail-Adressen
 
-`willkommen@wirtschaft-dornbirn.at` und die Anfrageadressen hängen an der
-**Domain**, nicht an der alten Webseite. Solange die Domain beim Haus
-bleibt – und das ist der Plan, die neue Seite läuft darunter – funktionieren
-sie weiter. Würde die Domain aufgegeben, fielen auch die Postfächer aus.
+`willkommen@wirtschaft-dornbirn.at` und die Anfrageadresse
+`uri@eugen.family` (seit 10.11.2026 gehen die Anfragen aus Locations und
+Agentur dorthin) hängen an der jeweiligen **Domain**, nicht an der alten
+Webseite. Solange die Domains bleiben – bei `wirtschaft-dornbirn.at` ist das
+der Plan, die neue Seite läuft darunter – funktionieren sie weiter. Würde
+eine Domain aufgegeben, fielen auch ihre Postfächer aus.
 
 ### 7. Das alte Reservierungssystem
 
@@ -113,8 +119,7 @@ Testlauf auf, nicht erst beim Gast.
    `/das-konzept/`, `/comedynacht/` und die drei Subdomains sollten auf die
    passenden neuen Seiten zeigen, damit alte Links und Suchergebnisse nicht
    ins Leere laufen.
-5. **Preise und Restplätze live** – beides kommt heute aus einer Lesung im
-   Verwaltungsbereich (`site/data/ticketist-preise.json`, Stand im Kopf der
-   Datei). Öffentlich gibt der Dienst es nicht heraus. Mit einem Zugang für
-   den Dienst – danach müsste man bei Ticketist fragen – wären auch diese
-   beiden Werte live.
+5. ~~Preise und Restplätze live~~ – **erledigt am 11.11.2026**, ohne Zugang:
+   Ticketist gibt Kategorien, Preise und freie Karten öffentlich heraus, der
+   Dienst liest sie selbst. `site/data/ticketist-preise.json` ist nur noch
+   der Rückfall, wenn Ticketist nicht antwortet.

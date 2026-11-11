@@ -1,5 +1,8 @@
 # Projektstand: wo die Seite am 17. September 2026 steht
 
+Stand 11. November 2026 für Testseite, Ticketpreise und Mailabsender; alles
+andere ist der Stand vom 17. September.
+
 Diese Datei ist die allgemeine Übersicht. Sie löst die verstreuten Einzelnotizen
 als Einstieg ab: was steht, was geprüft ist, was entschieden werden muss und in
 welcher Reihenfolge es weitergeht. Details stehen weiterhin in den
@@ -13,7 +16,7 @@ Spezialdokumenten, auf die hier verwiesen wird.
 | Reservierung & Takeaway | Cloudflare Worker + Durable Object | im Betrieb, Gratisstufe |
 | Wirt-Ansicht | `/tischplan/wirt.html` | im täglichen Gebrauch, hinter Hausschlüssel |
 | Termine | ticketist.io, 46 Kennungen | live gelesen, 31 Abende |
-| Testumgebung | zweiter Worker, `?probe=1` | seit 17.09., siehe [testumgebung.md](testumgebung.md) |
+| Testumgebung | zweiter Worker, `?probe=1`; dazu die Testseite `https://probe-wirtschaft-dornbirn.pages.dev` (immer Testbetrieb) | seit 17.09., siehe [testumgebung.md](testumgebung.md) |
 | Sicherung | `GET/POST /api/sicherung` | seit 30.09., alle sieben Tabellen als Datei; siehe [betriebshandbuch.md](betriebshandbuch.md) §6 |
 
 ## Was seit dem Kundendokument vom 16.09. passiert ist
@@ -79,8 +82,10 @@ In dieser Reihenfolge, weil jeder Schritt den nächsten möglich macht:
    steht noch drin.
 3. **Domainumzug** auf `wirtschaft-dornbirn.at` samt Weiterleitungen für die
    alten `/event/…`-Adressen, siehe [abschaltung-alte-seiten.md](abschaltung-alte-seiten.md).
-4. **Mailabsender** auf eine Wirtschaft-Adresse umstellen – über aon.at prallen
-   die Bestätigungen ab.
+4. **Mailabsender** auf eine Wirtschaft-Adresse umstellen – über die private Adresse von Jonas prallen
+   die Bestätigungen ab. Stand 11.11.: Die Einträge beider Domains stehen
+   (Sarah mit Markus, im Brevo-Konto des Hauses); offen sind *Authenticate*
+   und der API-Schlüssel aus diesem Konto, erst dann der Absender.
 5. **Cloudflare Access** vor die Wirt-Ansicht (geht erst, wenn die Domain bei
    Cloudflare liegt).
 6. **Strukturierte Daten prüfen**: die Startseite nennt schon heute
@@ -88,8 +93,10 @@ In dieser Reihenfolge, weil jeder Schritt den nächsten möglich macht:
    Umzug liegt.
 7. **Testdaten löschen** (alles mit „TEST" in Reservierung und Takeaway).
 8. **Alte Faltkarten** aussortieren – ihr QR zeigt auf die alte Seite.
-9. **Ticketist um Lesezugriff bitten**, damit Preise und Restkarten live laufen
-   statt aus der hinterlegten Datei vom 14.09.
+9. ~~Ticketist um Lesezugriff bitten~~ – **erledigt ohne Zugang**
+   (11.11.2026): Ticketist gibt Kategorien, Preise und freie Karten
+   öffentlich heraus; der Dienst liest sie selbst, die Datei ist nur noch der
+   Rückfall.
 
 ## Offene Pull Requests
 
@@ -103,7 +110,7 @@ In dieser Reihenfolge, weil jeder Schritt den nächsten möglich macht:
 - [betriebshandbuch.md](betriebshandbuch.md) – **der Einstieg für den Programmierer**: Bausteine, Konten, Ausrollen, Daten, Zeitpläne, Störungen
 - [uebergabe.md](uebergabe.md) – Übergabeprotokoll: Inventar, Reihenfolge, Abnahme, Belege
 - [adresse.md](adresse.md) – wo die Seite steht und wie sie veröffentlicht wird
-- [testumgebung.md](testumgebung.md) – der Probemodus zum Herzeigen
+- [testumgebung.md](testumgebung.md) – die Testseite und der Probemodus zum Herzeigen
 - [abschaltung-alte-seiten.md](abschaltung-alte-seiten.md) – Abhängigkeiten der alten Seiten
 - [altbestand/](altbestand/) – gesicherte Fassungen beider alter Auftritte
 - [launch-checklist.md](launch-checklist.md) – Checkliste fürs Scharfschalten

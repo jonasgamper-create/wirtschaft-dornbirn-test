@@ -4,15 +4,18 @@
 > Absicherung der Unterdomains und Rückweg). Dieses Dokument bleibt als
 > technische Ergänzung.
 
-Stand 22. September 2026. Die Seite ist fertig getestet (siehe Abschnitt 5)
+Stand 11. November 2026. Die Seite ist fertig getestet (siehe Abschnitt 5)
 und läuft unter `wirtschaft-dornbirn.pages.dev`. Dieses Dokument ist die
 Reihenfolge, in der sie auf die echte Domain kommt – und was dabei mit den
 Mails passiert. Es baut auf [adresse.md](adresse.md) und
 [mail-absender.md](mail-absender.md) auf und ersetzt deren Umzugsabschnitte.
 
-**Ein Satz vorweg:** Der einzige Schritt, der nicht aus diesem Projekt heraus
-geht, ist die DNS-Zone von `wirtschaft-dornbirn.at` bei Hetzner. Alles andere
-ist vorbereitet und dauert zusammen unter einer Stunde.
+**Ein Satz vorweg:** Was nicht aus diesem Projekt heraus geht, sind die
+Einträge für die Seite in der DNS-Zone von `wirtschaft-dornbirn.at` bei
+Hetzner und, für die Mails, *Authenticate* sowie ein API-Schlüssel aus dem
+Brevo-Konto des Hauses (gemeinsam als `BREVO_KEY` hinterlegt). Die
+Einträge für die Mails stehen schon (Abschnitt 2b). Alles andere ist
+vorbereitet und dauert zusammen unter einer Stunde.
 
 ---
 
@@ -23,8 +26,8 @@ ist vorbereitet und dauert zusammen unter einer Stunde.
 | Gästeseite | `wirtschaft-dornbirn.pages.dev` (Cloudflare Pages) + `jonasgamper-create.github.io/…` | `wirtschaft-dornbirn.at` und `www.` |
 | Wirt-Ansicht | `…/wirt.html` mit Hausschlüssel im Link | `wirtschaft-dornbirn.at/wirt.html`, später hinter Cloudflare Access |
 | Dienst (API) | `wirtschaft-reservierung.jonas-gamper.workers.dev` | unverändert (kann später `api.wirtschaft-dornbirn.at` werden) |
-| Probe-Dienst | `wirtschaft-reservierung-probe.…workers.dev` | unverändert, nur über `?probe=1` |
-| Mails | Brevo, Absender `jonas.gamper@aon.at` (wird oft abgewiesen) | Brevo, Absender `@wirtschaft-dornbirn.at`, beglaubigt |
+| Probe-Dienst | `wirtschaft-reservierung-probe.…workers.dev` | unverändert, nur über `?probe=1` oder die Testseite `probe-wirtschaft-dornbirn.pages.dev` (immer Testbetrieb) |
+| Mails | Brevo-Konto von Jonas, Absender die private Adresse von Jonas (wird oft abgewiesen) | Brevo-Konto des Hauses, Absender `@wirtschaft-dornbirn.at`, beglaubigt |
 | Alte Seite | liegt noch auf `wirtschaft-dornbirn.at` (Hetzner-Webspace) | abgelöst; `/event/…`-Links werden weitergeleitet |
 
 `canonical`, `og:url`, `sitemap.xml` und die strukturierten Daten nennen
@@ -33,10 +36,11 @@ gebaut, nicht für die Testadresse.
 
 ---
 
-## 2. Die DNS-Einträge – alle auf einmal setzen
+## 2. Die DNS-Einträge
 
-Wer die Zone bei Hetzner öffnet, setzt in einem Rutsch **acht Einträge**:
-vier für die Seite, vier für die Mails. Dann muss niemand zweimal hinein.
+Die vier Einträge für die Mails stehen schon (Abschnitt 2b, von außen
+geprüft am 10.11.2026). Wer die Zone bei Hetzner für die Seite öffnet,
+setzt nur noch die aus Abschnitt 2a.
 
 ### 2a. Seite auf Cloudflare Pages
 
@@ -67,11 +71,12 @@ bleibt beim Registrar, nur die Nameserver ändern sich. Der Mailserver
 
 ### 2b. Mails von Brevo beglaubigen
 
-Aus [mail-absender.md](mail-absender.md), unverändert gültig:
+Aus [mail-absender.md](mail-absender.md):
 
-**Stand 03.11.2026:** gesetzt – für `wirtschaft-dornbirn.at` und
-`eugen.family`, beide im Brevo-Konto der „wirtschaft“. Der `brevo-code`
-unten ist der alte aus Jonas’ Konto; der gültige steht live in der Zone.
+**Nachgeprüft am 10.11.2026 von außen:** gesetzt – für
+`wirtschaft-dornbirn.at` und `eugen.family` (Sarah mit Markus), beide im
+Brevo-Konto des Hauses. Der `brevo-code` unten ist der alte aus Jonas’
+Konto; der gültige steht live in der Zone.
 Falls Brevo zusätzlich eine Marken-Subdomain verlangt: `post`, nie `mail`
 (dort läuft der Hetzner-Mailserver, Ziel des MX).
 
@@ -82,11 +87,16 @@ Falls Brevo zusätzlich eine Marken-Subdomain verlangt: `post`, nie `mail`
 | TXT | `@` | `brevo-code:12ab66d15bb7d93634c32a1a25ca728d` |
 | TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com` |
 
-Und den bestehenden SPF-Eintrag **ändern, nicht ergänzen**:
+Der bestehende SPF-Eintrag ist **geändert, nicht verdoppelt** (beide Domains):
 
 ```
 v=spf1 a mx include:spf.brevo.com ~all
 ```
+
+Offen für die Mails, in dieser Reihenfolge: *Authenticate* für beide Domains
+im Brevo-Konto des Hauses (Sarah), dann ein API-Schlüssel aus diesem Konto
+als `BREVO_KEY` im Dienst (gemeinsam, nicht per Mail oder Chat), erst dann
+der Absender (Abschnitt 3, Schritte 2 und 3).
 
 ---
 
@@ -97,22 +107,34 @@ v=spf1 a mx include:spf.brevo.com ~all
    dig +short CNAME www.wirtschaft-dornbirn.at
    dig +short CNAME brevo1._domainkey.wirtschaft-dornbirn.at
    ```
-2. **Brevo beglaubigen lassen** – im Konto *Domains → Authenticate*, oder
-   über den Dienst nachsehen (alle vier auf `status: true`):
+2. **Brevo beglaubigen lassen** – im Brevo-Konto **des Hauses** (Sarah)
+   *Domains → Authenticate*, für beide Domains. Über den Dienst nachsehen
+   (alle vier auf `status: true`) geht erst, wenn der Schlüssel des Hauses
+   hinterlegt ist (Schritt 3) – bis dahin zeigt die Abfrage das Konto von
+   Jonas:
    ```bash
    curl -s -H "x-haus-token: <Hausschlüssel>" https://wirtschaft-reservierung.jonas-gamper.workers.dev/api/mail/domain
    ```
-3. **Absender umstellen** – erst jetzt:
+3. **Schlüssel des Hauses, dann Absender** – erst jetzt. Zuerst den
+   API-Schlüssel aus dem Brevo-Konto des Hauses als `BREVO_KEY` hinterlegen
+   (gemeinsam, nicht per Mail oder Chat: `npx wrangler@4 secret put
+   BREVO_KEY` im Ordner `server`), dann den Absender:
    ```bash
    cd server && printf '%s' "willkommen@wirtschaft-dornbirn.at" | npx wrangler@4 secret put BREVO_ABSENDER
    ```
    `willkommen@` steht schon überall auf der Seite als Kontaktadresse. Das
    Postfach sollte existieren, damit Antworten der Gäste ankommen (Hetzner
-   Mail oder Weiterleitung auf das bestehende Postfach).
+   Mail oder Weiterleitung auf das bestehende Postfach). Danach die Absender
+   je Zweck (`ABSENDER_SERVICE`, `ABSENDER_WARTELISTE`,
+   `ABSENDER_KULTURHAUS`, `EVENTS_ABSENDER`; Werte in
+   `mailadressen-entscheidung.md`).
 4. **Dienst auf die Domain einstellen** (`server/wrangler.jsonc`, beide
-   Umgebungen): `ALLOWED_ORIGINS` = `https://wirtschaft-dornbirn.at,https://www.wirtschaft-dornbirn.at`
-   (Testadressen raus), `GAESTE_SEITE` = `https://wirtschaft-dornbirn.at`
-   (daraus entstehen die Links in Mails, Kalendereinträgen und Push).
+   Umgebungen): `GAESTE_SEITE` = `https://wirtschaft-dornbirn.at` (daraus
+   entstehen die Links in Mails, Kalendereinträgen und Push).
+   `ALLOWED_ORIGINS` in der Produktion = `https://wirtschaft-dornbirn.at,https://www.wirtschaft-dornbirn.at`
+   (Testadressen raus); in der Probe bleibt
+   `https://probe-wirtschaft-dornbirn.pages.dev` erlaubt, sonst steht die
+   Testseite still.
    Dann `npx wrangler@4 deploy` und `--env probe`, wie in
    [testumgebung.md](testumgebung.md) beschrieben (Schedules zählen!).
 5. **CSP der Seiten** – `connect-src` nennt heute die `workers.dev`-Adresse
@@ -132,7 +154,9 @@ v=spf1 a mx include:spf.brevo.com ~all
 9. **Alte Seite abschalten** (Hetzner-Webspace) und GitHub Pages
    deaktivieren, damit es nur noch einen Stand gibt. Bis dahin
    `npm run deploy:seite` nach jedem Merge nicht vergessen – oder Pages mit
-   dem Repository verbinden ([adresse.md](adresse.md)).
+   dem Repository verbinden ([adresse.md](adresse.md)). Das Hetzner-Paket
+   fällt damit nicht ganz weg: die Postfächer bleiben, `gutscheine.` und
+   `lieferservice.` laufen dort weiter – höchstens ein kleineres Paket.
 
 ---
 

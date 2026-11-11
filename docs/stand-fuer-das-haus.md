@@ -1,293 +1,318 @@
-# Stand der neuen Webseite · 3. November 2026
+# Stand der neuen Webseite · 11. November 2026
 
-Für Hannah und Wolfgang. Dieses Blatt erklärt sich selbst – es braucht keine
-Erklärung dazu. Jede Angabe darin ist am 3. November an der laufenden Seite,
-am laufenden Dienst und an der Domain nachgeprüft, nichts ist geraten.
-
-Es sagt dreierlei: **was fertig ist**, **was aus euren Antworten geworden
-ist** und **was jetzt noch zu tun ist** – das ist kurz.
-
-**Erneut geprüft am 7. November:** Einträge beider Domains, Dienst, Wirt-Ansicht,
-Seite und Anfrageweg – alles unverändert in Ordnung. Offen ist weiterhin nur
-der Klick auf *Authenticate* in Brevo.
-
-**Neu seit dem Blatt vom 27. Oktober:** Die Konten bei Brevo und GitHub sind
-angelegt, die Einträge für die Mails sind bei Hetzner gesetzt – für beide
-Domains, geprüft am 3. November. Eure vier Antworten sind eingebaut. Was
-noch fehlt, ist ein einziger Knopfdruck in Brevo und danach eine halbe
-Stunde beim Programmierer.
+Für Sarah, Hannah und Wolfgang. Dieses Blatt erklärt sich selbst – es braucht
+keine Erklärung dazu. Es sagt, **was seit eurer Nachricht vom 3. November
+gemacht ist**, **wo ihr es ansehen könnt** und **was noch offen ist und wer
+es tut**. Jede Angabe ist am 10. und 11. November an der laufenden Seite, am
+Dienst, bei Ticketist und an der Domain nachgeprüft, dreimal und unabhängig
+voneinander (Punkt 7). Nichts ist geraten.
 
 ---
 
-## In einem Satz
+## Kurz gesagt
 
-Die neue Webseite ist fertig und läuft. Sie ist nur noch **nicht unter
-`wirtschaft-dornbirn.at` erreichbar** – dort liegt weiterhin die alte Seite.
-Die automatischen Mails gehen noch von der Testadresse von Jonas los; die
-Einträge, die das beheben, sind seit dem 2. November gesetzt – es fehlt nur
-noch die Beglaubigung in Brevo, dann wird der Absender umgestellt.
+- **Eure Wünsche sind umgesetzt**, soweit sie an der Webseite liegen – in der
+  Testumgebung und auf der neuen Seite, beides live.
+- **Hannah hatte recht mit den Ticketkategorien.** Ticketist gibt sie heraus;
+  unsere Erklärung vom 3. November war falsch. Die Seite liest Kategorien,
+  Preise und freie Plätze jetzt selbst bei Ticketist. Alle 37
+  kommenden Abende zeigen ihre Preise, auch die 20 ab Jänner.
+- **An eurer Domain und an der alten Seite wurde nichts verändert** –
+  nachgeprüft, der Beleg steht in Punkt 7.
+- **Offen ist vor allem der Mailabsender:** In eurem Brevo-Konto fehlen der
+  Klick auf *Authenticate* und danach ein Schlüssel für den Dienst. Dann
+  stellt Jonas um (Punkt 4).
 
 ---
 
-## 1 Was fertig ist und läuft
+## 1 Wo ihr alles ansehen könnt
 
-Die neue Seite liegt heute unter
-[wirtschaft-dornbirn.pages.dev](https://wirtschaft-dornbirn.pages.dev).
-Alle acht Seiten antworten, keine Fehlermeldung in der Konsole.
+| Adresse | Was es ist | Was passiert, wenn ihr dort etwas tut |
+| --- | --- | --- |
+| [probe-wirtschaft-dornbirn.pages.dev](https://probe-wirtschaft-dornbirn.pages.dev) | die **Testumgebung** | nichts Echtes: eigene, getrennte Daten, keine Mail an Gäste, kein Klingeln am Handy. Unten steht ein weinrotes Band „Testseite“. Hier dürft ihr alles ausprobieren. |
+| [wirtschaft-dornbirn.pages.dev](https://wirtschaft-dornbirn.pages.dev) | die **neue Seite** auf einer kostenlosen Adresse, mit dem echten Dienst | Reservierungen, Bestellungen und Anfragen sind **echt** und kommen im Haus an. Zum Ansehen ja, zum Ausprobieren bitte die Testumgebung. |
+| `wirtschaft-dornbirn.at` | die **alte Seite** (WordPress bei Hetzner) | unverändert, wie bisher |
 
-| Was Gäste tun können | Stand |
-| --- | --- |
-| Mittagstisch reservieren, mit Bestätigung und Kalendereintrag | läuft |
-| Takeaway bestellen, mit Nummer, Abholzeit und Status-Link | läuft |
-| Termine ansehen, Tickets kaufen, auf die Warteliste gehen | läuft, 39 kommende Abende |
-| Anfragen für Feste, Catering und Agentur stellen | läuft |
-| Mittagskarte lesen, mit Allergenen und Preisen | läuft, Woche ab 26.10. steht |
-| Zur Mittagskarte oder zu Terminen per Mail angemeldet bleiben | läuft |
+Beide neuen Adressen kosten nichts und brauchen keinen Eintrag in eurer
+Domain. Gäste, die `wirtschaft-dornbirn.at` eintippen, sehen weiterhin die
+alte Seite – das bleibt so, bis ihr den Umzug freigebt (Punkt 5).
 
-Dazu für euch: die **Wirt-Ansicht** am Handy (Reservierungen, Bestellungen,
-Anfragen, Warteliste), der **Tageszettel** werktags um 08:00, der
-**Wochenbericht** am Freitag und das **Klingeln** aufs Handy bei jeder neuen
-Bestellung. Alle fünf Zeitpläne des Dienstes sind aktiv, geprüft beim
-Ausrollen heute Abend.
+## 2 Eure Nachrichten vom 3. November – und was daraus geworden ist
 
-Die Wirt-Ansicht ist **zugesperrt**: ohne den Hausschlüssel im Link kommt
-niemand hinein (geprüft: ohne Schlüssel wird abgewiesen, mit Schlüssel geht
-es). Der Schlüssel wurde heute erneuert – Geräte, die ihn noch nicht haben,
-brauchen den neuen Link einmal von Jonas.
+### Sarah: Konten und Einträge
 
-## 2 Was aus eurem Entscheidungsblatt eingebaut ist
+Sarah hat die Konten bei **Brevo** und **GitHub** angelegt und mit Markus
+die Einträge für die Mails bei Hetzner gesetzt – für **beide** Domains,
+`wirtschaft-dornbirn.at` und `eugen.family`. **Nachgeprüft am 10. November
+von außen:** Alle Einträge sind da und richtig – die zwei Schlüssel
+(DKIM), der Brevo-Code, die Liste der erlaubten Absender (SPF) und die Regel
+für gefälschte Mails (DMARC). Die Einträge für
+eure Postfächer (`MX`, `mail.`) sind unberührt, Post ans Haus kommt
+weiterhin an.
 
-Hannah hat das Blatt am 27.10. ausgefüllt. Alles, was ohne Vorbedingung geht,
-ist eingebaut und ausgerollt:
+**Markus’ Hinweis zur Marken-Subdomain:** Er hat recht, und es ist so
+eingehalten. Unter `mail.` läuft euer Postfach-Server bei Hetzner. Dieser
+Name darf deshalb nie auf Brevo umgeleitet werden, sonst käme außerhalb von
+Brevo keine Post mehr an. Es wurde **kein** Eintrag namens `mail` angelegt
+oder geändert. Für die Beglaubigung genügen die gesetzten Einträge. Fragt
+Brevo beim Beglaubigen trotzdem nach einer eigenen Unteradresse, heißt sie
+`post` (also `post.wirtschaft-dornbirn.at` und `post.eugen.family`), nie
+`mail`.
 
-| Was | Wohin es jetzt geht |
-| --- | --- |
-| Tageszettel und Wochenbericht | `veranstaltungen@wirtschaft-dornbirn.at`, Kopie an Jonas (eure Antwort vom 3.11.) |
-| jede einzelne Takeaway-Bestellung | `service@wirtschaft-dornbirn.at` |
-| Anfragen für Locations (Feste & Catering) und Agentur | `uri@eugen.family` (eure Antwort vom 3.11., siehe Punkt 6) |
+### Hannah, Antwort 1: Anfragen an Emma & Eugen
 
-Der Tageszettel um 08:00 kommt bei `veranstaltungen@` an. Wenn er nicht
-auftaucht, bitte zuerst im Spam-Ordner nachsehen – siehe Punkt 3, das ist
-derselbe Grund, und er verschwindet mit der Umstellung des Absenders.
+Eure Antwort: kein eigenes Kulturhaus-Formular – im Formular
+„Locations · Feste & Catering“ ist das Kulturhaus als Wunschort wählbar.
+Und weil ihr die „wirtschaft“ nur bis Sommer 2028 habt, sollen Anfragen aus
+beiden Formularen (Locations und Agentur) an `uri@eugen.family` gehen.
 
-Außerdem kann die Seite jetzt **je Zweck einen eigenen Absender** verwenden,
-so wie ihr es aufgeschrieben habt: Reservierung und Takeaway vom Service, die
-Warteliste eines Abends in der „wirtschaft“ von den Veranstaltungen, die
-eines Kulturhaus-Abends von Emma & Eugen. Eingeschaltet ist das noch nicht,
-und zwar mit Absicht – Punkt 3 erklärt, warum.
+**Umgesetzt und live:** Beide Formulare schicken seit 10. November an
+`uri@eugen.family`. Seit 11. November zeigt auch der Notweg dorthin: Ist der
+Dienst einmal nicht erreichbar, öffnet das Formular eine fertige Mail an
+`uri@eugen.family` (bisher an `willkommen@`). Antwortet ihr auf eine
+Anfrage, geht die Antwort direkt an den Gast.
 
-Ebenfalls übernommen: Es wird **kein Postfach `web@`** angelegt, die drei
-Konten laufen auf `veranstaltungen@`, zweite Person mit vollem Zugang ist
-**Sarah**, im Fuß bleiben „wirtschaft“ und Emma & Eugen stehen, und
-`willkommen@` bekommt **keine** automatische Antwort.
+**Dabei gefunden und behoben:** Auf der Locations-Seite haben zwei der drei
+Knöpfe „anfragen“ (In der Wirtschaft, Wunschort) den Ort im Formular nicht
+vorausgewählt – der Gast musste ihn selbst noch einmal wählen. Jetzt setzt
+jeder Knopf seinen Ort; nur der Kulturhaus-Knopf hatte schon funktioniert.
 
-Eine gute Nachricht aus Abschnitt C: Die Domain gehört dem Haus
-(„wirtschaft“ cafe restaurant bar · Wolfgang Preuß e.U.), liegt bei Hetzner
-und ist bis **August 2027** bezahlt. Damit ist die größte Sorge aus dem
-früheren Plan vom Tisch – ein Inhaberwechsel hätte Wochen gedauert.
+**Zwei Fragen an Hannah dazu** (Punkt 6):
 
-## 3 Das eine, was noch nicht geht: der Absender
+1. Über beiden Formularen steht „Lieber direkt?“ mit der Telefonnummer und
+   `willkommen@wirtschaft-dornbirn.at`. Soll dort künftig `uri@eugen.family`
+   stehen, oder bleibt die Wirtschaft als direkter Kontakt?
+2. Nach außen treten die Anfragen noch als „wirtschaft“ auf: die
+   Bestätigungsmail an den Gast („Danke für eure Anfrage – „wirtschaft“
+   Dornbirn“) und die Datenschutzseite („an die Wirtschaft weitergeleitet“).
+   Gehört Emma & Eugen zur selben Firma wie die Wirtschaft (Wolfgang Preuß
+   e.U.)? Dann passen wir nur die Worte an; sonst braucht die
+   Datenschutzseite einen Satz mehr.
 
-Wenn ein Gast heute reserviert, kommt die Bestätigung von
-`jonas.gamper@aon.at`. Diese Adresse gehört zu einem fremden Anbieter, und
-dieser Anbieter sagt den Mailprogrammen der Welt ausdrücklich: *„Mails in
-meinem Namen, die nicht von mir kommen, bitte abweisen.“* Gmail, GMX und
-Outlook halten sich daran. Darum landen Bestätigungen oft im Spam oder kommen
-gar nicht an.
+### Hannah, Antwort 2: Kopie des Tageszettels an Jonas
 
-Die Lösung ist, von einer Adresse **eurer eigenen Domain** zu versenden. Dazu
-muss der Mailversand (Brevo) beweisen dürfen, dass er für
-`wirtschaft-dornbirn.at` senden darf. Das geschieht über **vier Einträge in
-der Domain** bei Hetzner.
+**Vorbereitet, noch nicht eingeschaltet.** Der Dienst kann Tageszettel und
+Wochenbericht mit Kopie an Jonas schicken. Aktiv wird die Kopie, sobald
+Jonas seine Adresse im Dienst hinterlegt hat – das macht er selbst, sie
+steht absichtlich nicht im Bauplan der Seite (der ist öffentlich). Bis
+dahin geht der Tageszettel wie bisher nur an `veranstaltungen@`. Dort ist
+er zugestellt worden am 4., 5., 6., 9. und 10. November.
 
-**Stand 3. November, von außen nachgeprüft:** Die Einträge sind gesetzt –
-und zwar für **beide** Domains, `wirtschaft-dornbirn.at` und `eugen.family`
-(Hannah und Markus, 2. November). Alle vier stimmen, der bestehende
-SPF-Eintrag wurde richtig geändert statt verdoppelt, und die Einträge für
-eure Postfächer (`MX`, `mail.`) sind unberührt – Post ans Haus kommt
-weiterhin an. Damit ist auch der Punkt „Uri muss `eugen.family` beglaubigen
-lassen“ aus dem letzten Blatt erledigt.
+### Hannah, Antwort 3: Die Ticketkategorien
 
-Die Reihenfolge bleibt zwingend, und zwar in dieser Richtung:
+**Ihr hattet recht – unsere Erklärung vom 3. November war falsch.** Wir
+hatten geschrieben, Ticketist gebe Kategorien und Preise nicht heraus. Das
+stimmt nicht: Ticketist gibt Kategorien, Preise und freie Plätze öffentlich
+heraus, nur an einer anderen Stelle als die übrigen Angaben zum Abend.
+Nachgeprüft am 10. November an allen Abenden und allen Ticketwegen.
 
-1. ~~Die vier Einträge bei Hetzner setzen~~ – **erledigt.**
-2. In Brevo auf *Authenticate* drücken und warten, bis beide Domains grün
-   sind. Das kann nur, wer im Brevo-Konto angemeldet ist: Hannah (oder sie
-   gibt dem Programmierer Zugang).
-3. **Erst dann** stellt der Programmierer den Absender auf `willkommen@` um
-   und schaltet danach die Absender je Zweck ein (Service, Veranstaltungen,
-   Emma & Eugen).
+**Umgesetzt, live seit 11. November:** Die Seite holt sie jetzt selbst bei
+Ticketist – zusammen mit Name, Datum, Uhrzeit und Verkaufsstand. Damit:
 
-**Umgekehrt nicht.** Wird der Absender vor der Beglaubigung umgestellt,
-verschickt Brevo **gar nichts** mehr – dann wäre es schlechter als heute.
-Genau deshalb stehen die neuen Absender noch leer.
+- haben **alle 37 kommenden Abende ihre Preise**, auch die 20 ab
+  Jänner 2027, und zwar auf der Startseite wie auf der Eventseite;
+- stimmen Preise und „ausverkauft“ immer mit Ticketist überein. Ändert ihr
+  in Ticketist einen Preis oder gebt Plätze frei, zeigt die Seite es von
+  selbst – so schnell wie alle übrigen Angaben zum Abend: der Dienst liest
+  jeden Abend spätestens alle zwölf Stunden neu bei Ticketist;
+- steht „ausverkauft“ je Kategorie richtig da. Beispiele, Stand 11. November:
+  the monroes am 10.12. ist in beiden Kategorien ausverkauft; bei Luis aus
+  Südtirol am 25.11. gibt es nur noch in Kategorie 2 Karten; bei naturally 7
+  am 2.2. ist „konzert only“ ausverkauft, das Dinner nicht;
+- führt die Warteliste in der Wirt-Ansicht jetzt alle Abende, die wirklich
+  ausverkauft sind.
 
-**Zu Markus’ Hinweis mit der Marken-Subdomain:** Er hat recht. Brevo schlägt
-beim Einrichten eine Unteradresse wie `mail.wirtschaft-dornbirn.at` vor, von
-der aus technisch versendet wird. Die darf **nicht** `mail` heißen: unter
-diesem Namen läuft bereits euer Postfach-Server bei Hetzner, und ein Name
-kann nicht beides zugleich sein – ihr könntet dann außerhalb von Brevo
-keine Post mehr empfangen oder senden. Deshalb ist die Vorgabe: **ein Name,
-den es noch nicht gibt**, bei uns `post` – also `post.wirtschaft-dornbirn.at`
-und `post.eugen.family`. Für die Beglaubigung selbst ist dieser Schritt
-nicht nötig; die vier Einträge genügen. Wenn Brevo ihn trotzdem verlangt,
-setzt ihn der Programmierer mit diesem Namen. Es wird in keinem Fall ein
-Eintrag namens `mail` angelegt oder geändert.
+**Ihr müsst nichts schicken, und Markus muss nichts suchen.** Antwortet
+Ticketist einmal nicht, zeigt die Seite den zuletzt gelesenen Stand.
 
-## 4 Das Größte, was noch aussteht: die Domain umlegen
+### Hannah, Antwort 4: Das Postfach `kueche@`
 
-`wirtschaft-dornbirn.at` zeigt heute noch auf die alte WordPress-Seite
-(nachgeprüft). Die neue Seite liegt daneben unter der Adresse
-`wirtschaft-dornbirn.pages.dev`. Solange das so ist, sehen Gäste, die den
-Namen eintippen, die alte Seite.
+Bleibt, wie ihr es wollt. Die Webseite verwendet es nicht; es ist nichts zu
+tun.
 
-**Das machen wir nicht in einem Zug.** Dafür liegt ein eigenes Blatt bei:
-*Die neue Webseite in Betrieb nehmen*. Dort steht der ganze Weg Schritt für
-Schritt. Kurz gefasst, und erst der letzte Schritt ist unumkehrbar:
+## 3 Was sonst noch besser geworden ist
 
-1. **Die Mails in Ordnung bringen.** Geht sofort, unabhängig von allem
-   anderen, und die laufende Seite merkt nichts davon.
-2. **Die fertige Seite unter einer eigenen Testadresse** ansehen. Die gibt es
-   schon: `probe-wirtschaft-dornbirn.pages.dev`. Sie kostet nichts, und an
-   eurer Domain wurde dafür **nichts** geändert.
-3. **Eine Woche abnehmen.** Jeder im Haus probiert alles aus. Auf dieser
-   Testseite kann nichts kaputtgehen: sie schreibt in eine eigene, leere
-   Datenbank und verschickt keine Mail. Sie erkennt das an ihrer eigenen
-   Adresse, ganz von selbst, und sagt es unten am Bildschirmrand.
-4. **Umschalten** – an einem ruhigen Vormittag, mit Rückweg.
+- **Die Startseite sagt dasselbe wie die Eventseite.** Eine Warteliste
+  bietet sie nur an, wenn ein ganzer Ticketweg ausverkauft ist – nicht schon,
+  wenn eine einzelne Kategorie weg ist (bei Luis am 25.11. versprach sie
+  vorher eine Warteliste, die es nicht gibt). Der Knopf „Restkarten“ führt
+  zum Weg, der noch Karten hat: bei dinner & comedy am 11.11., 15.12. und
+  16.12. zu „comedy only“, nicht mehr zum ausverkauften Dinner.
+- **Zweite Ticketwege** wie „comedy only“ stehen auf der Startseite mit
+  ihrem eigenen Namen und ihrer eigenen Uhrzeit (meist 21:00) – vorher
+  stand dort die Uhrzeit des Dinners.
+- **Der Kalender nennt den richtigen Ort.** Wer einen Abend im Kulturhaus in
+  seinen Kalender übernimmt, bekommt jetzt „Kulturhaus Dornbirn, Rathausplatz
+  1“ – bisher stand bei jedem Abend die Bahnhofstraße.
+- **Die Ersatzliste der Seite ist vollständig.** Fällt der Dienst einmal
+  aus, zeigt die Seite eine hinterlegte Liste. Ihr fehlten drei kommende
+  Abende (dinner & comedy am 17.12., Heidelbeerhugo am 21.4., Geschwister
+  Pfister am 23.4.); jetzt stehen alle kommenden Abende drin, alle mit
+  Preisen.
+- **Keine falschen „Karten zurück“-Meldungen.** Die Warteliste meldet
+  zurückgekommene Karten nur noch, wenn laut Ticketist auch wirklich etwas
+  frei ist.
 
-**Ein Fund, den ihr kennen solltet.** In eurer Domain steht ein Platzhalter:
-ein Eintrag, der jeden erdenklichen Namen zum alten Webserver schickt, auch
-Namen, die nie jemand angelegt hat. `gutscheine.`, `lieferservice.` und
-`tischreservierung.` funktionieren nur deshalb. Wer `www` auf die neue Seite
-stellt, ohne das vorher zu regeln, nimmt alle drei mit – dann stehen
-Gutscheinverkauf, Lieferdienst und das alte Reservierungssystem still, ohne
-dass sie jemand angefasst hat. Im Ablauf hat das jetzt einen eigenen Schritt
-an einem eigenen Tag, mit eigener Prüfung. **Gefunden, bevor es passiert
-ist** – genau dafür macht man so einen Ablauf.
+## 4 Der Mailabsender – was noch fehlt, und warum in dieser Reihenfolge
 
-## 5 Was ihr jetzt tun müsst
+**Heute** kommen die automatischen Mails (Bestätigungen, Tageszettel) noch
+von der privaten Adresse von Jonas und laufen über **sein** Brevo-Konto. Der
+Anbieter dieser Adresse sagt den Mailprogrammen der Welt: *„Mails in meinem
+Namen, die nicht von mir kommen, bitte abweisen.“* Darum landen
+Bestätigungen oft im Spam.
 
-**Hannah** (zehn Minuten)
+**Die Lösung** ist, von eurer eigenen Domain zu versenden, über **euer**
+Brevo-Konto – das, das Sarah angelegt hat. Nur dort sind eure Domains
+eingetragen. Dazu braucht es drei Schritte, in genau dieser Reihenfolge:
 
-1. ~~Bei Hetzner das Passwort ändern~~ – bitte kurz bestätigen, dass es
-   geschehen ist.
-2. ~~Konten anlegen~~ – **Brevo und GitHub stehen** (3. November). Fehlt
-   noch **Cloudflare** (dort läuft die Seite), ebenfalls mit
-   `veranstaltungen@`, Sarah als zweite Person, Wiederherstellungscodes
-   ausdrucken. 0 Euro.
-3. **In Brevo beide Domains beglaubigen lassen:** *Senders, Domains &
+1. **Sarah: In Brevo beide Domains beglaubigen.** *Senders, Domains &
    Dedicated IPs → Domains*, bei `wirtschaft-dornbirn.at` und bei
-   `eugen.family` auf *Authenticate*. Die Einträge sind gesetzt, es fehlt
-   nur dieser Knopf. Wenn Brevo dabei nach einer Unteradresse fragt: `post`,
-   nicht `mail` (Punkt 3).
-4. **Jonas Zugang zum Brevo-Konto geben** (als Benutzer, nicht das
-   Passwort), damit er den Absender umstellen und den Schlüssel für den
-   Dienst holen kann.
-5. **Die Ticketkategorien der 20 Frühjahrsabende** einmal schicken – siehe
-   Punkt 6, Antwort 3. Eine Liste oder Bildschirmfotos aus Ticketist genügen.
+   `eugen.family` jeweils *Authenticate*. Die Einträge sind gesetzt, es
+   fehlt nur dieser Knopf. Fragt Brevo nach einer Unteradresse: `post`.
+2. **Sarah und Jonas gemeinsam, etwa zehn Minuten:** In eurem Brevo-Konto
+   einen **API-Schlüssel** erzeugen (*SMTP & API → API Keys → Generate a new
+   API key*). Jonas trägt ihn direkt im Dienst ein, am besten bei geteiltem
+   Bildschirm. Der Schlüssel geht **nicht** per Mail oder Chat: wer ihn hat,
+   kann in eurem Namen Mails verschicken. Warum ein Schlüssel und kein
+   Benutzerzugang für Jonas: ein zweiter Benutzer kostet bei Brevo 9 € im
+   Monat, der Schlüssel nichts.
+3. **Jonas:** Absender auf `willkommen@` umstellen, dann die Absender je
+   Zweck einschalten (Service, Veranstaltungen, Emma & Eugen), dann eine
+   Probe-Reservierung an eine Gmail-Adresse – die Bestätigung muss im
+   **Posteingang** liegen.
 
-**Wolfgang**: nichts mehr. Das Gespräch mit Uri ist durch die gesetzten
-Einträge für `eugen.family` gegenstandslos.
+**Umgekehrt nicht.** Würde der Absender vor Schritt 1 und 2 umgestellt,
+verschickte Brevo **gar nichts** mehr – schlechter als heute. Deshalb
+stehen die neuen Absender noch leer.
 
-**Der Programmierer** (eine halbe Stunde, sobald Brevo grün ist)
+## 5 Später: die Domain umlegen
 
-Absender auf `willkommen@` umstellen, dann die Absender je Zweck einschalten,
-dann eine Probe-Reservierung mit einer privaten Gmail-Adresse: die
-Bestätigung muss im **Posteingang** liegen. Dazu die Kopie des Tageszettels
-hinterlegen und die Ticketkategorien eintragen, sobald sie da sind. Der
-Umzug der Domain bleibt ein eigener Schritt, mit eigener Abnahme
-(Punkt 4).
+`wirtschaft-dornbirn.at` zeigt weiterhin auf die alte WordPress-Seite. Das
+Umlegen ist ein eigener Schritt mit eigenem Blatt (*Die neue Webseite in
+Betrieb nehmen*) und wird erst gemacht, wenn ihr die Seite abgenommen habt.
+Kurz: erst die Mails in Ordnung bringen (Punkt 4), dann eine Woche lang in
+der Testumgebung alles ausprobieren, dann an einem ruhigen Vormittag
+umschalten, mit Rückweg.
 
-## 6 Eure vier Antworten – und was daraus geworden ist
+**Wichtig dabei, wie im letzten Blatt beschrieben:** In eurer Domain steht
+ein Platzhalter, der jeden Namen zum alten Webserver schickt. Nur deshalb
+funktionieren `gutscheine.`, `lieferservice.` und `tischreservierung.`. Er
+wird beim Umzug in einem eigenen Schritt zuerst gesichert, damit
+Gutscheinverkauf, Lieferdienst und altes Reservierungssystem nicht
+stillstehen.
 
-1. **Anfragen fürs Kulturhaus.** Eure Antwort: kein eigenes Formular, das
-   Kulturhaus lässt sich im Formular „Locations · Feste & Catering“ als
-   Wunschort wählen. Und weil ihr die „wirtschaft“ nur bis Sommer 2028
-   habt, sollen Anfragen aus beiden Formularen (Locations und Agentur)
-   lieber gleich an `uri@eugen.family` gehen statt an `willkommen@`.
-   **Eingebaut:** Beide Formulare gehen jetzt an `uri@eugen.family`. Der
-   Gast sieht davon nichts; „Antworten“ auf eine Anfrage geht weiterhin
-   direkt an ihn. Zurück auf `willkommen@` ist eine Zeile – sagt Bescheid,
-   falls ihr es doch anders wollt.
-2. **Der Tageszettel.** Eure Antwort: eine Kopie an Jonas, solange er den
-   technischen Support macht. **Eingebaut:** Tageszettel und Wochenbericht
-   gehen an `veranstaltungen@` mit Kopie an Jonas. Seine Adresse steht nicht
-   im Bauplan der Seite (der ist öffentlich), sondern als Geheimnis im
-   Dienst – fällt der Support weg, nimmt man das Geheimnis heraus, fertig.
-3. **Die Ticketkategorien.** Eure Antwort: In Ticketist sind bei allen
-   Abenden, auch den Frühjahrsterminen, die Kategorien festgelegt; das
-   Problem müsse bei der Übertragung liegen, Markus solle nachsehen.
-   **Nachgeprüft, und das ist die Erklärung:** Es gibt keine Übertragung der
-   Kategorien, die kaputt sein könnte. Die Seite holt sich von Ticketist
-   Name, Untertitel, Tag, Uhrzeit, Ort, Bild und ob noch verkauft wird –
-   das gibt Ticketist öffentlich heraus. **Die Kategorien und Preise gibt
-   Ticketist nicht heraus**, sie werden erst im Kassenfenster geladen, wenn
-   ein Gast kauft. Darum stehen sie in einer eigenen Liste im Bauplan der
-   Seite und wurden bisher von Hand aus Ticketist abgeschrieben – bei den
-   Abenden bis Dezember ist das geschehen, bei den **20 Abenden ab Januar
-   2027** noch nicht (geprüft am 3. November, die Liste steht unten). Was es
-   braucht: einmal die Kategorien mit Preisen dieser 20 Abende – als Liste
-   oder als Bildschirmfotos aus Ticketist. Der Programmierer trägt sie ein,
-   das dauert eine Stunde. Markus muss dafür nichts suchen; Jonas spricht
-   es mit ihm trotzdem kurz ab, falls Ticketist doch eine Schnittstelle
-   dafür hat, die wir nicht kennen – dann fiele das Abschreiben künftig weg.
-4. **Das Postfach `kueche@`** bleibt, wie ihr es wollt. Die Webseite
-   verwendet es nicht; es muss nichts getan werden.
+## 6 Was jetzt zu tun ist – wer, was
 
-**Die 20 Abende ohne Kategorien** (Stand 3. November): Faschingsball 9.1.,
-helden reisen 12.1. und 13.1., naturally 7 2.2., love and theft 4.2.,
-tobias gnacke 18.2., dinner & comedy 24.2., philipp lingg’s musikzimmer
-3.3., notenlos 10.3., dinner & comedy 17.3., gabriel castañeda 7.4., gansch
-& breinschmid 8.4., dinner & comedy 14.4., maxjoseph 15.4., Italian Tribute
-Night 16.4., schick sisters 21.4., arn & arn 22.4., kernölamazonen 23.4.,
-helden reisen 18.5. und 19.5.
+**Sarah**
 
-## 7 Was sich von selbst erledigt – kein Handlungsbedarf
+1. In Brevo bei beiden Domains *Authenticate* drücken (Punkt 4, Schritt 1).
+2. Mit Jonas einen kurzen Termin für den Schlüssel ausmachen (Schritt 2).
+3. Noch offen aus dem letzten Blatt: das Konto bei **Cloudflare** (dort
+   läuft die Seite), mit `veranstaltungen@`, eine zweite Person mit vollem
+   Zugang, Wiederherstellungscodes ausdrucken. Kostet nichts.
 
-- **Testeinträge.** Im Bestand liegen noch sechs Probe-Reservierungen und
-  zwei Probe-Bestellungen, alle deutlich mit „TEST“ im Namen. Sie
-  verschwinden von selbst: Reservierungen werden 30 Tage nach ihrem Datum
-  gelöscht. Die vom 28./29. September sind damit Ende Oktober weg, die vom
-  9. Oktober Anfang November.
-- **Die alte Mittagskarten-Datei**, die noch keine Allergene enthielt, ist
-  nicht mehr erreichbar. Die Mittagskarte auf der Seite führt Allergene und
-  Preise je Gericht.
-- **Die Mailliste.** Ein bestätigter Eintrag (Hannah), keine offenen. Das ist
-  richtig so – geworben wurde dafür noch nicht.
+**Hannah**
+
+1. Die zwei Fragen aus Punkt 2 beantworten („Lieber direkt?“ und der
+   Auftritt der Anfragen als Emma & Eugen).
+2. Einmal selbst eine Testanfrage über
+   [wirtschaft-dornbirn.pages.dev/feste-catering](https://wirtschaft-dornbirn.pages.dev/feste-catering)
+   schicken und nachsehen, ob sie in `uri@eugen.family` ankommt – bitte auch
+   im Spam-Ordner, solange der Absender noch nicht umgestellt ist. Seit der
+   Umstellung kam noch keine echte Anfrage, deshalb ist dieser eine Test
+   noch offen.
+3. Aus dem letzten Blatt: kurz bestätigen, dass das Passwort bei Hetzner
+   geändert ist.
+
+**Wolfgang:** nichts.
+
+**Jonas**
+
+1. Seine Adresse für die Kopie des Tageszettels im Dienst hinterlegen
+   (Antwort 2).
+2. Nach Sarahs Schritten 1 und 2: den Absender umstellen und prüfen
+   (Punkt 4, Schritt 3).
+3. Den Umzug der Domain erst, wenn ihr die Seite abgenommen habt (Punkt 5).
+
+## 7 Dreimal nachgeprüft am 10. und 11. November
+
+1. **Automatisch.** Das Projekt hat 31 eigene Prüfungen; alle laufen
+   fehlerfrei durch. Neu dazugekommen sind Prüfungen für das Lesen der
+   Kategorien, für die Warteliste, für die Anfrage-Adresse und für die
+   Ortsknöpfe. Zur Probe wurde jede Korrektur absichtlich wieder
+   zurückgedreht – jedes Mal hat eine Prüfung angeschlagen.
+2. **Unabhängig gegengelesen.** Drei Prüfer haben die Änderungen getrennt
+   nach Dienst, Seite und Daten durchgesehen; danach hat je ein weiterer
+   versucht, jeden Fund zu widerlegen. 13 Funde blieben übrig, keiner davon
+   schwer. Alle sind behoben, zwei Nachprüfer haben das bestätigt; die vier
+   Kleinigkeiten, die sie dabei noch fanden, sind ebenfalls behoben.
+3. **Live nachgemessen.** In der Testumgebung wurde jeder der 65 Ticketwege
+   der 37 kommenden Abende einzeln mit Ticketist verglichen – Name und Preis
+   stimmen bei allen. Startseite, Eventseite und Formulare wurden am Handy
+   (390 Pixel breit) durchgeklickt; eine als TEST markierte Anfrage kam am
+   Testdienst an. Am 11. November, nach dem Ausrollen, dasselbe noch einmal am
+   echten Dienst: Alle 65 Ticketwege haben ihre Kategorien, Name und Preis
+   stimmen bei allen mit Ticketist überein. Die neue Seite liefert genau den
+   geprüften Stand aus und wurde ebenfalls am Handy angesehen.
+
+**Der Beleg, dass Domain und alte Seite unberührt sind.** Jede Domain hat
+eine Versionsnummer, die bei jeder Änderung an ihr steigt. Sie stand vor der
+Arbeit bei 2026103107 (`wirtschaft-dornbirn.at`) und 2026103106
+(`eugen.family`) – und steht nach der Arbeit genau dort. Alle 116
+Einzelabfragen (Seite, Mailserver, Mail-Einträge, Unteradressen) liefern
+dasselbe wie vorher, und `wirtschaft-dornbirn.at`, `gutscheine.`,
+`lieferservice.` und `tischreservierung.` antworten wie vorher von der alten
+Seite.
 
 ## 8 Wo welche Adresse steht – zum Nachschlagen
 
 | Adresse | Wofür sie im System steht | Stand |
 | --- | --- | --- |
-| `willkommen@` | Kontaktadresse auf der Seite; künftig Hausabsender aller automatischen Mails | richtig |
-| `veranstaltungen@` | Tageszettel, Wochenbericht; Inhaberin der Konten; künftig Absender der Warteliste | richtig |
-| `service@` | Empfänger jeder Takeaway-Bestellung; künftig Absender von Reservierung und Takeaway | richtig |
-| `uri@eugen.family` | Empfänger aller Anfragen (Locations, Agentur); Kontakt im Fuß; künftig Absender der Terminliste | seit 3.11. |
-| `tickets@eugen.family` | künftig Absender der Warteliste für Kulturhaus-Abende | Einträge gesetzt, wartet auf Brevo |
-| `kueche@` | bleibt bestehen, von der Seite nicht verwendet | richtig |
-| Adresse von Jonas | heute noch **Absender** aller automatischen Mails; künftig nur Kopie von Tageszettel und Wochenbericht | Absender muss weg, siehe Punkt 3 |
+| **willkommen@** | Kontaktadresse auf der Seite (Fuß, Impressum, „Lieber direkt?“); künftig Hausabsender aller automatischen Mails | richtig |
+| **veranstaltungen@** | Tageszettel, Wochenbericht; Inhaberin der Konten; künftig Absender der Warteliste | richtig |
+| **service@** | Empfänger jeder Takeaway-Bestellung; künftig Absender von Reservierung und Takeaway | richtig |
+| **uri@eugen.family** | Empfänger aller Anfragen (Locations, Agentur), auch im Notweg; Kontakt im Fuß; künftig Absender der Terminliste | eingestellt seit 10.11. |
+| **tickets@eugen.family** | künftig Absender der Warteliste für Kulturhaus-Abende | wartet auf Brevo (Punkt 4) |
+| **kueche@** | bleibt bestehen, von der Seite nicht verwendet | richtig |
+| **Adresse von Jonas** | heute noch **Absender** aller automatischen Mails; künftig nur Kopie von Tageszettel und Wochenbericht | Absender wechselt nach Punkt 4; Kopie noch nicht eingeschaltet |
 
 ## 9 Begriffe, kurz erklärt
 
 | Begriff | Was es ist |
 | --- | --- |
 | **Domain** | Der Name der Seite, hier `wirtschaft-dornbirn.at`. Wem er gehört, dem gehört die Adresse der Seite und aller Postfächer. Euch. |
-| **Hetzner** | Die Firma, bei der eure Domain und eure Postfächer liegen. Abgelesen aus der öffentlichen Auskunft zur Domain, von Hannah im Blatt bestätigt. |
+| **Hetzner** | Die Firma, bei der eure Domain, eure Postfächer und die alte Seite liegen. |
 | **Eintrag in der Domain** | Eine Zeile in der Verwaltung der Domain. Sie sagt dem Internet, wo die Seite liegt und wer in eurem Namen Mails verschicken darf. |
-| **Brevo** | Der Dienst, der die automatischen Mails verschickt. Kostenlos bis 300 Mails am Tag; wir liegen weit darunter. |
-| **Cloudflare** | Die Firma, bei der die neue Seite und der Reservierungsdienst laufen. Kostenlos in dem Umfang, den wir brauchen. |
-| **GitHub** | Dort liegt der Bauplan der Seite. Jede Änderung ist nachvollziehbar und lässt sich zurücknehmen. |
-| **Spam-Abweisung** | Die Regel eines Mailanbieters, Mails abzuweisen, die fremd in seinem Namen verschickt werden. Genau das trifft uns heute. |
+| **Testumgebung** | Eine vollständige Kopie der neuen Seite mit eigenem, getrenntem Dienst. Was dort passiert, kommt nirgends an – zum gefahrlosen Ausprobieren. |
+| **Dienst** | Das Programm hinter der Seite, das Reservierungen, Bestellungen, Anfragen und die Warteliste annimmt und die Mails auslöst. Es läuft bei Cloudflare. |
+| **Ticketkategorie** | Eine Kartenart eines Abends bei Ticketist, z. B. „dinner & comedy (sitzplatz)“ oder „comedy only (stehplatz)“, mit eigenem Preis und eigener Zahl freier Plätze. |
+| **Brevo** | Der Dienst, der die automatischen Mails verschickt. Kostenlos bis 300 Mails am Tag; ein voller Tag braucht 40 bis 80. |
+| **Authenticate** | Der Knopf in Brevo, mit dem Brevo prüft, ob die Einträge in eurer Domain stimmen. Erst danach darf Brevo mit eurer Adresse versenden. |
+| **API-Schlüssel** | Eine lange Zeichenfolge aus eurem Brevo-Konto. Mit ihr darf der Dienst über euer Konto Mails verschicken – geheim zu halten wie ein Passwort. |
+| **Cloudflare** | Die Firma, bei der die neue Seite und der Dienst laufen. Kostenlos in dem Umfang, den wir brauchen. |
+| **GitHub** | Dort liegt der Bauplan der Seite. Jede Änderung ist nachvollziehbar und lässt sich zurücknehmen. Er ist öffentlich – deshalb stehen dort keine privaten Adressen und keine Schlüssel. |
 | **Hausschlüssel** | Der geheime Teil im Link zur Wirt-Ansicht. Ohne ihn kommt niemand an Reservierungen oder Bestellungen. |
 
-## 10 Laufende Kosten
+## 10 Was es kostet
 
 | Posten | Heute | Nach dem Umzug |
 | --- | --- | --- |
-| Seite, Dienst, Mailversand | 0 € | 0 € |
-| Domain | wie bisher, bis August 2027 bezahlt | unverändert |
-| Postfächer bei Hetzner | wie bisher | unverändert |
+| Neue Seite, Dienst und Testumgebung (Cloudflare) | 0 € | 0 € |
+| Mailversand (Brevo, kostenlos bis 300 Mails am Tag) | 0 € | 0 € |
+| Bauplan (GitHub) | 0 € | 0 € |
+| Domain (Hetzner) | wie bisher, bezahlt bis August 2027 | unverändert |
+| Postfächer und alte Seite (Hetzner-Paket) | wie bisher | die Postfächer bleiben; die alte Seite kann nach dem Umzug weg, aber `gutscheine.` und `lieferservice.` laufen noch dort – das Paket wird also höchstens kleiner, es fällt nicht ganz weg |
+| Ticketist | wie bisher | unverändert |
 
-Es kommt nichts dazu. Die alte WordPress-Seite kann nach dem Umzug
-abgeschaltet werden – was dort heute bezahlt wird, fällt dann weg.
+**Was später etwas kosten könnte** (Preise laut den Anbietern, abgefragt
+am 10. November):
+
+- **Brevo:** Erst wenn an einem Tag mehr als 300 Mails hinausgehen – etwa mit
+  einem großen Newsletter. Dann das kleinste Bezahl-Paket, 7 € im Monat für
+  5.000 Mails. Ein zweiter Benutzer im Konto kostet 9 € im Monat – mit dem
+  Schlüssel aus Punkt 4 ist er nicht nötig.
+- **Cloudflare:** 5 US-Dollar im Monat erst ab 100.000 Aufrufen am Tag oder
+  einem sechsten Zeitplan. Heute nutzen wir unter 5 % davon.
+
+Die Beträge des Hetzner-Pakets und die Gebühren von Ticketist stehen nicht
+im Projekt; sie ändern sich durch die neue Seite nicht.

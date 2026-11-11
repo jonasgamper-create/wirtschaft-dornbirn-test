@@ -2,12 +2,17 @@
 
 ## Was ihr jetzt teilen könnt
 
-- **Live-Testseite:** <https://jonasgamper-create.github.io/wirtschaft-dornbirn-test/>
+- **Testseite:** <https://probe-wirtschaft-dornbirn.pages.dev>
 - **GitHub-Projekt:** <https://github.com/jonasgamper-create/wirtschaft-dornbirn-test>
 
-Die Live-Seite ist ein öffentlicher, nicht indexierter Teststand. Sie eignet
-sich zum Anschauen und für Review-Kommentare, aber nicht für echte Zahlungen,
-Gästedaten oder produktive Reservierungen.
+Die Testseite ist ein öffentlicher, nicht indexierter Teststand. Sie ist
+immer Testbetrieb, auch in einem neuen Tab: eigener Testdienst, eigene Daten,
+keine Mails. Sie eignet sich zum Anschauen und für Review-Kommentare, aber
+nicht für echte Zahlungen, Gästedaten oder produktive Reservierungen.
+
+Die Kopie auf GitHub Pages
+(<https://jonasgamper-create.github.io/wirtschaft-dornbirn-test/>) ist kein
+Testlink mehr: sie spricht mit dem echten Dienst.
 
 ## Empfohlener Arbeitsmodus
 
@@ -20,10 +25,12 @@ Gästedaten oder produktive Reservierungen.
    `feature/event-landingpage`.
 5. Der Branch wird als Pull Request eingereicht. Die zweite Person prüft Inhalt,
    Mobile-Ansicht, Links, Datenschutz und `npm run ci`.
-6. Die Freigabe wird gemergt. GitHub Pages aktualisiert danach automatisch die
-   Testseite.
-7. Für Produktion wird später ein getrenntes Vercel-Projekt mit eigener Domain
-   und eigener Freigabe verwendet. Der Teststand bleibt `noindex`.
+6. Die Freigabe wird gemergt. GitHub Pages aktualisiert danach automatisch
+   seine Kopie (am echten Dienst); die Testseite wird mit
+   `npm run deploy:probeseite` veröffentlicht.
+7. Produktion ist die neue Seite auf Cloudflare Pages (heute
+   `wirtschaft-dornbirn.pages.dev`, veröffentlicht mit `npm run deploy:seite`),
+   später unter `wirtschaft-dornbirn.at`. Der Teststand bleibt `noindex`.
 
 GitHub ist die einzige Quelle für den Code. ZIP-Dateien sind nur für Snapshots
 oder eine Kundenübergabe gedacht. Bilder und Videos gehören in einen geschützten
@@ -58,8 +65,8 @@ Freigabe.
 
 - `main` schützen: Pull Request, mindestens eine zweite Prüfung, erfolgreiche
   CI und kein direkter Push.
-- Secrets ausschließlich in GitHub Actions Secrets oder Vercel Environment
-  Variables speichern.
+- Geheimnisse ausschließlich als Geheimnisse des Dienstes
+  (`npx wrangler secret put`) oder als GitHub Actions Secrets speichern.
 - Keine personenbezogenen Produktionsdaten in Test-Fixtures, Screenshots oder
   Prompts verwenden.
 - Nach jeder Änderung prüfen: `npm run ci`, öffentliche Build-Allowlist,
@@ -68,7 +75,7 @@ Freigabe.
 
 ## Was der Kollege erhält
 
-Für eine reine Präsentation genügt der Live-Link. Für gemeinsame Arbeit erhält
+Für eine reine Präsentation genügt der Link zur Testseite. Für gemeinsame Arbeit erhält
 er zusätzlich eine Repository-Einladung über seine eigene GitHub-Adresse und
 die passende Rolle. Die Einladung wird vom Repository-Eigentümer in GitHub
 versendet; sie wird nicht über Chat, ZIP oder unverschlüsselte E-Mail mit

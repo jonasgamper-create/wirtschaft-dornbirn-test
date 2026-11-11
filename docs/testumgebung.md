@@ -1,29 +1,40 @@
 # Die Testumgebung: dieselbe Seite, anderer Dienst
 
-Eingerichtet am 17. September 2026. Zweck: der Kunde soll alles durchklicken
-dürfen – reservieren, bestellen, absagen – ohne dass ein echter Tisch belegt
-wird oder jemand Post bekommt.
+Eingerichtet am 17. September 2026; Stand 11. November 2026. Zweck: der
+Kunde soll alles durchklicken dürfen – reservieren, bestellen, absagen – ohne
+dass ein echter Tisch belegt wird oder jemand Post bekommt.
 
 ## Der Link zum Herzeigen
 
 ```
-https://jonasgamper-create.github.io/wirtschaft-dornbirn-test/index.html?probe=1
+https://probe-wirtschaft-dornbirn.pages.dev
 ```
 
-Das `?probe=1` genügt einmal. Danach bleibt der Probemodus in diesem Tab
-erhalten, auch beim Weiterklicken auf Reservierung, Takeaway oder Events. Unten
-steht ein weinrotes Band mit dem Satz, worin man sich gerade bewegt, und einem
-Knopf „Zurück zum Echtbetrieb".
+Diese Adresse ist **immer** Testbetrieb, auch in einem neuen Tab: die Seite
+erkennt sich an ihrem eigenen Namen (`site/probe.js`) und spricht nur den
+Testdienst an – eigene Daten, keine Mails, kein Push. Unten steht ein
+weinrotes Band „Testseite“, ohne Knopf zurück in den Echtbetrieb.
+Veröffentlicht wird sie mit `npm run deploy:probeseite`; der Befehl nennt am
+Ende die feste Adresse.
+
+Die Kopie auf GitHub Pages (`jonasgamper-create.github.io/wirtschaft-dornbirn-test/`)
+ist **kein** Testlink mehr: sie spricht mit dem echten Dienst.
+
+**Probemodus auf der echten Seite.** Dort schaltet `?probe=1` nur den einen
+Tab auf den Testdienst. Das `?probe=1` genügt einmal. Danach bleibt der Probemodus in
+diesem Tab erhalten, auch beim Weiterklicken auf Reservierung, Takeaway oder
+Events. Ein Band gibt es dort seit 22.09. nicht mehr; ob ein Tab im
+Probemodus ist, sagt `window.WIRTSCHAFT_PROBE` in der Konsole.
 
 Ein **neuer Tab** fängt wieder im Echtbetrieb an. Das ist Absicht: der Merker
 liegt in `sessionStorage`, nicht in `localStorage`. Ein Probemodus, der Monate
 später noch im Browser des Wirts steckt und echte Bestellungen verschwinden
 lässt, wäre schlimmer als gar keiner.
 
-Auch die **Wirt-Ansicht** macht mit:
+Auch die **Wirt-Ansicht** gibt es auf der Testseite:
 
 ```
-https://jonasgamper-create.github.io/wirtschaft-dornbirn-test/tischplan/wirt.html?probe=1
+https://probe-wirtschaft-dornbirn.pages.dev/tischplan/wirt.html
 ```
 
 Damit lässt sich der ganze Weg vorführen: der Gast bestellt im Probemodus, der
@@ -101,7 +112,8 @@ vollständig da.
 
 ## Was das kostet
 
-Nichts. Zweiter Worker auf derselben Gratisstufe, GitHub Pages unverändert.
+Nichts. Zweiter Worker auf derselben Gratisstufe; die Testseite ist ein
+zweites Pages-Projekt bei Cloudflare, ebenfalls in der Gratisstufe.
 
 ## Was es nicht ist
 
