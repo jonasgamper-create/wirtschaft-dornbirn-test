@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-08",
+  "updatedAt": "2026-11-10",
   "quelle": "https://www.ticketist.io/events/<kennung>",
   "kennungen": [
     "arnarn-2027",
@@ -27,6 +27,8 @@
     "dinner-comedy-06-only-2026",
     "dinner-comedy-07-2026",
     "dinner-comedy-07-only-2026",
+    "dinner-comedy-08-2026",
+    "dinner-comedy-08-only-2026",
     "einarsson-sitzplatz-2027",
     "einarsson-stehplatz-2027",
     "faschingsball",
@@ -36,9 +38,11 @@
     "ganschbreinschmid-2027",
     "ganschbreinschmid-only-2027",
     "genussroute",
+    "geschwister-pfister-1",
     "hader-02-2026",
     "hanskaspasenkel-2026",
     "hanskaspasenkel-2026-only",
+    "heidelbeerhugo",
     "italiantribute-2027",
     "italiantribute-only-2027",
     "kellner-2026",
@@ -56,6 +60,7 @@
     "luis-02-2026",
     "luis-03-2026",
     "luis-2026",
+    "martinimarkt-afterparty-2",
     "maxjoseph-2027",
     "maxjoseph-only-2027",
     "meyle-2026",
@@ -105,7 +110,7 @@
         {
           "name": "dinner & comedy (sitzplatz)",
           "preis": 88,
-          "frei": 24
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/comedynacht-05-2026-1.webp",
@@ -129,7 +134,7 @@
         {
           "name": "dinner & comedy (sitzplatz)",
           "preis": 88,
-          "frei": 41
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/comedynacht-06-2026-1.webp",
@@ -147,7 +152,7 @@
       "adresse": "Rathausplatz 1, Dornbirn",
       "beschreibung": "Sein neues Comedy-Programm über den täglichen Kampf mit dem ultimativen Gegner: dem eigenen Leben. Gernot Kulis nimmt das Leben, wie es ist – auf die Schaufel. Ob im chaotischen Familienalltag, auf abenteuerlichen Reisen mit schrägen Begegnungen oder im unausgewogenen Duell gegen die künstlich intelligente Badezimmerwaage – überall lauern Konflikte, die er nur auf eine Weise löst: mit Humor. Er kann nicht anders. Ausgestattet mit der K.I. – der Kulis Intelligenz – nimmt er sich in seinem neuen Programm der großen und kleinen Fragen seines Lebens an – stets bereit, auch im Ernst einen Witz zu f",
       "ticketUrl": "https://www.ticketist.io/events/kulis-02-2026",
-      "buchbar": true,
+      "buchbar": false,
       "verkaufsstart": null,
       "preise": [
         {
@@ -176,18 +181,18 @@
       "adresse": "Rathausplatz 1, Dornbirn",
       "beschreibung": "Sein neues Comedy-Programm über den täglichen Kampf mit dem ultimativen Gegner: dem eigenen Leben. Gernot Kulis nimmt das Leben, wie es ist – auf die Schaufel. Ob im chaotischen Familienalltag, auf abenteuerlichen Reisen mit schrägen Begegnungen oder im unausgewogenen Duell gegen die künstlich intelligente Badezimmerwaage – überall lauern Konflikte, die er nur auf eine Weise löst: mit Humor. Er kann nicht anders. Ausgestattet mit der K.I. – der Kulis Intelligenz – nimmt er sich in seinem neuen Programm der großen und kleinen Fragen seines Lebens an – stets bereit, auch im Ernst einen Witz zu f",
       "ticketUrl": "https://www.ticketist.io/events/kulis-03-2026",
-      "buchbar": true,
+      "buchbar": false,
       "verkaufsstart": null,
       "preise": [
         {
           "name": "Kategorie 1",
           "preis": 41,
-          "frei": 16
+          "frei": 0
         },
         {
           "name": "Kategorie 2",
           "preis": 37,
-          "frei": 77
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/kulis-03-2026.webp",
@@ -239,13 +244,13 @@
       "adresse": "Bahnhofstraße 24, Dornbirn",
       "beschreibung": "nach dem vorbild des comic strip live clubs in new york, des comedy stores in london oder auch des quatsch comedy clubs in berlin sorgen wir einmal im monat mit drei comedians aus österreich, deutschland und der schweiz für großartige unterhaltung. in einer abwechslungsreichen und schnellen show bleibt kein auge trocken und unsere comedy-kollegen und wir haben nur ein ziel: wir bringen dich zum lachen. das schnelle format, bei dem mehrere künstler jeweils 20 minuten highlights aus ihren programmen bieten, garantiert bestes entertainment und einen abwechslungsreichen abend. wir wollen weder pol",
       "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-04-2026",
-      "buchbar": true,
+      "buchbar": false,
       "verkaufsstart": null,
       "preise": [
         {
           "name": "dinner & comedy (sitzplatz)",
           "preis": 68,
-          "frei": 0
+          "frei": 8
         }
       ],
       "bild": "assets/events/ticketist/dinner-comedy-04-2026.webp",
@@ -256,12 +261,12 @@
           "label": "comedy only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-04-only-2026",
-          "buchbar": true,
+          "buchbar": false,
           "preise": [
             {
               "name": "comedy only (stehplatz)",
               "preis": 28,
-              "frei": 18
+              "frei": 0
             }
           ]
         }
@@ -279,23 +284,23 @@
       "adresse": "Rathausplatz 1, Dornbirn",
       "beschreibung": "Nach über zwei Jahrzehnten auf den Kabarett- und Kleinkunstbühnen verabschiedet sich Luis aus Südtirol alias Manfred Zöschg mit einer letzten großen Tournee von seinem Publikum. Die „Pfiati“-Tour markiert den Abschluss einer einzigartigen Bühnenkarriere – und bietet zugleich eine einmalige Gelegenheit, den beliebten Südtiroler Kabarettisten noch ein letztes Mal live zu erleben. Mit im Gepäck: neue Nummern, altbewährte Klassiker und jede Menge Geschichten aus dem echten Leben – witzig, berührend und typisch Luis. Das Publikum darf sich auf ein sehr persönliches Programm freuen, das Rückblicke a",
       "ticketUrl": "https://www.ticketist.io/events/luis-02-2026",
-      "buchbar": true,
+      "buchbar": false,
       "verkaufsstart": null,
       "preise": [
         {
           "name": "Kategorie 1",
           "preis": 40,
-          "frei": 1
+          "frei": 0
         },
         {
           "name": "Kategorie 2",
           "preis": 36,
-          "frei": 4
+          "frei": 0
         },
         {
           "name": "Kategorie 3",
           "preis": 33,
-          "frei": 2
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/luis-02-2026.webp",
@@ -313,13 +318,13 @@
       "adresse": "Bahnhofstraße 24, Dornbirn",
       "beschreibung": "christof spörk hat schon viele lieder geschrieben. und er kann ein lied davon singen, wie es ist, im schönsten land der latenten unzufriedenheit, pardon im unzufriedensten land der latenten schönheit zu leben. andere mögen heimat- oder liebeslieder sülzen. spörk trällerte bisher eher über lärmschutzwände, gewerbeparks oder schneekanonen. immer in der hoffnung, sie mögen ob seines gesanges aufhören, das land zu verschandeln. spörks lieder lieben immer das leben, auch wenn das leben oft lieblos ist. mit „maximo lieder“ kehrt der promovierte politikwissenschaftler und proklamierte jazzsänger spör",
       "ticketUrl": "https://www.ticketist.io/events/spoerk-2026",
-      "buchbar": true,
+      "buchbar": false,
       "verkaufsstart": null,
       "preise": [
         {
           "name": "dinner & comedy (sitzplatz)",
           "preis": 68,
-          "frei": 156
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/spoerk-2026.webp",
@@ -330,12 +335,12 @@
           "label": "comedy only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/spoerk-2026-only",
-          "buchbar": true,
+          "buchbar": false,
           "preise": [
             {
               "name": "comedy only (stehplatz)",
               "preis": 28,
-              "frei": 19
+              "frei": 0
             }
           ]
         }
@@ -353,13 +358,13 @@
       "adresse": "Bahnhofstraße 24, Dornbirn",
       "beschreibung": "ein kabarett mit maria neuschmid & stefan vögel 27 jahre nach ihrem hausbau, 5 jahre nach tilgung aller schulden, 2 jahre nach auszug des nachzüglers und einem leben in zweisamkeit - schlägt das schicksal bei günther und irene batlogg grausam zu: tochter laura will samt amerikanischem ehemann und kindern zurückkehren ins heimatliche frastanz. ihr ziel: günthers haus, das dank umbau zum drei-generationen-heim werden soll. kann sich der hausherr gegen die feindliche übernahme wehren? zumal er schon bald eine gegnerin in den eigenen vier wänden hat, die von dieser idee sehr angetan ist. ein abend",
       "ticketUrl": "https://www.ticketist.io/events/neuschmid-voegel-02-2026",
-      "buchbar": true,
+      "buchbar": false,
       "verkaufsstart": null,
       "preise": [
         {
           "name": "dinner & comedy (sitzplatz)",
           "preis": 78,
-          "frei": 18
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/neuschmid-voegel-02-2026.webp",
@@ -377,13 +382,13 @@
       "adresse": "Bahnhofstraße 24, Dornbirn",
       "beschreibung": "50 jahre bohemian rhapsody. 50 jahre a night at the opera, das facettenreiche meisterwerk von queen und eines der berühmtesten alben aller zeiten. rock4 zelebriert diesen meilenstein der musikgeschichte auf grandiose art und weise, mit der stimme als einzigem instrument. in den letzten jahren entwickelte sich rock4 zu einer vokal-rockband: mit einem tiefen bass und einem perkussionisten von weltklasse, einem beeindruckenden leadsänger und einem großartigen, klassischen tenor. stimmkünstler von höchstem niveau, die das publikum in die kraftvollen queen-songs mitnehmen mit ihren vielfältigen mus",
       "ticketUrl": "https://www.ticketist.io/events/rock4-2026",
-      "buchbar": true,
+      "buchbar": false,
       "verkaufsstart": null,
       "preise": [
         {
           "name": "dinner & konzert (sitzplatz)",
           "preis": 68,
-          "frei": 0
+          "frei": 7
         }
       ],
       "bild": "assets/events/ticketist/rock4-2026.webp",
@@ -394,7 +399,7 @@
           "label": "konzert only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/rock4-2026-only",
-          "buchbar": true,
+          "buchbar": false,
           "preise": [
             {
               "name": "konzert only (stehplatz)",
@@ -417,7 +422,7 @@
       "adresse": "Rathausplatz 1, Dornbirn",
       "beschreibung": "Ulli Troy begeht sein 50-jähriges Bühnenjubiläum und lädt dazu ein, gemeinsam mit ihm und seinen Weggefährten auf eine musikalische Zeitreise zu gehen und die Höhepunkte seiner Karriere noch einmal Revue passieren zu lassen. Im Jahr 1976 – in Billericay, Essex – kam es zum ersten gemeinsamen Auftritt von Stemmeisen Hermann Stadelmann und Zündschnur Ulli Troy. 50 Jahre später - und um ca. 170 Liedertexte „reicher“ – begeht Ulli Troy sein Bühnenjubiläum im Kulturhaus Dornbirn. Mit dabei sind viele seiner musikalischen BegleiterInnen: Stemmeisen Hermann Stadelmann, Rolf Aberer, Zündschnurs Wiebor",
       "ticketUrl": "https://www.ticketist.io/events/ullitroy-menue-2026",
-      "buchbar": true,
+      "buchbar": false,
       "verkaufsstart": null,
       "preise": [
         {
@@ -441,13 +446,13 @@
       "adresse": "Rathausplatz 1, Dornbirn",
       "beschreibung": "Ulli Troy begeht sein 50-jähriges Bühnenjubiläum und lädt dazu ein, gemeinsam mit ihm und seinen Weggefährten auf eine musikalische Zeitreise zu gehen und die Höhepunkte seiner Karriere noch einmal Revue passieren zu lassen. Im Jahr 1976 – in Billericay, Essex – kam es zum ersten gemeinsamen Auftritt von Stemmeisen Hermann Stadelmann und Zündschnur Ulli Troy. 50 Jahre später - und um ca. 170 Liedertexte „reicher“ – begeht Ulli Troy sein Bühnenjubiläum im Kulturhaus Dornbirn. Mit dabei sind viele seiner musikalischen BegleiterInnen: Stemmeisen Hermann Stadelmann, Rolf Aberer, Zündschnurs Wiebor",
       "ticketUrl": "https://www.ticketist.io/events/ullitroy-brunch-2026",
-      "buchbar": true,
+      "buchbar": false,
       "verkaufsstart": null,
       "preise": [
         {
           "name": "Sitzplatz (inkl. Brunchbuffet)",
           "preis": 68,
-          "frei": 77
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/ullitroy-brunch-2026.webp",
@@ -465,13 +470,13 @@
       "adresse": "Bahnhofstraße 24, Dornbirn",
       "beschreibung": "mit seinem neuen programm „schnappschuss!“ holt der bayrische liedermacher und kabarettist mathias kellner zu einem kreativen rundumschlag aus. er schaut wieder einmal ganz tief in die bayrische seele und beobachtet genau, welche kuriositäten der alltag so bereithält. das macht er zum einen mit seinen spitzfindigen liedern in denen er unter anderem über die täglichen belastungen eines „ohrwaschls“ berichtet, nur um im nächsten moment mit einem lied über verhasste freizeitaktivitäten aufzufahren. zum anderen, mit seinen grandiosen bawarisierten übersetzungen großer rock- und pop-klassiker. da w",
       "ticketUrl": "https://www.ticketist.io/events/kellner-2026",
-      "buchbar": true,
+      "buchbar": false,
       "verkaufsstart": null,
       "preise": [
         {
           "name": "dinner & konzert (sitzplatz)",
           "preis": 68,
-          "frei": 174
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/kellner-2026.webp",
@@ -482,12 +487,12 @@
           "label": "konzert only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/kellner-2026-only",
-          "buchbar": true,
+          "buchbar": false,
           "preise": [
             {
               "name": "konzert only (stehplatz)",
               "preis": 28,
-              "frei": 17
+              "frei": 0
             }
           ]
         }
@@ -505,13 +510,13 @@
       "adresse": "Rathausplatz 1, Dornbirn",
       "beschreibung": "Zu Beginn der Veranstaltung heißen wir euch im Foyer des Kulturhaus Dornbirn willkommen. Dort sorgt ein erfrischender Aperitif und köstliche Vorspeisen für einen genussvollen Einstieg. Nach dem kulinarischen Auftakt geht es in den Saal Dora, wo zwei Comedians für beste Unterhaltung und viele Lacher sorgen. Doch das war erst der Anfang! Nach den ersten zwei Comedians kehrt ihr ins Foyer zurück, wo unser Küchenteam euch mit exquisiten Hauptgerichten verwöhnt. Nach diesem Genuss geht es anschließend wieder zurück in den Saal Dora, wo die nächsten beiden Comedy-Acts euch zum Lachen bringen. Zum kr",
       "ticketUrl": "https://www.ticketist.io/events/kulturimhaus-h2026",
-      "buchbar": true,
+      "buchbar": false,
       "verkaufsstart": null,
       "preise": [
         {
           "name": "Dinner & Comedy",
           "preis": 98,
-          "frei": 263
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/kulturimhaus-h2026.webp",
@@ -529,18 +534,18 @@
       "adresse": "Rathausplatz 1, Dornbirn",
       "beschreibung": "„Immer is irgendwas. Entweder die Fiaß schlafen mir ein. Oder sie jucken. Dann krieg i wieder ka Luft, wenn i schneller geh. Oder i hab an Schweißausbruch. Dann friert mich wieder. Das Essen schmeckt mir nimmer, der Sex ist fad, die Hosen sind z’eng. Was is das bitte? - Des muss alles dieser Klimawandel sein, oder? Temperaturen hat’s im Sommer wie in den Tropen! Dadurch gibt’s auf einmal diese riesigen Insekten! Die hat’s doch früher net geb’n! Wenn die dich stechen, kriegst einen Dippel, der geht monatelang net weg! Wahrscheinlich san die alle gentechnisch verändert. Und die Pflanzen! Die wer",
       "ticketUrl": "https://www.ticketist.io/events/hader-02-2026",
-      "buchbar": true,
+      "buchbar": false,
       "verkaufsstart": null,
       "preise": [
         {
           "name": "Kategorie 1",
           "preis": 34,
-          "frei": 3
+          "frei": 0
         },
         {
           "name": "Kategorie 2",
           "preis": 29,
-          "frei": 12
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/hader-02-2026.webp",
@@ -556,19 +561,43 @@
       "ort": "Kulturhaus Dornbirn",
       "haus": "kulturhaus",
       "adresse": "Rathausplatz 1, Dornbirn",
-      "beschreibung": "Band: Notenlos Unser offenes Gesangsevent lädt jede:n zum Mitsingen ein: Wer Spaß am Singen und an Musik hat, ist hier richtig! Wir singen uns quer durch ein buntes Repertoire aus bekannten Evergreens, Gassenhauern, Schlagern und aktueller Pop-Rock-Musik. Wer im Publikum sitzt, kann den ganzen Abend mitsingen – so laut er will. Vorkenntnisse brauchst du keine, nur Freude am Singen sollte jeder mitbringen. Die Texte werden zum Mitlesen an die Leinwand projiziert, du wirst live von der Band „Notenlos“ angeleitet und begleitet. Echt und in Farbe, purer Spaß – sei dabei und mach mit! In Zusammenar",
+      "beschreibung": "Die Veranstaltung findet im kleinen Saal - Saal \"Bira\" - statt. Freie Platzwahl. Der Einlass erfolgt über den Seiteneingang beim Foyer Bira (ehemaliges Restaurant) des Kulturhaus Dornbirn - er befindet sich zwischen dem Kulturhaus Dornbirn und dem Büro der Dornbirn Tourismus & Stadtmarketing GmbH. - Band: Notenlos Unser offenes Gesangsevent lädt jede:n zum Mitsingen ein: Wer Spaß am Singen und an Musik hat, ist hier richtig! Wir singen uns quer durch ein buntes Repertoire aus bekannten Evergreens, Gassenhauern, Schlagern und aktueller Pop-Rock-Musik. Wer im Publikum sitzt, kann den ganzen Aben",
       "ticketUrl": "https://www.ticketist.io/events/singmit-konzertonly",
-      "buchbar": true,
+      "buchbar": false,
       "verkaufsstart": null,
       "preise": [
         {
-          "name": "Sitzplatz ohne Essen",
+          "name": "Sitzplatz",
           "preis": 22,
-          "frei": 624
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/singmit-konzertonly.webp",
       "bild2x": "assets/events/ticketist/singmit-konzertonly@2x.webp"
+    },
+    {
+      "id": "martinimarkt-afterparty-2",
+      "eventId": 1807,
+      "date": "2026-11-06",
+      "zeit": "21:00",
+      "title": "Martinimarkt-Afterparty",
+      "untertitel": "Live-Band: Katzasprung",
+      "ort": "\"wirtschaft\" Dornbirn",
+      "haus": "wirtschaft",
+      "adresse": "Bahnhofstraße 24, Dornbirn",
+      "beschreibung": "Der Ticketvorverkauf läuft bis Freitag, 06.11.2026, 20:00 Uhr. Danach gibt es Tickets nur noch an der Abendkassa - nur solange der Vorrat reicht. - Martinimarkt-Afterparty im Gänsemarsch in die „wirtschaft“ Am Freitag, 06. November 2026 heißt es wieder: „Eduard, butz do Bart, z’Dorobiro ischt Martinimart!\" Lasst uns den Martinimarkt perfekt ausklingen & feiert mit Katzasprung bei der Afterparty in der \"wirtschaft\" eine unvergessliche Party! ⚠️ Tickets nur, solange der Vorrat reicht. ⚠️ Katzasprung ist eine Coverband aus Vorarlberg, die durch die gemeinsame Leidenschaft für Musik zusammengefund",
+      "ticketUrl": "https://www.ticketist.io/events/martinimarkt-afterparty-2",
+      "buchbar": false,
+      "verkaufsstart": "2026-10-20T14:00:00+02:00",
+      "preise": [
+        {
+          "name": "Stehplatz",
+          "preis": 10,
+          "frei": 0
+        }
+      ],
+      "bild": "assets/events/ticketist/martinimarkt-afterparty-2.webp",
+      "bild2x": "assets/events/ticketist/martinimarkt-afterparty-2@2x.webp"
     },
     {
       "id": "meyle-2026",
@@ -580,25 +609,25 @@
       "ort": "Kulturhaus Dornbirn",
       "haus": "kulturhaus",
       "adresse": "Rathausplatz 1, Dornbirn",
-      "beschreibung": "Ab dem 22. Oktober 2026 geht Gregor Meyle mit seiner Band auf große Unplugged-Tour und wird in 21 Städten sein Publikum mit einer neuen, einzigartigen Show begeistern. Nach dem überwältigenden Erfolg der letzten Tour, die restlos ausverkauft war, verspricht die Unplugged-Tour 2026 erneut ein unvergessliches musikalisches Erlebnis. Die Konzerte von Gregor Meyle zeichnen sich durch eine besondere Nähe zum Publikum aus. Mit seiner Band präsentiert er seine Songs in reduzierter, akustischer Form, wodurch die Musik noch intensiver und emotionaler zur Geltung kommt. Diese Shows laden nicht nur zum M",
+      "beschreibung": "Resttickets gibt es ab 18:00 Uhr an der Abendkassa im Kulturhaus Dornbirn - solange der Vorrat reicht. - Ab dem 22. Oktober 2026 geht Gregor Meyle mit seiner Band auf große Unplugged-Tour und wird in 21 Städten sein Publikum mit einer neuen, einzigartigen Show begeistern. Nach dem überwältigenden Erfolg der letzten Tour, die restlos ausverkauft war, verspricht die Unplugged-Tour 2026 erneut ein unvergessliches musikalisches Erlebnis. Die Konzerte von Gregor Meyle zeichnen sich durch eine besondere Nähe zum Publikum aus. Mit seiner Band präsentiert er seine Songs in reduzierter, akustischer For",
       "ticketUrl": "https://www.ticketist.io/events/meyle-2026",
-      "buchbar": true,
+      "buchbar": false,
       "verkaufsstart": null,
       "preise": [
         {
           "name": "Kategorie 1",
           "preis": 65,
-          "frei": 12
+          "frei": 0
         },
         {
           "name": "Kategorie 2",
           "preis": 59,
-          "frei": 82
+          "frei": 0
         },
         {
           "name": "Kategorie 3",
           "preis": 49,
-          "frei": 64
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/meyle-2026.webp",
@@ -638,7 +667,7 @@
             {
               "name": "comedy only (stehplatz)",
               "preis": 28,
-              "frei": 18
+              "frei": 16
             }
           ]
         }
@@ -691,7 +720,7 @@
         {
           "name": "dinner & konzert (sitzplatz)",
           "preis": 68,
-          "frei": 120
+          "frei": 81
         }
       ],
       "bild": "assets/events/ticketist/philippsmusikzimmer-02-2026.webp",
@@ -707,7 +736,7 @@
             {
               "name": "konzert only (stehplatz)",
               "preis": 28,
-              "frei": 24
+              "frei": 4
             }
           ]
         }
@@ -731,7 +760,7 @@
         {
           "name": "dinner & konzert (sitzplatz)",
           "preis": 68,
-          "frei": 155
+          "frei": 71
         }
       ],
       "bild": "assets/events/ticketist/hanskaspasenkel-2026.webp",
@@ -747,7 +776,7 @@
             {
               "name": "konzert only (stehplatz)",
               "preis": 28,
-              "frei": 20
+              "frei": 19
             }
           ]
         }
@@ -771,7 +800,7 @@
         {
           "name": "dinner & konzert (sitzplatz)",
           "preis": 68,
-          "frei": 141
+          "frei": 115
         }
       ],
       "bild": "assets/events/ticketist/notenlos-2026.webp",
@@ -787,7 +816,7 @@
             {
               "name": "konzert only (stehplatz)",
               "preis": 28,
-              "frei": 16
+              "frei": 14
             }
           ]
         }
@@ -811,17 +840,17 @@
         {
           "name": "Kategorie 1",
           "preis": 40,
-          "frei": 52
+          "frei": 0
         },
         {
           "name": "Kategorie 2",
           "preis": 36,
-          "frei": 128
+          "frei": 1
         },
         {
           "name": "Kategorie 3",
           "preis": 33,
-          "frei": 114
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/luis-03-2026.webp",
@@ -845,7 +874,7 @@
         {
           "name": "dinner & konzert (sitzplatz)",
           "preis": 78,
-          "frei": 153
+          "frei": 87
         }
       ],
       "bild": "assets/events/ticketist/krauthobel-2026.webp",
@@ -861,7 +890,7 @@
             {
               "name": "konzert only (stehplatz)",
               "preis": 38,
-              "frei": 18
+              "frei": 16
             }
           ]
         }
@@ -885,7 +914,7 @@
         {
           "name": "dinner & konzert (sitzplatz)",
           "preis": 68,
-          "frei": 134
+          "frei": 58
         }
       ],
       "bild": "assets/events/ticketist/rebeltell-2026.webp",
@@ -901,7 +930,7 @@
             {
               "name": "konzert only (stehplatz)",
               "preis": 28,
-              "frei": 2
+              "frei": 15
             }
           ]
         }
@@ -925,7 +954,7 @@
         {
           "name": "dinner & konzert (sitzplatz)",
           "preis": 78,
-          "frei": 33
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/themonroes-2026.webp",
@@ -941,7 +970,7 @@
             {
               "name": "konzert only (stehplatz)",
               "preis": 38,
-              "frei": 7
+              "frei": 0
             }
           ]
         }
@@ -965,7 +994,7 @@
         {
           "name": "dinner & comedy (sitzplatz)",
           "preis": 68,
-          "frei": 131
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/dinner-comedy-06-2026.webp",
@@ -1005,7 +1034,7 @@
         {
           "name": "dinner & comedy (sitzplatz)",
           "preis": 68,
-          "frei": 140
+          "frei": 0
         }
       ],
       "bild": "assets/events/ticketist/dinner-comedy-07-2026.webp",
@@ -1016,6 +1045,46 @@
           "label": "comedy only",
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-07-only-2026",
+          "buchbar": true,
+          "preise": [
+            {
+              "name": "comedy only (stehplatz)",
+              "preis": 28,
+              "frei": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dinner-comedy-08-2026",
+      "eventId": 1819,
+      "date": "2026-12-17",
+      "zeit": "19:00",
+      "title": "dinner & comedy",
+      "untertitel": "3 comedians | an einem abend | auf einer bühne",
+      "ort": "\"wirtschaft\" Dornbirn",
+      "haus": "wirtschaft",
+      "adresse": "Bahnhofstraße 24, Dornbirn",
+      "beschreibung": "nach dem vorbild des comic strip live clubs in new york, des comedy stores in london oder auch des quatsch comedy clubs in berlin sorgen wir einmal im monat mit drei comedians aus österreich, deutschland und der schweiz für großartige unterhaltung. in einer abwechslungsreichen und schnellen show bleibt kein auge trocken und unsere comedy-kollegen und wir haben nur ein ziel: wir bringen dich zum lachen. das schnelle format, bei dem mehrere künstler jeweils 20 minuten highlights aus ihren programmen bieten, garantiert bestes entertainment und einen abwechslungsreichen abend. wir wollen weder pol",
+      "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-08-2026",
+      "buchbar": true,
+      "verkaufsstart": null,
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 68,
+          "frei": 96
+        }
+      ],
+      "bild": "assets/events/ticketist/dinner-comedy-08-2026.webp",
+      "bild2x": "assets/events/ticketist/dinner-comedy-08-2026@2x.webp",
+      "varianten": [
+        {
+          "id": "dinner-comedy-08-only-2026",
+          "label": "comedy only",
+          "zeit": "21:00",
+          "ticketUrl": "https://www.ticketist.io/events/dinner-comedy-08-only-2026",
           "buchbar": true,
           "preise": [
             {
@@ -1045,7 +1114,7 @@
         {
           "name": "Stehplatz (Parterre)",
           "preis": 27,
-          "frei": 688
+          "frei": 472
         }
       ],
       "bild": "assets/events/ticketist/dabado-charity.webp",
@@ -1061,7 +1130,7 @@
             {
               "name": "Sitzplatz mit 3-Gänge-Menü (Galerie)",
               "preis": 68,
-              "frei": 70
+              "frei": 28
             }
           ]
         }
@@ -1081,7 +1150,13 @@
       "ticketUrl": "https://www.ticketist.io/events/faschingsball",
       "buchbar": true,
       "verkaufsstart": null,
-      "preise": [],
+      "preise": [
+        {
+          "name": "Sitzplatz inkl. 3-Gänge Menü",
+          "preis": 78,
+          "frei": 134
+        }
+      ],
       "bild": "assets/events/ticketist/faschingsball.webp",
       "bild2x": "assets/events/ticketist/faschingsball@2x.webp",
       "wegLabel": "Sitzplatz",
@@ -1092,7 +1167,13 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/faschingsball-only",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "Stehplatz",
+              "preis": 28,
+              "frei": 290
+            }
+          ]
         }
       ]
     },
@@ -1110,7 +1191,13 @@
       "ticketUrl": "https://www.ticketist.io/events/comedynacht-01-2027",
       "buchbar": true,
       "verkaufsstart": null,
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 88,
+          "frei": 180
+        }
+      ],
       "bild": "assets/events/ticketist/comedynacht-01-2027.webp",
       "bild2x": "assets/events/ticketist/comedynacht-01-2027@2x.webp"
     },
@@ -1128,7 +1215,13 @@
       "ticketUrl": "https://www.ticketist.io/events/comedynacht-02-2027",
       "buchbar": true,
       "verkaufsstart": null,
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 88,
+          "frei": 149
+        }
+      ],
       "bild": "assets/events/ticketist/comedynacht-02-2027.webp",
       "bild2x": "assets/events/ticketist/comedynacht-02-2027@2x.webp"
     },
@@ -1146,7 +1239,13 @@
       "ticketUrl": "https://www.ticketist.io/events/naturally7-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 78,
+          "frei": 96
+        }
+      ],
       "bild": "assets/events/ticketist/naturally7-2027.webp",
       "bild2x": "assets/events/ticketist/naturally7-2027@2x.webp",
       "varianten": [
@@ -1156,7 +1255,13 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/naturally7-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 38,
+              "frei": 0
+            }
+          ]
         }
       ]
     },
@@ -1174,7 +1279,13 @@
       "ticketUrl": "https://www.ticketist.io/events/loveandtheft-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 68,
+          "frei": 190
+        }
+      ],
       "bild": "assets/events/ticketist/loveandtheft-2027.webp",
       "bild2x": "assets/events/ticketist/loveandtheft-2027@2x.webp",
       "varianten": [
@@ -1184,7 +1295,13 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/loveandtheft-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 28,
+              "frei": 20
+            }
+          ]
         }
       ]
     },
@@ -1202,7 +1319,13 @@
       "ticketUrl": "https://www.ticketist.io/events/tobiasgnacke-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 68,
+          "frei": 167
+        }
+      ],
       "bild": "assets/events/ticketist/tobiasgnacke-2027.webp",
       "bild2x": "assets/events/ticketist/tobiasgnacke-2027@2x.webp",
       "varianten": [
@@ -1212,7 +1335,13 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/tobiasgnacke-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "comedy only (stehplatz)",
+              "preis": 28,
+              "frei": 20
+            }
+          ]
         }
       ]
     },
@@ -1230,7 +1359,13 @@
       "ticketUrl": "https://www.ticketist.io/events/comedy-01-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 68,
+          "frei": 110
+        }
+      ],
       "bild": "assets/events/ticketist/comedy-01-2027.webp",
       "bild2x": "assets/events/ticketist/comedy-01-2027@2x.webp",
       "varianten": [
@@ -1240,7 +1375,13 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/comedy-01-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "comedy only (stehplatz)",
+              "preis": 28,
+              "frei": 18
+            }
+          ]
         }
       ]
     },
@@ -1258,7 +1399,13 @@
       "ticketUrl": "https://www.ticketist.io/events/philippsmusikzimmer-01-2027",
       "buchbar": true,
       "verkaufsstart": null,
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 68,
+          "frei": 190
+        }
+      ],
       "bild": "assets/events/ticketist/philippsmusikzimmer-01-2027.webp",
       "bild2x": "assets/events/ticketist/philippsmusikzimmer-01-2027@2x.webp",
       "varianten": [
@@ -1268,7 +1415,13 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/philippsmusikzimmer-01-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 28,
+              "frei": 20
+            }
+          ]
         }
       ]
     },
@@ -1286,7 +1439,13 @@
       "ticketUrl": "https://www.ticketist.io/events/notenlos-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 68,
+          "frei": 172
+        }
+      ],
       "bild": "assets/events/ticketist/notenlos-2027.webp",
       "bild2x": "assets/events/ticketist/notenlos-2027@2x.webp",
       "varianten": [
@@ -1296,7 +1455,13 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/notenlos-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 28,
+              "frei": 20
+            }
+          ]
         }
       ]
     },
@@ -1318,7 +1483,7 @@
         {
           "name": "Stehplatz (Parterre)",
           "preis": 28,
-          "frei": 661
+          "frei": 488
         }
       ],
       "bild": "assets/events/ticketist/einarsson-stehplatz-2027.webp",
@@ -1334,7 +1499,7 @@
             {
               "name": "Sitzplatz",
               "preis": 38,
-              "frei": 154
+              "frei": 109
             }
           ]
         }
@@ -1354,7 +1519,13 @@
       "ticketUrl": "https://www.ticketist.io/events/comedy-02-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 68,
+          "frei": 168
+        }
+      ],
       "bild": "assets/events/ticketist/comedy-02-2027.webp",
       "bild2x": "assets/events/ticketist/comedy-02-2027@2x.webp",
       "varianten": [
@@ -1364,7 +1535,13 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/comedy-02-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "comedy only (stehplatz)",
+              "preis": 28,
+              "frei": 20
+            }
+          ]
         }
       ]
     },
@@ -1382,7 +1559,13 @@
       "ticketUrl": "https://www.ticketist.io/events/gabrielcastaneda-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 68,
+          "frei": 186
+        }
+      ],
       "bild": "assets/events/ticketist/gabrielcastaneda-2027.webp",
       "bild2x": "assets/events/ticketist/gabrielcastaneda-2027@2x.webp",
       "varianten": [
@@ -1392,7 +1575,13 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/gabrielcastaneda-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "comedy only (stehplatz)",
+              "preis": 28,
+              "frei": 20
+            }
+          ]
         }
       ]
     },
@@ -1410,7 +1599,13 @@
       "ticketUrl": "https://www.ticketist.io/events/ganschbreinschmid-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 68,
+          "frei": 163
+        }
+      ],
       "bild": "assets/events/ticketist/ganschbreinschmid-2027.webp",
       "bild2x": "assets/events/ticketist/ganschbreinschmid-2027@2x.webp",
       "varianten": [
@@ -1420,7 +1615,13 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/ganschbreinschmid-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 28,
+              "frei": 16
+            }
+          ]
         }
       ]
     },
@@ -1438,7 +1639,13 @@
       "ticketUrl": "https://www.ticketist.io/events/comedy-03-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 68,
+          "frei": 180
+        }
+      ],
       "bild": "assets/events/ticketist/comedy-03-2027.webp",
       "bild2x": "assets/events/ticketist/comedy-03-2027@2x.webp",
       "varianten": [
@@ -1448,7 +1655,13 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/comedy-03-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "comedy only (stehplatz)",
+              "preis": 28,
+              "frei": 20
+            }
+          ]
         }
       ]
     },
@@ -1466,7 +1679,13 @@
       "ticketUrl": "https://www.ticketist.io/events/maxjoseph-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 68,
+          "frei": 183
+        }
+      ],
       "bild": "assets/events/ticketist/maxjoseph-2027.webp",
       "bild2x": "assets/events/ticketist/maxjoseph-2027@2x.webp",
       "varianten": [
@@ -1476,7 +1695,13 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/maxjoseph-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 28,
+              "frei": 18
+            }
+          ]
         }
       ]
     },
@@ -1494,7 +1719,13 @@
       "ticketUrl": "https://www.ticketist.io/events/italiantribute-2027",
       "buchbar": true,
       "verkaufsstart": null,
-      "preise": [],
+      "preise": [
+        {
+          "name": "Dinner & Konzert (3-Gänge Menü)",
+          "preis": 78,
+          "frei": 165
+        }
+      ],
       "bild": "assets/events/ticketist/italiantribute-2027.webp",
       "bild2x": "assets/events/ticketist/italiantribute-2027@2x.webp",
       "varianten": [
@@ -1504,7 +1735,13 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/italiantribute-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "Konzert Only (Stehplatz)",
+              "preis": 38,
+              "frei": 200
+            }
+          ]
         }
       ]
     },
@@ -1522,7 +1759,13 @@
       "ticketUrl": "https://www.ticketist.io/events/schicksisters-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & konzert (sitzplatz)",
+          "preis": 68,
+          "frei": 169
+        }
+      ],
       "bild": "assets/events/ticketist/schicksisters-2027.webp",
       "bild2x": "assets/events/ticketist/schicksisters-2027@2x.webp",
       "varianten": [
@@ -1532,9 +1775,39 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/schicksisters-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "konzert only (stehplatz)",
+              "preis": 28,
+              "frei": 20
+            }
+          ]
         }
       ]
+    },
+    {
+      "id": "heidelbeerhugo",
+      "eventId": 1815,
+      "date": "2027-04-21",
+      "zeit": "20:00",
+      "title": "Heidelbeerhugo",
+      "untertitel": "Programm: 10-Meter-Turm",
+      "ort": "Kulturhaus Dornbirn",
+      "haus": "kulturhaus",
+      "adresse": "Rathausplatz 1, Dornbirn",
+      "beschreibung": "Einen Namen wie „Michael Bauer“ merkt sich niemand. Also sollte der Künstlername auf Social Media einprägsam sein und so wurde es „Heidelbeerhugo“, unter dem Michael seit 2022 fast 100.000 Follower auf Instagram & TikTok begeistert. Aber die Leute sagen trotzdem, wie sie wollen zu ihm: Ribiseldjango zum Beispiel und Michael hört auf alles. Weil es Hollunderheinzi und seinem Publikum auch live so viel Spaß zusammen macht, präsentiert er nun sein zweites Kabarettsolo und fragt sich: Werden Dinge wirklich besser, nur weil man sie immer wieder macht? Wie oft ist er schon barfuß an seinem Nachtkast",
+      "ticketUrl": "https://www.ticketist.io/events/heidelbeerhugo",
+      "buchbar": true,
+      "verkaufsstart": null,
+      "preise": [
+        {
+          "name": "Sitzplatz",
+          "preis": 28,
+          "frei": 347
+        }
+      ],
+      "bild": "assets/events/ticketist/heidelbeerhugo.webp",
+      "bild2x": "assets/events/ticketist/heidelbeerhugo@2x.webp"
     },
     {
       "id": "arnarn-2027",
@@ -1550,7 +1823,13 @@
       "ticketUrl": "https://www.ticketist.io/events/arnarn-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 75,
+          "frei": 168
+        }
+      ],
       "bild": "assets/events/ticketist/arnarn-2027.webp",
       "bild2x": "assets/events/ticketist/arnarn-2027@2x.webp",
       "varianten": [
@@ -1560,7 +1839,13 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/arnarn-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "comedy only (stehplatz)",
+              "preis": 35,
+              "frei": 16
+            }
+          ]
         }
       ]
     },
@@ -1578,7 +1863,13 @@
       "ticketUrl": "https://www.ticketist.io/events/kernoelamazonen-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 78,
+          "frei": 131
+        }
+      ],
       "bild": "assets/events/ticketist/kernoelamazonen-2027.webp",
       "bild2x": "assets/events/ticketist/kernoelamazonen-2027@2x.webp",
       "varianten": [
@@ -1588,9 +1879,44 @@
           "zeit": "21:00",
           "ticketUrl": "https://www.ticketist.io/events/kernoelamazonen-only-2027",
           "buchbar": true,
-          "preise": []
+          "preise": [
+            {
+              "name": "comedy only (stehplatz)",
+              "preis": 38,
+              "frei": 20
+            }
+          ]
         }
       ]
+    },
+    {
+      "id": "geschwister-pfister-1",
+      "eventId": 1816,
+      "date": "2027-04-23",
+      "zeit": "20:00",
+      "title": "Geschwister Pfister",
+      "untertitel": "Ursli Pfister: Peggy March, Frau Huggenberger und ich",
+      "ort": "Kulturhaus Dornbirn",
+      "haus": "kulturhaus",
+      "adresse": "Rathausplatz 1, Dornbirn",
+      "beschreibung": "Nur den Geschwistern Pfister ist es so perfekt gelungen, die Unterhaltungsszene der 60er, 70er und 80er Jahre zu porträtieren. Das war die Zeit, in der es noch Fernsehprogramme gab, die generationsübergreifend funktionierten. Liebevoll parodieren sie den süßlich-verlogenen Kitsch der Branche, kunstvoll, doppelbödig und „nur scheinbar unschuldsvoll“ (Die Welt). Ursli Pfister alias Christoph Marti verbrachte seine Kindheit und Jugend in der Schweiz der 1970er Jahre. Sein Programm über Peggy March reflektiert diese Zeit. Die Amerikanerin Peggy March gehörte zwischen 1965 und 1980 zu den erfolgrei",
+      "ticketUrl": "https://www.ticketist.io/events/geschwister-pfister-1",
+      "buchbar": true,
+      "verkaufsstart": null,
+      "preise": [
+        {
+          "name": "Kategorie 1",
+          "preis": 42,
+          "frei": 172
+        },
+        {
+          "name": "Kategorie 2",
+          "preis": 39,
+          "frei": 257
+        }
+      ],
+      "bild": "assets/events/ticketist/geschwister-pfister-1.webp",
+      "bild2x": "assets/events/ticketist/geschwister-pfister-1@2x.webp"
     },
     {
       "id": "comedynacht-03-2027",
@@ -1606,7 +1932,13 @@
       "ticketUrl": "https://www.ticketist.io/events/comedynacht-03-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 88,
+          "frei": 184
+        }
+      ],
       "bild": "assets/events/ticketist/comedynacht-03-2027.webp",
       "bild2x": "assets/events/ticketist/comedynacht-03-2027@2x.webp"
     },
@@ -1624,7 +1956,13 @@
       "ticketUrl": "https://www.ticketist.io/events/comedynacht-04-2027",
       "buchbar": true,
       "verkaufsstart": "2026-10-01T09:00:00+02:00",
-      "preise": [],
+      "preise": [
+        {
+          "name": "dinner & comedy (sitzplatz)",
+          "preis": 88,
+          "frei": 186
+        }
+      ],
       "bild": "assets/events/ticketist/comedynacht-04-2027.webp",
       "bild2x": "assets/events/ticketist/comedynacht-04-2027@2x.webp"
     },
@@ -1646,22 +1984,22 @@
         {
           "name": "Start-Location: \"wirtschaft\"",
           "preis": 88,
-          "frei": 65
+          "frei": 36
         },
         {
           "name": "Start-Location: Gasthaus Schiffle",
           "preis": 88,
-          "frei": 55
+          "frei": 51
         },
         {
           "name": "Start-Location: Gasthaus Gemsle",
           "preis": 88,
-          "frei": 67
+          "frei": 66
         },
         {
           "name": "Start-Location: Panoramarestaurant Karren",
           "preis": 88,
-          "frei": 113
+          "frei": 111
         },
         {
           "name": "Start-Location: Emma&Eugen im Kulturhaus",

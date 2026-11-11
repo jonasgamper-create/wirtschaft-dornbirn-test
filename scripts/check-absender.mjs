@@ -68,6 +68,20 @@ pruefe('Bestellmeldung geht nicht an den Service',
 for (const [, wert] of wrangler.matchAll(/"ANFRAGE_MAIL": "([^"]*)"/g)) {
   pruefe(`Anfragen gehen nicht an Emma & Eugen: ${wert}`, wert === 'uri@eugen.family');
 }
+// Auch die Rueckfaelle zeigen dorthin (10.11.2026): antwortet der Dienst
+// nicht, oeffnen die Formulare das Mailprogramm - an dieselbe Adresse. Und
+// fehlt die Einstellung im Dienst, nimmt er dieselbe Vorgabe.
+{
+  const anfrageMail = (wrangler.match(/"ANFRAGE_MAIL": "([^"]*)"/) || [])[1] || '';
+  for (const datei of ['site/feste-catering.js', 'site/agentur.js']) {
+    const text = await readFile(datei, 'utf8');
+    const ziele = [...text.matchAll(/mailto:([^?`'"\s]+)/g)].map(m => m[1]);
+    pruefe(`${datei}: Rueckfall-Mail geht nicht an ${anfrageMail} (gefunden: ${ziele.join(', ') || 'keiner'})`,
+      ziele.length > 0 && ziele.every(z => z === anfrageMail));
+  }
+  pruefe('Vorgabe im Dienst fuer Anfragen ist nicht ANFRAGE_MAIL',
+    new RegExp(`env\\?\\.ANFRAGE_MAIL \\|\\| '${anfrageMail.replace(/[.]/g, '\\.')}'`).test(quelle));
+}
 // Die Kopie fuer die technische Betreuung ist ein Geheimnis, keine Variable:
 // die Adresse ist privat, das Repository oeffentlich.
 pruefe('WIRT_MAIL_KOPIE steht als Variable in wrangler.jsonc (gehoert als Geheimnis gesetzt)',

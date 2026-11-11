@@ -36,6 +36,24 @@ for (const [relative, source] of Object.entries(html)) {
   }
 }
 
+// Die Knoepfe an den Orten und Anlaessen setzen die Auswahl im Formular. Ein
+// Wert, den es dort nicht gibt, laesst sie leer - der Gast muss neu waehlen
+// (10.11.2026: zwei von drei Ortsknoepfen trafen keine Option).
+{
+  const catering = html['site/feste-catering.html'];
+  const optionenVon = id => {
+    const auswahl = catering.match(new RegExp(`<select id="${id}"[^>]*>([\\s\\S]*?)</select>`))?.[1] || '';
+    return new Set([...auswahl.matchAll(/<option(?: value="([^"]*)")?>([^<]*)<\/option>/g)].map(m => m[1] ?? m[2]));
+  };
+  for (const [attribut, id] of [['data-location', 'location'], ['data-occasion', 'occasion']]) {
+    const optionen = optionenVon(id);
+    if (!optionen.size) fail(`feste-catering.html: Auswahl #${id} nicht gefunden`);
+    for (const m of catering.matchAll(new RegExp(`${attribut}="([^"]+)"`, 'g'))) {
+      if (!optionen.has(m[1])) fail(`feste-catering.html: ${attribut}="${m[1]}" trifft keine Option von #${id}`);
+    }
+  }
+}
+
 const events = JSON.parse(await readFile(path.join(root, 'site/data/events.json'), 'utf8'));
 // Gegenprobe zur Eigenstaendigkeit: kein Gast soll von hier auf eine der
 // beiden alten Seiten geschickt werden. Eigene Adressen in canonical, og

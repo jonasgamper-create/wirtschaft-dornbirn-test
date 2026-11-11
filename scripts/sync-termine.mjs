@@ -5,7 +5,8 @@
 // Gelesen wird beim Ticketdienst - eine Kennung je Abend, dieselbe, unter
 // der dort verkauft wird. Die Liste der Kennungen steht in
 // site/data/termine.json und ist das Einzige, was von Hand gepflegt wird;
-// alles andere (Name, Untertitel, Tag, Uhrzeit, Ort, Bild, Beschreibung)
+// alles andere (Name, Untertitel, Tag, Uhrzeit, Ort, Bild, Beschreibung,
+// und seit 10.11.2026 die Ticketkategorien mit Preis und freien Karten)
 // kommt vom Dienst.
 //
 // Der Dienst im Haus liest dieselbe Liste selbst und mehrmals täglich - auf
@@ -21,7 +22,7 @@ import { mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promise
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { entdecke, gruppiere, holeTermin, KENNUNGEN } from '../server/src/ticketist.mjs';
+import { entdecke, gruppiere, holeKategorien, holeTermin, kategorienLesbar, KENNUNGEN } from '../server/src/ticketist.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ziel = path.join(root, 'site', 'data', 'termine.json');
@@ -33,7 +34,39 @@ const bilderOrdner = path.join(root, 'site', 'assets', 'events', 'ticketist');
 const gefunden = await entdecke({}, { hoechstens: 40 }).catch(() => ({ kennungen: [] }));
 const neuGefunden = gefunden.kennungen.filter(k => !KENNUNGEN.includes(k));
 if (neuGefunden.length) console.log(`  Auf den eigenen Eventseiten neu gefunden: ${neuGefunden.join(', ')}`);
-const kennungen = [...new Set([...KENNUNGEN, ...gefunden.kennungen])].sort();
+
+// Was die Seite schon kennt, bleibt (10.11.2026): jeder Abend, den der
+// Dienst im Haus fuehrt - auch die, die das Haus selbst aufgenommen hat und
+// die auf keiner alten Seite (mehr) verlinkt sind. Sonst fiele ein Abend aus
+// dem Rueckfall, sobald die Suche ihn nicht mehr findet (italiantribute-2027
+// am 10.11.), und nach der Abschaltung der alten Seiten fielen alle
+// gefundenen auf einmal weg. Die Liste des Dienstes ist dabei die Wahrheit:
+// ein Abend, den das Haus dort wieder entfernt hat, kommt nicht zurueck. Nur
+// wenn der Dienst nicht antwortet, gilt ersatzweise der bisherige Stand.
+const bisher = await readFile(ziel, 'utf8').then(JSON.parse).catch(() => ({ termine: [] }));
+// Dasselbe Fenster wie der Dienst: ein Abend bleibt eine Woche nach seinem
+// Datum stehen ("verpasst"), damit geteilte Links nicht ins Leere fuehren.
+const nachlaufIso = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+const wegeVon = abende => (abende || []).flatMap(t => [t?.id, ...(t?.varianten || []).map(v => v?.id)]);
+const ausBisher = wegeVon((bisher.termine || []).filter(t => String(t.date || '') >= nachlaufIso));
+const ausDienst = await (async () => {
+  try {
+    const haus = JSON.parse(await readFile(path.join(root, 'site', 'data', 'haus.json'), 'utf8'));
+    const basis = String(haus?.api || '').trim().replace(/\/+$/, '');
+    if (!/^https:\/\//.test(basis)) return [];
+    const antwort = await fetch(`${basis}/api/termine`);
+    return antwort.ok ? wegeVon((await antwort.json())?.termine) : [];
+  } catch {
+    return [];
+  }
+})();
+const gueltig = k => typeof k === 'string' && /^[a-z0-9-]{3,60}$/.test(k);
+const zusaetzlich = ausDienst.length ? ausDienst : ausBisher;
+if (!ausDienst.length) console.warn('  Der Dienst antwortet nicht - ersatzweise gilt der bisherige Stand.');
+const dazu = [...new Set(zusaetzlich)]
+  .filter(k => gueltig(k) && !KENNUNGEN.includes(k) && !gefunden.kennungen.includes(k));
+if (dazu.length) console.log(`  ${ausDienst.length ? 'Vom Dienst' : 'Aus dem bisherigen Stand'}: ${dazu.join(', ')}`);
+const kennungen = [...new Set([...KENNUNGEN, ...gefunden.kennungen, ...zusaetzlich])].filter(gueltig).sort();
 
 await mkdir(bilderOrdner, { recursive: true });
 const vorhanden = new Set(await readdir(bilderOrdner).catch(() => []));
@@ -74,21 +107,32 @@ function alsWebp2x(rohdatei, zieldatei) {
   }
 }
 
-// Die Preise stehen nicht auf der oeffentlichen Eventseite - der Dienst gibt
-// sie nur im Verwaltungsbereich heraus. Sie liegen deshalb als eigene Datei
-// im Projekt (site/data/ticketist-preise.json, gelesen am 14.09.) und werden
-// hier zu den Terminen gelegt. Preise aendern sich selten; ob noch Karten da
-// sind, kommt live von der Eventseite.
-const preisDatei = JSON.parse(await readFile(path.join(root, 'site', 'data', 'ticketist-preise.json'), 'utf8'));
+// Die Preise: Kategorien, Preis und freie Karten stehen nicht auf der
+// Eventseite, aber oeffentlich unter /api/ticket-categories?eventId=<nummer>
+// (seit 10.11.2026; bis dahin eine Abschrift vom 14.09., der die 20 Abende
+// ab Jaenner 2027 fehlten). Dieses Skript liest sie je Abend und schreibt
+// sie nach site/data/ticketist-preise.json. Die Datei ist der Rueckfall fuer
+// Seite und Dienst, wenn der Ticketdienst einmal nicht antwortet; im
+// Betrieb liest der Dienst die Kategorien selbst. Antwortet er hier nicht,
+// bleibt fuer diesen Abend der bisherige Eintrag.
+const preisPfad = path.join(root, 'site', 'data', 'ticketist-preise.json');
+const preisDatei = JSON.parse(await readFile(preisPfad, 'utf8'));
 const preise = preisDatei.preise || {};
+const neuePreise = {};
+const ohneKategorien = [];
+let kategorienGelesen = 0;
 
 // Der bisherige Stand. Er ist der Rueckfall fuer jeden Abend, der sich
 // gerade nicht lesen laesst: ein Aussetzer beim Ticketdienst darf keinen
 // kommenden Abend aus der Datei loeschen. Genau das ist am 20.09.2026
 // passiert - der Abend am 22.09. war nach einem einzigen misslungenen
 // Abruf weg, ohne dass es jemandem aufgefallen waere.
-const bisher = await readFile(ziel, 'utf8').then(JSON.parse).catch(() => ({ termine: [] }));
 const bisherNachId = new Map((bisher.termine || []).map(t => [t.id, t]));
+// Auch die zweiten Wege (10.11.2026): faellt nur "comedy only" aus, haengt
+// sein bisheriger Eintrag wieder am frisch gelesenen Abend - sonst stuende
+// der Abend ohne ihn da und mit ausverkauftem Dinner als ganz ausverkauft.
+const bisherVariante = new Map((bisher.termine || []).flatMap(t =>
+  (t.varianten || []).map(v => [v.id, { abendId: t.id, variante: v }])));
 
 const termine = [];
 const fehlend = [];
@@ -104,7 +148,27 @@ for (const kennung of kennungen) {
     termin = await holeTermin(kennung);
   }
   if (!termin) { fehlend.push(kennung); continue; }
-  termin.preise = preise[kennung] || [];
+  // Auch hier zwei Versuche - ohne Antwort gilt der bisherige Eintrag.
+  let kategorien = await holeKategorien(termin.eventId);
+  if (!Array.isArray(kategorien)) {
+    await new Promise(fertig => setTimeout(fertig, 1000));
+    kategorien = await holeKategorien(termin.eventId);
+  }
+  if (kategorienLesbar(kategorien)) {
+    neuePreise[kennung] = kategorien;
+    kategorienGelesen += 1;
+  } else {
+    // Keine Antwort, eine leere oder eine ganz ohne Zahl "frei" (dieselbe
+    // Regel wie im Dienst): der bisherige Eintrag bleibt. Gab es keinen,
+    // zeigt eine Liste ohne Zahlen wenigstens die Preise.
+    ohneKategorien.push(kennung);
+    const bisherLesbar = kategorienLesbar(preise[kennung]) ? preise[kennung] : null;
+    const ersatz = bisherLesbar
+      || (Array.isArray(kategorien) && kategorien.length ? kategorien : null)
+      || (Array.isArray(preise[kennung]) && preise[kennung].length ? preise[kennung] : null);
+    if (ersatz) neuePreise[kennung] = ersatz;
+  }
+  termin.preise = neuePreise[kennung] || [];
 
   if (termin.bildQuelle) {
     // Dieselbe Aufnahme für mehrere Abende (die drei Luis-Termine teilen
@@ -159,7 +223,7 @@ const abende = gruppiere(termine);
 // ein zweiter Weg mit 0 frei stand auf der Seite als buchbar (rock4,
 // 22.10.: "konzert only" war laut Liste weg, der Knopf sagte "buchbar").
 for (const abend of abende) {
-  for (const v of abend.varianten || []) v.preise = preise[v.id] || [];
+  for (const v of abend.varianten || []) v.preise = neuePreise[v.id] || preise[v.id] || [];
 }
 
 // Was auch beim zweiten Versuch nicht kam: den bisherigen Eintrag behalten,
@@ -169,7 +233,39 @@ const heute = new Date().toISOString().slice(0, 10);
 const gerettet = [];
 for (const kennung of fehlend) {
   const alt = bisherNachId.get(kennung);
-  if (alt && alt.date >= heute) { abende.push(alt); gerettet.push(kennung); }
+  if (alt && alt.date >= heute) {
+    // Ein geretteter Abend bringt seine zweiten Wege mit. Frisch gelesene
+    // Teile DESSELBEN Abends (gleicher Tag) gehen in ihn auf - sonst stuende
+    // ein zweiter Weg doppelt da, einmal als eigener Abend. Ihre Preise und
+    // Schalter sind neuer und gelten, und ein Weg, den der gerettete Abend
+    // noch nicht kannte, geht nicht verloren. Steht ein zweiter Weg frisch
+    // an einem ANDEREN Tag, ist er verschoben: er bleibt dort, und der
+    // gerettete Abend fuehrt ihn nicht mehr.
+    const seine = new Set((alt.varianten || []).map(v => v.id));
+    const teile = abende.filter(a => seine.has(a.id) && a.date === alt.date);
+    const verschoben = new Set(abende.filter(a => seine.has(a.id) && a.date !== alt.date).map(a => a.id));
+    for (const teil of teile) abende.splice(abende.indexOf(teil), 1);
+    const zusammen = { ...alt, varianten: (alt.varianten || []).filter(v => !verschoben.has(v.id)) };
+    for (const teil of teile) {
+      const i = zusammen.varianten.findIndex(v => v.id === teil.id);
+      if (i >= 0) {
+        zusammen.varianten[i] = { ...zusammen.varianten[i], zeit: teil.zeit, ticketUrl: teil.ticketUrl,
+          buchbar: teil.buchbar, preise: teil.preise?.length ? teil.preise : zusammen.varianten[i].preise };
+      }
+      for (const v of teil.varianten || []) if (!zusammen.varianten.some(x => x.id === v.id)) zusammen.varianten.push(v);
+    }
+    abende.push(zusammen);
+    gerettet.push(kennung);
+  } else {
+    const teil = bisherVariante.get(kennung);
+    const abend = teil && abende.find(a => a.id === teil.abendId);
+    if (abend && abend.date >= heute && !(abend.varianten || []).some(v => v.id === kennung)) {
+      abend.varianten = [...(abend.varianten || []), teil.variante];
+      gerettet.push(kennung);
+    }
+  }
+  // Seine Preise bleiben ebenso im Rueckfall stehen.
+  if (!neuePreise[kennung] && Array.isArray(preise[kennung]) && preise[kennung].length) neuePreise[kennung] = preise[kennung];
 }
 if (gerettet.length) {
   abende.sort((a, b) => a.date.localeCompare(b.date) || String(a.zeit).localeCompare(String(b.zeit)));
@@ -183,7 +279,11 @@ if (fehlend.length) {
 
 // Mehr als eine Handvoll Ausfaelle heisst: beim Ticketdienst klemmt etwas.
 // Dann wird die gute Datei NICHT durch eine halbe ersetzt.
-const verloren = fehlend.filter(k => !gerettet.includes(k));
+// Verloren ist, was am Ende weder als Abend noch als zweiter Weg dasteht -
+// auch ein zweiter Weg, der mit seinem geretteten Abend zurueckkam, zaehlt
+// als vorhanden.
+const stehtDa = new Set(abende.flatMap(a => [a.id, ...(a.varianten || []).map(v => v.id)]));
+const verloren = fehlend.filter(k => !stehtDa.has(k));
 if (fehlend.length > 5) {
   console.error(`sync-termine FEHLER: ${fehlend.length} Abende nicht lesbar - die alte Datei bleibt stehen.`);
   process.exit(1);
@@ -196,6 +296,17 @@ if (!termine.length) {
   process.exit(1);
 }
 
+// Kein Weg doppelt - weder zwei Abende mit derselben Kennung noch ein Abend,
+// der zugleich zweiter Weg eines anderen ist. Sonst lieber die alte Datei.
+{
+  const alle = abende.flatMap(a => [a.id, ...(a.varianten || []).map(v => v.id)]);
+  const doppelt = alle.filter((k, i) => alle.indexOf(k) !== i);
+  if (doppelt.length) {
+    console.error(`sync-termine FEHLER: doppelt eingetragen: ${[...new Set(doppelt)].join(', ')} - die alte Datei bleibt stehen.`);
+    process.exit(1);
+  }
+}
+
 await writeFile(ziel, JSON.stringify({
   version: 1,
   updatedAt: new Date().toISOString().slice(0, 10),
@@ -204,8 +315,26 @@ await writeFile(ziel, JSON.stringify({
   termine: abende
 }, null, 2) + '\n');
 
+// Die Rueckfall-Liste nur neu schreiben, wenn wirklich gelesen wurde: ohne
+// eine einzige Antwort bliebe sonst der alte Stand mit neuem Datum stehen.
+if (kategorienGelesen) {
+  await writeFile(preisPfad, JSON.stringify({
+    _hinweis: 'Preise und freie Karten je Ticketkategorie, gelesen aus der oeffentlichen Schnittstelle des Ticketdienstes '
+      + '(/api/ticket-categories?eventId=<nummer>) von scripts/sync-termine.mjs - nicht von Hand aendern. Rueckfall fuer '
+      + 'Eventseite, Startseite und Dienst, wenn der Ticketdienst nicht antwortet; im Betrieb liest der Dienst die Kategorien '
+      + "selbst. 'frei' ist der Stand vom Datum unten - eine Kategorie mit 0 ist ausverkauft.",
+    stand: heute,
+    quelle: 'https://www.ticketist.io/api/ticket-categories?eventId=<nummer>',
+    preise: Object.fromEntries(Object.entries(neuePreise).sort(([a], [b]) => a.localeCompare(b)))
+  }, null, 2) + '\n');
+} else {
+  console.warn('  Keine einzige Kategorie gelesen - site/data/ticketist-preise.json bleibt, wie sie ist.');
+}
+if (ohneKategorien.length) console.warn(`  Ohne frisch gelesene Kategorien: ${ohneKategorien.join(', ')}`);
+
 const haeuser = abende.reduce((zahl, t) => ({ ...zahl, [t.haus]: (zahl[t.haus] || 0) + 1 }), {});
 const zweiWege = abende.filter(a => a.varianten?.length).length;
 console.log(`Termine: ${abende.length} Abende (${termine.length} Veranstaltungen, ${zweiWege} mit zweitem Ticketweg)`
   + ` (${Object.entries(haeuser).map(([h, n]) => `${n}× ${h}`).join(', ')}), `
-  + `${geholt} Bilder neu geholt${fehlend.length ? `, ${fehlend.length} ohne Treffer` : ''}.`);
+  + `${geholt} Bilder neu geholt, ${kategorienGelesen} mit frisch gelesenen Kategorien`
+  + `${fehlend.length ? `, ${fehlend.length} ohne Treffer` : ''}.`);

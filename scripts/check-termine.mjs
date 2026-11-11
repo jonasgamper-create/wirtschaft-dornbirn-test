@@ -9,7 +9,8 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  ausZeitpunkt, hausAusOrt, kennungAusLink, KENNUNGEN, leseTermin, schneideJson, seiteFuer, terminGueltig, kennungenIn, unterseitenIn, gruppiere
+  ausZeitpunkt, hausAusOrt, kennungAusLink, KENNUNGEN, leseTermin, schneideJson, seiteFuer, terminGueltig, kennungenIn, unterseitenIn, gruppiere,
+  holeKategorien, holeVerkauft, kategorienLesbar, leseKategorien, mitPreisen
 } from '../server/src/ticketist.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -102,18 +103,101 @@ check('Kein Abend taucht zweimal auf',
 check('Keine Kennung steckt zugleich in einem zweiten Weg',
   datei.termine.every(t => !datei.termine.some(x => (x.varianten || []).some(v => v.id === t.id))));
 
-// Preise: sie kommen aus dem Verwaltungsbereich und liegen bei uns.
+// Preise: Kategorien, Preis und freie Karten liest der Dienst live beim
+// Ticketdienst (holeKategorien, seit 10.11.2026). Die Datei ist der
+// Rueckfall und wird von scripts/sync-termine.mjs aus derselben
+// Schnittstelle erzeugt.
 const preisDatei = JSON.parse(await readFile(path.join(root, 'site', 'data', 'ticketist-preise.json'), 'utf8'));
-// Neue Abende (30.09.) kommen ohne Preise auf die Seite - die gibt der
-// Ticketdienst nur im Verwaltungsbereich heraus. Die Kachel zeigt dann den
-// Knopf ohne Preiszeile; das ist ein Hinweis, kein Fehler.
+// Eine feste Kennung ohne Eintrag ist ein Abend, der vorbei ist oder beim
+// Ticketdienst keine Kategorien hat - ein Hinweis, kein Fehler.
 const ohnePreis = KENNUNGEN.filter(k => !Array.isArray(preisDatei.preise?.[k]));
-if (ohnePreis.length) console.log(`  Hinweis: noch ohne Preise: ${ohnePreis.join(', ')}`);
+if (ohnePreis.length) console.log(`  Hinweis: ohne Preise im Rueckfall: ${ohnePreis.join(', ')}`);
 check('Preise fuer die meisten Kennungen hinterlegt', ohnePreis.length <= 10);
 check('Jeder Preis ist eine Zahl',
   Object.values(preisDatei.preise).every(l => l.every(p => typeof p.preis === 'number' && p.preis > 0)));
+check('Freie Karten sind eine ganze Zahl ab 0 (oder unbekannt)',
+  Object.values(preisDatei.preise).every(l => l.every(p => p.frei === undefined || (Number.isInteger(p.frei) && p.frei >= 0))));
+check('Die Rueckfall-Liste nennt ihre Quelle', /ticket-categories/.test(String(preisDatei.quelle || '')));
 check('Die Termine tragen ihre Preise',
   datei.termine.filter(t => (t.preise || []).length).length > 25);
+
+// --- Die Kategorien beim Ticketdienst (10.11.2026) -------------------------
+// So antwortet /api/ticket-categories?eventId=<nummer> (gekuerzt, Felder wie
+// am 10.11. gelesen).
+const kategorienAntwort = {
+  items: [
+    { id: 1, name: 'Kategorie 1', event: { id: 1630 }, price: 40, sort: 0, totalTicketQuantity: 300,
+      existingTicketQuantity: 210, blockedTicketQuantity: 90, availableTicketQuantity: 0, ticketCategoryDiscounts: [{ id: 9 }] },
+    { id: 2, name: '  Kategorie   2 ', event: { id: 1630 }, price: 36, sort: 0, totalTicketQuantity: 200,
+      existingTicketQuantity: 150, blockedTicketQuantity: 49, availableTicketQuantity: 1 },
+    { id: 3, name: 'Gaesteliste', event: { id: 1630 }, price: 0, availableTicketQuantity: 20 },
+    { id: 4, name: 'Fremder Abend', event: { id: 999 }, price: 10, availableTicketQuantity: 5 },
+    { id: 5, name: 'Ohne verfuegbar', event: { id: 1630 }, price: 33, totalTicketQuantity: 10, existingTicketQuantity: 4, blockedTicketQuantity: 1 },
+    { id: 6, name: 'Ohne Zahlen', event: { id: 1630 }, price: 28 },
+    null
+  ],
+  totalItems: 6
+};
+const kategorien = leseKategorien(kategorienAntwort, 1630);
+check('Kategorien: Name, Preis und frei in unserer Form',
+  JSON.stringify(kategorien[0]) === JSON.stringify({ name: 'Kategorie 1', preis: 40, frei: 0 }));
+check('Kategorien: Reihenfolge des Dienstes, Name geglaettet', kategorien[1]?.name === 'Kategorie 2' && kategorien[1]?.frei === 1);
+check('Kategorien: ohne Preis (0 Euro) faellt raus', !kategorien.some(k => k.name === 'Gaesteliste'));
+check('Kategorien: ein fremder Abend faellt raus', !kategorien.some(k => k.name === 'Fremder Abend'));
+check('Kategorien: frei aus Platzangebot, verkauft und gesperrt gerechnet', kategorien.find(k => k.name === 'Ohne verfuegbar')?.frei === 5);
+check('Kategorien: ohne Zahlen bleibt frei unbekannt, nicht 0',
+  kategorien.some(k => k.name === 'Ohne Zahlen') && !('frei' in kategorien.find(k => k.name === 'Ohne Zahlen')));
+check('Kategorien: Rabatte bleiben beim Dienst', kategorien.every(k => Object.keys(k).every(f => ['name', 'preis', 'frei'].includes(f))));
+check('Kategorien: kaputte Antwort heisst nicht gelesen', leseKategorien({ fehler: 1 }) === null && leseKategorien(null) === null);
+check('Kategorien: leere Liste ist eine Antwort', JSON.stringify(leseKategorien({ items: [] })) === '[]');
+check('Lesbar ist nur eine Liste mit mindestens einer Zahl frei',
+  kategorienLesbar([{ name: 'A', preis: 1, frei: 0 }]) && kategorienLesbar([{ name: 'A', preis: 1 }, { name: 'B', preis: 2, frei: 3 }])
+  && !kategorienLesbar([{ name: 'A', preis: 1 }]) && !kategorienLesbar([]) && !kategorienLesbar(null));
+
+{
+  const gefragt = [];
+  const antwortet = (status, daten) => async (url, optionen) => {
+    gefragt.push({ url, optionen });
+    return { ok: status === 200, status, json: async () => daten };
+  };
+  const gelesen = await holeKategorien(1630, antwortet(200, kategorienAntwort));
+  check('Abruf: richtige Adresse beim Ticketdienst',
+    gefragt[0]?.url === 'https://www.ticketist.io/api/ticket-categories?eventId=1630');
+  check('Abruf: mit eigenem Namen und Zwischenspeicher',
+    /wirtschaft-dornbirn-events/.test(gefragt[0]?.optionen?.headers?.['user-agent'] || '') && gefragt[0]?.optionen?.cf?.cacheTtl === 900);
+  check('Abruf: liefert die gelesenen Kategorien', Array.isArray(gelesen) && gelesen.length === kategorien.length);
+  check('Abruf: Fehler des Dienstes heisst null', await holeKategorien(1630, antwortet(500, {})) === null);
+  check('Abruf: Netzfehler heisst null', await holeKategorien(1630, async () => { throw new Error('weg'); }) === null);
+  const vorher = gefragt.length;
+  check('Abruf: ohne gueltige Nummer kein Abruf',
+    await holeKategorien(null, antwortet(200, kategorienAntwort)) === null
+    && await holeKategorien(0, antwortet(200, kategorienAntwort)) === null
+    && await holeKategorien('x', antwortet(200, kategorienAntwort)) === null
+    && await holeVerkauft(null, antwortet(200, { ticketCount: 5 })) === null
+    && gefragt.length === vorher);
+}
+
+{
+  const abende = [{ id: 'a', title: 'A', varianten: [{ id: 'a-only', label: 'only' }, { id: 'a-zwei', label: 'zwei' }] }, { id: 'b', title: 'B' }];
+  const stand = {
+    a: { termin: {}, preise: [{ name: 'Sitzplatz', preis: 68, frei: 3 }] },
+    'a-only': { termin: {}, preise: [{ name: 'Stehplatz', preis: 28, frei: 0 }] },
+    'a-zwei': { termin: {}, preise: [{ name: 'Ohne Zahl', preis: 10 }] },
+    b: { termin: {}, preise: null }
+  };
+  const mit = mitPreisen(abende, stand);
+  check('Antwort: Hauptweg traegt seine Kategorien', mit[0].preise?.[0]?.preis === 68);
+  check('Antwort: der zweite Weg seine eigenen', mit[0].varianten[0].preise?.[0]?.name === 'Stehplatz');
+  check('Antwort: ohne lesbare Kategorien bleibt das Feld weg',
+    !('preise' in mit[0].varianten[1]) && !('preise' in mit[1]));
+  check('Antwort: der Stand im Speicher bleibt unberuehrt', stand.a.preise[0] !== mit[0].preise[0]);
+  // Fehlen einem Weg die Live-Kategorien, kommt die hinterlegte Liste mit -
+  // live geht vor, sonst bekaeme die Startseite fuer diesen Weg nichts.
+  const rueck = { b: [{ name: 'Hinterlegt', preis: 30, frei: 4 }], a: [{ name: 'Alt', preis: 1, frei: 0 }] };
+  const mitRueck = mitPreisen(abende, stand, rueck);
+  check('Antwort: ohne Live-Kategorien die hinterlegte Liste', mitRueck[1].preise?.[0]?.name === 'Hinterlegt');
+  check('Antwort: live geht vor hinterlegt', mitRueck[0].preise?.[0]?.name === 'Sitzplatz');
+}
 
 check('Ausverkauft im Text zaehlt als ausverkauft',
   leseTermin(seite.replace('"description":"Erste Zeile.', '"description":"Diese Veranstaltung ist ausverkauft.'), 'x').buchbar === false);

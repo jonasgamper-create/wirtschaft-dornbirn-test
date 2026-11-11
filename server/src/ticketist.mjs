@@ -14,10 +14,14 @@
 // Zeile `window.event = {...};`. Das ist kein Umweg über eine Oberfläche,
 // sondern derselbe Datensatz, den die Seite selbst anzeigt.
 //
-// Was der Dienst NICHT hergibt, sind die Preise der Kategorien - die lädt
-// sein Kassenteil später nach. Preise stehen deshalb weiter in unserer
-// eigenen Liste (site/data/events.json), und wo wir keine haben, nennt die
-// Kachel eben keine. Geraten wird nichts.
+// Kategorien, Preise und freie Karten stehen nicht auf der Eventseite,
+// gibt der Dienst aber ebenso öffentlich heraus: unter
+// `/api/ticket-categories?eventId=<nummer>` (holeKategorien). Hannah hatte
+// recht (03.11.: "bei allen events die ticketkategorien festgelegt"),
+// nachgeprüft am 10.11.2026 an allen 67 Ticketwegen. Der Dienst im Haus
+// liest sie mit den Eventdaten; site/data/ticketist-preise.json ist nur
+// noch der Rückfall, wenn der Ticketdienst einmal nicht antwortet. Wo es
+// keine Kategorien gibt, nennt die Kachel keine. Geraten wird nichts.
 
 /**
  * Die Abende, die wir zeigen - je Abend die Kennung, unter der beim
@@ -275,7 +279,11 @@ export async function holeTermin(kennung, fetchImpl = fetch) {
  * Wie viele Karten fuer diesen Abend verkauft sind.
  *
  * Der Ticketdienst gibt das oeffentlich heraus (`/api/events/<nummer>`,
- * Feld `ticketCount`) - im Gegensatz zu den Preisen und den Restkarten.
+ * Feld `ticketCount`). Preise und freie Karten je Kategorie stehen an
+ * anderer Stelle (holeKategorien) - und sie gehen vor: ticketCount ist
+ * nicht die Summe der verkauften Karten je Kategorie (10.11.2026: bei 39
+ * von 67 Wegen hoeher), faellt die Zahl, muss also nicht wirklich etwas
+ * frei geworden sein.
  * Gemessen am 20.09.2026: Kulis 07.10. 774 verkauft bei 0 frei laut
  * Kartenliste, Kulis 08.10. 676 verkauft bei 93 frei. Die Zahl ist also
  * die VERKAUFTEN Karten, und Platzangebot = verkauft + frei.
@@ -288,9 +296,11 @@ export async function holeTermin(kennung, fetchImpl = fetch) {
  * Wirft nicht: ohne Zahl bleibt der bisherige Stand.
  */
 export async function holeVerkauft(eventId, fetchImpl = fetch) {
-  if (!Number.isFinite(Number(eventId))) return null;
+  // Nur echte Nummern: Number(null) waere 0 und ein sinnloser Abruf.
+  const nummer = Number(eventId);
+  if (!Number.isInteger(nummer) || nummer <= 0) return null;
   try {
-    const antwort = await fetchImpl(`https://www.ticketist.io/api/events/${Number(eventId)}`, {
+    const antwort = await fetchImpl(`https://www.ticketist.io/api/events/${nummer}`, {
       headers: { 'user-agent': 'wirtschaft-dornbirn-events/1.0 (+https://wirtschaft-dornbirn.at)' },
       cf: { cacheTtl: 900, cacheEverything: true }
     });
@@ -301,6 +311,128 @@ export async function holeVerkauft(eventId, fetchImpl = fetch) {
   } catch {
     return null;
   }
+}
+
+/**
+ * Die Ticketkategorien eines Abends: Name, Preis und wie viele Karten noch
+ * frei sind - so, wie die Kasse des Ticketdienstes sie anbietet.
+ *
+ * Oeffentlich und ohne Anmeldung lesbar unter
+ * `/api/ticket-categories?eventId=<nummer>`. Bis 10.11.2026 lagen die
+ * Preise nur als Abschrift vom 14.09. im Projekt; die 20 Abende ab Jaenner
+ * 2027 hatten deshalb keine, obwohl sie beim Ticketdienst laengst standen.
+ *
+ * Wirft nicht: null heisst "nicht gelesen", der Aufrufer behaelt dann
+ * seinen bisherigen Stand.
+ */
+export async function holeKategorien(eventId, fetchImpl = fetch) {
+  const nummer = Number(eventId);
+  if (!Number.isInteger(nummer) || nummer <= 0) return null;
+  try {
+    const antwort = await fetchImpl(`https://www.ticketist.io/api/ticket-categories?eventId=${nummer}`, {
+      headers: { 'user-agent': 'wirtschaft-dornbirn-events/1.0 (+https://wirtschaft-dornbirn.at)' },
+      cf: { cacheTtl: 900, cacheEverything: true }
+    });
+    if (!antwort.ok) return null;
+    return leseKategorien(await antwort.json(), nummer);
+  } catch {
+    return null;
+  }
+}
+
+/** Eine Anzahl Karten: ganze Zahl ab 0, sonst null (unbekannt). */
+const anzahl = wert => {
+  if (wert === null || wert === undefined || wert === '') return null;
+  const zahl = Number(wert);
+  return Number.isInteger(zahl) && zahl >= 0 ? zahl : null;
+};
+
+/**
+ * Die Antwort des Ticketdienstes in unsere Form: [{ name, preis, frei }] -
+ * dieselbe wie in site/data/ticketist-preise.json, damit Eventseite,
+ * Startseite und Warteliste nichts umlernen muessen.
+ *
+ *  - Reihenfolge wie beim Dienst (das Feld `sort` steht ueberall auf 0).
+ *  - `frei` = `availableTicketQuantity`, also Platzangebot minus verkauft
+ *    minus gesperrt. Fehlt die Zahl, wird sie aus diesen drei gerechnet;
+ *    geht auch das nicht, fehlt `frei` - unbekannt ist nicht ausverkauft.
+ *  - Kategorien ohne Preis (0 Euro) zeigt die Seite nicht; am 10.11. gab es
+ *    keine einzige.
+ *  - Rabatte bleiben beim Dienst: sie gelten erst an seiner Kasse.
+ *
+ * null, wenn die Antwort nicht die erwartete Form hat - lieber kein Preis
+ * als ein falscher.
+ *
+ * @param eventId  Wenn angegeben, fallen Kategorien eines anderen Abends
+ *   raus (Schutz, falls der Dienst den Filter einmal nicht beachtet).
+ */
+export function leseKategorien(daten, eventId) {
+  const posten = daten?.items;
+  if (!Array.isArray(posten)) return null;
+  const raus = [];
+  for (const k of posten) {
+    if (!k || typeof k !== 'object') continue;
+    const abend = Number(k.event?.id);
+    if (eventId && Number.isFinite(abend) && abend > 0 && abend !== Number(eventId)) continue;
+    const name = String(k.name ?? '').replace(/\s+/g, ' ').trim().slice(0, 120);
+    const preis = Number(k.price);
+    if (!name || !Number.isFinite(preis) || preis <= 0) continue;
+    let frei = anzahl(k.availableTicketQuantity);
+    if (frei === null) {
+      const gesamt = anzahl(k.totalTicketQuantity);
+      const verkauft = anzahl(k.existingTicketQuantity);
+      const gesperrt = anzahl(k.blockedTicketQuantity);
+      if (gesamt !== null && verkauft !== null) frei = Math.max(0, gesamt - verkauft - (gesperrt || 0));
+    }
+    raus.push(frei === null ? { name, preis: Math.round(preis * 100) / 100 } : { name, preis: Math.round(preis * 100) / 100, frei });
+  }
+  return raus;
+}
+
+/**
+ * Sagt eine Kategorienliste etwas ueber freie Karten? Nur dann darf sie
+ * entscheiden: nicht leer, und mindestens eine Kategorie mit einer Zahl
+ * "frei". Fehlen die Zahlen ueberall (der Ticketdienst aendert sein Format),
+ * gilt der bisherige Stand bzw. die hinterlegte Liste - sonst stuenden alle
+ * ausverkauften Abende auf einen Schlag als buchbar da. Dieselbe Regel steht
+ * in site/events.js (gelesen) und scripts/sync-termine.mjs; die Startseite
+ * bekommt ueber mitPreisen nur Listen, die sie erfuellen.
+ */
+export function kategorienLesbar(liste) {
+  return Array.isArray(liste) && liste.length > 0 && liste.some(k => Number.isInteger(k?.frei));
+}
+
+/**
+ * Die Kategorien an die zusammengelegten Abende haengen: an den Hauptweg und
+ * an jeden zweiten Weg, je unter seiner eigenen Kennung ("comedy only" hat
+ * eigene). Zuerst, was live gelesen ist (kategorienLesbar); fehlt das fuer
+ * einen Weg (gleich nach dem Ausrollen, oder der Ticketdienst schwieg), die
+ * hinterlegte Liste - dieselbe, mit der die Warteliste dann rechnet. So
+ * bekommen Eventseite UND Startseite fuer jeden Weg dieselbe Auskunft, und
+ * die Startseite stellt keinen Abend als ausverkauft hin, nur weil einem
+ * seiner Wege gerade die Zahlen fehlen. Ohne beides bleibt das Feld weg.
+ *
+ * `stand` ist der Speicher des Dienstes (Kennung -> { termin, preise }),
+ * `rueckfall` die hinterlegte Liste (Kennung -> Kategorien).
+ */
+export function mitPreisen(abende, stand, rueckfall = {}) {
+  const von = kennung => {
+    const liste = stand?.[kennung]?.preise;
+    if (kategorienLesbar(liste)) return liste.map(p => ({ ...p }));
+    const hinterlegt = rueckfall?.[kennung];
+    return kategorienLesbar(hinterlegt) ? hinterlegt.map(p => ({ ...p })) : null;
+  };
+  return (abende || []).map(abend => {
+    const eigene = von(abend?.id);
+    const raus = eigene ? { ...abend, preise: eigene } : { ...abend };
+    if (Array.isArray(abend?.varianten)) {
+      raus.varianten = abend.varianten.map(v => {
+        const preise = von(v?.id);
+        return preise ? { ...v, preise } : v;
+      });
+    }
+    return raus;
+  });
 }
 
 /** Die Kennung aus einem Link auf den Ticketdienst - oder aus sich selbst. */
@@ -349,7 +481,11 @@ export function unterseitenIn(html, basis) {
  * Durchgang bei zwei Abrufen, wenn nichts Neues dazugekommen ist.
  */
 export async function entdecke(gesehen = {}, { hol = fetch, hoechstens = 20 } = {}) {
+  // Wie viele Abrufe dieser Durchgang macht - der Dienst rechnet damit sein
+  // Abrufbudget (rund fuenfzig je Aufruf im kostenlosen Tarif).
+  let abrufe = 0;
   const lies = async url => {
+    abrufe += 1;
     try {
       const antwort = await hol(url, { headers: { 'user-agent': 'Mozilla/5.0 (Wirtschaft Dornbirn Terminabgleich)' } });
       return antwort.ok ? await antwort.text() : '';
@@ -385,5 +521,5 @@ export async function entdecke(gesehen = {}, { hol = fetch, hoechstens = 20 } = 
   }
   // Alte Eintraege fuer Blaetterseiten aus dem Merker raeumen.
   for (const url of Object.keys(merker)) { try { if (istListe(url)) delete merker[url]; } catch { delete merker[url]; } }
-  return { kennungen: [...kennungen], gesehen: merker, neuGelesen };
+  return { kennungen: [...kennungen], gesehen: merker, neuGelesen, abrufe };
 }
