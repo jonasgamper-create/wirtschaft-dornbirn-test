@@ -158,12 +158,17 @@ bestehenden ändern, keinen zweiten anlegen.
    ```
 3. **Brevo prüfen lassen** — im Brevo-Konto **des Hauses** (Sarah) unter
    *Senders, Domains & Dedicated IPs* → *Domains* → *Authenticate*, für beide
-   Domains. **Noch offen.** Über den Dienst lässt sich das erst nach Schritt 4
-   nachsehen (alle vier auf `status: true`); bis dahin zeigt er das Konto
-   von Jonas.
-4. **Den Schlüssel des Hauses hinterlegen.** Im Brevo-Konto des Hauses unter
-   *SMTP & API* einen API-Schlüssel erzeugen; Jonas hinterlegt ihn gemeinsam
-   mit dem Haus als Geheimnis `BREVO_KEY` – nicht per Mail oder Chat:
+   Domains. **Noch offen.** Die Prüfung in der Wirt-Ansicht (Schritt 4) zeigt
+   je Domain, ob Brevo sie als beglaubigt führt; `GET /api/mail/domain` fragt
+   seit 15.11.2026 das Konto, mit dem gerade verschickt wird.
+4. **Den Schlüssel des Hauses hinterlegen – seit 15.11.2026 macht das Sarah
+   selbst.** Im Brevo-Konto des Hauses unter *SMTP & API* einen
+   API-Schlüssel erzeugen und in der Wirt-Ansicht einfügen (haus →
+   Mailversand). Der Dienst prüft ihn, schickt von jeder der fünf
+   Absenderadressen eine Testmail und stellt Schlüssel und Absender gemeinsam
+   um; Schritt 5 entfällt dann. Anleitung:
+   `docs/mailversand-selbst-umstellen.md`. Der Weg über Cloudflare bleibt
+   möglich, etwa für den Programmierer – nicht per Mail oder Chat:
    ```bash
    cd server
    npx wrangler@4 secret put BREVO_KEY
@@ -172,7 +177,9 @@ bestehenden ändern, keinen zweiten anlegen.
    sind die Domains des Hauses nicht beglaubigt. Ein zweiter Benutzer im
    Brevo-Konto kostet laut Brevo-Preisliste 9 € im Monat – deshalb ein
    Schlüssel statt eines Benutzerzugangs.
-5. **Absender umstellen.** Erst danach, keinesfalls vorher:
+5. **Absender umstellen** – nur auf dem Weg über Cloudflare; in der
+   Wirt-Ansicht erledigt das der Dienst mit Schritt 4. Erst danach,
+   keinesfalls vorher:
    ```bash
    cd server
    printf '%s' "willkommen@wirtschaft-dornbirn.at" | npx wrangler@4 secret put BREVO_ABSENDER
@@ -230,8 +237,8 @@ muss, ist der von Montag, 21.09., um 08:00.
 | Domain bei Brevo anlegen | erledigt – beide Domains, im Brevo-Konto des Hauses (von Sarah angelegt) |
 | DNS-Einträge setzen | erledigt – Sarah mit Markus, bei Hetzner |
 | *Authenticate* | Sarah, im Brevo-Konto des Hauses |
-| API-Schlüssel des Hauses als `BREVO_KEY` | Jonas, gemeinsam mit dem Haus |
-| Absender umstellen | der Dienst, nach Beglaubigung und Schlüssel |
+| API-Schlüssel des Hauses | Sarah, selbst in der Wirt-Ansicht (seit 15.11.2026) |
+| Absender umstellen | der Dienst, zusammen mit dem Schlüssel – nach bestandener Prüfung |
 | Probe fahren | der Dienst |
 
 Der Zugang zur Zone ist da; eine Ausweichdomain braucht es nicht.

@@ -103,7 +103,10 @@ export const BLOECKE = [
   { id: 'sperreKasten', titel: 'Tische sperren', an: true, reiter: 'haus' },
   { id: 'tischzuweisung', titel: 'Tischzuweisung im Gästeblatt', an: false, reiter: 'haus', ohneBlock: true },
   { id: 'fertigKasten', titel: 'Wer meldet, dass das Essen fertig ist', an: true, reiter: 'haus' },
-  { id: 'abschluss', titel: 'Einrichten-Link und „Tag leeren“', an: true, reiter: 'haus' }
+  { id: 'abschluss', titel: 'Einrichten-Link und „Tag leeren“', an: true, reiter: 'haus' },
+  // 15.11.2026: einmal im Leben gebraucht, dann nie wieder - deshalb ganz
+  // unten. Die Anleitung fuer Sarah sagt, wo er steht.
+  { id: 'mailKasten', titel: 'Mailversand – euer Brevo-Konto', an: true, reiter: 'haus' }
 ];
 
 const reiterVon = id => BLOECKE.find(b => b.id === id)?.reiter || 'haus';

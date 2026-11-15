@@ -171,8 +171,8 @@ nur dann sind Hauptdomain und Cloudflare Access ohne Umweg möglich).
 Einträge erledigt – Sarah mit Markus; offen *Authenticate* und der Schlüssel)
 1. Konto auf brevo.com anlegen (Gratisstufe) – **erledigt** (Sarah). Unter
    *SMTP & API* einen **API-Schlüssel** erzeugen – er wird genau einmal
-   angezeigt. Der Schlüssel ist **noch offen**; in den Dienst kommt er erst
-   nach *Authenticate* (Schritt 6).
+   angezeigt. Der Schlüssel ist **noch offen**; Sarah fügt ihn nach
+   *Authenticate* (Schritt 6) selbst in der Wirt-Ansicht ein (Schritt 7).
 2. *Senders, Domains & Dedicated IPs → Domains → Add a domain*:
    `wirtschaft-dornbirn.at` und `eugen.family` – **erledigt**. Brevo zeigt je
    Domain vier Einträge (zwei DKIM-CNAME, einen `brevo-code`-TXT, einen
@@ -189,12 +189,17 @@ Einträge erledigt – Sarah mit Markus; offen *Authenticate* und der Schlüssel
    angezeigten Ziele eintragen (`umzug-domain-plan.md` §2a).
 6. Warten, bis die Einträge sichtbar sind (`dig +short …`), dann in Brevo
    „Authenticate“ – im Brevo-Konto des Hauses, für beide Domains (Sarah).
-   `GET /api/mail/domain` zeigt bis zum Schlüssel des Hauses das Konto von
-   Jonas, nicht das des Hauses.
+   Die Prüfung in der Wirt-Ansicht zeigt je Domain, ob Brevo sie als
+   beglaubigt führt.
 
 **Dienst umstellen**
-7. `secret put BREVO_KEY` (aus Schritt 1, gemeinsam hinterlegt, nicht per
-   Mail oder Chat) und **erst jetzt**
+7. Den Versand stellt Sarah selbst um (Wirt-Ansicht → haus → Mailversand,
+   seit 15.11.2026; Anleitung `mailversand-selbst-umstellen.md`): Schlüssel
+   des Hauses, `willkommen@` als Hausabsender und die Absender je Zweck auf
+   einmal, erst nach bestandener Prüfung. Nach einem Umzug des Dienstes in
+   ein anderes Cloudflare-Konto dort noch einmal – der Schlüssel steht in
+   keiner Sicherung. Der Weg über Cloudflare bleibt möglich:
+   `secret put BREVO_KEY`, **erst dann**
    `secret put BREVO_ABSENDER willkommen@wirtschaft-dornbirn.at`, danach die
    Absender je Zweck (`ABSENDER_SERVICE`, `ABSENDER_WARTELISTE`,
    `ABSENDER_KULTURHAUS`, `EVENTS_ABSENDER`).

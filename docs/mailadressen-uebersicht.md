@@ -42,9 +42,12 @@ danach wird der Absender umgestellt.
    Markus, Anfang November; von außen geprüft am 10.11.2026).
 5. **Im Brevo-Konto des Hauses beglaubigen:** bei beiden Domains auf
    *Authenticate* drücken, bis beide als beglaubigt angezeigt werden (Sarah).
-6. **Danach im selben Konto einen API-Schlüssel erzeugen** und ihn gemeinsam
-   mit Jonas im Dienst hinterlegen – nicht per Mail oder Chat schicken.
-   Grund: Der Dienst verschickt heute noch über das Brevo-Konto von Jonas,
+6. **Danach im selben Konto einen API-Schlüssel erzeugen** und ihn selbst in
+   der Wirt-Ansicht einfügen (haus → Mailversand) – nicht per Mail oder Chat
+   schicken, auch nicht an Jonas. Der Dienst prüft ihn, schickt von jeder
+   eurer fünf Absenderadressen eine Testmail und stellt erst dann um
+   (Anleitung „Mailversand selbst umstellen“, seit 15.11.2026). Grund für den
+   Wechsel: Der Dienst verschickt heute noch über das Brevo-Konto von Jonas,
    und dort sind eure Domains nicht beglaubigt. Ein eigener Benutzer für
    Jonas im Brevo-Konto kostete laut Brevo 9 € im Monat, der Schlüssel
    kostet nichts.
@@ -76,17 +79,16 @@ zu tun.
    Tageszettel und Wochenbericht an Jonas ist vorbereitet (Geheimnis
    `WIRT_MAIL_KOPIE`), aber noch nicht eingeschaltet – Jonas setzt sie
    selbst; bis dahin gibt es keine Kopie.
-3. Die Einträge bei Hetzner sind gesetzt (Sarah mit Markus, beide Domains).
-   Nach *Authenticate* den Schlüssel aus dem Brevo-Konto des Hauses als
-   Geheimnis `BREVO_KEY` hinterlegen – gemeinsam mit Sarah (Aufgabe 6 oben).
-4. **Erst danach** den Absender aller Mails auf `willkommen@` stellen
-   (`BREVO_ABSENDER`). Vorher verschickt Brevo gar nichts mehr.
-5. **Dann** die vier Absender je Zweck füllen: `ABSENDER_SERVICE`,
-   `ABSENDER_WARTELISTE`, `ABSENDER_KULTURHAUS`, `EVENTS_ABSENDER`. Welcher
-   Wert wohin: `docs/mailadressen-entscheidung.md`, Abschnitt 5.
-6. Probe: Testreservierung mit einer Gmail-Adresse → Mail muss im
+3. Den Mailversand muss der Programmierer nicht mehr umstellen: Seit
+   15.11.2026 macht das Sarah selbst in der Wirt-Ansicht (Aufgabe 6 oben).
+   Der Dienst setzt dabei Schlüssel, Hausabsender `willkommen@` und die vier
+   Absender je Zweck gemeinsam ein – erst, wenn die Prüfung bestanden ist.
+   `BREVO_KEY` und `BREVO_ABSENDER` in Cloudflare bleiben als Rückweg stehen;
+   welcher Absender wofür gilt: `docs/mailadressen-entscheidung.md`,
+   Abschnitt 5.
+4. Probe: Testreservierung mit einer Gmail-Adresse → Mail muss im
    Posteingang liegen, Absender „Wirtschaft Dornbirn ‹service@…›“.
-7. Testeinträge mit „TEST“ im Namen aus dem Betrieb löschen.
+5. Testeinträge mit „TEST“ im Namen aus dem Betrieb löschen.
 
 ---
 
@@ -94,7 +96,7 @@ zu tun.
 
 | Adresse | Was sie ist | Gibt es sie schon? |
 |---|---|---|
-| **willkommen@wirtschaft-dornbirn.at** | **Die Adresse für Gäste.** Steht auf der Webseite. Wird der Hausabsender der automatischen Mails, die keinen eigenen Absender je Zweck haben (Programmierer-Aufgabe 5) – antwortet ein Gast auf so eine Mail, landet es hier. Die Anfragen gehen seit 10.11.2026 an `uri@eugen.family` (siehe unten). | ja – liest der Service / das Büro täglich |
+| **willkommen@wirtschaft-dornbirn.at** | **Die Adresse für Gäste.** Steht auf der Webseite. Wird der Hausabsender der automatischen Mails, die keinen eigenen Absender je Zweck haben (nach dem Umstellen in der Wirt-Ansicht) – antwortet ein Gast auf so eine Mail, landet es hier. Die Anfragen gehen seit 10.11.2026 an `uri@eugen.family` (siehe unten). | ja – liest der Service / das Büro täglich |
 | **veranstaltungen@wirtschaft-dornbirn.at** | **Die Adresse für die Technik** (so entschieden am 27.10.). Inhaberin der drei Konten (GitHub, Cloudflare, Brevo). Hierhin kommen Rechnungen (0 €), Warnungen und „Passwort zurücksetzen“ – und der Tageszettel. Kein Gast sieht sie. | **ja, gibt es schon** (liest Hannah) |
 | **buero@wirtschaft-dornbirn.at** *(entfällt)* | War als Adresse für den Mittag gedacht – nicht nötig: Tageszettel und Wochenbericht gehen an `veranstaltungen@`, jede Takeaway-Bestellung an `service@` (entschieden am 27.10.). | nein – nicht nötig |
 | **uri@eugen.family** | **Die Adresse von Emma & Eugen.** Bekommt seit 10.11.2026 alle Anfragen aus „Locations · Feste & Catering“ und „Agentur“ – „Antworten“ geht an den Gast. Steht als Veranstalter der Abende im Fuß der Seite. Soll künftig die Terminliste versenden. | ja – lesen Wolfgang und Hannah |
@@ -130,8 +132,8 @@ Brevo-Einträge hat sie mit Markus Anfang November gesetzt.
 ## Was passiert, wenn … – alle Fälle in einfachen Worten
 
 Für jeden Fall: wer eine Mail bekommt, **von welcher Adresse** sie kommt, und
-wo bei euch etwas ankommt. „Absender“ heißt: heute noch Jonas, nach
-Aufgabe 4 des Programmierers `willkommen@`, nach Aufgabe 5 je Zweck der
+wo bei euch etwas ankommt. „Absender“ heißt: heute noch Jonas, nach dem
+Umstellen in der Wirt-Ansicht (Aufgabe 6) `willkommen@` oder je Zweck der
 eigene Absender (etwa `service@` für Reservierungen). Antwortet jemand auf
 eine automatische Mail, landet die Antwort beim Absender – nur die
 Bestätigung einer Anfrage antwortet an `uri@eugen.family`.
@@ -214,17 +216,17 @@ unsere Empfehlung.
 | 4b | `TAKEAWAY_MAIL` ebenda (**neu**) | – | **erledigt**: `service@` (jede Bestellmeldung) | – |
 | 4c | `WIRT_MAIL_KOPIE` (Geheimnis, **neu**) | – | Kopie von Tageszettel und Wochenbericht an die Adresse von Jonas (Antwort vom 03.11.) – **vorbereitet, noch nicht gesetzt**; bis dahin keine Kopie | Jonas |
 | 5 | Domains bei Brevo bestätigen: *Senders & Domains → Domain hinzufügen*, die vier Einträge bei Hetzner (DNS) anlegen, SPF um `include:spf.brevo.com` ergänzen, dann *Authenticate* | beide Domains angelegt, Einträge und SPF **gesetzt** (Sarah mit Markus; von außen geprüft am 10.11.2026), *Authenticate* fehlt | bestätigt | Sarah (Brevo-Konto des Hauses) |
-| 6 | `BREVO_ABSENDER` (Geheimnis des Dienstes, `wrangler secret put`) | die Adresse von Jonas | `willkommen@wirtschaft-dornbirn.at` – **erst nach #5 und #8** | Programmierer |
-| 7 | `EVENTS_ABSENDER` in `server/wrangler.jsonc` | leer (= Hausabsender) | `uri@eugen.family` – erst nach #5 und #8 (mit Uri ist nichts mehr zu klären) | Programmierer |
-| 7b | `ABSENDER_SERVICE`, `ABSENDER_WARTELISTE`, `ABSENDER_KULTURHAUS` (**neu**) | leer (= Hausabsender) | `service@`, `veranstaltungen@`, `tickets@eugen.family` – erst nach #5 und #8 | Programmierer |
-| 8 | `BREVO_KEY` (Geheimnis) | Schlüssel aus Jonas' Konto | neuer Schlüssel aus dem Brevo-Konto des Hauses – nach #5, **vor #6**; gemeinsam hinterlegt, nicht per Mail oder Chat (ein zweiter Benutzer kostete laut Brevo 9 € im Monat) | Programmierer mit Sarah |
+| 6 | Hausabsender (bisher Geheimnis `BREVO_ABSENDER`) | die Adresse von Jonas | `willkommen@wirtschaft-dornbirn.at` – setzt der Dienst beim Umstellen in der Wirt-Ansicht, zusammen mit #8; das Geheimnis bleibt als Rückweg | Sarah (Wirt-Ansicht) |
+| 7 | `EVENTS_ABSENDER` in `server/wrangler.jsonc` | leer (= Hausabsender) | `uri@eugen.family` – setzt der Dienst beim Umstellen mit; das Feld bleibt leer (mit Uri ist nichts mehr zu klären) | Sarah (Wirt-Ansicht) |
+| 7b | `ABSENDER_SERVICE`, `ABSENDER_WARTELISTE`, `ABSENDER_KULTURHAUS` (**neu**) | leer (= Hausabsender) | `service@`, `veranstaltungen@`, `tickets@eugen.family` – setzt der Dienst beim Umstellen mit; die Felder bleiben leer | Sarah (Wirt-Ansicht) |
+| 8 | `BREVO_KEY` (Geheimnis) | Schlüssel aus Jonas' Konto | neuer Schlüssel aus dem Brevo-Konto des Hauses – nach #5; Sarah fügt ihn selbst in der Wirt-Ansicht ein (haus → Mailversand), nicht per Mail oder Chat; ein zweiter Benutzer kostete laut Brevo 9 € im Monat | Sarah (Wirt-Ansicht) |
 | 9 | Fehlermail von GitHub | an Jonas | an `veranstaltungen@` (ergibt sich mit #2) | – |
 | 10 | Kontaktadresse beim Registrar der Domain (Hetzner-Kundenkonto) | unbekannt | `willkommen@` + die private Reserveadresse von Hannah (entschieden am 27.10.; die Adresse selbst steht im Entscheidungsblatt, nicht hier) | Hannah |
 | 11 | Automatische Antwort im Postfach `willkommen@` | keine | **entfällt**: keine automatische Antwort (so entschieden) | – |
 | 12 | Veranstalter-Kontakt `uri@` im Fuß der Seite und in `termine.json` | uri@eugen.family | bleibt (Frage 11) | – |
 | 13 | Testeinträge „TEST“ im Betrieb | vorhanden | gelöscht | Programmierer |
 
-**So prüft ihr, dass es geklappt hat** (nach #5, #8 und #6): Testreservierung
+**So prüft ihr, dass es geklappt hat** (nach dem Umstellen): Testreservierung
 mit einer Gmail-Adresse → die Bestätigung liegt im Posteingang (nicht Spam)
 und zeigt „Wirtschaft Dornbirn ‹willkommen@…›“ als Absender. Auf die Mail
 antworten → die Antwort kommt in `willkommen@` an. Eine Anfrage über
@@ -279,7 +281,7 @@ Webseite sagt dasselbe für Gäste.
 
 ## Zum Ausdrucken
 
-- **Gäste schreiben an:** `willkommen@` · **Antworten auf automatische Mails** gehen an deren Absender: `willkommen@` oder je Zweck `service@`, `veranstaltungen@`, `tickets@eugen.family` *(sobald die Programmierer-Aufgaben 4 und 5 erledigt sind – bis dahin noch Jonas)*
+- **Gäste schreiben an:** `willkommen@` · **Antworten auf automatische Mails** gehen an deren Absender: `willkommen@` oder je Zweck `service@`, `veranstaltungen@`, `tickets@eugen.family` *(sobald Sarah in der Wirt-Ansicht umgestellt hat – bis dahin noch Jonas)*
 - **Anfragen kommen an:** `uri@eugen.family` (seit 10.11.2026) – „Antworten“ geht an den Gast
 - **Tageszettel und Wochenbericht:** `veranstaltungen@` · **jede Takeaway-Bestellung:** `service@`
 - **Technik, Rechnungen, Passwörter:** `veranstaltungen@` – gibt es schon

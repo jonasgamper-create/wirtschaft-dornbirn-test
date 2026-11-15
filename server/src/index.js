@@ -65,6 +65,10 @@ import {
 } from './takeaway.mjs';
 import { fortgeschrieben, montagDanach, naechsteWoche, normalisiereMenueplan, takeawayAusPlan } from './menueplan.mjs';
 import { TABELLEN, pruefeSicherung, zeileNachAussen, zeileNachInnen, SICHERUNG_VERSION } from './sicherung.mjs';
+import {
+  BREVO_API, HAUS_ABSENDER, PRUEFUNG_GILT_MS, PRUEFUNGEN_JE_STUNDE, VERSUCHE_JE_STUNDE, absenderFuer,
+  gueltigeEinrichtung, liesAdresse, liesSchluessel, pruefeVersand, pruefungGilt, schluesselEnde
+} from './mailversand.mjs';
 
 const HAUS = 'wirtschaft-dornbirn';
 
@@ -291,6 +295,16 @@ export class Haus extends DurableObject {
           daten TEXT NOT NULL
         )
       `);
+      // Seit 15.11.2026: was in keine Sicherung gehoert - der Brevo-Schluessel,
+      // den das Haus in der Wirt-Ansicht eintraegt (mailversand.mjs). Bewusst
+      // nicht in TABELLEN (sicherung.mjs): eine Sicherungsdatei wird
+      // herumgereicht, ein Schluessel nie.
+      this.ctx.storage.sql.exec(`
+        CREATE TABLE IF NOT EXISTS geheimnisse (
+          name TEXT PRIMARY KEY,
+          wert TEXT NOT NULL
+        )
+      `);
     });
   }
 
@@ -333,10 +347,221 @@ export class Haus extends DurableObject {
    * @param haus  bei 'warteliste': 'kulturhaus' oder 'wirtschaft'
    */
   #absender(zweck, haus = 'wirtschaft') {
+    // Hat das Haus den Versand selbst umgestellt (Wirt-Ansicht, 15.11.2026),
+    // gelten seine Absender je Zweck - alle auf einmal, zusammen mit seinem
+    // Schluessel (siehe #mailEnv).
+    const eigen = this.#mailHaus()?.absender;
+    if (eigen) return absenderFuer(eigen, zweck === 'warteliste' ? 'warteliste' : 'service', haus);
     const wahl = zweck === 'warteliste'
       ? (haus === 'kulturhaus' ? this.env?.ABSENDER_KULTURHAUS : this.env?.ABSENDER_WARTELISTE)
       : this.env?.ABSENDER_SERVICE;
     return String(wahl || this.env?.BREVO_ABSENDER || '');
+  }
+
+  // ---- Mailversand: womit verschickt wird (15.11.2026, mailversand.mjs) -------
+  //
+  // Bis das Haus umstellt, gilt, was in Cloudflare steht (BREVO_KEY,
+  // BREVO_ABSENDER, ABSENDER_*). Danach gilt die Einrichtung des Hauses aus
+  // der Tabelle geheimnisse - Schluessel und alle Absender gemeinsam, nie das
+  // eine ohne das andere.
+
+  /** Nur im echten Dienst: die Testumgebung verschickt nie Mails. */
+  #mailversandErlaubt() {
+    return String(this.env?.MAILVERSAND_EINRICHTEN || '').toLowerCase() === 'ja';
+  }
+
+  /** Die Einrichtung des Hauses, wenn sie vollstaendig ist und gelten darf. */
+  #mailHaus() {
+    if (!this.#mailversandErlaubt()) return null;
+    return gueltigeEinrichtung(this.#geheim('mailversand'));
+  }
+
+  /** Die Umgebung fuer sendeMail: mit Schluessel und Hausabsender des Hauses, sonst die aus Cloudflare. */
+  #mailEnv() {
+    const eigen = this.#mailHaus();
+    return eigen ? { ...this.env, BREVO_KEY: eigen.schluessel, BREVO_ABSENDER: eigen.absender.haupt } : this.env;
+  }
+
+  /** Der Hausabsender: Tageszettel, Wochenbericht, Wochenkarte, Anfragen. */
+  #hausAbsender() {
+    const eigen = this.#mailHaus()?.absender;
+    return String((eigen && absenderFuer(eigen, 'haupt')) || this.env?.BREVO_ABSENDER || '');
+  }
+
+  /**
+   * Der eine Weg hinaus. Merkt sich den letzten Erfolg und die Art des
+   * letzten Fehlers (nie den Inhalt) - die Wirt-Ansicht zeigt unter
+   * "Mailversand", ob es laeuft, und wenn nicht, warum.
+   */
+  async #sende(paket) {
+    // Die Testumgebung verschickt nie - auch dann nicht, wenn dort jemand
+    // Geheimnisse fuer den Versand setzt.
+    if (String(this.env?.MAILVERSAND_EINRICHTEN || '').toLowerCase() === 'nein') return { ok: false, grund: 'testumgebung' };
+    const ergebnis = await sendeMail(this.#mailEnv(), paket);
+    try {
+      if (ergebnis?.grund !== 'nicht_eingerichtet') {
+        const bisher = this.#lies('mailVersand', null) || {};
+        const jetzt = new Date().toISOString();
+        if (ergebnis?.ok) {
+          // Hoechstens einmal je Minute schreiben - der Wochenkarte-Versand
+          // schickt viele Mails hintereinander. Ausser nach einem Fehler: dann
+          // sofort, sonst stuende der Fehler weiter als der neueste da.
+          const fehlerNeuer = bisher.fehler && (!bisher.ok || Date.parse(bisher.fehler.zeit) >= Date.parse(bisher.ok));
+          if (fehlerNeuer || !bisher.ok || Date.parse(jetzt) - Date.parse(bisher.ok) > 60000) this.#schreib('mailVersand', { ...bisher, ok: jetzt });
+        } else {
+          this.#schreib('mailVersand', { ...bisher, fehler: { zeit: jetzt, art: String(ergebnis?.art || ergebnis?.grund || 'unbekannt'), status: Number(ergebnis?.status) || 0 } });
+        }
+      }
+    } catch { /* die Buchfuehrung darf den Versand nie aufhalten */ }
+    return ergebnis;
+  }
+
+  /**
+   * Was die Wirt-Ansicht unter "Mailversand" zeigt. Nie den Schluessel -
+   * nur seine letzten vier Zeichen.
+   */
+  mailversandStand() {
+    const erlaubt = this.#mailversandErlaubt();
+    const eigen = this.#mailHaus();
+    let probe = erlaubt ? this.#geheim('mailversandProbe') : null;
+    // Eine abgelaufene Pruefung haelt noch einen Schluessel: weg damit.
+    if (probe && !pruefungGilt(probe)) {
+      this.#geheimSchreib('mailversandProbe', null);
+      probe = null;
+    }
+    const versand = this.#lies('mailVersand', null);
+    return {
+      ok: true,
+      erlaubt,
+      aktiv: Boolean(eigen),
+      seit: eigen?.seit || null,
+      konto: eigen?.konto || null,
+      schluessel: eigen ? schluesselEnde(eigen.schluessel) : '',
+      absender: eigen ? { ...eigen.absender } : null,
+      bisher: Boolean(this.env?.BREVO_KEY && this.env?.BREVO_ABSENDER),
+      pruefung: probe
+        ? { id: probe.id || '', an: probe.an, geprueftAm: probe.geprueftAm, gueltigBis: probe.gueltigBis, konto: probe.konto || null, schluessel: schluesselEnde(probe.schluessel) }
+        : null,
+      zuletzt: versand && (versand.ok || versand.fehler) ? { ok: versand.ok || null, fehler: versand.fehler || null } : null
+    };
+  }
+
+  /**
+   * Schritt 1: pruefen. Aendert am laufenden Versand nichts - schickt nur die
+   * Testmails und merkt sich eine bestandene Pruefung fuer zwei Stunden.
+   */
+  async mailversandPruefen(roh) {
+    if (!this.#mailversandErlaubt()) return { ok: false, grund: 'testumgebung' };
+    // Jeder neue Versuch macht eine fruehere, noch nicht umgestellte Pruefung
+    // ungueltig - auch ein Tippfehler. Umgestellt wird nur, was zuletzt
+    // bestanden hat, nie ein aelterer Schluessel.
+    this.#geheimSchreib('mailversandProbe', null);
+    const schluessel = liesSchluessel(roh?.schluessel);
+    if (!schluessel.ok) return { ok: false, grund: schluessel.grund };
+    const an = liesAdresse(roh?.an);
+    if (!an.ok) return { ok: false, grund: 'an' };
+    const jetzt = Date.now();
+    const fenster = name => (this.#lies(name, []) || []).filter(t => Number.isFinite(t) && Date.now() - t < 3600000);
+    // Zwei Grenzen: Anfragen bei Brevo (ein falscher Schluessel kostet keine
+    // Mail) und Pruefungen, die wirklich fuenf Testmails verschicken.
+    const versuche = fenster('mailversandVersuche');
+    if (versuche.length >= VERSUCHE_JE_STUNDE) return { ok: false, grund: 'zu_oft' };
+    this.#schreib('mailversandVersuche', [...versuche, jetzt]);
+    const vorDemVersand = () => {
+      const mails = fenster('mailversandFenster');
+      if (mails.length >= PRUEFUNGEN_JE_STUNDE) return false;
+      this.#schreib('mailversandFenster', [...mails, Date.now()]);
+      return true;
+    };
+
+    const ergebnis = await pruefeVersand({ schluessel: schluessel.schluessel, an: an.an, vorDemVersand });
+    if (!ergebnis.ok) return { ...ergebnis, an: an.an };
+    const gueltigBis = new Date(jetzt + PRUEFUNG_GILT_MS).toISOString();
+    const id = crypto.randomUUID();
+    this.#geheimSchreib('mailversandProbe', {
+      id, schluessel: schluessel.schluessel, an: an.an, konto: ergebnis.konto, domains: ergebnis.domains,
+      geprueftAm: new Date(jetzt).toISOString(), gueltigBis
+    });
+    return { ...ergebnis, an: an.an, gueltigBis, id, schluessel: schluesselEnde(schluessel.schluessel) };
+  }
+
+  /** Schritt 2: umstellen - Schluessel und alle Absender auf einmal. */
+  mailversandUmstellen(roh = {}) {
+    if (!this.#mailversandErlaubt()) return { ok: false, grund: 'testumgebung' };
+    const probe = this.#geheim('mailversandProbe');
+    if (!probe) return { ok: false, grund: 'keine_pruefung' };
+    if (!pruefungGilt(probe)) {
+      this.#geheimSchreib('mailversandProbe', null);
+      return { ok: false, grund: 'pruefung_abgelaufen' };
+    }
+    // Nur die Pruefung, deren Testmails dieses Geraet gemeldet hat - pruefen
+    // zwei Geraete kurz nacheinander, gilt nicht stillschweigend die andere.
+    if (!roh?.id || roh.id !== probe.id) return { ok: false, grund: 'pruefung_veraltet' };
+    const einrichtung = {
+      schluessel: probe.schluessel, absender: { ...HAUS_ABSENDER }, konto: probe.konto || null,
+      domains: probe.domains || null, testAn: probe.an, seit: new Date().toISOString()
+    };
+    if (!gueltigeEinrichtung(einrichtung)) return { ok: false, grund: 'unvollstaendig' };
+    // Offene Reservierungen behalten im Kalender ihren Veranstalter: eine
+    // Absage nach dem Umstellen kaeme sonst von einer anderen Adresse, und
+    // Outlook und Google uebernehmen sie dann oft nicht (#merkeOrganisator).
+    const vorher = String(this.env?.ABSENDER_SERVICE || this.env?.BREVO_ABSENDER || '');
+    if (vorher) {
+      const heute = jetztImHaus().datum;
+      for (const party of this.#alle()) {
+        if (party.date >= heute && party.status !== 'storniert' && party.kontakt?.email && !party.organisator) {
+          this.#sichere({ ...party, organisator: vorher });
+        }
+      }
+    }
+    this.#geheimSchreib('mailversand', einrichtung);
+    this.#geheimSchreib('mailversandProbe', null);
+    // Ein frischer Anfang fuer "zuletzt verschickt / letzter Fehler".
+    this.#schreib('mailVersand', null);
+    return { ...this.mailversandStand(), umgestellt: true };
+  }
+
+  /** Schritt 3, falls noetig: zurueck - es gilt wieder, was in Cloudflare steht. */
+  mailversandZurueck() {
+    this.#geheimSchreib('mailversand', null);
+    this.#geheimSchreib('mailversandProbe', null);
+    this.#schreib('mailVersand', null);
+    return { ...this.mailversandStand(), zurueck: true };
+  }
+
+  /** Abbrechen: die bestandene, noch nicht umgestellte Pruefung samt Schluessel weg. */
+  mailversandAbbrechen() {
+    this.#geheimSchreib('mailversandProbe', null);
+    return { ...this.mailversandStand(), abgebrochen: true };
+  }
+
+  /**
+   * Fuer die Pruef-Endpunkte (/api/mail/domain, /api/mail/pruefung): der
+   * Aufruf bei Brevo mit dem Schluessel, mit dem gerade verschickt wird. Er
+   * passiert hier im Dienst, damit der Schluessel ihn nie verlaesst - und nur
+   * fuer diese Pfade.
+   */
+  async mailBrevo(pfad, { methode = 'GET', koerper = null } = {}) {
+    const erlaubt = methode === 'GET'
+      ? /^\/senders(\/domains)?$|^\/smtp\/statistics\/events\?[\w=&%.@+-]*$/.test(String(pfad))
+      : methode === 'POST' && pfad === '/senders/domains';
+    if (!erlaubt) return { ok: false, grund: 'pfad' };
+    const env = this.#mailEnv();
+    const schluessel = String(env?.BREVO_KEY || '');
+    if (!schluessel) return { ok: false, grund: 'nicht_eingerichtet' };
+    try {
+      const antwort = await fetch(`${BREVO_API}${pfad}`, {
+        method: methode,
+        headers: { 'api-key': schluessel, accept: 'application/json', ...(koerper ? { 'content-type': 'application/json' } : {}) },
+        body: koerper ? JSON.stringify(koerper) : undefined
+      });
+      return {
+        ok: true, status: antwort.status, daten: await antwort.json().catch(() => ({})),
+        quelle: this.#mailHaus() ? 'haus' : 'cloudflare', absender: String(env?.BREVO_ABSENDER || '')
+      };
+    } catch {
+      return { ok: false, grund: 'netz' };
+    }
   }
 
   /** Beleg an den Gast (wenn er eine Adresse angegeben hat) und Bestellung ans Haus. */
@@ -352,7 +577,7 @@ export class Haus extends DurableObject {
         telefon: bestellung.telefon || '', email: bestellung.email || '',
         statusLink: seite ? `${seite}/takeaway.html?bestellung=${bestellung.token}` : ''
       });
-      arbeiten.push(sendeMail(this.env, brevoPaket({ absender, an: bestellung.email, anName: bestellung.name, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text })));
+      arbeiten.push(this.#sende(brevoPaket({ absender, an: bestellung.email, anName: bestellung.name, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text })));
     }
     // Frage 7 vom 27.10.2026: die Bestellmeldung geht an den Service, nicht
     // an die Adresse des Tageszettels. Leer heisst: wie bisher WIRT_MAIL.
@@ -364,7 +589,7 @@ export class Haus extends DurableObject {
         vorbestellung: bestellung.vorbestellung, eng: bestellung.eng,
         wirtLink: seite ? `${seite}/tischplan/wirt.html` : ''
       });
-      arbeiten.push(sendeMail(this.env, brevoPaket({ absender, an: haus, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text })));
+      arbeiten.push(this.#sende(brevoPaket({ absender, an: haus, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text })));
     }
     await Promise.allSettled(arbeiten);
   }
@@ -535,6 +760,25 @@ export class Haus extends DurableObject {
     );
   }
 
+  /** Ein Geheimnis lesen (Tabelle geheimnisse - nie in einer Sicherung). */
+  #geheim(name) {
+    const row = this.ctx.storage.sql.exec('SELECT wert FROM geheimnisse WHERE name = ?', name).toArray()[0];
+    if (!row) return null;
+    try { return JSON.parse(row.wert); } catch { return null; }
+  }
+
+  /** Ein Geheimnis schreiben - null loescht es. */
+  #geheimSchreib(name, wert) {
+    if (wert === null || wert === undefined) {
+      this.ctx.storage.sql.exec('DELETE FROM geheimnisse WHERE name = ?', name);
+      return;
+    }
+    this.ctx.storage.sql.exec(
+      'INSERT INTO geheimnisse (name, wert) VALUES (?, ?) ON CONFLICT(name) DO UPDATE SET wert = excluded.wert',
+      name, JSON.stringify(wert)
+    );
+  }
+
   #alle() {
     return this.ctx.storage.sql.exec('SELECT daten FROM reservierungen').toArray()
       .map(row => JSON.parse(row.daten));
@@ -546,9 +790,19 @@ export class Haus extends DurableObject {
   }
 
   #sichere(party) {
+    // Den gemerkten Kalender-Veranstalter nie verlieren (#merkeOrganisator):
+    // wer eine aeltere Fassung des Eintrags speichert, kennt ihn noch nicht.
+    let daten = party;
+    if (party && !party.organisator) {
+      const zeile = this.ctx.storage.sql.exec('SELECT daten FROM reservierungen WHERE id = ?', party.id).toArray()[0];
+      try {
+        const alt = zeile ? JSON.parse(zeile.daten) : null;
+        if (alt?.organisator) daten = { ...party, organisator: alt.organisator };
+      } catch { /* kaputte Zeile: dann eben ohne */ }
+    }
     this.ctx.storage.sql.exec(
       'INSERT INTO reservierungen (id, tag, daten) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET tag = excluded.tag, daten = excluded.daten',
-      party.id, party.date, JSON.stringify(party)
+      daten.id, daten.date, JSON.stringify(daten)
     );
   }
 
@@ -938,10 +1192,28 @@ export class Haus extends DurableObject {
     }
   }
 
+  /**
+   * Der Veranstalter im Kalender des Gastes bleibt der der ersten
+   * Bestaetigung (15.11.2026). Stellt das Haus den Absender um, kaeme eine
+   * spaetere Absage sonst von einer anderen Adresse - und Outlook und Google
+   * uebernehmen eine Absage oft nur vom urspruenglichen Veranstalter. Gemerkt
+   * am Eintrag; hat er noch keinen, gilt ab jetzt dieser.
+   */
+  #merkeOrganisator(party, absender) {
+    if (party?.organisator) return party.organisator;
+    const zeile = this.ctx.storage.sql.exec('SELECT daten FROM reservierungen WHERE id = ?', party?.id).toArray()[0];
+    let gespeichert = null;
+    try { gespeichert = zeile ? JSON.parse(zeile.daten) : null; } catch { gespeichert = null; }
+    if (gespeichert?.organisator) return gespeichert.organisator;
+    if (gespeichert) this.#sichere({ ...gespeichert, organisator: absender });
+    return absender;
+  }
+
   async #schickeBestaetigung(party, { tisch, etage, basis }) {
     if (!party.kontakt?.email) return { ok: false, grund: 'keine_mail' };
     const absender = this.#absender('service');
     if (!absender) return { ok: false, grund: 'nicht_eingerichtet' };
+    const organisator = this.#merkeOrganisator(party, absender);
 
     const termin = baueTermin({
       uid: party.uid,
@@ -954,7 +1226,7 @@ export class Haus extends DurableObject {
       gaeste: party.guests,
       tisch,
       etage,
-      absender
+      absender: organisator
     });
     // Terminhinweise nur, wenn ihnen nicht widersprochen wurde. Der Block
     // faellt sonst ersatzlos weg - die Bestaetigung selbst bleibt gleich.
@@ -972,7 +1244,7 @@ export class Haus extends DurableObject {
       events: stumm ? [] : naechsteEvents(party.date),
       widerspruchLink: stumm ? '' : `${basis}/termine/aus?t=${party.token}`
     });
-    return sendeMail(this.env, brevoPaket({
+    return this.#sende(brevoPaket({
       absender,
       an: party.kontakt.email,
       anName: party.name,
@@ -992,6 +1264,8 @@ export class Haus extends DurableObject {
     if (!party.kontakt?.email) return { ok: false, grund: 'keine_mail' };
     const absender = this.#absender('service');
     if (!absender) return { ok: false, grund: 'nicht_eingerichtet' };
+    // Derselbe Veranstalter wie in der Bestaetigung (#merkeOrganisator).
+    const organisator = this.#merkeOrganisator(party, absender);
 
     const termin = baueTermin({
       uid: party.uid,
@@ -1003,12 +1277,12 @@ export class Haus extends DurableObject {
       zeit: party.time,
       gaeste: party.guests,
       grund,
-      absender
+      absender: organisator
     });
     const inhalt = absageMail({
       name: party.name, tag: party.date, zeit: party.time, gaeste: party.guests, grund, vomHaus
     });
-    return sendeMail(this.env, brevoPaket({
+    return this.#sende(brevoPaket({
       absender,
       an: party.kontakt.email,
       anName: party.name,
@@ -1081,7 +1355,7 @@ export class Haus extends DurableObject {
       name: dran.name, tag: datum, personen: dran.personen,
       buchungsLink: `${seite}/tischreservierung.html?tag=${datum}`
     });
-    this.ctx.waitUntil(sendeMail(this.env, brevoPaket({
+    this.ctx.waitUntil(this.#sende(brevoPaket({
       absender, an: dran.email, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
     })));
   }
@@ -1146,7 +1420,7 @@ export class Haus extends DurableObject {
       name: eintrag.name, tag: eintrag.datum, personen: eintrag.personen,
       buchungsLink: `${seite}/tischreservierung.html?tag=${eintrag.datum}`
     });
-    return sendeMail(this.env, brevoPaket({
+    return this.#sende(brevoPaket({
       absender, an: eintrag.email, anName: eintrag.name,
       betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
     }));
@@ -1248,7 +1522,7 @@ export class Haus extends DurableObject {
           personen: geprueft.eintrag.personen || 0,
           austragLinks: ergebnis.angelegt.map(e => `${basis}/warteliste/antwort?t=${e.token}&a=austragen`)
         });
-        this.ctx.waitUntil(sendeMail(this.env, brevoPaket({
+        this.ctx.waitUntil(this.#sende(brevoPaket({
           absender, an: geprueft.eintrag.email, anName: geprueft.eintrag.name,
           betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
         })));
@@ -1334,7 +1608,7 @@ export class Haus extends DurableObject {
       keinBedarfLink: `${basis}/warteliste/antwort?t=${eintrag.token}&a=kein_bedarf`,
       hinweis: String(hinweis || '').trim().slice(0, 300)
     });
-    return sendeMail(this.env, brevoPaket({
+    return this.#sende(brevoPaket({
       absender, an: eintrag.email, anName: eintrag.name,
       betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
     }));
@@ -1484,17 +1758,17 @@ export class Haus extends DurableObject {
     this.#schreib('anfragen', raeumeAnfragenAuf([...this.#lies('anfragen', []), anfrage]));
     this.#meldeAenderung();
 
-    const absender = String(this.env?.BREVO_ABSENDER || '');
+    const absender = this.#hausAbsender();
     // Hausentscheid 03.11.2026: Anfragen an Emma & Eugen - auch dann, wenn
     // die Einstellung einmal fehlt.
     const ans = String(this.env?.ANFRAGE_MAIL || 'uri@eugen.family');
     let mailHaus = { ok: false, grund: 'nicht_eingerichtet' };
     if (absender) {
       const anHaus = anfrageAnsHaus(anfrage);
-      mailHaus = await sendeMail(this.env, brevoPaket({ absender, an: ans, betreff: anHaus.betreff, html: anHaus.html, text: anHaus.text,
+      mailHaus = await this.#sende(brevoPaket({ absender, an: ans, betreff: anHaus.betreff, html: anHaus.html, text: anHaus.text,
         antwortAn: { email: anfrage.email, name: anfrage.name } }));
       const anGast = anfrageBestaetigung(anfrage);
-      this.ctx.waitUntil(sendeMail(this.env, brevoPaket({ absender, an: anfrage.email, anName: anfrage.name,
+      this.ctx.waitUntil(this.#sende(brevoPaket({ absender, an: anfrage.email, anName: anfrage.name,
         betreff: anGast.betreff, html: anGast.html, text: anGast.text, antwortAn: { email: ans } })));
     }
     this.ctx.waitUntil(this.#pushHausAlle({
@@ -1610,14 +1884,17 @@ export class Haus extends DurableObject {
     this.ctx.waitUntil((async () => {
       // Die Terminliste ist Sache von Emma & Eugen: sie bekommt ihren eigenen
       // Absender (EVENTS_ABSENDER, muss bei Brevo bestaetigt sein), sonst den des Hauses.
-      const absender = String((eintrag.liste === 'events' && this.env?.EVENTS_ABSENDER) || this.env?.BREVO_ABSENDER || '');
+      const eigen = this.#mailHaus()?.absender;
+      const absender = eigen
+        ? absenderFuer(eigen, eintrag.liste === 'events' ? 'events' : 'haupt')
+        : String((eintrag.liste === 'events' && this.env?.EVENTS_ABSENDER) || this.env?.BREVO_ABSENDER || '');
       if (!absender) return;
       const inhalt = newsletterFrage({
         jaLink: `${basis}/newsletter/ja?t=${eintrag.token}`,
         wortlaut: eintrag.wortlaut,
         liste: eintrag.liste || 'mittagskarte'
       });
-      await sendeMail(this.env, brevoPaket({
+      await this.#sende(brevoPaket({
         absender, an: eintrag.email, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
       }));
     })());
@@ -2047,7 +2324,7 @@ export class Haus extends DurableObject {
    */
   async tageszettel() {
     const an = String(this.env?.WIRT_MAIL || '');
-    const absender = String(this.env?.BREVO_ABSENDER || '');
+    const absender = this.#hausAbsender();
     if (!an || !absender) return { ok: false, grund: 'nicht_eingerichtet' };
     // Hausentscheid 03.11.2026 (Antwort auf Frage 2): die technische
     // Betreuung bekommt eine Kopie - der Tageszettel ist ihr Lebenszeichen,
@@ -2070,7 +2347,7 @@ export class Haus extends DurableObject {
       warteliste: this.wartelisteZahl(heute),
       geschlossen: this.#geschlossen().includes(heute)
     });
-    const ergebnis = await sendeMail(this.env, brevoPaket({
+    const ergebnis = await this.#sende(brevoPaket({
       absender, an, kopie, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
     }));
     return { ok: ergebnis.ok === true };
@@ -2082,7 +2359,7 @@ export class Haus extends DurableObject {
    */
   async wochenbericht() {
     const an = String(this.env?.WIRT_MAIL || '');
-    const absender = String(this.env?.BREVO_ABSENDER || '');
+    const absender = this.#hausAbsender();
     if (!an || !absender) return { ok: false, grund: 'nicht_eingerichtet' };
     // Dieselbe Kopie wie beim Tageszettel (siehe dort).
     const kopie = String(this.env?.WIRT_MAIL_KOPIE || '');
@@ -2127,7 +2404,7 @@ export class Haus extends DurableObject {
       von, bis, tage, gaeste, reservierungen, nichtDa, bestellungen, portionen,
       umsatz: Math.round(umsatz * 100) / 100, bestseller
     });
-    const ergebnis = await sendeMail(this.env, brevoPaket({
+    const ergebnis = await this.#sende(brevoPaket({
       absender, an, kopie, betreff: inhalt.betreff, html: inhalt.html, text: inhalt.text
     }));
     return { ok: ergebnis.ok === true };
@@ -2151,8 +2428,8 @@ export class Haus extends DurableObject {
         karteLink: plan && seite ? `${seite}/mittagskarte.html` : `${basis}/mittagskarte.pdf`,
         abmeldeLink: `${basis}/newsletter/weg?t=${eintrag.token}`
       });
-      const ergebnis = await sendeMail(this.env, brevoPaket({
-        absender: String(this.env?.BREVO_ABSENDER || ''),
+      const ergebnis = await this.#sende(brevoPaket({
+        absender: this.#hausAbsender(),
         an: eintrag.email,
         betreff: inhalt.betreff,
         html: inhalt.html,
@@ -3362,6 +3639,8 @@ export default {
     // Reservierungen mit Namen und kann die Einteilung aendern.
     const offen = String(env.OFFEN || '').toLowerCase() === 'ja';
     const darf = () => offen || gleich(request.headers.get('x-haus-token'), env.HAUS_TOKEN);
+    // Fuer alles rund um den Brevo-Schluessel des Hauses: nie ueber OFFEN.
+    const echterSchluessel = () => gleich(request.headers.get('x-haus-token'), env.HAUS_TOKEN);
     const heute = new Date().toISOString().slice(0, 10);
 
     try {
@@ -3925,52 +4204,62 @@ export default {
       //
       // GET liest, POST legt eine Domain an (Brevo gibt dann dieselben
       // Eintraege zurueck). Beides nur mit Hausschluessel.
+      // Seit 15.11.2026: nur mit dem echten Hausschluessel (auch wenn OFFEN
+      // gilt) und ueber den Schluessel, mit dem gerade verschickt wird - nach
+      // dem Umstellen der des Hauses. Der Aufruf bei Brevo passiert im Dienst
+      // (mailBrevo); der Schluessel verlaesst ihn nie.
       if (url.pathname === '/api/mail/domain' && (request.method === 'GET' || request.method === 'POST')) {
-        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
-        if (!env.BREVO_KEY) return json({ ok: false, grund: 'nicht_eingerichtet' }, 200, kopf);
-        const brevo = async (pfad, koerper = null) => {
-          const antwort = await fetch(`https://api.brevo.com/v3${pfad}`, {
-            method: koerper ? 'POST' : 'GET',
-            headers: {
-              'api-key': env.BREVO_KEY,
-              accept: 'application/json',
-              ...(koerper ? { 'content-type': 'application/json' } : {})
-            },
-            body: koerper ? JSON.stringify(koerper) : undefined
-          });
-          return { status: antwort.status, daten: await antwort.json().catch(() => ({})) };
-        };
+        if (!echterSchluessel()) return json({ ok: false, grund: 'token' }, 401, kopf);
         if (request.method === 'POST') {
           const body = await request.json().catch(() => ({}));
           const name = String(body?.domain || '').trim().toLowerCase();
           if (!/^[a-z0-9.-]{4,120}\.[a-z]{2,}$/.test(name)) return json({ ok: false, grund: 'domain' }, 200, kopf);
-          const angelegt = await brevo('/senders/domains', { name });
+          const angelegt = await haus.mailBrevo('/senders/domains', { methode: 'POST', koerper: { name } });
+          if (!angelegt.ok) return json({ ok: false, grund: angelegt.grund }, 200, kopf);
           return json({ ok: angelegt.status < 300, status: angelegt.status, antwort: angelegt.daten }, 200, kopf);
         }
-        const liste = await brevo('/senders/domains');
+        const liste = await haus.mailBrevo('/senders/domains');
+        if (!liste.ok) return json({ ok: false, grund: liste.grund }, 200, kopf);
         return json({
           ok: liste.status < 300,
           status: liste.status,
-          absenderEingetragen: env.BREVO_ABSENDER || '',
+          quelle: liste.quelle,
+          absenderEingetragen: liste.absender,
           domains: liste.daten?.domains || liste.daten || null
         }, 200, kopf);
       }
 
+      // Den Mailversand selbst umstellen (15.11.2026, mailversand.mjs). Alles
+      // nur mit dem echten Hausschluessel - auch dann, wenn die Wirt-Ansicht
+      // zu Testzwecken offen steht (OFFEN). Der Schluessel des Hauses kommt in
+      // keiner Antwort wieder heraus.
+      if (url.pathname === '/api/mail/versand' && request.method === 'GET') {
+        if (!echterSchluessel()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        return json(await haus.mailversandStand(), 200, kopf);
+      }
+      if (url.pathname.startsWith('/api/mail/versand/') && request.method === 'POST') {
+        if (!echterSchluessel()) return json({ ok: false, grund: 'token' }, 401, kopf);
+        const schritt = url.pathname.slice('/api/mail/versand/'.length);
+        const body = await request.json().catch(() => ({}));
+        if (schritt === 'pruefen') return json(await haus.mailversandPruefen({ schluessel: body?.schluessel, an: body?.an }), 200, kopf);
+        if (schritt === 'umstellen') return json(await haus.mailversandUmstellen({ id: String(body?.id || '') }), 200, kopf);
+        if (schritt === 'abbrechen') return json(await haus.mailversandAbbrechen(), 200, kopf);
+        if (schritt === 'zurueck') return json(await haus.mailversandZurueck(), 200, kopf);
+        return json({ ok: false, grund: 'unbekannt' }, 404, kopf);
+      }
+
       if (url.pathname === '/api/mail/pruefung' && request.method === 'GET') {
-        if (!darf()) return json({ ok: false, grund: 'token' }, 401, kopf);
-        if (!env.BREVO_KEY) return json({ ok: false, grund: 'nicht_eingerichtet' }, 200, kopf);
+        if (!echterSchluessel()) return json({ ok: false, grund: 'token' }, 401, kopf);
         const email = String(url.searchParams.get('email') || '').trim().toLowerCase().slice(0, 120);
-        const brevo = async pfad => {
-          const antwort = await fetch(`https://api.brevo.com/v3${pfad}`, { headers: { 'api-key': env.BREVO_KEY, accept: 'application/json' } });
-          return { status: antwort.status, daten: await antwort.json().catch(() => ({})) };
-        };
         const [ereignisse, absender] = await Promise.all([
-          email ? brevo(`/smtp/statistics/events?email=${encodeURIComponent(email)}&limit=30&sort=desc`) : Promise.resolve(null),
-          brevo('/senders')
+          email ? haus.mailBrevo(`/smtp/statistics/events?email=${encodeURIComponent(email)}&limit=30&sort=desc`) : Promise.resolve(null),
+          haus.mailBrevo('/senders')
         ]);
+        if (!absender.ok) return json({ ok: false, grund: absender.grund }, 200, kopf);
         return json({
           ok: true,
-          absenderEingetragen: env.BREVO_ABSENDER || '',
+          quelle: absender.quelle,
+          absenderEingetragen: absender.absender,
           absender: (absender.daten?.senders || []).map(s => ({ email: s.email, aktiv: s.active === true })),
           ereignisse: (ereignisse?.daten?.events || []).map(e => ({
             wann: e.date, was: e.event, betreff: String(e.subject || '').slice(0, 80), von: e.from, grund: String(e.reason || '').slice(0, 160)

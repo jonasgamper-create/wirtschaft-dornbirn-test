@@ -128,6 +128,12 @@
     "ABSENDER_WARTELISTE": "",
     "ABSENDER_KULTURHAUS": "",
     "EVENTS_ABSENDER": "",
+    // Seit 15.11.2026 stellt das Haus den Versand selbst auf sein Brevo-Konto
+    // um: Wirt-Ansicht -> haus -> Mailversand (server/src/mailversand.mjs,
+    // Anleitung docs/mailversand-selbst-umstellen.md). Danach gelten dessen
+    // Schluessel und die Absender aus dem Hausentscheid, die vier Felder oben
+    // nicht mehr. "ja" nur hier im echten Dienst - die Probe verschickt nie.
+    "MAILVERSAND_EINRICHTEN": "ja",
     // Die Gaesteseite - fuer Links in Mails (Warteliste).
     "GAESTE_SEITE": "https://wirtschaft-dornbirn.pages.dev"
   },
@@ -208,6 +214,9 @@
         "ABSENDER_WARTELISTE": "",
         "ABSENDER_KULTURHAUS": "",
         "EVENTS_ABSENDER": "",
+        // Die Probe verschickt nie Mails - auch nicht, wenn jemand dort einen
+        // Brevo-Schluessel eintraegt.
+        "MAILVERSAND_EINRICHTEN": "nein",
         "GAESTE_SEITE": "https://wirtschaft-dornbirn.pages.dev"
       }
     }

@@ -180,18 +180,22 @@ und läuft weiter wie bisher. Was fehlt, sind Einträge *in* der Domain.
 **Noch offen in Etappe 4, in dieser Reihenfolge:**
 
 1. *Authenticate* für beide Domains im Brevo-Konto des Hauses (Sarah).
-2. Ein API-Schlüssel aus diesem Konto, den Jonas gemeinsam mit Sarah als
-   Geheimnis `BREVO_KEY` im Dienst hinterlegt – nicht per Mail oder Chat.
+2. Ein API-Schlüssel aus diesem Konto (Sarah) – nicht per Mail oder Chat.
    Grund: Der Dienst sendet heute über das Brevo-Konto von Jonas, und dort
    sind die Domains des Hauses nicht beglaubigt. Ein zweiter Benutzer im
    Brevo-Konto kostete laut Brevo 9 € im Monat, der Schlüssel nichts.
-3. Erst dann `BREVO_ABSENDER` = `willkommen@wirtschaft-dornbirn.at` und die
-   Absender je Zweck (`docs/mailadressen-entscheidung.md`, Abschnitt 5).
-   Umgekehrt verschickt Brevo gar nichts mehr.
+3. Sarah fügt den Schlüssel selbst in der Wirt-Ansicht ein (haus →
+   Mailversand, seit 15.11.2026; Anleitung
+   `docs/mailversand-selbst-umstellen.md`). Der Dienst prüft Schlüssel und
+   Domains, schickt von jeder der fünf Absenderadressen eine Testmail und
+   stellt erst dann um – Schlüssel, Hausabsender
+   `willkommen@wirtschaft-dornbirn.at` und die Absender je Zweck auf einmal
+   (`docs/mailadressen-entscheidung.md`, Abschnitt 5). Umgekehrt verschickte
+   Brevo gar nichts mehr; deshalb lässt die Wirt-Ansicht nichts anderes zu.
 
-Bis Schritt 2 erledigt ist, zeigen `/api/mail/domain` und
-`/api/mail/pruefung` das Brevo-Konto von Jonas, nicht das des Hauses.
-Maßgeblich für *Authenticate* ist die Anzeige im Brevo-Konto des Hauses.
+`/api/mail/domain` und `/api/mail/pruefung` fragen seit 15.11.2026 das Konto,
+mit dem gerade verschickt wird (`quelle` in der Antwort). Maßgeblich für
+*Authenticate* ist die Anzeige im Brevo-Konto des Hauses.
 
 **Was nicht nötig ist:** zusätzliche Domains (`.com`, `.de`), ein zweiter
 Mailanbieter, SSL-Zertifikate kaufen (Cloudflare und GitHub stellen sie
@@ -371,7 +375,7 @@ Programmierer eine KI einsetzen, gibt es einen fertigen Arbeitsauftrag in
 
 - [x] Konten bei Brevo und GitHub angelegt; mit Markus die Einträge beider Domains bei Hetzner gesetzt (Anfang November, von außen geprüft am 10.11.2026)
 - [ ] *Authenticate* für `wirtschaft-dornbirn.at` und `eugen.family`, bis beide als beglaubigt angezeigt werden
-- [ ] Danach einen API-Schlüssel erzeugen und ihn gemeinsam mit Jonas im Dienst hinterlegen – nicht per Mail oder Chat
+- [ ] Danach einen API-Schlüssel erzeugen und ihn selbst in der Wirt-Ansicht einfügen (haus → Mailversand): der Dienst prüft, schickt fünf Testmails und stellt erst dann um – nicht per Mail oder Chat (Anleitung „Mailversand selbst umstellen“)
 
 **Programmierer**
 
@@ -379,7 +383,7 @@ Programmierer eine KI einsetzen, gibt es einen fertigen Arbeitsauftrag in
 - [ ] Dienst im Konto des Hauses ausrollen, Daten einspielen, Geheimnisse neu
 - [x] `WIRT_MAIL` → `veranstaltungen@`, `TAKEAWAY_MAIL` → `service@` (27.10.2026); `ANFRAGE_MAIL` → `uri@eugen.family` (eingestellt seit 10.11.2026, der Notweg der Formulare seit 11.11.)
 - [ ] Kopie von Tageszettel und Wochenbericht an Jonas: Geheimnis `WIRT_MAIL_KOPIE` – vorbereitet, noch nicht gesetzt (setzt Jonas selbst); bis dahin keine Kopie
-- [ ] Brevo: Einträge gesetzt (Sarah mit Markus); nach *Authenticate* den Schlüssel des Hauses als `BREVO_KEY` hinterlegen (gemeinsam mit Sarah), **erst dann** `BREVO_ABSENDER` → `willkommen@` und die Absender je Zweck;
+- [ ] Brevo: Einträge gesetzt (Sarah mit Markus); den Versand stellt Sarah seit 15.11.2026 selbst um (Wirt-Ansicht → haus → Mailversand: Schlüssel und alle Absender gemeinsam, erst nach bestandener Prüfung). Nach einem Umzug des Dienstes den Schlüssel dort noch einmal eintragen lassen – er steht in keiner Sicherung;
       Testmail an eine Gmail-Adresse: kommt im Posteingang an, nicht im Spam
 - [ ] Testeinträge „TEST“ aus der Produktion entfernen
 - [ ] Unteradressen sichern, Zone zu Cloudflare, Nameserver umstellen

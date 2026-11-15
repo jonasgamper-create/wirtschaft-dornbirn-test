@@ -90,37 +90,51 @@ welchen davon nimmt, entscheidet `#absender()` in `server/src/index.js`; bei
 der Warteliste zusätzlich, ob der Abend im Kulturhaus stattfindet (das steht
 am Eintrag). Ist eine der vier Einstellungen leer, gilt der Hausabsender.
 
-## 5 Was noch blockiert ist
+## 5 Was noch fehlt – und wie Sarah es selbst erledigt
 
-**Die vier Absenderadressen stehen absichtlich noch leer.** Brevo verschickt
-nur von Adressen, deren Domain dort beglaubigt ist. Wird eine Adresse zu
-früh eingetragen, versendet der Dienst **gar nichts** mehr – schlechter als
-heute. Reihenfolge:
+**Seit 15.11.2026 stellt Sarah den Versand selbst um**, ohne Jonas und ohne
+Zugang zu Cloudflare: Wirt-Ansicht → haus → **Mailversand**. Schritt für
+Schritt steht es in `docs/mailversand-selbst-umstellen.md` (PDF
+`docs/pdf/Mailversand-selbst-umstellen-wirtschaft.pdf`). Der Dienst setzt
+Schlüssel und Absender **gemeinsam** ein und erst, wenn er alles geprüft hat:
+Mit einem unbeglaubigten Absender versendete Brevo **gar nichts** mehr –
+schlechter als heute. Reihenfolge:
 
 1. ~~Bei Brevo die Domains anlegen und die DNS-Einträge bei Hetzner
    setzen~~ – **erledigt** für `wirtschaft-dornbirn.at` und `eugen.family`
    (Sarah mit Markus, im Brevo-Konto des Hauses; von außen geprüft am
    10.11.2026). Offen: *Authenticate* für beide Domains im Brevo-Konto des
-   Hauses.
-2. Einen **API-Schlüssel aus dem Brevo-Konto des Hauses** als Geheimnis
-   `BREVO_KEY` im Dienst hinterlegen (gemeinsam, nicht per Mail oder Chat).
-   Grund: Der Dienst sendet heute noch über das Brevo-Konto von Jonas, und
-   dort sind die Domains des Hauses nicht beglaubigt. Ein zweiter Benutzer
-   im Brevo-Konto kostet laut Brevo 9 € im Monat – der Schlüssel nichts.
-3. Dann `BREVO_ABSENDER` auf `willkommen@wirtschaft-dornbirn.at` setzen –
-   damit hört der heutige Spam-Effekt auf (die private Adresse von Jonas
-   liegt bei einem Anbieter, der fremden Versand verbietet, DMARC
-   `p=reject`).
-4. Dann `ABSENDER_SERVICE` = `service@wirtschaft-dornbirn.at`,
-   `ABSENDER_WARTELISTE` = `veranstaltungen@wirtschaft-dornbirn.at`,
-   `ABSENDER_KULTURHAUS` = `tickets@eugen.family` und `EVENTS_ABSENDER` =
-   `uri@eugen.family`. Für `eugen.family` ist nichts mehr mit Uri zu
-   klären: die Einträge stehen wie bei `wirtschaft-dornbirn.at`.
+   Hauses (Sarah).
+2. Einen **API-Schlüssel aus dem Brevo-Konto des Hauses** erzeugen (Sarah)
+   und in der Wirt-Ansicht einfügen – nicht per Mail oder Chat, auch nicht an
+   Jonas. Grund: Der Dienst sendet heute noch über das Brevo-Konto von Jonas,
+   und dort sind die Domains des Hauses nicht beglaubigt. Ein zweiter
+   Benutzer im Brevo-Konto kostet laut Brevo 9 € im Monat – der Schlüssel
+   nichts.
+3. Der Dienst prüft den Schlüssel und beide Domains und schickt von jeder der
+   fünf Adressen eine Testmail. Sind alle angekommen, stellt Sarah um. Dabei
+   gilt der Hausabsender wie `BREVO_ABSENDER` auf
+   `willkommen@wirtschaft-dornbirn.at` – damit hört der heutige Spam-Effekt
+   auf (die private Adresse von Jonas liegt bei einem Anbieter, der fremden
+   Versand verbietet, DMARC `p=reject`).
+4. Zugleich die Absender je Zweck: `ABSENDER_SERVICE` =
+   `service@wirtschaft-dornbirn.at`, `ABSENDER_WARTELISTE` =
+   `veranstaltungen@wirtschaft-dornbirn.at`, `ABSENDER_KULTURHAUS` =
+   `tickets@eugen.family` und `EVENTS_ABSENDER` = `uri@eugen.family`. Für
+   `eugen.family` ist nichts mehr mit Uri zu klären: die Einträge stehen wie
+   bei `wirtschaft-dornbirn.at`.
 
-Prüfen nach jedem Schritt: `GET /api/mail/pruefung?email=<eigene Adresse>`
-(mit dem Hausschlüssel im Kopf `x-haus-token`) muss `delivered` melden. Achtung: Bis Schritt 2 erledigt ist, zeigen
-`/api/mail/pruefung` und `/api/mail/domain` das Brevo-Konto von **Jonas**,
-nicht das des Hauses. Maßgeblich für *Authenticate* ist die Anzeige im
+Die Felder in `server/wrangler.jsonc` bleiben dafür leer: Die Werte stehen
+in `server/src/mailversand.mjs` (`HAUS_ABSENDER`), und
+`scripts/check-mailversand.mjs` hält sie gleich mit diesem Abschnitt. Was in
+Cloudflare steht (`BREVO_KEY`, `BREVO_ABSENDER`), bleibt der Rückweg: Ein
+Knopf in der Wirt-Ansicht schaltet dorthin zurück.
+
+Prüfen: Die Wirt-Ansicht zeigt unter **Mailversand**, wann zuletzt
+erfolgreich verschickt wurde und woran es zuletzt scheiterte. Technisch zeigt
+`GET /api/mail/pruefung?email=<eigene Adresse>` (mit dem Hausschlüssel im
+Kopf `x-haus-token`) das Konto, mit dem gerade verschickt wird (`quelle`:
+`haus` oder `cloudflare`). Maßgeblich für *Authenticate* ist die Anzeige im
 Brevo-Konto des Hauses.
 
 ## 6 Zugangsdaten
@@ -164,8 +178,8 @@ beantwortet. Stand danach:
    Brevo-Konto des Hauses angelegt und mit Markus die Einträge beider
    Domains bei Hetzner gesetzt (von außen geprüft am 10.11.2026: DKIM,
    Brevo-Code, DMARC, SPF, beide Domains im selben Brevo-Konto). Es fehlen
-   *Authenticate* in Brevo und danach der API-Schlüssel aus diesem Konto
-   (Abschnitt 5).
+   *Authenticate* in Brevo und danach der API-Schlüssel aus diesem Konto,
+   den Sarah selbst in der Wirt-Ansicht einträgt (Abschnitt 5).
 4. **`kueche@wirtschaft-dornbirn.at`** bleibt bestehen. Keine Änderung.
 5. **`gewinnspiel@` und `sarah.preuss@`** kommen in der Webseite nicht vor.
    Das ist in Ordnung – nur zur Bestätigung festgehalten.
