@@ -217,12 +217,23 @@ export async function beglaubigeDomain(schluessel, name, { fetchImpl = fetch } =
   if (!HAUS_DOMAINS.includes(name)) return { beglaubigt: false, grund: 'nicht_beglaubigt' };
   const pfad = `/senders/domains/${encodeURIComponent(name)}`;
   const versuch = await brevoRuf(schluessel, `${pfad}/authenticate`, { methode: 'PUT', fetchImpl });
-  if (versuch.ok) return { beglaubigt: true };
-  if (istEndgueltig(versuch)) return { beglaubigt: false, grund: versuch.grund, endgueltig: true };
-  if (versuch.grund === 'keine_berechtigung') return { beglaubigt: false, grund: 'darf_nicht_beglaubigen' };
+  if (!versuch.ok) {
+    if (istEndgueltig(versuch)) return { beglaubigt: false, grund: versuch.grund, endgueltig: true };
+    // Derselbe Schluessel hat Konto und Domains eben lesen duerfen: wird er
+    // beim Schreiben abgewiesen, steht "Account" nicht auf "Read/write" -
+    // auch wenn Brevo das nicht in Worte fasst.
+    if (versuch.grund === 'keine_berechtigung' || versuch.status === 401 || versuch.status === 403) {
+      return { beglaubigt: false, grund: 'darf_nicht_beglaubigen' };
+    }
+  }
+  // Nachsehen, was Brevo jetzt fuehrt - auch nach einem "geklappt". Es gilt
+  // nur "authenticated: true"; sonst nennt Brevo je Eintrag, was fehlt.
   const stand = await brevoRuf(schluessel, pfad, { fetchImpl });
-  // Inzwischen beglaubigt (etwa gleichzeitig in Brevo geklickt)? Dann gut.
   if (stand.ok && stand.daten?.authenticated === true) return { beglaubigt: true };
+  if (!stand.ok && istEndgueltig(stand)) return { beglaubigt: false, grund: stand.grund, endgueltig: true };
+  // Brevo hat "beglaubigt" gesagt und laesst sich nur nicht nachfragen: dann
+  // gilt seine Antwort - die Testmails pruefen den Versand ohnehin.
+  if (versuch.ok && !stand.ok) return { beglaubigt: true };
   const fehlt = stand.ok ? dnsLuecken(stand.daten) : [];
   return fehlt.length ? { beglaubigt: false, grund: 'dns_unvollstaendig', fehlt } : { beglaubigt: false, grund: 'nicht_beglaubigt' };
 }
@@ -298,8 +309,12 @@ export async function pruefeVersand({ schluessel, an, fetchImpl = fetch, vorDemV
       if (d.fehlt?.length) schritt.fehlt = d.fehlt;
       schritte.push(schritt);
     }
-    const offen = domains.find(d => !d.beglaubigt);
-    if (offen) return ende(offen.grund || (offen.da ? 'nicht_beglaubigt' : 'domain_fehlt'), { konto: kontoInfo, domains });
+    const offen = domains.filter(d => !d.beglaubigt).map(d => d.grund || (d.da ? 'nicht_beglaubigt' : 'domain_fehlt'));
+    if (offen.length) {
+      // Was am Schluessel liegt, zuerst: es zu beheben, hilft bei beiden Domains.
+      const grund = ['darf_nicht_beglaubigen', 'domain_fehlt', 'dns_unvollstaendig', 'nicht_beglaubigt'].find(g => offen.includes(g)) || offen[0];
+      return ende(grund, { konto: kontoInfo, domains });
+    }
   } else if (endgueltig(domainAntwort)) {
     schritte.push({ was: 'domains', ok: false, grund: domainAntwort.grund });
     return ende(domainAntwort.grund, { konto: kontoInfo });

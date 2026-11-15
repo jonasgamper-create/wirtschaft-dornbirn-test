@@ -174,6 +174,7 @@ dann nichts geändert.
 | Absender nicht angenommen | In Brevo nachsehen, ob die Domain beglaubigt ist. Ist sie es, die Adresse unter **Absender, Domains, IPs** → **Absender** (Senders) → **Absender hinzufügen** (Add a sender) anlegen. |
 | IP-Sperre bei Brevo | Die IP-Sperre ausschalten (Ende von Abschnitt 4), dann noch einmal prüfen. |
 | Zu viele Versuche | Eine Stunde warten – jede Prüfung verschickt fünf Mails. |
+| Störung bei Brevo · Brevo bremst gerade · nicht erreichbar | Nichts ist kaputt. In ein paar Minuten noch einmal prüfen. |
 | Konto bei Brevo gesperrt oder in Prüfung | In Brevo nachsehen; meist erklärt eine Mail von Brevo, warum. Sonst den Brevo-Support fragen. |
 | Brevo hat die Anfrage abgelehnt | Später noch einmal prüfen. Bleibt es so, den Brevo-Support fragen und die Uhrzeit dazuschreiben. |
 | Inzwischen wurde neu geprüft | Jemand hat (vielleicht auf einem anderen Gerät) noch einmal geprüft. Die neuen Testmails ansehen und dann umstellen. |

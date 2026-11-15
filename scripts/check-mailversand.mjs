@@ -55,6 +55,7 @@ check('Brevo: Absender nicht gueltig', deuteBrevo(400, 'invalid_parameter Sendin
 check('Brevo: zu viele Anfragen', deuteBrevo(429, 'too_many_requests') === 'zu_viele');
 check('Brevo: Stoerung', deuteBrevo(502, '') === 'brevo_stoerung');
 check('Brevo: Konto gesperrt', deuteBrevo(403, 'unauthorized Your account has been suspended') === 'konto_gesperrt');
+check('Brevo: Konto in Pruefung (account_under_validation) ist kein Rechteproblem', deuteBrevo(403, 'account_under_validation Your account is under validation') === 'konto_gesperrt');
 check('Brevo: Schluessel abgeschaltet', deuteBrevo(401, 'unauthorized API key is disabled') === 'schluessel_ungueltig');
 check('Brevo: Absender ungueltig auch ohne 400', deuteBrevo(403, 'Sending has been rejected because the sender you used is not valid') === 'absender_ungueltig');
 check('Brevo: unbekannter 401-Text bleibt beim Status', deuteBrevo(401, 'unauthorized something else') === 'schluessel_ungueltig' && deuteBrevo(0, 'unauthorized something else') === 'brevo_fehler');
@@ -143,20 +144,32 @@ function brevo({ konto = 'ok', domains = 'beide', beglaubige = 'ok', sende = [] 
       if (domains === 'offen') return antwort(200, { domains: [beide.domains[0], { domain_name: 'eugen.family', authenticated: false }] });
       if (domains === 'keine') return antwort(200, { domains: beide.domains.map(d => ({ ...d, authenticated: false, verified: false })) });
       if (domains === 'fehlt') return antwort(200, { domains: [beide.domains[1]] });
+      // wirtschaft-dornbirn.at fehlt, dafuer eine fremde Domain - die nie beglaubigt werden darf.
+      if (domains === 'fremd') return antwort(200, { domains: [{ domain_name: 'example.org', authenticated: false }, { domain_name: 'eugen.family', authenticated: false }] });
     }
     // Beglaubigen (PUT .../authenticate) und nachfragen (GET .../{domain}).
     const domainPfad = pfad.match(/^\/senders\/domains\/([^/]+)(\/authenticate)?$/);
     if (domainPfad) {
       const name = decodeURIComponent(domainPfad[1]);
       if (domainPfad[2] && methode === 'PUT') {
-        if (beglaubige === 'ok') { beglaubigt.add(name); return antwort(200, { domain_name: name, message: 'Domain has been authenticated successfully.' }); }
+        if (beglaubige === 'ok' || beglaubige === 'stumm') { beglaubigt.add(name); return antwort(200, { domain_name: name, message: 'Domain has been authenticated successfully.' }); }
+        if (beglaubige === 'halb') return antwort(200, { domain_name: name, message: 'Domain authentication started.' });
         if (beglaubige === 'rechte') return antwort(401, { code: 'permission_denied', message: 'Access denied for resource "account". The API key does not include the required permission.' });
+        if (beglaubige === 'rechte401') return antwort(401, { code: 'unauthorized', message: 'Unauthorized' });
+        if (beglaubige === 'gesperrt') return antwort(403, { code: 'account_under_validation', message: 'Your account is under validation.' });
         if (beglaubige === 'ip') return antwort(401, { code: 'unauthorized', message: 'We have detected you are using an unrecognised IP address 104.28.1.1.' });
+        if (beglaubige === 'stoerung') return antwort(503, { code: 'service_unavailable', message: '' });
+        if (beglaubige === 'netz') throw new TypeError('fetch failed');
+        if (beglaubige === 'unklar' || beglaubige === 'schon') return antwort(400, { code: 'bad_request', message: 'Something nobody has seen yet' });
         return antwort(400, { code: 'DNS records not properly configured', message: 'Domain could not be authenticated' });
       }
       if (!domainPfad[2] && methode === 'GET') {
-        if (beglaubige === 'dns') return antwort(200, { ...dnsHalb, domain: name });
+        if (beglaubige === 'dns' || beglaubige === 'halb') return antwort(200, { ...dnsHalb, domain: name });
         if (beglaubige === 'schon') return antwort(200, { domain: name, verified: true, authenticated: true, dns_records: {} });
+        if (beglaubige === 'unklar') return antwort(200, { domain: name, verified: true, authenticated: false, dns_records: {
+          brevo_code: { status: true }, dkim_record: { status: true }, dmarc_record: { status: true } } });
+        if (beglaubige === 'nachfrage') return antwort(429, { code: 'too_many_requests', message: '' });
+        if (beglaubige === 'ok') return antwort(200, { domain: name, verified: beglaubigt.has(name), authenticated: beglaubigt.has(name), dns_records: {} });
         return antwort(404, { code: 'document_not_found', message: 'Domain does not exist' });
       }
     }
@@ -198,8 +211,14 @@ for (const [fall, opt, grund] of [
   ['Domain fehlt', { domains: 'fehlt' }, 'domain_fehlt'],
   ['Beglaubigen: Brevo findet die Eintraege nicht', { domains: 'offen', beglaubige: 'dns' }, 'dns_unvollstaendig'],
   ['Beglaubigen: Schluessel ohne Recht', { domains: 'offen', beglaubige: 'rechte' }, 'darf_nicht_beglaubigen'],
+  ['Beglaubigen: 401 ohne Worte = fehlendes Recht (der Schluessel durfte eben noch lesen)', { domains: 'offen', beglaubige: 'rechte401' }, 'darf_nicht_beglaubigen'],
+  ['Beglaubigen: Konto in Pruefung', { domains: 'offen', beglaubige: 'gesperrt' }, 'konto_gesperrt'],
   ['Beglaubigen: IP-Sperre', { domains: 'offen', beglaubige: 'ip' }, 'ip_gesperrt'],
-  ['Beglaubigen: unklare Ablehnung', { domains: 'offen', beglaubige: 'unklar' }, 'nicht_beglaubigt']
+  ['Beglaubigen: Stoerung bei Brevo', { domains: 'offen', beglaubige: 'stoerung' }, 'brevo_stoerung'],
+  ['Beglaubigen: Netz weg', { domains: 'offen', beglaubige: 'netz' }, 'netz'],
+  ['Beglaubigen: Bremse bei der Nachfrage', { domains: 'offen', beglaubige: 'nachfrage' }, 'zu_viele'],
+  ['Beglaubigen: "geklappt", aber Brevo fuehrt sie nicht als beglaubigt', { domains: 'offen', beglaubige: 'halb' }, 'dns_unvollstaendig'],
+  ['Beglaubigen: unklare Ablehnung, alle Eintraege in Ordnung', { domains: 'offen', beglaubige: 'unklar' }, 'nicht_beglaubigt']
 ]) {
   const b = brevo(opt);
   const r = await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: b.fetchImpl });
@@ -226,10 +245,24 @@ for (const [fall, opt, grund] of [
   const s = brevo();
   await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: s.fetchImpl });
   check('Beide schon beglaubigt: kein einziges Beglaubigen', s.beglaubigungen().length === 0);
-  const f = brevo({ domains: 'fehlt' });
-  await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: f.fetchImpl });
-  check('Domain fehlt: der Dienst legt sie nicht an und beglaubigt nichts Fremdes', !f.aufrufe.some(a => a.methode === 'POST' && a.pfad.startsWith('/senders'))
-    && f.beglaubigungen().every(p => p === '/senders/domains/eugen.family/authenticate'));
+  const f = brevo({ domains: 'fremd' });
+  const rf = await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: f.fetchImpl });
+  check('Fremde Domain im Konto: nie gefragt, nie beglaubigt; die eigene schon',
+    JSON.stringify(f.beglaubigungen()) === JSON.stringify(['/senders/domains/eugen.family/authenticate']) && !f.aufrufe.some(a => a.pfad.includes('example.org')));
+  check('Domain fehlt: der Dienst legt sie nicht an', rf.grund === 'domain_fehlt' && !f.aufrufe.some(a => a.methode === 'POST' && a.pfad.startsWith('/senders')));
+  const fr = brevo({ domains: 'fremd', beglaubige: 'rechte' });
+  check('Zwei Gruende: was am Schluessel liegt, kommt zuerst', (await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: fr.fetchImpl })).grund === 'darf_nicht_beglaubigen');
+  for (const art of ['stoerung', 'nachfrage', 'gesperrt']) {
+    const z = brevo({ domains: 'keine', beglaubige: art });
+    await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: z.fetchImpl });
+    check(`Endgueltiger Fehler beim Beglaubigen (${art}): kein zweiter Versuch, keine Testmail`, z.beglaubigungen().length === 1 && z.mails().length === 0);
+  }
+  const st = brevo({ domains: 'offen', beglaubige: 'stumm' });
+  const rst = await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: st.fetchImpl });
+  check('Brevo sagt "geklappt" und laesst sich nicht nachfragen: gilt, die Testmails entscheiden', rst.ok && st.mails().length === 5);
+  const ok = brevo({ domains: 'offen' });
+  await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: ok.fetchImpl });
+  check('Nach dem Beglaubigen fragt der Dienst nach, ob Brevo sie wirklich fuehrt', ok.aufrufe.some(a => a.methode === 'GET' && a.pfad === '/senders/domains/eugen.family'));
   const d = brevo({ domains: 'offen', beglaubige: 'dns' });
   const rd = await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: d.fetchImpl });
   const sd = rd.schritte.find(x => x.was === 'domain' && x.name === 'eugen.family');
@@ -616,11 +649,14 @@ const veranstalterIn = mail => {
     domain_fehlt: 'steht nicht in eurem Brevo-Konto', schluessel_ungueltig: 'Brevo kennt den Schlüssel nicht',
     smtp_schluessel: 'Das ist ein SMTP-Schlüssel', keine_berechtigung: 'Dem Schlüssel fehlen Rechte', absender_ungueltig: 'Absender nicht angenommen',
     ip_gesperrt: 'IP-Sperre bei Brevo', zu_oft: 'Zu viele Versuche', konto_gesperrt: 'Konto bei Brevo gesperrt oder in Prüfung',
-    brevo_fehler: 'Brevo hat die Anfrage abgelehnt', pruefung_veraltet: 'Inzwischen wurde neu geprüft'
+    brevo_fehler: 'Brevo hat die Anfrage abgelehnt', pruefung_veraltet: 'Inzwischen wurde neu geprüft',
+    brevo_stoerung: 'Störung bei Brevo', zu_viele: 'Brevo bremst gerade', netz: 'nicht erreichbar'
   };
+  // Erste Spalte jeder Zeile der Tabelle - dort muss die Meldung so stehen, wie die Wirt-Ansicht sie zeigt.
+  const ersteSpalten = tabelle.split('\n').filter(z => z.startsWith('| ') && !z.startsWith('| ---')).map(z => z.split(' | ')[0].slice(2));
   check('Tabelle "Wenn etwas nicht klappt" gefunden', tabelle.length > 1000);
   for (const [grund, zeile] of Object.entries(meldungen)) {
-    check(`Anleitung erklaert „${zeile}“`, tabelle.includes(`| ${zeile} |`) || tabelle.includes(`| … ${zeile}`));
+    check(`Anleitung erklaert „${zeile}“`, ersteSpalten.some(spalte => spalte.includes(zeile)));
     check(`Wirt-Ansicht meldet „${zeile}“ (${grund})`, ui.toLowerCase().includes(zeile.toLowerCase()) && new RegExp(`\\b${grund}: '`).test(wirt));
   }
   // Die Bilder der Anleitung liegen im Repository.
