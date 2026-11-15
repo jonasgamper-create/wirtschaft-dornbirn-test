@@ -4,7 +4,8 @@
 //
 // Ohne Abhaengigkeiten: ein kleiner Markdown-Leser fuer das, was unsere
 // Dokumente benutzen (Ueberschriften, Absaetze, Listen, Haken, Tabellen,
-// Codebloecke, fett, Code, Links), dazu das Druckblatt, dann Chrome ohne
+// Codebloecke, fett, Code, Links, seit 15.11.2026 auch Bilder und Zitate),
+// dazu das Druckblatt, dann Chrome ohne
 // Fenster. Wer pandoc hat, darf pandoc nehmen; dieses Skript ist dafuer da,
 // dass es auf jedem Rechner ohne Einrichtung geht.
 
@@ -36,6 +37,19 @@ function inline(t) {
   return s.replace(/\u0000(\d+)\u0000/g, (_, i) => `<code>${codes[i]}</code>`);
 }
 
+/** Ein Bild neben der Quelle als eingebettete Abbildung mit Unterschrift. */
+function bildHtml(unterschrift, pfad) {
+  const datei = path.resolve(path.dirname(quelle), pfad);
+  const art = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml' }[path.extname(datei).toLowerCase()];
+  if (!art || !existsSync(datei)) {
+    console.error(`Bild fehlt oder unbekannte Art: ${pfad}`);
+    process.exit(1);
+  }
+  const daten = readFileSync(datei).toString('base64');
+  return `<figure><img src="data:${art};base64,${daten}" alt="${schuetze(unterschrift)}">`
+    + (unterschrift ? `<figcaption>${inline(unterschrift)}</figcaption>` : '') + '</figure>';
+}
+
 function markdownNachHtml(md) {
   const zeilen = md.replace(/\r/g, '').split('\n');
   const aus = [];
@@ -50,6 +64,19 @@ function markdownNachHtml(md) {
       while (i < zeilen.length && !zeilen[i].startsWith('```')) { block.push(zeilen[i]); i += 1; }
       i += 1;
       aus.push(`<pre><code>${schuetze(block.join('\n'))}</code></pre>`);
+      continue;
+    }
+    // Ein Bild auf eigener Zeile (15.11.2026): ![Bildunterschrift](pfad).
+    // Eingebettet, nicht verlinkt - das PDF muss allein reisen koennen.
+    const bild = z.match(/^!\[([^\]]*)\]\(([^)\s]+)\)\s*$/);
+    if (bild) { aus.push(bildHtml(bild[1], bild[2])); i += 1; continue; }
+    // Ein Zitat (15.11.2026), z. B. ein Text zum Kopieren. Eine Zeile nur mit
+    // ">" trennt Absaetze.
+    if (/^>\s?/.test(z)) {
+      const teile = [];
+      while (i < zeilen.length && /^>\s?/.test(zeilen[i])) { teile.push(zeilen[i].replace(/^>\s?/, '')); i += 1; }
+      aus.push('<blockquote>' + teile.join('\n').split(/\n\s*\n/)
+        .map(a => `<p>${inline(a.replace(/\n/g, ' ').trim())}</p>`).join('') + '</blockquote>');
       continue;
     }
     const h = z.match(/^(#{1,4})\s+(.*)$/);
@@ -69,6 +96,8 @@ function markdownNachHtml(md) {
     const li = z.match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
     if (li) {
       const geordnet = /\d+\./.test(li[2]);
+      // Eine Liste darf nach einem Bild weiterzaehlen (3., 4. ...).
+      const ab = geordnet ? parseInt(li[2], 10) : 1;
       const items = [];
       while (i < zeilen.length) {
         const m = zeilen[i].match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
@@ -77,7 +106,7 @@ function markdownNachHtml(md) {
         else break;
       }
       const tag = geordnet ? 'ol' : 'ul';
-      aus.push(`<${tag}>` + items.map(t => {
+      aus.push(`<${tag}${geordnet && ab > 1 ? ` start="${ab}"` : ''}>` + items.map(t => {
         const haken = t.match(/^\[( |x)\]\s+(.*)$/i);
         if (haken) return `<li class="haken"><span class="kasten${haken[1].toLowerCase() === 'x' ? ' voll' : ''}"></span>${inline(haken[2])}</li>`;
         return `<li>${inline(t)}</li>`;
@@ -86,7 +115,7 @@ function markdownNachHtml(md) {
     }
     // Absatz: bis zur naechsten Leerzeile
     const abs = [];
-    while (i < zeilen.length && zeilen[i].trim() && !/^(#{1,4}\s|```|\||---|\s*[-*]\s|\s*\d+\.\s)/.test(zeilen[i])) { abs.push(zeilen[i].trim()); i += 1; }
+    while (i < zeilen.length && zeilen[i].trim() && !/^(#{1,4}\s|```|\||---|\s*[-*]\s|\s*\d+\.\s|>|!\[)/.test(zeilen[i])) { abs.push(zeilen[i].trim()); i += 1; }
     if (abs.length) aus.push(`<p>${inline(abs.join(' '))}</p>`);
     else i += 1;
   }
@@ -120,6 +149,11 @@ const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>
   li.haken .kasten{position:absolute; left:0; top:.9mm; width:3.4mm; height:3.4mm; border:1.2px solid var(--ink); border-radius:.6mm; background:#fff}
   li.haken .kasten.voll{background:var(--ink)}
   del{text-decoration:line-through; text-decoration-thickness:1px; color:var(--leise)}
+  figure{margin:3mm 0 5mm; break-inside:avoid; text-align:center}
+  figure img{max-width:72mm; max-height:122mm; border:1px solid var(--linie); border-radius:2mm}
+  figcaption{font-family:var(--sans); font-size:8.3pt; color:var(--leise); margin:1.6mm auto 0; max-width:120mm}
+  blockquote{margin:2mm 0 4mm; padding:3mm 4mm; border-left:2px solid var(--gold); background:#f7f3ea; break-inside:avoid}
+  blockquote p{margin:0 0 1.6mm}
   table{width:100%; border-collapse:collapse; margin:2mm 0 6mm; font-size:9.3pt; break-inside:auto}
   th{font-family:var(--sans); font-size:8pt; font-weight:700; letter-spacing:.06em; text-transform:lowercase; text-align:left; color:var(--leise); padding:1.6mm 2mm; border-bottom:1.2px solid var(--ink)}
   td{padding:1.8mm 2mm; border-bottom:1px solid var(--linie); vertical-align:top}

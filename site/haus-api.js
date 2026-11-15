@@ -458,5 +458,15 @@ export const setzeHinweis = (token, text, bis) =>
 export const sendeAnfrageAktion = (token, befehl) =>
   ruf('/api/anfrage/aktion', { methode: 'POST', koerper: befehl, token });
 
+// Den Mailversand selbst auf das Brevo-Konto des Hauses umstellen
+// (15.11.2026). Nur mit Hausschluessel; der Schluessel geht genau einmal an
+// den Dienst und kommt nie zurueck.
+export const holeMailversand = token => ruf('/api/mail/versand', { token });
+export const pruefeMailversand = (token, schluessel, an) =>
+  ruf('/api/mail/versand/pruefen', { methode: 'POST', koerper: { schluessel, an }, token });
+export const stelleMailversandUm = (token, id) => ruf('/api/mail/versand/umstellen', { methode: 'POST', koerper: { id }, token });
+export const brecheMailversandAb = token => ruf('/api/mail/versand/abbrechen', { methode: 'POST', koerper: {}, token });
+export const mailversandZurueck = token => ruf('/api/mail/versand/zurueck', { methode: 'POST', koerper: {}, token });
+
 export const sendeMittagWartelisteAktion = (token, befehl) =>
   ruf('/api/warteliste/aktion', { methode: 'POST', koerper: befehl, token });

@@ -253,6 +253,33 @@ export function wochenkarte({ karteLink, abmeldeLink }) {
   };
 }
 
+/**
+ * Brevos Ablehnung in einen Grund, den die Wirt-Ansicht erklaeren kann
+ * (15.11.2026). Es wird nur eingeordnet, nichts gespeichert: Brevos Meldungen
+ * koennen Adressen von Gaesten enthalten.
+ *
+ * Die Reihenfolge ist Absicht. Eine IP-Sperre und ein noch nicht
+ * freigeschaltetes Konto kommen mit demselben Fehlercode wie ein falscher
+ * Schluessel oder fehlende Rechte - nur der Text verraet, was wirklich los
+ * ist, und davon haengt ab, was das Haus tun muss.
+ */
+export function deuteBrevo(status, text = '') {
+  const t = String(text || '');
+  if (/unrecogni[sz]ed ip|authori[sz]ed[ _-]?ips?|ip address/i.test(t)) return 'ip_gesperrt';
+  if (/not (yet )?(been )?activated|account is not (yet )?active/i.test(t)) return 'konto_nicht_freigeschaltet';
+  if (/suspend|under review|account (is |has been )?(blocked|disabled|deactivated)/i.test(t)) return 'konto_gesperrt';
+  if (/key not found|invalid api key|(api )?key (is |has been )?(invalid|disabled|deactivated)/i.test(t)) return 'schluessel_ungueltig';
+  // Ein ungueltiger Absender kommt nicht immer mit 400 - der Text entscheidet.
+  if (/sender[^.]{0,80}not valid|validate your sender|authenticate your domain/i.test(t)) return 'absender_ungueltig';
+  if (/access denied|permission|not allowed/i.test(t)) return 'keine_berechtigung';
+  if (status === 401) return 'schluessel_ungueltig';
+  if (status === 400 && /sender|domain/i.test(t)) return 'absender_ungueltig';
+  if (status === 403) return 'keine_berechtigung';
+  if (status === 429) return 'zu_viele';
+  if (status >= 500) return 'brevo_stoerung';
+  return 'brevo_fehler';
+}
+
 /** Das Paket, das an Brevo geht. Getrennt gebaut, damit es pruefbar bleibt. */
 export function brevoPaket({ absender, absenderName, an, anName, betreff, html, text, anhang = null, antwortAn = null, kopie = null }) {
   const paket = {
@@ -292,7 +319,12 @@ export async function sendeMail(env, paket) {
       // Meldung enthaelt keine Gaestedaten; zur Sicherheit gekuerzt.
       const fehler = await antwort.text().catch(() => '');
       console.error('Brevo abgelehnt', antwort.status, String(fehler).slice(0, 300));
-      return { ok: false, grund: 'abgelehnt' };
+      // Die Art des Fehlers (nicht der Text) geht zurueck: die Wirt-Ansicht
+      // zeigt unter "Mailversand", woran es zuletzt lag (15.11.2026).
+      let daten = null;
+      try { daten = JSON.parse(fehler); } catch { daten = null; }
+      return { ok: false, grund: 'abgelehnt', status: antwort.status,
+        art: deuteBrevo(antwort.status, `${daten?.code || ''} ${daten?.message || (daten ? '' : fehler)}`) };
     }
     return { ok: true };
   } catch {

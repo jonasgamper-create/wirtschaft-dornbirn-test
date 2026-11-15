@@ -317,6 +317,10 @@ p,li,.hinweis,.wer b,.wer small,.lauf-ergebnis{text-wrap:pretty}
 .zu-liste{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:8px}
 .zu-liste li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border:1px dashed #11110f3d;border-radius:10px;background:#11110f05;color:#57524a}
 .zu-liste li.leer{border-style:solid;border-color:#11110f1f;background:#fff;color:var(--leise)}
+/* Mailversand (15.11.2026): je Pruefschritt eine Zeile - gruen bestanden, weinrot nicht. */
+.mail-schritte li{justify-content:flex-start;font-size:15px;line-height:1.45;overflow-wrap:anywhere}
+.mail-schritte li[data-art="gut"]{border-style:solid;color:var(--green)}
+.mail-schritte li[data-art="fehler"]{border-style:solid;border-color:var(--wine);color:var(--wine);font-weight:600}
 /* Der Absage-Knopf ist ROT: er schickt Mails hinaus, das ist keine
    Umsortierung. Wein ist der Ton des Hauses fuer "Achtung". */
 .knopf.warn{background:var(--wine);border-color:var(--wine);color:#fff}

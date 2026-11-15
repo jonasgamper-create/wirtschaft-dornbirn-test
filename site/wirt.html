@@ -16,10 +16,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Wirt">
   <link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
-  <link rel="stylesheet" href="wirt.css?v=a6ba1298">
+  <link rel="stylesheet" href="wirt.css?v=0d2ad897">
   <!-- Muss vor allen anderen laufen: setzt den Probemodus (siehe probe.js). -->
   <script src="probe.js?v=09432095" defer></script>
-  <script type="module" src="wirt.js?v=2447133e"></script>
+  <script type="module" src="wirt.js?v=fe62fec3"></script>
 </head>
 <body class="wirt-seite">
   <!-- Die einfache Wirt-Ansicht, gebaut wie die besten Service-Apps:
@@ -284,6 +284,37 @@
         kommt zusätzlich per Mail; der Gast hat eine automatische Bestätigung bekommen.
         Nach 90 Tagen löscht der Dienst sie von selbst.</p>
       <div id="anfrageListe" class="anfrage-liste"></div>
+    </details>
+
+    <!-- Den Mailversand selbst auf das Brevo-Konto des Hauses umstellen
+         (15.11.2026). Erst pruefen (Schluessel, Domains, zwei Testmails),
+         dann umstellen - Schluessel und alle Absender auf einmal. Anleitung:
+         docs/mailversand-selbst-umstellen.md. -->
+    <details class="werkzeug" id="mailKasten" data-block="mailKasten">
+      <summary>Mailversand – euer Brevo-Konto</summary>
+      <p class="hinweis">Hier stellt ihr die automatischen Mails (Bestätigungen, Tageszettel,
+        Warteliste) auf euer eigenes Brevo-Konto um. Erst prüft der Dienst alles und schickt
+        von jeder eurer fünf Absenderadressen eine Testmail – umgestellt wird erst, wenn alle
+        angekommen sind. Schritt für Schritt steht es in der Anleitung „Mailversand selbst
+        umstellen“.</p>
+      <p class="plan-stand" id="mailStand" role="status">Der Stand wird geladen …</p>
+      <p class="hinweis" id="mailZuletzt" hidden></p>
+      <form class="event-form" id="mailForm" autocomplete="off" hidden>
+        <!-- Ein Textfeld, kein Passwortfeld: sonst bietet der Browser an, den
+             Schluessel zu speichern - auf einem Geraet, das viele benutzen. -->
+        <label>API-Schlüssel aus eurem Brevo-Konto<input type="text" id="mailSchluessel" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-1p-ignore data-lpignore="true" placeholder="xkeysib-…"></label>
+        <label>Testmails an (eure Adresse)<input type="email" id="mailAn" autocomplete="email" maxlength="200" placeholder="z. B. veranstaltungen@wirtschaft-dornbirn.at"></label>
+        <button class="knopf" type="submit" id="mailPruefen">Prüfen und Testmails schicken</button>
+      </form>
+      <ul class="zu-liste mail-schritte" id="mailSchritte" hidden></ul>
+      <div class="karte-knoepfe" id="mailUmstellenKasten" hidden>
+        <button class="knopf" type="button" id="mailUmstellen">Alle Testmails sind da – jetzt umstellen</button>
+        <button class="knopf leise" type="button" id="mailAbbrechen">Abbrechen</button>
+      </div>
+      <div class="karte-knoepfe" id="mailZurueckKasten" hidden>
+        <button class="knopf leise" type="button" id="mailZurueck">Zurück zum bisherigen Versand</button>
+      </div>
+      <p class="lauf-ergebnis" id="mailInfo" role="status" aria-live="polite"></p>
     </details>
 
     <details class="werkzeug" id="oeffnungKasten" data-block="oeffnungKasten">

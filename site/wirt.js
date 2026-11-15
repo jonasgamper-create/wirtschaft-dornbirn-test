@@ -16,10 +16,11 @@ import {
   stelleTagWiederHer,
   holeTermine, legeEventWartelisteEintrag, sendeEventWartelisteAktion,
   frischeWarteliste, gibAbendHer, nimmAbendAuf, sendeMittagWartelisteAktion,
-  holeHinweis, setzeHinweis, sendeAnfrageAktion
-} from './haus-api.js?v=a0e6cbed';
+  holeHinweis, setzeHinweis, sendeAnfrageAktion,
+  brecheMailversandAb, holeMailversand, mailversandZurueck, pruefeMailversand, stelleMailversandUm
+} from './haus-api.js?v=ba79ed23';
 import { liesMenueplan, zeichneMenueplan } from './wirt-menueplan.mjs?v=de7cbcf5';
-import { liesAnsicht, setzeHeuteZahl, setzeWartelisteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=360a8673';
+import { liesAnsicht, setzeHeuteZahl, setzeWartelisteZahl, verdrahteReiter, wendeAn, zeichneEinstellungen } from './wirt-ansicht.mjs?v=fb2735d0';
 import { istOffenerTag, naechsterOffenerTag } from './feiertage.mjs?v=def9b961';
 import { buildFloorplan } from './floorplan-layout.mjs?v=7911e18a';
 import { planMitTischen, setzeAnzahl, zaehleGroessen } from './tisch-anzahlen.mjs?v=11ecb06c';
@@ -128,6 +129,7 @@ async function start() {
   verdrahteZu();
   verdrahteOeffnung();
   verdrahteHinweis();
+  verdrahteMailversand();
   verdrahteBestand();
   verdrahtePush();
   verdrahteAnnahme();
@@ -2546,6 +2548,223 @@ async function verdrahteHinweis() {
     byId('hinweisBis').value = '';
     speichere('', '');
   });
+}
+
+// ---- Mailversand selbst umstellen (15.11.2026) ----------------------------
+//
+// Sarah stellt den Versand auf das Brevo-Konto des Hauses um, ohne Jonas und
+// ohne Cloudflare: Schluessel einfuegen, pruefen lassen (fuenf Testmails),
+// nachsehen, umstellen. Der Dienst stellt nur um, was er vorher bewiesen hat
+// (server/src/mailversand.mjs). Der Schluessel steht danach nirgends mehr im
+// Browser - das Feld wird sofort geleert.
+
+const MAIL_GRUENDE = {
+  leer: 'Bitte den API-Schlüssel aus Brevo einfügen.',
+  smtp_schluessel: 'Das ist ein SMTP-Schlüssel (er beginnt mit „xsmtpsib-“). Gebraucht wird ein API-Schlüssel: in Brevo unter Einstellungen → SMTP & API → API Keys & MCP.',
+  form: 'Das sieht nicht wie ein Brevo-Schlüssel aus. Bitte den Schlüssel noch einmal ganz kopieren und einfügen.',
+  an: 'Bitte eine gültige Mailadresse für die Testmails eintragen.',
+  zu_oft: 'Zu viele Versuche in der letzten Stunde. Bitte später noch einmal – jede Prüfung verschickt fünf Mails.',
+  konto_gesperrt: 'Brevo hat euer Konto gesperrt oder prüft es gerade. Bitte in Brevo nachsehen oder den Brevo-Support fragen.',
+  pruefung_veraltet: 'Inzwischen wurde neu geprüft (vielleicht auf einem anderen Gerät). Bitte die neuen Testmails ansehen und dann umstellen.',
+  testumgebung: 'In der Testumgebung lässt sich der Mailversand nicht umstellen – das geht nur in der echten Wirt-Ansicht.',
+  schluessel_ungueltig: 'Brevo kennt diesen Schlüssel nicht. Bitte den Schlüssel noch einmal ganz kopieren – oder in Brevo einen neuen erzeugen.',
+  ip_gesperrt: 'Brevo sperrt die Adresse des Dienstes (IP-Sperre). In Brevo: Einstellungen → Sicherheit → Autorisierte IPs, bei „API keys“ auf „Deactivate“. Danach noch einmal prüfen.',
+  konto_nicht_freigeschaltet: 'Brevo hat den Versand in eurem Konto noch nicht freigeschaltet. Bitte den Brevo-Support um die Freischaltung bitten (Vorlage in der Anleitung) und danach noch einmal prüfen.',
+  keine_berechtigung: 'Dem Schlüssel fehlen Rechte. In Brevo beim Schlüssel „Transactional email“ auf „All“ stellen – oder einen neuen Schlüssel mit diesem Recht erzeugen.',
+  nicht_beglaubigt: 'Eine Domain ist in Brevo noch nicht beglaubigt (siehe oben). In Brevo bei der Domain auf „Authenticate“ – das kann bis zu 48 Stunden dauern. Danach noch einmal prüfen.',
+  domain_fehlt: 'Eine Domain fehlt in eurem Brevo-Konto (siehe oben). Sie muss dort unter „Domains“ stehen und beglaubigt sein.',
+  absender_ungueltig: 'Brevo nimmt die Absenderadresse nicht an – meist ist die Domain noch nicht beglaubigt. In Brevo unter „Domains“ nachsehen.',
+  zu_viele: 'Brevo bremst gerade. Bitte in ein paar Minuten noch einmal.',
+  brevo_stoerung: 'Brevo hat gerade eine Störung. Bitte später noch einmal.',
+  brevo_fehler: 'Brevo hat die Anfrage abgelehnt. Bitte später noch einmal – bleibt es so, Jonas Bescheid geben.',
+  netz: 'Brevo oder der Dienst war nicht erreichbar. Bitte in ein paar Minuten noch einmal.',
+  token: 'Dieses Gerät ist nicht angemeldet – dafür braucht es den Link mit dem Hausschlüssel.',
+  keine_pruefung: 'Bitte zuerst prüfen lassen – umgestellt wird nur, was vorher geklappt hat.',
+  pruefung_abgelaufen: 'Die Prüfung ist älter als zwei Stunden. Bitte noch einmal prüfen lassen.',
+  unvollstaendig: 'Das hat nicht geklappt. Bitte noch einmal prüfen lassen.'
+};
+const mailGrund = grund => MAIL_GRUENDE[grund] || 'Das hat nicht geklappt. Bitte noch einmal versuchen.';
+// In der Liste nur das Stichwort - die Erklaerung steht einmal darunter.
+const MAIL_KURZ = {
+  schluessel_ungueltig: 'Brevo kennt den Schlüssel nicht', ip_gesperrt: 'IP-Sperre bei Brevo',
+  konto_nicht_freigeschaltet: 'Versand im Konto noch nicht freigeschaltet', keine_berechtigung: 'dem Schlüssel fehlen Rechte',
+  absender_ungueltig: 'Absender nicht angenommen', netz: 'nicht erreichbar', zu_viele: 'Brevo bremst gerade',
+  konto_gesperrt: 'Konto bei Brevo gesperrt oder in Prüfung',
+  brevo_stoerung: 'Störung bei Brevo', brevo_fehler: 'abgelehnt'
+};
+const mailKurz = grund => MAIL_KURZ[grund] || 'abgelehnt';
+const mailZeit = iso => {
+  const d = new Date(iso);
+  return Number.isFinite(d.getTime())
+    ? d.toLocaleString('de-AT', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    : '';
+};
+const mailUhr = iso => {
+  const d = new Date(iso);
+  return Number.isFinite(d.getTime()) ? d.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' }) : '';
+};
+
+function maleMailSchritte(schritte) {
+  const liste = byId('mailSchritte');
+  liste.textContent = '';
+  for (const s of schritte || []) {
+    const li = document.createElement('li');
+    let text = '';
+    if (s.was === 'schluessel') {
+      const konto = s.konto ? ` – Brevo-Konto ${s.konto.name ? `„${s.konto.name}“` : ''}${s.konto.email ? ` (${s.konto.email})` : ''}` : '';
+      text = s.ok ? `Schlüssel gültig${konto}` : `Schlüssel: ${mailKurz(s.grund)}`;
+    } else if (s.was === 'domain') {
+      text = s.ok ? `${s.name} ist beglaubigt`
+        : (s.grund === 'domain_fehlt' ? `${s.name} steht nicht in eurem Brevo-Konto` : `${s.name} ist noch nicht beglaubigt`);
+    } else if (s.was === 'domains') {
+      text = s.ok === null
+        ? 'Domains: Der Schlüssel darf sie nicht lesen – deshalb entscheiden die Testmails.'
+        : `Domains: ${mailKurz(s.grund)}`;
+    } else if (s.was === 'testmail') {
+      text = s.ok ? `Testmail von ${s.absender} an Brevo übergeben` : `Testmail von ${s.absender}: ${mailKurz(s.grund)}`;
+    }
+    if (!text) continue;
+    li.textContent = text;
+    if (s.ok === false) li.dataset.art = 'fehler';
+    else if (s.ok === true) li.dataset.art = 'gut';
+    liste.append(li);
+  }
+  liste.hidden = !liste.children.length;
+}
+
+// Was der Dienst zuletzt gesagt hat - fuer die Rueckfrage bei "Zurueck" und
+// die Kennung der Pruefung, die "jetzt umstellen" meint.
+let mailStandZuletzt = null;
+let mailPruefung = '';
+
+function maleMailStand(stand) {
+  mailStandZuletzt = stand;
+  mailPruefung = stand?.pruefung?.id || '';
+  const feld = byId('mailStand');
+  const form = byId('mailForm');
+  const zuletzt = byId('mailZuletzt');
+  byId('mailUmstellenKasten').hidden = true;
+  byId('mailZurueckKasten').hidden = true;
+  zuletzt.hidden = true;
+  if (!stand?.ok) {
+    feld.textContent = mailGrund(stand?.grund);
+    feld.dataset.art = 'offen';
+    form.hidden = true;
+    return;
+  }
+  if (!stand.erlaubt) {
+    feld.textContent = 'Testumgebung: Hier lässt sich der Mailversand nicht umstellen. Das geht nur in der echten Wirt-Ansicht – hier wird nie eine Mail verschickt.';
+    delete feld.dataset.art;
+    form.hidden = true;
+    return;
+  }
+  form.hidden = false;
+  if (stand.aktiv) {
+    const konto = stand.konto?.name ? ` „${stand.konto.name}“` : '';
+    const absender = stand.absender
+      ? ` Absender: ${stand.absender.haupt} (Haus), ${stand.absender.service}, ${stand.absender.warteliste}, ${stand.absender.kulturhaus}, ${stand.absender.events}.`
+      : '';
+    feld.textContent = `Umgestellt: Seit ${mailZeit(stand.seit)} gehen alle Mails über euer Brevo-Konto${konto} (Schlüssel ${stand.schluessel}).${absender}`;
+    feld.dataset.art = 'gut';
+    byId('mailZurueckKasten').hidden = false;
+    byId('mailPruefen').textContent = 'Neuen Schlüssel prüfen';
+  } else {
+    feld.textContent = stand.bisher
+      ? 'Noch nicht umgestellt: Die Mails gehen über das Brevo-Konto von Jonas, mit seiner privaten Adresse als Absender – deshalb landen sie oft im Spam.'
+      : 'Noch nicht umgestellt: Im Dienst ist noch kein Mailversand eingerichtet.';
+    feld.dataset.art = 'entwurf';
+    byId('mailPruefen').textContent = 'Prüfen und Testmails schicken';
+  }
+  if (stand.pruefung) {
+    byId('mailUmstellenKasten').hidden = false;
+    sag('mailInfo', `Geprüft um ${mailUhr(stand.pruefung.geprueftAm)} mit dem Schlüssel ${stand.pruefung.schluessel}: Fünf Testmails sind an ${stand.pruefung.an} unterwegs. `
+      + `Sind alle fünf angekommen, jede mit ihrem Absender (bitte auch im Spam-Ordner nachsehen)? Dann jetzt umstellen. Die Prüfung gilt bis ${mailUhr(stand.pruefung.gueltigBis)} Uhr.`, 'gut');
+  }
+  const z = stand.zuletzt;
+  if (z?.fehler || z?.ok) {
+    const teile = [];
+    if (z.ok) teile.push(`Zuletzt erfolgreich verschickt: ${mailZeit(z.ok)}.`);
+    if (z.fehler && (!z.ok || Date.parse(z.fehler.zeit) > Date.parse(z.ok))) {
+      teile.push(`Letzter Fehler beim Versand (${mailZeit(z.fehler.zeit)}): ${mailGrund(z.fehler.art)}`);
+    }
+    zuletzt.textContent = teile.join(' ');
+    zuletzt.hidden = !teile.length;
+  }
+}
+
+async function verdrahteMailversand() {
+  const form = byId('mailForm');
+  if (!form) return;
+  const lade = async () => maleMailStand(await holeMailversand(hausToken()));
+
+  // Erst die Knoepfe verdrahten, dann laden: sonst schickte ein frueher
+  // Druck auf Enter das Formular als Seite ab.
+  form.addEventListener('submit', async ereignis => {
+    ereignis.preventDefault();
+    const feld = byId('mailSchluessel');
+    const schluessel = feld.value;
+    const an = byId('mailAn').value.trim();
+    // Der Schluessel bleibt nicht im Browser stehen - auch nicht bei einem Fehler.
+    feld.value = '';
+    const knopf = byId('mailPruefen');
+    knopf.disabled = true;
+    byId('mailUmstellenKasten').hidden = true;
+    sag('mailInfo', 'Prüfe bei Brevo und schicke die Testmails … das dauert ein paar Sekunden.');
+    const antwort = await pruefeMailversand(hausToken(), schluessel, an);
+    knopf.disabled = false;
+    maleMailSchritte(antwort?.schritte);
+    if (!antwort?.ok) return sag('mailInfo', mailGrund(antwort?.grund), 'fehler');
+    mailPruefung = antwort.id || '';
+    byId('mailUmstellenKasten').hidden = false;
+    sag('mailInfo', `Alles geprüft (Schlüssel ${antwort.schluessel}). Bitte jetzt im Postfach ${antwort.an} nachsehen (auch im Spam-Ordner): Es müssen fünf Testmails da sein, `
+      + 'je eine von willkommen@, service@, veranstaltungen@wirtschaft-dornbirn.at, tickets@ und uri@eugen.family – und bei jeder muss genau diese Adresse als Absender stehen. '
+      + `Stimmt alles, auf „jetzt umstellen“ drücken. Die Prüfung gilt bis ${mailUhr(antwort.gueltigBis)} Uhr.`, 'gut');
+  });
+
+  byId('mailUmstellen').addEventListener('click', async () => {
+    const knopf = byId('mailUmstellen');
+    knopf.disabled = true;
+    const antwort = await stelleMailversandUm(hausToken(), mailPruefung);
+    knopf.disabled = false;
+    if (!antwort?.ok) {
+      // Den Stand neu holen: ist die Pruefung weg oder veraltet, verschwindet
+      // der Knopf, statt beim naechsten Druck etwas anderes zu melden.
+      await lade();
+      return sag('mailInfo', mailGrund(antwort?.grund), 'fehler');
+    }
+    byId('mailSchritte').hidden = true;
+    maleMailStand(antwort);
+    sag('mailInfo', 'Umgestellt. Ab sofort gehen alle Mails über euer Brevo-Konto, mit euren Adressen als Absender.', 'gut');
+  });
+
+  byId('mailAbbrechen').addEventListener('click', async () => {
+    // Auch im Dienst: die Pruefung samt Schluessel ist danach weg - niemand
+    // kann sie spaeter auf einem anderen Geraet doch noch umstellen.
+    const antwort = await brecheMailversandAb(hausToken());
+    byId('mailSchritte').hidden = true;
+    if (!antwort?.ok) {
+      byId('mailUmstellenKasten').hidden = true;
+      return sag('mailInfo', mailGrund(antwort?.grund), 'fehler');
+    }
+    maleMailStand(antwort);
+    sag('mailInfo', 'Abgebrochen – es hat sich nichts geändert, und die Prüfung ist gelöscht.');
+  });
+
+  byId('mailZurueck').addEventListener('click', async () => {
+    const ohneVersand = mailStandZuletzt && !mailStandZuletzt.bisher;
+    const frage = ohneVersand
+      ? 'Achtung: Im Dienst ist sonst kein Mailversand eingerichtet. Nach dem Zurückstellen geht KEINE Mail mehr hinaus – auch keine Bestätigung. Trotzdem zurückstellen?'
+      : 'Zurück zum bisherigen Versand über das Konto von Jonas? Der Schlüssel eures Kontos wird dabei aus dem Dienst gelöscht.';
+    if (!confirm(frage)) return;
+    const antwort = await mailversandZurueck(hausToken());
+    if (!antwort?.ok) return sag('mailInfo', mailGrund(antwort?.grund), 'fehler');
+    maleMailStand(antwort);
+    sag('mailInfo', antwort.bisher
+      ? 'Zurückgestellt: Es gilt wieder der bisherige Versand.'
+      : 'Zurückgestellt. Es ist jetzt kein Mailversand eingerichtet – bitte neu prüfen und umstellen.', antwort.bisher ? 'gut' : 'fehler');
+  });
+
+  await lade();
 }
 
 // ---- Anfragen aus Locations und Agentur (01.10.) ---------------------------

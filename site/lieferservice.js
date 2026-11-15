@@ -9,7 +9,7 @@
  * prueft, sammelt und uebergibt - abgeschlossen wird beim offiziellen Dienst.
  * Laeuft der Hausdienst, gehoert der Abschluss ihm und dieser Weg tritt ab.
  */
-import { apiAdresse, bestelleTakeaway } from './haus-api.js?v=a0e6cbed';
+import { apiAdresse, bestelleTakeaway } from './haus-api.js?v=ba79ed23';
 
 (() => {
   'use strict';

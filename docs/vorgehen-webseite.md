@@ -405,30 +405,34 @@ die Datei an zwei Orten ablegen.
 
 ### Schritt 4 · Beglaubigen lassen und den Schlüssel hinterlegen
 
-*Wer: Sarah im Brevo-Konto des Hauses, gemeinsam mit Jonas. Dauer: Minuten
-bis Stunden.*
+*Wer: Sarah, allein – im Brevo-Konto des Hauses und in der Wirt-Ansicht.
+Dauer: eine halbe Stunde, dazu bis zu 48 Stunden Wartezeit bei Brevo.*
 
 Die Einträge sind von außen sichtbar. Jetzt im Brevo-Konto des Hauses bei
 beiden Domains auf *Authenticate* drücken und warten, bis alles grün ist.
 Maßgeblich ist, was dieses Konto anzeigt.
 
-Danach im selben Konto einen API-Schlüssel erzeugen. Jonas hinterlegt ihn im
-Dienst – gemeinsam, nicht per Mail oder Chat. Warum: Heute verschickt der
-Dienst noch über das Brevo-Konto von Jonas, und dort sind eure Domains nicht
-beglaubigt. Ein Schlüssel statt eines zweiten Benutzers, weil ein zweiter
-Benutzer laut Brevo-Preisliste 9 € im Monat kostet.
+Danach im selben Konto einen API-Schlüssel erzeugen und ihn selbst in der
+Wirt-Ansicht einfügen (haus → Mailversand, seit 15. November) – nicht per
+Mail oder Chat, auch nicht an Jonas. Warum ein neuer Schlüssel: Heute
+verschickt der Dienst noch über das Brevo-Konto von Jonas, und dort sind eure
+Domains nicht beglaubigt. Ein Schlüssel statt eines zweiten Benutzers, weil
+ein zweiter Benutzer laut Brevo-Preisliste 9 € im Monat kostet. Schritt für
+Schritt steht es in der Anleitung „Mailversand selbst umstellen“.
 
 Warum das nicht übersprungen werden darf: Brevo verschickt nur von Adressen,
 deren Domain es beglaubigt hat.
 
 ### Schritt 5 · Den Absender umstellen
 
-*Wer: der Programmierer. Dauer: zehn Minuten.*
+*Wer: Sarah, in derselben Wirt-Ansicht. Dauer: fünf Minuten.*
 
-Erst jetzt, keinen Schritt früher: wenn beide Domains grün sind und der
-Brevo-Schlüssel des Hauses im Dienst liegt. Umgekehrt verschickt Brevo gar
-nichts mehr. Zuerst die Hauptadresse auf `willkommen@`, dann die Absender je
-Zweck aus der Tabelle weiter oben.
+Der Dienst stellt erst um, wenn beide Domains grün sind und er von jeder der
+fünf Absenderadressen eine Testmail verschicken konnte. Sind alle Testmails
+angekommen, drückt Sarah auf „jetzt umstellen“: Dann gelten der Schlüssel des
+Hauses, die Hauptadresse `willkommen@` und die Absender je Zweck aus der
+Tabelle weiter oben auf einmal. Umgekehrt verschickte Brevo gar nichts mehr –
+deshalb lässt die Wirt-Ansicht nichts anderes zu. Ein Knopf führt zurück.
 
 Danach eine echte Probe: eine Reservierung auf der laufenden Seite anlegen, mit
 einer privaten Gmail-Adresse. Die Bestätigung muss im **Posteingang** liegen,

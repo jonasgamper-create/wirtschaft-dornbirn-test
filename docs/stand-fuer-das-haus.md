@@ -20,8 +20,9 @@ voneinander (Punkt 7). Nichts ist geraten.
 - **An eurer Domain und an der alten Seite wurde nichts verändert** –
   nachgeprüft, der Beleg steht in Punkt 7.
 - **Offen ist vor allem der Mailabsender:** In eurem Brevo-Konto fehlen der
-  Klick auf *Authenticate* und danach ein Schlüssel für den Dienst. Dann
-  stellt Jonas um (Punkt 4).
+  Klick auf *Authenticate* und ein Schlüssel für den Dienst. Seit 15. November
+  stellt Sarah danach selbst um, ohne Jonas – mit der Anleitung „Mailversand
+  selbst umstellen“ (Punkt 4).
 
 ---
 
@@ -165,25 +166,25 @@ Bestätigungen oft im Spam.
 Brevo-Konto – das, das Sarah angelegt hat. Nur dort sind eure Domains
 eingetragen. Dazu braucht es drei Schritte, in genau dieser Reihenfolge:
 
-1. **Sarah: In Brevo beide Domains beglaubigen.** *Senders, Domains &
-   Dedicated IPs → Domains*, bei `wirtschaft-dornbirn.at` und bei
+1. **Sarah: In Brevo beide Domains beglaubigen.** *Einstellungen → Absender,
+   Domains, IPs → Domains*, bei `wirtschaft-dornbirn.at` und bei
    `eugen.family` jeweils *Authenticate*. Die Einträge sind gesetzt, es
    fehlt nur dieser Knopf. Fragt Brevo nach einer Unteradresse: `post`.
-2. **Sarah und Jonas gemeinsam, etwa zehn Minuten:** In eurem Brevo-Konto
-   einen **API-Schlüssel** erzeugen (*SMTP & API → API Keys → Generate a new
-   API key*). Jonas trägt ihn direkt im Dienst ein, am besten bei geteiltem
-   Bildschirm. Der Schlüssel geht **nicht** per Mail oder Chat: wer ihn hat,
-   kann in eurem Namen Mails verschicken. Warum ein Schlüssel und kein
-   Benutzerzugang für Jonas: ein zweiter Benutzer kostet bei Brevo 9 € im
-   Monat, der Schlüssel nichts.
-3. **Jonas:** Absender auf `willkommen@` umstellen, dann die Absender je
-   Zweck einschalten (Service, Veranstaltungen, Emma & Eugen), dann eine
-   Probe-Reservierung an eine Gmail-Adresse – die Bestätigung muss im
-   **Posteingang** liegen.
+2. **Sarah: In Brevo einen API-Schlüssel erzeugen** (*Einstellungen → SMTP &
+   API → API-Schlüssel & MCP*). Der Schlüssel geht **nicht** per Mail oder
+   Chat: wer ihn hat, kann in eurem Namen Mails verschicken. Ein Schlüssel
+   statt eines Benutzerzugangs für Jonas, weil ein zweiter Benutzer bei Brevo
+   9 € im Monat kostet.
+3. **Sarah, seit 15. November ohne Jonas: in der Wirt-Ansicht umstellen.**
+   Unter *haus → Mailversand* den Schlüssel einfügen. Der Dienst prüft ihn,
+   schickt von jeder eurer fünf Absenderadressen eine Testmail und stellt
+   Schlüssel und alle Absender gemeinsam um – erst, wenn die Testmails
+   angekommen sind. Mit einem Knopf geht es zurück. Schritt für Schritt
+   steht es in der Anleitung *Mailversand selbst umstellen*.
 
 **Umgekehrt nicht.** Würde der Absender vor Schritt 1 und 2 umgestellt,
-verschickte Brevo **gar nichts** mehr – schlechter als heute. Deshalb
-stehen die neuen Absender noch leer.
+verschickte Brevo **gar nichts** mehr – schlechter als heute. Darum lässt die
+Wirt-Ansicht das Umstellen erst zu, wenn alle Testmails durchgegangen sind.
 
 ## 5 Später: die Domain umlegen
 
@@ -206,7 +207,9 @@ stillstehen.
 **Sarah**
 
 1. In Brevo bei beiden Domains *Authenticate* drücken (Punkt 4, Schritt 1).
-2. Mit Jonas einen kurzen Termin für den Schlüssel ausmachen (Schritt 2).
+2. Den Schlüssel erzeugen und in der Wirt-Ansicht selbst umstellen (Punkt 4,
+   Schritte 2 und 3, Anleitung *Mailversand selbst umstellen*). Jonas braucht
+   es dafür nicht.
 3. Noch offen aus dem letzten Blatt: das Konto bei **Cloudflare** (dort
    läuft die Seite), mit `veranstaltungen@`, eine zweite Person mit vollem
    Zugang, Wiederherstellungscodes ausdrucken. Kostet nichts.
@@ -230,8 +233,9 @@ stillstehen.
 
 1. Seine Adresse für die Kopie des Tageszettels im Dienst hinterlegen
    (Antwort 2).
-2. Nach Sarahs Schritten 1 und 2: den Absender umstellen und prüfen
-   (Punkt 4, Schritt 3).
+2. Beim Absender nichts mehr – Sarah stellt selbst um (seit 15. November).
+   Jonas hilft nur, wenn die Wirt-Ansicht etwas meldet, das die Anleitung
+   nicht erklärt.
 3. Den Umzug der Domain erst, wenn ihr die Seite abgenommen habt (Punkt 5).
 
 ## 7 Dreimal nachgeprüft am 10. und 11. November

@@ -163,7 +163,31 @@ npx wrangler@4 secret put BREVO_SMS_ABSENDER # optional, SMS
 ```
 
 Fehlen `BREVO_KEY`/`BREVO_ABSENDER`, versendet der Dienst schlicht nichts;
-alles andere läuft weiter. Fehlt `WIRT_MAIL_KOPIE`, gibt es keine Kopie –
+alles andere läuft weiter.
+
+**Seit 15.11.2026 kann das Haus den Versand selbst umstellen** (Wirt-Ansicht
+→ haus → Mailversand, `server/src/mailversand.mjs`, Anleitung
+`docs/mailversand-selbst-umstellen.md`). Der Dienst prüft den Schlüssel aus
+dem Brevo-Konto des Hauses, schickt von jeder der fünf Absenderadressen eine
+Testmail und speichert erst nach der Bestätigung Schlüssel und Absender
+gemeinsam – in der Tabelle `geheimnisse`, die in keiner Sicherung landet
+(§6). Danach gelten diese statt `BREVO_KEY`/`BREVO_ABSENDER` und der
+`ABSENDER_*`-Felder; die Geheimnisse in Cloudflare bleiben der Rückweg
+(„Zurück zum bisherigen Versand“). Erlaubt ist das nur, wo
+`MAILVERSAND_EINRICHTEN` auf `"ja"` steht – in der Produktion, nie in der
+Probe. Nach einem Umzug des Dienstes in ein anderes Konto ist die Tabelle
+leer: Das Haus trägt den Schlüssel dort noch einmal ein.
+
+Endpunkte: `GET /api/mail/versand` (Stand, nie der Schlüssel), `POST
+/api/mail/versand/pruefen`, `…/umstellen` (nur mit der Kennung der zuletzt
+bestandenen Prüfung), `…/abbrechen`, `…/zurueck` – alle nur mit dem echten
+Hausschlüssel, auch wenn `OFFEN` gilt. Ebenso `/api/mail/domain` und
+`/api/mail/pruefung`: Sie fragen Brevo im Dienst (`mailBrevo`, nur diese
+Pfade), damit der Schlüssel ihn nie verlässt. Grenzen: 30 Anfragen bei Brevo
+und 6 Prüfungen mit Testmails je Stunde. Reservierungen merken sich den
+Kalender-Veranstalter ihrer ersten Bestätigung (`organisator`), damit eine
+Absage nach einem Absenderwechsel im Kalender des Gastes ankommt. SMS (nicht
+eingeschaltet) liefe weiter über `BREVO_KEY` aus Cloudflare. Fehlt `WIRT_MAIL_KOPIE`, gibt es keine Kopie –
 und so ist es heute: vorbereitet (Antwort des Hauses vom 03.11.), aber noch
 nicht gesetzt. Jonas setzt es selbst; ein Geheimnis, weil die Adresse privat
 ist und das Repository öffentlich. Die Probe hat nur `HAUS_TOKEN`.
@@ -194,6 +218,7 @@ Der Dienst hält alles in **einer** SQLite-Datenbank (Durable Object
 | `zahlen` | Tageszähler für die Monatszahlen |
 | `sperrliste` | Fingerabdrücke abgewiesener Absender |
 | `mittagskarte` | die hochgeladene PDF-Karte in Teilen (BLOB) |
+| `geheimnisse` | seit 15.11.2026: der Brevo-Schlüssel und die Absender, wenn das Haus den Versand selbst umgestellt hat (§5). **Nicht** in der Sicherung |
 
 **Sicherung – der ganze Bestand als Datei** (seit 30.09.):
 
@@ -206,7 +231,8 @@ curl -X POST -H "x-haus-token: $T" -H "content-type: application/json" \
 ```
 
 Der Import leert jede Tabelle und befüllt sie neu, in einer Transaktion;
-ohne `ersetzen=1` passiert nichts. Geheimnisse sind nicht in der Datei. Die
+ohne `ersetzen=1` passiert nichts. Geheimnisse sind nicht in der Datei –
+weder die aus Cloudflare noch die Tabelle `geheimnisse`. Die
 Datei enthält **Gästedaten** – nicht ins Repository, nicht per Mail, nach
 Gebrauch löschen. Empfehlung: einmal wöchentlich sichern (ein Cron-Job auf
 irgendeinem Rechner mit dem Hausschlüssel genügt).
@@ -309,13 +335,14 @@ im Code nach Hauszeit verzweigen (so wurde 06:00/12:00 gelöst).
   Lösung: Sarah hat das Brevo-Konto des Hauses angelegt und mit Markus die
   Einträge für `wirtschaft-dornbirn.at` und `eugen.family` bei Hetzner
   gesetzt (DKIM, `brevo-code`, SPF, DMARC; von außen geprüft am 10.11.2026,
-  `mail-absender.md`). Es fehlen, in dieser Reihenfolge: (1) *Authenticate*
-  für beide Domains im Brevo-Konto des Hauses; (2) ein API-Schlüssel aus
-  diesem Konto als `BREVO_KEY`, gemeinsam hinterlegt, nicht per Mail oder
-  Chat – der Dienst sendet heute über das Konto von Jonas, und dort sind die
-  Domains des Hauses nicht beglaubigt; (3) erst dann `secret put
-  BREVO_ABSENDER willkommen@wirtschaft-dornbirn.at` und die Absender je Zweck
-  (§5). Umgekehrt versendet Brevo gar nichts mehr.
+  `mail-absender.md`). Es fehlen: (1) *Authenticate* für beide Domains im
+  Brevo-Konto des Hauses; (2) ein API-Schlüssel aus diesem Konto, den Sarah
+  selbst in der Wirt-Ansicht einfügt (haus → Mailversand, seit 15.11.2026) –
+  nicht per Mail oder Chat. Der Dienst stellt Schlüssel, Hausabsender
+  `willkommen@` und die Absender je Zweck gemeinsam um, erst nach bestandener
+  Prüfung mit fünf Testmails (§5). Umgekehrt versendete Brevo gar nichts.
+  Unter „Mailversand“ steht danach, wann zuletzt verschickt wurde und woran
+  es zuletzt scheiterte (nur die Art des Fehlers, nie der Text).
 - Newsletter: zwei getrennte Listen (Wochenkarte, Termine), Double-Opt-in
   über `/newsletter/ja`, Abmeldung `/newsletter/weg`. Abonnenten liegen im
   Dienst (Tabelle `newsletter`), nicht bei Brevo.

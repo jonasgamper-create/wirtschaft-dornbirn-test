@@ -30,7 +30,12 @@ function rumpf(name) {
 // 1. Der Helfer selbst.
 pruefe('Helfer #absender(zweck, haus) fehlt', /#absender\(zweck, haus = 'wirtschaft'\)/.test(quelle));
 pruefe('#absender faellt nicht auf BREVO_ABSENDER zurueck',
-  /#absender\([\s\S]{0,600}?this\.env\?\.BREVO_ABSENDER/.test(quelle));
+  /#absender\(zweck, haus = 'wirtschaft'\) \{[\s\S]{0,1200}?this\.env\?\.BREVO_ABSENDER/.test(quelle));
+// Seit 15.11.2026: hat das Haus den Versand selbst umgestellt, gelten zuerst
+// seine Absender je Zweck (scripts/check-mailversand.mjs prueft sie am
+// laufenden Dienst).
+pruefe('#absender nimmt die Absender des Hauses nicht zuerst',
+  /#absender\(zweck, haus = 'wirtschaft'\) \{[\s\S]{0,400}?this\.#mailHaus\(\)\?\.absender/.test(quelle));
 pruefe('#absender unterscheidet das Kulturhaus nicht',
   /ABSENDER_KULTURHAUS[\s\S]{0,120}ABSENDER_WARTELISTE/.test(quelle));
 

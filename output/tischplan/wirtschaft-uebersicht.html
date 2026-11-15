@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; style-src 'sha256-n8GNAcpDa8RTw9c7OiUB+W40BiulpKis0E+Vw6Wfw+U='; script-src 'sha256-8/v8kST0Vtei6Qy75yLaq3MPoCmUteY/k4DrhhE/fcE='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev wss://wirtschaft-reservierung-probe.jonas-gamper.workers.dev; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; frame-src 'self'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; style-src 'sha256-WGq8jgbTKQov8pSY1A0wTI6nP9YpgpxRtgs5Psd4I6E='; script-src 'sha256-jEAAoHVgro/ab5vVlhiXDbmapB4yjiEHHHX/QtxOxKs='; connect-src https://wirtschaft-reservierung.jonas-gamper.workers.dev wss://wirtschaft-reservierung.jonas-gamper.workers.dev https://wirtschaft-reservierung-probe.jonas-gamper.workers.dev wss://wirtschaft-reservierung-probe.jonas-gamper.workers.dev; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#11110f">
   <title>Übersicht · Wirtschaft Dornbirn</title>
@@ -328,6 +328,10 @@ p,li,.hinweis,.wer b,.wer small,.lauf-ergebnis{text-wrap:pretty}
 .zu-liste{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:8px}
 .zu-liste li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border:1px dashed #11110f3d;border-radius:10px;background:#11110f05;color:#57524a}
 .zu-liste li.leer{border-style:solid;border-color:#11110f1f;background:#fff;color:var(--leise)}
+/* Mailversand (15.11.2026): je Pruefschritt eine Zeile - gruen bestanden, weinrot nicht. */
+.mail-schritte li{justify-content:flex-start;font-size:15px;line-height:1.45;overflow-wrap:anywhere}
+.mail-schritte li[data-art="gut"]{border-style:solid;color:var(--green)}
+.mail-schritte li[data-art="fehler"]{border-style:solid;border-color:var(--wine);color:var(--wine);font-weight:600}
 /* Der Absage-Knopf ist ROT: er schickt Mails hinaus, das ist keine
    Umsortierung. Wein ist der Ton des Hauses fuer "Achtung". */
 .knopf.warn{background:var(--wine);border-color:var(--wine);color:#fff}
@@ -1176,7 +1180,7 @@ window.WIRTSCHAFT_HAUS={"api":"https://wirtschaft-reservierung.jonas-gamper.work
 })();
 
 (() => {
-  // site/haus-api.js?v=a0e6cbed
+  // site/haus-api.js?v=ba79ed23
   var KONFIG = "data/haus.json";
   var TOKEN_SCHLUESSEL = "wirtschaft-haus-token";
   var gemerkt = null;

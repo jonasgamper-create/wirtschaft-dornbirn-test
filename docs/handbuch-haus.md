@@ -35,6 +35,7 @@ Unten sind vier Reiter: **heute · karte · warteliste · haus**.
 | **Eigene Termine** (z. B. Tag der offenen Tür) | haus → Eigene Termine | auf Startseite und Kalender |
 | **Klingeln bei neuer Bestellung** | haus → Klingeln | dieses Gerät meldet sich bei Bestellung, Reservierung, Anfrage, neuem Abend |
 | **Tische und Stühle** | haus → Tische & Stühle, Tische sperren | für die Auslastung |
+| **Mailversand auf euer Brevo-Konto umstellen** (einmalig, seit 15.11.2026) | haus → Mailversand | erst nach einer Prüfung mit fünf Testmails; ein Knopf führt zurück. Anleitung „Mailversand selbst umstellen“ |
 
 **Was ihr nicht mehr tun müsst:** neue Abende eintragen. Seit 30.09. holt
 der Dienst jeden Abend, den ihr auf euren Eventseiten (wirtschaft-dornbirn.at/event,
@@ -143,7 +144,8 @@ Abgleich durch den Programmierer, bis dahin steht ein Ersatzbild.
 
 **Ein Gast sagt, er habe keine Bestätigung bekommen.** Spam-Ordner. Solange
 die Mails noch vom alten Absender kommen (siehe Übergabe, Brevo), landen sie
-bei Gmail und Outlook oft dort oder gar nicht. Die Reservierung gilt trotzdem
+bei Gmail und Outlook oft dort oder gar nicht. Unter haus → Mailversand steht,
+wann zuletzt erfolgreich verschickt wurde und woran es zuletzt scheiterte. Die Reservierung gilt trotzdem
 – sie steht in der Wirt-Ansicht.
 
 **Wir sind voll, die Seite nimmt aber weiter an.** Reiter heute →
