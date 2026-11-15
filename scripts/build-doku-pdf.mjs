@@ -150,9 +150,11 @@ const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>
   li.haken .kasten.voll{background:var(--ink)}
   del{text-decoration:line-through; text-decoration-thickness:1px; color:var(--leise)}
   figure{margin:3mm 0 5mm; break-inside:avoid; text-align:center}
-  figure img{max-width:72mm; max-height:122mm; border:1px solid var(--linie); border-radius:2mm}
+  figure img{max-width:66mm; max-height:112mm; border:1px solid var(--linie); border-radius:2mm}
   figcaption{font-family:var(--sans); font-size:8.3pt; color:var(--leise); margin:1.6mm auto 0; max-width:120mm}
   blockquote{margin:2mm 0 4mm; padding:3mm 4mm; border-left:2px solid var(--gold); background:#f7f3ea; break-inside:avoid}
+  /* Der Satz, der ein Zitat ankuendigt, bleibt auf derselben Seite wie das Zitat. */
+  p:has(+ blockquote){break-after:avoid}
   blockquote p{margin:0 0 1.6mm}
   table{width:100%; border-collapse:collapse; margin:2mm 0 6mm; font-size:9.3pt; break-inside:auto}
   th{font-family:var(--sans); font-size:8pt; font-weight:700; letter-spacing:.06em; text-transform:lowercase; text-align:left; color:var(--leise); padding:1.6mm 2mm; border-bottom:1.2px solid var(--ink)}

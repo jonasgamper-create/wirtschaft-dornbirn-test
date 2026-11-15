@@ -32,7 +32,7 @@ Protokoll festhält.
 | 3 | Probe-Dienst `wirtschaft-reservierung-probe` | Cloudflare-Konto Jonas | Kundenkonto, neu ausgerollt (`--env probe`) | Übernehmer |
 | 4 | **Bestand**: Reservierungen, Takeaway, Wochenkarte, Tischplan, Newsletter-Abonnenten, Wartelisten, Zahlen, Mittagskarte-PDF | Datenbank des Dienstes | per Sicherung (`GET /api/sicherung` → `POST …?ersetzen=1`) in den neuen Dienst | Jonas exportiert, Übernehmer importiert |
 | 5 | Gästeseite auf Cloudflare Pages `wirtschaft-dornbirn.pages.dev` | Cloudflare-Konto Jonas | Pages-Projekt im Kundenkonto (oder nur GitHub Pages bis zum Domainumzug) | Übernehmer |
-| 6 | Mails (Brevo) | Brevo-Konto Jonas, Absender die private Adresse von Jonas | Brevo-Konto des Hauses (von Sarah angelegt; Einträge beider Domains bei Hetzner gesetzt, Sarah mit Markus), Domains beglaubigt, Absender `willkommen@wirtschaft-dornbirn.at` | Sarah (*Authenticate*), Jonas mit dem Haus (API-Schlüssel, Absender) |
+| 6 | Mails (Brevo) | Brevo-Konto Jonas, Absender die private Adresse von Jonas | Brevo-Konto des Hauses (von Sarah angelegt; Einträge beider Domains bei Hetzner gesetzt, Sarah mit Markus), Domains beglaubigt, Absender `willkommen@wirtschaft-dornbirn.at` | Sarah allein (API-Schlüssel in der Wirt-Ansicht, seit 15.11.2026); *Authenticate* und Absender erledigt dabei der Dienst |
 | 7 | Geheimnisse: `HAUS_TOKEN`, `BREVO_KEY`, `BREVO_ABSENDER`, `VAPID_PRIVAT` (+ öffentlicher Teil) | von Jonas erzeugt | **neu erzeugt** vom Übernehmer; Jonas' Kopien gelöscht | Übernehmer |
 | 8 | `WIRT_MAIL` (Tageszettel, Wochenbericht), `TAKEAWAY_MAIL` (Bestellmeldungen) | vorher die Adresse von Jonas | **erledigt 27.10.2026**: `veranstaltungen@` bzw. `service@`. Kopie von Tageszettel und Wochenbericht an die technische Betreuung: vorbereitet (Geheimnis `WIRT_MAIL_KOPIE`), noch nicht gesetzt – heute keine Kopie | – |
 | 9 | Domain `wirtschaft-dornbirn.at` | Kunde (Hetzner) | Kunde; Zone zu Cloudflare empfohlen | Kunde |
@@ -57,7 +57,7 @@ ist so gewählt, dass zu keinem Zeitpunkt Gäste vor einer toten Seite stehen.
 
 - [ ] A1 GitHub-Konto oder -Organisation des Kunden angelegt; Übernehmer ist Admin (Stand 11.11.: ein GitHub-Konto des Hauses hat Sarah angelegt)
 - [ ] A2 Cloudflare-Konto des Kunden angelegt (Gratisstufe reicht); Übernehmer ist Mitglied
-- [ ] A3 Brevo-Konto des Kunden angelegt; API-Schlüssel erzeugt (Stand 11.11.: Konto von Sarah angelegt, Einträge beider Domains gesetzt; offen *Authenticate*, dann der Schlüssel – siehe B6)
+- [ ] A3 Brevo-Konto des Kunden angelegt; API-Schlüssel erzeugt (Stand 15.11.: Konto von Sarah angelegt, Einträge beider Domains gesetzt; offen nur der Schlüssel, den Sarah selbst einfügt – *Authenticate* erledigt der Dienst, siehe B6)
 - [ ] A4 Übernehmer hat das Repository geklont, `npm run ci` läuft grün auf seinem Rechner
 - [ ] A5 Übernehmer hat `docs/betriebshandbuch.md` gelesen und Rückfragen gestellt
 
@@ -68,7 +68,7 @@ ist so gewählt, dass zu keinem Zeitpunkt Gäste vor einer toten Seite stehen.
 - [ ] B3 **Dienst ausrollen** im Kundenkonto: `npx wrangler@4 deploy` und `--env probe`. Ausgabe: fünf `schedule:`-Zeilen beim Echtbetrieb, keine bei der Probe. Neue Adressen notieren (`wirtschaft-reservierung.<kundenkonto>.workers.dev`).
 - [ ] B4 **Bestand übernehmen**: Jonas zieht `GET /api/sicherung` vom alten Dienst (Datei bleibt bei den beiden Beteiligten, wird nach Abschluss gelöscht); Übernehmer spielt sie mit `POST …?ersetzen=1` in den neuen Dienst. Antwort enthält die Zeilenzahlen je Tabelle – mit der Datei vergleichen.
 - [ ] B5 **Seite umstellen**: `site/data/haus.json` auf die neuen Dienstadressen; `ALLOWED_ORIGINS`/`GAESTE_SEITE`/`DIENST_BASIS` in `wrangler.jsonc`; `npm run ci`; PR; Merge. Cloudflare-Pages-Projekt im Kundenkonto anlegen und `npm run deploy:seite` (oder das Repository im Dashboard verbinden).
-- [ ] B6 **Mails**: Domains `wirtschaft-dornbirn.at` und `eugen.family` im Brevo-Konto des Hauses anlegen und die DNS-Einträge bei Hetzner setzen – **erledigt** (Sarah mit Markus; von außen geprüft am 10.11.2026, `docs/mail-absender.md`). Offen, in dieser Reihenfolge: *Authenticate* für beide Domains im Brevo-Konto des Hauses; einen API-Schlüssel aus diesem Konto als `BREVO_KEY` hinterlegen (gemeinsam, nicht per Mail oder Chat); erst dann `secret put BREVO_ABSENDER willkommen@wirtschaft-dornbirn.at` und die Absender je Zweck. Umgekehrt versendet Brevo gar nichts mehr. Prüfen: `GET /api/mail/pruefung?email=<eigene Adresse>` → `delivered` – die Abfrage zeigt erst mit dem Schlüssel des Hauses dessen Konto.
+- [ ] B6 **Mails**: Domains `wirtschaft-dornbirn.at` und `eugen.family` im Brevo-Konto des Hauses anlegen und die DNS-Einträge bei Hetzner setzen – **erledigt** (Sarah mit Markus; von außen geprüft am 10.11.2026, `docs/mail-absender.md`). Offen nur noch: Sarah fügt einen API-Schlüssel aus diesem Konto selbst in der Wirt-Ansicht ein (haus → Mailversand, seit 15.11.2026; nicht per Mail oder Chat). Der Dienst beglaubigt dabei beide Domains (*Authenticate*), schickt fünf Testmails und stellt Schlüssel, `willkommen@` und die Absender je Zweck gemeinsam um. Der Weg über Cloudflare (`secret put BREVO_KEY`, dann `BREVO_ABSENDER`) bleibt der Rückweg; umgekehrt – Absender vor Beglaubigung und Schlüssel – versendet Brevo gar nichts mehr. Prüfen: `GET /api/mail/pruefung?email=<eigene Adresse>` → `delivered` – die Abfrage zeigt erst mit dem Schlüssel des Hauses dessen Konto.
 - [ ] B7 **Wirt-Ansicht neu verteilen**: neuer Link mit `#k=<neuer Hausschlüssel>` an Wolfgang und das Team; alte Links sind damit wertlos.
 
 ### Phase C – Parallelphase (2–4 Wochen)
@@ -131,7 +131,7 @@ Jonas. Nachweis = Datum und Kürzel in der letzten Spalte.
 | 01.10. | Programm 2027 | 28 neue Ticketwege von den eigenen Eventseiten automatisch gefunden, auf Seite und Startseite; Abgleich im Dienst 56/56, `check:live` grün, Gegentest gegen die Probe rot mit allen fehlenden Wegen; GitHub-Workflow grün |
 | 01.10. | Anfragen und Hinweis | im Testdienst: Anfrage über Locations und Agentur gespeichert und in der Wirt-Ansicht, Fangfeld verwirft Spam, Hinweis nur mit Hausschlüssel (401 ohne), auf der Startseite sichtbar. Mailversand im Echtbetrieb nicht mit echter Adresse getestet – Abnahme Nr. 16 |
 | 10.11. | Ticketkategorien | Ticketist gibt Kategorien, Preise und freie Karten öffentlich heraus (`/api/ticket-categories?eventId=<nummer>`); alle kommenden Abende haben Preise, auch die 20 ab Jänner 2027. Der Dienst liest sie seit 11.11.2026 selbst |
-| 10.11. | Brevo-Einträge | beide Domains von außen geprüft: DKIM, `brevo-code` (auf beiden gleich = ein Konto, das des Hauses), SPF, DMARC. Offen: *Authenticate* und der Schlüssel des Hauses |
+| 10.11. | Brevo-Einträge | beide Domains von außen geprüft: DKIM, `brevo-code` (auf beiden gleich = ein Konto, das des Hauses), SPF, DMARC. Offen: der Schlüssel des Hauses (Sarah); *Authenticate* übernimmt seit 15.11. der Dienst |
 | 4.–10.11. | Tageszettel | an `veranstaltungen@` zugestellt am 4., 5., 6., 9. und 10.11. (Brevo meldet `delivered`) |
 
 **Was nicht nachgewiesen ist** – und der Übernehmer in Phase C selbst
@@ -167,12 +167,14 @@ Umzugstag abläuft.
 bei Hetzner; Entscheidung, ob die Zone zu Cloudflare umzieht (empfohlen –
 nur dann sind Hauptdomain und Cloudflare Access ohne Umweg möglich).
 
-**Brevo im Kundenkonto einrichten** (Stand 11.11.2026: Konto, Domains und
-Einträge erledigt – Sarah mit Markus; offen *Authenticate* und der Schlüssel)
+**Brevo im Kundenkonto einrichten** (Stand 15.11.2026: Konto, Domains und
+Einträge erledigt – Sarah mit Markus; offen nur der Schlüssel, *Authenticate*
+erledigt der Dienst)
 1. Konto auf brevo.com anlegen (Gratisstufe) – **erledigt** (Sarah). Unter
    *SMTP & API* einen **API-Schlüssel** erzeugen – er wird genau einmal
-   angezeigt. Der Schlüssel ist **noch offen**; Sarah fügt ihn nach
-   *Authenticate* (Schritt 6) selbst in der Wirt-Ansicht ein (Schritt 7).
+   angezeigt (Rechte: *Transactional email* All, *Account* Read/write). Der
+   Schlüssel ist **noch offen**; Sarah fügt ihn selbst in der Wirt-Ansicht
+   ein (Schritt 7), der Dienst erledigt dabei Schritt 6.
 2. *Senders, Domains & Dedicated IPs → Domains → Add a domain*:
    `wirtschaft-dornbirn.at` und `eugen.family` – **erledigt**. Brevo zeigt je
    Domain vier Einträge (zwei DKIM-CNAME, einen `brevo-code`-TXT, einen
@@ -187,10 +189,11 @@ Einträge erledigt – Sarah mit Markus; offen *Authenticate* und der Schlüssel
    **erledigt** für beide Domains (von außen geprüft am 10.11.2026).
 5. Für die Seite: Custom Domain im Cloudflare-Pages-Projekt anlegen, die
    angezeigten Ziele eintragen (`umzug-domain-plan.md` §2a).
-6. Warten, bis die Einträge sichtbar sind (`dig +short …`), dann in Brevo
-   „Authenticate“ – im Brevo-Konto des Hauses, für beide Domains (Sarah).
-   Die Prüfung in der Wirt-Ansicht zeigt je Domain, ob Brevo sie als
-   beglaubigt führt.
+6. Warten, bis die Einträge sichtbar sind (`dig +short …`), dann
+   „Authenticate“ für beide Domains im Brevo-Konto des Hauses – seit
+   15.11.2026 erledigt das der Dienst beim Prüfen in der Wirt-Ansicht
+   (`PUT /v3/senders/domains/{domain}/authenticate`) und nennt je Domain,
+   ob Brevo sie als beglaubigt führt oder welcher Eintrag fehlt.
 
 **Dienst umstellen**
 7. Den Versand stellt Sarah selbst um (Wirt-Ansicht → haus → Mailversand,
@@ -220,7 +223,7 @@ Einträge erledigt – Sarah mit Markus; offen *Authenticate* und der Schlüssel
 | Cloudflare Pages | veröffentlicht nicht von selbst | `npm run deploy:seite` nach jedem Merge, oder Repository im Dashboard verbinden |
 | `npm run ci` rot, trotzdem gemergt | Befehlsketten mit `;` laufen weiter | erst Ergebnis prüfen, dann committen (01.10. passiert) |
 | Alter Stand im Browser | CSS/JS ohne neuen `?v=`-Hash | `npm run ci` (schreibt `sync:versions`) |
-| Brevo-Absender zu früh umgestellt | Brevo verschickt **gar nichts** mehr | erst *Authenticate* im Konto des Hauses, dann dessen Schlüssel als `BREVO_KEY`, dann `BREVO_ABSENDER` |
+| Brevo-Absender zu früh umgestellt | Brevo verschickt **gar nichts** mehr | in der Wirt-Ansicht umstellen: der Dienst beglaubigt, prüft mit fünf Testmails und stellt Schlüssel und Absender gemeinsam um; über Cloudflare nur in der Reihenfolge *Authenticate*, `BREVO_KEY`, `BREVO_ABSENDER` |
 | Absender ist die private Adresse von Jonas | ihr Anbieter hat DMARC `p=reject` – Gmail/Outlook weisen ab | Absender auf die eigene, beglaubigte Domain |
 | Testadressen `@example.at` | Brevo verbucht sie als unzustellbar | harmlos, Statistik nicht verwechseln |
 | Neue Abende auf Blätterseiten | der Merker hielt `/page/2/` für erledigt (01.10.) | Listen werden jedes Mal gelesen – bei neuer Quelle daran denken |

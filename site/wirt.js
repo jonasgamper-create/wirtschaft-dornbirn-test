@@ -2570,13 +2570,15 @@ const MAIL_GRUENDE = {
   schluessel_ungueltig: 'Brevo kennt diesen Schlüssel nicht. Bitte den Schlüssel noch einmal ganz kopieren – oder in Brevo einen neuen erzeugen.',
   ip_gesperrt: 'Brevo sperrt die Adresse des Dienstes (IP-Sperre). In Brevo: Einstellungen → Sicherheit → Autorisierte IPs, bei „API keys“ auf „Deactivate“. Danach noch einmal prüfen.',
   konto_nicht_freigeschaltet: 'Brevo hat den Versand in eurem Konto noch nicht freigeschaltet. Bitte den Brevo-Support um die Freischaltung bitten (Vorlage in der Anleitung) und danach noch einmal prüfen.',
-  keine_berechtigung: 'Dem Schlüssel fehlen Rechte. In Brevo beim Schlüssel „Transactional email“ auf „All“ stellen – oder einen neuen Schlüssel mit diesem Recht erzeugen.',
-  nicht_beglaubigt: 'Eine Domain ist in Brevo noch nicht beglaubigt (siehe oben). In Brevo bei der Domain auf „Authenticate“ – das kann bis zu 48 Stunden dauern. Danach noch einmal prüfen.',
-  domain_fehlt: 'Eine Domain fehlt in eurem Brevo-Konto (siehe oben). Sie muss dort unter „Domains“ stehen und beglaubigt sein.',
+  keine_berechtigung: 'Dem Schlüssel fehlen Rechte. In Brevo beim Schlüssel (drei Punkte → „Edit API key“) „Transactional email“ auf „All“ und „Account“ auf „Read/write“ stellen, speichern und noch einmal prüfen.',
+  darf_nicht_beglaubigen: 'Der Schlüssel darf die Domains nicht beglaubigen. In Brevo beim Schlüssel (drei Punkte → „Edit API key“) „Account“ auf „Read/write“ stellen, speichern und noch einmal prüfen.',
+  dns_unvollstaendig: 'Brevo findet bei einer Domain noch nicht alle Einträge (siehe oben). Sie stehen bei Hetzner; manchmal sieht Brevo sie erst nach Stunden. Bitte später noch einmal prüfen. Bleibt es so, mit Markus die Einträge bei Hetzner mit denen in Brevo vergleichen (Domains → die Domain).',
+  nicht_beglaubigt: 'Brevo hat eine Domain noch nicht beglaubigt (siehe oben). Bitte in einer Stunde noch einmal prüfen. Bleibt es so, in Brevo unter „Domains“ bei der Domain nachsehen, was Brevo meldet.',
+  domain_fehlt: 'Eine Domain fehlt in eurem Brevo-Konto (siehe oben). In Brevo unter „Domains“ die Domain hinzufügen („Add a domain“) – die Einträge bei Hetzner stehen schon – und noch einmal prüfen. Das Beglaubigen erledigt dann der Dienst.',
   absender_ungueltig: 'Brevo nimmt die Absenderadresse nicht an – meist ist die Domain noch nicht beglaubigt. In Brevo unter „Domains“ nachsehen.',
   zu_viele: 'Brevo bremst gerade. Bitte in ein paar Minuten noch einmal.',
   brevo_stoerung: 'Brevo hat gerade eine Störung. Bitte später noch einmal.',
-  brevo_fehler: 'Brevo hat die Anfrage abgelehnt. Bitte später noch einmal – bleibt es so, Jonas Bescheid geben.',
+  brevo_fehler: 'Brevo hat die Anfrage abgelehnt. Bitte später noch einmal – bleibt es so, den Brevo-Support fragen und die Uhrzeit dazuschreiben.',
   netz: 'Brevo oder der Dienst war nicht erreichbar. Bitte in ein paar Minuten noch einmal.',
   token: 'Dieses Gerät ist nicht angemeldet – dafür braucht es den Link mit dem Hausschlüssel.',
   keine_pruefung: 'Bitte zuerst prüfen lassen – umgestellt wird nur, was vorher geklappt hat.',
@@ -2590,6 +2592,8 @@ const MAIL_KURZ = {
   konto_nicht_freigeschaltet: 'Versand im Konto noch nicht freigeschaltet', keine_berechtigung: 'dem Schlüssel fehlen Rechte',
   absender_ungueltig: 'Absender nicht angenommen', netz: 'nicht erreichbar', zu_viele: 'Brevo bremst gerade',
   konto_gesperrt: 'Konto bei Brevo gesperrt oder in Prüfung',
+  darf_nicht_beglaubigen: 'der Schlüssel darf nicht beglaubigen', dns_unvollstaendig: 'Einträge noch nicht vollständig',
+  nicht_beglaubigt: 'noch nicht beglaubigt', domain_fehlt: 'fehlt im Brevo-Konto',
   brevo_stoerung: 'Störung bei Brevo', brevo_fehler: 'abgelehnt'
 };
 const mailKurz = grund => MAIL_KURZ[grund] || 'abgelehnt';
@@ -2614,8 +2618,13 @@ function maleMailSchritte(schritte) {
       const konto = s.konto ? ` – Brevo-Konto ${s.konto.name ? `„${s.konto.name}“` : ''}${s.konto.email ? ` (${s.konto.email})` : ''}` : '';
       text = s.ok ? `Schlüssel gültig${konto}` : `Schlüssel: ${mailKurz(s.grund)}`;
     } else if (s.was === 'domain') {
-      text = s.ok ? `${s.name} ist beglaubigt`
-        : (s.grund === 'domain_fehlt' ? `${s.name} steht nicht in eurem Brevo-Konto` : `${s.name} ist noch nicht beglaubigt`);
+      // Seit 15.11.2026 beglaubigt der Dienst selbst - "eben" sagt, dass er es gerade getan hat.
+      if (s.ok) text = s.eben ? `${s.name} ist jetzt beglaubigt – eben vom Dienst bei Brevo erledigt` : `${s.name} ist beglaubigt`;
+      else if (s.grund === 'domain_fehlt') text = `${s.name} steht nicht in eurem Brevo-Konto`;
+      else if (s.grund === 'dns_unvollstaendig') text = `${s.name}: Brevo findet noch nicht alle Einträge${s.fehlt?.length ? ` (fehlt: ${s.fehlt.join(', ')})` : ''}`;
+      else if (s.grund === 'darf_nicht_beglaubigen') text = `${s.name}: Der Schlüssel darf die Domain nicht beglaubigen`;
+      else if (s.grund === 'nicht_beglaubigt') text = `${s.name} ist noch nicht beglaubigt`;
+      else text = `${s.name}: ${mailKurz(s.grund)}`;
     } else if (s.was === 'domains') {
       text = s.ok === null
         ? 'Domains: Der Schlüssel darf sie nicht lesen – deshalb entscheiden die Testmails.'

@@ -12,9 +12,9 @@ Mails passiert. Es baut auf [adresse.md](adresse.md) und
 
 **Ein Satz vorweg:** Was nicht aus diesem Projekt heraus geht, sind die
 Einträge für die Seite in der DNS-Zone von `wirtschaft-dornbirn.at` bei
-Hetzner und, für die Mails, *Authenticate* sowie ein API-Schlüssel aus dem
-Brevo-Konto des Hauses (den Sarah seit 15.11.2026 selbst in der
-Wirt-Ansicht einträgt). Die
+Hetzner und, für die Mails, ein API-Schlüssel aus dem Brevo-Konto des
+Hauses (den Sarah seit 15.11.2026 selbst in der Wirt-Ansicht einträgt; das
+*Authenticate* erledigt der Dienst dabei). Die
 Einträge für die Mails stehen schon (Abschnitt 2b). Alles andere ist
 vorbereitet und dauert zusammen unter einer Stunde.
 
@@ -94,10 +94,9 @@ Der bestehende SPF-Eintrag ist **geändert, nicht verdoppelt** (beide Domains):
 v=spf1 a mx include:spf.brevo.com ~all
 ```
 
-Offen für die Mails: *Authenticate* für beide Domains im Brevo-Konto des
-Hauses (Sarah), dann stellt Sarah selbst um – Schlüssel in der Wirt-Ansicht
-einfügen (haus → Mailversand); der Dienst prüft und setzt Schlüssel und
-Absender gemeinsam (Abschnitt 3, Schritte 2 und 3; Anleitung
+Offen für die Mails: Sarah stellt selbst um – Schlüssel in der Wirt-Ansicht
+einfügen (haus → Mailversand); der Dienst beglaubigt beide Domains
+(*Authenticate*), prüft und setzt Schlüssel und Absender gemeinsam (Abschnitt 3, Schritte 2 und 3; Anleitung
 `mailversand-selbst-umstellen.md`).
 
 ---
@@ -109,16 +108,18 @@ Absender gemeinsam (Abschnitt 3, Schritte 2 und 3; Anleitung
    dig +short CNAME www.wirtschaft-dornbirn.at
    dig +short CNAME brevo1._domainkey.wirtschaft-dornbirn.at
    ```
-2. **Brevo beglaubigen lassen** – im Brevo-Konto **des Hauses** (Sarah)
-   *Domains → Authenticate*, für beide Domains. Die Prüfung in der
-   Wirt-Ansicht (Schritt 3) zeigt es je Domain; die Abfrage über den Dienst
-   fragt das Konto, mit dem gerade verschickt wird:
+2. **Brevo beglaubigen lassen** (*Authenticate*, beide Domains) – seit
+   15.11.2026 erledigt das der Dienst beim Prüfen in der Wirt-Ansicht
+   (Schritt 3) und zeigt es je Domain; von Hand geht es im Brevo-Konto des
+   Hauses unter *Domains → Authenticate*. Die Abfrage über den Dienst fragt
+   das Konto, mit dem gerade verschickt wird:
    ```bash
    curl -s -H "x-haus-token: <Hausschlüssel>" https://wirtschaft-reservierung.jonas-gamper.workers.dev/api/mail/domain
    ```
 3. **Schlüssel des Hauses und Absender** – seit 15.11.2026 macht das Sarah
    selbst in der Wirt-Ansicht (haus → Mailversand): Der Dienst prüft den
-   Schlüssel, schickt von jeder der fünf Absenderadressen eine Testmail und
+   Schlüssel, beglaubigt die Domains (Schritt 2), schickt von jeder der fünf
+   Absenderadressen eine Testmail und
    stellt Schlüssel und alle Absender gemeinsam um. Der Weg über Cloudflare
    bleibt möglich – zuerst `npx wrangler@4 secret put BREVO_KEY` im Ordner
    `server`, nicht per Mail oder Chat, dann den Absender:

@@ -267,7 +267,7 @@ export function deuteBrevo(status, text = '') {
   const t = String(text || '');
   if (/unrecogni[sz]ed ip|authori[sz]ed[ _-]?ips?|ip address/i.test(t)) return 'ip_gesperrt';
   if (/not (yet )?(been )?activated|account is not (yet )?active/i.test(t)) return 'konto_nicht_freigeschaltet';
-  if (/suspend|under review|account (is |has been )?(blocked|disabled|deactivated)/i.test(t)) return 'konto_gesperrt';
+  if (/suspend|under review|under[ _-]?validation|account (is |has been )?(blocked|disabled|deactivated)/i.test(t)) return 'konto_gesperrt';
   if (/key not found|invalid api key|(api )?key (is |has been )?(invalid|disabled|deactivated)/i.test(t)) return 'schluessel_ungueltig';
   // Ein ungueltiger Absender kommt nicht immer mit 400 - der Text entscheidet.
   if (/sender[^.]{0,80}not valid|validate your sender|authenticate your domain/i.test(t)) return 'absender_ungueltig';

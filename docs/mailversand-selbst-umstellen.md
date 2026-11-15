@@ -10,15 +10,17 @@ den Versand auf euer eigenes Brevo-Konto um, das du Anfang November angelegt
 hast. Danach kommt jede Mail von eurer eigenen Adresse, zum Beispiel
 `service@wirtschaft-dornbirn.at`.
 
-**Brauchst du Jonas dafür? Nein.** Alles hier machst du selbst: zuerst in
-eurem Brevo-Konto, dann in der Wirt-Ansicht. Den Schlüssel schickst du
-niemandem – auch nicht an Jonas –, du fügst ihn nur in der Wirt-Ansicht ein.
+**Brauchst du Jonas dafür? Nein.** Du machst nur zwei Dinge selbst: in Brevo
+einen Schlüssel erzeugen und ihn in der Wirt-Ansicht einfügen. Alles andere
+erledigt der Dienst der Webseite – auch das Beglaubigen eurer beiden Domains
+bei Brevo. Den Schlüssel schickst du niemandem – auch nicht an Jonas –, du
+fügst ihn nur in der Wirt-Ansicht ein.
 
 **Es kann nichts kaputtgehen.** Der Dienst stellt erst um, wenn er alles
 geprüft hat und du die Testmails gesehen hast. Bis dahin läuft alles wie
 bisher. Und mit einem Knopf geht es jederzeit zurück.
 
-**Dauer:** etwa 30 Minuten, dazu vielleicht Wartezeit bei Brevo (Abschnitt 6).
+**Dauer:** etwa 20 Minuten, dazu vielleicht Wartezeit bei Brevo (Abschnitt 5).
 **Kosten:** keine. Brevo bleibt kostenlos bis 300 Mails am Tag; ein voller Tag
 im Haus braucht 40 bis 80.
 
@@ -38,37 +40,15 @@ Anleitung nennt deshalb beides: **Einstellungen** (Settings). Die Menüs
 findest du in Brevo unten links unter **Einstellungen**, in manchen Konten
 oben rechts im Konto-Menü.
 
-## 2 Schritt 1 – beide Domains in Brevo beglaubigen
+**Bei Hetzner änderst du nichts.** Die Einträge für eure Domains hast du mit
+Markus schon gesetzt. Das Beglaubigen bei Brevo erledigt der Dienst in
+Schritt 2 – in Brevo musst du dafür nichts anklicken.
 
-Brevo verschickt mit eurer Adresse nur, wenn es sicher weiß, dass die Domain
-euch gehört. Die Einträge dafür hast du mit Markus bei Hetzner gesetzt. Jetzt
-fehlt nur noch der Klick in Brevo. **Bei Hetzner änderst du nichts.**
-
-1. In Brevo: **Einstellungen** (Settings) → **Absender, Domains, IPs**
-   (Senders, Domains, IPs) → **Domains**.
-2. Neben `wirtschaft-dornbirn.at` auf **Authentifizieren** (Authenticate)
-   klicken.
-3. Fragt Brevo, wie: **Domain selbst authentifizieren** (Authenticate the
-   domain yourself) wählen – nicht „automatisch“. Automatisch wollte Brevo
-   eure Zugangsdaten von Hetzner und würde den bestehenden DMARC-Eintrag
-   ersetzen.
-4. Brevo zeigt die Einträge an. Sie stehen schon bei Hetzner: nichts
-   abschreiben, nichts ändern. Ganz unten auf **Diese E-Mail-Domain
-   authentifizieren** (Authenticate this email domain) klicken.
-5. Steht danach **Authentifiziert** (Authenticated): fertig. Kommt „Die
-   Domain ist noch nicht authentifiziert“: in ein paar Stunden noch einmal
-   klicken – Brevo braucht manchmal bis zu 48 Stunden.
-6. Dasselbe für `eugen.family`.
-
-**Fragt Brevo nach einer Marken-Subdomain** (branded subdomain): diesen
-Schritt überspringen, ihr braucht sie nicht. Muss doch ein Name hinein, dann
-`post` – **nie `mail`**. Unter `mail.` läuft euer Postfach bei Hetzner; das ist
-der Hinweis von Markus.
-
-## 3 Schritt 2 – einen Schlüssel für die Webseite erzeugen
+## 2 Schritt 1 – einen Schlüssel für die Webseite erzeugen
 
 Der Schlüssel (API-Schlüssel) erlaubt der Webseite, über euer Brevo-Konto
-Mails zu verschicken. Er ist geheim wie ein Passwort.
+Mails zu verschicken und eure Domains zu beglaubigen. Er ist geheim wie ein
+Passwort.
 
 1. In Brevo: **Einstellungen** → **SMTP & API** → **API-Schlüssel & MCP**
    (API Keys & MCP).
@@ -80,10 +60,12 @@ Mails zu verschicken. Er ist geheim wie ein Passwort.
 5. Gültigkeit: **Kein Ablaufdatum** (No expiration). Brevo schaltet einen
    Schlüssel ab, der 90 Tage lang nicht benutzt wurde – das passiert hier
    nicht, der Tageszettel geht jeden Werktag hinaus.
-6. Fragt Brevo nach dem **Zugriff** (Access): **Eingeschränkt** (Restricted)
-   wählen, dann bei **Transactional email** auf **All** (Alle) und bei
-   **Account** auf **Read** (Lesen). Alles andere bleibt auf **None** (Keine).
-   Fragt Brevo nicht danach, ist das genauso in Ordnung.
+6. Beim **Zugriff** (Access) **Eingeschränkt** (Restricted) wählen. Dann bei
+   **Transactional email** auf **All** und bei **Account** auf
+   **Read/write** stellen. Alles andere bleibt auf **None**. Mehr braucht der
+   Schlüssel nicht: Mails verschicken und eure Domains beglaubigen. Diese
+   Auswahl zeigt Brevo oft nur auf Englisch. Fragt Brevo gar nicht nach dem
+   Zugriff, ist das genauso in Ordnung.
 7. Den Schalter **MCP-Server-API-Schlüssel erstellen** (Create MCP server API
    key) **nicht** einschalten. Er macht daraus einen Schlüssel für
    KI-Programme, der für die Webseite nicht taugt.
@@ -91,13 +73,15 @@ Mails zu verschicken. Er ist geheim wie ein Passwort.
    beginnt mit `xkeysib-`. Brevo zeigt ihn nur dieses eine Mal.
 
 Den Schlüssel nicht in eine Mail, einen Chat oder ein Dokument einfügen und
-nicht abfotografieren. Am besten gleich mit Schritt 3 weitermachen. Geht er
+nicht abfotografieren. Am besten gleich mit Schritt 2 weitermachen. Geht er
 verloren: einfach einen neuen erzeugen und den alten in Brevo löschen.
 
-## 4 Schritt 3 – den Schlüssel in der Wirt-Ansicht prüfen lassen
+## 3 Schritt 2 – den Schlüssel in der Wirt-Ansicht prüfen lassen
 
 1. Die Wirt-Ansicht öffnen, unten auf den Reiter **haus** tippen und ganz
    nach unten gehen. Dort **Mailversand – euer Brevo-Konto** aufklappen.
+   Steht der Punkt nicht da: die Wirt-Ansicht einmal neu laden oder die App
+   ganz schließen und wieder öffnen.
 
 ![Vor dem Umstellen: ganz unten im Reiter haus. Der Kasten sagt, dass die Mails noch über das Konto von Jonas gehen.](bilder/mailversand/1-vorher.jpg)
 
@@ -110,15 +94,17 @@ verloren: einfach einen neuen erzeugen und den alten in Brevo löschen.
    Browser bietet auch nicht an, ihn zu speichern.
 
 Der Dienst prüft jetzt: Ist der Schlüssel gültig? Sind beide Domains
-beglaubigt? Dann schickt er von jeder eurer fünf Absenderadressen eine
-Testmail. **Am laufenden Versand ändert sich dabei noch nichts.**
+beglaubigt? **Ist eine noch nicht beglaubigt, beglaubigt er sie gleich selbst
+bei Brevo** – mit den Einträgen, die bei Hetzner schon stehen. Dann schickt er
+von jeder eurer fünf Absenderadressen eine Testmail. **Am laufenden Versand
+ändert sich dabei noch nichts.**
 
-![Nach dem Prüfen: jede Zeile ein bestandener Schritt. Darunter der Knopf zum Umstellen.](bilder/mailversand/2-geprueft.jpg)
+![Nach dem Prüfen: jede Zeile ein bestandener Schritt – auch die beiden Domains, die der Dienst eben beglaubigt hat. Darunter der Knopf zum Umstellen.](bilder/mailversand/2-geprueft.jpg)
 
 Steht eine Zeile in Rot, ist etwas noch nicht in Ordnung. Darunter steht,
-was zu tun ist; dasselbe erklärt Abschnitt 6.
+was zu tun ist; dasselbe erklärt Abschnitt 5.
 
-## 5 Schritt 4 – Testmails ansehen und umstellen
+## 4 Schritt 3 – Testmails ansehen und umstellen
 
 1. Im Postfach nachsehen, bitte auch im Spam-Ordner. Es müssen **fünf
    Testmails** da sein, Betreff „Testmail 1 von 5 – Absender …“ bis
@@ -168,27 +154,37 @@ würde den Versand eines Tages still anhalten.
 Das ist unbedenklich: Der Schlüssel liegt nur im Dienst der Webseite und
 kommt dort nie wieder heraus.
 
-## 6 Wenn etwas nicht klappt
+## 5 Wenn etwas nicht klappt
 
 Die Wirt-Ansicht sagt in Rot, woran es liegt. Am laufenden Versand hat sich
 dann nichts geändert.
 
-![Beispiel: Brevo hat den Versand im Konto noch nicht freigeschaltet. Die rote Zeile sagt, wo es hängt, darunter steht, was zu tun ist.](bilder/mailversand/4-fehler.jpg)
+![Beispiel: Die Domains sind beglaubigt, aber Brevo hat den Versand im Konto noch nicht freigeschaltet. Die rote Zeile sagt, wo es hängt, darunter steht, was zu tun ist.](bilder/mailversand/4-fehler.jpg)
 
 | Was die Wirt-Ansicht meldet | Was du tust |
 | --- | --- |
 | Versand im Konto noch nicht freigeschaltet | Bei neuen Konten schaltet Brevo den Versand über die Webseite erst auf Anfrage frei. Die Vorlage unten an den Brevo-Support schicken. Die Antwort kommt meist in ein bis zwei Werktagen, danach noch einmal prüfen. |
-| … ist noch nicht beglaubigt | Schritt 1 für diese Domain, bis zu 48 Stunden warten, dann noch einmal prüfen. |
-| … steht nicht in eurem Brevo-Konto | In Brevo unter Domains die Domain hinzufügen (Add a domain) und Schritt 1 machen. Die Einträge bei Hetzner stehen schon. |
-| Brevo kennt den Schlüssel nicht | Den Schlüssel ganz neu kopieren – oder einen neuen erzeugen (Schritt 2). |
-| Das ist ein SMTP-Schlüssel | Es braucht einen API-Schlüssel aus „API-Schlüssel & MCP“, keinen SMTP-Schlüssel (Schritt 2). |
-| Dem Schlüssel fehlen Rechte | Beim Schlüssel „Transactional email“ auf „All“ stellen oder einen neuen erzeugen (Schritt 2, Punkt 6). |
+| … Der Schlüssel darf die Domain nicht beglaubigen | In Brevo beim Schlüssel auf die drei Punkte → **Edit API key** (Schlüssel bearbeiten), Code bestätigen, bei **Account** **Read/write** wählen und speichern. Dann den Schlüssel noch einmal einfügen und prüfen. Ist er nicht mehr kopiert: einen neuen erzeugen (Schritt 1) und den alten löschen. |
+| … Brevo findet noch nicht alle Einträge (fehlt: …) | Die Einträge stehen bei Hetzner; manchmal sieht Brevo sie erst nach Stunden. Später noch einmal prüfen. Bleibt es so: in Brevo unter **Domains** bei der Domain nachsehen, welcher Eintrag fehlt, und ihn mit Markus bei Hetzner vergleichen. |
+| … ist noch nicht beglaubigt | Brevo hat die Domain noch nicht angenommen. In einer Stunde noch einmal prüfen. Bleibt es so: in Brevo unter **Domains** bei der Domain nachsehen, was Brevo meldet. |
+| … steht nicht in eurem Brevo-Konto | In Brevo unter **Domains** die Domain hinzufügen (Add a domain). Die Einträge bei Hetzner stehen schon; das Beglaubigen erledigt der Dienst beim nächsten Prüfen. |
+| Brevo kennt den Schlüssel nicht | Den Schlüssel ganz neu kopieren – oder einen neuen erzeugen (Schritt 1). |
+| Das ist ein SMTP-Schlüssel | Es braucht einen API-Schlüssel aus „API-Schlüssel & MCP“, keinen SMTP-Schlüssel (Schritt 1). |
+| Dem Schlüssel fehlen Rechte | Beim Schlüssel (drei Punkte → **Edit API key**) „Transactional email“ auf „All“ und „Account“ auf „Read/write“ stellen – oder einen neuen erzeugen (Schritt 1, Punkt 6). |
 | Absender nicht angenommen | In Brevo nachsehen, ob die Domain beglaubigt ist. Ist sie es, die Adresse unter **Absender, Domains, IPs** → **Absender** (Senders) → **Absender hinzufügen** (Add a sender) anlegen. |
-| IP-Sperre bei Brevo | Die IP-Sperre ausschalten (Ende von Abschnitt 5), dann noch einmal prüfen. |
+| IP-Sperre bei Brevo | Die IP-Sperre ausschalten (Ende von Abschnitt 4), dann noch einmal prüfen. |
 | Zu viele Versuche | Eine Stunde warten – jede Prüfung verschickt fünf Mails. |
+| Störung bei Brevo · Brevo bremst gerade · nicht erreichbar | Nichts ist kaputt. In ein paar Minuten noch einmal prüfen. |
 | Konto bei Brevo gesperrt oder in Prüfung | In Brevo nachsehen; meist erklärt eine Mail von Brevo, warum. Sonst den Brevo-Support fragen. |
+| Brevo hat die Anfrage abgelehnt | Später noch einmal prüfen. Bleibt es so, den Brevo-Support fragen und die Uhrzeit dazuschreiben. |
 | Inzwischen wurde neu geprüft | Jemand hat (vielleicht auf einem anderen Gerät) noch einmal geprüft. Die neuen Testmails ansehen und dann umstellen. |
 | Eine Testmail fehlt oder hat einen falschen Absender | Nicht umstellen, sondern **Abbrechen** drücken – das löscht die Prüfung samt Schlüssel im Dienst. Den Spam-Ordner ansehen und in zehn Minuten noch einmal prüfen. |
+
+**Lieber selbst in Brevo beglaubigen?** Geht weiterhin, nötig ist es nicht:
+**Domains** → **Authentifizieren** (Authenticate) → **Domain selbst
+authentifizieren** – nie „automatisch“, das ersetzt euren DMARC-Eintrag – und
+unten **Diese E-Mail-Domain authentifizieren**. Eine Marken-Subdomain
+überspringen; muss ein Name hinein, dann `post`, **nie `mail`** (Markus).
 
 **Vorlage für den Brevo-Support.** Du erreichst ihn in Brevo über das
 Hilfe-Menü (Fragezeichen) → Support. Dort ein Ticket mit diesem Text anlegen:
@@ -204,7 +200,7 @@ Hilfe-Menü (Fragezeichen) → Support. Dort ein Ticket mit diesem Text anlegen:
 > veranstaltungen@wirtschaft-dornbirn.at sowie tickets@ und uri@eugen.family;
 > beide Domains sind in unserem Konto authentifiziert. Vielen Dank!
 
-## 7 Zurück, Schlüssel wechseln, Sicherheit
+## 6 Zurück, Schlüssel wechseln, Sicherheit
 
 **Zurück zum bisherigen Versand.** Kommen nach dem Umstellen Bestätigungen
 nicht an, in der Wirt-Ansicht unter **Mailversand** auf **Zurück zum
@@ -218,15 +214,17 @@ ginge danach gar keine Mail mehr hinaus.
 verschickt wurde – und wenn etwas schiefging, was zuletzt nicht geklappt hat.
 
 **Einen Schlüssel wechseln** (zum Beispiel, wenn er in falsche Hände geraten
-sein könnte): in Brevo einen neuen erzeugen, in der Wirt-Ansicht unter
-**Mailversand** einfügen und **Neuen Schlüssel prüfen**, Testmails ansehen,
-umstellen. Danach den alten Schlüssel in Brevo löschen (bei ihm auf die drei
-Punkte → API-Schlüssel löschen).
+sein könnte): in Brevo einen neuen erzeugen (mit denselben Rechten wie in
+Schritt 1), in der Wirt-Ansicht unter **Mailversand** einfügen und **Neuen
+Schlüssel prüfen**, Testmails ansehen, umstellen. Danach den alten Schlüssel
+in Brevo löschen (bei ihm auf die drei Punkte → **Delete API key**).
 
 **Sicherheit, kurz:**
 
 - Der Schlüssel geht von Brevo direkt in die Wirt-Ansicht – nie per Mail,
   Chat oder Foto.
+- Er kann nur, was Schritt 1 erlaubt: Mails verschicken und Absender und
+  Domains einrichten. An eure Kontakte und Kampagnen kommt er nicht.
 - Der Dienst gibt ihn nie wieder heraus. In der Wirt-Ansicht stehen nur seine
   letzten vier Zeichen.
 - Ehrlich dazu: Solange der Dienst im Cloudflare-Konto von Jonas läuft,
@@ -238,17 +236,15 @@ Punkte → API-Schlüssel löschen).
 - In der Testumgebung lässt sich nichts umstellen, und von dort geht nie eine
   Mail hinaus.
 
-## 8 Auf einen Blick
+## 7 Auf einen Blick
 
-1. Brevo → Einstellungen → Absender, Domains, IPs → Domains: beide Domains
-   **Authentifizieren**, „selbst authentifizieren“, unten „Diese
-   E-Mail-Domain authentifizieren“.
-2. Brevo → Einstellungen → SMTP & API → API-Schlüssel & MCP: neuen Schlüssel
-   generieren (kein Ablaufdatum, Transactional email: All, kein MCP),
-   kopieren.
-3. Wirt-Ansicht → haus → Mailversand: Schlüssel einfügen, Postfach angeben,
-   **Prüfen und Testmails schicken**.
-4. Fünf Testmails ansehen, jede mit dem richtigen Absender → **jetzt
+1. Brevo → Einstellungen → SMTP & API → API-Schlüssel & MCP: neuen Schlüssel
+   generieren – kein Ablaufdatum; Zugriff eingeschränkt: Transactional email
+   **All**, Account **Read/write**; kein MCP – und kopieren.
+2. Wirt-Ansicht → haus → Mailversand: Schlüssel einfügen, Postfach angeben,
+   **Prüfen und Testmails schicken**. Der Dienst beglaubigt dabei eure beiden
+   Domains bei Brevo.
+3. Fünf Testmails ansehen, jede mit dem richtigen Absender → **jetzt
    umstellen**.
-5. Brevo → Einstellungen → Sicherheit → Autorisierte IPs: bei API-Schlüssel
+4. Brevo → Einstellungen → Sicherheit → Autorisierte IPs: bei API-Schlüssel
    die Sperre ausschalten, falls sie an ist.

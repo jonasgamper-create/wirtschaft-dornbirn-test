@@ -14,10 +14,12 @@
 // nicht zu diesem Konto) - mit dem alten Schluessel und den neuen Absendern
 // ebenso wenig. Deshalb in drei Schritten:
 //
-//   1. pruefen   - Schluessel gueltig? Beide Domains beglaubigt? Von jeder
-//                  der fuenf Adressen eine Testmail an eine Adresse, die das
-//                  Haus angibt - von Brevo angenommen? Am laufenden Versand
-//                  aendert sich dabei NICHTS.
+//   1. pruefen   - Schluessel gueltig? Beide Domains beglaubigt? Wenn nicht,
+//                  beglaubigt der Dienst sie selbst bei Brevo (seit
+//                  15.11.2026 - die Eintraege bei Hetzner stehen schon, es
+//                  fehlte nur Sarahs Klick). Von jeder der fuenf Adressen eine
+//                  Testmail an eine Adresse, die das Haus angibt - von Brevo
+//                  angenommen? Am laufenden Versand aendert sich dabei NICHTS.
 //   2. umstellen - erst, wenn im Postfach alle Testmails angekommen sind.
 //                  Dann gelten der neue Schluessel und alle neuen Absender
 //                  auf einmal.
@@ -167,6 +169,75 @@ export function bewerteDomains(daten) {
   });
 }
 
+/**
+ * Was eine Pruefung sicher beendet, egal bei welchem Schritt: Schluessel
+ * unbekannt (laut Brevos Text, nicht nur laut Statuscode), IP-Sperre, Konto
+ * nicht freigeschaltet oder gesperrt, Netz, Stoerung, Bremse. Alles andere
+ * entscheiden die naechsten Schritte.
+ */
+const ENDGUELTIG = Object.freeze(['ip_gesperrt', 'konto_nicht_freigeschaltet', 'konto_gesperrt', 'netz', 'brevo_stoerung', 'zu_viele']);
+export const istEndgueltig = r => ENDGUELTIG.includes(r?.grund) || (r?.grund === 'schluessel_ungueltig' && Boolean(r?.eindeutig));
+
+/** Brevos Eintraege einer Domain, so benannt wie bei Hetzner und in der Anleitung. */
+const EINTRAG_NAMEN = Object.freeze([[/brevo/i, 'Brevo-Code'], [/dkim/i, 'DKIM'], [/dmarc/i, 'DMARC'], [/spf/i, 'SPF']]);
+
+/**
+ * Welche Eintraege Brevo bei einer Domain noch vermisst
+ * (GET /senders/domains/{domain}: je Eintrag "status"). Nur was Brevo
+ * ausdruecklich als falsch meldet - eine fehlende Angabe ist keine Luecke.
+ */
+export function dnsLuecken(daten) {
+  const eintraege = daten?.dns_records;
+  if (!eintraege || typeof eintraege !== 'object') return [];
+  const luecken = [];
+  for (const [name, eintrag] of Object.entries(eintraege)) {
+    if (!eintrag || typeof eintrag !== 'object' || eintrag.status !== false) continue;
+    const bekannt = EINTRAG_NAMEN.find(([muster]) => muster.test(name));
+    const lesbar = bekannt ? bekannt[1] : String(name).replace(/[^\w.-]/g, '').slice(0, 30);
+    if (lesbar && !luecken.includes(lesbar)) luecken.push(lesbar);
+  }
+  return luecken;
+}
+
+/**
+ * Eine Domain des Hauses, die im Konto steht, aber noch nicht beglaubigt ist,
+ * beglaubigt der Dienst selbst (seit 15.11.2026) - derselbe Schritt wie der
+ * Knopf "Diese E-Mail-Domain authentifizieren" in Brevo: Brevo prueft die
+ * Eintraege, die bei Hetzner schon stehen. Am DNS aendert sich nichts, am
+ * laufenden Versand auch nicht. Der Schluessel braucht dafuer bei "Account"
+ * das Recht "Read/write" (Brevo: account:write deckt /senders/domains).
+ *
+ * Klappt es nicht, fragt der Dienst nach, welcher Eintrag fehlt - damit die
+ * Wirt-Ansicht ihn beim Namen nennen kann. Nur die beiden Hausdomains; eine
+ * andere beglaubigt dieser Weg nie.
+ *
+ * @returns {{ beglaubigt: boolean, grund?: string, fehlt?: string[], endgueltig?: boolean }}
+ */
+export async function beglaubigeDomain(schluessel, name, { fetchImpl = fetch } = {}) {
+  if (!HAUS_DOMAINS.includes(name)) return { beglaubigt: false, grund: 'nicht_beglaubigt' };
+  const pfad = `/senders/domains/${encodeURIComponent(name)}`;
+  const versuch = await brevoRuf(schluessel, `${pfad}/authenticate`, { methode: 'PUT', fetchImpl });
+  if (!versuch.ok) {
+    if (istEndgueltig(versuch)) return { beglaubigt: false, grund: versuch.grund, endgueltig: true };
+    // Derselbe Schluessel hat Konto und Domains eben lesen duerfen: wird er
+    // beim Schreiben abgewiesen, steht "Account" nicht auf "Read/write" -
+    // auch wenn Brevo das nicht in Worte fasst.
+    if (versuch.grund === 'keine_berechtigung' || versuch.status === 401 || versuch.status === 403) {
+      return { beglaubigt: false, grund: 'darf_nicht_beglaubigen' };
+    }
+  }
+  // Nachsehen, was Brevo jetzt fuehrt - auch nach einem "geklappt". Es gilt
+  // nur "authenticated: true"; sonst nennt Brevo je Eintrag, was fehlt.
+  const stand = await brevoRuf(schluessel, pfad, { fetchImpl });
+  if (stand.ok && stand.daten?.authenticated === true) return { beglaubigt: true };
+  if (!stand.ok && istEndgueltig(stand)) return { beglaubigt: false, grund: stand.grund, endgueltig: true };
+  // Brevo hat "beglaubigt" gesagt und laesst sich nur nicht nachfragen: dann
+  // gilt seine Antwort - die Testmails pruefen den Versand ohnehin.
+  if (versuch.ok && !stand.ok) return { beglaubigt: true };
+  const fehlt = stand.ok ? dnsLuecken(stand.daten) : [];
+  return fehlt.length ? { beglaubigt: false, grund: 'dns_unvollstaendig', fehlt } : { beglaubigt: false, grund: 'nicht_beglaubigt' };
+}
+
 /** Die Testmail. Sie erklaert sich selbst - falls sie jemand anderer liest. */
 export function testMail({ absender, nummer, gesamt, konto }) {
   // Betreff nennt den Absender: so lassen sich fuenf Mails im Postfach abhaken.
@@ -187,7 +258,9 @@ export function testMail({ absender, nummer, gesamt, konto }) {
 
 /**
  * Die Pruefung. Sie aendert nichts am laufenden Versand - sie schickt nur die
- * Testmails und sagt, ob und woran es scheitert.
+ * Testmails und sagt, ob und woran es scheitert. Einzig im Brevo-Konto des
+ * Hauses kann sie etwas tun: eine Domain beglaubigen, die dort steht, aber
+ * noch nicht beglaubigt ist (beglaubigeDomain) - Sarahs Klick, ohne Sarah.
  *
  * Fehlen dem Schluessel die Rechte, das Konto oder die Domains zu lesen (ein
  * eingeschraenkter Schluessel), entscheiden die Testmails allein: nimmt Brevo
@@ -200,12 +273,9 @@ export async function pruefeVersand({ schluessel, an, fetchImpl = fetch, vorDemV
   const schritte = [];
   const ende = (grund, extra = {}) => ({ ok: false, grund, schritte, konto: extra.konto ?? null, domains: extra.domains ?? null });
   // Konto und Domains lesen darf ein eingeschraenkter Schluessel womoeglich
-  // nicht - wie Brevo das genau sagt, ist nicht belegt. Deshalb bricht hier nur
-  // ab, was sicher ist: Schluessel unbekannt (laut Text), IP-Sperre, Konto
-  // nicht freigeschaltet oder gesperrt, Stoerung. Alles andere entscheiden die
-  // Testmails.
-  const endgueltig = r => ['ip_gesperrt', 'konto_nicht_freigeschaltet', 'konto_gesperrt', 'netz', 'brevo_stoerung', 'zu_viele'].includes(r.grund)
-    || (r.grund === 'schluessel_ungueltig' && r.eindeutig);
+  // nicht (Recht "Account" auf "None"). Deshalb bricht hier nur ab, was sicher
+  // ist (istEndgueltig). Alles andere entscheiden die Testmails.
+  const endgueltig = istEndgueltig;
 
   const konto = await brevoRuf(schluessel, '/account', { fetchImpl });
   if (!konto.ok && endgueltig(konto)) {
@@ -224,10 +294,27 @@ export async function pruefeVersand({ schluessel, an, fetchImpl = fetch, vorDemV
       return ende('brevo_fehler', { konto: kontoInfo });
     }
     for (const d of domains) {
-      schritte.push({ was: 'domain', name: d.name, ok: d.beglaubigt, grund: d.beglaubigt ? null : (d.da ? 'nicht_beglaubigt' : 'domain_fehlt') });
+      // Im Konto, aber nicht beglaubigt: der Dienst beglaubigt selbst.
+      if (d.da && !d.beglaubigt) {
+        const b = await beglaubigeDomain(schluessel, d.name, { fetchImpl });
+        if (b.endgueltig) {
+          schritte.push({ was: 'domain', name: d.name, ok: false, grund: b.grund });
+          return ende(b.grund, { konto: kontoInfo, domains });
+        }
+        if (b.beglaubigt) Object.assign(d, { beglaubigt: true, eben: true });
+        else Object.assign(d, { grund: b.grund, fehlt: b.fehlt || [] });
+      }
+      const schritt = { was: 'domain', name: d.name, ok: d.beglaubigt, grund: d.beglaubigt ? null : (d.grund || (d.da ? 'nicht_beglaubigt' : 'domain_fehlt')) };
+      if (d.eben) schritt.eben = true;
+      if (d.fehlt?.length) schritt.fehlt = d.fehlt;
+      schritte.push(schritt);
     }
-    const offen = domains.find(d => !d.beglaubigt);
-    if (offen) return ende(offen.da ? 'nicht_beglaubigt' : 'domain_fehlt', { konto: kontoInfo, domains });
+    const offen = domains.filter(d => !d.beglaubigt).map(d => d.grund || (d.da ? 'nicht_beglaubigt' : 'domain_fehlt'));
+    if (offen.length) {
+      // Was am Schluessel liegt, zuerst: es zu beheben, hilft bei beiden Domains.
+      const grund = ['darf_nicht_beglaubigen', 'domain_fehlt', 'dns_unvollstaendig', 'nicht_beglaubigt'].find(g => offen.includes(g)) || offen[0];
+      return ende(grund, { konto: kontoInfo, domains });
+    }
   } else if (endgueltig(domainAntwort)) {
     schritte.push({ was: 'domains', ok: false, grund: domainAntwort.grund });
     return ende(domainAntwort.grund, { konto: kontoInfo });

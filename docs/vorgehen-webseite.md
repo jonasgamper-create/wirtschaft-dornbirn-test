@@ -136,9 +136,10 @@ Spam-Ordner oder kommen gar nicht an.
 Das ist ärgerlich, aber es lässt sich beheben, ganz unabhängig vom Rest. Die
 Einträge in euren Domains, die nur die Mails betreffen, sind gesetzt: Sarah
 hat sie Anfang November mit Markus eingetragen, am 10. November wurden sie von
-außen nachgeprüft. Es fehlen noch zwei Handgriffe im Brevo-Konto des Hauses:
-*Authenticate* drücken und einen Schlüssel für den Dienst erzeugen
-(Schritt 4). Erst danach wird der Absender umgestellt. Die laufende Webseite
+außen nachgeprüft. Es fehlt nur noch ein Handgriff im Brevo-Konto des
+Hauses: einen Schlüssel für den Dienst erzeugen (Schritt 4) – das
+*Authenticate* erledigt der Dienst seit 15. November selbst. Erst danach wird
+der Absender umgestellt. Die laufende Webseite
 merkt davon nichts.
 
 **Offen, aber ungefährlich:** `wirtschaft-dornbirn.at` zeigt noch auf die alte
@@ -172,10 +173,10 @@ wirklich.
 
 **4. Bei Brevo die Domains beglaubigen lassen.** Brevo ist der Dienst, der die
 Mails verschickt. `wirtschaft-dornbirn.at` und `eugen.family` sind dort
-eingetragen, die Einträge bei Hetzner sind für beide gesetzt – erledigt. Offen
-sind im Brevo-Konto des Hauses noch zwei Handgriffe: der Klick auf
-*Authenticate* und danach ein Schlüssel für den Dienst (Schritt 4). Bis dahin
-ändert sich am Versand nichts.
+eingetragen, die Einträge bei Hetzner sind für beide gesetzt – erledigt. Den
+Klick auf *Authenticate* erledigt seit 15. November der Dienst; offen ist nur
+der Schlüssel für den Dienst (Schritt 4). Bis dahin ändert sich am Versand
+nichts.
 
 **5. `eugen.family` – erledigt, ohne Uri.** Zwei der Mailadressen aus eurem
 Entscheidungsblatt gehören zu `eugen.family`, nicht zu eurer Domain. Die
@@ -406,15 +407,15 @@ die Datei an zwei Orten ablegen.
 ### Schritt 4 · Beglaubigen lassen und den Schlüssel hinterlegen
 
 *Wer: Sarah, allein – im Brevo-Konto des Hauses und in der Wirt-Ansicht.
-Dauer: eine halbe Stunde, dazu bis zu 48 Stunden Wartezeit bei Brevo.*
+Dauer: eine Viertelstunde, dazu vielleicht Wartezeit bei Brevo.*
 
-Die Einträge sind von außen sichtbar. Jetzt im Brevo-Konto des Hauses bei
-beiden Domains auf *Authenticate* drücken und warten, bis alles grün ist.
-Maßgeblich ist, was dieses Konto anzeigt.
-
-Danach im selben Konto einen API-Schlüssel erzeugen und ihn selbst in der
-Wirt-Ansicht einfügen (haus → Mailversand, seit 15. November) – nicht per
-Mail oder Chat, auch nicht an Jonas. Warum ein neuer Schlüssel: Heute
+Die Einträge sind von außen sichtbar. Im Brevo-Konto des Hauses einen
+API-Schlüssel erzeugen (Zugriff eingeschränkt: *Transactional email* auf
+*All*, *Account* auf *Read/write*) und ihn selbst in der Wirt-Ansicht
+einfügen (haus → Mailversand, seit 15. November) – nicht per Mail oder Chat,
+auch nicht an Jonas. Beim Prüfen beglaubigt der Dienst beide Domains bei
+Brevo selbst; der Klick auf *Authenticate* in Brevo entfällt, und klappt es
+nicht, nennt die Wirt-Ansicht den fehlenden Eintrag. Warum ein neuer Schlüssel: Heute
 verschickt der Dienst noch über das Brevo-Konto von Jonas, und dort sind eure
 Domains nicht beglaubigt. Ein Schlüssel statt eines zweiten Benutzers, weil
 ein zweiter Benutzer laut Brevo-Preisliste 9 € im Monat kostet. Schritt für
@@ -572,8 +573,8 @@ Ohne diese Dinge geht es nicht weiter.
    Entscheidungsblatt.
 2. **Das Cloudflare-Konto**, angelegt auf `veranstaltungen@`, mit einer
    zweiten Person. Brevo und GitHub stehen schon. Schritt 2.
-3. **Den Klick auf Authenticate und den API-Schlüssel** aus dem Brevo-Konto
-   des Hauses. Schritt 4.
+3. **Den API-Schlüssel** aus dem Brevo-Konto des Hauses, von Sarah selbst in
+   der Wirt-Ansicht eingefügt; *Authenticate* erledigt der Dienst. Schritt 4.
 4. **Auskunft zu den drei alten Adressen**: Werden `gutscheine.`,
    `lieferservice.` und `tischreservierung.` noch gebraucht?
 5. **Ein Termin für Schritt 9.** Kein Freitag, kein Veranstaltungstag.
@@ -704,13 +705,15 @@ Erwartet wird `"authenticated": true` beziehungsweise `delivered`. Beide
 Abfragen lesen das Brevo-Konto, dessen Schlüssel im Dienst liegt: Bis der
 Brevo-Schlüssel des Hauses hinterlegt ist, zeigen sie das Konto von Jonas,
 nicht das des Hauses. Maßgeblich für *Authenticate* ist die Anzeige im
-Brevo-Konto des Hauses.
+Brevo-Konto des Hauses; seit 15.11.2026 erledigt es der Dienst beim Prüfen in
+der Wirt-Ansicht (`PUT /v3/senders/domains/{domain}/authenticate`).
 
 ### Den Absender umstellen – erst nach der Beglaubigung
 
-Zuerst den API-Schlüssel aus dem Brevo-Konto des Hauses als `BREVO_KEY`
-hinterlegen (gemeinsam mit dem Haus, nie per Mail oder Chat), erst danach den
-Absender:
+Gewöhnlich stellt Sarah in der Wirt-Ansicht um (Schritte 4 und 5). Nur für
+den Weg über Cloudflare: zuerst den API-Schlüssel aus dem Brevo-Konto des
+Hauses als `BREVO_KEY` hinterlegen (am selben Bildschirm mit dem Haus, nie per
+Mail oder Chat), erst danach den Absender:
 
 ```bash
 cd server

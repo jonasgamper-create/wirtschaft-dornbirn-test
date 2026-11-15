@@ -19,9 +19,9 @@ Mails (Bestellungen, Anfragen, Tageszettel). **Wohin die Mails an euch
 gehen, ist jetzt richtig eingestellt.** Offen ist nur noch der **Absender**:
 die Mails an die Gäste gehen weiterhin von der privaten Adresse von Jonas los und
 landen darum oft im Spam. Die vier Einträge dafür sind bei Hetzner gesetzt,
-für beide Domains. Es fehlen noch zwei Schritte im Brevo-Konto des Hauses:
-die Beglaubigung (*Authenticate*) und ein Schlüssel für den Dienst. Erst
-danach wird der Absender umgestellt.
+für beide Domains. Es fehlt nur noch ein Schlüssel aus dem Brevo-Konto des
+Hauses für den Dienst; die Beglaubigung (*Authenticate*) erledigt der Dienst
+seit 15.11.2026 dabei selbst. Erst danach wird der Absender umgestellt.
 
 ---
 
@@ -40,11 +40,13 @@ danach wird der Absender umgestellt.
 4. Bei Brevo die Domains anlegen und die Einträge bei Hetzner setzen –
    **erledigt** für `wirtschaft-dornbirn.at` und `eugen.family` (Sarah mit
    Markus, Anfang November; von außen geprüft am 10.11.2026).
-5. **Im Brevo-Konto des Hauses beglaubigen:** bei beiden Domains auf
-   *Authenticate* drücken, bis beide als beglaubigt angezeigt werden (Sarah).
-6. **Danach im selben Konto einen API-Schlüssel erzeugen** und ihn selbst in
-   der Wirt-Ansicht einfügen (haus → Mailversand) – nicht per Mail oder Chat
-   schicken, auch nicht an Jonas. Der Dienst prüft ihn, schickt von jeder
+5. ~~Im Brevo-Konto des Hauses beglaubigen (*Authenticate*)~~ – **übernimmt
+   seit 15.11.2026 der Dienst** beim Prüfen in der Wirt-Ansicht (Aufgabe 6).
+6. **Im Brevo-Konto des Hauses einen API-Schlüssel erzeugen** (Zugriff
+   eingeschränkt: *Transactional email* auf *All*, *Account* auf
+   *Read/write*) und ihn selbst in der Wirt-Ansicht einfügen (haus →
+   Mailversand) – nicht per Mail oder Chat schicken, auch nicht an Jonas. Der
+   Dienst prüft ihn, beglaubigt beide Domains bei Brevo, schickt von jeder
    eurer fünf Absenderadressen eine Testmail und stellt erst dann um
    (Anleitung „Mailversand selbst umstellen“, seit 15.11.2026). Grund für den
    Wechsel: Der Dienst verschickt heute noch über das Brevo-Konto von Jonas,
@@ -107,9 +109,9 @@ Adresse von Jonas erlaubt nicht, dass andere (hier: Brevo für die Webseite)
 in seinem Namen Mails schicken. Gmail und Outlook sehen das und sortieren
 die Bestätigungen in den Spam oder werfen sie weg. Darum muss der Absender
 eine Adresse eurer eigenen Domain sein – und die Domain muss Brevo
-„erlaubt“ werden. Die vier Einträge dafür sind gesetzt; es fehlen noch
-*Authenticate* und der Schlüssel aus dem Brevo-Konto des Hauses (Aufgaben 5
-und 6 von Hannah und Sarah). Das ist der wichtigste technische Punkt auf
+„erlaubt“ werden. Die vier Einträge dafür sind gesetzt; es fehlt noch der
+Schlüssel aus dem Brevo-Konto des Hauses (Aufgabe 6, Sarah) – das
+*Authenticate* erledigt der Dienst dabei. Das ist der wichtigste technische Punkt auf
 diesem Blatt.
 
 ---
@@ -215,7 +217,7 @@ unsere Empfehlung.
 | 4 | `ANFRAGE_MAIL` ebenda | `willkommen@` | **erledigt**: `uri@eugen.family` (entschieden 03.11., eingestellt seit 10.11.2026; auch der Notweg der Formulare seit 11.11.) | – |
 | 4b | `TAKEAWAY_MAIL` ebenda (**neu**) | – | **erledigt**: `service@` (jede Bestellmeldung) | – |
 | 4c | `WIRT_MAIL_KOPIE` (Geheimnis, **neu**) | – | Kopie von Tageszettel und Wochenbericht an die Adresse von Jonas (Antwort vom 03.11.) – **vorbereitet, noch nicht gesetzt**; bis dahin keine Kopie | Jonas |
-| 5 | Domains bei Brevo bestätigen: *Senders & Domains → Domain hinzufügen*, die vier Einträge bei Hetzner (DNS) anlegen, SPF um `include:spf.brevo.com` ergänzen, dann *Authenticate* | beide Domains angelegt, Einträge und SPF **gesetzt** (Sarah mit Markus; von außen geprüft am 10.11.2026), *Authenticate* fehlt | bestätigt | Sarah (Brevo-Konto des Hauses) |
+| 5 | Domains bei Brevo bestätigen: *Senders & Domains → Domain hinzufügen*, die vier Einträge bei Hetzner (DNS) anlegen, SPF um `include:spf.brevo.com` ergänzen, dann *Authenticate* | beide Domains angelegt, Einträge und SPF **gesetzt** (Sarah mit Markus; von außen geprüft am 10.11.2026); *Authenticate* erledigt seit 15.11.2026 der Dienst beim Prüfen in der Wirt-Ansicht | bestätigt | Sarah (Brevo-Konto des Hauses) |
 | 6 | Hausabsender (bisher Geheimnis `BREVO_ABSENDER`) | die Adresse von Jonas | `willkommen@wirtschaft-dornbirn.at` – setzt der Dienst beim Umstellen in der Wirt-Ansicht, zusammen mit #8; das Geheimnis bleibt als Rückweg | Sarah (Wirt-Ansicht) |
 | 7 | `EVENTS_ABSENDER` in `server/wrangler.jsonc` | leer (= Hausabsender) | `uri@eugen.family` – setzt der Dienst beim Umstellen mit; das Feld bleibt leer (mit Uri ist nichts mehr zu klären) | Sarah (Wirt-Ansicht) |
 | 7b | `ABSENDER_SERVICE`, `ABSENDER_WARTELISTE`, `ABSENDER_KULTURHAUS` (**neu**) | leer (= Hausabsender) | `service@`, `veranstaltungen@`, `tickets@eugen.family` – setzt der Dienst beim Umstellen mit; die Felder bleiben leer | Sarah (Wirt-Ansicht) |

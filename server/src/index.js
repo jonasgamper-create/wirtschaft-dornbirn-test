@@ -447,7 +447,8 @@ export class Haus extends DurableObject {
   }
 
   /**
-   * Schritt 1: pruefen. Aendert am laufenden Versand nichts - schickt nur die
+   * Schritt 1: pruefen. Aendert am laufenden Versand nichts - beglaubigt, wenn
+   * noetig, die beiden Domains im Brevo-Konto des Hauses, schickt die
    * Testmails und merkt sich eine bestandene Pruefung fuer zwei Stunden.
    */
   async mailversandPruefen(roh) {
