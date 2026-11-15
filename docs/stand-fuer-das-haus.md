@@ -19,10 +19,11 @@ voneinander (Punkt 7). Nichts ist geraten.
   kommenden Abende zeigen ihre Preise, auch die 20 ab Jänner.
 - **An eurer Domain und an der alten Seite wurde nichts verändert** –
   nachgeprüft, der Beleg steht in Punkt 7.
-- **Offen ist vor allem der Mailabsender:** In eurem Brevo-Konto fehlen der
-  Klick auf *Authenticate* und ein Schlüssel für den Dienst. Seit 15. November
-  stellt Sarah danach selbst um, ohne Jonas – mit der Anleitung „Mailversand
-  selbst umstellen“ (Punkt 4).
+- **Offen ist vor allem der Mailabsender:** Es fehlt nur noch ein Schlüssel
+  aus eurem Brevo-Konto. Sarah fügt ihn selbst in der Wirt-Ansicht ein, ohne
+  Jonas; den Klick auf *Authenticate* (das Beglaubigen der Domains) erledigt
+  seit 15. November der Dienst dabei selbst. Schritt für Schritt steht es in
+  der Anleitung „Mailversand selbst umstellen“ (Punkt 4).
 
 ---
 
@@ -164,27 +165,27 @@ Bestätigungen oft im Spam.
 
 **Die Lösung** ist, von eurer eigenen Domain zu versenden, über **euer**
 Brevo-Konto – das, das Sarah angelegt hat. Nur dort sind eure Domains
-eingetragen. Dazu braucht es drei Schritte, in genau dieser Reihenfolge:
+eingetragen. Dazu braucht es zwei Schritte, beide macht Sarah selbst, ohne
+Jonas:
 
-1. **Sarah: In Brevo beide Domains beglaubigen.** *Einstellungen → Absender,
-   Domains, IPs → Domains*, bei `wirtschaft-dornbirn.at` und bei
-   `eugen.family` jeweils *Authenticate*. Die Einträge sind gesetzt, es
-   fehlt nur dieser Knopf. Fragt Brevo nach einer Unteradresse: `post`.
-2. **Sarah: In Brevo einen API-Schlüssel erzeugen** (*Einstellungen → SMTP &
-   API → API-Schlüssel & MCP*). Der Schlüssel geht **nicht** per Mail oder
-   Chat: wer ihn hat, kann in eurem Namen Mails verschicken. Ein Schlüssel
-   statt eines Benutzerzugangs für Jonas, weil ein zweiter Benutzer bei Brevo
-   9 € im Monat kostet.
-3. **Sarah, seit 15. November ohne Jonas: in der Wirt-Ansicht umstellen.**
-   Unter *haus → Mailversand* den Schlüssel einfügen. Der Dienst prüft ihn,
-   schickt von jeder eurer fünf Absenderadressen eine Testmail und stellt
-   Schlüssel und alle Absender gemeinsam um – erst, wenn die Testmails
-   angekommen sind. Mit einem Knopf geht es zurück. Schritt für Schritt
-   steht es in der Anleitung *Mailversand selbst umstellen*.
+1. **In Brevo einen API-Schlüssel erzeugen** (*Einstellungen → SMTP & API →
+   API-Schlüssel & MCP*; Zugriff eingeschränkt: *Transactional email* auf
+   *All*, *Account* auf *Read/write*). Der Schlüssel geht **nicht** per Mail
+   oder Chat: wer ihn hat, kann in eurem Namen Mails verschicken. Ein
+   Schlüssel statt eines Benutzerzugangs für Jonas, weil ein zweiter Benutzer
+   bei Brevo 9 € im Monat kostet.
+2. **In der Wirt-Ansicht umstellen.** Unter *haus → Mailversand* den
+   Schlüssel einfügen. Der Dienst prüft ihn, **beglaubigt eure beiden Domains
+   bei Brevo selbst** (die Einträge bei Hetzner sind gesetzt, es fehlte nur
+   dieser Klick), schickt von jeder eurer fünf Absenderadressen eine Testmail
+   und stellt Schlüssel und alle Absender gemeinsam um – erst, wenn die
+   Testmails angekommen sind. Mit einem Knopf geht es zurück. Schritt für
+   Schritt steht es in der Anleitung *Mailversand selbst umstellen*.
 
-**Umgekehrt nicht.** Würde der Absender vor Schritt 1 und 2 umgestellt,
-verschickte Brevo **gar nichts** mehr – schlechter als heute. Darum lässt die
-Wirt-Ansicht das Umstellen erst zu, wenn alle Testmails durchgegangen sind.
+**Umgekehrt nicht.** Würde der Absender umgestellt, bevor die Domains
+beglaubigt sind und der Schlüssel im Dienst liegt, verschickte Brevo **gar
+nichts** mehr – schlechter als heute. Darum lässt die Wirt-Ansicht das
+Umstellen erst zu, wenn alle Testmails durchgegangen sind.
 
 ## 5 Später: die Domain umlegen
 
@@ -206,11 +207,10 @@ stillstehen.
 
 **Sarah**
 
-1. In Brevo bei beiden Domains *Authenticate* drücken (Punkt 4, Schritt 1).
-2. Den Schlüssel erzeugen und in der Wirt-Ansicht selbst umstellen (Punkt 4,
-   Schritte 2 und 3, Anleitung *Mailversand selbst umstellen*). Jonas braucht
-   es dafür nicht.
-3. Noch offen aus dem letzten Blatt: das Konto bei **Cloudflare** (dort
+1. Den Schlüssel erzeugen und in der Wirt-Ansicht selbst umstellen (Punkt 4,
+   Anleitung *Mailversand selbst umstellen*). Das Beglaubigen der Domains
+   erledigt der Dienst dabei. Jonas braucht es dafür nicht.
+2. Noch offen aus dem letzten Blatt: das Konto bei **Cloudflare** (dort
    läuft die Seite), mit `veranstaltungen@`, eine zweite Person mit vollem
    Zugang, Wiederherstellungscodes ausdrucken. Kostet nichts.
 
@@ -291,7 +291,7 @@ Seite.
 | **Dienst** | Das Programm hinter der Seite, das Reservierungen, Bestellungen, Anfragen und die Warteliste annimmt und die Mails auslöst. Es läuft bei Cloudflare. |
 | **Ticketkategorie** | Eine Kartenart eines Abends bei Ticketist, z. B. „dinner & comedy (sitzplatz)“ oder „comedy only (stehplatz)“, mit eigenem Preis und eigener Zahl freier Plätze. |
 | **Brevo** | Der Dienst, der die automatischen Mails verschickt. Kostenlos bis 300 Mails am Tag; ein voller Tag braucht 40 bis 80. |
-| **Authenticate** | Der Knopf in Brevo, mit dem Brevo prüft, ob die Einträge in eurer Domain stimmen. Erst danach darf Brevo mit eurer Adresse versenden. |
+| **Authenticate** | Das Beglaubigen einer Domain bei Brevo: Brevo prüft, ob die Einträge in eurer Domain stimmen. Erst danach darf Brevo mit eurer Adresse versenden. Seit 15. November erledigt das der Dienst beim Prüfen in der Wirt-Ansicht. |
 | **API-Schlüssel** | Eine lange Zeichenfolge aus eurem Brevo-Konto. Mit ihr darf der Dienst über euer Konto Mails verschicken – geheim zu halten wie ein Passwort. |
 | **Cloudflare** | Die Firma, bei der die neue Seite und der Dienst laufen. Kostenlos in dem Umfang, den wir brauchen. |
 | **GitHub** | Dort liegt der Bauplan der Seite. Jede Änderung ist nachvollziehbar und lässt sich zurücknehmen. Er ist öffentlich – deshalb stehen dort keine privaten Adressen und keine Schlüssel. |

@@ -84,8 +84,10 @@ In dieser Reihenfolge, weil jeder Schritt den nächsten möglich macht:
    alten `/event/…`-Adressen, siehe [abschaltung-alte-seiten.md](abschaltung-alte-seiten.md).
 4. **Mailabsender** auf eine Wirtschaft-Adresse umstellen – über die private Adresse von Jonas prallen
    die Bestätigungen ab. Stand 11.11.: Die Einträge beider Domains stehen
-   (Sarah mit Markus, im Brevo-Konto des Hauses); offen sind *Authenticate*
-   und der API-Schlüssel aus diesem Konto, erst dann der Absender.
+   (Sarah mit Markus, im Brevo-Konto des Hauses); offen ist der
+   API-Schlüssel aus diesem Konto, den Sarah seit 15.11. selbst in der
+   Wirt-Ansicht einfügt – der Dienst beglaubigt dabei die Domains
+   (*Authenticate*) und stellt erst dann den Absender um.
 5. **Cloudflare Access** vor die Wirt-Ansicht (geht erst, wenn die Domain bei
    Cloudflare liegt).
 6. **Strukturierte Daten prüfen**: die Startseite nennt schon heute

@@ -324,8 +324,10 @@ der zuverlässigste Weg und kostet nichts.
   die bei Brevo beglaubigt ist, werden viele Mails abgewiesen (die heutige
   Absenderadresse ist die private Adresse von Jonas, deren Anbieter per DMARC
   `p=reject` verlangt, fremd versandte Mails abzuweisen). Die Einträge beider
-  Domains stehen; offen sind *Authenticate* im Brevo-Konto des Hauses und
-  dessen API-Schlüssel im Dienst – erst dann wird der Absender umgestellt.
+  Domains stehen; offen ist nur der API-Schlüssel des Brevo-Kontos des
+  Hauses, den Sarah selbst in der Wirt-Ansicht einfügt – der Dienst
+  beglaubigt dabei die Domains (*Authenticate*) und stellt erst dann den
+  Absender um.
 
 ---
 
@@ -334,7 +336,7 @@ der zuverlässigste Weg und kostet nichts.
 | Zugang | Was er löst | Ohne ihn |
 |---|---|---|
 | **Veranstalter-Zugang / API-Schlüssel bei ticketist.io** | eine Liste aller Abende des Veranstalters. Für freie Karten je Kategorie braucht es ihn nicht mehr: die gibt Ticketist öffentlich heraus, der Dienst liest sie seit 11.11.2026 | neue Abende von den eigenen Eventseiten (seit 30.09.), sonst ein eingefügter Link je Abend; ausverkauft über Kategorien und Schalter |
-| **Beglaubigter Absender** (Brevo-Konto des Hauses: *Authenticate*, dann dessen Schlüssel im Dienst) | Die Wartelisten-Mails kommen tatsächlich an. Das betrifft alle Mails des Hauses, nicht nur diese | Mails werden versucht und der Fehlversuch steht ehrlich in der Zeile |
+| **Beglaubigter Absender** (Schlüssel des Brevo-Kontos des Hauses in der Wirt-Ansicht; *Authenticate* erledigt der Dienst) | Die Wartelisten-Mails kommen tatsächlich an. Das betrifft alle Mails des Hauses, nicht nur diese | Mails werden versucht und der Fehlversuch steht ehrlich in der Zeile |
 
 Für Kategorien, Preise und freie Karten ist **kein Zugang** bei ticketist.io
 nötig – die Schnittstelle ist öffentlich. Beim Ticketdienst fehlt nur eine

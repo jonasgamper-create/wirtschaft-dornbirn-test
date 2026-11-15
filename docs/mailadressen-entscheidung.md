@@ -103,16 +103,18 @@ schlechter als heute. Reihenfolge:
 1. ~~Bei Brevo die Domains anlegen und die DNS-Einträge bei Hetzner
    setzen~~ – **erledigt** für `wirtschaft-dornbirn.at` und `eugen.family`
    (Sarah mit Markus, im Brevo-Konto des Hauses; von außen geprüft am
-   10.11.2026). Offen: *Authenticate* für beide Domains im Brevo-Konto des
-   Hauses (Sarah).
-2. Einen **API-Schlüssel aus dem Brevo-Konto des Hauses** erzeugen (Sarah)
+   10.11.2026). *Authenticate* für beide Domains erledigt seit 15.11.2026
+   der Dienst beim Prüfen (Schritt 3) – Sarah muss dafür nichts anklicken.
+2. Einen **API-Schlüssel aus dem Brevo-Konto des Hauses** erzeugen (Sarah;
+   Zugriff eingeschränkt: *Transactional email* All, *Account* Read/write)
    und in der Wirt-Ansicht einfügen – nicht per Mail oder Chat, auch nicht an
    Jonas. Grund: Der Dienst sendet heute noch über das Brevo-Konto von Jonas,
    und dort sind die Domains des Hauses nicht beglaubigt. Ein zweiter
    Benutzer im Brevo-Konto kostet laut Brevo 9 € im Monat – der Schlüssel
    nichts.
-3. Der Dienst prüft den Schlüssel und beide Domains und schickt von jeder der
-   fünf Adressen eine Testmail. Sind alle angekommen, stellt Sarah um. Dabei
+3. Der Dienst prüft den Schlüssel, beglaubigt beide Domains bei Brevo, wenn
+   sie es noch nicht sind, und schickt von jeder der fünf Adressen eine
+   Testmail. Sind alle angekommen, stellt Sarah um. Dabei
    gilt der Hausabsender wie `BREVO_ABSENDER` auf
    `willkommen@wirtschaft-dornbirn.at` – damit hört der heutige Spam-Effekt
    auf (die private Adresse von Jonas liegt bei einem Anbieter, der fremden
@@ -135,7 +137,8 @@ erfolgreich verschickt wurde und woran es zuletzt scheiterte. Technisch zeigt
 `GET /api/mail/pruefung?email=<eigene Adresse>` (mit dem Hausschlüssel im
 Kopf `x-haus-token`) das Konto, mit dem gerade verschickt wird (`quelle`:
 `haus` oder `cloudflare`). Maßgeblich für *Authenticate* ist die Anzeige im
-Brevo-Konto des Hauses.
+Brevo-Konto des Hauses; die Prüfung in der Wirt-Ansicht nennt bei jeder
+Domain, ob sie beglaubigt ist – und welcher Eintrag fehlt, wenn nicht.
 
 ## 6 Zugangsdaten
 
@@ -177,9 +180,10 @@ beantwortet. Stand danach:
 3. **`eugen.family` bei Brevo**: erledigt, ohne Uri. Sarah hat das
    Brevo-Konto des Hauses angelegt und mit Markus die Einträge beider
    Domains bei Hetzner gesetzt (von außen geprüft am 10.11.2026: DKIM,
-   Brevo-Code, DMARC, SPF, beide Domains im selben Brevo-Konto). Es fehlen
-   *Authenticate* in Brevo und danach der API-Schlüssel aus diesem Konto,
-   den Sarah selbst in der Wirt-Ansicht einträgt (Abschnitt 5).
+   Brevo-Code, DMARC, SPF, beide Domains im selben Brevo-Konto). Es fehlt
+   nur der API-Schlüssel aus diesem Konto, den Sarah selbst in der
+   Wirt-Ansicht einträgt; *Authenticate* erledigt der Dienst dabei
+   (Abschnitt 5).
 4. **`kueche@wirtschaft-dornbirn.at`** bleibt bestehen. Keine Änderung.
 5. **`gewinnspiel@` und `sarah.preuss@`** kommen in der Webseite nicht vor.
    Das ist in Ordnung – nur zur Bestätigung festgehalten.

@@ -6,9 +6,10 @@ Stand 11. November 2026.
 Tageszettel und die Wartelisten-Mails über Brevo. Absender ist heute die
 private Adresse von Jonas, ein Postfach bei seinem privaten Mailanbieter. Das ist die Ursache
 aller Zustellprobleme. Die Einträge in der DNS-Zone stehen inzwischen für
-`wirtschaft-dornbirn.at` und `eugen.family` (Abschnitt 4); es fehlen
-*Authenticate* und ein API-Schlüssel aus dem Brevo-Konto des Hauses, erst
-dann wird der Absender umgestellt (Abschnitt 5).
+`wirtschaft-dornbirn.at` und `eugen.family` (Abschnitt 4); es fehlt ein
+API-Schlüssel aus dem Brevo-Konto des Hauses. Mit ihm beglaubigt der Dienst
+die Domains selbst (*Authenticate*, seit 15.11.2026), erst dann wird der
+Absender umgestellt (Abschnitt 5).
 
 ---
 
@@ -156,17 +157,20 @@ bestehenden ändern, keinen zweiten anlegen.
    dig +short CNAME brevo1._domainkey.wirtschaft-dornbirn.at
    dig +short TXT wirtschaft-dornbirn.at
    ```
-3. **Brevo prüfen lassen** — im Brevo-Konto **des Hauses** (Sarah) unter
-   *Senders, Domains & Dedicated IPs* → *Domains* → *Authenticate*, für beide
-   Domains. **Noch offen.** Die Prüfung in der Wirt-Ansicht (Schritt 4) zeigt
-   je Domain, ob Brevo sie als beglaubigt führt; `GET /api/mail/domain` fragt
-   seit 15.11.2026 das Konto, mit dem gerade verschickt wird.
+3. **Brevo prüfen lassen** (*Authenticate*) — seit 15.11.2026 erledigt das
+   der Dienst mit Schritt 4: Er beglaubigt beide Domains im Brevo-Konto des
+   Hauses mit dessen Schlüssel (`PUT /v3/senders/domains/{domain}/authenticate`)
+   und nennt, wenn Brevo ablehnt, den fehlenden Eintrag. Von Hand geht es
+   weiterhin unter *Senders, Domains & Dedicated IPs* → *Domains* →
+   *Authenticate*. `GET /api/mail/domain` fragt das Konto, mit dem gerade
+   verschickt wird.
 4. **Den Schlüssel des Hauses hinterlegen – seit 15.11.2026 macht das Sarah
    selbst.** Im Brevo-Konto des Hauses unter *SMTP & API* einen
-   API-Schlüssel erzeugen und in der Wirt-Ansicht einfügen (haus →
-   Mailversand). Der Dienst prüft ihn, schickt von jeder der fünf
-   Absenderadressen eine Testmail und stellt Schlüssel und Absender gemeinsam
-   um; Schritt 5 entfällt dann. Anleitung:
+   API-Schlüssel erzeugen (Rechte: *Transactional email* All, *Account*
+   Read/write) und in der Wirt-Ansicht einfügen (haus → Mailversand). Der
+   Dienst prüft ihn, beglaubigt die Domains (Schritt 3), schickt von jeder
+   der fünf Absenderadressen eine Testmail und stellt Schlüssel und Absender
+   gemeinsam um; Schritt 5 entfällt dann. Anleitung:
    `docs/mailversand-selbst-umstellen.md`. Der Weg über Cloudflare bleibt
    möglich, etwa für den Programmierer – nicht per Mail oder Chat:
    ```bash
@@ -196,9 +200,9 @@ bestehenden ändern, keinen zweiten anlegen.
      "https://wirtschaft-reservierung.jonas-gamper.workers.dev/api/mail/pruefung?email=<Adresse>"
    ```
 
-Die Schritte 1 und 2 sind erledigt. Schritt 3 geht nur im Brevo-Konto des
-Hauses, Schritt 4 nur gemeinsam mit dem Haus; den Rest kann der Dienst
-selbst.
+Die Schritte 1 und 2 sind erledigt. Für Schritt 4 braucht es den Schlüssel
+aus dem Brevo-Konto des Hauses – Sarah fügt ihn selbst ein; die Schritte 3
+und 5 erledigt der Dienst dabei, Schritt 6 ebenso (die Testmails).
 
 ---
 
@@ -236,7 +240,7 @@ muss, ist der von Montag, 21.09., um 08:00.
 |---|---|
 | Domain bei Brevo anlegen | erledigt – beide Domains, im Brevo-Konto des Hauses (von Sarah angelegt) |
 | DNS-Einträge setzen | erledigt – Sarah mit Markus, bei Hetzner |
-| *Authenticate* | Sarah, im Brevo-Konto des Hauses |
+| *Authenticate* | der Dienst, beim Prüfen in der Wirt-Ansicht (seit 15.11.2026) |
 | API-Schlüssel des Hauses | Sarah, selbst in der Wirt-Ansicht (seit 15.11.2026) |
 | Absender umstellen | der Dienst, zusammen mit dem Schlüssel – nach bestandener Prüfung |
 | Probe fahren | der Dienst |

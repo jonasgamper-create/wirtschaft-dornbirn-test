@@ -8,18 +8,20 @@
 //      (node:sqlite) und gespieltem Brevo: vorher, pruefen, umstellen, die
 //      echten Mails, die Sicherung, zurueck - und die Testumgebung.
 // Dazu der Quelltext: jeder Versand laeuft ueber denselben Weg, und die
-// Wirt-Ansicht laesst den Schluessel nirgends liegen.
+// Wirt-Ansicht laesst den Schluessel nirgends liegen. Und die Anleitung fuer
+// Sarah (docs/mailversand-selbst-umstellen.md): jeder Knopf, jede Meldung,
+// die Rechte des Schluessels und die Bilder passen zur Wirt-Ansicht.
 //
 // Kein Netz, keine echten Schluessel, keine echten Adressen.
 
-import { readFile, readFileSync } from 'node:fs';
+import { existsSync, readFile, readFileSync } from 'node:fs';
 import { readFile as liesDatei } from 'node:fs/promises';
 import { registerHooks } from 'node:module';
 import { DatabaseSync } from 'node:sqlite';
 import { fileURLToPath } from 'node:url';
 import {
-  ABSENDER_NAME, HAUS_ABSENDER, HAUS_DOMAINS, TEST_ABSENDER, VERSUCHE_JE_STUNDE, absenderFuer, bewerteDomains,
-  deuteBrevo, gueltigeEinrichtung, kontoKurz, liesAdresse, liesSchluessel, pruefeVersand, pruefungGilt, schluesselEnde
+  ABSENDER_NAME, HAUS_ABSENDER, HAUS_DOMAINS, TEST_ABSENDER, VERSUCHE_JE_STUNDE, absenderFuer, beglaubigeDomain, bewerteDomains,
+  deuteBrevo, dnsLuecken, gueltigeEinrichtung, istEndgueltig, kontoKurz, liesAdresse, liesSchluessel, pruefeVersand, pruefungGilt, schluesselEnde
 } from '../server/src/mailversand.mjs';
 import { TABELLEN } from '../server/src/sicherung.mjs';
 
@@ -74,6 +76,20 @@ check('Domains: eine nicht beglaubigt', bewerteDomains({ domains: [beide.domains
 check('Domains: eine fehlt', bewerteDomains({ domains: [beide.domains[0]] })[1].da === false);
 check('Domains: nur "authenticated: true" zaehlt', bewerteDomains({ domains: [{ domain_name: 'wirtschaft-dornbirn.at', authenticated: 'true' }] })[0].beglaubigt === false);
 check('Domains: kaputte Antwort = keine Aussage', bewerteDomains({}) === null);
+// Brevos Antwort auf GET /senders/domains/{domain} (developers.brevo.com, 15.11.2026).
+const dnsHalb = { domain: 'eugen.family', verified: false, authenticated: false, dns_records: {
+  brevo_code: { type: 'TXT', value: 'brevo-code:x', host_name: '@', status: false },
+  dkim_record: { type: 'TXT', value: 'k=rsa;p=x', host_name: 'mail._domainkey', status: true },
+  dmarc_record: { type: 'TXT', value: 'v=DMARC1; p=none', host_name: '_dmarc', status: false }
+} };
+check('Luecken: Brevo-Code und DMARC fehlen, DKIM steht', JSON.stringify(dnsLuecken(dnsHalb)) === JSON.stringify(['Brevo-Code', 'DMARC']));
+check('Luecken: zwei DKIM-Eintraege werden einer', JSON.stringify(dnsLuecken({ dns_records: { dkim1Record: { status: false }, dkim2Record: { status: false } } })) === JSON.stringify(['DKIM']));
+check('Luecken: nur ausdruecklich falsch zaehlt', dnsLuecken({ dns_records: { brevo_code: { status: 'false' }, dkim_record: {} } }).length === 0);
+check('Luecken: unbekannter Eintrag mit gesaeubertem Namen', JSON.stringify(dnsLuecken({ dns_records: { 'neu<b>Ding': { status: false } } })) === JSON.stringify(['neubDing']));
+check('Luecken: kaputte Antwort = keine', dnsLuecken(null).length === 0 && dnsLuecken({ dns_records: 'x' }).length === 0);
+check('Endgueltig: IP-Sperre, Netz, Konto', ['ip_gesperrt', 'netz', 'konto_nicht_freigeschaltet', 'konto_gesperrt', 'brevo_stoerung', 'zu_viele'].every(grund => istEndgueltig({ grund })));
+check('Endgueltig: Schluessel unbekannt nur laut Text', istEndgueltig({ grund: 'schluessel_ungueltig', eindeutig: true }) && !istEndgueltig({ grund: 'schluessel_ungueltig', eindeutig: false }));
+check('Nicht endgueltig: fehlende Rechte, Absender, Unklares', !['keine_berechtigung', 'absender_ungueltig', 'brevo_fehler'].some(grund => istEndgueltig({ grund })));
 check('Konto: Firmenname vor Personenname', kontoKurz({ companyName: 'wirtschaft', firstName: 'Sarah', email: 'X@Y.AT' }).name === 'wirtschaft');
 check('Konto: Adresse klein', kontoKurz({ email: 'Veranstaltungen@Wirtschaft-Dornbirn.at' }).email === 'veranstaltungen@wirtschaft-dornbirn.at');
 
@@ -104,12 +120,14 @@ check('Pruefung abgelaufen', !pruefungGilt({ schluessel: SCHLUESSEL_HAUS, guelti
 }
 
 // ---- 2. Die Pruefung mit gespieltem Brevo -----------------------------------
-function brevo({ konto = 'ok', domains = 'beide', sende = [] } = {}) {
+function brevo({ konto = 'ok', domains = 'beide', beglaubige = 'ok', sende = [] } = {}) {
   const aufrufe = [];
   const antwort = (status, daten) => new Response(JSON.stringify(daten), { status, headers: { 'content-type': 'application/json' } });
+  const beglaubigt = new Set();
   const fetchImpl = async (url, init = {}) => {
     const pfad = String(url).replace('https://api.brevo.com/v3', '');
-    aufrufe.push({ pfad, schluessel: init.headers?.['api-key'], koerper: init.body ? JSON.parse(init.body) : null });
+    const methode = init.method || 'GET';
+    aufrufe.push({ pfad, methode, schluessel: init.headers?.['api-key'], koerper: init.body ? JSON.parse(init.body) : null });
     if (konto === 'netz') throw new TypeError('fetch failed');
     if (pfad === '/account') {
       if (konto === 'ok') return antwort(200, { email: 'veranstaltungen@wirtschaft-dornbirn.at', companyName: 'wirtschaft' });
@@ -119,11 +137,28 @@ function brevo({ konto = 'ok', domains = 'beide', sende = [] } = {}) {
       if (konto === 'unklar') return antwort(401, { code: 'unauthorized', message: 'Some wording nobody has seen yet' });
       if (konto === 'gesperrt') return antwort(403, { code: 'permission_denied', message: 'Your account has been suspended' });
     }
-    if (pfad === '/senders/domains') {
-      if (domains === 'rechte') return antwort(401, { code: 'permission_denied', message: 'Access denied for resource' });
+    if (pfad === '/senders/domains' && methode === 'GET') {
+      if (domains === 'rechte') return antwort(401, { code: 'permission_denied', message: 'Access denied for resource "account"' });
       if (domains === 'beide') return antwort(200, beide);
       if (domains === 'offen') return antwort(200, { domains: [beide.domains[0], { domain_name: 'eugen.family', authenticated: false }] });
+      if (domains === 'keine') return antwort(200, { domains: beide.domains.map(d => ({ ...d, authenticated: false, verified: false })) });
       if (domains === 'fehlt') return antwort(200, { domains: [beide.domains[1]] });
+    }
+    // Beglaubigen (PUT .../authenticate) und nachfragen (GET .../{domain}).
+    const domainPfad = pfad.match(/^\/senders\/domains\/([^/]+)(\/authenticate)?$/);
+    if (domainPfad) {
+      const name = decodeURIComponent(domainPfad[1]);
+      if (domainPfad[2] && methode === 'PUT') {
+        if (beglaubige === 'ok') { beglaubigt.add(name); return antwort(200, { domain_name: name, message: 'Domain has been authenticated successfully.' }); }
+        if (beglaubige === 'rechte') return antwort(401, { code: 'permission_denied', message: 'Access denied for resource "account". The API key does not include the required permission.' });
+        if (beglaubige === 'ip') return antwort(401, { code: 'unauthorized', message: 'We have detected you are using an unrecognised IP address 104.28.1.1.' });
+        return antwort(400, { code: 'DNS records not properly configured', message: 'Domain could not be authenticated' });
+      }
+      if (!domainPfad[2] && methode === 'GET') {
+        if (beglaubige === 'dns') return antwort(200, { ...dnsHalb, domain: name });
+        if (beglaubige === 'schon') return antwort(200, { domain: name, verified: true, authenticated: true, dns_records: {} });
+        return antwort(404, { code: 'document_not_found', message: 'Domain does not exist' });
+      }
     }
     if (pfad === '/smtp/email') {
       const n = aufrufe.filter(a => a.pfad === '/smtp/email').length - 1;
@@ -136,7 +171,12 @@ function brevo({ konto = 'ok', domains = 'beide', sende = [] } = {}) {
     }
     return antwort(404, { code: 'not_found', message: 'no' });
   };
-  return { fetchImpl, aufrufe, mails: () => aufrufe.filter(a => a.pfad === '/smtp/email') };
+  return {
+    fetchImpl, aufrufe, mails: () => aufrufe.filter(a => a.pfad === '/smtp/email'),
+    beglaubigungen: () => aufrufe.filter(a => a.methode === 'PUT' && a.pfad.endsWith('/authenticate')).map(a => a.pfad),
+    // Nichts anderes als lesen, beglaubigen, Testmails: nie eine Domain anlegen oder loeschen.
+    nurErlaubtes: () => aufrufe.every(a => (a.methode === 'GET') || (a.methode === 'PUT' && a.pfad.endsWith('/authenticate')) || (a.methode === 'POST' && a.pfad === '/smtp/email'))
+  };
 }
 
 {
@@ -155,19 +195,62 @@ for (const [fall, opt, grund] of [
   ['Falscher Schluessel', { konto: 'falsch' }, 'schluessel_ungueltig'],
   ['IP-Sperre', { konto: 'ip' }, 'ip_gesperrt'],
   ['Netz weg', { konto: 'netz' }, 'netz'],
-  ['Domain nicht beglaubigt', { domains: 'offen' }, 'nicht_beglaubigt'],
-  ['Domain fehlt', { domains: 'fehlt' }, 'domain_fehlt']
+  ['Domain fehlt', { domains: 'fehlt' }, 'domain_fehlt'],
+  ['Beglaubigen: Brevo findet die Eintraege nicht', { domains: 'offen', beglaubige: 'dns' }, 'dns_unvollstaendig'],
+  ['Beglaubigen: Schluessel ohne Recht', { domains: 'offen', beglaubige: 'rechte' }, 'darf_nicht_beglaubigen'],
+  ['Beglaubigen: IP-Sperre', { domains: 'offen', beglaubige: 'ip' }, 'ip_gesperrt'],
+  ['Beglaubigen: unklare Ablehnung', { domains: 'offen', beglaubige: 'unklar' }, 'nicht_beglaubigt']
 ]) {
   const b = brevo(opt);
   const r = await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: b.fetchImpl });
   check(`${fall}: abgelehnt mit ${grund} (war ${r.grund})`, r.ok === false && r.grund === grund);
   check(`${fall}: keine Testmail`, b.mails().length === 0);
+  check(`${fall}: nur lesen und beglaubigen`, b.nurErlaubtes());
+}
+{
+  // Der Normalfall fuer Sarah: Einträge bei Hetzner stehen, der Klick fehlt - der Dienst beglaubigt.
+  const b = brevo({ domains: 'offen' });
+  const r = await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: b.fetchImpl });
+  const schritt = name => r.schritte.find(s => s.was === 'domain' && s.name === name);
+  check('Beglaubigen: bestanden', r.ok === true && b.mails().length === 5);
+  check('Beglaubigen: genau die offene Domain, genau einmal, mit PUT', JSON.stringify(b.beglaubigungen()) === JSON.stringify(['/senders/domains/eugen.family/authenticate']));
+  check('Beglaubigen: mit dem neuen Schluessel', b.aufrufe.filter(a => a.methode === 'PUT').every(a => a.schluessel === SCHLUESSEL_HAUS));
+  check('Beglaubigen: Schritt sagt "eben erledigt"', schritt('eugen.family')?.ok === true && schritt('eugen.family')?.eben === true);
+  check('Beglaubigen: die schon beglaubigte Domain bleibt unberuehrt', schritt('wirtschaft-dornbirn.at')?.ok === true && !schritt('wirtschaft-dornbirn.at')?.eben);
+  check('Beglaubigen: erst beglaubigen, dann die Testmails', b.aufrufe.findIndex(a => a.methode === 'PUT') < b.aufrufe.findIndex(a => a.pfad === '/smtp/email'));
+  check('Beglaubigen: nichts angelegt oder geloescht', b.nurErlaubtes());
+  const k = brevo({ domains: 'keine' });
+  const rk = await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: k.fetchImpl });
+  check('Beide offen: beide beglaubigt, dann fuenf Testmails', rk.ok && k.beglaubigungen().length === 2 && k.mails().length === 5
+    && HAUS_DOMAINS.every(d => k.beglaubigungen().includes(`/senders/domains/${d}/authenticate`)));
+  const s = brevo();
+  await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: s.fetchImpl });
+  check('Beide schon beglaubigt: kein einziges Beglaubigen', s.beglaubigungen().length === 0);
+  const f = brevo({ domains: 'fehlt' });
+  await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: f.fetchImpl });
+  check('Domain fehlt: der Dienst legt sie nicht an und beglaubigt nichts Fremdes', !f.aufrufe.some(a => a.methode === 'POST' && a.pfad.startsWith('/senders'))
+    && f.beglaubigungen().every(p => p === '/senders/domains/eugen.family/authenticate'));
+  const d = brevo({ domains: 'offen', beglaubige: 'dns' });
+  const rd = await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: d.fetchImpl });
+  const sd = rd.schritte.find(x => x.was === 'domain' && x.name === 'eugen.family');
+  check('Eintraege fehlen: die Wirt-Ansicht bekommt sie beim Namen', JSON.stringify(sd?.fehlt) === JSON.stringify(['Brevo-Code', 'DMARC']) && sd?.ok === false);
+  check('Eintraege fehlen: Brevo wurde nach dem Grund gefragt', d.aufrufe.some(a => a.methode === 'GET' && a.pfad === '/senders/domains/eugen.family'));
+  const sch = brevo({ domains: 'offen', beglaubige: 'schon' });
+  const rs = await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: sch.fetchImpl });
+  check('Inzwischen schon beglaubigt (Brevo lehnt den Klick ab): bestanden', rs.ok && sch.mails().length === 5);
+  let gefragt = 0;
+  const fremd = await beglaubigeDomain(SCHLUESSEL_HAUS, 'example.org', { fetchImpl: async () => { gefragt += 1; return new Response('{}', { status: 200 }); } });
+  check('Fremde Domain: nie beglaubigt, Brevo nicht einmal gefragt', fremd.beglaubigt === false && gefragt === 0);
+  const ip = brevo({ domains: 'keine', beglaubige: 'ip' });
+  const rip = await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: ip.fetchImpl });
+  check('IP-Sperre beim Beglaubigen: sofort Schluss, kein zweiter Versuch bei der anderen Domain', rip.grund === 'ip_gesperrt' && ip.beglaubigungen().length === 1 && ip.mails().length === 0);
 }
 {
   const b = brevo({ konto: 'rechte', domains: 'rechte' });
   const r = await pruefeVersand({ schluessel: SCHLUESSEL_HAUS, an: SARAH, fetchImpl: b.fetchImpl });
   check('Eingeschraenkter Schluessel: Testmails entscheiden', r.ok === true && b.mails().length === 5);
   check('Eingeschraenkter Schluessel: Domains als unbekannt gemeldet', r.schritte.some(s => s.was === 'domains' && s.ok === null));
+  check('Eingeschraenkter Schluessel: dann auch kein Beglaubigungsversuch', b.beglaubigungen().length === 0);
 }
 {
   // Wie Brevo einen eingeschraenkten Schluessel am Konto abweist, ist nicht
@@ -363,6 +446,23 @@ const veranstalterIn = mail => {
 }
 
 {
+  // Im Dienst: die Domains des Hauses sind noch nicht beglaubigt (Sarahs Klick fehlt).
+  // Die Pruefung beglaubigt sie mit dem Hausschluessel - umgestellt ist danach nichts.
+  const { haus } = baueHaus(echtEnv);
+  spiel = brevo({ domains: 'keine' });
+  const p = await haus.mailversandPruefen({ schluessel: SCHLUESSEL_HAUS, an: SARAH });
+  check('Dienst: Pruefen beglaubigt beide Domains und besteht', p.ok && spiel.beglaubigungen().length === 2 && spiel.mails().length === 5);
+  check('Dienst: beglaubigt mit dem Hausschluessel, nie mit dem von Jonas', spiel.aufrufe.filter(a => a.methode === 'PUT').every(a => a.schluessel === SCHLUESSEL_HAUS));
+  check('Dienst: Antwort meldet beide als eben beglaubigt', p.schritte.filter(s => s.was === 'domain' && s.eben === true).length === 2);
+  check('Dienst: nach dem Beglaubigen noch NICHT umgestellt', !haus.mailversandStand().aktiv && Boolean(haus.mailversandStand().pruefung));
+  check('Dienst: Antwort ohne den Schluessel', !JSON.stringify(p).includes(SCHLUESSEL_HAUS));
+  spiel = brevo({ domains: 'offen', beglaubige: 'rechte' });
+  const ohneRecht = await haus.mailversandPruefen({ schluessel: SCHLUESSEL_HAUS, an: SARAH });
+  check('Dienst: Schluessel ohne Recht - Grund genannt, keine Testmail, keine Pruefung gemerkt',
+    ohneRecht.grund === 'darf_nicht_beglaubigen' && spiel.mails().length === 0 && !haus.mailversandStand().pruefung);
+}
+
+{
   // Jeder neue Versuch macht eine fruehere Pruefung ungueltig; Abbrechen und Ablauf raeumen sie weg.
   const { haus, db } = baueHaus(echtEnv);
   const probe = () => db.prepare('SELECT wert FROM geheimnisse WHERE name = ?').get('mailversandProbe');
@@ -479,10 +579,57 @@ const veranstalterIn = mail => {
     check(`Knopf ${id} hat type="${typ}"`, new RegExp(`type="${typ}" id="${id}"`).test(seite));
   }
   check('Block steht im Reiter haus', /id: 'mailKasten'[^}]*reiter: 'haus'/.test(ansicht) && /data-block="mailKasten"/.test(seite));
+  check('Wirt-Ansicht erklaert jeden Grund beim Beglaubigen', ['darf_nicht_beglaubigen', 'dns_unvollstaendig', 'nicht_beglaubigt', 'domain_fehlt']
+    .every(g => (mailTeil.match(new RegExp(`\\b${g}: '`, 'g')) || []).length === 2));
+  check('Wirt-Ansicht sagt, wenn der Dienst eben beglaubigt hat', /s\.eben \? `\$\{s\.name\} ist jetzt beglaubigt/.test(mailTeil));
+  check('Wirt-Ansicht nennt fehlende Eintraege beim Namen', /fehlt: \$\{s\.fehlt\.join\(', '\)\}/.test(mailTeil));
+  check('Kein Fehlertext schickt Sarah zu Jonas', !/Jonas Bescheid|Jonas fragen|an Jonas wenden/.test(mailTeil));
+  check('Kastentext sagt, dass der Dienst die Domains beglaubigt', /beglaubigt\s+eure beiden Domains bei Brevo/.test(seite));
+}
+
+// ---- 5. Die Anleitung passt zur Wirt-Ansicht --------------------------------
+{
+  const anleitung = await liesDatei('docs/mailversand-selbst-umstellen.md', 'utf8');
+  const wirt = await liesDatei('site/wirt.js', 'utf8');
+  const seite = await liesDatei('site/wirt.html', 'utf8');
+  const flach = s => s.replace(/\s+/g, ' ');
+  const ui = flach(wirt + seite);
+  // Jeder Knopf und jedes Feld, das die Anleitung nennt, heisst in der Wirt-Ansicht genau so.
+  for (const text of ['Mailversand – euer Brevo-Konto', 'API-Schlüssel aus eurem Brevo-Konto', 'Testmails an', 'Prüfen und Testmails schicken',
+    'Alle Testmails sind da – jetzt umstellen', 'Abbrechen', 'Zurück zum bisherigen Versand', 'Neuen Schlüssel prüfen']) {
+    check(`Anleitung und Wirt-Ansicht nennen „${text}“ gleich`, flach(anleitung).includes(text) && ui.includes(text));
+  }
+  // Die Rechte des Schluessels: senden (Transactional email: All) und beglaubigen (Account: Read/write).
+  check('Anleitung nennt die Rechte des Schluessels', /\*\*Transactional email\*\* auf \*\*All\*\*/.test(anleitung)
+    && /\*\*Account\*\* auf\s+\*\*Read\/write\*\*/.test(anleitung));
+  // Sarah klickt in Brevo nicht mehr "Authentifizieren" - das erledigt der Dienst.
+  const blick = anleitung.slice(anleitung.indexOf('## 7 Auf einen Blick'));
+  check('Auf einen Blick: kein Klick auf Authentifizieren mehr, der Dienst beglaubigt',
+    blick.length > 200 && !/Authentifizieren|Authenticate/.test(blick) && /Der Dienst beglaubigt/.test(flach(blick)));
+  check('Anleitung sagt beim Pruefen, dass der Dienst selbst beglaubigt', /beglaubigt er sie gleich selbst\s+bei Brevo/.test(anleitung));
+  // Jede Meldung der Wirt-Ansicht hat eine Zeile in "Wenn etwas nicht klappt" - und heisst dort gleich.
+  const von = anleitung.indexOf('## 5 Wenn etwas nicht klappt');
+  const tabelle = anleitung.slice(von, anleitung.indexOf('**Lieber selbst in Brevo beglaubigen?**', von));
+  const meldungen = {
+    konto_nicht_freigeschaltet: 'Versand im Konto noch nicht freigeschaltet', darf_nicht_beglaubigen: 'Der Schlüssel darf die Domain nicht beglaubigen',
+    dns_unvollstaendig: 'Brevo findet noch nicht alle Einträge', nicht_beglaubigt: 'ist noch nicht beglaubigt',
+    domain_fehlt: 'steht nicht in eurem Brevo-Konto', schluessel_ungueltig: 'Brevo kennt den Schlüssel nicht',
+    smtp_schluessel: 'Das ist ein SMTP-Schlüssel', keine_berechtigung: 'Dem Schlüssel fehlen Rechte', absender_ungueltig: 'Absender nicht angenommen',
+    ip_gesperrt: 'IP-Sperre bei Brevo', zu_oft: 'Zu viele Versuche', konto_gesperrt: 'Konto bei Brevo gesperrt oder in Prüfung',
+    brevo_fehler: 'Brevo hat die Anfrage abgelehnt', pruefung_veraltet: 'Inzwischen wurde neu geprüft'
+  };
+  check('Tabelle "Wenn etwas nicht klappt" gefunden', tabelle.length > 1000);
+  for (const [grund, zeile] of Object.entries(meldungen)) {
+    check(`Anleitung erklaert „${zeile}“`, tabelle.includes(`| ${zeile} |`) || tabelle.includes(`| … ${zeile}`));
+    check(`Wirt-Ansicht meldet „${zeile}“ (${grund})`, ui.toLowerCase().includes(zeile.toLowerCase()) && new RegExp(`\\b${grund}: '`).test(wirt));
+  }
+  // Die Bilder der Anleitung liegen im Repository.
+  const bilder = [...anleitung.matchAll(/^!\[[^\]]*\]\(([^)]+)\)\s*$/gm)].map(m => m[1]);
+  check('Anleitung hat ihre vier Bilder', bilder.length === 4 && bilder.every(b => existsSync(`docs/${b}`)));
 }
 
 if (fehler) {
   console.error(`Mailversand-Prüfung FEHLGESCHLAGEN: ${fehler} Punkt(e).`);
   process.exit(1);
 }
-console.log('Mailversand-Prüfung OK: Eingaben, Brevos Antworten, alle Wege der Prüfung, der Dienst vorher/geprüft/umgestellt/zurück, Sicherung ohne Schlüssel, Testumgebung ohne Mails, Quelltext und Wirt-Ansicht geprüft.');
+console.log('Mailversand-Prüfung OK: Eingaben, Brevos Antworten, alle Wege der Prüfung samt Beglaubigen der Domains, der Dienst vorher/geprüft/umgestellt/zurück, Sicherung ohne Schlüssel, Testumgebung ohne Mails, Quelltext, Wirt-Ansicht und Anleitung geprüft.');

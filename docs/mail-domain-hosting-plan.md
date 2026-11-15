@@ -19,7 +19,7 @@ heute und in den nächsten Jahren?**
 | 🟢 | Anfragen von Locations und Agentur landen beim Haus | gehen seit 10.11.2026 an `uri@eugen.family` (Hausentscheid vom 03.11.), seit 11.11. auch dann, wenn der Dienst einmal nicht antwortet; Antwort darauf geht direkt an den Gast. Eine erste Testanfrage durch das Haus steht noch aus |
 | 🟢 | Alle automatischen Antworten an Gäste | sieben Texte im Wortlaut des Hauses, geprüft mit echten Testmails |
 | 🟢 | Laufende Kosten | 0 € im Monat für Seite, Dienst, Testumgebung und Mailversand; wie bisher nur das Hetzner-Paket (Domain, Postfächer, alte Seite) und die Gebühren von Ticketist |
-| 🟡 | **Absenderadresse der automatischen Mails** | heute die private Adresse von Jonas → muss `willkommen@wirtschaft-dornbirn.at` werden. Die Einträge bei Hetzner sind gesetzt (beide Domains, von außen geprüft am 10.11.2026); es fehlen *Authenticate* im Brevo-Konto des Hauses und dessen Schlüssel im Dienst (Abschnitt 4.2) |
+| 🟡 | **Absenderadresse der automatischen Mails** | heute die private Adresse von Jonas → muss `willkommen@wirtschaft-dornbirn.at` werden. Die Einträge bei Hetzner sind gesetzt (beide Domains, von außen geprüft am 10.11.2026); es fehlt nur der Schlüssel des Brevo-Kontos des Hauses im Dienst – Sarah fügt ihn selbst ein, *Authenticate* erledigt der Dienst dabei (Abschnitt 4.2) |
 | 🟢 | **Tageszettel, Wochenbericht, Bestellmeldungen ans Haus** | seit 27.10.2026 an `veranstaltungen@` bzw. `service@` (Hausentscheid); die gewünschte Kopie an Jonas ist vorbereitet, aber noch nicht eingeschaltet |
 | 🟡 | Konten (GitHub, Cloudflare, Brevo) | gehören heute Jonas → die Konten des Hauses bei Brevo und GitHub hat Sarah Anfang November angelegt; Cloudflare fehlt noch (Etappe 1 der Übergabe) |
 | 🔴 | Domain zeigt noch auf die alte WordPress-Seite | Umzug ist vorbereitet (Etappe 6), noch nicht gemacht |
@@ -62,7 +62,7 @@ Konfiguration des Dienstes (`server/wrangler.jsonc`, beide Umgebungen); die
 | **die private Adresse von Jonas** | Dienst, Geheimnis `BREVO_ABSENDER` | **Absender** aller automatischen Mails. Ihr Anbieter verbietet fremden Versand (DMARC „reject“) – darum landen Mails heute bei Gmail und Outlook oft im Spam oder gar nicht | → `willkommen@wirtschaft-dornbirn.at`, sobald beide Domains im Brevo-Konto des Hauses beglaubigt sind und dessen Schlüssel im Dienst liegt – **Etappe 4** |
 | Konto Cloudflare `jonas-gamper` | Dienst läuft unter `…jonas-gamper.workers.dev`, Seite unter `wirtschaft-dornbirn.pages.dev` | Betrieb | → Konto des Hauses mit `veranstaltungen@` (fehlt noch) – **Etappen 1 und 3** |
 | Konto GitHub `jonasgamper-create` | Quellcode, tägliche Prüfung 07:30 (Fehlermail an den Besitzer des Repositories) | Betrieb | → Organisation „wirtschaft-dornbirn“ – **Etappe 2**; ein GitHub-Konto des Hauses hat Sarah Anfang November angelegt |
-| Konto Brevo | Mailversand, Schlüssel `BREVO_KEY` | Betrieb | → Konto des Hauses, **angelegt** (Sarah, Anfang November), beide Domains eingetragen; nach *Authenticate* dessen Schlüssel als `BREVO_KEY` hinterlegen – **Etappe 4** |
+| Konto Brevo | Mailversand, Schlüssel `BREVO_KEY` | Betrieb | → Konto des Hauses, **angelegt** (Sarah, Anfang November), beide Domains eingetragen; dessen Schlüssel fügt Sarah in der Wirt-Ansicht ein, der Dienst beglaubigt dabei die Domains – **Etappe 4** |
 
 `npm run check:uebergabe` zeigt diese Punkte als Ampel; am 10.11.2026 waren
 6 von 8 offen (erledigt: Tageszettel und Bestellmeldung ans Haus), wie
@@ -179,15 +179,18 @@ und läuft weiter wie bisher. Was fehlt, sind Einträge *in* der Domain.
 
 **Noch offen in Etappe 4, in dieser Reihenfolge:**
 
-1. *Authenticate* für beide Domains im Brevo-Konto des Hauses (Sarah).
-2. Ein API-Schlüssel aus diesem Konto (Sarah) – nicht per Mail oder Chat.
+1. ~~*Authenticate* für beide Domains im Brevo-Konto des Hauses~~ –
+   erledigt seit 15.11.2026 der Dienst beim Prüfen (Punkt 3).
+2. Ein API-Schlüssel aus diesem Konto (Sarah; Rechte: *Transactional email*
+   All, *Account* Read/write) – nicht per Mail oder Chat.
    Grund: Der Dienst sendet heute über das Brevo-Konto von Jonas, und dort
    sind die Domains des Hauses nicht beglaubigt. Ein zweiter Benutzer im
    Brevo-Konto kostete laut Brevo 9 € im Monat, der Schlüssel nichts.
 3. Sarah fügt den Schlüssel selbst in der Wirt-Ansicht ein (haus →
    Mailversand, seit 15.11.2026; Anleitung
-   `docs/mailversand-selbst-umstellen.md`). Der Dienst prüft Schlüssel und
-   Domains, schickt von jeder der fünf Absenderadressen eine Testmail und
+   `docs/mailversand-selbst-umstellen.md`). Der Dienst prüft den Schlüssel,
+   beglaubigt beide Domains bei Brevo, schickt von jeder der fünf
+   Absenderadressen eine Testmail und
    stellt erst dann um – Schlüssel, Hausabsender
    `willkommen@wirtschaft-dornbirn.at` und die Absender je Zweck auf einmal
    (`docs/mailadressen-entscheidung.md`, Abschnitt 5). Umgekehrt verschickte
@@ -259,9 +262,10 @@ bringt nichts, was das Haus braucht.
       Brevo kein zweiter Benutzer, 9 € im Monat) – Brevo und GitHub
       hat Sarah Anfang November angelegt, Cloudflare fehlt noch
 - [ ] Etappen 2–4: Programmierer übernimmt Code, Dienst, Daten (`WIRT_MAIL`
-      steht seit 27.10. auf der Hausadresse); nach *Authenticate* den
-      Schlüssel des Hauses als `BREVO_KEY` hinterlegen, dann den
-      Brevo-Absender auf `willkommen@` (Abschnitt 4.2)
+      steht seit 27.10. auf der Hausadresse); den Schlüssel des Hauses
+      fügt Sarah in der Wirt-Ansicht ein – der Dienst beglaubigt die
+      Domains und stellt Schlüssel und Absender `willkommen@` gemeinsam um
+      (Abschnitt 4.2)
 - [x] Hannah: Domain-Prüfung aus Abschnitt 4.1 (Entscheidungsblatt,
       27.10.2026); ein Autoresponder im Postfach entfällt – so entschieden
 - [ ] Generalprobe auf der Testseite https://probe-wirtschaft-dornbirn.pages.dev
@@ -374,8 +378,7 @@ Programmierer eine KI einsetzen, gibt es einen fertigen Arbeitsauftrag in
 **Sarah** (Brevo-Konto des Hauses)
 
 - [x] Konten bei Brevo und GitHub angelegt; mit Markus die Einträge beider Domains bei Hetzner gesetzt (Anfang November, von außen geprüft am 10.11.2026)
-- [ ] *Authenticate* für `wirtschaft-dornbirn.at` und `eugen.family`, bis beide als beglaubigt angezeigt werden
-- [ ] Danach einen API-Schlüssel erzeugen und ihn selbst in der Wirt-Ansicht einfügen (haus → Mailversand): der Dienst prüft, schickt fünf Testmails und stellt erst dann um – nicht per Mail oder Chat (Anleitung „Mailversand selbst umstellen“)
+- [ ] Einen API-Schlüssel erzeugen (Transactional email All, Account Read/write) und ihn selbst in der Wirt-Ansicht einfügen (haus → Mailversand): der Dienst prüft, beglaubigt dabei `wirtschaft-dornbirn.at` und `eugen.family` selbst (seit 15.11.2026 kein Klick auf *Authenticate* mehr), schickt fünf Testmails und stellt erst dann um – nicht per Mail oder Chat (Anleitung „Mailversand selbst umstellen“)
 
 **Programmierer**
 

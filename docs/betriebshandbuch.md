@@ -37,7 +37,7 @@ Pages), GitHub (öffentliches Repository), Brevo Gratisstufe.
 |---|---|---|
 | GitHub-Repository `wirtschaft-dornbirn-test` | `jonasgamper-create`, öffentlich | Konto/Organisation des Kunden (Transfer ownership); ein GitHub-Konto des Hauses hat Sarah angelegt |
 | Cloudflare (Worker, Durable Object, Pages) | Konto von Jonas, Konto-ID `76d2e486…` | eigenes Cloudflare-Konto des Kunden; Dienst dort neu ausgerollt, Bestand per Sicherung (§6) übernommen |
-| Brevo (Mails) | Konto von Jonas – der Dienst sendet heute mit dessen Schlüssel | Brevo-Konto des Hauses: von Sarah angelegt, Einträge beider Domains gesetzt; offen *Authenticate* und ein API-Schlüssel daraus (§9). Absender `willkommen@wirtschaft-dornbirn.at` |
+| Brevo (Mails) | Konto von Jonas – der Dienst sendet heute mit dessen Schlüssel | Brevo-Konto des Hauses: von Sarah angelegt, Einträge beider Domains gesetzt; offen nur ein API-Schlüssel daraus – *Authenticate* erledigt der Dienst beim Prüfen (§9). Absender `willkommen@wirtschaft-dornbirn.at` |
 | Domain `wirtschaft-dornbirn.at` | Kunde (Zone bei Hetzner) | Kunde; empfohlen: Zone zu Cloudflare (siehe `umzug-domain-plan.md`) |
 | Geheimnisse (Hausschlüssel, Brevo-Schlüssel, VAPID) | von Jonas erzeugt | vom neuen Betreuer **neu erzeugt**, alte gelöscht |
 
@@ -168,8 +168,9 @@ alles andere läuft weiter.
 **Seit 15.11.2026 kann das Haus den Versand selbst umstellen** (Wirt-Ansicht
 → haus → Mailversand, `server/src/mailversand.mjs`, Anleitung
 `docs/mailversand-selbst-umstellen.md`). Der Dienst prüft den Schlüssel aus
-dem Brevo-Konto des Hauses, schickt von jeder der fünf Absenderadressen eine
-Testmail und speichert erst nach der Bestätigung Schlüssel und Absender
+dem Brevo-Konto des Hauses, beglaubigt dort beide Domains, wenn nötig (§9),
+schickt von jeder der fünf Absenderadressen eine Testmail und speichert erst
+nach der Bestätigung Schlüssel und Absender
 gemeinsam – in der Tabelle `geheimnisse`, die in keiner Sicherung landet
 (§6). Danach gelten diese statt `BREVO_KEY`/`BREVO_ABSENDER` und der
 `ABSENDER_*`-Felder; die Geheimnisse in Cloudflare bleiben der Rückweg
@@ -183,8 +184,8 @@ Endpunkte: `GET /api/mail/versand` (Stand, nie der Schlüssel), `POST
 bestandenen Prüfung), `…/abbrechen`, `…/zurueck` – alle nur mit dem echten
 Hausschlüssel, auch wenn `OFFEN` gilt. Ebenso `/api/mail/domain` und
 `/api/mail/pruefung`: Sie fragen Brevo im Dienst (`mailBrevo`, nur diese
-Pfade), damit der Schlüssel ihn nie verlässt. Grenzen: 30 Anfragen bei Brevo
-und 6 Prüfungen mit Testmails je Stunde. Reservierungen merken sich den
+Pfade), damit der Schlüssel ihn nie verlässt. Grenzen: 30 Prüfversuche und
+6 Prüfungen mit Testmails je Stunde. Reservierungen merken sich den
 Kalender-Veranstalter ihrer ersten Bestätigung (`organisator`), damit eine
 Absage nach einem Absenderwechsel im Kalender des Gastes ankommt. SMS (nicht
 eingeschaltet) liefe weiter über `BREVO_KEY` aus Cloudflare. Fehlt `WIRT_MAIL_KOPIE`, gibt es keine Kopie –
@@ -335,10 +336,15 @@ im Code nach Hauszeit verzweigen (so wurde 06:00/12:00 gelöst).
   Lösung: Sarah hat das Brevo-Konto des Hauses angelegt und mit Markus die
   Einträge für `wirtschaft-dornbirn.at` und `eugen.family` bei Hetzner
   gesetzt (DKIM, `brevo-code`, SPF, DMARC; von außen geprüft am 10.11.2026,
-  `mail-absender.md`). Es fehlen: (1) *Authenticate* für beide Domains im
-  Brevo-Konto des Hauses; (2) ein API-Schlüssel aus diesem Konto, den Sarah
+  `mail-absender.md`). Es fehlt nur ein API-Schlüssel aus diesem Konto
+  (Rechte: *Transactional email* All, *Account* Read/write), den Sarah
   selbst in der Wirt-Ansicht einfügt (haus → Mailversand, seit 15.11.2026) –
-  nicht per Mail oder Chat. Der Dienst stellt Schlüssel, Hausabsender
+  nicht per Mail oder Chat. *Authenticate* für beide Domains erledigt der
+  Dienst beim Prüfen: Steht eine Domain im Konto, ist aber nicht beglaubigt,
+  ruft er `PUT /v3/senders/domains/{domain}/authenticate`; klappt das nicht,
+  nennt er aus `GET /v3/senders/domains/{domain}` den fehlenden Eintrag. Nur
+  die beiden Hausdomains, nie eine andere; angelegt oder gelöscht wird
+  nichts. Der Dienst stellt Schlüssel, Hausabsender
   `willkommen@` und die Absender je Zweck gemeinsam um, erst nach bestandener
   Prüfung mit fünf Testmails (§5). Umgekehrt versendete Brevo gar nichts.
   Unter „Mailversand“ steht danach, wann zuletzt verschickt wurde und woran
