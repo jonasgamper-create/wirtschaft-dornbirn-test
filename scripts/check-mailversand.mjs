@@ -633,16 +633,21 @@ const veranstalterIn = mail => {
     check(`Anleitung und Wirt-Ansicht nennen „${text}“ gleich`, flach(anleitung).includes(text) && ui.includes(text));
   }
   // Die Rechte des Schluessels: senden (Transactional email: All) und beglaubigen (Account: Read/write).
-  check('Anleitung nennt die Rechte des Schluessels', /\*\*Transactional email\*\* auf \*\*All\*\*/.test(anleitung)
-    && /\*\*Account\*\* auf\s+\*\*Read\/write\*\*/.test(anleitung));
+  check('Anleitung nennt die Rechte des Schluessels', /\| \*\*Transactional email\*\* \| \*\*All\*\* \|/.test(anleitung)
+    && /\| \*\*Account\*\* \| \*\*Read\/write\*\* \|/.test(anleitung));
+  // Die Links in Brevo sind belegt (Brevo-Doku und -Hilfe, 15.11.2026) - nicht verstuemmeln.
+  check('Anleitung verlinkt die Schluesselseite und die IP-Sperre in Brevo',
+    anleitung.includes('(https://app.brevo.com/settings/keys/api)') && anleitung.includes('(https://app.brevo.com/security/authorised_ips)'));
+  // Abschnitt einer Ueberschrift bis zur naechsten.
+  const abschnitt = titel => { const a = anleitung.indexOf(titel); if (a < 0) return ''; const b = anleitung.indexOf('\n## ', a + titel.length); return anleitung.slice(a, b < 0 ? undefined : b); };
   // Sarah klickt in Brevo nicht mehr "Authentifizieren" - das erledigt der Dienst.
-  const blick = anleitung.slice(anleitung.indexOf('## 7 Auf einen Blick'));
-  check('Auf einen Blick: kein Klick auf Authentifizieren mehr, der Dienst beglaubigt',
-    blick.length > 200 && !/Authentifizieren|Authenticate/.test(blick) && /Der Dienst beglaubigt/.test(flach(blick)));
-  check('Anleitung sagt beim Pruefen, dass der Dienst selbst beglaubigt', /beglaubigt er sie gleich selbst\s+bei Brevo/.test(anleitung));
-  // Jede Meldung der Wirt-Ansicht hat eine Zeile in "Wenn etwas nicht klappt" - und heisst dort gleich.
-  const von = anleitung.indexOf('## 5 Wenn etwas nicht klappt');
-  const tabelle = anleitung.slice(von, anleitung.indexOf('**Lieber selbst in Brevo beglaubigen?**', von));
+  const blick = abschnitt('## So läuft es ab');
+  check('So läuft es ab: kein Klick auf Authentifizieren, die Webseite beglaubigt',
+    blick.length > 200 && !/Authentifizieren|Authenticate/.test(blick) && /beglaubigt die Webseite eure Domains bei Brevo selbst/.test(flach(blick)));
+  check('Anleitung sagt beim Pruefen, dass die Webseite selbst beglaubigt', /Die Webseite beglaubigt dabei eure beiden Domains selbst bei Brevo/.test(flach(anleitung)));
+  // Jede Meldung der Wirt-Ansicht hat eine Zeile in "Wenn etwas rot ist" - und heisst dort gleich.
+  const von = anleitung.indexOf('## Wenn etwas rot ist');
+  const tabelle = von < 0 ? '' : anleitung.slice(von, anleitung.indexOf('**Vorlage für den Brevo-Support.**', von));
   const meldungen = {
     konto_nicht_freigeschaltet: 'Versand im Konto noch nicht freigeschaltet', darf_nicht_beglaubigen: 'Der Schlüssel darf die Domain nicht beglaubigen',
     dns_unvollstaendig: 'Brevo findet noch nicht alle Einträge', nicht_beglaubigt: 'ist noch nicht beglaubigt',
