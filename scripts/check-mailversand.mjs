@@ -667,6 +667,16 @@ const veranstalterIn = mail => {
   // Die Bilder der Anleitung liegen im Repository.
   const bilder = [...anleitung.matchAll(/^!\[[^\]]*\]\(([^)]+)\)\s*$/gm)].map(m => m[1]);
   check('Anleitung hat ihre vier Bilder', bilder.length === 4 && bilder.every(b => existsSync(`docs/${b}`)));
+  // Jede Handlung in Schritt 1 bis 4 hat ein Kaestchen zum Abhaken (Jonas, 16.11.2026).
+  const schritte = [1, 2, 3, 4].map(n => abschnitt(`## Schritt ${n} `));
+  const punkte = schritte.flatMap(s => s.split('\n').filter(z => /^\d+\.\s/.test(z)));
+  check('Jede Handlung in Schritt 1 bis 4 hat ein Kaestchen',
+    schritte.every(s => s.length > 200) && punkte.length >= 20 && punkte.every(z => /^\d+\. \[ \] /.test(z)));
+  // Brevo-Hilfe vom 16.11.2026: Der MCP-Schalter steht erst neben dem fertigen
+  // Schluessel, und der Bestaetigungscode geht an die Anmeldeadresse des Kontos.
+  check('Schritt 1: erst Generate, dann der MCP-Schalter',
+    schritte[0].indexOf('**Generate**') > 0 && schritte[0].indexOf('Create MCP server API key') > schritte[0].indexOf('**Generate**'));
+  check('Bevor du anfängst: wohin Brevos Bestaetigungscode kommt', /Bestätigungscode/.test(abschnitt('## Bevor du anfängst')));
 }
 
 if (fehler) {

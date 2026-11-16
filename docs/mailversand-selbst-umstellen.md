@@ -1,6 +1,6 @@
 # Mailversand selbst umstellen · Anleitung für Sarah und Hannah
 
-Stand 15. November 2026. **Worum es geht:** Die Mails der Webseite – Bestätigungen für Gäste,
+Stand 16. November 2026. **Worum es geht:** Die Mails der Webseite – Bestätigungen für Gäste,
 Takeaway, Warteliste und der Tageszettel – kommen heute noch von einer
 privaten Adresse von Jonas. Darum landen sie oft im Spam. Nach dieser
 Anleitung kommen sie von euren eigenen Adressen, zum Beispiel
@@ -23,12 +23,16 @@ Anleitung kommen sie von euren eigenen Adressen, zum Beispiel
 4. **In Brevo die IP-Sperre ausschalten.** Etwa 2 Minuten.
 
 Am besten druckst du diese Anleitung aus oder öffnest sie auf einem zweiten
-Gerät. Dann kannst du Punkt für Punkt abhaken.
+Gerät. Vor jedem Punkt steht ein Kästchen: Hak ihn ab, sobald er erledigt
+ist.
 
 ## Bevor du anfängst
 
 - [ ] Du kannst dich bei **Brevo** anmelden – in euer Konto, das Sarah Anfang
   November angelegt hat.
+- [ ] Du kommst an den **Bestätigungscode** von Brevo. Er kommt per Mail an
+  die Adresse, mit der ihr euch bei Brevo anmeldet. Bekommt ihr schon beim
+  Anmelden jedes Mal einen Code aufs Handy, kommt er auf demselben Weg.
 - [ ] Du hast ein Gerät, auf dem die **Wirt-Ansicht** läuft (Handy, Tablet
   oder Laptop).
 - [ ] Du kannst in ein **Postfach** schauen, zum Beispiel
@@ -42,57 +46,63 @@ der Wirt-Ansicht ein – er muss nirgends sonst hin.
 ## Schritt 1 – In Brevo einen Schlüssel erzeugen
 
 Der Schlüssel ist eine lange Zeichenfolge. Mit ihm darf die Webseite über
-euer Brevo-Konto Mails verschicken. Er ist geheim wie ein Passwort.
+euer Brevo-Konto Mails verschicken. Er ist geheim wie ein Passwort. Auf
+dieser Seite zeigt Brevo die Knöpfe meist auf Englisch – die deutsche
+Übersetzung steht jeweils in Klammern.
 
-1. Im Browser diese Adresse öffnen:
+1. [ ] Im Browser diese Adresse öffnen:
    [app.brevo.com/settings/keys/api](https://app.brevo.com/settings/keys/api).
    Fragt Brevo nach der Anmeldung: anmelden. Du landest auf der Seite
    **API-Schlüssel & MCP** (API Keys & MCP). Klappt der Link nicht: in Brevo
    unten links **Einstellungen** (Settings) → **SMTP & API** →
    **API-Schlüssel & MCP**.
-2. Auf **API-Schlüssel generieren** (Generate API key) klicken.
-3. Brevo schickt dir einen Code mit 6 Ziffern. Den Code eintippen und auf
-   **Bestätigen** (Verify) klicken.
-4. Bei **Name** (Key name) eintragen: `Webseite wirtschaft-dornbirn`
-5. Bei **Ablauf** (Expiry) **Kein Ablaufdatum** (No expiration) wählen.
-6. Bei **Zugriff** (Access) **Eingeschränkt** (Restricted) wählen. Jetzt
-   erscheint eine Liste mit vielen Zeilen. Du änderst **genau zwei** davon,
-   alle anderen bleiben auf **None**:
+2. [ ] Auf **Generate API key** (API-Schlüssel generieren) klicken.
+3. [ ] Brevo will jetzt den Bestätigungscode mit 6 Ziffern (wohin er kommt,
+   steht unter „Bevor du anfängst“). Den Code eintippen und auf **Verify**
+   (Bestätigen) klicken. Kommt nichts: eine Minute warten, dann den Code
+   noch einmal anfordern.
+4. [ ] Bei **Key name** (Name) eintragen: `Webseite wirtschaft-dornbirn`
+5. [ ] Bei **Expiry** (Ablauf) **No expiration** (kein Ablaufdatum) wählen.
+6. [ ] Bei **Access** (Zugriff) **Restricted** (eingeschränkt) wählen.
+   Darunter steht bei **Permissions** (Rechte) eine Liste mit vielen Zeilen.
+   Du änderst **genau zwei** davon, alle anderen bleiben auf **None**:
 
 | In dieser Zeile | wählst du |
 | --- | --- |
 | **Transactional email** | **All** |
 | **Account** | **Read/write** |
 
-7. Den Schalter **MCP** (Create MCP server API key) nicht anrühren. Er bleibt
-   aus.
-8. Auf **Generieren** (Generate) klicken. Jetzt steht der Schlüssel da. Er
-   beginnt mit `xkeysib-`. Den ganzen Schlüssel **kopieren**.
-9. Brevo zeigt den Schlüssel nur dieses eine Mal. Das Fenster offen lassen
-   und gleich mit Schritt 2 weitermachen.
+7. [ ] Auf **Generate** (Generieren) klicken. Jetzt steht der Schlüssel da.
+   Er beginnt mit `xkeysib-`.
+8. [ ] Darunter ist der Schalter **Create MCP server API key**. Nicht
+   anrühren, er bleibt aus – sonst schaltet Brevo diesen Schlüssel ab.
+9. [ ] Den ganzen Schlüssel **kopieren**. Brevo zeigt ihn nur dieses eine
+   Mal. Das Fenster offen lassen, noch nicht auf **I've saved my key**
+   klicken, und gleich mit Schritt 2 weitermachen.
 
 **Den Schlüssel nie weitergeben** – nicht per Mail, Chat oder Foto, auch nicht
 an Jonas. Er gehört nur in die Wirt-Ansicht.
 
 ## Schritt 2 – Den Schlüssel in der Wirt-Ansicht prüfen lassen
 
-1. Die Wirt-Ansicht öffnen und unten auf **haus** tippen.
-2. Ganz nach unten scrollen und auf **Mailversand – euer Brevo-Konto**
+1. [ ] Die Wirt-Ansicht öffnen und unten auf **haus** tippen.
+2. [ ] Ganz nach unten scrollen und auf **Mailversand – euer Brevo-Konto**
    tippen. Der Kasten klappt auf. Steht der Punkt nicht da: die Wirt-Ansicht
    neu laden oder die App schließen und wieder öffnen.
 
 ![So sieht der Kasten aus. Die roten Nummern gehören zu den Punkten 3 bis 5.](bilder/mailversand/1-vorher.jpg)
 
-3. Bei **API-Schlüssel aus eurem Brevo-Konto** den Schlüssel einfügen.
-4. Bei **Testmails an** die Adresse eintragen, in die du gleich
+3. [ ] Bei **API-Schlüssel aus eurem Brevo-Konto** den Schlüssel einfügen.
+4. [ ] Bei **Testmails an** die Adresse eintragen, in die du gleich
    hineinschaust.
-5. Auf **Prüfen und Testmails schicken** drücken und ein paar Sekunden
+5. [ ] Auf **Prüfen und Testmails schicken** drücken und ein paar Sekunden
    warten.
 
 **Das siehst du jetzt:** eine Liste mit acht Zeilen und darunter den Knopf
 **Alle Testmails sind da – jetzt umstellen**. Bei den beiden Domains steht
-„eben vom Dienst bei Brevo erledigt“: Die Webseite beglaubigt dabei eure
-beiden Domains selbst bei Brevo – in Brevo musst du dafür nichts anklicken.
+„eben vom Dienst bei Brevo erledigt“ – oder nur „ist beglaubigt“, wenn das
+schon früher geschehen ist. Die Webseite beglaubigt dabei eure beiden
+Domains selbst bei Brevo – in Brevo musst du dafür nichts anklicken.
 Das Schlüsselfeld ist wieder leer; das ist richtig so.
 
 ![Alles bestanden. Den Knopf mit der 3 drückst du erst in Schritt 3.](bilder/mailversand/2-geprueft.jpg)
@@ -103,9 +113,9 @@ Versand hat sich nichts geändert.
 
 ## Schritt 3 – Testmails ansehen und umstellen
 
-1. Das Postfach öffnen, das du bei **Testmails an** eingetragen hast. Auch im
-   **Spam-Ordner** nachsehen.
-2. Dort sind **fünf Testmails**, Betreff „Testmail 1 von 5 – Absender …“ bis
+1. [ ] Das Postfach öffnen, das du bei **Testmails an** eingetragen hast.
+   Auch im **Spam-Ordner** nachsehen.
+2. [ ] Dort sind **fünf Testmails**, Betreff „Testmail 1 von 5 – Absender …“ bis
    „Testmail 5 von 5 – Absender …“. Bei jeder Mail nachsehen: Steht als
    **Absender genau die Adresse aus dem Betreff**? Dann abhaken:
 
@@ -115,10 +125,10 @@ Versand hat sich nichts geändert.
 - [ ] `tickets@eugen.family`
 - [ ] `uri@eugen.family`
 
-3. Alle fünf abgehakt? Dann in der Wirt-Ansicht auf **Alle Testmails sind da
-   – jetzt umstellen** drücken (die 3 im Bild oben).
-4. Zurück in Brevo: das Fenster mit dem Schlüssel schließen
-   (**I've saved my key**).
+3. [ ] Alle fünf abgehakt? Dann in der Wirt-Ansicht auf **Alle Testmails sind
+   da – jetzt umstellen** drücken (die 3 im Bild oben).
+4. [ ] Zurück in Brevo: auf **I've saved my key** (Schlüssel ist gespeichert)
+   klicken. Das Fenster mit dem Schlüssel schließt sich.
 
 **Das siehst du jetzt:** Oben im Kasten steht grün „Umgestellt: Seit … gehen
 alle Mails über euer Brevo-Konto …“ – mit allen fünf Adressen.
@@ -136,16 +146,16 @@ Brevo kann Zugriffe von unbekannten Geräten sperren. Die Webseite verschickt
 aber von wechselnden Adressen – eine Sperre würde den Versand eines Tages
 anhalten. Deshalb einmal ausschalten:
 
-1. Im Browser diese Adresse öffnen:
+1. [ ] Im Browser diese Adresse öffnen:
    [app.brevo.com/security/authorised_ips](https://app.brevo.com/security/authorised_ips).
-   Klappt der Link nicht: in Brevo unten links **Einstellungen** →
-   **Sicherheit** (Security) → **Autorisierte IPs** (Authorized IPs).
-2. Unter **Blockieren nicht autorisierter IP-Adressen** (Blocking
-   unauthorized IP addresses) die Zeile **API-Schlüssel** (API keys) suchen.
-3. Steht dort **Deaktiviert** (Deactivated): nichts tun, fertig.
-4. Steht dort **Aktiviert** (Activated): auf **Deaktivieren für API**
-   (Deactivate for API) klicken und dann auf **Blockierung deaktivieren**
-   (Deactivate blocking).
+   Klappt der Link nicht: in Brevo unten links **Einstellungen** (Settings)
+   → **Sicherheit** (Security) → **Autorisierte IPs** (Authorized IPs).
+2. [ ] Unter **Blocking unauthorized IP addresses** (Blockieren nicht
+   autorisierter IP-Adressen) die Zeile **API keys** (API-Schlüssel) suchen.
+3. [ ] Steht dort **Deactivated** (deaktiviert): nichts tun. Steht dort
+   **Activated** (aktiviert): auf **Deactivate for API** (für API
+   deaktivieren) klicken und dann auf **Deactivate blocking** (Blockierung
+   deaktivieren).
 
 **Wichtig für später:** Kommt 30 Tage lang keine neue Adresse dazu, schaltet
 Brevo diese Sperre von selbst ein und schickt eine Mail, dass eine
@@ -156,7 +166,8 @@ deaktivieren** (Deactivate the automatic IP blocking) wählen. Das ist normal.
 
 - [ ] In der Wirt-Ansicht ist der Kasten **Mailversand** grün und sagt
   „Umgestellt“.
-- [ ] In Brevo steht die IP-Sperre bei **API-Schlüssel** auf **Deaktiviert**.
+- [ ] In Brevo steht bei der IP-Sperre in der Zeile **API keys**
+  (API-Schlüssel) **Deactivated** (deaktiviert).
 - [ ] In der Gruppe kurz Bescheid geben: „Mailversand ist umgestellt.“
 
 Ab jetzt kommt jede Mail von ihrer eigenen Adresse:
@@ -187,14 +198,14 @@ bis 5).
 | Was rot dasteht | Was du tust |
 | --- | --- |
 | Versand im Konto noch nicht freigeschaltet | Brevo muss euer Konto erst freischalten. Die Vorlage unten an den Brevo-Support schicken. Die Antwort kommt meist in ein bis zwei Werktagen. |
-| … Der Schlüssel darf die Domain nicht beglaubigen | In Brevo beim Schlüssel auf die drei Punkte → **Edit API key**, Code eingeben, bei **Account** **Read/write** wählen und speichern. Dann den Schlüssel noch einmal einfügen. Hast du ihn nicht mehr: Schritt 1 noch einmal. |
+| … Der Schlüssel darf die Domain nicht beglaubigen | In Brevo beim Schlüssel auf die drei Punkte → **Edit API key**, Code eingeben, bei **Account** **Read/write** wählen und auf **Save changes** (speichern) klicken. Dann den Schlüssel noch einmal einfügen. Hast du ihn nicht mehr: Schritt 1 noch einmal. |
 | Dem Schlüssel fehlen Rechte | Wie in der Zeile darüber, aber bei **Transactional email** **All** und bei **Account** **Read/write** wählen. |
 | … Brevo findet noch nicht alle Einträge (fehlt: …) | In ein paar Stunden noch einmal prüfen. Bleibt es so: Markus fragen. Er vergleicht die genannten Einträge bei Hetzner mit denen in Brevo (Brevo → Domains → die Domain). |
 | … ist noch nicht beglaubigt | In einer Stunde noch einmal prüfen. |
-| … steht nicht in eurem Brevo-Konto | In Brevo unter **Domains** auf **Domain hinzufügen** (Add a domain) und die Domain eintragen. Die Einträge bei Hetzner stehen schon. |
+| … steht nicht in eurem Brevo-Konto | In Brevo unter **Einstellungen** → **Senders, Domains, IPs** (Absender, Domänen, IPs) → **Domains** auf **Add a domain** (Domain hinzufügen) klicken und die Domain eintragen. Die Einträge bei Hetzner stehen schon. |
 | Brevo kennt den Schlüssel nicht | Den Schlüssel noch einmal ganz kopieren und einfügen – oder Schritt 1 noch einmal. |
 | Das ist ein SMTP-Schlüssel | Falscher Schlüssel: Es braucht einen API-Schlüssel, wie in Schritt 1. |
-| Absender nicht angenommen | In Brevo unter **Absender, Domains, IPs** → **Absender** (Senders) → **Absender hinzufügen** (Add a sender) die genannte Adresse eintragen. |
+| Absender nicht angenommen | Sind die beiden Domain-Zeilen darüber grün: In Brevo unter **Einstellungen** → **Senders, Domains, IPs** (Absender, Domänen, IPs) → **Senders** (Absender) auf **Add a sender** (Absender hinzufügen) klicken und die genannte Adresse eintragen. Ist eine Domain-Zeile rot: zuerst deren Zeile in dieser Tabelle. |
 | IP-Sperre bei Brevo | Schritt 4 machen. |
 | Zu viele Versuche | Eine Stunde warten. |
 | Störung bei Brevo · Brevo bremst gerade · nicht erreichbar | Nichts ist kaputt. In ein paar Minuten noch einmal. |
@@ -230,6 +241,11 @@ sofort wieder der alte Weg. Später Schritt 2 und 3 noch einmal machen.
   Domains einrichten. An Kontakte oder Kampagnen kommt er nicht.
 - Die Wirt-Ansicht zeigt ihn nie wieder, nur seine letzten vier Zeichen. In
   keiner Sicherungsdatei steht er.
+- Nach Schritt 1 schickt Brevo eine Mail an die Adresse des Kontos, dass ein
+  Schlüssel erstellt wurde. Das ist richtig so.
+- Geht mit dem Schlüssel 90 Tage lang keine Mail hinaus, schaltet Brevo ihn
+  ab und warnt sieben Tage vorher per Mail. Kommt so eine Warnung: Schritt 1
+  bis 3 noch einmal.
 - **Schlüssel wechseln** (zum Beispiel, wenn er in falsche Hände geraten sein
   könnte): Schritt 1 bis 3 noch einmal. In der Wirt-Ansicht heißt der Knopf
   dann **Neuen Schlüssel prüfen**. Danach den alten Schlüssel in Brevo
