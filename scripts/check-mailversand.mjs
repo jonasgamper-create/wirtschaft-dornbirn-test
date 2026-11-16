@@ -20,7 +20,7 @@ import { registerHooks } from 'node:module';
 import { DatabaseSync } from 'node:sqlite';
 import { fileURLToPath } from 'node:url';
 import {
-  ABSENDER_NAME, HAUS_ABSENDER, HAUS_DOMAINS, TEST_ABSENDER, VERSUCHE_JE_STUNDE, absenderFuer, beglaubigeDomain, bewerteDomains,
+  ABSENDER_NAME, HAUS_ABSENDER, HAUS_DOMAINS, PRUEFUNG_GILT_MS, TEST_ABSENDER, VERSUCHE_JE_STUNDE, absenderFuer, beglaubigeDomain, bewerteDomains,
   deuteBrevo, dnsLuecken, gueltigeEinrichtung, istEndgueltig, kontoKurz, liesAdresse, liesSchluessel, pruefeVersand, pruefungGilt, schluesselEnde
 } from '../server/src/mailversand.mjs';
 import { TABELLEN } from '../server/src/sicherung.mjs';
@@ -677,6 +677,20 @@ const veranstalterIn = mail => {
   check('Schritt 1: erst Generate, dann der MCP-Schalter',
     schritte[0].indexOf('**Generate**') > 0 && schritte[0].indexOf('Create MCP server API key') > schritte[0].indexOf('**Generate**'));
   check('Bevor du anfängst: wohin Brevos Bestaetigungscode kommt', /Bestätigungscode/.test(abschnitt('## Bevor du anfängst')));
+  // Was die Anleitung ueber Wirt-Ansicht und Dienst sagt, stimmt mit dem Code
+  // ueberein (Durchsicht vom 16.11.2026) - aendert sich der Code, schlaegt das hier an.
+  const ansichtQuelle = await liesDatei('site/wirt-ansicht.mjs', 'utf8');
+  const bloecke = ansichtQuelle.slice(ansichtQuelle.indexOf('BLOECKE = ['), ansichtQuelle.indexOf('];', ansichtQuelle.indexOf('BLOECKE = [')));
+  const blockIds = [...bloecke.matchAll(/\{ id: '(\w+)'/g)].map(m => m[1]);
+  check('Anleitung: Mailversand steht fast am Ende des Reiters haus', blockIds.at(-1) === 'mailKasten'
+    && /Fast am Ende steht \*\*Mailversand – euer Brevo-Konto\*\*/.test(flach(anleitung)));
+  check('Anleitung: das Feld "Testmails an" ist leer und zeigt nur ein graues Beispiel',
+    /id="mailAn"[^>]*placeholder="z\. B\. /.test(seite) && /Das graue „z\. B\. …“ im Feld ist nur ein Beispiel/.test(flach(anleitung)));
+  check('Anleitung: im Postfach heissen alle Testmails wie der Absendername', flach(anleitung).includes(`„${ABSENDER_NAME}“`));
+  check('Anleitung: eine Pruefung gilt so lange, wie der Dienst sie gelten laesst',
+    PRUEFUNG_GILT_MS === 2 * 60 * 60 * 1000 && /Prüfung gilt zwei Stunden/.test(flach(anleitung)));
+  check('Anleitung: "Zurueck" loescht den Schluessel, danach geht es bei Schritt 1 weiter',
+    /aus dem Dienst gelöscht/.test(wirt) && /Schlüssel wird aus der Webseite gelöscht\. Später Schritt 1 bis 3/.test(flach(abschnitt('## Zurück zum alten Versand'))));
 }
 
 if (fehler) {
