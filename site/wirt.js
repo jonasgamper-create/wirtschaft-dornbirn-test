@@ -100,6 +100,13 @@ async function start() {
   // Erst der letzte bekannte Stand, dann der offene Draht. So steht sofort
   // etwas da, auch wenn der Draht eine Sekunde braucht.
   const erster = await holeStand(hausToken());
+  // Der gespeicherte Schluessel gilt nicht mehr - der Hausschluessel wurde
+  // geaendert (17.11.2026). Ohne das hier haengt die App endlos bei
+  // "verbinde neu", und eine Homescreen-App hat keine Adresszeile fuer den
+  // neuen Link. Also wieder anmelden lassen. Der alte Wert bleibt liegen, bis
+  // ein neuer angenommen ist: ein kurzer Aussetzer beim Ausrollen sperrt so
+  // niemanden dauerhaft aus.
+  if (erster?.grund === 'token') { zeigeAnmelden(); return; }
   if (erster?.stand) { stand = erster.stand; male(); }
 
   bleibVerbunden(hausToken() || 'offen', neuerStand => {
