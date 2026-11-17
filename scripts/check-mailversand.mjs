@@ -686,6 +686,12 @@ const veranstalterIn = mail => {
     reiter === 'heute · karte · warteliste · haus' && vorher.includes(`Reiter ${reiter}.`)
     && /<h2 id="anmeldeTitel">Dieses Gerät anmelden<\/h2>/.test(seite) && vorher.includes('„Dieses Gerät anmelden“')
     && /Link mit dem \*\*Hausschlüssel\*\*/.test(vorher) && vorher.includes('In dieses Feld gehört nicht der Brevo-Schlüssel'));
+  // Gilt ein gespeicherter Schluessel nicht mehr (Hausschluessel geaendert,
+  // 17.11.2026), zeigt die Wirt-Ansicht wieder „Dieses Gerät anmelden“ statt
+  // endlos „verbinde neu“ - sonst kaeme eine Homescreen-App nie mehr hinein.
+  check('Wirt-Ansicht: ein abgelehnter Schluessel fuehrt wieder zur Anmeldung',
+    /const erster = await holeStand\(hausToken\(\)\);[\s\S]{0,600}?if \(erster\?\.grund === 'token'\) \{ zeigeAnmelden\(\); return; \}/.test(wirt)
+    && /body\.ohne-schluessel #tagWahl,/.test(await liesDatei('site/wirt.css', 'utf8')));
   const mailversandQuelle = await liesDatei('server/src/mailversand.mjs', 'utf8');
   check('Schritt 1: „Nicht authentifiziert“ in Brevo ist richtig so, die Webseite beglaubigt in Schritt 2',
     /\$\{pfad\}\/authenticate`, \{ methode: 'PUT'/.test(mailversandQuelle)

@@ -623,6 +623,7 @@ main{padding-bottom:calc(var(--reiter-hoehe) + 34px + env(safe-area-inset-bottom
 body.ohne-schluessel #wirtBloecke,
 body.ohne-schluessel .reiter-leiste,
 body.ohne-schluessel .fuss,
+body.ohne-schluessel #tagWahl,
 body.ohne-schluessel #tagZeile{display:none}
 body.ohne-schluessel main{padding-bottom:64px}
 
