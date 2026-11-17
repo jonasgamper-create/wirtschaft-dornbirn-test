@@ -106,7 +106,10 @@ function markdownNachHtml(md) {
         else break;
       }
       const tag = geordnet ? 'ol' : 'ul';
-      aus.push(`<${tag}${geordnet && ab > 1 ? ` start="${ab}"` : ''}>` + items.map(t => {
+      // Nummerierte Punkte zum Abhaken (16.11.2026): "1. [ ] ..." behaelt die
+      // Nummer - Bilder und Text zeigen auf sie - und bekommt links ein Kaestchen.
+      const abhaken = geordnet && items.some(t => /^\[( |x)\]\s+/i.test(t));
+      aus.push(`<${tag}${abhaken ? ' class="abhaken"' : ''}${geordnet && ab > 1 ? ` start="${ab}"` : ''}>` + items.map(t => {
         const haken = t.match(/^\[( |x)\]\s+(.*)$/i);
         if (haken) return `<li class="haken"><span class="kasten${haken[1].toLowerCase() === 'x' ? ' voll' : ''}"></span>${inline(haken[2])}</li>`;
         return `<li>${inline(t)}</li>`;
@@ -148,6 +151,9 @@ const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>
   li.haken{list-style:none; margin-left:-5mm; padding-left:6.5mm; position:relative}
   li.haken .kasten{position:absolute; left:0; top:.9mm; width:3.4mm; height:3.4mm; border:1.2px solid var(--ink); border-radius:.6mm; background:#fff}
   li.haken .kasten.voll{background:var(--ink)}
+  ol.abhaken{padding-left:11.5mm}
+  ol.abhaken li.haken{list-style:decimal; margin-left:0; padding-left:0}
+  ol.abhaken li.haken .kasten{left:-11.5mm}
   del{text-decoration:line-through; text-decoration-thickness:1px; color:var(--leise)}
   figure{margin:3mm 0 5mm; break-inside:avoid; text-align:center}
   figure img{max-width:66mm; max-height:112mm; border:1px solid var(--linie); border-radius:2mm}

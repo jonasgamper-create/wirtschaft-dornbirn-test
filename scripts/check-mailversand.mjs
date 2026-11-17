@@ -20,7 +20,7 @@ import { registerHooks } from 'node:module';
 import { DatabaseSync } from 'node:sqlite';
 import { fileURLToPath } from 'node:url';
 import {
-  ABSENDER_NAME, HAUS_ABSENDER, HAUS_DOMAINS, TEST_ABSENDER, VERSUCHE_JE_STUNDE, absenderFuer, beglaubigeDomain, bewerteDomains,
+  ABSENDER_NAME, HAUS_ABSENDER, HAUS_DOMAINS, PRUEFUNG_GILT_MS, TEST_ABSENDER, VERSUCHE_JE_STUNDE, absenderFuer, beglaubigeDomain, bewerteDomains,
   deuteBrevo, dnsLuecken, gueltigeEinrichtung, istEndgueltig, kontoKurz, liesAdresse, liesSchluessel, pruefeVersand, pruefungGilt, schluesselEnde
 } from '../server/src/mailversand.mjs';
 import { TABELLEN } from '../server/src/sicherung.mjs';
@@ -633,16 +633,21 @@ const veranstalterIn = mail => {
     check(`Anleitung und Wirt-Ansicht nennen „${text}“ gleich`, flach(anleitung).includes(text) && ui.includes(text));
   }
   // Die Rechte des Schluessels: senden (Transactional email: All) und beglaubigen (Account: Read/write).
-  check('Anleitung nennt die Rechte des Schluessels', /\*\*Transactional email\*\* auf \*\*All\*\*/.test(anleitung)
-    && /\*\*Account\*\* auf\s+\*\*Read\/write\*\*/.test(anleitung));
+  check('Anleitung nennt die Rechte des Schluessels', /\| \*\*Transactional email\*\* \| \*\*All\*\* \|/.test(anleitung)
+    && /\| \*\*Account\*\* \| \*\*Read\/write\*\* \|/.test(anleitung));
+  // Die Links in Brevo sind belegt (Brevo-Doku und -Hilfe, 15.11.2026) - nicht verstuemmeln.
+  check('Anleitung verlinkt die Schluesselseite und die IP-Sperre in Brevo',
+    anleitung.includes('(https://app.brevo.com/settings/keys/api)') && anleitung.includes('(https://app.brevo.com/security/authorised_ips)'));
+  // Abschnitt einer Ueberschrift bis zur naechsten.
+  const abschnitt = titel => { const a = anleitung.indexOf(titel); if (a < 0) return ''; const b = anleitung.indexOf('\n## ', a + titel.length); return anleitung.slice(a, b < 0 ? undefined : b); };
   // Sarah klickt in Brevo nicht mehr "Authentifizieren" - das erledigt der Dienst.
-  const blick = anleitung.slice(anleitung.indexOf('## 7 Auf einen Blick'));
-  check('Auf einen Blick: kein Klick auf Authentifizieren mehr, der Dienst beglaubigt',
-    blick.length > 200 && !/Authentifizieren|Authenticate/.test(blick) && /Der Dienst beglaubigt/.test(flach(blick)));
-  check('Anleitung sagt beim Pruefen, dass der Dienst selbst beglaubigt', /beglaubigt er sie gleich selbst\s+bei Brevo/.test(anleitung));
-  // Jede Meldung der Wirt-Ansicht hat eine Zeile in "Wenn etwas nicht klappt" - und heisst dort gleich.
-  const von = anleitung.indexOf('## 5 Wenn etwas nicht klappt');
-  const tabelle = anleitung.slice(von, anleitung.indexOf('**Lieber selbst in Brevo beglaubigen?**', von));
+  const blick = abschnitt('## So läuft es ab');
+  check('So läuft es ab: kein Klick auf Authentifizieren, die Webseite beglaubigt',
+    blick.length > 200 && !/Authentifizieren|Authenticate/.test(blick) && /beglaubigt die Webseite eure Domains bei Brevo selbst/.test(flach(blick)));
+  check('Anleitung sagt beim Pruefen, dass die Webseite selbst beglaubigt', /Die Webseite beglaubigt dabei eure beiden Domains selbst bei Brevo/.test(flach(anleitung)));
+  // Jede Meldung der Wirt-Ansicht hat eine Zeile in "Wenn etwas rot ist" - und heisst dort gleich.
+  const von = anleitung.indexOf('## Wenn etwas rot ist');
+  const tabelle = von < 0 ? '' : anleitung.slice(von, anleitung.indexOf('**Vorlage für den Brevo-Support.**', von));
   const meldungen = {
     konto_nicht_freigeschaltet: 'Versand im Konto noch nicht freigeschaltet', darf_nicht_beglaubigen: 'Der Schlüssel darf die Domain nicht beglaubigen',
     dns_unvollstaendig: 'Brevo findet noch nicht alle Einträge', nicht_beglaubigt: 'ist noch nicht beglaubigt',
@@ -662,6 +667,30 @@ const veranstalterIn = mail => {
   // Die Bilder der Anleitung liegen im Repository.
   const bilder = [...anleitung.matchAll(/^!\[[^\]]*\]\(([^)]+)\)\s*$/gm)].map(m => m[1]);
   check('Anleitung hat ihre vier Bilder', bilder.length === 4 && bilder.every(b => existsSync(`docs/${b}`)));
+  // Jede Handlung in Schritt 1 bis 4 hat ein Kaestchen zum Abhaken (Jonas, 16.11.2026).
+  const schritte = [1, 2, 3, 4].map(n => abschnitt(`## Schritt ${n} `));
+  const punkte = schritte.flatMap(s => s.split('\n').filter(z => /^\d+\.\s/.test(z)));
+  check('Jede Handlung in Schritt 1 bis 4 hat ein Kaestchen',
+    schritte.every(s => s.length > 200) && punkte.length >= 20 && punkte.every(z => /^\d+\. \[ \] /.test(z)));
+  // Brevo-Hilfe vom 16.11.2026: Der MCP-Schalter steht erst neben dem fertigen
+  // Schluessel, und der Bestaetigungscode geht an die Anmeldeadresse des Kontos.
+  check('Schritt 1: erst Generate, dann der MCP-Schalter',
+    schritte[0].indexOf('**Generate**') > 0 && schritte[0].indexOf('Create MCP server API key') > schritte[0].indexOf('**Generate**'));
+  check('Bevor du anfängst: wohin Brevos Bestaetigungscode kommt', /Bestätigungscode/.test(abschnitt('## Bevor du anfängst')));
+  // Was die Anleitung ueber Wirt-Ansicht und Dienst sagt, stimmt mit dem Code
+  // ueberein (Durchsicht vom 16.11.2026) - aendert sich der Code, schlaegt das hier an.
+  const ansichtQuelle = await liesDatei('site/wirt-ansicht.mjs', 'utf8');
+  const bloecke = ansichtQuelle.slice(ansichtQuelle.indexOf('BLOECKE = ['), ansichtQuelle.indexOf('];', ansichtQuelle.indexOf('BLOECKE = [')));
+  const blockIds = [...bloecke.matchAll(/\{ id: '(\w+)'/g)].map(m => m[1]);
+  check('Anleitung: Mailversand steht fast am Ende des Reiters haus', blockIds.at(-1) === 'mailKasten'
+    && /Fast am Ende steht \*\*Mailversand – euer Brevo-Konto\*\*/.test(flach(anleitung)));
+  check('Anleitung: das Feld "Testmails an" ist leer und zeigt nur ein graues Beispiel',
+    /id="mailAn"[^>]*placeholder="z\. B\. /.test(seite) && /Das graue „z\. B\. …“ im Feld ist nur ein Beispiel/.test(flach(anleitung)));
+  check('Anleitung: im Postfach heissen alle Testmails wie der Absendername', flach(anleitung).includes(`„${ABSENDER_NAME}“`));
+  check('Anleitung: eine Pruefung gilt so lange, wie der Dienst sie gelten laesst',
+    PRUEFUNG_GILT_MS === 2 * 60 * 60 * 1000 && /Prüfung gilt zwei Stunden/.test(flach(anleitung)));
+  check('Anleitung: "Zurueck" loescht den Schluessel, danach geht es bei Schritt 1 weiter',
+    /aus dem Dienst gelöscht/.test(wirt) && /Schlüssel wird aus der Webseite gelöscht\. Später Schritt 1 bis 3/.test(flach(abschnitt('## Zurück zum alten Versand'))));
 }
 
 if (fehler) {
