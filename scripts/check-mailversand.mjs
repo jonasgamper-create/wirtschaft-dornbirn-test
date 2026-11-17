@@ -682,10 +682,10 @@ const veranstalterIn = mail => {
   // vorn - gekoppelt an Anmeldekasten, Reiterleiste und das Beglaubigen im Dienst.
   const vorher = flach(abschnitt('## Bevor du anfängst'));
   const reiter = [...seite.matchAll(/class="reiter-knopf" type="button" data-ziel="(\w+)"/g)].map(m => m[1]).join(' · ');
-  check('Bevor du anfängst: Wirt-Ansicht angemeldet (Reiter wie in der App), sonst Link mit Hausschluessel – nicht der Brevo-Schluessel',
+  check('Bevor du anfängst: Wirt-Ansicht angemeldet (Reiter wie in der App), sonst Passwort des Hauses – nicht der Brevo-Schluessel',
     reiter === 'heute · karte · warteliste · haus' && vorher.includes(`Reiter ${reiter}.`)
     && /<h2 id="anmeldeTitel">Dieses Gerät anmelden<\/h2>/.test(seite) && vorher.includes('„Dieses Gerät anmelden“')
-    && /Link mit dem \*\*Hausschlüssel\*\*/.test(vorher) && vorher.includes('In dieses Feld gehört nicht der Brevo-Schlüssel, und das alte Wort „Wirtschaft“ gilt seit August nicht mehr.'));
+    && /bei \*\*Schlüssel\*\* das \*\*Passwort des Hauses\*\*/.test(vorher) && vorher.includes('In dieses Feld gehört nicht der Brevo-Schlüssel.'));
   // Brevo schlaegt fuers Branding die Unteradresse „mail“ vor. Unter mail. laeuft
   // bei beiden Domains der Mailserver bei Hetzner (Ziel des MX, Markus) - wer das
   // Branding durchklickt, legt den Posteingang lahm. Steht in Schritt 1 und bei Fertig.
