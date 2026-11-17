@@ -1,13 +1,14 @@
 # Mailversand selbst umstellen · Anleitung für Sarah und Hannah
 
-Stand 16. November 2026. **Worum es geht:** Die Mails der Webseite – Bestätigungen für Gäste,
+Stand 17. November 2026. **Worum es geht:** Die Mails der Webseite – Bestätigungen für Gäste,
 Takeaway, Warteliste und der Tageszettel – kommen heute noch von einer
 privaten Adresse von Jonas. Darum landen sie oft im Spam. Nach dieser
 Anleitung kommen sie von euren eigenen Adressen, zum Beispiel
 `service@wirtschaft-dornbirn.at`.
 
 - **Wer:** eine von euch beiden – wer sich bei Brevo anmelden kann. Jonas
-  braucht ihr dafür nicht.
+  braucht ihr dafür nur, wenn euer Gerät in der Wirt-Ansicht noch nicht
+  angemeldet ist – dann schickt er den Link dafür.
 - **Dauer:** etwa 20 Minuten.
 - **Kosten:** keine.
 - **Risiko:** keines. Umgestellt wird erst ganz am Ende, nach einer Probe.
@@ -33,8 +34,11 @@ anklicken.
 - [ ] Du kommst an den **Bestätigungscode** von Brevo. Er kommt per Mail an
   die Adresse, mit der ihr euch bei Brevo anmeldet. Bekommt ihr schon beim
   Anmelden jedes Mal einen Code aufs Handy, kommt er auf demselben Weg.
-- [ ] Du hast ein Gerät, auf dem die **Wirt-Ansicht** läuft (Handy, Tablet
-  oder Laptop).
+- [ ] Auf deinem Gerät (Handy, Tablet oder Laptop) ist die **Wirt-Ansicht**
+  angemeldet: Unten stehen die Reiter heute · karte · warteliste · haus.
+  Steht dort stattdessen „Dieses Gerät anmelden“, brauchst du den Link mit
+  dem **Hausschlüssel** – den schickt dir Jonas. Einmal öffnen, dann bleibt
+  das Gerät angemeldet. In dieses Feld gehört nicht der Brevo-Schlüssel.
 - [ ] Du kannst in ein **Postfach** schauen, zum Beispiel
   `veranstaltungen@wirtschaft-dornbirn.at`. Dorthin gehen gleich fünf
   Testmails.
@@ -46,14 +50,18 @@ der Wirt-Ansicht ein – er muss nirgends sonst hin.
 ## Schritt 1 – In Brevo einen Schlüssel erzeugen
 
 Der Schlüssel ist eine lange Zeichenfolge. Mit ihm darf die Webseite über
-euer Brevo-Konto Mails verschicken. Er ist geheim wie ein Passwort. Auf
-dieser Seite zeigt Brevo die Knöpfe meist auf Englisch – die deutsche
-Übersetzung steht jeweils in Klammern.
+euer Brevo-Konto Mails verschicken. Er ist geheim wie ein Passwort. Brevo
+zeigt die Knöpfe je nach Einstellung deutsch oder englisch – hier steht
+jeweils beides.
+
+**Zeigt Brevo bei euren Domains „Nicht authentifiziert“?** Das ist richtig
+so. Dort nichts anklicken, auch nicht „Authentifizieren“ – das erledigt die
+Webseite in Schritt 2.
 
 1. [ ] Im Browser diese Adresse öffnen:
    [app.brevo.com/settings/keys/api](https://app.brevo.com/settings/keys/api).
    Fragt Brevo nach der Anmeldung: anmelden. Du landest auf der Seite
-   **API-Schlüssel & MCP** (API Keys & MCP). Klappt der Link nicht: in Brevo
+   **API- und MCP-Schlüssel** (API Keys & MCP). Klappt der Link nicht: in Brevo
    im Menü (am Laptop unten links) **Einstellungen** (Settings) →
    **SMTP & API** → **API-Schlüssel & MCP**.
 2. [ ] Auf **Generate API key** (API-Schlüssel generieren) klicken.
@@ -222,10 +230,10 @@ wissen“).
 | Dem Schlüssel fehlen Rechte | Wie in der Zeile darüber, aber bei **Transactional email** **All** und bei **Account** **Read/write** wählen. |
 | … Brevo findet noch nicht alle Einträge (fehlt: …) | In ein paar Stunden noch einmal prüfen. Bleibt es so: Markus fragen. Er vergleicht die genannten Einträge bei Hetzner mit denen in Brevo (Brevo → Domains → die Domain). |
 | … ist noch nicht beglaubigt | In einer Stunde noch einmal prüfen. |
-| … steht nicht in eurem Brevo-Konto | In Brevo unter **Einstellungen** → **Senders, Domains, IPs** (Absender, Domänen, IPs) → **Domains** auf **Add a domain** (Domain hinzufügen) klicken und die Domain eintragen. Die Einträge bei Hetzner stehen schon. |
+| … steht nicht in eurem Brevo-Konto | In Brevo unter **Einstellungen** → **Absender, Domains & dedizierte IPs** (Senders, Domains, IPs) → **Domains** auf **Eine neue Domäne hinzufügen** (Add a domain) klicken und die Domain eintragen. Die Einträge bei Hetzner stehen schon. |
 | Brevo kennt den Schlüssel nicht | Den Schlüssel noch einmal ganz kopieren und einfügen – oder Schritt 1 noch einmal. |
 | Das ist ein SMTP-Schlüssel | Falscher Schlüssel: Es braucht einen API-Schlüssel, wie in Schritt 1. |
-| Absender nicht angenommen | Sind die beiden Domain-Zeilen darüber grün: In Brevo unter **Einstellungen** → **Senders, Domains, IPs** (Absender, Domänen, IPs) → **Senders** (Absender) auf **Add a sender** (Absender hinzufügen) klicken und die genannte Adresse eintragen. Ist eine Domain-Zeile rot: zuerst deren Zeile in dieser Tabelle. |
+| Absender nicht angenommen | Sind die beiden Domain-Zeilen darüber grün: In Brevo unter **Einstellungen** → **Absender, Domains & dedizierte IPs** (Senders, Domains, IPs) → **Absender** (Senders) auf **Add a sender** (Absender hinzufügen) klicken und die genannte Adresse eintragen. Ist eine Domain-Zeile rot: zuerst deren Zeile in dieser Tabelle. |
 | IP-Sperre bei Brevo | Schritt 4 machen. |
 | Zu viele Versuche | Eine Stunde warten. |
 | Störung bei Brevo · Brevo bremst gerade · nicht erreichbar | Nichts ist kaputt. In ein paar Minuten noch einmal. |

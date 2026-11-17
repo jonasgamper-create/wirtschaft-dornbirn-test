@@ -677,6 +677,19 @@ const veranstalterIn = mail => {
   check('Schritt 1: erst Generate, dann der MCP-Schalter',
     schritte[0].indexOf('**Generate**') > 0 && schritte[0].indexOf('Create MCP server API key') > schritte[0].indexOf('**Generate**'));
   check('Bevor du anfängst: wohin Brevos Bestaetigungscode kommt', /Bestätigungscode/.test(abschnitt('## Bevor du anfängst')));
+  // Gruppe 17.11.2026: Sarah stand am Laptop vor „Dieses Gerät anmelden“ ohne
+  // Hausschluessel, und in Brevo vor „Nicht authentifiziert“. Beides steht jetzt
+  // vorn - gekoppelt an Anmeldekasten, Reiterleiste und das Beglaubigen im Dienst.
+  const vorher = flach(abschnitt('## Bevor du anfängst'));
+  const reiter = [...seite.matchAll(/class="reiter-knopf" type="button" data-ziel="(\w+)"/g)].map(m => m[1]).join(' · ');
+  check('Bevor du anfängst: Wirt-Ansicht angemeldet (Reiter wie in der App), sonst Link mit Hausschluessel – nicht der Brevo-Schluessel',
+    reiter === 'heute · karte · warteliste · haus' && vorher.includes(`Reiter ${reiter}.`)
+    && /<h2 id="anmeldeTitel">Dieses Gerät anmelden<\/h2>/.test(seite) && vorher.includes('„Dieses Gerät anmelden“')
+    && /Link mit dem \*\*Hausschlüssel\*\*/.test(vorher) && vorher.includes('In dieses Feld gehört nicht der Brevo-Schlüssel'));
+  const mailversandQuelle = await liesDatei('server/src/mailversand.mjs', 'utf8');
+  check('Schritt 1: „Nicht authentifiziert“ in Brevo ist richtig so, die Webseite beglaubigt in Schritt 2',
+    /\$\{pfad\}\/authenticate`, \{ methode: 'PUT'/.test(mailversandQuelle)
+    && /\*\*Zeigt Brevo bei euren Domains „Nicht authentifiziert“\?\*\* Das ist richtig so\. Dort nichts anklicken/.test(flach(schritte[0])));
   // Was die Anleitung ueber Wirt-Ansicht und Dienst sagt, stimmt mit dem Code
   // ueberein (Durchsicht vom 16.11.2026) - aendert sich der Code, schlaegt das hier an.
   const ansichtQuelle = await liesDatei('site/wirt-ansicht.mjs', 'utf8');
