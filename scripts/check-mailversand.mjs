@@ -682,10 +682,16 @@ const veranstalterIn = mail => {
   // vorn - gekoppelt an Anmeldekasten, Reiterleiste und das Beglaubigen im Dienst.
   const vorher = flach(abschnitt('## Bevor du anfängst'));
   const reiter = [...seite.matchAll(/class="reiter-knopf" type="button" data-ziel="(\w+)"/g)].map(m => m[1]).join(' · ');
-  check('Bevor du anfängst: Wirt-Ansicht angemeldet (Reiter wie in der App), sonst Link mit Hausschluessel – nicht der Brevo-Schluessel',
+  check('Bevor du anfängst: Wirt-Ansicht angemeldet (Reiter wie in der App), sonst Passwort des Hauses – nicht der Brevo-Schluessel',
     reiter === 'heute · karte · warteliste · haus' && vorher.includes(`Reiter ${reiter}.`)
     && /<h2 id="anmeldeTitel">Dieses Gerät anmelden<\/h2>/.test(seite) && vorher.includes('„Dieses Gerät anmelden“')
-    && /Link mit dem \*\*Hausschlüssel\*\*/.test(vorher) && vorher.includes('In dieses Feld gehört nicht der Brevo-Schlüssel'));
+    && /bei \*\*Schlüssel\*\* das \*\*Passwort des Hauses\*\*/.test(vorher) && vorher.includes('In dieses Feld gehört nicht der Brevo-Schlüssel.'));
+  // Brevo schlaegt fuers Branding die Unteradresse „mail“ vor. Unter mail. laeuft
+  // bei beiden Domains der Mailserver bei Hetzner (Ziel des MX, Markus) - wer das
+  // Branding durchklickt, legt den Posteingang lahm. Steht in Schritt 1 und bei Fertig.
+  check('Anleitung: „Nicht gebrandet“ bleibt, nie etwas mit „mail“ einrichten (Schritt 1 und Fertig)',
+    /\*\*„Nicht gebrandet“ bleibt so, auch später\.\*\* Dort nie etwas einrichten, vor allem nichts mit „mail“/.test(flach(schritte[0]))
+    && /„Nicht gebrandet“ bleibt – das ist richtig so/.test(flach(abschnitt('## Fertig'))));
   const mailversandQuelle = await liesDatei('server/src/mailversand.mjs', 'utf8');
   check('Schritt 1: „Nicht authentifiziert“ in Brevo ist richtig so, die Webseite beglaubigt in Schritt 2',
     /\$\{pfad\}\/authenticate`, \{ methode: 'PUT'/.test(mailversandQuelle)

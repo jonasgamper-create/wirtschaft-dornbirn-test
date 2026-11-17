@@ -7,8 +7,7 @@ Anleitung kommen sie von euren eigenen Adressen, zum Beispiel
 `service@wirtschaft-dornbirn.at`.
 
 - **Wer:** eine von euch beiden – wer sich bei Brevo anmelden kann. Jonas
-  braucht ihr dafür nur, wenn euer Gerät in der Wirt-Ansicht noch nicht
-  angemeldet ist – dann schickt er den Link dafür.
+  braucht ihr dafür nicht.
 - **Dauer:** etwa 20 Minuten.
 - **Kosten:** keine.
 - **Risiko:** keines. Umgestellt wird erst ganz am Ende, nach einer Probe.
@@ -36,9 +35,10 @@ anklicken.
   Anmelden jedes Mal einen Code aufs Handy, kommt er auf demselben Weg.
 - [ ] Auf deinem Gerät (Handy, Tablet oder Laptop) ist die **Wirt-Ansicht**
   angemeldet: Unten stehen die Reiter heute · karte · warteliste · haus.
-  Steht dort stattdessen „Dieses Gerät anmelden“, brauchst du den Link mit
-  dem **Hausschlüssel** – den schickt dir Jonas. Einmal öffnen, dann bleibt
-  das Gerät angemeldet. In dieses Feld gehört nicht der Brevo-Schlüssel.
+  Steht dort stattdessen „Dieses Gerät anmelden“: bei **Schlüssel** das
+  **Passwort des Hauses** für die Wirt-Ansicht eingeben (auf Groß- und
+  Kleinschreibung achten) und auf **Anmelden** drücken. Danach bleibt das
+  Gerät angemeldet. In dieses Feld gehört nicht der Brevo-Schlüssel.
 - [ ] Du kannst in ein **Postfach** schauen, zum Beispiel
   `veranstaltungen@wirtschaft-dornbirn.at`. Dorthin gehen gleich fünf
   Testmails.
@@ -57,6 +57,11 @@ jeweils beides.
 **Zeigt Brevo bei euren Domains „Nicht authentifiziert“?** Das ist richtig
 so. Dort nichts anklicken, auch nicht „Authentifizieren“ – das erledigt die
 Webseite in Schritt 2.
+
+**„Nicht gebrandet“ bleibt so, auch später.** Dort nie etwas einrichten, vor
+allem nichts mit „mail“: Unter diesem Namen läuft euer Mailserver bei
+Hetzner. Würde er auf Brevo umgeleitet, käme bei euch keine Post mehr an.
+Für den Versand braucht es kein Branding.
 
 1. [ ] Im Browser diese Adresse öffnen:
    [app.brevo.com/settings/keys/api](https://app.brevo.com/settings/keys/api).
@@ -191,6 +196,9 @@ deaktivieren** (Deactivate the automatic IP blocking) wählen. Das ist normal.
 
 - [ ] In der Wirt-Ansicht ist der Kasten **Mailversand** grün und sagt
   „Umgestellt“.
+- [ ] In Brevo unter **Absender, Domains & dedizierte IPs** → **Domains**
+  steht bei beiden Domains **Authentifiziert**. „Nicht gebrandet“ bleibt –
+  das ist richtig so (siehe Schritt 1).
 - [ ] In Brevo steht bei der IP-Sperre in der Zeile **API keys**
   (API-Schlüssel) **Deactivated** (deaktiviert).
 - [ ] Auf einem Gerät, das auch andere benutzen: in Brevo abmelden.
