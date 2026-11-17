@@ -58,6 +58,11 @@ jeweils beides.
 so. Dort nichts anklicken, auch nicht „Authentifizieren“ – das erledigt die
 Webseite in Schritt 2.
 
+**„Nicht gebrandet“ bleibt so, auch später.** Dort nie etwas einrichten, vor
+allem nichts mit „mail“: Unter diesem Namen läuft euer Mailserver bei
+Hetzner. Würde er auf Brevo umgeleitet, käme bei euch keine Post mehr an.
+Für den Versand braucht es kein Branding.
+
 1. [ ] Im Browser diese Adresse öffnen:
    [app.brevo.com/settings/keys/api](https://app.brevo.com/settings/keys/api).
    Fragt Brevo nach der Anmeldung: anmelden. Du landest auf der Seite
@@ -191,6 +196,9 @@ deaktivieren** (Deactivate the automatic IP blocking) wählen. Das ist normal.
 
 - [ ] In der Wirt-Ansicht ist der Kasten **Mailversand** grün und sagt
   „Umgestellt“.
+- [ ] In Brevo unter **Absender, Domains & dedizierte IPs** → **Domains**
+  steht bei beiden Domains **Authentifiziert**. „Nicht gebrandet“ bleibt –
+  das ist richtig so (siehe Schritt 1).
 - [ ] In Brevo steht bei der IP-Sperre in der Zeile **API keys**
   (API-Schlüssel) **Deactivated** (deaktiviert).
 - [ ] Auf einem Gerät, das auch andere benutzen: in Brevo abmelden.
