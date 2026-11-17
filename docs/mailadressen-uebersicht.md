@@ -1,6 +1,6 @@
 # Mailadressen der Webseite · Wer bekommt was, und was ihr jetzt tun müsst
 
-Stand 11. November 2026. Für Hannah, Sarah, Wolfgang und den Programmierer.
+Stand 17. November 2026. Für Hannah, Sarah, Wolfgang und den Programmierer.
 Dieses Blatt kommt von Jonas und erklärt alles selbst – ihr braucht nichts
 dazu. Alles darin ist im Code und im laufenden Betrieb nachgeprüft, nichts
 ist geraten.
@@ -101,7 +101,7 @@ zu tun.
 | **willkommen@wirtschaft-dornbirn.at** | **Die Adresse für Gäste.** Steht auf der Webseite. Wird der Hausabsender der automatischen Mails, die keinen eigenen Absender je Zweck haben (nach dem Umstellen in der Wirt-Ansicht) – antwortet ein Gast auf so eine Mail, landet es hier. Die Anfragen gehen seit 10.11.2026 an `uri@eugen.family` (siehe unten). | ja – liest der Service / das Büro täglich |
 | **veranstaltungen@wirtschaft-dornbirn.at** | **Die Adresse für die Technik** (so entschieden am 27.10.). Inhaberin der drei Konten (GitHub, Cloudflare, Brevo). Hierhin kommen Rechnungen (0 €), Warnungen und „Passwort zurücksetzen“ – und der Tageszettel. Kein Gast sieht sie. | **ja, gibt es schon** (liest Hannah) |
 | **buero@wirtschaft-dornbirn.at** *(entfällt)* | War als Adresse für den Mittag gedacht – nicht nötig: Tageszettel und Wochenbericht gehen an `veranstaltungen@`, jede Takeaway-Bestellung an `service@` (entschieden am 27.10.). | nein – nicht nötig |
-| **uri@eugen.family** | **Die Adresse von Emma & Eugen.** Bekommt seit 10.11.2026 alle Anfragen aus „Locations · Feste & Catering“ und „Agentur“ – „Antworten“ geht an den Gast. Steht als Veranstalter der Abende im Fuß der Seite. Soll künftig die Terminliste versenden. | ja – lesen Wolfgang und Hannah |
+| **uri@eugen.family** | **Die Adresse von Emma & Eugen.** Bekommt seit 10.11.2026 alle Anfragen aus „Locations · Feste & Catering“ und „Agentur“ – „Antworten“ geht an den Gast. Steht als Veranstalter der Abende im Fuß der Seite und bei „Lieber direkt?“ über beiden Anfrageformularen. Soll künftig die Terminliste versenden. | ja – lesen Wolfgang und Hannah |
 | die private Adresse von Jonas | **Die Adresse, die als Absender weg muss.** Als Empfänger ist sie seit 27.10.2026 ersetzt (die gewünschte Kopie des Tageszettels an Jonas ist vorbereitet, aber noch nicht eingeschaltet). Sie steht nur noch als **Absender** aller Mails – weil Jonas die Seite gebaut und getestet hat. | ja – wird ersetzt, sobald die Domains im Brevo-Konto des Hauses beglaubigt sind und dessen Schlüssel im Dienst liegt |
 
 **Warum eine fremde Adresse als Absender schadet:** Der Anbieter der privaten
@@ -169,7 +169,7 @@ Bestätigung einer Anfrage antwortet an `uri@eugen.family`.
 - **Der Gast** bekommt sofort *„Danke für eure Anfrage“* mit allen Angaben. Antwortet er darauf, landet es bei `uri@eugen.family`.
 - **Ihr** bekommt eine **Mail** *„Anfrage Feste: ‹Betreff›“* an **`uri@eugen.family`** (so entschieden am 03.11., eingestellt seit 10.11.2026). Das Besondere: Drückt ihr auf **„Antworten“, geht die Antwort direkt an den Gast** – ihr müsst seine Adresse nicht abtippen. Dazu Klingeln und die Anfrage im Reiter *haus → Anfragen* (dort „erledigt“ tippen).
 - Ist der Dienst einmal nicht erreichbar, öffnet das Formular stattdessen eine normale Mail an `uri@eugen.family` (seit 11.11.2026).
-- `willkommen@` bleibt die Kontaktadresse auf der Seite, auch in der Zeile „Lieber direkt?“ über den Formularen. Ob dort künftig `uri@eugen.family` stehen soll, ist noch eine offene Frage an Hannah.
+- `willkommen@` bleibt die Kontaktadresse auf der Seite (Fuß, Impressum, Datenschutz). In der Zeile „Lieber direkt?“ über den beiden Anfrageformularen steht `uri@eugen.family` (Hannahs Antwort vom 17.11.2026). Emma & Eugen ist keine eigene Firma, sondern gehört zur Wolfgang Preuß e.U.; so steht es auch auf der Datenschutzseite bei den Anfragen.
 
 ### … sich jemand für die Mittagskarte per Mail anmeldet
 
