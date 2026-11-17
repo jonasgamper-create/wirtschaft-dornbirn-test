@@ -38,7 +38,8 @@ anklicken.
   angemeldet: Unten stehen die Reiter heute · karte · warteliste · haus.
   Steht dort stattdessen „Dieses Gerät anmelden“, brauchst du den Link mit
   dem **Hausschlüssel** – den schickt dir Jonas. Einmal öffnen, dann bleibt
-  das Gerät angemeldet. In dieses Feld gehört nicht der Brevo-Schlüssel.
+  das Gerät angemeldet. In dieses Feld gehört nicht der Brevo-Schlüssel, und
+  das alte Wort „Wirtschaft“ gilt seit August nicht mehr.
 - [ ] Du kannst in ein **Postfach** schauen, zum Beispiel
   `veranstaltungen@wirtschaft-dornbirn.at`. Dorthin gehen gleich fünf
   Testmails.
